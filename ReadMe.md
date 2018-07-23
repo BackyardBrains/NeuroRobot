@@ -40,19 +40,19 @@ WARNING: ffmpeg version 3 DOES NOT WORK with PyAV, you must install the
 version 2 branch, (version 2.8.15 Feynman works perfectly). 
 https://www.ffmpeg.org/download.html#releases
 
-
+Before object tracking, you must download the necessary pretrained models,
+run DOWNLOAD_MODELS.py while on an active internet connection. This only
+has to be done once.
 
 RUNNING
 ----------------------------------------------
 'python3 DRIVE/anything-in-drive.py' will typically run any app.
 
+- Be sure to connect to the robot's wifi network before running any code
 - On ubuntu you MUST be root to use the keyboard package, non-root cannot read
 keyboard strokes (use sudo su -p) 
 - Q will stop most programs
 - Ctrl-C will stop anything
-- before object tracking, you must download the necessary pretrained models,
-run DOWNLOAD_MODELS.py while on an active internet connection. This only
-has to be done once
 - if theres nothing but a black screen from the video feed this means no valid
 frames have been read
 - if the car has gone AWOL run 'python3 DRIVE/STOP.py'
