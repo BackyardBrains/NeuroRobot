@@ -1,0 +1,37 @@
+- &beta_command
+  release_tracks: [BETA]
+
+  help_text:
+    brief: |
+      Show metadata for a Memorystore Redis region.
+    DESCRIPTION: |
+      Display all metadata associated with a Redis region given a valid
+      region name.
+
+      This command can fail for the following reasons:
+        * The region specified does not exist.
+        * The active account does not have permission to access the given
+          region.
+    EXAMPLES: |
+      The following command prints metadata for the region `us-central1`
+
+        $ gcloud alpha redis regions describe us-central1
+
+  arguments:
+    resource:
+      spec: !REF googlecloudsdk.command_lib.redis.resources:region_without_property
+      help_text: |
+        Arguments and flags that specify the Memorystore Redis region you
+        want to describe.
+
+  request: &request
+    api_version: v1beta1
+    collection: redis.projects.locations
+
+
+- <<: *beta_command
+  release_tracks: [ALPHA]
+
+  request:
+    <<: *request
+    api_version: v1alpha1

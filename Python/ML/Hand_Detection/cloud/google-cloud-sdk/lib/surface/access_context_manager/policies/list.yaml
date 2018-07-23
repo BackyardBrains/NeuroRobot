@@ -1,0 +1,21 @@
+- help_text:
+    brief: List access policies.
+    DESCRIPTION: List access policies.
+
+  request:
+    collection: accesscontextmanager.accessPolicies
+    resource_method_params:
+        parent: ''
+
+  arguments:
+    resource:
+      help_text: The parent organization of the policies you want to list.
+      spec: !REF googlecloudsdk.command_lib.organizations.resources:organization
+
+  output:
+      format: |
+          table(
+              name.basename(),
+              parent.basename():label=ORGANIZATION,
+              title
+          )

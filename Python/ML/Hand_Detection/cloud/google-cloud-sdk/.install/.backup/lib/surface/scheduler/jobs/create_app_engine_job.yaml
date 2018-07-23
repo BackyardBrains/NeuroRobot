@@ -1,0 +1,75 @@
+- help_text:
+    brief: Create a Cloud Scheduler job with an App Engine target.
+    DESCRIPTION: Create a Cloud Scheduler job with an App Engine target.
+
+  request:
+    collection: cloudscheduler.projects.locations.jobs
+    method: create
+    modify_request_hooks:
+      - googlecloudsdk.command_lib.scheduler.util:ModifyCreateJobRequest
+
+  arguments:
+    resource:
+      help_text: The job to create.
+      spec: !REF googlecloudsdk.command_lib.scheduler.resources:job
+      removed_flags: [location]
+    params:
+      - _COMMON_args
+      - _COMMON_retry_args
+      - api_field: job.appEngineHttpTarget.relativeUrl
+        arg_name: relative-url
+        default: /
+        type: googlecloudsdk.calliope.arg_parsers:RegexpValidator:pattern=^/.*,description=Must begin with [/].)
+        help_text: |
+          String, relative URL to use for the request (beginning with "/").
+      - api_field: job.appEngineHttpTarget.httpMethod
+        arg_name: http-method
+        default: post
+        choices:
+          - arg_value: post
+            enum_value: POST
+          - arg_value: head
+            enum_value: HEAD
+          - arg_value: get
+            enum_value: GET
+          - arg_value: put
+            enum_value: PUT
+          - arg_value: delete
+            enum_value: DELETE
+        help_text: |
+          HTTP method to use for the request.
+      - api_field: job.appEngineHttpTarget.appEngineRouting.version
+        arg_name: version
+        help_text: |
+          String, ID of the App Engine version to which to send the request.
+      - api_field: job.appEngineHttpTarget.appEngineRouting.service
+        arg_name: service
+        help_text: |
+          String, ID of the App Engine service to which to send the request.
+      - api_field: job.appEngineHttpTarget.headers
+        # TODO(b/77847976): make this an arg_dict flag with "flatten: true"
+        arg_name: header
+        type: googlecloudsdk.command_lib.scheduler.util:HeaderType
+        action: googlecloudsdk.calliope.arg_parsers:UpdateAction
+        processor: "googlecloudsdk.command_lib.scheduler.util:GetHeaderProcessor:message_type=AppEngineHttpTarget"
+        help_text: |
+          "KEY: VALUE" pair, HTTP header to include in the request. *May be
+          repeated*. Example:
+          `--header 'Accept-Language: en-us' --header 'Accept: text/plain'`
+      - group:
+          mutex: true
+          params:
+            - api_field: job.appEngineHttpTarget.body
+              arg_name: message-body
+              help_text: |
+                String, a data payload to be included as the body of the HTTP
+                request. May only be given with compatible HTTP methods (PUT
+                or POST).
+
+            - api_field: job.appEngineHttpTarget.body
+              arg_name: message-body-from-file
+              type: "googlecloudsdk.calliope.arg_parsers:BufferedFileInput:binary=True"
+              help_text: |
+                String, a data payload to be included as the body of the HTTP
+                request. May only be given with compatible HTTP methods (PUT
+                or POST).

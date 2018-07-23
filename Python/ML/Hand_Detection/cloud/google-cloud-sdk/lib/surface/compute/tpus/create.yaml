@@ -1,0 +1,84 @@
+- release_tracks: [ALPHA]
+
+  help_text:
+    brief: Create a new Cloud TPU.
+    DESCRIPTION: Create a new Cloud TPU.
+    EXAMPLES: |
+      The following command creates a TPU with ID `my-tpu` and CIDR range
+      `10.240.0.0/29` in the default user project, network and compute/region
+      (with other defaults supplied by API):
+
+        $ {command}  my-tpu --range 10.240.0.0/29
+
+
+      The following command creates a TPU with ID `my-tpu` with explicit values
+      for all required and optional parameters:
+
+        $ {command} my-tpu \
+            --zone us-central1-a \
+            --range '10.240.0.0/29' \
+            --accelerator-type 'v2-8' \
+            --network my-tf-network \
+            --description 'My TF Node' \
+            --version '1.1'
+
+  request:
+    collection: tpu.projects.locations.nodes
+    api_version: v1alpha1
+    resource_method_params:
+      nodeId: nodesId
+    use_relative_name: false
+    modify_request_hooks:
+      - googlecloudsdk.command_lib.util.hooks.request_modifiers:SetParentRequestHook
+
+  async:
+    collection: tpu.projects.locations.operations
+    result_attribute: response
+    extract_resource_result: false
+
+  arguments:
+    resource:
+      help_text: The Cloud TPU you want to create.
+      spec: !REF googlecloudsdk.command_lib.compute.tpus.resources:tpu
+
+    params:
+      - api_field: node.acceleratorType
+        arg_name: accelerator-type
+        required: false
+        help_text: |
+          TPU accelerator type for the TPU.
+          If not specified, this defaults to `v2-8`.
+
+          For a list of available accelerator types run:
+
+          `{parent_command} accelerator-types list`
+        type: googlecloudsdk.command_lib.util.hooks.types:LowerCaseType
+        default: 'v2-8'
+      - api_field: node.description
+        arg_name: description
+        required: false
+        help_text: |
+          Specifies a text description of the TPU.
+      - api_field: node.network
+        arg_name: network
+        required: true
+        help_text: |
+          Specifies the network that this TPU will be a part of.
+      - api_field: node.tensorflowVersion
+        arg_name: version
+        required: true
+        help_text: |
+          TensorFlow version for the TPU, such as `1.6`. For a list of available
+          TensorFlow versions please see https://www.tensorflow.org/versions/.
+      - api_field: node.cidrBlock
+        arg_name: range
+        required: true
+        help_text: |
+          CIDR Range for the TPU.
+
+          The IP range that the TPU will select an IP address from.
+          Must be in CIDR notation and a `/29` range, for example
+          `192.168.0.0/29`. Errors will occur if the CIDR range has already been
+          used for a currently existing TPU, the CIDR range conflicts with any
+          networks in the user's provided network, or the provided network is
+          peered with another network that is using that CIDR range.

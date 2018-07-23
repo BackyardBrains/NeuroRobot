@@ -1,0 +1,27 @@
+- release_tracks: [ALPHA]
+  is_hidden: true
+
+  help_text:
+    brief: Get the IAM policy for a Google Compute Engine instance.
+    DESCRIPTION: |
+            *{command}* displays the IAM policy associated with a Google
+            Compute Engine instance in a project. If formatted as JSON,
+            the output can be edited and used as a policy file for
+            set-iam-policy. The output includes an "etag" field
+            identifying the version emitted and allowing detection of
+            concurrent policy updates; see
+            $ {parent} set-iam-policy for additional details.
+    EXAMPLES: |
+            To print the IAM policy for a given instance, run:
+
+              $ {command} --zone=my-zone my-instance
+
+  request:
+    collection: compute.instances
+    api_version: alpha
+    use_relative_name: false
+
+  arguments:
+    resource:
+      help_text: The instance for which to display the IAM policy.
+      spec: !REF googlecloudsdk.command_lib.compute.resources:instance

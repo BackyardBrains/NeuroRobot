@@ -1,0 +1,14 @@
+- help_text:
+    brief: Get default taxonomy store
+    DESCRIPTION: |
+      Get default taxonomy store
+
+  request:
+    collection: categorymanager.organizations
+    method: getTaxonomyStore
+
+  arguments:
+    resource:
+      help_text: The taxonomy stores' organization.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:organization
+      is_positional: false

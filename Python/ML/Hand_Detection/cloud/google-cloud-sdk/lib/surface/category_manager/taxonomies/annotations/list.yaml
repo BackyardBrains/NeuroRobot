@@ -1,0 +1,18 @@
+- help_text:
+
+    brief: List all the annotations of a taxonomy.
+    DESCRIPTION: List all the annotations of a taxonomy.
+
+  request:
+    collection: categorymanager.projects.taxonomies.annotations
+
+  arguments:
+    resource:
+      help_text: A taxonomy resource reference.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:project_scoped_taxonomy
+
+  output:
+    # TODO(b/74208551): Enhance formatting to support a tree-like display of annotations.
+    format: |
+      table(name.basename():label=ID, displayName, parentAnnotationId,
+            childAnnotationIds.list(), description)

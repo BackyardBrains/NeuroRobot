@@ -1,0 +1,25 @@
+- release_tracks: [ALPHA]
+  is_hidden: true
+
+  help_text:
+    brief: Resets a Cloud TPU.
+    DESCRIPTION: Resets a Cloud TPU, which stops and starts the underlying VM.
+
+  request:
+    collection: tpu.projects.locations.nodes
+    api_version: v1alpha1
+    method: reset
+
+  async:
+    collection: tpu.projects.locations.operations
+    api_version: v1alpha1
+    extract_resource_result: false
+
+  arguments:
+    resource:
+      help_text: The Cloud TPU you want to reset.
+      spec: !REF googlecloudsdk.command_lib.compute.tpus.resources:tpu
+
+  input:
+   confirmation_prompt: |
+     You are about to reset tpu [{__name__}].

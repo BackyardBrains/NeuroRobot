@@ -1,0 +1,11 @@
+- help_text:
+    brief: Show details about a service perimeter.
+    DESCRIPTION: Show details about an service perimeter in a given access policy.
+
+  request:
+    collection: accesscontextmanager.accessPolicies.accessZones
+
+  arguments:
+    resource:
+      help_text: The service perimeter you want to show details about.
+      spec: !REF googlecloudsdk.command_lib.accesscontextmanager.resources:perimeter

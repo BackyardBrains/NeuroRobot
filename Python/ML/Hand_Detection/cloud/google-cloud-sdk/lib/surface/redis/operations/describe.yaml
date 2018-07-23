@@ -1,0 +1,38 @@
+- &beta_command
+  release_tracks: [BETA]
+
+  help_text:
+    brief: |
+      Show metadata for a Memorystore Redis operation.
+    DESCRIPTION: |
+      Display all metadata associated with a Redis operation given a valid
+      operation name.
+
+      This command can fail for the following reasons:
+      * The operation specified does not exist.
+      * The active account does not have permission to access the given
+        operation.
+    EXAMPLES: |
+      The following command prints metadata for an operation with the name
+      in your default region:
+
+        $ {command} operation-1484002552235-425b144f8c3f8-81aa4b49-0830d1e9
+
+  arguments:
+    resource:
+      spec: !REF googlecloudsdk.command_lib.redis.resources:operation
+      help_text: |
+        Arguments and flags that specify the Memorystore Redis operation you
+        want to describe.
+
+  request: &request
+    api_version: v1beta1
+    collection: redis.projects.locations.operations
+
+
+- <<: *beta_command
+  release_tracks: [ALPHA]
+
+  request:
+    <<: *request
+    api_version: v1alpha1

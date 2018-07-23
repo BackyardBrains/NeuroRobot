@@ -1,0 +1,13 @@
+- help_text:
+    brief: Delete a taxonomy and all of its annotations.
+    DESCRIPTION: |
+      Delete a taxonomy and all of its annotations. By default the taxonomy is deleted for the
+      current project but this can be overridden with the --project flag.
+
+  request:
+    collection: categorymanager.projects.taxonomies
+
+  arguments:
+    resource:
+      help_text: The taxonomy you want to delete.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:project_scoped_taxonomy

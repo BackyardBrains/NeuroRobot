@@ -1,0 +1,40 @@
+- &beta_command
+  release_tracks: [BETA]
+
+  help_text:
+    brief: |
+      Show metadata for a Memorystore Redis instance.
+    DESCRIPTION: |
+      Show metadata for a Memorystore Redis instance.
+
+      Displays all metadata associated with a Redis instance given a valid
+      instance name.
+
+      This command can fail for the following reasons:
+        * The instance specified does not exist.
+        * The active account does not have permission to access the given
+          instance.
+    EXAMPLES: |
+      The following command prints metadata for an instance with the name
+      `my-redis-instance` in your default region:
+
+        $ {command} my-redis-instance
+
+  arguments:
+    resource:
+      spec: !REF googlecloudsdk.command_lib.redis.resources:instance
+      help_text: |
+        Arguments and flags that specify the Memorystore Redis instance you want
+        to describe.
+
+  request: &request
+    api_version: v1beta1
+    collection: redis.projects.locations.instances
+
+
+- <<: *beta_command
+  release_tracks: [ALPHA]
+
+  request:
+    <<: *request
+    api_version: v1alpha1

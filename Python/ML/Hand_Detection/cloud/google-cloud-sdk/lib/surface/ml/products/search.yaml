@@ -1,0 +1,61 @@
+- release_tracks: [ALPHA]
+
+  help_text:
+    brief: Search a product catalog for a matching image.
+    DESCRIPTION: |
+     Query a product catalog with a provided images comparing the
+     product in the image with the reference images in the catalog. Returns a
+     ranked list of visually and semantically similar results.
+
+
+  request:
+    collection: alpha_vision.images
+    method: annotate
+    api_version: v1
+    static_fields:
+      requests.features.type: PRODUCT_SEARCH
+      requests.imageContext.productSearchParams.view: FULL
+
+  response:
+    error:
+      field: responses.error
+      code: code
+      message: message
+
+  arguments:
+    params:
+      - api_field: requests.image
+        arg_name: image_path
+        is_positional: true
+        help_text: >
+          The path to the image to be searched for. This can be either a local
+          path or a URL. If you provide a local file, the contents will be sent
+          directly to Google Cloud Vision. If you provide a URL, it must be in
+          Google Cloud Storage format (gs://bucket/object) or an HTTP URL
+          (http://... or https://...)
+        processor: googlecloudsdk.command_lib.ml.products.util:GetImageFromPath
+
+      - api_field: requests.imageContext.productSearchParams.productCategory
+        arg_name: category
+        help_text: String specifying the product category to search in.
+
+      - api_field: requests.imageContext.productSearchParams.normalizedBoundingPoly.vertices
+        arg_name: bounds
+        metavar: 'x:y'
+        type: googlecloudsdk.command_lib.ml.products.flags:VertexType
+        help_text: >
+          A set of vertices defining the bounding polygon around the area of
+          interest in the image. Should be a list of integer pairs, separated by
+          commas specifying the vertices (e.g. [x1:y2, x2:y2,x3:y3...xn:yn]).
+          Defaults to full image if empty. If  `category` is specified without
+          `bounds`, the inferred bounding polygon is the entire image.
+      # For ALPHA, Not using resources arg here because catalog and reference
+      # images resources actually live in different API version.
+      - api_field: requests.imageContext.productSearchParams.catalogName
+        arg_name: catalog
+        required: true
+        type: googlecloudsdk.command_lib.ml.products.flags:CatalogNameType
+        help_text: The ID of the catalog to search in.
+
+  output:
+    format: json

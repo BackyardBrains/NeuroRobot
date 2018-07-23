@@ -1,0 +1,18 @@
+- help_text:
+    brief: List service perimeters.
+    DESCRIPTION: List all service access zones in an access policy object.
+
+  request:
+    collection: accesscontextmanager.accessPolicies.accessZones
+
+  arguments:
+    resource:
+      help_text: The access policy you want to list the service perimeters for.
+      spec: !REF googlecloudsdk.command_lib.accesscontextmanager.resources:policy
+
+  output:
+      format: |
+          table(
+              name.basename(),
+              title
+          )

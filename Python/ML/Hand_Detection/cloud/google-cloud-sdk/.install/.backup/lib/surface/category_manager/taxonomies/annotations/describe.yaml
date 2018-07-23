@@ -1,0 +1,12 @@
+- help_text:
+    brief: Get the details of an annotation.
+    DESCRIPTION: |
+      Displays a view of all the fields and values of an annotation.
+
+  request:
+    collection: categorymanager.projects.taxonomies.annotations
+
+  arguments:
+    resource:
+      help_text: The annotation reference of the annotation to describe.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:project_scoped_annotation

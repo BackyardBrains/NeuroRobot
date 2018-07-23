@@ -1,0 +1,33 @@
+- release_tracks: [ALPHA]
+
+  help_text:
+    brief: List Cloud TPUs
+    DESCRIPTION: List Cloud TPUs
+
+  request:
+    collection: tpu.projects.locations.nodes
+    api_version: v1alpha1
+
+  response:
+    id_field: name
+
+  arguments:
+    resource:
+      help_text: |
+        The compute/zone of the Cloud TPU.
+
+        If not specified, will use `default` compute/zone.
+      spec: !REF googlecloudsdk.command_lib.compute.tpus.resources:location
+      is_positional: false
+
+  output:
+    format: |
+      table(
+      name.basename(),
+      name.segment(-3):label=ZONE,
+      acceleratorType.basename():label=ACCELERATOR_TYPE,
+      networkEndpoints.map().extract(ipAddress,port).map().join(':').join(','):label=NETWORK_ENDPOINTS,
+      network.basename():label=NETWORK,
+      cidrBlock:label=RANGE,
+      state:label=STATUS
+      )

@@ -1,0 +1,12 @@
+- help_text:
+    brief: Delete an annotation and all of its child annotations.
+    DESCRIPTION: |
+      Delete an annotation and all of its child annotations.
+
+  request:
+    collection: categorymanager.projects.taxonomies.annotations
+
+  arguments:
+    resource:
+      help_text: The annotation you want to delete.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:project_scoped_annotation

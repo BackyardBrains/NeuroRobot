@@ -1,0 +1,14 @@
+- help_text:
+    brief: Delete a service perimeter.
+    DESCRIPTION: Delete a service perimeter in a given access policy.
+
+  request:
+    collection: accesscontextmanager.accessPolicies.accessZones
+
+  async:
+    collection: accesscontextmanager.operations
+
+  arguments:
+    resource:
+      help_text: The service perimeter you want to delete.
+      spec: !REF googlecloudsdk.command_lib.accesscontextmanager.resources:perimeter

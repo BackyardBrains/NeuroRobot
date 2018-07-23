@@ -1,0 +1,11 @@
+- help_text:
+    brief: Show details about an access policy.
+    DESCRIPTION: Show details about a given access policy.
+
+  request:
+    collection: accesscontextmanager.accessPolicies
+
+  arguments:
+    resource:
+      help_text: The access level you want to show details about.
+      spec: !REF googlecloudsdk.command_lib.accesscontextmanager.resources:policy

@@ -1,0 +1,15 @@
+- help_text:
+    brief: List taxonomies.
+    DESCRIPTION: List taxonomies for a project.
+
+  request:
+    collection: categorymanager.projects.taxonomies
+
+  arguments:
+    resource:
+      help_text: Lists contents of the taxonomy store.
+      spec: !REF googlecloudsdk.command_lib.category_manager.resources:project
+
+  output:
+    format: |
+      table(displayName, name, description)
