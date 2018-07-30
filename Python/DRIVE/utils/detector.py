@@ -5,7 +5,7 @@ import numpy as np
 class Detector(object):
     def __init__(self, model_type, color=None):
         self.model_type = model_type
-        if model_type != "color":
+        if model_type != "color": # if detector is for an object, create model
             from .modeler import Modeler
             self.model = Modeler(model_type).createModel()
             
@@ -44,8 +44,8 @@ class Detector(object):
             
 
     def imageSplitter(self, img, x, y):
-        split = np.empty((y, x), dtype=np.ndarray)
-        xStep, yStep = len(img[0])//(x+1), len(img)//(y+1)
+        split = np.empty((y, x), dtype=np.ndarray) # initialise return array
+        xStep, yStep = len(img[0])//(x+1), len(img)//(y+1) # calculate slice widths
         for i in range(x):
             for j in range(y):
                 # cut image into 50% overlap snippets

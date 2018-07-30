@@ -22,8 +22,8 @@ class Player(object):
         r4 = requests.get( # set gop
             "http://192.168.100.1/server.command?command=set_gop&type=h264&pipe=0&value=" + str(gop), auth=("admin", "admin"))
 
-        (width, height) = [(320,240),(640,480),(1280,720)][res]
-        self.current_image = np.zeros((height,width,3), np.uint8)
+        (width, height) = [(320,240),(640,480),(1280,720)][res] # select corresponding dimensions
+        self.current_image = np.zeros((height,width,3), np.uint8) # initialise to black screen
         self.kill_thread = False
         self.t = threading.Thread(target=self.frameGrabber) # start thread for recieving video
         self.t.start()

@@ -35,16 +35,16 @@ frame = plr.read()
 cv2.imshow('frame', frame)
 count = 0
 
-
 while True:
     count += 1
     if count > 30:
-        drv.getDistance()
+        drv.keepAwake()
 
     frame = plr.read()
     if color:
+        # p = size of contour, 0,1,2 is where in the screen its center is
         p0, p1, p2 = det.predict(frame)
-        if max(p0,p1,p2) > 100:
+        if max(p0,p1,p2) > 100: # if contour size is greater than 100 pixels squared
                 if p2 > p1:
                     drv.right()
                     time.sleep(0.1)
@@ -58,14 +58,15 @@ while True:
                     count = 0
 
                 else:
-                    count = 0
                     drv.forward()
+                    count = 0
 
                 time.sleep(0.1)
         else:
             drv.stop()
 
     else:
+        # set click event for mouse to gather colour information
         cv2.setMouseCallback('frame', on_mouse_click, frame)
         cv2.imshow('frame', frame)
 

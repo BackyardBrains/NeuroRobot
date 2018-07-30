@@ -15,12 +15,12 @@ while True:
     print(p0, "|", p1, "|", p2)
     print("------------")
 
-    # if a hand is likely >50% on screen, engage movement
+    # if a cup is likely >50% on screen, engage movement
     if max(p0, p1, p2) > 0.5:
         if p2 > p1 and p2 > p0:
-            drv.left()
-        elif p0 > p1 and p0 > p2:
             drv.right()
+        elif p0 > p1 and p0 > p2:
+            drv.left()
         else:
             drv.forward()
 

@@ -20,11 +20,11 @@ while True:
     # if a hand is likely >50% on screen, engage movement
     if max(p0, p1, p2) > 0.5:
         if p2 > p1 and p2 > p0:
-            drv.left()
+            drv.right()
             time.sleep(0.1)
             drv.stop()
         elif p0 > p1 and p0 > p2:
-            drv.right()
+            drv.left()
             time.sleep(0.1)
             drv.stop()
         else:

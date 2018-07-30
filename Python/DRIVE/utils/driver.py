@@ -14,8 +14,7 @@ class Driver(object):
         self.clock = time.time()
         self.last_distance = 9999
 
-        time.sleep(0.1)
-        self.s.sendall(self.textToMessage("minspeed"))
+        # lower speeds for better handling, this can be removed
         time.sleep(0.1)
         self.s.sendall(self.textToMessage("minspeed"))
         time.sleep(0.1)
@@ -23,27 +22,31 @@ class Driver(object):
         time.sleep(0.1)
         self.s.sendall(self.textToMessage("minturns"))
 
-    def checkClock(self): # make sure were not overloading TCP
+    def checkClock(self, delay=99): # make sure were not overloading TCP
         curr_time = time.time()
-        # print(curr_time - self.clock)
-        if curr_time - self.clock >= self.delay:
+        if curr_time - self.clock >= self.delay or curr_time - self.clock >= delay:
             self.clock = curr_time
             return True
         else:
             return False
 
+
     # helper function, convert string to bytes packet to send to RAK
     def textToMessage(self, text):
         # packet must be padded with [0x01,0x55] to be accepted by RAK
         return bytes([0x01,0x55]) + bytes(text, "utf-8")
+        
+    def keepAwake(self):
+        if self.checkClock():
+            self.s.send(self.textToMessage("penguins")) # nonsense
     
     def left(self, iterations=1):
         if self.checkClock():
-            self.s.send(self.textToMessage("turnleft"))
+            self.s.send(self.textToMessage("turnleft")) # swapped
 
     def right(self, iterations=1):
         if self.checkClock():
-            self.s.send(self.textToMessage("turnrite"))
+            self.s.send(self.textToMessage("turnrite")) # swapped
 
     def forward(self, iterations=1):
         if self.checkClock():
@@ -57,31 +60,31 @@ class Driver(object):
         if self.checkClock():
             self.s.send(self.textToMessage("stopmove"))
 
-    def lowerSpeed(self, iterations=1):
+    def lowerSpeed(self, iterations=1): # lower forward speed
         if self.checkClock():
             self.s.send(self.textToMessage("minspeed"))
 
-    def raiseSpeed(self, iterations=1):
+    def raiseSpeed(self, iterations=1): # raise forward speed
         if self.checkClock():
             self.s.send(self.textToMessage("maxspeed"))
 
-    def lowerTurn(self, iterations=1):
+    def lowerTurn(self, iterations=1): # lower rotational speed
         if self.checkClock():
             self.s.send(self.textToMessage("minturns"))
 
-    def raiseTurn(self, iterations=1):
+    def raiseTurn(self, iterations=1): # raise rotational speed
         if self.checkClock():
             self.s.send(self.textToMessage("maxturns"))
 
 
     # receve distance measure from ultrasonic sensors
-    def getDistance(self, delay=0.3):
-        dist = str(self.s.recv(1024), 'utf-8') # read 1024 bits as string
+    def getDistance(self):
+        dist = str(self.s.recv(4096), 'utf-8') # read 4096 bits as string
         # print(dist)
         if dist:
             dist = dist.split("\n")[-2]
             dist = ''.join([i for i in dist if i.isdigit()]) # get last number collected from serial
-            if len(dist) <= 5:
+            if len(dist) <= 5 and len(dist) >=2:
                 self.last_distance = int(dist)
                 return int(dist)
                 

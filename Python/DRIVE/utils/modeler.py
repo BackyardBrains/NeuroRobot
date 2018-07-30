@@ -18,6 +18,8 @@ class Modeler(object):
 
         if self.model_type == "cup" or self.model_type == "hand":
 
+            # just a fine tuned InceptionV3 net, weights calculated by the ML module
+            # keras documentation if you need help: https://keras.io/
             base_model = InceptionV3(weights='imagenet', include_top=False)
             x = base_model.output
             x = GlobalAveragePooling2D()(x)

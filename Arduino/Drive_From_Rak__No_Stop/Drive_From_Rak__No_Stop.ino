@@ -9,8 +9,7 @@ int R_PWM = 6;
 int R_speed = 80;
 volatile int R_state = LOW;
 
-
-// Left Driver 
+// Left Driver
 int L_enc = 2;
 volatile int L_counter = 0;
 int L_F_E = 4;
@@ -24,7 +23,6 @@ int enable = 10;
 const int trigPin = 11;
 const int echoPin = 12;
 long duration;
-int distance;
 
 void setup() {
   Serial.begin(115200);
@@ -48,13 +46,27 @@ void setup() {
 }
 
 int a_bytes;
-char text[9] = "noinputs";
+char text[9] = "noinputs.";
 char* cleanse;
 String text_string;
-int PWM_speed = 90;
+int DRIVE_speed = 90;
+int TURN_speed = 90;
+
 void loop() {
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
 
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
 
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  if (duration > 0) {
+    Serial.println(duration);
+  }
   // check for incoming message
   delay(10);
   a_bytes = Serial.available();
@@ -79,8 +91,8 @@ void loop() {
     digitalWrite(R_R_E, LOW);
     digitalWrite(R_F_E, HIGH);
     delay(10);
-    analogWrite(R_PWM, 80);
-    analogWrite(L_PWM, 80);
+    analogWrite(R_PWM, TURN_speed);
+    analogWrite(L_PWM, TURN_speed);
 
   } else if (text_string.equals("turnleft")) {
     digitalWrite(R_R_E, HIGH);
@@ -88,8 +100,8 @@ void loop() {
     digitalWrite(L_R_E, LOW);
     digitalWrite(L_F_E, HIGH);
     delay(10);
-    analogWrite(R_PWM, 80);
-    analogWrite(L_PWM, 80);
+    analogWrite(R_PWM, TURN_speed);
+    analogWrite(L_PWM, TURN_speed);
 
   } else if (text_string.equals("gostrait")) {
     digitalWrite(R_R_E, LOW);
@@ -97,8 +109,8 @@ void loop() {
     digitalWrite(R_F_E, HIGH);
     digitalWrite(L_F_E, HIGH);
     delay(10);
-    analogWrite(R_PWM, PWM_speed);
-    analogWrite(L_PWM, PWM_speed);
+    analogWrite(R_PWM, DRIVE_speed);
+    analogWrite(L_PWM, DRIVE_speed);
 
   } else if (text_string.equals("gorevers")) {
     digitalWrite(R_R_E, HIGH);
@@ -106,30 +118,21 @@ void loop() {
     digitalWrite(R_F_E, LOW);
     digitalWrite(L_F_E, LOW);
     delay(10);
-    analogWrite(R_PWM, PWM_speed);
-    analogWrite(L_PWM, PWM_speed);
+    analogWrite(R_PWM, DRIVE_speed);
+    analogWrite(L_PWM, DRIVE_speed);
   } else if (text_string.equals("minspeed")) {
-    PWM_speed = max(PWM_speed - 25, 75);
+    DRIVE_speed = max(DRIVE_speed - 25, 55);
     delay(50);
 
   } else if (text_string.equals("maxspeed")) {
-    PWM_speed = min(PWM_speed + 25, 300);
+    DRIVE_speed = min(DRIVE_speed + 25, 275);
     delay(50);
-  } else if (text_string.equals("getdista")) {
-    // Clears the trigPin
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-
-    // Sets the trigPin on HIGH state for 10 micro seconds
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echoPin, HIGH);
-    distance = duration * 0.034 / 2;
-    
-    Serial.println(distance);
+  } else if (text_string.equals("minturns")) {
+    TURN_speed = max(TURN_speed - 25, 55);
+    delay(50);
+  } else if (text_string.equals("maxturns")) {
+    TURN_speed = min(TURN_speed + 25, 275);
+    delay(50);
   } else if (text_string.equals("stopmove")) {
     digitalWrite(R_R_E, LOW);
     digitalWrite(L_R_E, LOW);
