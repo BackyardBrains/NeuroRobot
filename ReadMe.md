@@ -1,5 +1,6 @@
-"Here ye, here ye.
-Beware, all who wander this code are lost."
+"We do these things not because they are easy,
+but because we thought they were going to be easy."
+- A programmer's motto
 
 This is less an instruction manual, and more just a list of warnings.
 
@@ -100,7 +101,7 @@ connection if this is abused
 - Don't put the batteries in backwards
 - Don't assume you have the real current frame; sometimes no frames have been 
 received so you'll just retrieve the previous frame from read()
-- INITIALISE Driver OBJECT AFTER Detector OBJECT OR ELSE IT'LL TIME OUT
+- INITIALISE Driver OBJECT AFTER Detector OBJECT OR ELSE IT'LL TIME OUT  
 -Ilya
 
 
