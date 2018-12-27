@@ -1,4 +1,4 @@
-//Board V0.2
+//Board V0.4
 
 
 
@@ -12,25 +12,20 @@
 
 
 // Righ Driver
-int R_enc = 2;
+int R_enc = 7;
 volatile int R_counter = 0;
-int R_F_E= 9;
-int R_R_E= 7;
+int R_F_E= 2;
+int R_R_E= 3;
 int R_PWM = 6;
-int R_speed = 80;
-volatile int R_state = LOW; 
-
 
 // Left Driver
-int L_enc = 3;
+int L_enc = 4;
 volatile int L_counter = 0;
-int L_F_E= 4;
-int L_R_E= 8;
+int L_F_E= 0;
+int L_R_E= 1;
 int L_PWM = 5;
-int L_speed =80;
-volatile int L_state = LOW; 
 
-int enablePin = 10;
+int enableMotorBit = 4;
 int commandValue = 0;
 
 const int ultrasonicTrigPin = 11;
@@ -48,31 +43,65 @@ int motorSpeedRight = 0;
 
 byte executeOneLoop = 0;
 
+byte shiftReg1 = 0;
+//bit 0 - left forward
+//bit 1 - left backward
+//bit 2 - right forward
+//bit 3 - right backward
+//bit 4 - motor enable
+//bit 5 - LED CR blue
+//bit 6 - LED CR green
+//bit 7 - LED CR red
 
+byte shiftReg2 = 0;
+//bit 0 - -----------
+//bit 1 - LED CL blue
+//bit 2 - LED CL green
+//bit 3 - LED CL red
+//bit 4 - LED TR blue
+//bit 5 - LED TR green
+//bit 6 - LED TR red
+//bit 7 - LED TL blue
+
+byte shiftReg3 = 0;
+//bit 0 - LED TL green
+//bit 1 - LED TL red
+//bit 2 - LED BL blue
+//bit 3 - LED BL green
+//bit 4 - LED BL red
+//bit 5 - LED BR blue
+//bit 6 - LED BR green
+//bit 7 - LED BR red
+
+int shiftDataPin = 10;
+int shiftClockPin = 9;
+int shiftLatchPin = 8;
+
+byte bitMask = B00000001;
 
 void setup() {
   Serial.begin(115200);
   // Righ Driver
   pinMode(R_enc, INPUT);
-  pinMode(R_F_E, OUTPUT);
-  pinMode(R_R_E, OUTPUT);
   pinMode(R_PWM, OUTPUT);
   // Left Driver
   pinMode(L_enc, INPUT);
-  pinMode(L_F_E, OUTPUT);
-  pinMode(L_R_E, OUTPUT);
   pinMode(L_PWM, OUTPUT);
+
+
+  pinMode(R_PWM, OUTPUT);
 
   pinMode(ultrasonicTrigPin, OUTPUT);
   pinMode(ultrasonicEchoPin, INPUT);
-  
-  pinMode(enablePin, OUTPUT);
-  digitalWrite(enablePin, HIGH);
-  attachInterrupt(digitalPinToInterrupt(R_enc), Rvoid, RISING);
-  attachInterrupt(digitalPinToInterrupt(L_enc), Lvoid, FALLING);
-  
-  pinMode(13, OUTPUT);//LED diode
 
+  //shift registers
+  pinMode(shiftDataPin, OUTPUT);
+  pinMode(shiftClockPin, OUTPUT);
+  pinMode(shiftLatchPin, OUTPUT);
+
+  turnOffLEDs();
+  turnOffMotor();
+  enableMotor();
 
   cli();//stop interrupts
 
@@ -121,9 +150,10 @@ void loop()
       
       executeLeftMotor();
       executeRightMotor();
+      refreshShiftRegisters();
       executeUltrasonicSensor();
       
-     
+
       sendSerialFrame();
       
   }
@@ -149,20 +179,20 @@ void executeLeftMotor()
 {
   if(motorSpeedLeft>0)
   {
-      digitalWrite(L_F_E, HIGH);
-      digitalWrite(L_R_E, LOW);
+      shiftReg1 |= bitMask<<L_F_E;
+      shiftReg1 &= ~(bitMask<<L_R_E);
       analogWrite(L_PWM, motorSpeedLeft);
   }
   else if(motorSpeedLeft<0)
   {
-      digitalWrite(L_F_E, LOW);
-      digitalWrite(L_R_E, HIGH);
+      shiftReg1 |= bitMask<<L_R_E;
+      shiftReg1 &= ~(bitMask<<L_F_E);
       analogWrite(L_PWM, -motorSpeedLeft);
   }
   else
   {
-      digitalWrite(L_F_E, LOW);
-      digitalWrite(L_R_E, LOW);
+      shiftReg1 &= ~(bitMask<<L_F_E);
+      shiftReg1 &= ~(bitMask<<L_R_E);
       analogWrite(L_PWM, 0);
   }
 }
@@ -173,20 +203,20 @@ void executeRightMotor()
 {
   if(motorSpeedRight>0)
   {
-      digitalWrite(R_F_E, HIGH);
-      digitalWrite(R_R_E, LOW);
+      shiftReg1 |= bitMask<<R_F_E;
+      shiftReg1 &= ~(bitMask<<R_R_E);
       analogWrite(R_PWM, motorSpeedRight);
   }
   else if(motorSpeedRight<0)
   {
-      digitalWrite(R_F_E, LOW);
-      digitalWrite(R_R_E, HIGH);
+      shiftReg1 |= bitMask<<R_R_E;
+      shiftReg1 &= ~(bitMask<<R_F_E);
       analogWrite(R_PWM, -motorSpeedRight);
   }
   else
   {
-      digitalWrite(R_F_E, LOW);
-      digitalWrite(R_R_E, LOW);
+      shiftReg1 &= ~(bitMask<<R_F_E);
+      shiftReg1 &= ~(bitMask<<R_R_E);
       analogWrite(R_PWM, 0);
   } 
 }
@@ -348,3 +378,76 @@ int getUltrasonicDistance()
     
 }
 */
+
+void refreshShiftRegisters()
+{
+    digitalWrite(shiftLatchPin, 0);
+
+    shiftOut(shiftDataPin, shiftClockPin, shiftReg3); 
+    shiftOut(shiftDataPin, shiftClockPin, shiftReg2); 
+    shiftOut(shiftDataPin, shiftClockPin, shiftReg1);
+
+    digitalWrite(shiftLatchPin, 1);  
+}
+
+void turnOffLEDs()
+{
+    shiftReg1 |= B11100000;
+    shiftReg2 = B11111111;
+    shiftReg3 = B11111111;
+}
+
+void turnOffMotor()
+{
+    shiftReg1 &= B11100000;
+}
+
+void enableMotor()
+{
+  shiftReg1 |= bitMask<<enableMotorBit;  
+}
+
+void shiftOut(int myDataPin, int myClockPin, byte myDataOut) {
+  // This shifts 8 bits out MSB first, 
+  //on the rising edge of the clock,
+  //clock idles low
+  
+  //internal function setup
+  int i=0;
+  int pinState;
+
+
+ //clear everything out just in case to
+ //prepare shift register for bit shifting
+  digitalWrite(myDataPin, 0);
+  digitalWrite(myClockPin, 0);
+
+  //for each bit in the byte myDataOut�
+  //NOTICE THAT WE ARE COUNTING DOWN in our for loop
+  //This means that %00000001 or "1" will go through such
+  //that it will be pin Q0 that lights. 
+  for (i=7; i>=0; i--)  {
+    digitalWrite(myClockPin, 0);
+
+    //if the value passed to myDataOut and a bitmask result 
+    // true then... so if we are at i=6 and our value is
+    // %11010100 it would the code compares it to %01000000 
+    // and proceeds to set pinState to 1.
+    if ( myDataOut & (1<<i) ) {
+      pinState= 1;
+    }
+    else {  
+      pinState= 0;
+    }
+
+    //Sets the pin to HIGH or LOW depending on pinState
+    digitalWrite(myDataPin, pinState);
+    //register shifts bits on upstroke of clock pin  
+    digitalWrite(myClockPin, 1);
+    //zero the data pin after shift to prevent bleed through
+    digitalWrite(myDataPin, 0);
+  }
+
+  //stop shifting
+  digitalWrite(myClockPin, 0);
+}
