@@ -35,7 +35,9 @@ int commandValue = 0;
 
 const int ultrasonicTrigPin = 11;
 const int ultrasonicEchoPin = 12;
-int ultrasonicDistance = 0;
+volatile int ultrasonicDistance = 0;
+volatile int tempUltrasonicDistance = 0;
+volatile unsigned long ultrasonicPulseStart = 0;
 
 #define SIZE_OF_COMMAND_BUFFER 30 //command buffer size
 char commandBuffer[SIZE_OF_COMMAND_BUFFER];//receiving command buffer
@@ -45,6 +47,8 @@ int motorSpeedLeft = 0;
 int motorSpeedRight = 0;
 
 byte executeOneLoop = 0;
+
+
 
 void setup() {
   Serial.begin(115200);
@@ -70,7 +74,7 @@ void setup() {
   pinMode(13, OUTPUT);//LED diode
 
 
-
+  //ultrasonicInterruptSetup();
 
 
   cli();//stop interrupts
@@ -96,12 +100,13 @@ void setup() {
   sei();//allow interrupts
   //END TIMER SETUP
   TIMSK1 |= (1 << OCIE1A);
-
-
-  
-  
 }
 
+
+
+//
+// Main sampling timer
+//
 ISR(TIMER1_COMPA_vect) 
 {
   executeOneLoop = 1;
@@ -113,20 +118,93 @@ void loop()
   
   if(executeOneLoop==1)
   {
+    
       executeOneLoop = 0;
+      //startMeasuringUltrasonic();
       readNewSerialData();
       
       executeLeftMotor();
       executeRightMotor();
-      PORTB |= B00100000;
-      executeUltrasonicSensor();
-      PORTB &= B11011111;
       
+      executeUltrasonicSensor();
+      
+      //ultrasonicDistance = getUltrasonicDistance();
       sendSerialFrame();
+      
   }
 }
 
+/*
+ 
+volatile byte waitForEcho = 0;
+void ultrasonicInterruptSetup()
+{
+    *digitalPinToPCMSK(ultrasonicEchoPin) |= bit (digitalPinToPCMSKbit(ultrasonicEchoPin));  // enable pin
+    PCMSK0 |= B00010000;//this is just for echo pin D12 (it is port B index)
+    PCIFR  |= bit (digitalPinToPCICRbit(ultrasonicEchoPin)); // clear any outstanding interrupt
+    PCICR  |= bit (digitalPinToPCICRbit(ultrasonicEchoPin)); // enable interrupt for the group
+}
 
+
+ISR (PCINT0_vect) // handle pin change interrupt for D8 to D13 here
+{    
+      //byte test = PORTB & B00010000;
+     //if(digitalRead(ultrasonicEchoPin)==0)
+     //if(test==0)
+     if(waitForEcho)
+     {
+        waitForEcho = 0;
+     }
+     else
+     {
+        PORTB |= B00100000;
+        tempUltrasonicDistance = micros() - ultrasonicPulseStart; 
+        PORTB &= B11011111;
+     }
+}
+ 
+void startMeasuringUltrasonic()
+{
+    waitForEcho = 1;
+    //PORTB |= B00100000;
+    digitalWrite(ultrasonicTrigPin, LOW);
+    delayMicroseconds(5);
+    digitalWrite(ultrasonicTrigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(ultrasonicTrigPin, LOW);
+    ultrasonicPulseStart = micros(); // store the current microseconds
+}
+
+int getUltrasonicDistance()
+{
+    if(( micros() - ultrasonicPulseStart)>5000)
+    {
+      return 5000;
+    }
+    else
+    {
+      return tempUltrasonicDistance;
+    }
+    
+}
+*/
+
+
+void executeUltrasonicSensor()
+{
+   // Send distance data to Matlab
+    digitalWrite(ultrasonicTrigPin, LOW);
+    delayMicroseconds(5);
+    digitalWrite(ultrasonicTrigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(ultrasonicTrigPin, LOW);
+    ultrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH,5000);
+    if(ultrasonicDistance ==0)
+    {
+      ultrasonicDistance = 5000;
+    }
+
+}
 void executeLeftMotor()
 {
   if(motorSpeedLeft>0)
@@ -175,21 +253,7 @@ void executeRightMotor()
     
 }
 
-void executeUltrasonicSensor()
-{
-   // Send distance data to Matlab
-    digitalWrite(ultrasonicTrigPin, LOW);
-    delayMicroseconds(5);
-    digitalWrite(ultrasonicTrigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(ultrasonicTrigPin, LOW);
-    ultrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH,5000);
-    if(ultrasonicDistance ==0)
-    {
-      ultrasonicDistance = 5000;
-    }
 
-}
 
 void sendSerialFrame()
 {
