@@ -1,4 +1,15 @@
-//#include <Encoder.h>
+
+
+
+
+// defines for setting and clearing register bits
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
+
 
 // Righ Driver
 int R_enc = 2;
@@ -22,12 +33,18 @@ volatile int L_state = LOW;
 int enablePin = 10;
 int commandValue = 0;
 
+const int ultrasonicTrigPin = 11;
+const int ultrasonicEchoPin = 12;
+int ultrasonicDistance = 0;
+
 #define SIZE_OF_COMMAND_BUFFER 30 //command buffer size
 char commandBuffer[SIZE_OF_COMMAND_BUFFER];//receiving command buffer
 
 
 int motorSpeedLeft = 0;
 int motorSpeedRight = 0;
+
+byte executeOneLoop = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -41,6 +58,9 @@ void setup() {
   pinMode(L_F_E, OUTPUT);
   pinMode(L_R_E, OUTPUT);
   pinMode(L_PWM, OUTPUT);
+
+  pinMode(ultrasonicTrigPin, OUTPUT);
+  pinMode(ultrasonicEchoPin, INPUT);
   
   pinMode(enablePin, OUTPUT);
   digitalWrite(enablePin, HIGH);
@@ -48,7 +68,62 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(L_enc), Lvoid, FALLING);
   
   pinMode(13, OUTPUT);//LED diode
-  digitalWrite(13,HIGH);
+
+
+
+
+
+  cli();//stop interrupts
+
+  //Make ADC sample faster. Change ADC clock
+  //Change prescaler division factor to 16
+  sbi(ADCSRA,ADPS2);//1
+  cbi(ADCSRA,ADPS1);//0
+  cbi(ADCSRA,ADPS0);//0
+
+  //set timer1 interrupt at 10kHz
+  TCCR1A = 0;// set entire TCCR1A register to 0
+  TCCR1B = 0;// same for TCCR1B
+  TCNT1  = 0;//initialize counter value to 0;
+  OCR1A = 19999;// Output Compare Registers 
+  // turn on CTC mode
+  TCCR1B |= (1 << WGM12);
+  // Set CS11 bit for 8 prescaler
+  TCCR1B |= (1 << CS11);   
+  // enable timer compare interrupt
+  TIMSK1 |= (1 << OCIE1A);
+  
+  sei();//allow interrupts
+  //END TIMER SETUP
+  TIMSK1 |= (1 << OCIE1A);
+
+
+  
+  
+}
+
+ISR(TIMER1_COMPA_vect) 
+{
+  executeOneLoop = 1;
+}
+
+
+void loop()
+{
+  
+  if(executeOneLoop==1)
+  {
+      executeOneLoop = 0;
+      readNewSerialData();
+      
+      executeLeftMotor();
+      executeRightMotor();
+      PORTB |= B00100000;
+      executeUltrasonicSensor();
+      PORTB &= B11011111;
+      
+      sendSerialFrame();
+  }
 }
 
 
@@ -100,19 +175,36 @@ void executeRightMotor()
     
 }
 
-void loop()
+void executeUltrasonicSensor()
 {
+   // Send distance data to Matlab
+    digitalWrite(ultrasonicTrigPin, LOW);
+    delayMicroseconds(5);
+    digitalWrite(ultrasonicTrigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(ultrasonicTrigPin, LOW);
+    ultrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH,5000);
+    if(ultrasonicDistance ==0)
+    {
+      ultrasonicDistance = 5000;
+    }
 
+}
 
-  executeLeftMotor();
-  executeRightMotor();
-
+void sendSerialFrame()
+{
   Serial.print(R_counter, DEC );
+  R_counter = 0;
   Serial.print("\t");
-  Serial.println(L_counter, DEC);
+  Serial.print(L_counter, DEC);
+  L_counter = 0;
+  Serial.print("\t");
+  Serial.println(ultrasonicDistance, DEC );
+}
 
 
-
+void readNewSerialData()
+{
   if(Serial.available()>0)
   {
 
@@ -165,19 +257,35 @@ void loop()
             }
             // Find the next command in input string
             command = strtok(0, ";");
-        }
+        }//end of while
                  
-    }
-
-
+    }//if serial available
 }
+
+
 
 void Rvoid(){
-R_counter ++;
-delayMicroseconds(100);
+  
+    if(motorSpeedRight>0)
+     {
+        R_counter ++;
+     }
+     if(motorSpeedRight<0)
+     {
+        R_counter --;
+     }
+    delayMicroseconds(100);
 }
 
-void Lvoid(){
-L_counter ++;
-delayMicroseconds(100);
-  }
+void Lvoid()
+{
+     if(motorSpeedLeft>0)
+     {
+        L_counter ++;
+     }
+     if(motorSpeedLeft<0)
+     {
+        L_counter --;
+     }
+     delayMicroseconds(100);
+}
