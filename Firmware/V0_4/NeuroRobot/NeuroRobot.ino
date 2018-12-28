@@ -1,5 +1,38 @@
-//Board V0.4
+// Neuro Robot Board V0.4
+// Backyard Brains
+// 28.Dec.2018
+// Written by Stanislav Mircic
+//
+// Code is made for ATMEGA328 (Arduino UNO)
+// Code will periodicaly (100 times per second): 
+//  - read data from encoders and ultrasonic sensor and send it through serial in CSV format
+//    (left motor encoder delta, right motor encoder delta, ultrasonic sensor time in uSeconds)
+//  - read commands from serial and execute on motor and LEDs
+//
+//  Possible commands:
 
+//  LED control command
+//  d:[led-command];
+//  Diode command example d:320;
+//  This will turn OFF green color at 3rd LED
+//  d - diode command name
+//  : - separator between name and value
+//  3 - index of diode 3rd diode (1-6)
+//  2 - index of green color (1=B, 2=G, 3=R)
+//  0 - state of diode (1=ON, 0=OFF)
+//  ; - end of command 
+//
+//  Special case d:0; used when user wants to turn off all LEDs
+//
+
+//  Motor control commands
+//  l:[speed];  - control left motor. ex. l:-40; Run left motor CCW at speed 40. Speed can take value from -255 to 255
+//  r:[speed];  - control right motor ex. r:80; Run right motor CW at speed 80. Speed can take value from -255 to 255
+
+
+//If Fs is sample rate than formula is SAMPLE_RATE_PERIOD = (16*10^6) / (Fs*8) - 1
+// For 100Hz sample rate the SAMPLE_RATE_PERIOD should be 19999 
+#define SAMPLE_RATE_PERIOD 19999 
 
 
 // defines for setting and clearing register bits
@@ -28,13 +61,18 @@ int L_PWM = 5;
 int enableMotorBit = 4;
 int commandValue = 0;
 
+
+int shiftDataPin = 10;
+int shiftClockPin = 9;
+int shiftLatchPin = 8;
+
 const int ultrasonicTrigPin = 11;
 const int ultrasonicEchoPin = 12;
 volatile int ultrasonicDistance = 0;
 volatile int tempUltrasonicDistance = 0;
 volatile unsigned long ultrasonicPulseStart = 0;
 
-#define SIZE_OF_COMMAND_BUFFER 30 //command buffer size
+#define SIZE_OF_COMMAND_BUFFER 100 //command buffer size
 char commandBuffer[SIZE_OF_COMMAND_BUFFER];//receiving command buffer
 
 
@@ -72,13 +110,13 @@ byte shiftReg3 = 0;
 //bit 5 - LED BR blue
 //bit 6 - LED BR green
 //bit 7 - LED BR red
+int colorIndex=0;
+int LEDIndex=0;
 
-int shiftDataPin = 10;
-int shiftClockPin = 9;
-int shiftLatchPin = 8;
+
 
 byte bitMask = B00000001;
-
+volatile int diodeCommand = 0;
 void setup() {
   Serial.begin(115200);
   // Righ Driver
@@ -103,6 +141,9 @@ void setup() {
   turnOffMotor();
   enableMotor();
 
+
+  pinMode(13, OUTPUT);//debug pin
+  setupInterruptForEncoders();
   cli();//stop interrupts
 
   //Make ADC sample faster. Change ADC clock
@@ -115,7 +156,7 @@ void setup() {
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
   TCNT1  = 0;//initialize counter value to 0;
-  OCR1A = 19999;// Output Compare Registers 
+  OCR1A = SAMPLE_RATE_PERIOD;// Output Compare Registers 
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   // Set CS11 bit for 8 prescaler
@@ -144,6 +185,7 @@ void loop()
   
   if(executeOneLoop==1)
   {
+    PORTB |=B00100000;
       executeOneLoop = 0;
       
       readNewSerialData();
@@ -155,7 +197,7 @@ void loop()
       
 
       sendSerialFrame();
-      
+      PORTB &=B11011111;
   }
 }
 
@@ -169,10 +211,10 @@ void executeUltrasonicSensor()
     delayMicroseconds(10);
     digitalWrite(ultrasonicTrigPin, LOW);
     ultrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH,5000);
-    if(ultrasonicDistance ==0)
+    /*if(ultrasonicDistance ==0)
     {
       ultrasonicDistance = 5000;
-    }
+    }*/
 
 }
 void executeLeftMotor()
@@ -225,12 +267,12 @@ void executeRightMotor()
 
 void sendSerialFrame()
 {
-  Serial.print(R_counter, DEC );
+  Serial.print(L_counter, DEC );
   R_counter = 0;
-  Serial.print("\t");
-  Serial.print(L_counter, DEC);
+  Serial.print(",");
+  Serial.print(R_counter, DEC);
   L_counter = 0;
-  Serial.print("\t");
+  Serial.print(",");
   Serial.println(ultrasonicDistance, DEC );
 }
 
@@ -286,6 +328,12 @@ void readNewSerialData()
                     motorSpeedRight = -255;  
                   }
                 }
+                if(*separator == 'd')//command for left motor 
+                {
+                  separator = separator+2;
+                  diodeCommand = atoi(separator);//read number of channels
+                  executeDiodeCommand(diodeCommand);
+                }
             }
             // Find the next command in input string
             command = strtok(0, ";");
@@ -295,89 +343,301 @@ void readNewSerialData()
 }
 
 
+//
+//Diode command example d:320;
+//  d - diode command name
+//  : - separator between name and value
+//  3 - index of diode 3rd diode (1-6)
+//  2 - index of green color (1=B, 2=G, 3=R)
+//  0 - state of diode (1=ON, 0=OFF)
 
-void Rvoid(){
+
+void executeDiodeCommand(int newDiodeCommand)
+{
+
+  if(newDiodeCommand == 0)
+  {
+    turnOffLEDs();
+    return;
+  }
   
-    if(motorSpeedRight>0)
-     {
-        R_counter ++;
-     }
-     if(motorSpeedRight<0)
-     {
-        R_counter --;
-     }
-    delayMicroseconds(100);
+  LEDIndex = newDiodeCommand/100 -1;//0-5
+  if(LEDIndex<0)
+  {
+    return;  
+  }
+  colorIndex = (newDiodeCommand - (LEDIndex+1)*100)/10-1;//0-2
+  int ledState = ((newDiodeCommand - (LEDIndex+1)*100) - (colorIndex+1)*10)>0;
+  switch (LEDIndex) {
+      case 0:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg1 &= B11011111;
+            }
+            else
+            {
+              shiftReg1 |= B00100000;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg1 &= B10111111;
+            }
+            else
+            {
+              shiftReg1 |= B01000000;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg1 &= B01111111;
+            }
+            else
+            {
+              shiftReg1 |= B10000000;
+            }
+        }
+        break;
+      case 1:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B11111101;
+            }
+            else
+            {
+              shiftReg2 |= B00000010;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B11111011;
+            }
+            else
+            {
+              shiftReg2 |= B00000100;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B11110111;
+            }
+            else
+            {
+              shiftReg2 |= B00001000;
+            }
+        }
+        break;
+      case 2:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B11101111;
+            }
+            else
+            {
+              shiftReg2 |= B00010000;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B11011111;
+            }
+            else
+            {
+              shiftReg2 |= B00100000;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B10111111;
+            }
+            else
+            {
+              shiftReg2 |= B01000000;
+            }
+        }
+        break;
+      case 3:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg2 &= B01111111;
+            }
+            else
+            {
+              shiftReg2 |= B10000000;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11111110;
+            }
+            else
+            {
+              shiftReg3 |= B00000001;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11111101;
+            }
+            else
+            {
+              shiftReg3 |= B00000010;
+            }
+        }
+        break;
+      case 4:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11111011;
+            }
+            else
+            {
+              shiftReg3 |= B00000100;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11110111;
+            }
+            else
+            {
+              shiftReg3 |= B00001000;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11101111;
+            }
+            else
+            {
+              shiftReg3 |= B00010000;
+            }
+        }
+        break;
+      case 5:
+        if(colorIndex ==0)
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B11011111;
+            }
+            else
+            {
+              shiftReg3 |= B00100000;
+            }
+        }
+        else if(colorIndex ==1)
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B10111111;
+            }
+            else
+            {
+              shiftReg3 |= B01000000;
+            }
+        }
+        else
+        {
+            if(ledState>0)
+            {
+              shiftReg3 &= B01111111;
+            }
+            else
+            {
+              shiftReg3 |= B10000000;
+            }
+        }
+        break;
+      default:
+      break;
+  }
+  
 }
 
-void Lvoid()
+//https://playground.arduino.cc/Main/PinChangeInterrupt
+void setupInterruptForEncoders()
 {
-     if(motorSpeedLeft>0)
-     {
-        L_counter ++;
-     }
-     if(motorSpeedLeft<0)
-     {
-        L_counter --;
-     }
-     delayMicroseconds(100);
+    *digitalPinToPCMSK(R_enc) |= bit (digitalPinToPCMSKbit(R_enc));  // enable pin
+    PCMSK2 |= B10010000;//this is just for echo pin D4 and D7 
+    PCIFR  |= bit (digitalPinToPCICRbit(R_enc)); // clear any outstanding interrupt
+    PCICR  |= bit (digitalPinToPCICRbit(R_enc)); // enable interrupt for the group
+
+    *digitalPinToPCMSK(L_enc) |= bit (digitalPinToPCMSKbit(L_enc));  // enable pin
+    PCMSK2 |= B10010000;//this is just for echo pin D4 and D7 
+    PCIFR  |= bit (digitalPinToPCICRbit(L_enc)); // clear any outstanding interrupt
+    PCICR  |= bit (digitalPinToPCICRbit(L_enc)); // enable interrupt for the group
 }
 
-
-
-/*
- 
-volatile byte waitForEcho = 0;
-void ultrasonicInterruptSetup()
+volatile int lastLeftEncoder = 0;
+volatile int lastRightEncoder = 0;
+volatile int currentLeftEncoder = 0;
+volatile int currentRightEncoder = 0;
+ISR (PCINT2_vect) // handle pin change interrupt for D0 to D7 here
 {
-    *digitalPinToPCMSK(ultrasonicEchoPin) |= bit (digitalPinToPCMSKbit(ultrasonicEchoPin));  // enable pin
-    PCMSK0 |= B00010000;//this is just for echo pin D12 (it is port B index)
-    PCIFR  |= bit (digitalPinToPCICRbit(ultrasonicEchoPin)); // clear any outstanding interrupt
-    PCICR  |= bit (digitalPinToPCICRbit(ultrasonicEchoPin)); // enable interrupt for the group
-}
 
 
-ISR (PCINT0_vect) // handle pin change interrupt for D8 to D13 here
-{    
-      //byte test = PORTB & B00010000;
-     //if(digitalRead(ultrasonicEchoPin)==0)
-     //if(test==0)
-     if(waitForEcho)
-     {
-        waitForEcho = 0;
-     }
-     else
-     {
-        PORTB |= B00100000;
-        tempUltrasonicDistance = micros() - ultrasonicPulseStart; 
-        PORTB &= B11011111;
-     }
-}
- 
-void startMeasuringUltrasonic()
-{
-    waitForEcho = 1;
-    //PORTB |= B00100000;
-    digitalWrite(ultrasonicTrigPin, LOW);
-    delayMicroseconds(5);
-    digitalWrite(ultrasonicTrigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(ultrasonicTrigPin, LOW);
-    ultrasonicPulseStart = micros(); // store the current microseconds
-}
+   currentLeftEncoder = digitalRead(L_enc);
+   currentRightEncoder = digitalRead(R_enc);
 
-int getUltrasonicDistance()
-{
-    if(( micros() - ultrasonicPulseStart)>5000)
-    {
-      return 5000;
-    }
-    else
-    {
-      return tempUltrasonicDistance;
-    }
-    
-}
-*/
+   if(currentLeftEncoder== HIGH && lastLeftEncoder==LOW)
+   {
+        if(motorSpeedLeft>0)
+         {
+            L_counter ++;
+         }
+         if(motorSpeedLeft<0)
+         {
+            L_counter --;
+         }
+   }
+
+   if(currentRightEncoder == HIGH && lastRightEncoder==LOW)
+   {
+        if(motorSpeedRight>0)
+         {
+            R_counter ++;
+         }
+         if(motorSpeedRight<0)
+         {
+            R_counter --;
+         }
+   }
+   lastRightEncoder = currentRightEncoder;
+   lastLeftEncoder = currentLeftEncoder;
+}  
+
+
 
 void refreshShiftRegisters()
 {
