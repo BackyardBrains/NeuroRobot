@@ -4,6 +4,7 @@ mex RAK5206.cpp -I/usr/local/include -L/usr/local/lib -lboost_system -lboost_thr
 % mex RAK5206.cpp -ID:\rak\boost_1_68_0\library2\include\boost-1_68 -LD:\rak\boost_1_68_0\library2\lib  -lboost_system-vc120-mt-x64-1_68 -ID:\rak\ffmpeg-4.1-win64-dev\include -LD:\rak\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0601
 % mex RAK5206.cpp -IC:\boost_1_68_0_build\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build\lib -LC:\ffmpeg-4.1-win64-dev\lib -llibboost_system-mgw63-mt-x32-1_68 -llibboost_thread-mgw63-mt-x32-1_68 -llibboost_chrono-mgw63-mt-x32-1_68 -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0A00 
 % mex RAK5206.cpp -IC:\boost_1_68_0_build2\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build2\lib -LC:\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
+% mex RAK5206.cpp -LC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -IC:\boost_1_68_0 -IC:\boost_1_68_0\stage\lib -LC:\ffmpeg-shared\bin -LC:\ffmpeg-dev\lib -LC:\ffmpeg-dev\include -IC:\ffmpeg-shared\bin -IC:\ffmpeg-dev\lib -IC:\ffmpeg-dev\include -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -lboost_thread-vc141-mt-x64-1_68 -lavcodec -lavformat -lavutil -lswscale
 
 rak = RAK5206_matlab('192.168.100.1', '80');
 rak.start();
