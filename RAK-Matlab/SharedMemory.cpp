@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <thread>
+#include <mutex>
 
 // Boost includes
 #include <boost/interprocess/shared_memory_object.hpp>

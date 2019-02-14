@@ -31,7 +31,6 @@ private:
     char _port[3];
     
     SocketClient *readSerialClient;
-    std::mutex mutexSharedMemory;
     
 #ifdef DEBUG
     std::ofstream logFile;
@@ -73,6 +72,7 @@ public:
         
         sharedMemoryInstance = sharedMemory;
         
+        //        writeSerialClient = new SocketClient();
         readSerialClient = new SocketClient();
         
         memcpy(_ipAddress, ip, 64);
@@ -119,7 +119,14 @@ public:
                 sharedMemoryInstance->writeSerialRead(readSerialData, length);
             }
             
+            //            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+            
+            
             free(readSerialData);
+            
+            
+            
+            //            std::cout << "closed" << std::endl;
         }
         readSerialClient->close();
         
