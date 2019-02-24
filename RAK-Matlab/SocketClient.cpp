@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright ï¿½ 2018 Backyard Brains. All rights reserved.
 //
 
 #include <iostream>
@@ -220,33 +220,25 @@ public:
     }
     uint8_t * receiveSerial(boost::system::error_code *ec)
     {
-        logMessage("receiveSerial");
-        
         size_t replySize = 4000, readSize;
         char *replyDataChar = (char *) malloc(replySize + 1);
-        boost::system::error_code ec2;
-//         readSize = boost::asio::read(socket_, boost::asio::buffer(replyData, replySize), ec);
-        readSize = boost::asio::read(socket_, boost::asio::buffer(replyDataChar, replySize), boost::asio::transfer_at_least(1), *ec);
-//        std::cout << "before read_line" << std::endl;
         
-        std::string data = std::string(replyDataChar, readSize);
+        boost::asio::streambuf b;
+        readSize = boost::asio::read_until(socket_, b, '\n', *ec);
+        std::istream is(&b);
+        std::string data;
+        std::getline(is, data);
         
-        logMessage("receiveSerial >>> before read_line");
-//        std::string data = read_line(boost::posix_time::milliseconds(10000));
-//        std::cout << "after read_line" << std::endl;
-        logMessage("receiveSerial >>> after read_line");
+//        readSize = boost::asio::read(socket_, boost::asio::buffer(replyDataChar, replySize), boost::asio::transfer_at_least(1), *ec);
+//        std::string data = std::string(replyDataChar, readSize);
+        
         boost::erase_all(data, "\x01U");
         readSize = data.size();
-        logMessage("receiveSerial >>> readSize: " + std::to_string(readSize));
-        
-        if (readSize > 0) {
-            std::cout << "readSize: " << readSize << std::endl;
-        }
         
 
-        char *replyData = (char *) malloc(readSize + 1);
+        char *replyData = (char *) malloc(readSize);
         data.copy(replyData, readSize);
-        replyData[readSize] = '\0';
+//         replyData[readSize] = '\0';
         return (uint8_t *)replyData;
     }
     

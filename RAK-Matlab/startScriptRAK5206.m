@@ -21,12 +21,12 @@ while rak.isRunning()
     imageMat = rak.readVideo();
     
     
-    audioMat = [audioMat rak.readAudio()];
+%     audioMat = [audioMat rak.readAudio()];
     
     imageMat = flip(permute(reshape(imageMat, 3, 1280, 720),[3,2,1]), 3);
     
     if mod(serialCounter, 5) == 0
-        rak.writeSerial(uint8([1 2 3 4 5]') );
+        rak.writeSerial('Rak 5206 is the best project ever');
     end
     
     if mod(serialCounter, 20) == 0

@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright ï¿½ 2018 Backyard Brains. All rights reserved.
 //
 
 #include <iostream>
@@ -119,19 +119,12 @@ public:
                 sharedMemoryInstance->writeSerialRead(readSerialData, length);
             }
             
-            //            boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-            
-            
             free(readSerialData);
             
-            
-            
-            //            std::cout << "closed" << std::endl;
         }
         readSerialClient->close();
         
         logMessage("Socket -> read serial ended");
-        
         
     }
     
@@ -154,20 +147,37 @@ public:
     
     //-----------------------------------
     // Custom methods.
+    
     void writeSerial(uint8_t *data, size_t length)
     {
         std::thread thread(&Socket::writeSerialThreaded, this, data, length);
         thread.detach();
     }
+    void writeSerial(std::string data)
+    {
+        logMessage("writeSerialString " + data);
+        std::thread thread(&Socket::writeSerialThreadedString, this, data);
+        thread.detach();
+    }
+    void writeSerialThreadedString(std::string data)
+    {
+        writeSerialThreaded((uint8_t *)data.c_str(), data.length());
+    }
     void writeSerialThreaded(uint8_t *data, size_t length)
     {
         logMessage("writeSerialThreaded enter");
         
-        size_t totalLength = length + 2;
+        size_t totalLength = length + 3;
         uint8_t header[] = { 0x01, 0x55 };
         uint8_t *wholeData = (uint8_t *) malloc(totalLength);
+        uint8_t footer[] = { '\n' };
         memcpy(wholeData, header, 2);
         memcpy(&wholeData[2], data, length);
+        memcpy(&wholeData[totalLength - 1], footer, 1);
+        
+        for (int i = 0; i < totalLength; i++) {
+            logMessage(std::to_string((char)wholeData[i]));
+        }
         
         logMessage("writeSerialThreaded end: " + std::to_string(readSerialClient->send(wholeData, totalLength)));
         

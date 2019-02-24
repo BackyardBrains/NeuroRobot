@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright ? 2018 Backyard Brains. All rights reserved.
 //
 
 //// Base RAK API class
@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <fstream>
-//#include <mex.h>
 
 
 class RAK5206
@@ -60,9 +59,10 @@ public:
         return writer->isRunning();
     }
     
-    void writeSerial(uint8_t *data, size_t length) {
-        socket->writeSerial(data, length);
+    void writeSerial(std::string data) {
+        socket->writeSerial(data);
     }
+    
     uint8_t *readSerial(int *size) {
         return sharedMemory->readSerialRead(size);
     }
@@ -143,22 +143,47 @@ public:
 
             return;
         } else if ( !strcmp("writeSerial", cmd) ) {
-
-            long long rows = mxGetM(prhs[1]);
-            uint8_t *data = (uint8_t *)mxGetData(prhs[1]);
-
-            writeSerial(data, rows);
+            char *input_buf;
+            int   buflen,status;
+            
+            /* Check for proper number of arguments. */
+            if (nrhs != 2)
+                mexErrMsgTxt("One input required.");
+            else if (nlhs > 2)
+                mexErrMsgTxt("Too many output arguments.");
+            
+            /* Input must be a string. */
+            if (mxIsChar(prhs[0]) != 1)
+                mexErrMsgTxt("Input must be a string.");
+            
+            /* Input must be a row vector. */
+            if (mxGetM(prhs[0]) != 1)
+                mexErrMsgTxt("Input must be a row vector.");
+            
+            /* Get the length of the input string. */
+            buflen = (mxGetM(prhs[1]) * mxGetN(prhs[1])) + 1;
+            
+            /* Allocate memory for input and output strings. */
+            input_buf = (char*) mxCalloc(buflen, sizeof(char));
+            
+            /* Copy the string data from prhs[0] into a C string
+             * input_buf. */
+            status = mxGetString(prhs[1], input_buf, buflen);
+            if (status != 0)
+                mexWarnMsgTxt("Not enough space. String is truncated.");
+            
+            std::string s(static_cast<const char*>(input_buf), buflen);
+            writeSerial(s);
 
             return;
         } else if ( !strcmp("readSerial", cmd) ) {
 
             int size = 0;
+            void *yp;
             uint8_t *serialData = readSerial(&size);
-
-            uint8_t *yp;
-            plhs[0] = mxCreateNumericMatrix(1, size, mxUINT8_CLASS, mxREAL);
-            yp  = (uint8_t *) mxGetData(plhs[0]);
-            memcpy(yp, serialData, size);
+            
+            serialData[size] = '\0';
+            plhs[0] = mxCreateString((char *) serialData);
 
             return;
         } else if ( !strcmp("sendAudio", cmd) ) {

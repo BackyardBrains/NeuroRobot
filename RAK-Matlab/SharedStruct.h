@@ -8,11 +8,6 @@
 
 #include <iostream>
 
-struct Reply {
-    uint8_t *data;
-    int length;
-};
-
 struct AudioReply {
     int16_t *data;
     int length;

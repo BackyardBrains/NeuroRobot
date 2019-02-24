@@ -149,11 +149,11 @@ public:
             int size = 0;
             int16_t *payload = readAudio(&size);
             
-            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + size);
+            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + size + 10);
             reply->data = payload;
             reply->length = size;
         } else {
-            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int));
+            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + 10);
             reply->length = 0;
             
         }
