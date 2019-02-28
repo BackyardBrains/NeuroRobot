@@ -218,10 +218,9 @@ public:
         size_t sentSize = boost::asio::write(socket_, boost::asio::buffer(data, length), ec);
         return sentSize;
     }
-    uint8_t * receiveSerial(boost::system::error_code *ec)
+    uint8_t * receiveSerial(boost::system::error_code *ec, size_t *size)
     {
-        size_t replySize = 4000, readSize;
-        char *replyDataChar = (char *) malloc(replySize + 1);
+        size_t readSize;
         
         boost::asio::streambuf b;
         readSize = boost::asio::read_until(socket_, b, '\n', *ec);
@@ -229,16 +228,14 @@ public:
         std::string data;
         std::getline(is, data);
         
-//        readSize = boost::asio::read(socket_, boost::asio::buffer(replyDataChar, replySize), boost::asio::transfer_at_least(1), *ec);
-//        std::string data = std::string(replyDataChar, readSize);
-        
         boost::erase_all(data, "\x01U");
         readSize = data.size();
+        
+        std::memcpy(size, &readSize, sizeof(size_t));
         
 
         char *replyData = (char *) malloc(readSize);
         data.copy(replyData, readSize);
-//         replyData[readSize] = '\0';
         return (uint8_t *)replyData;
     }
     
@@ -252,7 +249,6 @@ public:
 private:
     void check_deadline()
     {
-//        return;
         // Check whether the deadline has passed. We compare the deadline against
         // the current time since a new asynchronous operation may have moved the
         // deadline before this actor had a chance to run.

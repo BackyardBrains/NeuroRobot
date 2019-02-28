@@ -72,7 +72,6 @@ public:
         
         sharedMemoryInstance = sharedMemory;
         
-        //        writeSerialClient = new SocketClient();
         readSerialClient = new SocketClient();
         
         memcpy(_ipAddress, ip, 64);
@@ -88,7 +87,6 @@ public:
         
         
         readSerialClient->connect(_ipAddress, _port, boost::posix_time::seconds(1));
-        //            std::cout << "connected" << std::endl;
         
         logMessage("Socket -> connected");
         
@@ -99,21 +97,19 @@ public:
         while (!close) {
             
             
-            //            std::cout << "sent" << std::endl;
+            size_t length = 0;
             
-            
-            uint8_t *readSerialData = readSerialClient->receiveSerial(&ec);
+            uint8_t *readSerialData = readSerialClient->receiveSerial(&ec, &length);
             
             while (ec == boost::asio::error::eof) {
                 readSerialClient->close();
                 readSerialClient->connect(_ipAddress, _port, boost::posix_time::seconds(1));
                 readSerialClient->send(dataToOpenReceiving, 2);
                 
-                readSerialData = readSerialClient->receiveSerial(&ec);
+                readSerialData = readSerialClient->receiveSerial(&ec, &length);
             }
             std::cout << "received" << std::endl;
             
-            size_t length = std::strlen((char *) readSerialData);
             
             if (length > 0) {
                 sharedMemoryInstance->writeSerialRead(readSerialData, length);
@@ -131,8 +127,6 @@ public:
     void stop() {
         
         close = true;
-        
-        std::cout << "closed" << std::endl;
     }
     
 #ifdef MATLAB
