@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright � 2018 Backyard Brains. All rights reserved.
+//  Copyright ? 2018 Backyard Brains. All rights reserved.
 //
 
 #include <iostream>
@@ -8,12 +8,12 @@
 #include "MexThread.h"
 #include "Macros.h"
 #include "SharedMemory.cpp"
-#include "SocketClient.cpp"
 
 // Boost includes
 #include <boost/asio.hpp>
 #include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/algorithm/string.hpp>
 
 #ifdef DEBUG
 #include <fstream>
@@ -30,7 +30,9 @@ private:
     char _ipAddress[64];
     char _port[3];
     
-    SocketClient *readSerialClient;
+    boost::asio::io_context io_context;
+    tcp::socket socket_;
+    
     
 #ifdef DEBUG
     std::ofstream logFile;
@@ -66,32 +68,23 @@ public:
     //// Custom
     bool close = false;
     
-    Socket(SharedMemory *sharedMemory, char ip[64], char port[2])
+    Socket(SharedMemory *sharedMemory, char ip[64], char port[2]) : socket_(io_context)
     {
         openStreams();
         
         sharedMemoryInstance = sharedMemory;
         
-        readSerialClient = new SocketClient();
-        
         memcpy(_ipAddress, ip, 64);
         memcpy(_port, port, 3);
-        
     }
     
     //-----------------------------------
     // Overloaded methods.
     void run() {
-        logMessage("Socket -> started serial read");
-        
-        
-        
-        readSerialClient->connect(_ipAddress, _port, boost::posix_time::seconds(1));
-        
-        logMessage("Socket -> connected");
+        connect(_ipAddress, _port);
         
         uint8_t dataToOpenReceiving[] = {0x01, 0x55};
-        readSerialClient->send(dataToOpenReceiving, 2);
+        send(dataToOpenReceiving, 2);
         boost::system::error_code ec;
         
         while (!close) {
@@ -99,14 +92,14 @@ public:
             
             size_t length = 0;
             
-            uint8_t *readSerialData = readSerialClient->receiveSerial(&ec, &length);
+            uint8_t *readSerialData = receiveSerial(&ec, &length);
             
             while (ec == boost::asio::error::eof) {
-                readSerialClient->close();
-                readSerialClient->connect(_ipAddress, _port, boost::posix_time::seconds(1));
-                readSerialClient->send(dataToOpenReceiving, 2);
+                closeSocket();
+                connect(_ipAddress, _port);
+                send(dataToOpenReceiving, 2);
                 
-                readSerialData = readSerialClient->receiveSerial(&ec, &length);
+                readSerialData = receiveSerial(&ec, &length);
             }
             std::cout << "received" << std::endl;
             
@@ -118,7 +111,7 @@ public:
             free(readSerialData);
             
         }
-        readSerialClient->close();
+        closeSocket();
         
         logMessage("Socket -> read serial ended");
         
@@ -173,7 +166,7 @@ public:
             logMessage(std::to_string((char)wholeData[i]));
         }
         
-        logMessage("writeSerialThreaded end: " + std::to_string(readSerialClient->send(wholeData, totalLength)));
+        logMessage("writeSerialThreaded end: " + std::to_string(send(wholeData, totalLength)));
         
         free(wholeData);
     }
@@ -189,8 +182,13 @@ public:
         uint8_t *repackedData = repack(data, length);
         
         std::cout << "sendAudioThreaded called" << std::endl;
-        SocketClient *client = new SocketClient();
-        client->connect(_ipAddress, _port, boost::posix_time::seconds(1));
+        
+        boost::asio::io_context io_context;
+        tcp::socket audioSocket(io_context);
+        
+        boost::system::error_code ec;
+        tcp::resolver resolver(io_context);
+        boost::asio::connect(socket_, resolver.resolve(_ipAddress, _port), ec);
         
         
         char lengthString[5];
@@ -226,9 +224,7 @@ public:
         
         std::cout << header << std::endl;
         
-        boost::system::error_code ec;
-        
-        client->send(header, std::strlen(header));
+        boost::asio::write(audioSocket, boost::asio::buffer(header, std::strlen(header)), ec);
         
         int p = 0;
         int fpblen = 1024;//4096
@@ -237,15 +233,16 @@ public:
         
         while (length) {
             if (length > fpblen) {
-                sendLen = client->send(&repackedData[p], fpblen);
+                sendLen = boost::asio::write(audioSocket, boost::asio::buffer(&repackedData[p], fpblen), ec);
+                
                 length -= fpblen;
                 p += fpblen;
             } else {
-                sendLen = client->send(&repackedData[p], length);
+                sendLen = boost::asio::write(audioSocket, boost::asio::buffer(&repackedData[p], length), ec);
                 length = 0;
             }
         }
-        client->close();
+        audioSocket.close();
         
         free(head2);
         free(head4);
@@ -320,5 +317,45 @@ public:
         free(wholeData);
         //        free(data);
         return PCM_Data;
+    }
+    
+    //MARK:- Socket APIs
+    
+    
+    void connect(const std::string& host, const std::string& service)
+    {
+        boost::system::error_code ec;
+        tcp::resolver resolver(io_context);
+        boost::asio::connect(socket_, resolver.resolve(host, service), ec);
+    }
+    size_t send(const void *data, size_t length)
+    {
+        boost::system::error_code ec;
+        size_t sentSize = boost::asio::write(socket_, boost::asio::buffer(data, length), ec);
+        return sentSize;
+    }
+    uint8_t * receiveSerial(boost::system::error_code *ec, size_t *size)
+    {
+        size_t readSize;
+        
+        boost::asio::streambuf b;
+        readSize = boost::asio::read_until(socket_, b, '\n', *ec);
+        std::istream is(&b);
+        std::string data;
+        std::getline(is, data);
+        
+        boost::erase_all(data, "\x01U");
+        readSize = data.size();
+        
+        std::memcpy(size, &readSize, sizeof(size_t));
+        
+        
+        char *replyData = (char *) malloc(readSize);
+        data.copy(replyData, readSize);
+        return (uint8_t *)replyData;
+    }
+    void closeSocket()
+    {
+        socket_.close();
     }
 };

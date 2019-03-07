@@ -1,13 +1,12 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright ? 2018 Backyard Brains. All rights reserved.
 //
 
 #ifndef _SharedMemory_cpp
 #define _SharedMemory_cpp
 
 #include "Macros.h"
-#include "SharedStruct.h"
 
 #include <iostream>
 #include <thread>
@@ -27,7 +26,7 @@ using namespace boost::interprocess;
 class SharedMemory
 {
     
-private:
+    private:
     
     std::mutex mutexVideo;
     std::mutex mutexAudio;
@@ -50,7 +49,7 @@ private:
     std::ofstream logFile;
 #endif
     
-public:
+    public:
     
     int audioSize = 1000;
     int frameSize = 2764800;
@@ -125,40 +124,39 @@ public:
         
         *size = audioSize * 2 * audioChunkCounter;
         
-        int16_t *payload = reinterpret_cast<int16_t*>(fooAudioRegion.get_address());
+        int16_t *audioData = (int16_t *) malloc(*size + 1);
+        memcpy(audioData, fooAudioRegion.get_address(), *size);
         
         audioChunkCounter = 0;
-        
         audioObtained = false;
-        
         mutexAudio.unlock();
         
-        return payload;
+        return audioData;
     }
     
     uint8_t *readVideo() {
         return readFrame();
     }
     
-    AudioReply *readAudio() {
-        
-        AudioReply *reply;
-        
-        if (audioObtained) {
-            
-            int size = 0;
-            int16_t *payload = readAudio(&size);
-            
-            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + size + 10);
-            reply->data = payload;
-            reply->length = size;
-        } else {
-            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + 10);
-            reply->length = 0;
-            
-        }
-        return reply;
-    }
+    //    AudioReply *readAudio() {
+    //
+    //        AudioReply *reply;
+    //
+    //        if (audioObtained) {
+    //
+    //            int size = 0;
+    //            int16_t *payload = readAudio(&size);
+    //
+    //            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + size + 10);
+    //            reply->data = payload;
+    //            reply->length = size;
+    //        } else {
+    //            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + 10);
+    //            reply->length = 0;
+    //
+    //        }
+    //        return reply;
+    //    }
     
     void writeSerialRead(uint8_t *data, size_t length) {
         
@@ -191,7 +189,8 @@ public:
         
         mutexSerialRead.lock();
         uint8_t *payload = (uint8_t *) malloc(0);
-        std::memcpy(size, &serialReadWrittenSize, sizeof(int));
+        //        std::memcpy(size, &serialReadWrittenSize, sizeof(int));
+        *size = serialReadWrittenSize;
         if (serialReadWrittenSize > 0) {
             serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, 0, serialReadWrittenSize);
             payload = reinterpret_cast<uint8_t*>(serialReadRegion.get_address());

@@ -15,13 +15,14 @@ audioMat = 0;
 serialData = 0;
 
 serialCounter = 0;
+
 while rak.isRunning()
     
     
     imageMat = rak.readVideo();
     
     
-%     audioMat = [audioMat rak.readAudio()];
+    audioMat = [audioMat rak.readAudio()];
     
     imageMat = flip(permute(reshape(imageMat, 3, 1280, 720),[3,2,1]), 3);
     

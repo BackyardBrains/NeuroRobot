@@ -20,6 +20,7 @@ extern "C" {
 #ifdef DEBUG
 #include <fstream>
 #include <ctime>
+#include <string.h>
 //#include <chrono>
 #endif
 
@@ -80,6 +81,8 @@ public:
         char *url = new char[std::strlen(head1) +
                              std::strlen(ipAddress) +
                              std::strlen(head2) + 1];
+        
+        
         
         std::strcpy(url, head1);
         std::strcat(url, ipAddress);
