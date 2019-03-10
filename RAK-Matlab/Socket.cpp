@@ -27,11 +27,12 @@ using boost::asio::ip::tcp;
 class Socket : public MexThread
 {
 private:
-    char _ipAddress[64];
-    char _port[3];
+    std::string ipAddress_;
+    std::string port_;
     
     boost::asio::io_context io_context;
     tcp::socket socket_;
+    tcp::socket audioSocket_;
     
     
 #ifdef DEBUG
@@ -68,20 +69,20 @@ public:
     //// Custom
     bool close = false;
     
-    Socket(SharedMemory *sharedMemory, char ip[64], char port[2]) : socket_(io_context)
+    Socket(SharedMemory *sharedMemory, std::string ip, std::string port) : socket_(io_context), audioSocket_(io_context)
     {
         openStreams();
         
         sharedMemoryInstance = sharedMemory;
         
-        memcpy(_ipAddress, ip, 64);
-        memcpy(_port, port, 3);
+        ipAddress_ = ip;
+        port_ = port;
     }
     
     //-----------------------------------
     // Overloaded methods.
     void run() {
-        connect(_ipAddress, _port);
+        connect(ipAddress_, port_);
         
         uint8_t dataToOpenReceiving[] = {0x01, 0x55};
         send(dataToOpenReceiving, 2);
@@ -89,26 +90,21 @@ public:
         
         while (!close) {
             
-            
-            size_t length = 0;
-            
-            uint8_t *readSerialData = receiveSerial(&ec, &length);
+            std::string readSerialData = receiveSerial(&ec);
             
             while (ec == boost::asio::error::eof) {
-                closeSocket();
-                connect(_ipAddress, _port);
+                socket_.close();
+                connect(ipAddress_, port_);
                 send(dataToOpenReceiving, 2);
                 
-                readSerialData = receiveSerial(&ec, &length);
+                readSerialData = receiveSerial(&ec);
             }
             std::cout << "received" << std::endl;
             
             
-            if (length > 0) {
-                sharedMemoryInstance->writeSerialRead(readSerialData, length);
+            if (readSerialData.length() > 0) {
+                sharedMemoryInstance->writeSerialRead(readSerialData);
             }
-            
-            free(readSerialData);
             
         }
         closeSocket();
@@ -142,7 +138,6 @@ public:
     }
     void writeSerial(std::string data)
     {
-        logMessage("writeSerialString " + data);
         std::thread thread(&Socket::writeSerialThreadedString, this, data);
         thread.detach();
     }
@@ -152,8 +147,6 @@ public:
     }
     void writeSerialThreaded(uint8_t *data, size_t length)
     {
-        logMessage("writeSerialThreaded enter");
-        
         size_t totalLength = length + 3;
         uint8_t header[] = { 0x01, 0x55 };
         uint8_t *wholeData = (uint8_t *) malloc(totalLength);
@@ -162,11 +155,7 @@ public:
         memcpy(&wholeData[2], data, length);
         memcpy(&wholeData[totalLength - 1], footer, 1);
         
-        for (int i = 0; i < totalLength; i++) {
-            logMessage(std::to_string((char)wholeData[i]));
-        }
-        
-        logMessage("writeSerialThreaded end: " + std::to_string(send(wholeData, totalLength)));
+        std::to_string(send(wholeData, totalLength));
         
         free(wholeData);
     }
@@ -181,29 +170,18 @@ public:
     {
         uint8_t *repackedData = repack(data, length);
         
-        std::cout << "sendAudioThreaded called" << std::endl;
-        
-        boost::asio::io_context io_context;
-        tcp::socket audioSocket(io_context);
-        
         boost::system::error_code ec;
-        tcp::resolver resolver(io_context);
-        boost::asio::connect(socket_, resolver.resolve(_ipAddress, _port), ec);
-        
-        
-        char lengthString[5];
-        printf(lengthString, "%d", length);
         
         
         char head1[] = "POST /audio.input HTTP/1.1\r\n";
         char *head2 = (char *) malloc(30);
         strcpy(head2, "Host: ");
-        strcat(head2, _ipAddress);
+        strcat(head2, ipAddress_.c_str());
         strcat(head2, "\r\n");
         char head3[] = "Content-Type: audio/wav\r\n";
         char *head4 = (char *) malloc(30);
         strcpy(head4, "Content-Length: ");
-        strcat(head4, lengthString);
+        strcat(head4, lltoa(length, 10));
         strcat(head4, "\r\n");
         char head5[] = "Connection: keepalive\r\n";
         char head6[] = "Accept: */*\r\n\r\n";
@@ -222,9 +200,9 @@ public:
         std::strcat(header, head5);
         std::strcat(header, head6);
         
-        std::cout << header << std::endl;
+        logMessage(std::string(header));
         
-        boost::asio::write(audioSocket, boost::asio::buffer(header, std::strlen(header)), ec);
+        boost::asio::write(audioSocket_, boost::asio::buffer(header, std::strlen(header)), ec);
         
         int p = 0;
         int fpblen = 1024;//4096
@@ -233,19 +211,19 @@ public:
         
         while (length) {
             if (length > fpblen) {
-                sendLen = boost::asio::write(audioSocket, boost::asio::buffer(&repackedData[p], fpblen), ec);
+                sendLen = boost::asio::write(audioSocket_, boost::asio::buffer(&repackedData[p], fpblen), ec);
                 
                 length -= fpblen;
                 p += fpblen;
             } else {
-                sendLen = boost::asio::write(audioSocket, boost::asio::buffer(&repackedData[p], length), ec);
+                sendLen = boost::asio::write(audioSocket_, boost::asio::buffer(&repackedData[p], length), ec);
                 length = 0;
             }
         }
-        audioSocket.close();
         
         free(head2);
         free(head4);
+        delete [] header;
         free(repackedData);
         
         std::cout << "sendAudioThreaded ended" << std::endl;
@@ -315,8 +293,23 @@ public:
             PCM_Data[i] = linear2ulaw(wholeData[i]);
         }
         free(wholeData);
-        //        free(data);
+//        free(data);
         return PCM_Data;
+    }
+    char *lltoa(long long number, int base){
+        static char buffer[sizeof(number) * 3 + 1];  // Size could be a bit tighter
+        char *p = &buffer[sizeof(buffer)];
+        *(--p) = '\0';
+        lldiv_t qr;
+        qr.quot = number;
+        do {
+            qr = lldiv(qr.quot, 10);
+            *(--p) = abs(qr.rem) + '0';
+        } while (qr.quot);
+        if (number < 0) {
+            *(--p) = '-';
+        }
+        return p;
     }
     
     //MARK:- Socket APIs
@@ -327,6 +320,7 @@ public:
         boost::system::error_code ec;
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket_, resolver.resolve(host, service), ec);
+        boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
     }
     size_t send(const void *data, size_t length)
     {
@@ -334,28 +328,21 @@ public:
         size_t sentSize = boost::asio::write(socket_, boost::asio::buffer(data, length), ec);
         return sentSize;
     }
-    uint8_t * receiveSerial(boost::system::error_code *ec, size_t *size)
+    std::string receiveSerial(boost::system::error_code *ec)
     {
-        size_t readSize;
-        
         boost::asio::streambuf b;
-        readSize = boost::asio::read_until(socket_, b, '\n', *ec);
+        boost::asio::read_until(socket_, b, '\n', *ec);
         std::istream is(&b);
         std::string data;
         std::getline(is, data);
         
         boost::erase_all(data, "\x01U");
-        readSize = data.size();
         
-        std::memcpy(size, &readSize, sizeof(size_t));
-        
-        
-        char *replyData = (char *) malloc(readSize);
-        data.copy(replyData, readSize);
-        return (uint8_t *)replyData;
+        return data;
     }
     void closeSocket()
     {
         socket_.close();
+        audioSocket_.close();
     }
 };

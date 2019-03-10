@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright ï¿½ 2018 Backyard Brains. All rights reserved.
 //
 
 #include "MexThread.h"
@@ -66,7 +66,7 @@ public:
     
     //-----------------------------------
     // Init methods.
-    WriterThread(SharedMemory *sharedMemory, char *ipAddress) {
+    WriterThread(SharedMemory *sharedMemory, std::string ipAddress) {
         
         sharedMemoryInstance = sharedMemory;
         openStreams();
@@ -79,13 +79,13 @@ public:
         char head2[] = "/cam1/h264";
         
         char *url = new char[std::strlen(head1) +
-                             std::strlen(ipAddress) +
+                             ipAddress.size() +
                              std::strlen(head2) + 1];
         
         
         
         std::strcpy(url, head1);
-        std::strcat(url, ipAddress);
+        std::strcat(url, ipAddress.c_str());
         std::strcat(url, head2);
         
         openInput = avformat_open_input(&format_ctx, url, NULL, NULL);

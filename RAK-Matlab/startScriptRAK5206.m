@@ -18,34 +18,35 @@ serialCounter = 0;
 
 while rak.isRunning()
     
-    
+    % Video stream
     imageMat = rak.readVideo();
+    imageMat = flip(permute(reshape(imageMat, 3, 1280, 720),[3,2,1]), 3);
+    set(p1, 'CData', imageMat);
+    drawnow
     
-    
+    % Audio stream
     audioMat = [audioMat rak.readAudio()];
     
-    imageMat = flip(permute(reshape(imageMat, 3, 1280, 720),[3,2,1]), 3);
-    
+    % Write serial
     if mod(serialCounter, 5) == 0
         rak.writeSerial('Rak 5206 is the best project ever');
     end
     
-    if mod(serialCounter, 20) == 0
+    % Send audio
+    if mod(serialCounter, 30) == 0
         t=0:1/1000:6;
-        y=sin(50*t);
+        y=sin(50 * t);
         y = [y y y y]';
         rak.sendAudio2(y);
         
 %         rak.sendAudio('test.wav');
     end
     
+    % Receive serial
     serialData = [serialData rak.readSerial()];
     
     
 
-    set(p1, 'CData', imageMat);
-    drawnow
-    
     serialCounter = serialCounter + 1;
 end
 closeAll;

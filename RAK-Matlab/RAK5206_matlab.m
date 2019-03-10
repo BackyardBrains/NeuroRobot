@@ -11,13 +11,6 @@ classdef RAK5206_matlab
             RAK5206( 'start' );
         end
         
-        function ipAddress = getIpAddress(this)
-            ipAddress = RAK5206( 'getIp' );
-        end
-        function ipAddress = getPort(this)
-            ipAddress = RAK5206( 'getPort' );
-        end
-        
         function audioFrames = readAudio(this)
             audioFrames = RAK5206( 'readAudio' );
         end
