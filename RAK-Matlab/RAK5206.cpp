@@ -56,8 +56,8 @@ public:
         return sharedMemory->readSerialRead(size);
     }
     
-    void sendAudio(int16_t *data, long long length) {
-        socket->sendAudio(data, length);
+    void sendAudio(int16_t *data, long long numberOfBytes) {
+        socket->sendAudio(data, numberOfBytes);
     }
     
     
@@ -178,7 +178,7 @@ public:
             int16_t *data = (int16_t *)mxGetData(prhs[1]);
             columns = 2;
             
-            sendAudio(data, rows);
+            sendAudio(data, rows * 2);
             
             return;
         }

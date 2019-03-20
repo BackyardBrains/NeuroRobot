@@ -29,16 +29,19 @@ while rak.isRunning()
     audioMat = [audioMat rak.readAudio()];
     
     % Write serial
-    if mod(serialCounter, 5) == 0
-        rak.writeSerial('Rak 5206 is the best project ever');
+    if serialCounter < 100
+        rak.writeSerial('l:100;r:100;d:50;');
+    else
+        rak.writeSerial('l:0;r:0;d:0;');
     end
     
+    
     % Send audio
-    if mod(serialCounter, 30) == 0
-        t=0:1/1000:6;
-        y=sin(50 * t);
+    if serialCounter == 0
+        t = 0 : 1/1000 : 5;
+        y = sin(6.28 * 8 * t);
         y = [y y y y]';
-        rak.sendAudio2(y(1:1000));
+        rak.sendAudio2(y);
 %         rak.sendAudio('test.wav');
     end
     

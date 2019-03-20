@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright � 2018 Backyard Brains. All rights reserved.
+//  Copyright ? 2018 Backyard Brains. All rights reserved.
 //
 
 #include "MexThread.h"
@@ -75,20 +75,12 @@ public:
         avformat_network_init();
 
         //// Open RTSP
-        char head1[] = "rtsp://admin:admin@";
-        char head2[] = "/cam1/h264";
+        std::string url = std::string();
+        url.append("rtsp://admin:admin@");
+        url.append(ipAddress);
+        url.append("/cam1/h264");
         
-        char *url = new char[std::strlen(head1) +
-                             ipAddress.size() +
-                             std::strlen(head2) + 1];
-        
-        
-        
-        std::strcpy(url, head1);
-        std::strcat(url, ipAddress.c_str());
-        std::strcat(url, head2);
-        
-        openInput = avformat_open_input(&format_ctx, url, NULL, NULL);
+        openInput = avformat_open_input(&format_ctx, url.c_str(), NULL, NULL);
         if (openInput != 0) {
             
             logMessage("init >>> not succeeded 'avformat_open_input'");
@@ -226,8 +218,7 @@ public:
             rgb_data[i] = (uint8_t *) malloc(sharedMemoryInstance->frameSize);
         }
         
-        
-        while (av_read_frame(format_ctx, &packet) >= 0 && !close) { //read ~ 1000 frames
+        while (av_read_frame(format_ctx, &packet) >= 0 && !close) {
             
 //             std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::high_resolution_clock::now();
 //             std::chrono::duration<long long, std::ratio<1, 1000000000>> diff = currentTime - lastTime;
