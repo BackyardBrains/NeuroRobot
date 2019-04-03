@@ -5,7 +5,7 @@ clear mex; clear all; close all; clear functions;
 % mex RAK5206.cpp -IC:\boost_1_68_0_build\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build\lib -LC:\ffmpeg-4.1-win64-dev\lib -llibboost_system-mgw63-mt-x32-1_68 -llibboost_thread-mgw63-mt-x32-1_68 -llibboost_chrono-mgw63-mt-x32-1_68 -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0A00 
 % mex RAK5206.cpp -IC:\boost_1_68_0_build2\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build2\lib -LC:\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
 % mex RAK5206.cpp -LC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -IC:\boost_1_68_0 -IC:\boost_1_68_0\stage\lib -LC:\ffmpeg-shared\bin -LC:\ffmpeg-dev\lib -LC:\ffmpeg-dev\include -IC:\ffmpeg-shared\bin -IC:\ffmpeg-dev\lib -IC:\ffmpeg-dev\include -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -lboost_thread-vc141-mt-x64-1_68 -lavcodec -lavformat -lavutil -lswscale
-% mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
+mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
 
 rak = RAK5206_matlab('192.168.100.1', '80');
 rak.start();
@@ -17,33 +17,38 @@ serialData = [];
 
 serialCounter = 0;
 
-while rak.isRunning() && serialCounter < 500
+while rak.isRunning()
     
+    % Video stream
     imageMat = rak.readVideo();
-
-    audioMat = [audioMat rak.readAudio()];
-    
     imageMat = flip(permute(reshape(imageMat, 3, 1280, 720),[3,2,1]), 3);
-    
-    if mod(serialCounter, 5) == 0
-        rak.writeSerial('Rak 5206 is the best project ever');
-    end
-    
-    if mod(serialCounter, 20) == 0
-        t=0:1/1000:6;
-        y=sin(50*t);
-        y = [y y y y]';
-        rak.sendAudio2(y(1:1000));
-%         rak.sendAudio('test.wav');
-    end
-    
-    serialData = [serialData rak.readSerial()];
-    
     set(p1, 'CData', imageMat);
     drawnow
     
-    serialCounter = serialCounter + 1
+    % Audio stream
+    audioMat = [audioMat rak.readAudio()];
     
+    % Write serial
+    if serialCounter < 100
+        rak.writeSerial('l:100;r:100;d:50;');
+    else
+        rak.writeSerial('l:0;r:0;d:0;');
+    end
+    
+    
+    % Send audio
+    if serialCounter == 0
+        t = 0 : 1/1000 : 5;
+        y = sin(6.28 * 8 * t);
+        y = [y y y y]';
+        rak.sendAudio2(y);
+%         rak.sendAudio('test.wav');
+    end
+    
+    % Receive serial
+    serialData = [serialData rak.readSerial()];
+
+    serialCounter = serialCounter + 1;
 end
 
 closeAll;

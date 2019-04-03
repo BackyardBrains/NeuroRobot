@@ -11,13 +11,6 @@ classdef RAK5206_matlab
             RAK5206( 'start' );
         end
         
-        function ipAddress = getIpAddress(this)
-            ipAddress = RAK5206( 'getIp' );
-        end
-        function ipAddress = getPort(this)
-            ipAddress = RAK5206( 'getPort' );
-        end
-        
         function audioFrames = readAudio(this)
             audioFrames = RAK5206( 'readAudio' );
         end
@@ -44,6 +37,13 @@ classdef RAK5206_matlab
         
         function sendAudio(this, fileName)
             [data, Fs] = audioread(fileName);
+            
+            % Change sample rate
+            if Fs ~= 8000
+                [P,Q] = rat(8000/Fs);
+                data = resample(data, P, Q);
+            end
+            
             % Scale to 14bit
             data = int16(data * 8158);
             RAK5206( 'sendAudio' , data);
@@ -54,9 +54,6 @@ classdef RAK5206_matlab
             data = int16(data * 8158);
             RAK5206( 'sendAudio' , data);
         end
-        
     end
-    
-    
 end
 

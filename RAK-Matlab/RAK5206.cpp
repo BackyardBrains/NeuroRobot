@@ -17,8 +17,6 @@
 class RAK5206
 {
 private:
-    char ipAddress[20];
-    char port[5];
     
     SharedMemory *sharedMemory = new SharedMemory();
     WriterThread *writer;
@@ -26,7 +24,7 @@ private:
     
 public:
     
-    void init(char *ipAddress, char *port) {
+    void init(std::string ipAddress, std::string port) {
         
         writer = new WriterThread(sharedMemory, ipAddress);
         socket = new Socket(sharedMemory, ipAddress, port);
@@ -34,14 +32,6 @@ public:
     void start() {
         writer->startThreaded();
         socket->startThreaded();
-    }
-    char* getIp(){
-        
-        return ipAddress;
-    }
-    char* getPort(){
-        
-        return port;
     }
     int16_t *readAudio(int *size) {
         int16_t *reply = sharedMemory->readAudio(size);
@@ -66,8 +56,8 @@ public:
         return sharedMemory->readSerialRead(size);
     }
     
-    void sendAudio(int16_t *data, long long length) {
-        socket->sendAudio(data, length);
+    void sendAudio(int16_t *data, long long numberOfBytes) {
+        socket->sendAudio(data, numberOfBytes);
     }
     
     
@@ -83,23 +73,22 @@ public:
         if ( !strcmp("init", cmd) ) {
             if (nrhs < 3 ) { mexErrMsgTxt("Missing second and third input."); return; }
             
+            char *ipAddress = (char *)malloc(20);
+            char *port = (char *)malloc(5);
             mxGetString(prhs[1], ipAddress, (mwSize)mxGetN(prhs[1]) + 1);
             mxGetString(prhs[2], port, (mwSize)mxGetN(prhs[2]) + 1);
             
+            std::string ipAddressString = std::string(ipAddress, mxGetN(prhs[1]));
+            std::string portString = std::string(port, mxGetN(prhs[2]));
             
-            init(ipAddress, port);
+            free(ipAddress);
+            free(port);
+            
+            init(ipAddressString, portString);
             return;
         } else if ( !strcmp("start", cmd) ) {
             
             start();
-            return;
-        } else if ( !strcmp("getIp", cmd) ) {
-            
-            plhs[0] = mxCreateString(getIp());
-            return;
-        } else if ( !strcmp("getPort", cmd) ) {
-            
-            plhs[0] = mxCreateString(getPort());
             return;
         } else if ( !strcmp("readAudio", cmd) ) {
             int size = 0;
@@ -108,7 +97,7 @@ public:
             int16_t *yp;
             yp  = (int16_t*) mxGetData(plhs[0]);
             memcpy(yp, reply, size);
-                
+            
                 
             free(reply);
             return;
@@ -189,7 +178,7 @@ public:
             int16_t *data = (int16_t *)mxGetData(prhs[1]);
             columns = 2;
             
-            sendAudio(data, rows);
+            sendAudio(data, rows * 2);
             
             return;
         }

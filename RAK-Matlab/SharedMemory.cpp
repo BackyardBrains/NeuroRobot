@@ -138,62 +138,32 @@ class SharedMemory
         return readFrame();
     }
     
-    //    AudioReply *readAudio() {
-    //
-    //        AudioReply *reply;
-    //
-    //        if (audioObtained) {
-    //
-    //            int size = 0;
-    //            int16_t *payload = readAudio(&size);
-    //
-    //            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + size + 10);
-    //            reply->data = payload;
-    //            reply->length = size;
-    //        } else {
-    //            reply = (AudioReply *) malloc(sizeof(AudioReply) + sizeof(int) + 10);
-    //            reply->length = 0;
-    //
-    //        }
-    //        return reply;
-    //    }
-    
-    void writeSerialRead(uint8_t *data, size_t length) {
+    void writeSerialRead(std::string data) {
         
-        uint8_t *dataCopy = (uint8_t *) malloc(length);
-        memcpy(dataCopy, data, length);
-        std::thread thread(&SharedMemory::writeSerialReadThreaded, this, dataCopy, length);
+        std::thread thread(&SharedMemory::writeSerialReadThreaded, this, data);
         thread.detach();
     }
     
-    void writeSerialReadThreaded(uint8_t *data, size_t length) {
+    void writeSerialReadThreaded(std::string data) {
         mutexSerialRead.lock();
         logMessage("writeSerialRead >>> enter");
         
-        serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, serialReadWrittenSize, length);
-        memcpy(serialReadRegion.get_address(), data, length);
+        serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, serialReadWrittenSize, data.length());
+        memcpy(serialReadRegion.get_address(), data.c_str(), data.length());
         
-        for (int i = 0; i < length; i++) {
-            std::cout << "serial write: " << (int)data[i] << std::endl;
-        }
-        //        std::cout << serialReadWrittenSize << std::endl;
-        
-        serialReadWrittenSize += length;
+        serialReadWrittenSize += data.length();
         
         mutexSerialRead.unlock();
-        
-        free(data);
     }
     
     uint8_t *readSerialRead(int *size) {
         
         mutexSerialRead.lock();
-        uint8_t *payload = (uint8_t *) malloc(0);
-        //        std::memcpy(size, &serialReadWrittenSize, sizeof(int));
+        uint8_t *payload = (uint8_t *) malloc(serialReadWrittenSize);
         *size = serialReadWrittenSize;
         if (serialReadWrittenSize > 0) {
             serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, 0, serialReadWrittenSize);
-            payload = reinterpret_cast<uint8_t*>(serialReadRegion.get_address());
+            memcpy(payload, serialReadRegion.get_address(), serialReadWrittenSize);
             serialReadWrittenSize = 0;
         }
         
