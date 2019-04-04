@@ -17,9 +17,7 @@ draw_neuron_numbers = 0;
 save_brain_jpg = 0;
 
 bluetooth_name = 'RNBT-0C56';
-startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
-fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
-    
+
 many_laptops = 0;
 second_screen_analysis = 0;
 ext_cam_id = 0;
@@ -114,6 +112,8 @@ if many_laptops
     end
     disp(horzcat('Computer name: ', computer_name))
 else
+    startup_fig_pos = [1 41 1920 1017];   
+    fig_pos = [1 41 1920 1017];
     bfsize = 18;
 end
 
