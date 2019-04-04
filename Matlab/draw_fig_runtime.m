@@ -36,9 +36,9 @@ if bg_brain
     end
     drive_bar_ax.Color = fig_bg_col;
     set(drive_bar_ax, 'FontSize', bfsize - 6, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Network drive', 'FontSize', bfsize, 'fontname', gui_font_name);
+    xlabel('Drive', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
-    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'Box', 'off', 'ycolor', fig_bg_col)
+    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 1:nnetworks-1, 'ytick', [], 'Box', 'off', 'ycolor', fig_bg_col)
 elseif manual_controls
     left_pos = [0.75 0.37 0.07 0.05];
     right_pos = [0.91 0.37 0.07 0.05];

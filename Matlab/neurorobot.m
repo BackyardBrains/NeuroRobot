@@ -34,6 +34,8 @@ max_w = 30;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
+% fig_bg_col = [0.94 0.94 0.94];
+fig_bg_col = [1 1 1];
 
 
 %% Clear
@@ -73,8 +75,6 @@ gong = y;
 ms_per_step = round(pulse_period * 1000);
 ltp_recency_th_in_steps = round(ltp_recency_th_in_sec / ms_per_step);
 speaker_selected = 0;
-fig_bg_col = [0.94 0.94 0.94];
-% fig_bg_col = [1 1 1];
 if ~exist('voluntary_restart', 'var')
     voluntary_restart = 0;
 end
