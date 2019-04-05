@@ -23,7 +23,7 @@ if reward
 %     end
 %     brain.rewarded_frames(nrewarded_frame, :, :, :) = large_frame;
     
-    disp(horzcat('Dopamine reward: ', num2str(reward)))
+%     disp(horzcat('Dopamine reward: ', num2str(reward)))
     
 %     for ii = [1 0.8]
 %         button_reward.BackgroundColor = [0.8 ii 0.8];
