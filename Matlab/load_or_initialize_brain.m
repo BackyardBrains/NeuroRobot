@@ -4,8 +4,6 @@ if brain_selection_val > 1
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;
     connectome = brain.connectome;
-    connectome(connectome > 30) = 30;
-    connectome(connectome < -30) = -30;
     da_connectome = brain.da_connectome;
     da_connectome(:,:,2) = connectome;
     da_connectome(:,:,3) = zeros(size(connectome));

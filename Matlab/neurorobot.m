@@ -9,7 +9,7 @@
 %% Settings
 rak_only = 0;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 bluetooth_present = 1;
 bg_brain = 1;
 draw_synapse_strengths = 1;
@@ -25,12 +25,12 @@ second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 manual_controls = 0;
-use_profile = 0;
+use_profile = 1;
 nsteps_per_loop = 100;
 brain_facts = 0;
 use_cnn = 0;
 pulse_period = 0.1; % in seconds
-max_w = 30;
+max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
@@ -88,8 +88,8 @@ if many_laptops
         fig_pos = [1 41 1920 1017];
     %     startup_fig_pos = [1921 1 1920 1057];   
     %     fig_pos = [1921 1 1920 1057];    
-        bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
-    %     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
+%         bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
+        bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
         bfsize = 18;
     elseif strcmp(computer_name, 'laptop-green')
         startup_fig_pos = [1 41 1536 800.8000];   
