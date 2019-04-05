@@ -84,7 +84,7 @@ if nneurons
                 other_nets = 1:nnetworks;
                 other_nets(nnetwork) = [];
                 network_drive(other_nets, 1) = network_drive(other_nets, 1) - rand * 2.5; % inhibit the other nets
-                network_drive(nnetwork, 1) = network_drive(nnetwork, 1) - rand * 3.5 + reward * 2.5; % and withdraw some of the network's drive -- NOTE: TONIC REWARD
+                network_drive(nnetwork, 1) = network_drive(nnetwork, 1) - rand * 3.5 + reward * 1.5; % and withdraw some of the network's drive -- NOTE: TONIC REWARD
                 if network_drive(nnetwork, 1) < th % if the network's drive falls below threshold
                     network_drive(nnetwork, 1) = 0; % set it's drive to zero
                     network_drive(nnetwork, 2) = 0; % and set it as no longer active
@@ -133,6 +133,9 @@ if nneurons
     msn_vals(1) = [];
     msn_vals = msn_vals / 250;
     xfiring(logical(bg_neurons)) = msn_vals;
+%     if nstep > 50
+%         1
+%     end
     
     % Learning (STDP)
     for nneuron = find(firing)' % for each spiking neuron
@@ -151,8 +154,7 @@ if nneurons
             for presyn = find(these_neurons)'
                 w = connectome(presyn, nneuron);
 %                 disp(num2str(w))
-%                 w = round(w * 100) / 100;
-                w = round(w);
+                w = round(w * 100) / 100;
                 if brain_view_tiled
                     this_network = network_ids(presyn);
                     network(this_network).plot_neuron_synapses(presyn, nneuron, 1).LineWidth = (abs(w) / 12) + 1;
@@ -166,7 +168,7 @@ if nneurons
                     end                    
                 end
             end
-%             disp('I learned something!')
+            disp('I learned something!')
         end
     end
     connectome = min(connectome, max_w); % enforce max weight
@@ -187,8 +189,7 @@ if nneurons
                 connectome(nneuron, postsyn) = current_w - this_loss;
                 if this_loss
                     w = connectome(nneuron, postsyn);
-%                     w = round(w * 100) / 100;
-                    w = round(w);
+                    w = round(w * 100) / 100;
 %                     disp(horzcat('Im forgetting (r = ', num2str(reinforcement), ', l = ', num2str(this_loss), ')'))
                     if brain_view_tiled
                         this_network = network_ids(nneuron); 

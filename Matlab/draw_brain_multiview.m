@@ -131,7 +131,8 @@ for p1 = 1:nneurons
             end
             network(this_network).plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
             if draw_synapse_strengths
-                w = round(w * 100) / 100;
+%                 w = round(w * 100) / 100;
+                w = round(w);
                 network(this_network).plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', (bfsize - 6), 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
             end
 		end
