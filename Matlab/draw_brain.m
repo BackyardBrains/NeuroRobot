@@ -243,21 +243,23 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     
 	draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
     draw_neuron_core = scatter(neuron_xys(:,1), neuron_xys(:,2), core_size, neuron_cols, 'filled');
-    if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
+    if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         draw_neuron_edge.ButtonDownFcn = 'neuron_selected';
         draw_neuron_core.ButtonDownFcn = 'neuron_selected';
     end
     if draw_neuron_numbers
         for nneuron = 1:nneurons
             neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
+            if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
                 neuron_annotation(nneuron).ButtonDownFcn = 'neuron_selected';
             end
         end
     end
-    for nneuron = 1:nneurons
-        if da_rew_neurons(nneuron)
-            neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [1 0.3 0.3]);
+    if exist('da_rew_neurons', 'var')
+        for nneuron = 1:nneurons
+            if da_rew_neurons(nneuron)
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [1 0.3 0.3]);
+            end
         end
     end
     
