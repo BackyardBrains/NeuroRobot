@@ -1,5 +1,5 @@
 To run the Neurorobot App without neurorobot hardware or webcamera:
-1) Get Matlab (+ Image Acquisition and Image Processing toolboxes)
+1) Get Matlab
 2) Download/clone the Matlab directory
 3) Run the script neurorobot.m (settings: camera_present = 0, use_webcam = 0, bluetooth_present = 0)
 
