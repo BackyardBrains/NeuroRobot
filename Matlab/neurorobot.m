@@ -9,8 +9,8 @@
 %% Settings
 rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
-bluetooth_present = 1;
+use_webcam = 1;
+bluetooth_present = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 0;
@@ -20,7 +20,7 @@ bluetooth_name = 'RNBT-0C56';
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
     
-many_laptops = 1;
+many_laptops = 0;
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
