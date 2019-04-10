@@ -7,8 +7,8 @@
 
 
 %% Settings
-rak_only = 0;
-camera_present = 0;
+rak_only = 1;
+camera_present = 1;
 use_webcam = 0;
 bluetooth_present = 0;
 bg_brain = 1;

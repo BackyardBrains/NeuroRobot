@@ -1,0 +1,2 @@
+Wed Apr 10 09:29:57 2019 : openStreams >> SharedMemory >>> opened
+Wed Apr 10 09:29:57 2019 : SharedMemory >>> init
