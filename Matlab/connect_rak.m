@@ -29,7 +29,7 @@ try
         rak_cam = HebiCam(url);
     elseif use_webcam
         % Webcam
-        rak_cam = videoinput('winvideo', 1, 'YUY2_1280x720');
+        rak_cam = videoinput('winvideo', 1);
         triggerconfig(rak_cam, 'manual');
         rak_cam.TriggerRepeat = Inf;
         rak_cam.FramesPerTrigger = 1;
