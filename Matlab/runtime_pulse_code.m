@@ -35,7 +35,7 @@ if bluetooth_present
     bluetooth_get_distance
 end
 if rak_only
-    rak_get_serial
+%     rak_get_serial
 end
 
 if run_button == 2

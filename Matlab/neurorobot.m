@@ -81,8 +81,8 @@ end
 
 
 %% Custom settings for classroom events
+computer_name = getComputerName;
 if many_laptops
-    computer_name = getComputerName;
     if strcmp(computer_name, 'laptop-main')
         startup_fig_pos = [1 41 1920 1017];   
         fig_pos = [1 41 1920 1017];
