@@ -1,12 +1,15 @@
 // Neuro Robot Board V0.4
 // Backyard Brains
-// 28.Dec.2018
+// 25.Mar.2019
 // Written by Stanislav Mircic
 //
 // Code is made for ATMEGA328 (Arduino UNO)
 // Code will periodicaly (100 times per second): 
 //  - read data from encoders and ultrasonic sensor and send it through serial in CSV format
-//    (left motor encoder delta, right motor encoder delta, ultrasonic sensor time in uSeconds)
+//    (left motor encoder delta, right motor encoder delta, ultrasonic sensor time in uSeconds, 
+//     accelerometer X, accelerometer Y, accelerometer Z, temperature (degrees C), gyroscope X,
+//      gyroscope Y,  gyroscope Z)
+
 //  - read commands from serial and execute on motor and LEDs
 //
 //  Possible commands:
@@ -43,6 +46,16 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
+//https://playground.arduino.cc/Main/SoftwareI2CLibrary/
+#define SCL_PIN 2
+#define SCL_PORT PORTD
+#define SDA_PIN 3
+#define SDA_PORT PORTD
+#include <SoftI2CMaster.h>
+
+//accelerometer and gyro variables
+#define I2C_7BITADDR 0x68
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 // Righ Driver
 int R_enc = 7;
@@ -140,7 +153,7 @@ void setup() {
   turnOffLEDs();
   turnOffMotor();
   enableMotor();
-
+  initGyro();
 
   pinMode(13, OUTPUT);//debug pin
   setupInterruptForEncoders();
@@ -170,7 +183,6 @@ void setup() {
 }
 
 
-
 //
 // Main sampling timer
 //
@@ -194,11 +206,53 @@ void loop()
       executeRightMotor();
       refreshShiftRegisters();
       executeUltrasonicSensor();
-      
+      executeGyro();
 
       sendSerialFrame();
       PORTB &=B11011111;
   }
+}
+
+void initGyro()
+{
+  if (!i2c_init()) {
+      Serial.println("I2C init failed\n");
+  }
+  else
+  {
+      Serial.println("I2C init OK\n"); 
+  }
+  delay(200);
+  if(!i2c_start_wait((I2C_7BITADDR<<1)|I2C_WRITE))
+  {
+     Serial.print("I2C busy\n");
+  }
+  i2c_write((uint8_t)0x6B);// PWR_MGMT_1 register
+  i2c_write((uint8_t)0); // set to zero (wakes up the MPU-6050)
+  i2c_stop();
+}
+
+void executeGyro()
+{
+   if(!i2c_start_wait((I2C_7BITADDR<<1)|I2C_WRITE))
+  {
+     Serial.print("I2C busy\n");
+  }
+  //Wire.beginTransmission(MPU_addr);
+  i2c_write(0x3B);// starting with register 0x3B (ACCEL_XOUT_H)
+  i2c_stop();
+
+  i2c_rep_start((I2C_7BITADDR<<1)|I2C_READ);
+  // request a total of 14 registers
+
+  AcX=i2c_read(false)<<8|i2c_read(false);  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
+  AcY=i2c_read(false)<<8|i2c_read(false);  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  AcZ=i2c_read(false)<<8|i2c_read(false);  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+  Tmp=i2c_read(false)<<8|i2c_read(false);  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+  GyX=i2c_read(false)<<8|i2c_read(false);  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+  GyY=i2c_read(false)<<8|i2c_read(false);  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+  GyZ=i2c_read(false)<<8|i2c_read(true);  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+  i2c_stop();
 }
 
 
@@ -273,7 +327,15 @@ void sendSerialFrame()
   Serial.print(R_counter, DEC);
   L_counter = 0;
   Serial.print(",");
-  Serial.println(ultrasonicDistance, DEC );
+  Serial.print(ultrasonicDistance, DEC );
+
+  Serial.print(","); Serial.print(AcX);
+  Serial.print(","); Serial.print(AcY);
+  Serial.print(","); Serial.print(AcZ);
+  Serial.print(","); Serial.print(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
+  Serial.print(","); Serial.print(GyX);
+  Serial.print(","); Serial.print(GyY);
+  Serial.print(","); Serial.println(GyZ);
 }
 
 

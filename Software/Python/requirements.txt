@@ -84,10 +84,10 @@ python-xlib==0.14
 pytz==2018.5
 pyudev==0.16.1
 pyxdg==0.25
-PyYAML==3.13
+PyYAML>=4.2b1
 pyzmq==17.0.0
 reportlab==3.3.0
-requests==2.9.1
+requests>=2.20.0
 scipy==1.1.0
 sessioninstaller==0.0.0
 simplegeneric==0.8.1
@@ -115,7 +115,7 @@ unity-scope-tomboy==0.1
 unity-scope-virtualbox==0.1
 unity-scope-yelp==0.1
 unity-scope-zotero==0.1
-urllib3==1.13.1
+urllib3>=1.23
 usb-creator==0.3.0
 virtualenv==15.0.1
 wcwidth==0.1.7

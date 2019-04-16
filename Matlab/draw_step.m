@@ -1,0 +1,14 @@
+
+
+% Draw the activity front
+vplot_front.XData = [nstep nstep] * ms_per_step;
+
+% Update second screen analysis
+if second_screen_analysis
+    draw_analysis_1(1).YData = vis_pref_vals(:,1);
+    draw_analysis_1(2).YData = vis_pref_vals(:,2); 
+    if exist('I', 'var')
+        draw_analysis_2.YData = I;
+    end
+    draw_analysis_3.YData = [motor_command(1) * sign(1.5 - motor_command(2)) motor_command(3) * sign(1.5 - motor_command(4))];
+end
