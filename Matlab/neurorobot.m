@@ -19,6 +19,7 @@ save_brain_jpg = 1;
 bluetooth_name = 'RNBT-0C56';
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
+bfsize = 18;
     
 many_laptops = 0;
 second_screen_analysis = 0;
@@ -111,12 +112,8 @@ if many_laptops
         fig_pos = [1 41 1536 800.8000];
         bluetooth_name = 'RNBT-0C56'; % yellow, wifi = LTH_CFFABA
         bfsize = 16;  
-    else
-        bfsize = 18;
     end
     disp(horzcat('Computer name: ', computer_name))
-else
-    bfsize = 18;
 end
 
 
