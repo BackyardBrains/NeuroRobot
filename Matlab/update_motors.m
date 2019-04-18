@@ -50,13 +50,11 @@ if bluetooth_present || rak_only
         r_dir = motor_command(1,2);
         r_send = horzcat('r:', num2str(r_torque * r_dir));
         rak_cam.writeSerial(r_send)
-%         disp(horzcat('Send to RAK via serial: ', r_send))
         pause(0.01)
         l_torque = motor_command(1,3);
         l_dir = motor_command(1,4);
         l_send = horzcat('l:', num2str(l_torque * l_dir));
         rak_cam.writeSerial(l_send)
-%         disp(horzcat('Send to RAK via serial: ', l_send))        
         pause(0.01)
     elseif ~isequal(motor_command, prev_motor_command)
         bluetooth_send_motor_command

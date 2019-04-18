@@ -8,19 +8,20 @@
 
 %% Settings
 rak_only = 0;
-camera_present = 1;
+camera_present = 0;
 use_webcam = 0;
-bluetooth_present = 1;
+bluetooth_present = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
-draw_neuron_numbers = 0;
-save_brain_jpg = 0;
+draw_neuron_numbers = 1;
+save_brain_jpg = 1;
 
 bluetooth_name = 'RNBT-0C56';
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
+bfsize = 18;
     
-many_laptops = 1;
+many_laptops = 0;
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
@@ -34,8 +35,8 @@ max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
-fig_bg_col = [0.94 0.94 0.94];
-% fig_bg_col = [1 1 1];
+% fig_bg_col = [0.94 0.94 0.94];
+fig_bg_col = [1 1 1];
 
 
 %% Clear
@@ -81,8 +82,8 @@ end
 
 
 %% Custom settings for classroom events
+computer_name = getComputerName;
 if many_laptops
-    computer_name = getComputerName;
     if strcmp(computer_name, 'laptop-main')
         startup_fig_pos = [1 41 1920 1017];   
         fig_pos = [1 41 1920 1017];
@@ -110,11 +111,9 @@ if many_laptops
         startup_fig_pos = [1 41 1536 800.8000];   
         fig_pos = [1 41 1536 800.8000];
         bluetooth_name = 'RNBT-0C56'; % yellow, wifi = LTH_CFFABA
-        bfsize = 16;    
+        bfsize = 16;  
     end
     disp(horzcat('Computer name: ', computer_name))
-else
-    bfsize = 18;
 end
 
 
