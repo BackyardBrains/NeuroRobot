@@ -8,12 +8,12 @@
 
 %% Settings
 rak_only = 0;
-camera_present = 0;
-use_webcam = 0;
+camera_present = 1;
+use_webcam = 1;
 bluetooth_present = 0;
-bg_brain = 1;
+bg_brain = 1; 
 draw_synapse_strengths = 1;
-draw_neuron_numbers = 1;
+draw_neuron_numbers = 0;
 save_brain_jpg = 0;
 
 bluetooth_name = 'RNBT-0C56';
@@ -21,7 +21,7 @@ startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is differe
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18;
     
-many_laptops = 0;
+many_laptops = 1;
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
@@ -85,10 +85,10 @@ end
 computer_name = getComputerName;
 if many_laptops
     if strcmp(computer_name, 'laptop-main')
-        startup_fig_pos = [1 41 1920 1017];   
-        fig_pos = [1 41 1920 1017];
-    %     startup_fig_pos = [1921 1 1920 1057];   
-    %     fig_pos = [1921 1 1920 1057];    
+%         startup_fig_pos = [1 41 1920 1017];   
+%         fig_pos = [1 41 1920 1017];
+        startup_fig_pos = [1921 1 1920 1057];   
+        fig_pos = [1921 1 1920 1057];    
         bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
 %         bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
         bfsize = 18;

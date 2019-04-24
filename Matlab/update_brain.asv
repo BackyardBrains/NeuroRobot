@@ -59,6 +59,8 @@ if nneurons
     if bg_brain
         th = 50 + randn * 15;
         
+        [~, j] = max(network_drive(2:nnetworks, 1));
+        
         for nnetwork = 2:nnetworks
             
             % Sensory boost
@@ -80,7 +82,7 @@ if nneurons
                         brain_multiax(nnetwork).ax.Box = 'on';
                     end
                 end
-            elseif network_drive(nnetwork, 2) == 1% if the network is active and the highest drive network
+            elseif network_drive(nnetwork, 2) == 1 % if the network is active
                 other_nets = 1:nnetworks;
                 other_nets(nnetwork) = [];
                 network_drive(other_nets, 1) = network_drive(other_nets, 1) - rand * 2.5; % inhibit the other nets
@@ -101,13 +103,18 @@ if nneurons
         network_drive(network_drive(:,1) < 0, 1) = 0; 
         network_drive(network_drive(:,1) > 250, 1) = 250; 
 
-        this_network = find(network_drive(:, 2)); % find the active network
+%         % Check if another network than the currently active one has higher
+%         % drive. If so, switch to it. NOT WORKING. NECESSARY?
+%         if sum(network_drive(:, 2))
+%             higher_drive = network_drive(logical(network_drive(:, 2)), 1) < network_drive(:, 1);
+%             if sum(higher_drive)
+%                 network_drive(logical(network_drive(:, 2)), 2) = 0;
+%                 [~, new_network] = max(network_drive(higher_drive, 1));
+%                 network_drive(new_network, 2) = 1;
+%             end
+%         end
         
-        [~, j] = max(network_drive(1:nnetworks, 1)); % find the network with highest drive
-        if this_network ~= j % if the active network is not the network with the highest drive 
-            network_drive(:, 1) = network_drive(:, 1) - 30; % reduce the active network's drive significantly
-        end
-        
+        this_network = find(network_drive(:, 2));
         if isempty(this_network)
             this_network = -1;
         end

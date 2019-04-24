@@ -5,7 +5,7 @@ clear
 
 
 %% MEX build
-if ~exist('RAK5206.mexw64', 'var')
+if ~exist('RAK5206.mexw64', 'file')
     mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -LC:\ffmpeg-4.1.1-win64-dev\lib -IC:\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
 end
 
