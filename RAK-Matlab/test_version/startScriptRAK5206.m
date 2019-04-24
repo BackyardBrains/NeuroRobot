@@ -1,24 +1,34 @@
-clear mex; clear all; close all; clear functions;
+clear mex;
+clear all;
+close all;
+clear functions;
 
-% mex RAK5206.cpp -I/usr/local/include -L/usr/local/lib -lboost_system -lboost_thread -lboost_chrono -lavcodec -lavformat -lavutil -lswscale
-% mex RAK5206.cpp -ID:\rak\boost_1_68_0\library2\include\boost-1_68 -LD:\rak\boost_1_68_0\library2\lib  -lboost_system-vc120-mt-x64-1_68 -ID:\rak\ffmpeg-4.1-win64-dev\include -LD:\rak\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0601
-% mex RAK5206.cpp -IC:\boost_1_68_0_build\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build\lib -LC:\ffmpeg-4.1-win64-dev\lib -llibboost_system-mgw63-mt-x32-1_68 -llibboost_thread-mgw63-mt-x32-1_68 -llibboost_chrono-mgw63-mt-x32-1_68 -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0A00 
-% mex RAK5206.cpp -IC:\boost_1_68_0_build2\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build2\lib -LC:\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
-% mex RAK5206.cpp -LC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -IC:\boost_1_68_0 -IC:\boost_1_68_0\stage\lib -LC:\ffmpeg-shared\bin -LC:\ffmpeg-dev\lib -LC:\ffmpeg-dev\include -IC:\ffmpeg-shared\bin -IC:\ffmpeg-dev\lib -IC:\ffmpeg-dev\include -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -lboost_thread-vc141-mt-x64-1_68 -lavcodec -lavformat -lavutil -lswscale
-mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
-% mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -LC:\ffmpeg-4.1.1-win64-dev\lib -IC:\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+if ~exist('RAK5206.mexw64', 'file')
+%     mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
+    mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -LC:\ffmpeg-4.1.1-win64-dev\lib -IC:\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+end
 
-rak = RAK5206_matlab('192.168.100.1', '80');
+if ~exist('rak', 'var')
+    rak = RAK5206_matlab('192.168.100.1', '80');
+end
 rak.start();
 
+fig1 = figure(1);
+clf
+set(fig1, 'position', [1 41 1536 800.8])
+set(fig1, 'NumberTitle', 'off', 'Name', 'Neurorobot Matlab C++ WiFi RAK interface')
+set(fig1, 'menubar', 'none', 'toolbar', 'none')
+vid_ax = axes('position', [0.05 0.15 0.9 0.8]);
 p1 = imshow(uint8(255* ones(720, 1280, 3)), []);
+button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'normalized', 'position', [0.4 0.05 0.2 0.05]);
+set(button_stop, 'Callback', 'flag_run = 0;', 'FontSize', 18)
 
 audioMat = [];
 serialData = [];
-
+flag_run = 1;
 serialCounter = 0;
 
-while rak.isRunning()
+while rak.isRunning() && flag_run
     
     % Video stream
     imageMat = rak.readVideo();
@@ -52,4 +62,8 @@ while rak.isRunning()
     serialCounter = serialCounter + 1;
 end
 
-closeAll;
+rak.stop();
+audiowrite('test.wav', audioMat, 8000);
+close all;
+serialData
+
