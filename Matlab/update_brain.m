@@ -80,7 +80,7 @@ if nneurons
                         brain_multiax(nnetwork).ax.Box = 'on';
                     end
                 end
-            elseif network_drive(nnetwork, 2) == 1% if the network is active and the highest drive network
+            elseif network_drive(nnetwork, 2) == 1 % if the network is active
                 other_nets = 1:nnetworks;
                 other_nets(nnetwork) = [];
                 network_drive(other_nets, 1) = network_drive(other_nets, 1) - rand * 2.5; % inhibit the other nets
@@ -96,6 +96,7 @@ if nneurons
                         brain_multiax(nnetwork).ax.Box = 'off';               
                     end
                 end
+                network_drive(nnetwork, 3) = network_drive(nnetwork, 3) + reward; 
             end
         end
         network_drive(network_drive(:,1) < 0, 1) = 0; 
@@ -105,7 +106,7 @@ if nneurons
         
         [~, j] = max(network_drive(1:nnetworks, 1)); % find the network with highest drive
         if this_network ~= j % if the active network is not the network with the highest drive 
-            network_drive(:, 1) = network_drive(:, 1) - 30; % reduce the active network's drive significantly
+            network_drive(:, 1) = network_drive(:, 1) - 30 * rand; % reduce the active network's drive significantly
         end
         
         if isempty(this_network)
@@ -121,7 +122,7 @@ if nneurons
     % Step data
     firing = sum(spikes_step, 2) > 0;
     steps_since_last_spike(firing) = 0;
-    steps_since_last_spike = steps_since_last_spike + 1;    
+    steps_since_last_spike = steps_since_last_spike + 1; 
 
     % Create xfiring for analog MSN color
     xfiring = double(firing);
@@ -142,12 +143,21 @@ if nneurons
         these_neurons = presynaptic_neurons & recent_spikers & plastic_synapses; % reinforce these
         da_connectome(these_neurons, nneuron, 3) = da_connectome(these_neurons, nneuron, 3) + 1; % update learning intensity vector
         reinforcement = pulse_period * sigmoid(da_connectome(these_neurons, nneuron, 3), 100, 0.02) * 5 + (reward * 2 * pulse_period); % sigmoid learning
+        
+        % until synapse-specific learning rate has been implemented
+        xx = find(these_neurons);
+        if ~isempty(xx)
+            xx = find(xx == 25);
+            if ~isempty(xx)
+                reinforcement(xx) = reinforcement(xx) * 0.5;
+            end
+        end
+        %
+        
         connectome(these_neurons, nneuron) = connectome(these_neurons, nneuron) + round(reinforcement * 100) / 100;
         if sum(these_neurons)
             for presyn = find(these_neurons)'
                 w = connectome(presyn, nneuron);
-%                 disp(num2str(w))
-%                 w = round(w * 100) / 100;
                 w = round(w);
                 if brain_view_tiled
                     this_network = network_ids(presyn);
@@ -162,11 +172,13 @@ if nneurons
                     end                    
                 end
             end
-%             disp('I learned something!')
         end
     end
     connectome = min(connectome, max_w); % enforce max weight
-    da_connectome(:, nneuron, 3) = da_connectome(:, nneuron, 3) - 0.5;
+    da_connectome(:, :, 3) = da_connectome(:, :, 3) - 0.5;
+    xx = da_connectome(:, :, 3);
+    xx(xx < 0) = 0;
+    da_connectome(:, :, 3) = xx;
 
     % Forgetting
     for nneuron = 1:nneurons % for each neuron
@@ -176,16 +188,21 @@ if nneurons
             original_w = da_connectome(nneuron, postsyn, 2);
             reinforcement = current_w - original_w;
             if reinforcement
-                loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
-                loss_delay(loss_delay < 0) = 0;
+                
+                % until I develop a way for highly active neurons to forget
+                if nneuron == 25
+                    loss_delay = 50 - da_connectome(nneuron, postsyn, 3) * 2;
+                else
+                    loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
+                    loss_delay(loss_delay < 0) = 0;
+                end
+                
                 this_loss = floor(permanent_memory_th / reinforcement) * pulse_period * 0.1 * min(loss_delay/((1/pulse_period)*10), 1);
                 this_loss = min(this_loss, reinforcement);
                 connectome(nneuron, postsyn) = current_w - this_loss;
                 if this_loss
                     w = connectome(nneuron, postsyn);
-%                     w = round(w * 100) / 100;
                     w = round(w);
-%                     disp(horzcat('Im forgetting (r = ', num2str(reinforcement), ', l = ', num2str(this_loss), ')'))
                     if brain_view_tiled
                         this_network = network_ids(nneuron); 
                         network(this_network).plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;

@@ -27,7 +27,8 @@ else
     da_connectome = brain.da_connectome;
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
-    neuron_cols = brain.neuron_cols;   
+    neuron_cols = brain.neuron_cols;
+    da_rew_neurons = brain.da_rew_neurons;
     try
         bg_neurons = brain.bg_neurons;
     catch

@@ -106,7 +106,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             steps_since_last_spike(nneurons, 1) = nan;
             neuron_tones(nneurons, 1) = 0;
             nnetworks = length(unique(network_ids));
-            network_drive = zeros(nnetworks, 2);
+            network_drive = zeros(nnetworks, 3);
             
             % Remove menu
             delete(text_heading)
@@ -281,7 +281,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
             end
             nnetworks = length(unique(network_ids));
-            network_drive = zeros(nnetworks, 2);
+            network_drive = zeros(nnetworks, 3);
             
             % Remove menus
             delete(text_heading)

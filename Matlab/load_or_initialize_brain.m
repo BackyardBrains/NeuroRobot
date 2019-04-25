@@ -5,8 +5,8 @@ if brain_selection_val > 1
     neuron_xys = brain.neuron_xys;
     connectome = brain.connectome;
     da_connectome = brain.da_connectome;
-    da_connectome(:,:,2) = connectome;
-    da_connectome(:,:,3) = zeros(size(connectome));
+%     da_connectome(:,:,2) = connectome;
+%     da_connectome(:,:,3) = zeros(size(connectome));
     a_init = brain.a_init;
     b_init = brain.b_init;
     c_init = brain.c_init;
@@ -40,11 +40,11 @@ if brain_selection_val > 1
     end
     try
         network_drive = brain.network_drive;
-        if isempty(network_drive) || size(network_drive, 1) < nnetworks
-            network_drive = zeros(nnetworks, 2); 
+        if isempty(network_drive) || size(network_drive, 1) < nnetworks || size(network_drive, 2) == 2
+            network_drive = zeros(nnetworks, 3); 
         end
     catch
-        network_drive = zeros(nnetworks, 2); 
+        network_drive = zeros(nnetworks, 3); 
     end
     try
         bg_neurons = brain.bg_neurons;
@@ -78,7 +78,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     da_rew_neurons = [];
     neuron_tones = [];
     network = struct; % this will need its subdivisions in design mode
-    network_drive = zeros(1, 2);
+    network_drive = zeros(1, 3);
     nnetworks = 0;
     bg_neurons = [];
 end
