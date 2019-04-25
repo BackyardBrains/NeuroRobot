@@ -9,8 +9,8 @@
 %% Settings
 rak_only = 0;
 camera_present = 1; % Set this to 1 to use any camera for vision
-use_webcam = 1; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
-bluetooth_present = 0;
+use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
+bluetooth_present = 1;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;

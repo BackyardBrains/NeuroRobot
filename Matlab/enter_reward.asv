@@ -6,9 +6,10 @@ if run_button == 5 || sum(da_rew_neurons(firing))
 end
 
 if reward
-    set(button_reward, 'BackgroundColor', [1 0.75 0.5]);
+    dopamine_button_col = [0.8 1 0.8];
+    disp('this')
 else
-    set(button_reward, 'BackgroundColor', [0.8 0.8 0.8]);
+    dopamine_button_col = [0.8 0.8 0.8];
 end
 
 %     col = [0.8 1 0.8];
