@@ -93,7 +93,7 @@ d(presynaptic_neuron) = str2double(edit_d.String);
 neuron_cols(presynaptic_neuron, 1:3) = col;
 network_ids(presynaptic_neuron) = str2double(edit_id.String);
 nnetworks = length(unique(network_ids));
-network_drive = zeros(nnetworks, 2);
+network_drive = zeros(nnetworks, 3);
 
 % Remove menu
 delete(text_heading)

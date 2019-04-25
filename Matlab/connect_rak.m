@@ -16,20 +16,23 @@ drawnow
 try
 
     if rak_only
-        if ~exist('RAK5206.mexw64')
-            mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
-            % Add rak_lib to path here, if that works, otherwise move
-            % needed files back into main
+        if ~exist('RAK5206.mexw64', 'file')
+            if strcmp(computer_name, 'laptop-main') % old settings
+                mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
+            else % new settings
+                mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -LC:\ffmpeg-4.1.1-win64-dev\lib -IC:\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+            end
         end
+        disp('Mex done')
         rak_cam = RAK5206_matlab('192.168.100.1', '80');
-        rak_cam.start();
+        disp('Rak_cam created')
     elseif ~use_webcam
         % RAK
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';
         rak_cam = HebiCam(url);
     elseif use_webcam
         % Webcam
-        rak_cam = videoinput('winvideo', 1, 'YUY2_1280x720');
+        rak_cam = videoinput('winvideo', 1);
         triggerconfig(rak_cam, 'manual');
         rak_cam.TriggerRepeat = Inf;
         rak_cam.FramesPerTrigger = 1;
@@ -65,3 +68,9 @@ if camera_present
     set(button_camera, 'enable', 'on')
 end
 set(button_startup_complete, 'enable', 'on')
+
+if rak_only && exist('rak_cam', 'var')
+    disp('Trying to start cam')
+    rak_cam.start();
+    disp('Cam started')
+end

@@ -152,7 +152,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     y1 = contact_xys(ncontact, 2);
                     x2 = neuron_xys(nneuron,1);
                     y2 = neuron_xys(nneuron,2);  
-                    w = 250;
+                    w = 50;
                 else
                     x2 = contact_xys(ncontact, 1);
                     y2 = contact_xys(ncontact, 2);
@@ -178,11 +178,11 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     y2 = y2 + 0.25 * ry;                 
                 end
                 lw = 2;
-                s = 9;
+                s = 7;
                 fs = 18;
                 
                 
-                plot_contact_synapses(nneuron, ncontact, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 100), 'color', [0 0 0]);
+                plot_contact_synapses(nneuron, ncontact, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 100), 'color', [0.5 0.5 0.5]);
                 plot_contact_synapses(nneuron, ncontact, 2) = plot(x2, y2, 'marker', 'square', 'markersize', s, 'linewidth', lw, 'markerfacecolor', 'w', 'markeredgecolor', 'k');
 
                 % Indicate synapse filter (add rich neuron symbols here)
