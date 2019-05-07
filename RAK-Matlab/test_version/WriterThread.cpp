@@ -15,6 +15,8 @@ extern "C" {
     #include <libavformat/avio.h>
     #include <libswscale/swscale.h>
     #include <libavutil/imgutils.h>
+    #include <libavutil/opt.h>
+    //#include <libavformat/rtsp.h>
 }
 
 #ifdef DEBUG
@@ -72,6 +74,7 @@ public:
         openStreams();
 
         //// Register everything
+        av_register_all();
         avformat_network_init();
 
         //// Open RTSP
@@ -79,8 +82,11 @@ public:
         url.append("rtsp://admin:admin@");
         url.append(ipAddress);
         url.append("/cam1/h264");
-        
-        openInput = avformat_open_input(&format_ctx, url.c_str(), NULL, NULL);
+        AVDictionary *stream_opts = 0;
+       // av_dict_set(&stream_opts, "timeout", "10000000", 0); // in microseconds.
+        av_dict_set(&stream_opts, "rtp", "write_to_source", 0);//write_to_source
+        openInput = avformat_open_input(&format_ctx, url.c_str(), NULL, &stream_opts);
+       
         if (openInput != 0) {
             
             logMessage("init >>> not succeeded 'avformat_open_input'");
@@ -104,7 +110,9 @@ public:
         
         
         
-        av_init_packet(&packet);
+       av_init_packet(&packet);
+        packet.data = NULL;
+        packet.size = 0;
 
         
         
@@ -217,9 +225,30 @@ public:
             
             rgb_data[i] = (uint8_t *) malloc(sharedMemoryInstance->frameSize);
         }
-        
-        while (av_read_frame(format_ctx, &packet) >= 0 && !close) {
+        int resultAVRead;
+        int sendAfter = 0;
+
+         while ( av_read_frame(format_ctx, &packet) >= 0 && !close) {
             
+            
+           /*  while ()
+             {
+                 logMessage("Error-:");
+                 char string[50];
+                  av_strerror(resultAVRead, string, 50);
+               // sprintf( string, "%d",  resultAVRead );
+                 logMessage(string);
+                 break;
+             }*/
+             
+             sendAfter++;
+             if(sendAfter ==50)
+             {
+                 sendAfter = 0;
+               // ff_rtsp_send_cmd_async(format_ctx, "GET_PARAMETER", "192.168.100.1", NULL);
+               // logMessage("Get parameters");
+                // avformat_find_stream_info(format_ctx, NULL);
+             }
 //             std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::high_resolution_clock::now();
 //             std::chrono::duration<long long, std::ratio<1, 1000000000>> diff = currentTime - lastTime;
 //             logMessage(std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()));
@@ -239,17 +268,17 @@ public:
                 int check = 0;
                 
                 int result = decode(videoCodec_ctx, picture, &check, &packet);
-
+               // int result = avcodec_decode_video2(videoCodec_ctx, picture, &check, &packet);
 //                 logMessage("run >>> Bytes decoded " + std::to_string(result) + ", check " + std::to_string(check) + ", close: " + std::to_string(close));
 
-
+                logMessage("Start frame");
                 if (check != 0) {
-                    
+                    logMessage("decompress----");
                     img_convert_ctx = sws_getCachedContext(img_convert_ctx, videoCodec_ctx->width, videoCodec_ctx->height, videoCodec_ctx->pix_fmt, videoCodec_ctx->width, videoCodec_ctx->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, NULL, NULL, NULL);
                     sws_scale(img_convert_ctx, picture->data, picture->linesize, 0, videoCodec_ctx->height, rgb_data, picture_rgb->linesize);
-                    
+                    logMessage("write frame----");
                     sharedMemoryInstance->writeFrame(rgb_data[0]);
-                    
+                    logMessage("written----");
                     
 //                     av_packet_unref(&packet);
 //                     sws_freeContext(img_convert_ctx);
@@ -270,16 +299,17 @@ public:
                 }
                 decoded = FFMIN(ret, packet.size);
                 if (ret == 0) {
-    
-                    sharedMemoryInstance->writeAudio(picture->extended_data[0]);
                     logMessage("run >>> writeAudio");
+                    sharedMemoryInstance->writeAudio(picture->extended_data[0]);
+                    logMessage("run >>> written");
                 }
             }
-            
-//             av_packet_unref(&packet);
-//             av_init_packet(&packet);
+            av_free_packet(&packet);
+            av_init_packet(&packet);
+             //av_packet_unref(&packet);
+            // av_init_packet(&packet);
         }
-        
+        logMessage("End of while for video thread");
 //         avformat_close_input(&format_ctx);
         free(rgb_data[0]);
         freeAllObjects();
@@ -289,6 +319,7 @@ public:
     
 
     void stop() {
+        logMessage("-------- Stop Video ------");
         close = true;
     }
     
@@ -330,7 +361,7 @@ public:
     
     void freeAllObjects() {
         close = true;
-        
+        sharedMemoryInstance->blockWritters();
         logMessage("freeAllObjects >>> entered");
         closeStreams();
         

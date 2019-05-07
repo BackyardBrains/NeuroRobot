@@ -36,7 +36,8 @@
 //If Fs is sample rate than formula is SAMPLE_RATE_PERIOD = (16*10^6) / (Fs*8) - 1
 // For 100Hz sample rate the SAMPLE_RATE_PERIOD should be 19999 
 #define SAMPLE_RATE_PERIOD 19999 
-
+#define DIVIDE_SAMPLE_RATE_BY 10
+byte sampleRateCounter = 0;
 
 // defines for setting and clearing register bits
 #ifndef cbi
@@ -157,6 +158,8 @@ void setup() {
 
   pinMode(13, OUTPUT);//debug pin
   setupInterruptForEncoders();
+  delay(15000);
+  delay(24000);
   cli();//stop interrupts
 
   //Make ADC sample faster. Change ADC clock
@@ -207,8 +210,12 @@ void loop()
       refreshShiftRegisters();
       executeUltrasonicSensor();
       executeGyro();
-
-      sendSerialFrame();
+      sampleRateCounter++;
+      if(sampleRateCounter==DIVIDE_SAMPLE_RATE_BY)
+      {
+        sampleRateCounter = 0;
+        sendSerialFrame();
+      }
       PORTB &=B11011111;
   }
 }

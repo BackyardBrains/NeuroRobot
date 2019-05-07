@@ -20,7 +20,7 @@
 #include <ctime>
 #include <chrono>
 #endif
-
+typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv_timeout_option; 
 using boost::asio::ip::tcp;
 
 
@@ -36,7 +36,7 @@ private:
     
     std::mutex mutexSendingToSocket;
     std::mutex mutexSendingAudio;
-    
+    int counterForOptions;
     
 #ifdef DEBUG
     std::ofstream logFile;
@@ -80,7 +80,27 @@ public:
         
         ipAddress_ = ip;
         port_ = port;
+        
+        counterForOptions = 0;
     }
+    
+    //set timeout for socket
+   /* void configureSocketTimeouts(boost::asio::ip::tcp::socket& socket)
+    {
+        #if defined OS_WINDOWS
+            int32_t timeout = 1000;
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+        #else
+            struct timeval tv;
+            tv.tv_sec  = 15; 
+            tv.tv_usec = 0;         
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+        #endif
+    }*/
+    
+    
     
     //-----------------------------------
     // Overloaded methods.
@@ -88,27 +108,70 @@ public:
         
         connect(ipAddress_, port_);
         
+        //configureSocketTimeouts(socket_);
+        socket_.set_option(rcv_timeout_option{ 1000 });
+        
         uint8_t dataToOpenReceiving[] = {0x01, 0x55};
         send(&socket_, dataToOpenReceiving, 2);
         boost::system::error_code ec;
         
         while (!close) {
             
+            logMessage("bReceive1");
+             
             std::string readSerialData = receiveSerial(&ec);
             
-            while (ec == boost::asio::error::eof) {
+            logMessage("eReceive1");
+            if (ec == boost::asio::error::eof) {
+                logMessage("errorReceive");
+                mutexSendingToSocket.lock();
                 socket_.close();
                 connect(ipAddress_, port_);
+                socket_.set_option(rcv_timeout_option{ 1000 });
+                mutexSendingToSocket.unlock();
+                
+                logMessage("errorReceiveClosedAndConnected");
                 send(&socket_, dataToOpenReceiving, 2);
+                logMessage("bReceive2");
                 
                 readSerialData = receiveSerial(&ec);
+                
             }
             
+            logMessage("eReceive2");
             
             if (readSerialData.length() > 0) {
-                sharedMemoryInstance->writeSerialRead(readSerialData);
+               if(!close)
+               {
+                   logMessage("write serial read");
+                    sharedMemoryInstance->writeSerialRead(readSerialData);
+                    logMessage("after write serial read");
+               }
                 logMessage(readSerialData);
             }
+            
+            
+            
+           /* counterForOptions++;
+            if(counterForOptions==10)
+            {
+                counterForOptions = 0;
+                
+            // Send the OPTIONS request in the following format:
+            // OPTIONS {uri} RTSP/1.0
+            // CSeq: {_cSeqNum}
+            // User-Agent: Pelco VxSdk
+            //GetSocket(this->_controlUri, this->_dataPort);
+            //this->_dataPort = _pSocket.local_endpoint().port();
+            //this->_rtcpPort = _rSocket.local_endpoint().port();
+            boost::asio::streambuf request;
+            ostream requestStream(&request);
+            requestStream << "OPTIONS" << " " << "rtsp://192.168.100.1:554/cam1/h264/" << " " << "RTSP/1.0" << "\r\n";
+            requestStream << "CSeq: " << "15" << "\r\n";
+            requestStream << kHeaderUserAgent << kColonSpace << kActualUserAgent << kTwoNewLines;
+            try { write(_pSocket, request); }
+            catch (...) { return false; }
+                }*/
             
         }
         closeSocket();
@@ -153,9 +216,9 @@ public:
         memcpy(wholeData, header, 2);
         memcpy(&wholeData[2], data, length);
         memcpy(&wholeData[totalLength - 1], footer, 1);
-        
+        logMessage("bSend");
         std::to_string(send(&socket_, wholeData, totalLength));
-        
+        logMessage("eSend");
         free(wholeData);
     }
     
@@ -300,7 +363,15 @@ public:
         boost::system::error_code ec;
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket_, resolver.resolve(host, service), ec);
+        if (ec)
+        {
+         	logMessage("Connect to serial socket error");
+        } 
         boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
+        if (ec)
+        {
+         	logMessage("Connect to audio socket error");
+        } 
     }
     size_t send(tcp::socket *socket, const void *data, size_t length)
     {
@@ -316,9 +387,14 @@ public:
     std::string receiveSerial(boost::system::error_code *ec)
     {
         boost::asio::streambuf b;
-        
+        logMessage("Before readUntill");
         boost::asio::read_until(socket_, b, "\r\n", *ec);
-        
+        logMessage("After readUntill");
+        if(*ec == boost::asio::error::eof)
+        {
+            logMessage("Error readUntill");
+            return "";
+        }
         std::istream is(&b);
         std::string data;
         std::string dataFoo;
@@ -326,6 +402,7 @@ public:
         std::string dataPreLastLine;
 //        std::getline(is, data);
 //        bool isFirst = true;
+        logMessage("Before get line");
         while (std::getline(is, dataFoo)) {
             
 //            if (!isFirst) {
@@ -338,7 +415,7 @@ public:
             
 //            isFirst = false;
         }
-        
+        logMessage("After get line");
         if (dataPreLastLine == "") {
             dataPreLastLine = dataLastLine;
         }
@@ -351,6 +428,7 @@ public:
     }
     void closeSocket()
     {
+        logMessage("------------- Close socket -----------");
         socket_.close();
         audioSocket_.close();
     }

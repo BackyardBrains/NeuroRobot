@@ -27,7 +27,10 @@ audioMat = [];
 serialData = [];
 flag_run = 1;
 serialCounter = 0;
-
+tempTimestamp = now;
+frequency = 10;
+deltaTime = (1/frequency)*0.0001;
+tempCounter = 0;
 while rak.isRunning() && flag_run
     
     % Video stream
@@ -40,26 +43,33 @@ while rak.isRunning() && flag_run
     audioMat = [audioMat rak.readAudio()];
     
     % Write serial
-    if serialCounter < 100
-        rak.writeSerial('l:100;r:100;d:311;');
-    else
-        rak.writeSerial('l:0;r:0;d:0;');
+    if tempCounter>5% < 100
+        tempCounter = 0;
+        if(serialCounter<100)
+            rak.writeSerial('l:70;r:70;d:311;');
+        else
+            rak.writeSerial('l:0;r:0;d:311;');
+        end
     end
+    tempCounter = tempCounter+1;
+
     
     
     % Send audio
-    if serialCounter == 0
+    if mod(serialCounter,300) == 0
 %         t = 0 : 1/1000 : 5;
 %         y = sin(6.28 * 8 * t);
 %         y = [y y y y]';
 %         rak.sendAudio2(y);
-        rak.sendAudio('EXPLOSION.mp3');
+     % rak.sendAudio('EXPLOSION.mp3');
     end
     
     % Receive serial
-    serialData = [serialData rak.readSerial()];
 
+    serialData = [serialData rak.readSerial()];
+   
     serialCounter = serialCounter + 1;
+
 end
 
 rak.stop();
