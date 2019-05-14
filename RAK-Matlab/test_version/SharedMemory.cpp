@@ -226,7 +226,7 @@ class SharedMemory
                 
       
         sprintf( string, "readser--- %d",  serialReadWrittenSize );
-                 logMessage(string);
+        logMessage(string);
         if (serialReadWrittenSize > 0) {
             logMessage("Serial Read - inside if");
             serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, 0, serialReadWrittenSize);
@@ -245,9 +245,9 @@ class SharedMemory
         logMessage("Serial Read - before unlock");
         mutexSerialRead.unlock();
         logMessage("Serial Read - after unlock");
-        if(size>0)
+        if(*size>0)
         {
-            size = size -1;
+            *size = *size -1;
         }
         //logMessage(payloadString.c_str());
         return payload;

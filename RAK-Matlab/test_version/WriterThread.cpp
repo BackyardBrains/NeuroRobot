@@ -65,7 +65,7 @@ public:
     
     
 //     std::chrono::time_point<std::chrono::steady_clock> lastTime = std::chrono::high_resolution_clock::now();
-    
+    AVIOContext * pb_out;
     //-----------------------------------
     // Init methods.
     WriterThread(SharedMemory *sharedMemory, std::string ipAddress) {
@@ -83,10 +83,20 @@ public:
         url.append(ipAddress);
         url.append("/cam1/h264");
         AVDictionary *stream_opts = 0;
+        
        // av_dict_set(&stream_opts, "timeout", "10000000", 0); // in microseconds.
         av_dict_set(&stream_opts, "rtp", "write_to_source", 0);//write_to_source
         openInput = avformat_open_input(&format_ctx, url.c_str(), NULL, &stream_opts);
-       
+        
+        
+        
+
+        
+        char **stringToGet;
+        av_dict_get_string(stream_opts,stringToGet,':','\n');
+        logMessage("-------------");
+        logMessage(stringToGet[0] );
+        logMessage("-------------");
         if (openInput != 0) {
             
             logMessage("init >>> not succeeded 'avformat_open_input'");
@@ -306,7 +316,7 @@ public:
             }
             av_free_packet(&packet);
             av_init_packet(&packet);
-             //av_packet_unref(&packet);
+            //av_packet_unref(&packet);
             // av_init_packet(&packet);
         }
         logMessage("End of while for video thread");

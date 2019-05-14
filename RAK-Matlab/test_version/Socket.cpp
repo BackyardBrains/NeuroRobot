@@ -37,6 +37,7 @@ private:
     std::mutex mutexSendingToSocket;
     std::mutex mutexSendingAudio;
     int counterForOptions;
+    int cCounter;
     
 #ifdef DEBUG
     std::ofstream logFile;
@@ -82,6 +83,7 @@ public:
         port_ = port;
         
         counterForOptions = 0;
+        cCounter = 20;
     }
     
     //set timeout for socket
@@ -115,6 +117,11 @@ public:
         send(&socket_, dataToOpenReceiving, 2);
         boost::system::error_code ec;
         
+        
+        
+        
+        
+        int rrPortNumber = 57800;
         while (!close) {
             
             logMessage("bReceive1");
@@ -152,26 +159,59 @@ public:
             
             
             
-           /* counterForOptions++;
-            if(counterForOptions==10)
+            counterForOptions++;
+            if(counterForOptions==1)
             {
                 counterForOptions = 0;
                 
-            // Send the OPTIONS request in the following format:
-            // OPTIONS {uri} RTSP/1.0
-            // CSeq: {_cSeqNum}
-            // User-Agent: Pelco VxSdk
-            //GetSocket(this->_controlUri, this->_dataPort);
-            //this->_dataPort = _pSocket.local_endpoint().port();
-            //this->_rtcpPort = _rSocket.local_endpoint().port();
-            boost::asio::streambuf request;
-            ostream requestStream(&request);
-            requestStream << "OPTIONS" << " " << "rtsp://192.168.100.1:554/cam1/h264/" << " " << "RTSP/1.0" << "\r\n";
-            requestStream << "CSeq: " << "15" << "\r\n";
-            requestStream << kHeaderUserAgent << kColonSpace << kActualUserAgent << kTwoNewLines;
-            try { write(_pSocket, request); }
-            catch (...) { return false; }
-                }*/
+                // Send the OPTIONS request in the following format:
+                // OPTIONS {uri} RTSP/1.0
+                // CSeq: {_cSeqNum}
+                // User-Agent: Pelco VxSdk
+                //GetSocket(this->_controlUri, this->_dataPort);
+                //this->_dataPort = _pSocket.local_endpoint().port();
+                //this->_rtcpPort = _rSocket.local_endpoint().port();
+              
+                
+                /*  boost::asio::io_service io_service2;
+                //socket creation
+                     tcp::socket socket2(io_service2);
+                //connection
+                     socket2.connect( tcp::endpoint( boost::asio::ip::address::from_string("192.168.100.1"), 554 ));
+                cCounter++;
+                boost::asio::streambuf request;
+                std::ostream requestStream(&request);
+                requestStream << "OPTIONS" << " " << "rtsp://192.168.100.1:554/cam1/h264/" << " " << "RTSP/1.0" << "\r\n";
+                requestStream << "CSeq: " << cCounter << "\r\n";
+                requestStream << "User-Agent: Lavf58.20.100\r\n\r\n";
+                try { write(socket2, request); }
+                catch (...) {  }
+                */
+                
+                
+               
+                //receiver report test
+                rrPortNumber++;
+            /*    boost::asio::io_service io_service2;
+                boost::asio::ip::udp::socket socket2(io_service2);
+                boost::asio::ip::udp::endpoint remote_endpoint2 = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("192.168.100.1"), rrPortNumber);
+                socket2.open(boost::asio::ip::udp::v4());
+        
+                boost::system::error_code err2;
+                uint8_t dataForReceiverReport[] = {0x80, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
+                socket2.send_to(boost::asio::buffer(dataForReceiverReport), remote_endpoint2, 0, err2);
+                socket2.close();//receiver report test
+                //std::cout << "Sent Payload --- " << sent << "\n";
+               */ 
+                
+                
+                
+                
+               /* boost::asio::streambuf receive_buffer;
+                boost::system::error_code error;
+                boost::asio::read(socket2, receive_buffer, boost::asio::transfer_all(), error);
+                */
+             }
             
         }
         closeSocket();
