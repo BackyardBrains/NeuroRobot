@@ -6,10 +6,7 @@ disp(horzcat('Lifetime = ', num2str(round(lifetime/60)), ' min'))
 
 %% Stop and reset motors
 if rak_only
-    rak_cam.writeSerial('l:0')
-    pause(0.01)
-    rak_cam.writeSerial('r:0')
-    pause(0.01)
+    rak_cam.writeSerial('l:0;r:0;')
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];
@@ -19,30 +16,25 @@ end
 
 %% Save brain figure
 if ~restarting && save_brain_jpg
-    fig_print = figure(3);
-    set(fig_print, 'position', [400 100 1000 800]);
-    brain_ax = axes('position', [0 0 1 1]);
-    image('CData',im2,'XData',[-3 3],'YData',[-3 3])
-    set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-    axis([-3 3 -3 3])
-    hold on
-    draw_brain
-    export_fig(fig_print, horzcat('.\Brains\', brain_name, '-', date), '-r150', '-jpg', '-nocrop')
+    print_brain
     close(fig_print)
 end
 
 
-%% Store analysis code
-if in_analysis
-    bdata(:,in_analysis) = adata;
-    in_analysis = in_analysis + 1;
-    if in_analysis <= length(avals)
-        restarting = 1;
-    else
-        restarting = 0;
-        in_analysis = 0;
-    end
+%% Save data and command log
+this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+data.stop_time  = this_time;
+data.brain = brain;
+save(data_file_name, 'data')
+
+if run_button == 4 
+    command_log.stop_event = 'stop button';
+elseif rak_fail
+    command_log.stop_event = 'rak fail';
 end
+command_log.stop_time = this_time;
+save(command_log_file_name, 'command_log')
+clear command_log
 
 
 %% End runtime

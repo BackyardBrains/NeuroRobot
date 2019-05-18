@@ -48,14 +48,17 @@ if bluetooth_present || rak_only
     if rak_only
         r_torque = motor_command(1,1);
         r_dir = motor_command(1,2);
-        r_send = horzcat('r:', num2str(r_torque * r_dir));
-        rak_cam.writeSerial(r_send)
-        pause(0.01)
+        if r_dir == 2
+            r_dir = -1;
+        end
         l_torque = motor_command(1,3);
         l_dir = motor_command(1,4);
-        l_send = horzcat('l:', num2str(l_torque * l_dir));
-        rak_cam.writeSerial(l_send)
-        pause(0.01)
+        if l_dir == 2
+            l_dir = -1;
+        end        
+        send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';');
+        % add s: command to carry the speaker frequency (speaker_tone)
+        rak_cam.writeSerial(send_this)
     elseif ~isequal(motor_command, prev_motor_command)
         bluetooth_send_motor_command
         prev_motor_command = motor_command;

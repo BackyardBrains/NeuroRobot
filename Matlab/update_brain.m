@@ -144,15 +144,15 @@ if nneurons
         da_connectome(these_neurons, nneuron, 3) = da_connectome(these_neurons, nneuron, 3) + 1; % update learning intensity vector
         reinforcement = pulse_period * sigmoid(da_connectome(these_neurons, nneuron, 3), 100, 0.02) * 5 + (reward * 2 * pulse_period); % sigmoid learning
         
-        % until synapse-specific learning rate has been implemented
-        xx = find(these_neurons);
-        if ~isempty(xx)
-            xx = find(xx == 25);
-            if ~isempty(xx)
-                reinforcement(xx) = reinforcement(xx) * 0.5;
-            end
-        end
-        %
+%         % until synapse-specific learning rate has been implemented
+%         xx = find(these_neurons);
+%         if ~isempty(xx)
+%             xx = find(xx == 25);
+%             if ~isempty(xx)
+%                 reinforcement(xx) = reinforcement(xx) * 0.5;
+%             end
+%         end
+%         %
         
         connectome(these_neurons, nneuron) = connectome(these_neurons, nneuron) + round(reinforcement * 100) / 100;
         if sum(these_neurons)
@@ -189,13 +189,13 @@ if nneurons
             reinforcement = current_w - original_w;
             if reinforcement
                 
-                % until I develop a way for highly active neurons to forget
-                if nneuron == 25
-                    loss_delay = 50 - da_connectome(nneuron, postsyn, 3) * 2;
-                else
+%                 % until I develop a way for highly active neurons to forget
+%                 if nneuron == 25
+%                     loss_delay = 50 - da_connectome(nneuron, postsyn, 3) * 2;
+%                 else
                     loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
                     loss_delay(loss_delay < 0) = 0;
-                end
+%                 end
                 
                 this_loss = floor(permanent_memory_th / reinforcement) * pulse_period * 0.1 * min(loss_delay/((1/pulse_period)*10), 1);
                 this_loss = min(this_loss, reinforcement);
@@ -254,10 +254,6 @@ if nneurons
     % Stop reward
     if reward
         reward = 0;
-    end
-    
-    if in_analysis
-        adata(xstep) = connectome(1,3);
     end
 
 end

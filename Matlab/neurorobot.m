@@ -9,8 +9,8 @@
 %% Settings
 rak_only = 0;
 camera_present = 1; % Set this to 1 to use any camera for vision
-use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
-bluetooth_present = 1;
+use_webcam = 1; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
+bluetooth_present = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
@@ -20,12 +20,12 @@ bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
-    
+
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 manual_controls = 0;
-use_profile = 0;
+use_profile = 1;
 nsteps_per_loop = 100;
 brain_facts = 0;
 use_cnn = 0;
@@ -39,7 +39,7 @@ fig_bg_col = [0.94 0.94 0.94];
 
 
 %% Clear
-if exist('voluntary_restart', 'var') && ~voluntary_restart
+if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
     delete(imaqfind)
     delete(timerfind)
     brain_view_tiled = 0;
@@ -51,15 +51,6 @@ HebiCam.loadLibs();
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
-
-
-%% Analysis options
-if ~exist('in_analysis', 'var')
-    in_analysis = 0;
-end
-avals = [50 100; 50 150; 50 200; 50 250; 50 300];
-step_lim = 1200; % for analysis
-adata = zeros(step_lim, 1);
 
 
 %% Constants
@@ -87,7 +78,7 @@ if strcmp(computer_name, 'laptop-main')
     fig_pos = [1 41 1920 1017];
 %     startup_fig_pos = [1921 1 1920 1057];   
 %     fig_pos = [1921 1 1920 1057];    
-    bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
+    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
     bfsize = 18;
 elseif strcmp(computer_name, 'laptop-green')
     startup_fig_pos = [1 41 1536 800.8000];   
@@ -109,6 +100,36 @@ elseif strcmp(computer_name, 'laptop-yellow')
     fig_pos = [1 41 1536 800.8000];
     bluetooth_name = 'RNBT-0C56'; % yellow, wifi = LTH_CFFABA
     bfsize = 16;  
+elseif strcmp(computer_name, 'laptop-white')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
+    bfsize = 16;
+elseif strcmp(computer_name, 'laptop-blue')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-A9BE'; % , wifi = LTH_CFFAC8
+    bfsize = 16;
+elseif strcmp(computer_name, 'laptop-orange')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-ACFF'; % , wifi = LTH_CFFB6B
+    bfsize = 16;
+elseif strcmp(computer_name, 'laptop-black')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-9AA5'; % , wifi = LTH_D07086
+    bfsize = 16;
+elseif strcmp(computer_name, 'laptop-purple')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-96F3'; % , wifi = LTH_D070D6
+    bfsize = 16;
+elseif strcmp(computer_name, 'laptop-checkers')
+    startup_fig_pos = [1 41 1536 800.8000];   
+    fig_pos = [1 41 1536 800.8000];
+    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
+    bfsize = 16;    
 end
 disp(horzcat('Computer name: ', computer_name))
 
