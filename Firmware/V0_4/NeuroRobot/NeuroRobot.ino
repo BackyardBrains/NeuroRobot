@@ -35,12 +35,13 @@
 //
 //Sound generator on pin A1
 // s:[frequency]; - generate square wave on output A1 with frequency defined by "frequency" parameter
-// Half of period of square wave is expressed in 10kHz timer period. Half period defined as round(10000/frequency). 
+// Half of period of square wave is expressed in 10kHz timer period. Half period is defined as round(10000/frequency). 
 // Consequence of that is that not all frequencies can be generated.
 // (For example: 
 // for frequency = 1000; period = round(10000/1000) = 10;
 // for frequency = 1001; period  = round(10000/1001) = 10; !!! the same period!!  
 // So frequency resolution will be much better for lower frequency.
+// Send s:0; to turn OFF the sound
 
 //If Fs is sample rate than formula is SAMPLE_RATE_PERIOD = (16*10^6) / (Fs*8) - 1
 // For 100Hz sample rate the SAMPLE_RATE_PERIOD should be 19999 
