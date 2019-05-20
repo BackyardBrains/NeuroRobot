@@ -4,6 +4,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     
     % If adding a single neuron
     if neuron_or_network == 1
+        
+        % Log command
+        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+        command_log.entry(command_log.n).time = this_time;            
+        command_log.entry(command_log.n).action = 'add single neuron to brain';
+        command_log.n = command_log.n + 1;        
 
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
@@ -140,6 +146,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     % If adding entire network    
     elseif neuron_or_network == 2
         
+        % Command log
+        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+        command_log.entry(command_log.n).time = this_time;        
+        command_log.entry(command_log.n).action = 'add many neurons to brain';
+        command_log.n = command_log.n + 1;
+        
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
 
@@ -188,7 +200,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
 
             % Network ID
             text_id = uicontrol('Style', 'text', 'String', 'Network ID:', 'units', 'normalized', 'position', [0.02 0.44 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_id = uicontrol('Style', 'edit', 'String', num2str(max(network_ids) + 1), 'units', 'normalized', 'position', [0.23 0.44 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_id = uicontrol('Style', 'edit', 'String', num2str(max([max(network_ids) 1])), 'units', 'normalized', 'position', [0.23 0.44 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
                 
             % Wait for OK
             button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.36 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -340,6 +352,7 @@ elseif fig_design.UserData == 4
         clear presynaptic_neuron
         
     end
+    
 end
 
 neuron_or_network = 1; % Default to adding single neuron if click brain directly

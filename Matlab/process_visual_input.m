@@ -2,15 +2,15 @@
 for ncam = 1:2
 
     if ncam == 1
-        frame = double(left_eye_frame);
+        frame = single(left_eye_frame);
         temporal_pxs = 1:200;
     else
-        frame = double(right_eye_frame);
+        frame = single(right_eye_frame);
         temporal_pxs = 301:500;
     end
 
     % Red
-    red = frame(:,:,1) > frame(:,:,2) * 2 & frame(:,:,1) > frame(:,:,3) * 2; % down from 1.5 on 2019-02-27
+    red = frame(:,:,1) > frame(:,:,2) * 2 & frame(:,:,1) > frame(:,:,3) * 2;
     red(frame(:,:,1) < 50) = 0;
     
     blob = bwconncomp(red);

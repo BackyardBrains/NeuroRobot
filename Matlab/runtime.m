@@ -60,6 +60,26 @@ if use_profile
 end
 
 
+%% Create data and command log
+this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+
+data_file_name = strcat('.\Data\', this_time, '-', brain_name, '.mat');
+data = struct;
+data.computer_name = computer_name;
+data.start_time = this_time;
+
+command_log_file_name = strcat('.\Command\', this_time, '-', brain_name, '.mat');
+if exist('command_log', 'var')
+    command_log.stop_event = 'other';
+    save(command_log_file_name, 'command_log')
+    clear command_log
+end
+command_log = struct;
+command_log.computer_name = computer_name;
+command_log.start_time = this_time;
+command_log.n = 1;
+
+
 %% Run
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)

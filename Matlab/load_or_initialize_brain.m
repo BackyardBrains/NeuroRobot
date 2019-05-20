@@ -5,8 +5,9 @@ if brain_selection_val > 1
     neuron_xys = brain.neuron_xys;
     connectome = brain.connectome;
     da_connectome = brain.da_connectome;
-%     da_connectome(:,:,2) = connectome;
-%     da_connectome(:,:,3) = zeros(size(connectome));
+    if size(da_connectome, 3) == 2
+        da_connectome(:,:,3) = zeros(size(connectome));
+    end
     a_init = brain.a_init;
     b_init = brain.b_init;
     c_init = brain.c_init;
@@ -19,6 +20,9 @@ if brain_selection_val > 1
     v = c + 5 * randn(nneurons, 1);
     u = b .* v;
     spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
+    if isfield(brain, 'spikes_loop')
+        brain = rmfield(brain, 'spikes_loop');
+    end
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
     dist_prefs = brain.dist_prefs;

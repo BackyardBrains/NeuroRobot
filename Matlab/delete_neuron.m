@@ -1,4 +1,10 @@
 
+% Command log
+this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+command_log.entry(command_log.n).time = this_time;    
+command_log.entry(command_log.n).action = 'delete neuron';
+command_log.n = command_log.n + 1;
+
 % Remove select neuron menu
 delete(text_heading)
 delete(button1)

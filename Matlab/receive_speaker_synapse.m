@@ -1,6 +1,12 @@
 
 if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var'))
 
+    % Log command
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    command_log.entry(command_log.n).time = this_time;            
+    command_log.entry(command_log.n).action = 'create neuron to speaker synapse';
+    command_log.n = command_log.n + 1;
+            
     % Delete previous heading
     delete(text_heading)
     

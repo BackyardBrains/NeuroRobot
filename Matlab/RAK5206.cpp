@@ -56,8 +56,8 @@ public:
         return sharedMemory->readSerialRead(size);
     }
     
-    void sendAudio(int16_t *data, long long length) {
-        socket->sendAudio(data, length);
+    void sendAudio(int16_t *data, long long numberOfBytes) {
+        socket->sendAudio(data, numberOfBytes);
     }
     
     
@@ -161,15 +161,10 @@ public:
             writeSerial(s);
             
             return;
-        } else if ( !strcmp("readSerial", cmd) ) {
-            
+        } else if ( !strcmp("readSerial", cmd) ) {   
             int size = 0;
-            void *yp;
             uint8_t *serialData = readSerial(&size);
-            
-            serialData[size] = '\0';
-            plhs[0] = mxCreateString((char *) serialData);
-            
+            plhs[0] = mxCreateString((char *)serialData);
             return;
         } else if ( !strcmp("sendAudio", cmd) ) {
             
@@ -178,7 +173,7 @@ public:
             int16_t *data = (int16_t *)mxGetData(prhs[1]);
             columns = 2;
             
-            sendAudio(data, rows);
+            sendAudio(data, rows * 2);
             
             return;
         }

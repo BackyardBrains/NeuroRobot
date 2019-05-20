@@ -20,7 +20,7 @@
 #include <ctime>
 #include <chrono>
 #endif
-
+typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv_timeout_option; 
 using boost::asio::ip::tcp;
 
 
@@ -34,6 +34,10 @@ private:
     tcp::socket socket_;
     tcp::socket audioSocket_;
     
+    std::mutex mutexSendingToSocket;
+    std::mutex mutexSendingAudio;
+    int counterForOptions;
+    int cCounter;
     
 #ifdef DEBUG
     std::ofstream logFile;
@@ -77,34 +81,137 @@ public:
         
         ipAddress_ = ip;
         port_ = port;
+        
+        counterForOptions = 0;
+        cCounter = 20;
     }
+    
+    //set timeout for socket
+   /* void configureSocketTimeouts(boost::asio::ip::tcp::socket& socket)
+    {
+        #if defined OS_WINDOWS
+            int32_t timeout = 1000;
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+        #else
+            struct timeval tv;
+            tv.tv_sec  = 15; 
+            tv.tv_usec = 0;         
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+            setsockopt(socket.native_handle(), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+        #endif
+    }*/
+    
+    
     
     //-----------------------------------
     // Overloaded methods.
     void run() {
+        
         connect(ipAddress_, port_);
         
+        //configureSocketTimeouts(socket_);
+        socket_.set_option(rcv_timeout_option{ 1000 });
+        
         uint8_t dataToOpenReceiving[] = {0x01, 0x55};
-        send(dataToOpenReceiving, 2);
+        send(&socket_, dataToOpenReceiving, 2);
         boost::system::error_code ec;
         
+        
+        
+        
+        
+        int rrPortNumber = 57800;
         while (!close) {
             
+            logMessage("bReceive1");
+             
             std::string readSerialData = receiveSerial(&ec);
             
-            while (ec == boost::asio::error::eof) {
+            logMessage("eReceive1");
+            if (ec == boost::asio::error::eof) {
+                logMessage("errorReceive");
+                mutexSendingToSocket.lock();
                 socket_.close();
                 connect(ipAddress_, port_);
-                send(dataToOpenReceiving, 2);
+                socket_.set_option(rcv_timeout_option{ 1000 });
+                mutexSendingToSocket.unlock();
+                
+                logMessage("errorReceiveClosedAndConnected");
+                send(&socket_, dataToOpenReceiving, 2);
+                logMessage("bReceive2");
                 
                 readSerialData = receiveSerial(&ec);
+                
             }
-            std::cout << "received" << std::endl;
             
+            logMessage("eReceive2");
             
             if (readSerialData.length() > 0) {
-                sharedMemoryInstance->writeSerialRead(readSerialData);
+               if(!close)
+               {
+                   logMessage("write serial read");
+                    sharedMemoryInstance->writeSerialRead(readSerialData);
+                    logMessage("after write serial read");
+               }
+                logMessage(readSerialData);
             }
+            
+            
+            
+            counterForOptions++;
+            if(counterForOptions==1)
+            {
+                counterForOptions = 0;
+                
+                // Send the OPTIONS request in the following format:
+                // OPTIONS {uri} RTSP/1.0
+                // CSeq: {_cSeqNum}
+                // User-Agent: Pelco VxSdk
+                //GetSocket(this->_controlUri, this->_dataPort);
+                //this->_dataPort = _pSocket.local_endpoint().port();
+                //this->_rtcpPort = _rSocket.local_endpoint().port();
+              
+                
+                /*  boost::asio::io_service io_service2;
+                //socket creation
+                     tcp::socket socket2(io_service2);
+                //connection
+                     socket2.connect( tcp::endpoint( boost::asio::ip::address::from_string("192.168.100.1"), 554 ));
+                cCounter++;
+                boost::asio::streambuf request;
+                std::ostream requestStream(&request);
+                requestStream << "OPTIONS" << " " << "rtsp://192.168.100.1:554/cam1/h264/" << " " << "RTSP/1.0" << "\r\n";
+                requestStream << "CSeq: " << cCounter << "\r\n";
+                requestStream << "User-Agent: Lavf58.20.100\r\n\r\n";
+                try { write(socket2, request); }
+                catch (...) {  }
+                */
+                
+                
+               
+                //receiver report test
+                rrPortNumber++;
+            /*    boost::asio::io_service io_service2;
+                boost::asio::ip::udp::socket socket2(io_service2);
+                boost::asio::ip::udp::endpoint remote_endpoint2 = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("192.168.100.1"), rrPortNumber);
+                socket2.open(boost::asio::ip::udp::v4());
+        
+                boost::system::error_code err2;
+                uint8_t dataForReceiverReport[] = {0x80, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
+                socket2.send_to(boost::asio::buffer(dataForReceiverReport), remote_endpoint2, 0, err2);
+                socket2.close();//receiver report test
+                //std::cout << "Sent Payload --- " << sent << "\n";
+               */ 
+                
+                
+                
+                
+               /* boost::asio::streambuf receive_buffer;
+                boost::system::error_code error;
+                boost::asio::read(socket2, receive_buffer, boost::asio::transfer_all(), error);
+                */
+             }
             
         }
         closeSocket();
@@ -131,11 +238,6 @@ public:
     //-----------------------------------
     // Custom methods.
     
-    void writeSerial(uint8_t *data, size_t length)
-    {
-        std::thread thread(&Socket::writeSerialThreaded, this, data, length);
-        thread.detach();
-    }
     void writeSerial(std::string data)
     {
         std::thread thread(&Socket::writeSerialThreadedString, this, data);
@@ -154,79 +256,61 @@ public:
         memcpy(wholeData, header, 2);
         memcpy(&wholeData[2], data, length);
         memcpy(&wholeData[totalLength - 1], footer, 1);
-        
-        std::to_string(send(wholeData, totalLength));
-        
+        logMessage("bSend");
+        std::to_string(send(&socket_, wholeData, totalLength));
+        logMessage("eSend");
         free(wholeData);
     }
     
-    void sendAudio(int16_t *data, long long length)
+    void sendAudio(int16_t *data, long long numberOfBytes)
     {
-        std::thread thread(&Socket::sendAudioThreaded, this, data, length);
+        int16_t *dataToSend = (int16_t *) malloc(numberOfBytes + 1);
+        std::memcpy(dataToSend, data, numberOfBytes);
+        std::thread thread(&Socket::sendAudioThreaded, this, dataToSend, numberOfBytes);
         thread.detach();
     }
     
-    void sendAudioThreaded(int16_t *data, long long length)
+    void sendAudioThreaded(int16_t *data, long long numberOfBytes)
     {
-        uint8_t *repackedData = repack(data, length);
+        mutexSendingAudio.lock();
         
-        boost::system::error_code ec;
-        
-        
-        char head1[] = "POST /audio.input HTTP/1.1\r\n";
-        char *head2 = (char *) malloc(30);
-        strcpy(head2, "Host: ");
-        strcat(head2, ipAddress_.c_str());
-        strcat(head2, "\r\n");
-        char head3[] = "Content-Type: audio/wav\r\n";
-        char *head4 = (char *) malloc(30);
-        strcpy(head4, "Content-Length: ");
-        strcat(head4, lltoa(length, 10));
-        strcat(head4, "\r\n");
-        char head5[] = "Connection: keepalive\r\n";
-        char head6[] = "Accept: */*\r\n\r\n";
-        
-        char *header = new char[std::strlen(head1) +
-                                std::strlen(head2) +
-                                std::strlen(head3) +
-                                std::strlen(head4) +
-                                std::strlen(head5) +
-                                std::strlen(head6) + 1];
-        
-        std::strcpy(header, head1);
-        std::strcat(header, head2);
-        std::strcat(header, head3);
-        std::strcat(header, head4);
-        std::strcat(header, head5);
-        std::strcat(header, head6);
-        
-        logMessage(std::string(header));
-        
-        boost::asio::write(audioSocket_, boost::asio::buffer(header, std::strlen(header)), ec);
-        
-        int p = 0;
-        int fpblen = 1024;//4096
+        std::string header = std::string();
+        header.append("POST /audio.input HTTP/1.1\r\n");
+        header.append("Host: ");
+        header.append(ipAddress_);
+        header.append("\r\n");
+        header.append("Content-Type: audio/wav\r\n");
+        header.append("Content-Length: ");
+        header.append(lltoa(numberOfBytes, 10));
+        header.append("\r\n");
+        header.append("Connection: keepalive\r\n");
+        header.append("Accept: */*\r\n\r\n");
+        send(&audioSocket_, header.c_str(), header.length());
+        logMessage(header);
         boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-        long sendLen = 0;
         
-        while (length) {
-            if (length > fpblen) {
-                sendLen = boost::asio::write(audioSocket_, boost::asio::buffer(&repackedData[p], fpblen), ec);
+        uint8_t *repackedData = repack(data, numberOfBytes);
+        free(data);
+        
+        int sentBytes = 0;
+        int packetSize = 1000;
+        
+        while (numberOfBytes && !close) {
+            if (numberOfBytes > packetSize) {
                 
-                length -= fpblen;
-                p += fpblen;
+                send(&audioSocket_, &repackedData[sentBytes], packetSize);
+                numberOfBytes -= packetSize;
+                sentBytes += packetSize;
             } else {
-                sendLen = boost::asio::write(audioSocket_, boost::asio::buffer(&repackedData[p], length), ec);
-                length = 0;
+                
+                send(&audioSocket_, &repackedData[sentBytes], numberOfBytes);
+                numberOfBytes = 0;
             }
         }
         
-        free(head2);
-        free(head4);
-        delete [] header;
         free(repackedData);
         
-        std::cout << "sendAudioThreaded ended" << std::endl;
+        mutexSendingAudio.unlock();
     }
     
     
@@ -275,25 +359,24 @@ public:
         return (size);
     }
     
-    uint8_t *repack(int16_t *data, long long rows)
+    uint8_t *repack(int16_t *data, long long numberOfBytes)
     {
-        short channels = 2;
-        int16_t *wholeData = (int16_t *) malloc(channels * rows * 2);
+        short numberOfChannels = 2;
+        long long numberOfSamples_16bit = numberOfBytes * 0.5;
         
-        
-        
-        for (long long i = 0; i < rows; i++ ) {
-            memcpy(&wholeData[i * 2], &data[i], 2);
-            memcpy(&wholeData[i * 2 + 1], &data[i], 2);
+        // Creating two channels signal. LRLR patern
+        int16_t *twoChannelsData = (int16_t *) malloc(numberOfChannels * numberOfBytes);
+        for (long long i = 0; i < numberOfSamples_16bit; i++ ) {
+            memcpy(&twoChannelsData[i * 2], &data[i], 2);
+            memcpy(&twoChannelsData[i * 2 + 1], &data[i], 2);
         }
         
-        
-        uint8_t *PCM_Data = (uint8_t *)malloc(channels * rows);
-        for (long long i = 0; i < rows * channels; i++) {
-            PCM_Data[i] = linear2ulaw(wholeData[i]);
+        // Repacking signed 16bit linear signal to unsigned 8bit ulaw signal
+        uint8_t *PCM_Data = (uint8_t *) malloc(numberOfChannels * numberOfSamples_16bit);
+        for (long long i = 0; i < numberOfSamples_16bit * numberOfChannels; i++) {
+            PCM_Data[i] = linear2ulaw(twoChannelsData[i]);
         }
-        free(wholeData);
-//        free(data);
+        free(twoChannelsData);
         return PCM_Data;
     }
     char *lltoa(long long number, int base){
@@ -320,28 +403,72 @@ public:
         boost::system::error_code ec;
         tcp::resolver resolver(io_context);
         boost::asio::connect(socket_, resolver.resolve(host, service), ec);
+        if (ec)
+        {
+         	logMessage("Connect to serial socket error");
+        } 
         boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
+        if (ec)
+        {
+         	logMessage("Connect to audio socket error");
+        } 
     }
-    size_t send(const void *data, size_t length)
+    size_t send(tcp::socket *socket, const void *data, size_t length)
     {
         boost::system::error_code ec;
-        size_t sentSize = boost::asio::write(socket_, boost::asio::buffer(data, length), ec);
+        
+        mutexSendingToSocket.lock();
+        size_t sentSize = boost::asio::write(*socket, boost::asio::buffer(data, length), ec);
+        boost::this_thread::sleep_for(boost::chrono::milliseconds(15));
+        mutexSendingToSocket.unlock();
+        
         return sentSize;
     }
     std::string receiveSerial(boost::system::error_code *ec)
     {
         boost::asio::streambuf b;
-        boost::asio::read_until(socket_, b, '\n', *ec);
+        logMessage("Before readUntill");
+        boost::asio::read_until(socket_, b, "\r\n", *ec);
+        logMessage("After readUntill");
+        if(*ec == boost::asio::error::eof)
+        {
+            logMessage("Error readUntill");
+            return "";
+        }
         std::istream is(&b);
         std::string data;
-        std::getline(is, data);
+        std::string dataFoo;
+        std::string dataLastLine;
+        std::string dataPreLastLine;
+//        std::getline(is, data);
+//        bool isFirst = true;
+        logMessage("Before get line");
+        while (std::getline(is, dataFoo)) {
+            
+//            if (!isFirst) {
+//                data.append("\n");
+//            }
+            
+            dataPreLastLine = dataLastLine;
+            dataLastLine = dataFoo;
+//            data.append(dataFoo);
+            
+//            isFirst = false;
+        }
+        logMessage("After get line");
+        if (dataPreLastLine == "") {
+            dataPreLastLine = dataLastLine;
+        }
         
-        boost::erase_all(data, "\x01U");
+//        data << is;
         
-        return data;
+        boost::erase_all(dataPreLastLine, "\x01U");
+        
+        return dataPreLastLine;
     }
     void closeSocket()
     {
+        logMessage("------------- Close socket -----------");
         socket_.close();
         audioSocket_.close();
     }
