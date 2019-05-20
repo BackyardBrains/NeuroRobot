@@ -58,6 +58,7 @@ if use_profile
     profile clear
     profile on    
 end
+audioMat = [];
 
 
 %% Create data and command log

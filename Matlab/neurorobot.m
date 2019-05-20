@@ -34,8 +34,8 @@ max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
-fig_bg_col = [0.94 0.94 0.94];
-% fig_bg_col = [1 1 1];
+% fig_bg_col = [0.94 0.94 0.94];
+fig_bg_col = [1 1 1];
 
 
 %% Clear
@@ -74,10 +74,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057];    
+%     startup_fig_pos = [1 41 1920 1017];   
+%     fig_pos = [1 41 1920 1017];
+    startup_fig_pos = [1921 1 1920 1057];   
+    fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
     bfsize = 18;
 elseif strcmp(computer_name, 'laptop-green')
@@ -146,7 +146,7 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
 ncontacts = size(contact_xys, 1);
-dist_pref_names = {'Short (15 cm)', 'Medium (55 cm)', 'Long (95 cm)'};
+dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 vis_pref_names = {'red', 'green', 'blue', 'off-center red', 'off-center green', 'off-center blue'};
 if use_cnn
