@@ -32,11 +32,22 @@
 //  l:[speed];  - control left motor. ex. l:-40; Run left motor CCW at speed 40. Speed can take value from -255 to 255
 //  r:[speed];  - control right motor ex. r:80; Run right motor CW at speed 80. Speed can take value from -255 to 255
 
+//
+//Sound generator on pin A1
+// s:[frequency]; - generate square wave on output A1 with frequency defined by "frequency" parameter
+// Half of period of square wave is expressed in 10kHz timer period. Half period is defined as round(10000/frequency). 
+// Consequence of that is that not all frequencies can be generated.
+// (For example: 
+// for frequency = 1000; period = round(10000/1000) = 10;
+// for frequency = 1001; period  = round(10000/1001) = 10; !!! the same period!!  
+// So frequency resolution will be much better for lower frequency.
+// Send s:0; to turn OFF the sound
 
 //If Fs is sample rate than formula is SAMPLE_RATE_PERIOD = (16*10^6) / (Fs*8) - 1
 // For 100Hz sample rate the SAMPLE_RATE_PERIOD should be 19999 
-#define SAMPLE_RATE_PERIOD 19999 
+#define SAMPLE_RATE_PERIOD 200 
 #define DIVIDE_SAMPLE_RATE_BY 10
+int sensorSampleRateCounter = 0;
 byte sampleRateCounter = 0;
 
 // defines for setting and clearing register bits
@@ -131,6 +142,15 @@ int LEDIndex=0;
 
 byte bitMask = B00000001;
 volatile int diodeCommand = 0;
+
+#define SOUND_PIN 15
+volatile int soundCommand = 0;
+volatile int soundPeriod = 0;
+volatile int soundCounter = 0;
+
+
+
+
 void setup() {
   Serial.begin(115200);
   // Righ Driver
@@ -151,15 +171,18 @@ void setup() {
   pinMode(shiftClockPin, OUTPUT);
   pinMode(shiftLatchPin, OUTPUT);
 
+  //sound output
+  pinMode(SOUND_PIN, OUTPUT);
+
   turnOffLEDs();
   turnOffMotor();
   enableMotor();
-  initGyro();
+  //initGyro();
 
   pinMode(13, OUTPUT);//debug pin
   setupInterruptForEncoders();
-  delay(15000);
-  delay(24000);
+  //delay(15000);
+  //delay(24000);
   cli();//stop interrupts
 
   //Make ADC sample faster. Change ADC clock
@@ -172,7 +195,7 @@ void setup() {
   TCCR1A = 0;// set entire TCCR1A register to 0
   TCCR1B = 0;// same for TCCR1B
   TCNT1  = 0;//initialize counter value to 0;
-  OCR1A = SAMPLE_RATE_PERIOD;// Output Compare Registers 
+  OCR1A = 99;// Output Compare Registers 
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
   // Set CS11 bit for 8 prescaler
@@ -191,7 +214,26 @@ void setup() {
 //
 ISR(TIMER1_COMPA_vect) 
 {
-  executeOneLoop = 1;
+  sensorSampleRateCounter++;
+  if(sensorSampleRateCounter == SAMPLE_RATE_PERIOD)
+  {
+    sensorSampleRateCounter = 0;
+    executeOneLoop = 1;
+  }
+
+  if(soundPeriod>0)
+  {
+    soundCounter++;
+    if(soundCounter>soundPeriod)
+    {
+      soundCounter = 0;
+      PORTC ^=B00000010;
+    }
+  }
+  else
+  {
+      PORTC &=B11111101;
+  }
 }
 
 
@@ -209,7 +251,7 @@ void loop()
       executeRightMotor();
       refreshShiftRegisters();
       executeUltrasonicSensor();
-      executeGyro();
+      //executeGyro();
       sampleRateCounter++;
       if(sampleRateCounter==DIVIDE_SAMPLE_RATE_BY)
       {
@@ -374,7 +416,7 @@ void readNewSerialData()
                 if(*separator == 'l')//command for left motor 
                 {
                   separator = separator+2;
-                  motorSpeedLeft = atoi(separator);//read number of channels
+                  motorSpeedLeft = atoi(separator);//read speed
                   if(motorSpeedLeft>255)
                   {
                     motorSpeedLeft = 255;  
@@ -384,10 +426,10 @@ void readNewSerialData()
                     motorSpeedLeft = -255;  
                   }
                 }
-                if(*separator == 'r')//command for left motor 
+                if(*separator == 'r')//command for right motor 
                 {
                   separator = separator+2;
-                  motorSpeedRight = atoi(separator);//read number of channels
+                  motorSpeedRight = atoi(separator);//read speed
                   if(motorSpeedRight>255)
                   {
                     motorSpeedRight = 255;  
@@ -397,12 +439,31 @@ void readNewSerialData()
                     motorSpeedRight = -255;  
                   }
                 }
-                if(*separator == 'd')//command for left motor 
+                if(*separator == 'd')//command for LED diode 
                 {
                   separator = separator+2;
-                  diodeCommand = atoi(separator);//read number of channels
+                  diodeCommand = atoi(separator);//read diode command number
                   executeDiodeCommand(diodeCommand);
                 }
+                if(*separator == 's')//command for sound generator
+                {
+                  separator = separator+2;
+                  soundCommand = atoi(separator);//read frequency
+                  if(soundCommand>0)
+                  {
+                    
+                    soundPeriod = 10000/soundCommand;
+                   
+                  }
+                  else
+                  {
+                    soundPeriod = 0;
+                  
+                  }
+                }
+
+
+                
             }
             // Find the next command in input string
             command = strtok(0, ";");

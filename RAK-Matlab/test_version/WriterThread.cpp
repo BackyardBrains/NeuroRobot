@@ -93,10 +93,11 @@ public:
 
         
         char **stringToGet;
-        av_dict_get_string(stream_opts,stringToGet,':','\n');
+       /* av_dict_get_string(stream_opts,stringToGet,':','\n');
         logMessage("-------------");
         logMessage(stringToGet[0] );
         logMessage("-------------");
+        */
         if (openInput != 0) {
             
             logMessage("init >>> not succeeded 'avformat_open_input'");
