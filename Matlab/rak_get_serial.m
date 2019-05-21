@@ -4,8 +4,9 @@ if ~isempty(serial_receive)
     this_ind = size(these_vals, 1);
     this_duration = these_vals(this_ind,3);
     this_distance = (this_duration/2) / 29.1;
-    this_distance(this_distance > 300) = 300;
     this_distance(this_distance == 0) = 300;
 else
     this_distance = 300;
+    disp('rak_cam readSerial empty')
 end
+disp(horzcat('this distance = ', num2str(this_distance)))
