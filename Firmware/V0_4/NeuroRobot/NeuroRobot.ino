@@ -1,6 +1,6 @@
 // Neuro Robot Board V0.4
 // Backyard Brains
-// 25.Mar.2019
+// 20. May 2019
 // Written by Stanislav Mircic
 //
 // Code is made for ATMEGA328 (Arduino UNO)
