@@ -7,10 +7,10 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1; % Set this to 1 to use any camera for vision
 use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
-bluetooth_present = 0;
+bluetooth_present = 1;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
@@ -34,8 +34,8 @@ max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
-% fig_bg_col = [0.94 0.94 0.94];
-fig_bg_col = [1 1 1];
+fig_bg_col = [0.94 0.94 0.94];
+% fig_bg_col = [1 1 1];
 
 
 %% Clear
@@ -74,10 +74,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-%     startup_fig_pos = [1 41 1920 1017];   
-%     fig_pos = [1 41 1920 1017];
-    startup_fig_pos = [1921 1 1920 1057];   
-    fig_pos = [1921 1 1920 1057];    
+    startup_fig_pos = [1 41 1920 1017];   
+    fig_pos = [1 41 1920 1017];
+%     startup_fig_pos = [1921 1 1920 1057];   
+%     fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
     bfsize = 18;
 elseif strcmp(computer_name, 'laptop-green')

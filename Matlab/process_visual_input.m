@@ -72,8 +72,11 @@ for ncam = 1:2
     % Get object classification scores
     if use_cnn
         frame_small = imresize(frame, net_input_size);
-        [label, score] = classify(net, frame_small);   
-        vis_pref_vals(7:n_vis_prefs, ncam) = sigmoid(score(object_ns), 0.12, 100) * 50;
+        [label, score] = classify(net, frame_small);  
+        cnn_out = sigmoid(score(object_ns), 0.04, 50);
+        cnn_out = cnn_out - 0.15;
+        cnn_out(cnn_out < 0) = 0;
+        vis_pref_vals(7:n_vis_prefs, ncam) = cnn_out * 50;
     end
 end
 
