@@ -1,1 +1,5 @@
 .DS_Store
+
+RAK-Matlab/*.mexw64
+RAK-Matlab/logFile_*.txt
+RAK-Matlab/test.wav
