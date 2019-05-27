@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright ? 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 //// Base RAK API class
@@ -161,15 +161,10 @@ public:
             writeSerial(s);
             
             return;
-        } else if ( !strcmp("readSerial", cmd) ) {
-            
+        } else if ( !strcmp("readSerial", cmd) ) {   
             int size = 0;
-            void *yp;
             uint8_t *serialData = readSerial(&size);
-            
-            serialData[size] = '\0';
-            plhs[0] = mxCreateString((char *) serialData);
-            
+            plhs[0] = mxCreateString((char *)serialData);
             return;
         } else if ( !strcmp("sendAudio", cmd) ) {
             

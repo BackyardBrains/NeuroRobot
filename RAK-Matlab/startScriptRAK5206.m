@@ -1,24 +1,39 @@
-clear mex; clear all; close all; clear functions;
+clear mex;
+clear all;
+close all;
+clear functions;
 
-% mex RAK5206.cpp -I/usr/local/include -L/usr/local/lib -lboost_system -lboost_thread -lboost_chrono -lavcodec -lavformat -lavutil -lswscale
-% mex RAK5206.cpp -ID:\rak\boost_1_68_0\library2\include\boost-1_68 -LD:\rak\boost_1_68_0\library2\lib  -lboost_system-vc120-mt-x64-1_68 -ID:\rak\ffmpeg-4.1-win64-dev\include -LD:\rak\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0601
-% mex RAK5206.cpp -IC:\boost_1_68_0_build\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build\lib -LC:\ffmpeg-4.1-win64-dev\lib -llibboost_system-mgw63-mt-x32-1_68 -llibboost_thread-mgw63-mt-x32-1_68 -llibboost_chrono-mgw63-mt-x32-1_68 -lavcodec -lavformat -lavutil -lswscale -D_WIN32_WINNT=0x0A00 
-% mex RAK5206.cpp -IC:\boost_1_68_0_build2\include\boost-1_68 -IC:\ffmpeg-4.1-win64-dev\include -LC:\boost_1_68_0_build2\lib -LC:\ffmpeg-4.1-win64-dev\lib -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
-% mex RAK5206.cpp -LC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -IC:\boost_1_68_0 -IC:\boost_1_68_0\stage\lib -LC:\ffmpeg-shared\bin -LC:\ffmpeg-dev\lib -LC:\ffmpeg-dev\include -IC:\ffmpeg-shared\bin -IC:\ffmpeg-dev\lib -IC:\ffmpeg-dev\include -llibboost_system-vc141-mt-x64-1_68 -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -lboost_thread-vc141-mt-x64-1_68 -lavcodec -lavformat -lavutil -lswscale
-% mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
-mex RAK5206.cpp -IC:\Users\Stanislav\Downloads\boost_1_69_0-1\boost_1_69_0 -LC:\Users\Stanislav\Downloads\boost_1_69_0-1\boost_1_69_0\stage\lib -LC:\Users\Stanislav\Downloads\ffmpeg-4.1.1-win64-dev\ffmpeg-4.1.1-win64-dev\lib -IC:\Users\Stanislav\Downloads\ffmpeg-4.1.1-win64-dev\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc140-mt-x64-1_69 -llibboost_chrono-vc140-mt-x64-1_69 -llibboost_date_time-vc140-mt-x64-1_69 -D_WIN32_WINNT=0x0601
+if ~exist('RAK5206.mexw64', 'file')
+%     mex RAK5206.cpp -IC:\boost_1_68_0 -LC:\boost_1_68_0\stage\lib -LC:\ffmpeg-4.1-win64-dev\lib -IC:\ffmpeg-4.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_68 -llibboost_chrono-vc141-mt-x64-1_68 -D_WIN32_WINNT=0x0A00
+%     mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -LC:\ffmpeg-4.1.1-win64-dev\lib -IC:\ffmpeg-4.1.1-win64-dev\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+    mex RAK5206.cpp -I/usr/local/include -L/usr/local/lib -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
+%     mex RAK5206.cpp -I/usr/local/Cellar/boost/1.69.0_2/include -I/ffmpeg-custom/include -L/usr/local/Cellar/boost/1.69.0_2/lib -L/ffmpeg-custom/lib -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
+end
 
-rak = RAK5206_matlab('192.168.100.1', '80');
+if ~exist('rak', 'var')
+    rak = RAK5206_matlab('192.168.100.1', '80');
+end
 rak.start();
 
+fig1 = figure(1);
+clf
+set(fig1, 'position', [1 41 1536 800.8])
+set(fig1, 'NumberTitle', 'off', 'Name', 'Neurorobot Matlab C++ WiFi RAK interface')
+set(fig1, 'menubar', 'none', 'toolbar', 'none')
+vid_ax = axes('position', [0.05 0.15 0.9 0.8]);
 p1 = imshow(uint8(255* ones(720, 1280, 3)), []);
+button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'normalized', 'position', [0.4 0.05 0.2 0.05]);
+set(button_stop, 'Callback', 'flag_run = 0;', 'FontSize', 18)
 
 audioMat = [];
 serialData = [];
-
+flag_run = 1;
 serialCounter = 0;
-
-while rak.isRunning()
+tempTimestamp = now;
+frequency = 10;
+deltaTime = (1/frequency)*0.0001;
+tempCounter = 0;
+while rak.isRunning() && flag_run
     
     % Video stream
     imageMat = rak.readVideo();
@@ -27,29 +42,40 @@ while rak.isRunning()
     drawnow
     
     % Audio stream
-    audioMat = [audioMat rak.readAudio()];
+%     audioMat = [audioMat rak.readAudio()];
     
     % Write serial
-%     if serialCounter < 100
-%         rak.writeSerial('l:100;r:100;d:50;');
-%     else
-%         rak.writeSerial('l:0;r:0;d:0;');
+%     if tempCounter>5% < 100
+%         tempCounter = 0;
+%         if(serialCounter<100)
+%             rak.writeSerial('l:70;r:70;d:311;');
+%         else
+%             rak.writeSerial('l:0;r:0;d:311;');
+%         end
 %     end
+%     tempCounter = tempCounter+1;
+
     
     
     % Send audio
-%     if serialCounter == 0
+    if mod(serialCounter,300) == 0
 %         t = 0 : 1/1000 : 5;
 %         y = sin(6.28 * 8 * t);
 %         y = [y y y y]';
 %         rak.sendAudio2(y);
-% %         rak.sendAudio('test.wav');
-%     end
+     % rak.sendAudio('EXPLOSION.mp3');
+    end
     
     % Receive serial
-%     serialData = [serialData rak.readSerial()];
 
+%     serialData = [serialData rak.readSerial()];
+   
     serialCounter = serialCounter + 1;
+
 end
 
-closeAll;
+rak.stop();
+audiowrite('test.wav', audioMat, 8000);
+close all;
+serialData
+
