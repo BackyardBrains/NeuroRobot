@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright Â© 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #include "MexThread.h"
@@ -23,7 +23,7 @@ extern "C" {
 //! Derived class. Reads input data from RAK5206 and saves data to shared memory
 class WriterThread : public MexThread, public Log {
 
-public:
+private:
     //// FFMPEG
     AVFormatContext* format_ctx = avformat_alloc_context();
     AVCodecContext* videoCodec_ctx = NULL;
@@ -51,6 +51,7 @@ public:
     //     std::chrono::time_point<std::chrono::steady_clock> lastTime =
     //     std::chrono::high_resolution_clock::now();
 
+public:
     //-----------------------------------
     // Init methods.
     WriterThread(SharedMemory* sharedMemory, std::string ipAddress)
@@ -185,14 +186,9 @@ public:
 
             rgb_data[i] = (uint8_t*)malloc(sharedMemoryInstance->frameSize);
         }
-        int sendAfter = 0;
-
+        
         while (av_read_frame(format_ctx, &packet) >= 0 && !close) {
             
-            sendAfter++;
-            if (sendAfter == 50) {
-                sendAfter = 0;
-            }
             if (packet.stream_index == video_stream_index) { // packet is video
                 logMessage("run >>> video packet");
                 int check = 0;

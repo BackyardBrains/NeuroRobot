@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright Â© 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 //// Base RAK API class
@@ -24,42 +24,54 @@ private:
     
 public:
     
-    void init(std::string ipAddress, std::string port) {
-        
+    void init(std::string ipAddress, std::string port) 
+    {
         writer = new WriterThread(sharedMemory, ipAddress);
         socket = new Socket(sharedMemory, ipAddress, port);
     }
-    void start() {
+    
+    void start() 
+    {
         writer->startThreaded();
         socket->startThreaded();
     }
-    int16_t *readAudio(int *size) {
+    
+    int16_t *readAudio(int *size) 
+    {
         int16_t *reply = sharedMemory->readAudio(size);
         return reply;
     }
-    uint8_t *readVideo() {
+    
+    uint8_t *readVideo() 
+    {
         return sharedMemory->readVideo();
     }
-    void stop() {
+    
+    void stop() 
+    {
         writer->stop();
         socket->stop();
     }
-    bool isRunning() {
+    
+    bool isRunning() 
+    {
         return writer->isRunning();
     }
     
-    void writeSerial(std::string data) {
+    void writeSerial(std::string data) 
+    {
         socket->writeSerial(data);
     }
     
-    uint8_t *readSerial(int *size) {
+    uint8_t *readSerial(int *size) 
+    {
         return sharedMemory->readSerialRead(size);
     }
     
-    void sendAudio(int16_t *data, long long numberOfBytes) {
+    void sendAudio(int16_t *data, long long numberOfBytes) 
+    {
         socket->sendAudio(data, numberOfBytes);
     }
-    
     
 #ifdef MATLAB
     
@@ -110,7 +122,6 @@ public:
             uint8_t *yp;
             yp  = (uint8_t*) mxGetData(plhs[0]);
             memcpy(yp, videoData, sharedMemory->frameSize);
-            
             
             return;
         } else if ( !strcmp("stop", cmd) ) {

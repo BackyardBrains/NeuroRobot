@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright Â© 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #include <iostream>
@@ -9,6 +9,9 @@
 #include "Macros.h"
 #include "SharedMemory.cpp"
 #include "Log.cpp"
+
+#include <ctime>
+#include <chrono>
 
 // Boost includes
 #include <boost/asio.hpp>
@@ -20,6 +23,7 @@ typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv
 using boost::asio::ip::tcp;
 
 class Socket : public MexThread, public Log {
+    
 private:
     std::string ipAddress_;
     std::string port_;
@@ -29,16 +33,18 @@ private:
     tcp::socket audioSocket_;
 
     std::mutex mutexSendingToSocket;
+    std::mutex mutexSendingToSocket2;
     std::mutex mutexSendingAudio;
-    int counterForOptions;
-    int cCounter;
 
-public:
     SharedMemory* sharedMemoryInstance;
-
+    
     //// Custom
     bool close = false;
-
+    bool sendingInProgress = false;
+    bool pendingWriting = false;
+    std::string pendingData = "";
+    
+public:
     Socket(SharedMemory* sharedMemory, std::string ip, std::string port)
         : socket_(io_context)
         , audioSocket_(io_context)
@@ -50,33 +56,31 @@ public:
 
         ipAddress_ = ip;
         port_ = port;
-
-        counterForOptions = 0;
-        cCounter = 20;
-        //-----------------------------------
-        // Overloaded methods.
     }
+        
     void run()
     {
-        connect(ipAddress_, port_);
-
-        socket_.set_option(rcv_timeout_option{ 1000 });
-
+        connectSerialSocket(ipAddress_, port_);
+        #ifdef _WIN32 
+            socket_.set_option(rcv_timeout_option{ 1000 });
+        #endif
+            
         uint8_t dataToOpenReceiving[] = { 0x01, 0x55 };
         send(&socket_, dataToOpenReceiving, 2);
         boost::system::error_code ec;
 
-        int rrPortNumber = 57800;
         while (!close) {
-
 
             std::string readSerialData = receiveSerial(&ec);
 
             if (ec == boost::asio::error::eof) {
                 mutexSendingToSocket.lock();
+                logMessage("error while receiving: eof");
                 socket_.close();
-                connect(ipAddress_, port_);
-                socket_.set_option(rcv_timeout_option{ 1000 });
+                connectSerialSocket(ipAddress_, port_);
+                #ifdef _WIN32 
+                    socket_.set_option(rcv_timeout_option{ 1000 });
+                #endif
                 mutexSendingToSocket.unlock();
 
                 send(&socket_, dataToOpenReceiving, 2);
@@ -90,14 +94,6 @@ public:
                     sharedMemoryInstance->writeSerialRead(readSerialData);
                 }
                 logMessage(readSerialData);
-            }
-
-            counterForOptions++;
-            if (counterForOptions == 1) {
-                counterForOptions = 0;
-
-                //receiver report test
-                rrPortNumber++;
             }
         }
         closeSocket();
@@ -115,13 +111,24 @@ public:
 
     void writeSerial(std::string data)
     {
-        std::thread thread(&Socket::writeSerialThreadedString, this, data);
-        thread.detach();
+        mutexSendingToSocket2.lock();
+        if (sendingInProgress) {
+            pendingWriting = true;
+            pendingData = pendingData + "\n" + data;
+        } else {
+            sendingInProgress = true;
+            std::thread thread(&Socket::writeSerialThreadedString, this, data);
+            thread.detach();
+            pendingData = "";
+        }
+        mutexSendingToSocket2.unlock();
     }
+    
     void writeSerialThreadedString(std::string data)
     {
         writeSerialThreaded((uint8_t*)data.c_str(), data.length());
     }
+    
     void writeSerialThreaded(uint8_t* data, size_t length)
     {
         size_t totalLength = length + 3;
@@ -131,8 +138,15 @@ public:
         memcpy(wholeData, header, 2);
         memcpy(&wholeData[2], data, length);
         memcpy(&wholeData[totalLength - 1], footer, 1);
-        std::to_string(send(&socket_, wholeData, totalLength));
+        
+        logMessage("serial data sent size: " + std::to_string(send(&socket_, wholeData, totalLength)));
         free(wholeData);
+        
+        sendingInProgress = false;
+        if (pendingWriting) {
+            pendingWriting = false;
+            writeSerial(pendingData);
+        }
     }
 
     void sendAudio(int16_t* data, long long numberOfBytes)
@@ -145,7 +159,20 @@ public:
 
     void sendAudioThreaded(int16_t* data, long long numberOfBytes)
     {
+        // Number of bytes is doubled because of two channels
+        
         mutexSendingAudio.lock();
+        
+        int sentBytes = 0;
+        int packetSize = 1000;
+        int sampleRate = 8000;
+        short numberOfChannels = 2;
+        int packetSizeInMilliseconds = ((float)packetSize / numberOfChannels) / sampleRate * 1000;
+        long elapsedTime = 0;
+        long difference = 0;
+        std::chrono::system_clock::time_point beginTime;
+        
+        connectAudioSocket(ipAddress_, port_);
 
         std::string header = std::string();
         header.append("POST /audio.input HTTP/1.1\r\n");
@@ -165,24 +192,44 @@ public:
         uint8_t* repackedData = repack(data, numberOfBytes);
         free(data);
 
-        int sentBytes = 0;
-        int packetSize = 1000;
-
+        
+        beginTime = std::chrono::system_clock::now();
+        
         while (numberOfBytes && !close) {
+            size_t sentSize;
+            
+            // Calculating how many seconds are in RAK's buffer which are not played. Keep 1 second adventege in buffer.
+            elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
+            long sentDataInMilliseconds = (float)sentBytes / packetSize * packetSizeInMilliseconds;
+            difference = sentDataInMilliseconds - elapsedTime;
+            if (difference > 1000) {
+                // 1015 = 1 sec + 15ms delay in `send` function
+                boost::this_thread::sleep_for(boost::chrono::milliseconds(difference - 1015));
+            } else {
+                // Delay eventually if there is no 1 second in RAK's buffer and make sure to not block socket only with audio data. 
+                boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
+            }
+            
             if (numberOfBytes > packetSize) {
-
-                send(&audioSocket_, &repackedData[sentBytes], packetSize);
+                sentSize = send(&audioSocket_, &repackedData[sentBytes], packetSize);
                 numberOfBytes -= packetSize;
                 sentBytes += packetSize;
             } else {
-
-                send(&audioSocket_, &repackedData[sentBytes], numberOfBytes);
+                sentSize = send(&audioSocket_, &repackedData[sentBytes], numberOfBytes);
+                sentBytes += packetSize;
                 numberOfBytes = 0;
+                
+                // Wait until the song is over and add additionally 2 sec just in case
+                sentDataInMilliseconds = (float)sentBytes / packetSize * packetSizeInMilliseconds;
+                difference = sentDataInMilliseconds - elapsedTime;
+                boost::this_thread::sleep_for(boost::chrono::milliseconds(difference + 2000));
             }
+            logMessage("audio chunk sent");
         }
 
         free(repackedData);
 
+        audioSocket_.close();
         mutexSendingAudio.unlock();
     }
 
@@ -249,6 +296,7 @@ public:
         free(twoChannelsData);
         return PCM_Data;
     }
+    
     char* lltoa(long long number, int base)
     {
         static char buffer[sizeof(number) * 3 + 1]; // Size could be a bit tighter
@@ -267,8 +315,13 @@ public:
     }
 
     // MARK:- Socket APIs
+    void connect(const std::string& host, const std::string& service) 
+    {
+        connectSerialSocket(host, service);
+        connectAudioSocket(host, service);
+    }
 
-    void connect(const std::string& host, const std::string& service)
+    void connectSerialSocket(const std::string& host, const std::string& service)
     {
         boost::system::error_code ec;
         tcp::resolver resolver(io_context);
@@ -276,11 +329,18 @@ public:
         if (ec) {
             logMessage("Connect to serial socket error");
         }
+    }
+    
+    void connectAudioSocket(const std::string& host, const std::string& service)
+    {
+        boost::system::error_code ec;
+        tcp::resolver resolver(io_context);
         boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
         if (ec) {
             logMessage("Connect to audio socket error");
         }
     }
+    
     size_t send(tcp::socket* socket, const void* data, size_t length)
     {
         boost::system::error_code ec;
@@ -292,6 +352,7 @@ public:
 
         return sentSize;
     }
+    
     std::string receiveSerial(boost::system::error_code* ec)
     {
         boost::asio::streambuf b;
@@ -319,6 +380,7 @@ public:
 
         return dataPreLastLine;
     }
+    
     void closeSocket()
     {
         logMessage("------------- Close socket -----------");
