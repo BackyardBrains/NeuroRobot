@@ -3,3 +3,5 @@
 RAK-Matlab/*.mexw64
 RAK-Matlab/logFile_*.txt
 RAK-Matlab/test.wav
+RAK-Matlab/*.asv
+RAK-Matlab/delays.txt
