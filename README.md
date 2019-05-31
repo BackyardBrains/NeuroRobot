@@ -13,18 +13,26 @@ To run the Neurorobot App without a neurorobot or a webcamera:
 </ul>
 
 To run the Neurorobot App with Backyard Brains' fabricated neurorobot hardware
-• Get Matlab
-• Run neurorobot.m with these settings: rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
+<ul>
+<li>Get Matlab
+<li>Run neurorobot.m with these settings: rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
+</ul>
 
 To run the Neurorobot App with Backyard Brains' DIY robot:
-• Get Matlab with the Instrument Control toolbox to connect to the robot's bluetooth modem
-• Run neurorobot.m with these settings: rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
+<ul>
+<li>Get Matlab with the Instrument Control toolbox to connect to the robot's bluetooth modem
+<li>Run neurorobot.m with these settings: rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
+</ul>
 
 To run the Neurorobot App with a webcamera
-• Get Matlab with the Image Acquisition toolbox
-• Install Image Acquisition Toolbox Support Package for OS Generic Video Interface and (if needed) MATLAB Support Package for USB Webcams
-• Run neurorobot.m with these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
+<ul>
+<li>Get Matlab with the Image Acquisition toolbox
+<li>Install Image Acquisition Toolbox Support Package for OS Generic Video Interface and (if needed) MATLAB Support Package for USB Webcams
+<li>Run neurorobot.m with these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
+</ul>
 
 Also - to use object recognition functionality:
-• Get the Deep Learning toolbox
-• Install the Deep Learning Toolbox Model for GoogLeNet Network Add-On
+<ul>
+<li>Get the Deep Learning toolbox
+<li>Install the Deep Learning Toolbox Model for GoogLeNet Network Add-On
+</ul>
