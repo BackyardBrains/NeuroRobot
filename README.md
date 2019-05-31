@@ -1,4 +1,4 @@
-<p align="right">
+<p align="center">
   <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/neurorobot_drawing.jpg" width=420>
 </p>
 
