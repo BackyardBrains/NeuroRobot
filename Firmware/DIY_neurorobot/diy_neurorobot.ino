@@ -1,6 +1,6 @@
 // Vertebot Arduino Code
 // Written by Christopher Harris at Backyard Brains, Inc.
-// Last update: 2019-05
+// This code is licensed under a GNU 2.1 license
 
 // Libraries
 #include <Wire.h>
