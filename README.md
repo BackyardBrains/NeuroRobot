@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/neurorobot_drawing.jpg">
+  <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/neurorobot_drawing.jpg" width=420>
 </p>
 
 To run the Neurorobot App without neurorobot hardware or webcamera:
