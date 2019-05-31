@@ -1,5 +1,4 @@
 <p align="left"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/neurorobot_drawing.jpg" width=300></p>
-
 # Neurorobot App
 
 A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use neurorobots to teach computational neuroscience in high schools. This repo contains the code needed to run our neurorobots. If you haven't got a neurorobot yet, you can still run the neurorobot app using only your computer. For more information, see https://www.biorxiv.org/content/10.1101/597609v1
