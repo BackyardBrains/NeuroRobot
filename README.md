@@ -7,8 +7,10 @@ A neurorobot is a robot controlled by a computer simulation of a biological brai
 ## Getting Started
 
 To run the Neurorobot App without a neurorobot or a webcamera:
-• Get Matlab with the Image Processing toolbox
-• Run neurorobot.m with these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
+<ul>
+<li>Get Matlab with the Image Processing toolbox
+<li>Run neurorobot.m with these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
+</ul>
 
 To run the Neurorobot App with Backyard Brains' fabricated neurorobot hardware
 • Get Matlab
