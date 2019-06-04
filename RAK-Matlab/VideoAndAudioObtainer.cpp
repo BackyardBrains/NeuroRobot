@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright Â© 2018 Backyard Brains. All rights reserved.
 //
 
 #include "MexThread.h"
@@ -17,14 +17,15 @@ extern "C" {
     #include <libavformat/avio.h>
     #include <libswscale/swscale.h>
     #include <libavutil/imgutils.h>
-    #include <libavutil/opt.h>
 }
 
-//! Derived class. Reads input data from RAK5206 and saves data to shared memory
-class WriterThread : public MexThread, public Log {
+/**
+ Derived class.
+ Reads video and audio data from RAK5206 and saves data to shared memory
+ */
+class VideoAndAudioObtainer : public MexThread, public Log {
 
 private:
-    //// FFMPEG
     AVFormatContext* format_ctx = avformat_alloc_context();
     AVCodecContext* videoCodec_ctx = NULL;
     struct SwsContext* img_convert_ctx = nullptr;
@@ -45,18 +46,15 @@ private:
     AVCodecContext* audio_dec_ctx = NULL;
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
 
-    //// Custom
-    bool close = false;
-
     //     std::chrono::time_point<std::chrono::steady_clock> lastTime =
     //     std::chrono::high_resolution_clock::now();
 
 public:
     //-----------------------------------
     // Init methods.
-    WriterThread(SharedMemory* sharedMemory, std::string ipAddress)
+    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress)
     {
-        className = "WriterThread";
+        className = "VideoAndAudioObtainer";
         sharedMemoryInstance = sharedMemory;
         openStreams();
 
@@ -163,9 +161,7 @@ public:
             exit(1);
 
         // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
-
-        close = false;
-
+        
         logMessage("init >>> done");
     }
 
@@ -187,7 +183,7 @@ public:
             rgb_data[i] = (uint8_t*)malloc(sharedMemoryInstance->frameSize);
         }
         
-        while (av_read_frame(format_ctx, &packet) >= 0 && !close) {
+        while (av_read_frame(format_ctx, &packet) >= 0 && isRunning()) {
             
             if (packet.stream_index == video_stream_index) { // packet is video
                 logMessage("run >>> video packet");
@@ -230,16 +226,10 @@ public:
             av_packet_unref(&packet);
             av_init_packet(&packet);
         }
-        logMessage("End of while for video thread");
+        logMessage("End of run()");
         //         avformat_close_input(&format_ctx);
         free(rgb_data[0]);
         freeAllObjects();
-    }
-
-    void stop()
-    {
-        logMessage("-------- Stop Video ------");
-        close = true;
     }
 
     //----------------------------------
@@ -270,7 +260,7 @@ public:
 
     void freeAllObjects()
     {
-        close = true;
+        stop();
         sharedMemoryInstance->blockWritters();
         logMessage("freeAllObjects >>> entered");
         closeStreams();

@@ -1,27 +1,30 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright � 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
-
-#include <iostream>
 
 #include "MexThread.h"
 #include "Macros.h"
 #include "SharedMemory.cpp"
 #include "Log.cpp"
 
-#include <ctime>
+#include <iostream>
 #include <chrono>
 
 // Boost includes
 #include <boost/asio.hpp>
-#include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
 
-typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv_timeout_option;
 using boost::asio::ip::tcp;
 
+typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv_timeout_option;
+
+/**
+ Derived class.
+ Intended to communicate with RAK through socket.
+ Used to write and read serial data and send audio data.
+ */
 class Socket : public MexThread, public Log {
     
 private:
@@ -38,8 +41,8 @@ private:
 
     SharedMemory* sharedMemoryInstance;
     
-    //// Custom
-    bool close = false;
+    
+    // Data used for mechanism of sending serial data
     bool sendingInProgress = false;
     bool pendingWriting = false;
     std::string pendingData = "";
@@ -57,7 +60,11 @@ public:
         ipAddress_ = ip;
         port_ = port;
     }
-        
+    
+    
+    /**
+     Overloaded method which is running from separate thread.
+     */
     void run()
     {
         connectSerialSocket(ipAddress_, port_);
@@ -69,7 +76,7 @@ public:
         send(&socket_, dataToOpenReceiving, 2);
         boost::system::error_code ec;
 
-        while (!close) {
+        while (isRunning()) {
 
             std::string readSerialData = receiveSerial(&ec);
 
@@ -90,7 +97,7 @@ public:
 
 
             if (readSerialData.length() > 0) {
-                if (!close) {
+                if (isRunning()) {
                     sharedMemoryInstance->writeSerialRead(readSerialData);
                 }
                 logMessage(readSerialData);
@@ -100,15 +107,13 @@ public:
 
         logMessage("Socket -> read serial ended");
     }
+    
+    /**
+     Prepares serial data for sending. Initializes sending serial data.
+     In case where data is already in process of sending, then it saves data locally for later sending.
 
-    void stop()
-    {
-        close = true;
-    }
-
-    //-----------------------------------
-    // Custom methods.
-
+     @param data Data for sending
+     */
     void writeSerial(std::string data)
     {
         mutexSendingToSocket2.lock();
@@ -124,11 +129,24 @@ public:
         mutexSendingToSocket2.unlock();
     }
     
+    
+    /**
+     Helper method for initialize sending serial data from other thread.
+
+     @param data Data for sending
+     */
     void writeSerialThreadedString(std::string data)
     {
         writeSerialThreaded((uint8_t*)data.c_str(), data.length());
     }
     
+    /**
+     Writes serial data.
+     In the end it decides whether to send pending data if any.
+
+     @param data Data for sending
+     @param length Length of data
+     */
     void writeSerialThreaded(uint8_t* data, size_t length)
     {
         size_t totalLength = length + 3;
@@ -149,6 +167,12 @@ public:
         }
     }
 
+    /**
+     Prepares audio data for sending. Initializes sending audio data.
+
+     @param data Audio data
+     @param numberOfBytes Number of bytes to send
+     */
     void sendAudio(int16_t* data, long long numberOfBytes)
     {
         int16_t* dataToSend = (int16_t*)malloc(numberOfBytes + 1);
@@ -157,10 +181,15 @@ public:
         thread.detach();
     }
 
+    /**
+     Writes audio data in chunks with delays between them.
+     Method is resposible to keep ~1sec of data in RAK's buffer.
+
+     @param data Audio data for sending
+     @param numberOfBytes Number of bytes of audio data (Usually it is doubled because of two channels)
+     */
     void sendAudioThreaded(int16_t* data, long long numberOfBytes)
     {
-        // Number of bytes is doubled because of two channels
-        
         mutexSendingAudio.lock();
         
         int sentBytes = 0;
@@ -181,7 +210,7 @@ public:
         header.append("\r\n");
         header.append("Content-Type: audio/wav\r\n");
         header.append("Content-Length: ");
-        header.append(lltoa(numberOfBytes, 10));
+        header.append(lltoa(numberOfBytes));
         header.append("\r\n");
         header.append("Connection: keepalive\r\n");
         header.append("Accept: */*\r\n\r\n");
@@ -195,10 +224,10 @@ public:
         
         beginTime = std::chrono::system_clock::now();
         
-        while (numberOfBytes && !close) {
+        while (numberOfBytes && isRunning()) {
             size_t sentSize;
             
-            // Calculating how many seconds are in RAK's buffer which are not played. Keep 1 second adventege in buffer.
+            // Calculating how many seconds there are in RAK's buffer which are not played. Try to keep 1 second adventege of data in buffer.
             elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
             long sentDataInMilliseconds = (float)sentBytes / packetSize * packetSizeInMilliseconds;
             difference = sentDataInMilliseconds - elapsedTime;
@@ -233,49 +262,14 @@ public:
         mutexSendingAudio.unlock();
     }
 
-    uint8_t linear2ulaw(int pcm_val) /* 2's complement (16-bit range) */
-    {
-        int BIAS = 0x84;
-        int seg_end[] = { 0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF };
+    /**
+     Rapacks forwarded audio data.
+     It creates two channels from one and rapcks signed 16bit linear signal to unsigned 8bit ulaw signal.
 
-        int mask;
-        int seg;
-        char uval;
-
-        /* Get the sign and the magnitude of the value. */
-        if (pcm_val < 0) {
-            pcm_val = BIAS - pcm_val;
-            mask = 0x7F;
-        } else {
-            pcm_val += BIAS;
-            mask = 0xFF;
-        }
-
-        /* Convert the scaled magnitude to segment number. */
-        seg = search(pcm_val, seg_end, 8);
-
-        /*
-         * Combine the sign, segment, quantization bits;
-         * and complement the code word.
-         */
-        if (seg >= 8) /* out of range, return maximum value. */
-            return (0x7F ^ mask);
-        else {
-            uval = (uint8_t)((seg << 4) | ((pcm_val >> (seg + 3)) & 0xF));
-            return (uval ^ mask);
-        }
-    }
-
-    int search(int val, int table[], int size)
-    {
-        int i;
-        for (i = 0; i < size; i++) {
-            if (val <= table[i])
-                return (i);
-        }
-        return (size);
-    }
-
+     @param data Audio data for repacking
+     @param numberOfBytes Number of bytes of audio data
+     @return Repacked data
+     */
     uint8_t* repack(int16_t* data, long long numberOfBytes)
     {
         short numberOfChannels = 2;
@@ -297,7 +291,74 @@ public:
         return PCM_Data;
     }
     
-    char* lltoa(long long number, int base)
+    /**
+     Rapacks chunk of audio data from linear to ulaw signal.
+     
+     @param pcm_val Chunk of audio data for rapacking
+     @return Repacked chunk of audio data
+     
+     @see https://en.wikipedia.org/wiki/Μ-law_algorithm
+     */
+    uint8_t linear2ulaw(int pcm_val) /* 2's complement (16-bit range) */
+    {
+        int BIAS = 0x84;
+        int seg_end[] = { 0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF };
+        
+        int mask;
+        int seg;
+        char uval;
+        
+        /* Get the sign and the magnitude of the value. */
+        if (pcm_val < 0) {
+            pcm_val = BIAS - pcm_val;
+            mask = 0x7F;
+        } else {
+            pcm_val += BIAS;
+            mask = 0xFF;
+        }
+        
+        /* Convert the scaled magnitude to segment number. */
+        seg = search(pcm_val, seg_end, 8);
+        
+        /*
+         * Combine the sign, segment, quantization bits;
+         * and complement the code word.
+         */
+        if (seg >= 8) /* out of range, return maximum value. */
+            return (0x7F ^ mask);
+        else {
+            uval = (uint8_t)((seg << 4) | ((pcm_val >> (seg + 3)) & 0xF));
+            return (uval ^ mask);
+        }
+    }
+    
+    /**
+     Searches for part in forwarded bounds of forwarded chunk of audio data
+
+     @param val Chunk of audio data for deciding its part in table[]
+     @param table Array of bounds
+     @param size Size of table[]
+     @return index of part in table[]
+     
+     @see https://en.wikipedia.org/wiki/Μ-law_algorithm
+     */
+    int search(int val, int table[], int size)
+    {
+        for (int i = 0; i < size; i++) {
+            if (val <= table[i]) {
+                return i;
+            }
+        }
+        return size;
+    }
+    
+    /**
+     Converts long long number into a string.
+
+     @param number Long Long number
+     @return Char array of number
+     */
+    char* lltoa(long long number)
     {
         static char buffer[sizeof(number) * 3 + 1]; // Size could be a bit tighter
         char* p = &buffer[sizeof(buffer)];
@@ -315,12 +376,13 @@ public:
     }
 
     // MARK:- Socket APIs
-    void connect(const std::string& host, const std::string& service) 
-    {
-        connectSerialSocket(host, service);
-        connectAudioSocket(host, service);
-    }
+    
+    /**
+     Connects to socket for serial data.
 
+     @param host Ip address of socket
+     @param service Port of socket
+     */
     void connectSerialSocket(const std::string& host, const std::string& service)
     {
         boost::system::error_code ec;
@@ -331,6 +393,12 @@ public:
         }
     }
     
+    /**
+     Connects to socket for audio data.
+
+     @param host Ip address of socket
+     @param service Port of socket
+     */
     void connectAudioSocket(const std::string& host, const std::string& service)
     {
         boost::system::error_code ec;
@@ -341,6 +409,14 @@ public:
         }
     }
     
+    /**
+     Sends the forwarded data to forwarded socket.
+
+     @param socket Socket which is determined to receive the data
+     @param data Data for sending
+     @param length Length of data for sending
+     @return Number of sent bytes
+     */
     size_t send(tcp::socket* socket, const void* data, size_t length)
     {
         boost::system::error_code ec;
@@ -353,6 +429,13 @@ public:
         return sentSize;
     }
     
+    /**
+     Receives the serial data.
+     It takes only last valid line.
+
+     @param ec Error code while receiving the data if any
+     @return Received data from socket data
+     */
     std::string receiveSerial(boost::system::error_code* ec)
     {
         boost::asio::streambuf b;
@@ -381,6 +464,9 @@ public:
         return dataPreLastLine;
     }
     
+    /**
+     Closes audio and serial sockets.
+     */
     void closeSocket()
     {
         logMessage("------------- Close socket -----------");

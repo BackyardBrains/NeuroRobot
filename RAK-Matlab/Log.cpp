@@ -10,12 +10,13 @@
 #include <iostream>
 
 #ifdef DEBUG
-#include <fstream>
-#include <ctime>
-#include <chrono>
-#include <typeinfo>
-#include <string>
+    #include <fstream>
+    #include <ctime>
+    #include <chrono>
+    #include <typeinfo>
+    #include <string>
 #endif
+
 
 class Log
 {
@@ -34,6 +35,10 @@ public:
     std::ofstream logFile;
 #endif
     
+    /**
+     Opens log file.
+     Be sure that `className` is defined like you want. If not, the name of log file will be predefined name.
+     */
     void openStreams() {
 #ifdef DEBUG
         char logFileName[50];
@@ -45,6 +50,10 @@ public:
         logMessage("openStreams >> Socket >>> opened");
 #endif
     }
+    
+    /**
+     Closes log file.
+     */
     void closeStreams() {
 #ifdef DEBUG
         logMessage("closeStreams >>> closed");
@@ -52,6 +61,14 @@ public:
 #endif
     }
     
+    /**
+     Writes forwarded message to log file.
+     Only working if is defined #DEBUG macro in Macros.h
+     
+     @see Macros.h file have to have defiend #DEBUG macro
+
+     @param message Message to log
+     */
     void logMessage(std::string message) {
 #ifdef DEBUG
         std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

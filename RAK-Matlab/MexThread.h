@@ -11,7 +11,7 @@
 #include <vector>
 
 #ifdef MATLAB
-#include <mex.h>
+    #include <mex.h>
 #endif
 
 //! Defines the base class for threading from MEX files.
@@ -26,7 +26,6 @@ public:
         
     //! Overload this. The actual worker thread method
     virtual void run() = 0;
-    virtual void stop() = 0;
     
     //----------------------------------
     // Rest of the methods.
@@ -190,6 +189,11 @@ public:
     bool isRunning()
     {
         return _running; 
+    }
+    
+    void stop()
+    {
+        _running = 0;
     }
     
 private:
