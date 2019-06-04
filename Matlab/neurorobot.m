@@ -2,15 +2,16 @@
 
 % NEUROROBOT APP by Backyard Brains
 % Managed by Christopher Harris, christopher@backyardbrains.com
-% This code is licensed under a Creative Commons license (CC BY 4.0)
-% For the best experience, install the included Comic Book font.
+% This code is licensed under a GNU 2.1 license
+% For the best experience, install the Comic Book font (included)
+% For more information, see https://www.biorxiv.org/content/10.1101/597609v1
 
 
 %% Settings
 rak_only = 0;
-camera_present = 1; % Set this to 1 to use any camera for vision
+camera_present = 0; % Set this to 1 to use any camera for vision
 use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
-bluetooth_present = 1;
+bluetooth_present = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
@@ -113,7 +114,7 @@ elseif strcmp(computer_name, 'laptop-blue')
 elseif strcmp(computer_name, 'laptop-orange')
     startup_fig_pos = [1 41 1536 800.8000];   
     fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-ACFF'; % , wifi = LTH_CFFB6B
+    bluetooth_name = 'RNBT-ACFF'; % , wifi = LTH_CFFB27
     bfsize = 16;
 elseif strcmp(computer_name, 'laptop-black')
     startup_fig_pos = [1 41 1536 800.8000];   
@@ -284,7 +285,7 @@ if exist('restarting', 'var') && restarting
     % Update brain selection properties
     for nbrain = 1:nbrains
         if strcmp(brain_name, available_brains(nbrain).name(1:end-4))
-    nbrains = size(available_brains, 1);
+            nbrains = size(available_brains, 1);
             popup_select_brain.Value = nbrain + 1;
         end
     end    
