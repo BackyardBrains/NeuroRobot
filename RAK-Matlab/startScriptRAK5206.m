@@ -3,14 +3,14 @@ clear all;
 close all;
 clear functions;
 
-% Windows
 if ~exist('RAK5206.mexw64', 'file') && ispc
+    % Windows
+    
     % FFMPEG - Libraries (*.dll) must be in root folder. So copy from libraries/windows/ffmpeg/lib/bin to root.
     mex RAK5206.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
-end
-
-% macOS
-if ~isfile('RAK5206.mexmaci64') && ismac
+elseif ~isfile('RAK5206.mexmaci64') && ismac
+    % macOS
+    
     % FFMPEG - Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.
     mex RAK5206.cpp -I/usr/local/Cellar/boost/1.69.0_2/include -L/usr/local/Cellar/boost/1.69.0_2/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
 end
