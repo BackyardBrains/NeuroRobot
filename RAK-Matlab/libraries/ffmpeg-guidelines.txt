@@ -1,0 +1,23 @@
+
+Guidelines for building ffmpeg library
+
+Clone ffmpeg:
+`clone https://github.com/FFmpeg/FFmpeg.git`
+
+~~ Windows ~~
+
+
+
+
+
+~~ macOS ~~
+
+Commands need to run in terminal from ffmpeg folder.
+If you don't set `--prefix`, librart will be in `/usr/lib`
+`./configure --enable-shared --disable-static --prefix=./install`
+`make`
+`make install`
+
+notes:
+- Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.
+- Followed https://trac.ffmpeg.org/wiki/CompilationGuide/macOS
