@@ -1,6 +1,6 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright © 2018 Backyard Brains. All rights reserved.
+//  Copyright Â© 2018 Backyard Brains. All rights reserved.
 //
 
 #ifndef _MexThread_h
@@ -11,12 +11,11 @@
 #include <vector>
 
 #ifdef MATLAB
-#include <mex.h>
+    #include <mex.h>
 #endif
 
 //! Defines the base class for threading from MEX files.
-// Only run(), parseInputParameters(), and returnResults() need to be 
-// overloaded. See "GaussianBlurThread.cpp" for a simple demonstration.
+// Only run() needs to be overloaded.
 class MexThread
 {
 public:
@@ -27,17 +26,6 @@ public:
         
     //! Overload this. The actual worker thread method
     virtual void run() = 0;
-    virtual void stop() = 0;
-    
-#ifdef MATLAB
-    //! Overload this. Get any additional input parameters
-    virtual void parseInputParameters( const std::vector<const mxArray*>& rhs ) = 0;
-#endif
-    
-#ifdef MATLAB
-    //! Overload this. Return results
-    virtual void returnResults( mxArray *plhs[] ) = 0;
-#endif
     
     //----------------------------------
     // Rest of the methods.
@@ -61,18 +49,10 @@ public:
 
             // Get input parameters (if any)
             std::vector<const mxArray*> rhs(prhs+1,prhs+nrhs);
-            this->parseInputParameters( rhs );
+//            this->parseInputParameters( rhs );
 
             // Start computation
             this->startThreaded( );
-        }
-        else if( sMethod == "result" )
-        {
-            // Get result or throw exception
-            if( _running )
-                mexErrMsgTxt( "result(): Thread is still running!\n" );
-            this->returnResults( plhs );
-
         }
         else if( sMethod == "running" )
         {
@@ -209,6 +189,11 @@ public:
     bool isRunning()
     {
         return _running; 
+    }
+    
+    void stop()
+    {
+        _running = 0;
     }
     
 private:
