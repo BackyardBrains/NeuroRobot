@@ -7,8 +7,12 @@ if run_button == 5
     command_log.n = command_log.n + 1;    
 end
 
-if run_button == 5 || sum(da_rew_neurons(firing))
+if run_button == 5
     run_button = 0;
+    reward = 1;
+end
+
+if sum(da_rew_neurons(firing))
     reward = 1;
 end
 

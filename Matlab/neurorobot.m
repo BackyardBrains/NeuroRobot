@@ -8,12 +8,12 @@
 
 
 %% Settings
-rak_only = 0;
-camera_present = 0; % Set this to 1 to use any camera for vision
+rak_only = 1;
+camera_present = 1; % Set this to 1 to use any camera for vision
 use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
 bluetooth_present = 0;
 bg_brain = 1;
-draw_synapse_strengths = 1;
+draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 save_brain_jpg = 0;
 
@@ -25,7 +25,7 @@ bfsize = 18; % You may want to change this to 16 if your screen size is smaller 
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
-manual_controls = 0;
+manual_controls = 1;
 use_profile = 0;
 nsteps_per_loop = 100;
 brain_facts = 0;
@@ -79,7 +79,10 @@ if strcmp(computer_name, 'laptop-main')
     fig_pos = [1 41 1920 1017];
 %     startup_fig_pos = [1921 1 1920 1057];   
 %     fig_pos = [1921 1 1920 1057];    
-    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
+%     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
+%     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
+%     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
+    bluetooth_name = 'RNBT-A9BE'; % blue, wifi = LTH_CFFAC8
     bfsize = 18;
 elseif strcmp(computer_name, 'laptop-green')
     startup_fig_pos = [1 41 1536 800.8000];   
@@ -109,7 +112,7 @@ elseif strcmp(computer_name, 'laptop-white')
 elseif strcmp(computer_name, 'laptop-blue')
     startup_fig_pos = [1 41 1536 800.8000];   
     fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-A9BE'; % , wifi = LTH_CFFAC8
+    bluetooth_name = 'RNBT-A9BE'; % blue, wifi = LTH_CFFAC8
     bfsize = 16;
 elseif strcmp(computer_name, 'laptop-orange')
     startup_fig_pos = [1 41 1536 800.8000];   
@@ -119,12 +122,12 @@ elseif strcmp(computer_name, 'laptop-orange')
 elseif strcmp(computer_name, 'laptop-black')
     startup_fig_pos = [1 41 1536 800.8000];   
     fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-9AA5'; % , wifi = LTH_D07086
+    bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
     bfsize = 16;
 elseif strcmp(computer_name, 'laptop-purple')
     startup_fig_pos = [1 41 1536 800.8000];   
     fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-96F3'; % , wifi = LTH_D070D6
+    bluetooth_name = 'RNBT-96F3'; % purple, wifi = LTH_D070D6
     bfsize = 16;
 elseif strcmp(computer_name, 'laptop-checkers')
     startup_fig_pos = [1 41 1536 800.8000];   
