@@ -8,6 +8,7 @@
 
 
 %% Settings
+brain_gen = 1;
 rak_only = 1;
 camera_present = 1; % Set this to 1 to use any camera for vision
 use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
@@ -25,8 +26,8 @@ bfsize = 18; % You may want to change this to 16 if your screen size is smaller 
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
-manual_controls = 1;
-use_profile = 0;
+manual_controls = 0;
+use_profile = 1;
 nsteps_per_loop = 100;
 brain_facts = 0;
 use_cnn = 0;

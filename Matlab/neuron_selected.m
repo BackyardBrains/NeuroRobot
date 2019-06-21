@@ -303,7 +303,7 @@ elseif fig_design.UserData == 6
         end
 
         % Update variables
-        vis_prefs(postsynaptic_neuron, :, presynaptic_contact) = 0; % Clear all visua preferences - only one preference per eye-neuron pair
+        vis_prefs(postsynaptic_neuron, :, presynaptic_contact) = 0; % Clear all visual preferences - only one preference per eye-neuron pair
         vis_prefs(postsynaptic_neuron, popup_select_preference.Value, presynaptic_contact) = 1 - delete_synapse;
 
         % Remove menu

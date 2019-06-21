@@ -6,7 +6,7 @@ disp(horzcat('Lifetime = ', num2str(round(lifetime/60)), ' min'))
 
 %% Stop and reset motors
 if rak_only
-    rak_cam.writeSerial('l:0;r:0;')
+    rak_cam.writeSerial('l:0;r:0;s:0;')
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];
