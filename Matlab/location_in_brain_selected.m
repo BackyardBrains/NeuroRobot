@@ -6,10 +6,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     if neuron_or_network == 1
         
         % Log command
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;            
-        command_log.entry(command_log.n).action = 'add single neuron to brain';
-        command_log.n = command_log.n + 1;        
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;            
+            command_log.entry(command_log.n).action = 'add single neuron to brain';
+            command_log.n = command_log.n + 1;    
+        end
 
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
@@ -147,10 +149,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     elseif neuron_or_network == 2
         
         % Command log
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;        
-        command_log.entry(command_log.n).action = 'add many neurons to brain';
-        command_log.n = command_log.n + 1;
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;        
+            command_log.entry(command_log.n).action = 'add many neurons to brain';
+            command_log.n = command_log.n + 1;
+        end
         
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');

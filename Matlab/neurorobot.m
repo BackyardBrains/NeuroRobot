@@ -9,14 +9,15 @@
 
 %% Settings
 brain_gen = 1;
-rak_only = 1;
+rak_only = 0;
 camera_present = 1; % Set this to 1 to use any camera for vision
-use_webcam = 0; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
+use_webcam = 1; % Set this to 1 if you're using your computer's webcamera rather than the RAK module
 bluetooth_present = 0;
 bg_brain = 1;
 draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 save_brain_jpg = 0;
+save_data_and_commands = 0;
 
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
