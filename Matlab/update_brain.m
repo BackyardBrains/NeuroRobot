@@ -43,7 +43,7 @@ if nneurons
 
         % Update v
         v = v + 0.5 * (0.04 * v.^2 + 5 * v + 140 - u + I);
-        v = v + 0.5 * (0.04 * v.^2 + 5 * v + 140 - u + I);
+        v = v + 4.5 * (2.04 * v.^2 + 5 * v + 140 - u + I);
 
         % Update u
         u = u + a .* (b .* v - u);
