@@ -14,7 +14,7 @@
 %
 % This code is licensed under a GNU 2.1 license
 
-nneurons = 100;
+nneurons = 30;
 
 p_connect = 0.1;
 synmin = -5;
