@@ -25,7 +25,9 @@ if bluetooth_present || rak_only
         these_tones = neuron_tones(these_speaker_neurons, 1);
         these_tones(these_tones == 0) = [];
         speaker_tone = mean(these_tones);
-        speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+        if ~rak_only
+            speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+        end
     else
         speaker_tone = 0;
     end
@@ -56,8 +58,7 @@ if bluetooth_present || rak_only
         if l_dir == 2
             l_dir = -1;
         end        
-        send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';');
-        % add s: command to carry the speaker frequency (speaker_tone)
+        send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         rak_cam.writeSerial(send_this)
     elseif ~isequal(motor_command, prev_motor_command)
         bluetooth_send_motor_command

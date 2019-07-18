@@ -126,10 +126,10 @@ if nneurons
 
     % Create xfiring for analog MSN color
     xfiring = double(firing);
-    msn_vals = network_drive(:,1);
-    msn_vals(1) = [];
-    msn_vals = msn_vals / 250;
-    xfiring(logical(bg_neurons)) = msn_vals;
+%     msn_vals = network_drive(:,1);
+%     msn_vals(1) = [];
+%     msn_vals = msn_vals / 250;
+%     xfiring(logical(bg_neurons)) = msn_vals;
     
     % Learning (STDP)
     for nneuron = find(firing)' % for each spiking neuron

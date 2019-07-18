@@ -9,4 +9,3 @@ else
     this_distance = 300;
     disp('rak_cam readSerial empty')
 end
-disp(horzcat('this distance = ', num2str(this_distance)))

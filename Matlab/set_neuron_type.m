@@ -108,6 +108,10 @@ elseif button_n7.Value == 1 % Medium spiny
     button_n7.BackgroundColor = [0.6 0.95 0.6]; 
     da_rew_neurons(presynaptic_neuron, 1) = 0;  
     bg_neurons(presynaptic_neuron, 1) = 1;
+    if strcmp(edit_id.String, '1')
+        edit_id.String = '2';
+        disp('Network ID changed to 2 (network 1 is always on and cannot contain basal ganglia neurons)')
+    end
 end    
 
 if fig_design.UserData == 1

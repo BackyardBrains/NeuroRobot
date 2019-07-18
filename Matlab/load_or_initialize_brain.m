@@ -57,6 +57,7 @@ if brain_selection_val > 1
     end
     
 elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
+  
     brain = struct;
     nneurons = 0;
     neuron_xys = [];
@@ -85,4 +86,8 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     network_drive = zeros(1, 3);
     nnetworks = 0;
     bg_neurons = [];
+
+    if brain_gen
+        brain_generation
+    end
 end

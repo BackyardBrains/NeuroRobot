@@ -1,73 +1,129 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright ? 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
-
-//// Base RAK API class
 
 #include "Macros.h"
 #include "SharedMemory.cpp"
-#include "WriterThread.cpp"
+#include "VideoAndAudioObtainer.cpp"
 #include "Socket.cpp"
 
 #include <iostream>
-#include <fstream>
 
-
+/**
+ Base RAK API class. It is intended to have only one statically allocated object of this class and all mex calls will be executed through that object.
+ */
 class RAK5206
 {
 private:
     
     SharedMemory *sharedMemory = new SharedMemory();
-    WriterThread *writer;
-    Socket *socket;
+    VideoAndAudioObtainer *videoAndAudioObtainerObject;
+    Socket *socketObject;
     
 public:
     
-    void init(std::string ipAddress, std::string port) {
-        
-        writer = new WriterThread(sharedMemory, ipAddress);
-        socket = new Socket(sharedMemory, ipAddress, port);
+    /**
+     Inits video and audio obtainer object and socket object.
+     */
+    void init(std::string ipAddress, std::string port) 
+    {
+        videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress);
+        socketObject = new Socket(sharedMemory, ipAddress, port);
     }
-    void start() {
-        writer->startThreaded();
-        socket->startThreaded();
+    
+    /**
+     Starts the video, audio and serial data obtainers.
+     */
+    void start()
+    {
+        videoAndAudioObtainerObject->startThreaded();
+        socketObject->startThreaded();
     }
-    int16_t *readAudio(int *size) {
+    
+    /**
+     Reads audio from shared memory object.
+
+     @param size Size of audio data which is forwarded parallel
+     @return Audio data
+     */
+    int16_t *readAudio(int *size)
+    {
         int16_t *reply = sharedMemory->readAudio(size);
         return reply;
     }
-    uint8_t *readVideo() {
-        return sharedMemory->readVideo();
-    }
-    void stop() {
-        writer->stop();
-        socket->stop();
-    }
-    bool isRunning() {
-        return writer->isRunning();
+    
+    /**
+     Reads video frame from shared memory object.
+
+     @return Video frame data
+     */
+    uint8_t *readVideo()
+    {
+        return sharedMemory->readVideoFrame();
     }
     
-    void writeSerial(std::string data) {
-        socket->writeSerial(data);
+    /**
+     Stops video, audio and serial data obtainers.
+     */
+    void stop()
+    {
+        videoAndAudioObtainerObject->stop();
+        socketObject->stop();
     }
     
-    uint8_t *readSerial(int *size) {
+    /**
+     Queries whether the video and audio obtainer is working.
+
+     @return Is video and audio obtainer working
+     */
+    bool isRunning()
+    {
+        return videoAndAudioObtainerObject->isRunning();
+    }
+    
+    /**
+     Writes forwarded serial data.
+
+     @param data Serial data
+     */
+    void writeSerial(std::string data)
+    {
+        socketObject->writeSerial(data);
+    }
+    
+    /**
+     Reads serial data from shared memory object.
+
+     @param size Size of serial data which is forwarded parallel
+     @return Serial data
+     */
+    uint8_t *readSerial(int *size)
+    {
         return sharedMemory->readSerialRead(size);
     }
     
-    void sendAudio(int16_t *data, long long numberOfBytes) {
-        socket->sendAudio(data, numberOfBytes);
+    /**
+     Sends audio data through socket object.
+
+     @param data Data to send
+     @param numberOfBytes Number of bytes to send
+     */
+    void sendAudio(int16_t *data, long long numberOfBytes)
+    {
+        socketObject->sendAudio(data, numberOfBytes);
     }
-    
     
 #ifdef MATLAB
     
-    void processMexCall( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) {
-        
-        //// Get the command string
+    /**
+     Executing mex comamnd from MATLAB
+     */
+    void processMexCall( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
+    {
         char cmd[64];
         
+        // Gets the command string
         if (nrhs < 1 || mxGetString(prhs[0], cmd, sizeof(cmd))) { mexErrMsgTxt("First input should be a command string less than 64 characters long."); return; }
         
         if ( !strcmp("init", cmd) ) {
@@ -110,7 +166,6 @@ public:
             uint8_t *yp;
             yp  = (uint8_t*) mxGetData(plhs[0]);
             memcpy(yp, videoData, sharedMemory->frameSize);
-            
             
             return;
         } else if ( !strcmp("stop", cmd) ) {
@@ -161,15 +216,10 @@ public:
             writeSerial(s);
             
             return;
-        } else if ( !strcmp("readSerial", cmd) ) {
-            
+        } else if ( !strcmp("readSerial", cmd) ) {   
             int size = 0;
-            void *yp;
             uint8_t *serialData = readSerial(&size);
-            
-            serialData[size] = '\0';
-            plhs[0] = mxCreateString((char *) serialData);
-            
+            plhs[0] = mxCreateString((char *)serialData);
             return;
         } else if ( !strcmp("sendAudio", cmd) ) {
             
@@ -189,7 +239,10 @@ public:
 
 
 #ifdef MATLAB
-//// Matlab bridge
+
+/**
+ Standard MATLAB api for executing commands from it through mex.
+ */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     static RAK5206 rakObject;

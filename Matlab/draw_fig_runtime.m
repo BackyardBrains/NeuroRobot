@@ -24,7 +24,7 @@ if bg_brain
     button_1 = uicontrol('Style', 'pushbutton', 'String', 'Network view', 'units', 'normalized', 'position', button_1_pos);
     set(button_1, 'Callback', 'brain_view_tiled = 1; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     button_2_pos = [0.02 0.34 0.23 0.05];
-    button_2 = uicontrol('Style', 'pushbutton', 'String', 'Whole rbain view', 'units', 'normalized', 'position', button_2_pos);
+    button_2 = uicontrol('Style', 'pushbutton', 'String', 'Whole brain view', 'units', 'normalized', 'position', button_2_pos);
     set(button_2, 'Callback', 'brain_view_tiled = 0; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])       
     
     drive_bar_pos = [0.75 0.3 0.23 0.2];
@@ -38,7 +38,7 @@ if bg_brain
     set(drive_bar_ax, 'FontSize', bfsize - 6, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Drive', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
-    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 1:nnetworks-1, 'ytick', [], 'Box', 'off', 'ycolor', fig_bg_col)
+    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'Box', 'off', 'ycolor', fig_bg_col)
 elseif manual_controls
     left_pos = [0.75 0.37 0.07 0.05];
     right_pos = [0.91 0.37 0.07 0.05];

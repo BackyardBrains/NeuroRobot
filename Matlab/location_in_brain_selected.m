@@ -6,10 +6,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     if neuron_or_network == 1
         
         % Log command
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;            
-        command_log.entry(command_log.n).action = 'add single neuron to brain';
-        command_log.n = command_log.n + 1;        
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;            
+            command_log.entry(command_log.n).action = 'add single neuron to brain';
+            command_log.n = command_log.n + 1;    
+        end
 
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
@@ -76,7 +78,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             button_n6 = uicontrol('Style', 'pushbutton', 'String', 'Dopaminergic', 'units', 'normalized', 'position', [0.02 0.6 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             set(button_n6, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 6 button
-            button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Medium spiny', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Basal ganglia', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
             % A
@@ -147,10 +149,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     elseif neuron_or_network == 2
         
         % Command log
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;        
-        command_log.entry(command_log.n).action = 'add many neurons to brain';
-        command_log.n = command_log.n + 1;
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;        
+            command_log.entry(command_log.n).action = 'add many neurons to brain';
+            command_log.n = command_log.n + 1;
+        end
         
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');

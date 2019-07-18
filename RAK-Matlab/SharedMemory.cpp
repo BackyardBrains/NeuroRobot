@@ -1,33 +1,29 @@
 //
 //  Created by Djordje Jovic on 11/5/18.
-//  Copyright ? 2018 Backyard Brains. All rights reserved.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #ifndef _SharedMemory_cpp
 #define _SharedMemory_cpp
 
 #include "Macros.h"
+#include "Log.cpp"
 
 #include <iostream>
-#include <thread>
 #include <mutex>
 
 // Boost includes
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
-
-#ifdef DEBUG
-#include <fstream>
-#endif
-
 using namespace boost::interprocess;
 
-class SharedMemory
-{
+/**
+ Intended to handle with shared memory.
+ */
+class SharedMemory : public Log {
     
-    private:
-    
+private:
     std::mutex mutexVideo;
     std::mutex mutexAudio;
     std::mutex mutexSerialRead;
@@ -41,21 +37,18 @@ class SharedMemory
     mapped_region fooAudioRegion;
     
     uint8_t audioChunkCounter = 0;
-    
-    int serialReadTotalSize = 200000;
+    bool isWrittersBlocked = false;
+    int serialReadTotalSize = 1000;
     int serialReadWrittenSize = 0;
     
-#ifdef DEBUG
-    std::ofstream logFile;
-#endif
-    
-    public:
-    
+public:
     int audioSize = 1000;
     int frameSize = 2764800;
-    bool audioObtained = false;
+    bool isAudioObtained = false;
     
-    SharedMemory() {
+    SharedMemory()
+    {
+        className = "SharedMemory";
         openStreams();
         
         logMessage("SharedMemory >>> init");
@@ -73,30 +66,63 @@ class SharedMemory
         audioRegion = mapped_region(sharedMemoryAudio, read_write, 0, audioSize * 2 * 10);
     }
     
-    ~SharedMemory() {
+    ~SharedMemory()
+    {
         closeStreams();
     }
     
-    void writeFrame(uint8_t *data) {
+    /**
+     Blocks writers.
+     */
+    void blockWritters()
+    {
+        isWrittersBlocked = true;
+    }
+    
+    /**
+     Unblocks writers.
+     */
+    void unblockWritters()
+    {
+        isWrittersBlocked = false;
+    }
+    
+    /**
+     Writes one frame of video data to shared memory.
+
+     @param data Video frame data
+     */
+    void writeFrame(uint8_t* data)
+    {
         mutexVideo.lock();
-        
         memcpy(frameRegion.get_address(), data, frameSize);
-        
         mutexVideo.unlock();
     }
     
-    uint8_t * readFrame() {
+    /**
+     Reads video frame from shared memory.
+
+     @return Video frame data
+     */
+    uint8_t* readVideoFrame()
+    {
         mutexVideo.lock();
-        
-        uint8_t *payload = reinterpret_cast<uint8_t*>(frameRegion.get_address());
-        
+        uint8_t* payload = reinterpret_cast<uint8_t*>(frameRegion.get_address());
         mutexVideo.unlock();
-        
         return payload;
     }
     
-    void writeAudio(uint8_t *data) {
-        logMessage("writeAudio >> enter");
+    /**
+     Writes audio data to shared memory.
+
+     @param data Audio data
+     */
+    void writeAudio(uint8_t* data)
+    {
+        if (isWrittersBlocked) {
+            logMessage("Blocked audio");
+            return;
+        }
         mutexAudio.lock();
         
         if (audioChunkCounter == 10) {
@@ -104,106 +130,94 @@ class SharedMemory
             fooAudioRegion = mapped_region(sharedMemoryAudio, read_write, audioSize * 2, audioSize * 2 * audioChunkCounter);
             memcpy(audioRegion.get_address(), fooAudioRegion.get_address(), audioSize * 2 * audioChunkCounter);
         }
-        
         fooAudioRegion = mapped_region(sharedMemoryAudio, read_write, audioSize * 2 * audioChunkCounter, audioSize * 2);
         
         memcpy(fooAudioRegion.get_address(), data, audioSize * 2);
         
         audioChunkCounter++;
         
-        audioObtained = true;
+        isAudioObtained = true;
         
         mutexAudio.unlock();
     }
     
-    
-    int16_t * readAudio(int *size) {
+    /**
+     Reads audio data from shared memory.
+     Reads last ~1sec of audio data.
+
+     @param size Size of audio data which is forwarded parallel
+     @return Last ~1sec of audio data
+     */
+    int16_t* readAudio(int* size)
+    {
         mutexAudio.lock();
-        
         fooAudioRegion = mapped_region(sharedMemoryAudio, read_write, 0, audioSize * 2 * audioChunkCounter);
         
         *size = audioSize * 2 * audioChunkCounter;
         
-        int16_t *audioData = (int16_t *) malloc(*size + 1);
+        int16_t* audioData = (int16_t*)malloc(*size + 1);
         memcpy(audioData, fooAudioRegion.get_address(), *size);
         
         audioChunkCounter = 0;
-        audioObtained = false;
+        isAudioObtained = false;
         mutexAudio.unlock();
         
         return audioData;
     }
     
-    uint8_t *readVideo() {
-        return readFrame();
-    }
-    
-    void writeSerialRead(std::string data) {
-        
-        std::thread thread(&SharedMemory::writeSerialReadThreaded, this, data);
-        thread.detach();
-    }
-    
-    void writeSerialReadThreaded(std::string data) {
+    /**
+     Writes serial data to shared memory.
+
+     @param data Data to write
+     */
+    void writeSerialRead(std::string data)
+    {
+        if (isWrittersBlocked) {
+            logMessage("Blocked serial");
+            return;
+        }
         mutexSerialRead.lock();
-        logMessage("writeSerialRead >>> enter");
         
         serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, serialReadWrittenSize, data.length());
         memcpy(serialReadRegion.get_address(), data.c_str(), data.length());
+        char string[50];
         
         serialReadWrittenSize += data.length();
-        
-        mutexSerialRead.unlock();
-    }
-    
-    uint8_t *readSerialRead(int *size) {
-        
-        mutexSerialRead.lock();
-        uint8_t *payload = (uint8_t *) malloc(serialReadWrittenSize);
-        *size = serialReadWrittenSize;
-        if (serialReadWrittenSize > 0) {
-            serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, 0, serialReadWrittenSize);
-            memcpy(payload, serialReadRegion.get_address(), serialReadWrittenSize);
+        if (serialReadWrittenSize > 400) {
             serialReadWrittenSize = 0;
         }
-        
+        sprintf(string, "srwse %d", serialReadWrittenSize);
+        logMessage(string);
         mutexSerialRead.unlock();
+    }
+    
+    /**
+     Reads serial data from shared memory.
+
+     @param size Size of serial data which is forwarded parallel
+     @return Serial data
+     */
+    uint8_t* readSerialRead(int* size)
+    {
+        mutexSerialRead.lock();
+        uint8_t* payload = (uint8_t*)malloc(serialReadWrittenSize + 1);
+        *size = serialReadWrittenSize;
+        
+        if (serialReadWrittenSize > 0) {
+            serialReadRegion = mapped_region(sharedMemorySerialRead, read_write, 0, serialReadWrittenSize);
+            memcpy(payload, (uint8_t*)serialReadRegion.get_address(), serialReadWrittenSize);
+            payload[serialReadWrittenSize] = 0;
+            serialReadWrittenSize = 0;
+        } else {
+            payload[0] = 0;
+        }
+        mutexSerialRead.unlock();
+        if (*size > 0) {
+            *size = *size - 1;
+        }
         
         return payload;
-        
-    }
-    
-    void isAudioObtained(bool *yp) {
-        bool payload = audioObtained;
-        memcpy(yp, &payload, 1);
-    }
-    
-    
-    
-    
-    
-    void openStreams() {
-#ifdef DEBUG
-        logFile.open ("logFile_SharedMemory.txt");
-        logMessage("openStreams >> SharedMemory >>> opened");
-#endif
-    }
-    void closeStreams() {
-#ifdef DEBUG
-        logMessage("closeStreams >>> closed");
-        logFile.close();
-#endif
-    }
-    
-    void logMessage(std::string message) {
-#ifdef DEBUG
-        std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::string t(std::ctime(&end_time));
-        logFile << t.substr( 0, t.length() -1) << " : " << message << std::endl;
-        std::cout << message << std::endl;
-#endif
     }
 };
-
 
 #endif // ! _SharedMemory_cpp

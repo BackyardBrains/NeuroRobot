@@ -30,7 +30,9 @@ if run_button == 2
 end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
-audioMat = [audioMat rak_cam.readAudio()];
+if rak_only
+    audioMat = [audioMat rak_cam.readAudio()];
+end
 update_ext_cam
 if nstep == nsteps_per_loop
     nstep = 0;
@@ -43,12 +45,14 @@ end
 enter_design % if run_button = 1
 drawnow
 % Record data
-if nneurons
-    rec_timer = tic;
-    data.firing(:,xstep) = firing;
-    data.connectome(:,:,xstep) = connectome;
-    data.rec_time(xstep) = toc(rec_timer);
-    data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+if save_data_and_commands
+    if nneurons
+        rec_timer = tic;
+        data.firing(:,xstep) = firing;
+        data.connectome(:,:,xstep) = connectome;
+        data.rec_time(xstep) = toc(rec_timer);
+        data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    end
 end
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
