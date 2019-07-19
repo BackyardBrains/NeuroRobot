@@ -3,11 +3,15 @@ for ncam = 1:2
 
     if ncam == 1
         frame = single(left_eye_frame);
+%         temporal_pxs = 1:200;
         temporal_pxs = 1:200;
     else
         frame = single(right_eye_frame);
-        temporal_pxs = 301:500;
+%         temporal_pxs = 301:500;
+        temporal_pxs = 134:224;
     end
+    
+    frame = imresize(frame, net_input_size);
 
     % Red
     red = frame(:,:,1) > frame(:,:,2) * 2 & frame(:,:,1) > frame(:,:,3) * 2;
@@ -71,12 +75,28 @@ for ncam = 1:2
 
     % Get object classification scores
     if use_cnn
-        frame_small = imresize(frame, net_input_size);
-        [label, score] = classify(net, frame_small);  
+        [label, score] = classify(net, frame);  
         cnn_out = sigmoid(score(object_ns), 0.04, 50);
         cnn_out = cnn_out - 0.15;
         cnn_out(cnn_out < 0) = 0;
         vis_pref_vals(7:n_vis_prefs, ncam) = cnn_out * 50;
+    elseif use_rcnn
+        try
+%             [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'MiniBatchSize', 32, 'ExecutionEnvironment', 'gpu');
+            [bbox, score] = detect(rcnn, frame, 'ExecutionEnvironment', 'gpu');
+            if isempty(bbox)
+                score = 0;
+            end
+            if length(score) > 1
+                [score, idx] = max(score);
+                bbox = bbox(idx, :);
+            end
+            cnn_out = sigmoid(score, 0.95, 50) * 50;
+            vis_pref_vals(7:n_vis_prefs, ncam) = cnn_out;
+            disp(horzcat('final neurorobot signal = ', num2str(cnn_out), ', detector score = ', num2str(score)))
+        catch
+            disp('break')
+        end
     end
 end
 

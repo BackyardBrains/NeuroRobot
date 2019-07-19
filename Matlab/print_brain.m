@@ -1,8 +1,11 @@
+
+
+
 fig_print = figure(3);
 set(fig_print, 'position', [400 100 1000 800]);
-brain_ax = axes('position', [0 0 1 1]);
-image('CData',im2,'XData',[-3 3],'YData',[-3 3])
-set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+brain_axb = axes('position', [0 0 1 1]);
+image('CData',im3,'XData',[-3 3],'YData',[-3 3])
+set(brain_axb, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 axis([-3 3 -3 3])
 hold on
 draw_brain

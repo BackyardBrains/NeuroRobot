@@ -12,33 +12,42 @@ rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
 bluetooth_present = 0;
-bg_brain = 1;
-draw_synapse_strengths = 0;
-draw_neuron_numbers = 1;
 save_brain_jpg = 0;
-save_data_and_commands = 0;
-brain_gen = 1;
+save_data_and_commands = 1;
+brain_gen = 0;
+grey_background = 1;
+use_cnn = 0;
+use_rcnn = 1;
+use_profile = 0;
 
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
 
+bg_brain = 1;
+draw_synapse_strengths = 1;
+draw_neuron_numbers = 1;
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 manual_controls = 0;
-use_profile = 0;
+
 nsteps_per_loop = 100;
 brain_facts = 0;
-use_cnn = 0;
 pulse_period = 0.1; % in seconds
 max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
-fig_bg_col = [0.94 0.94 0.94];
-% fig_bg_col = [1 1 1];
+if grey_background
+    fig_bg_col = [0.94 0.94 0.94];
+    this_workspace_fig = 'workspace2.jpg';
+else
+    fig_bg_col = [1 1 1];
+    this_workspace_fig = 'workspace.jpg';
+end
+im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 
 
 %% Clear
@@ -58,8 +67,13 @@ end
 
 %% Constants
 base_weight = max_w;
-left_cut = [1 500 281 780];
-right_cut = [1 500 501 1000];
+if bluetooth_present
+    left_cut = [1 500 281 780];
+    right_cut = [1 500 501 1000];
+else
+    left_cut = [1 720 1 720];
+    right_cut = [1 720 561 1280];
+end
 left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
 right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
 gui_font_name = 'Comic Book';
@@ -141,11 +155,6 @@ disp(horzcat('Computer name: ', computer_name))
 
 
 %% Prepare
-if isequal(fig_bg_col, [1 1 1])
-    this_workspace_fig = 'workspace.jpg';
-else
-    this_workspace_fig = 'workspace2.jpg';
-end
 im = flipud(255 - ((255 - imread(this_workspace_fig))));
 im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
@@ -159,6 +168,8 @@ if use_cnn
     load object_strs
     load object_ns
     vis_pref_names = [vis_pref_names, object_strs];
+elseif use_rcnn
+    vis_pref_names = [vis_pref_names, 'neurorobots'];
 end
 n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];

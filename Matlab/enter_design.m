@@ -1,6 +1,6 @@
 if run_button == 1     
     design
-    stop(runtime_pulse)
+    stop(runtime_pulse) % Why doesn't this cause an error
     clear data
     xstep = 0;
     

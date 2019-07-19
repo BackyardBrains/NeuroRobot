@@ -14,15 +14,15 @@
 %
 % This code is licensed under a GNU 2.1 license
 
-nneurons = 30;
+nneurons = 40; %100
 
 p_connect = 0.1;
-synmin = -5;
-synmax = 5;
+synmin = -30;
+synmax = 30;
 motormax = 70;
 
-nnetworks = 6;
-network_output_dropout = [1 3 5];
+nnetworks = 3; %6
+network_output_dropout = []; % [1 3 5]
 
 a = zeros(nneurons, 1);
 b = zeros(nneurons, 1);

@@ -30,6 +30,19 @@ else
         net = googlenet;
         net_input_size = net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
+    elseif ~exist('net', 'var') && use_rcnn
+        tic
+        net = alexnet;
+        net_input_size = net.Layers(1).InputSize(1:2);
+        disp(horzcat('alexnet loaded in ', num2str(round(toc)), ' s'))
+        tic
+        load('rcnn')
+        disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
+    end
+    if ~exist('rcnn', 'var') && use_rcnn
+        tic
+        load('rcnn')
+        disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
     end
     button_startup_complete.BackgroundColor = [0.6 0.95 0.6];
     
