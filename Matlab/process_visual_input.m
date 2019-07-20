@@ -3,12 +3,8 @@ for ncam = 1:2
 
     if ncam == 1
         frame = single(left_eye_frame);
-%         temporal_pxs = 1:200;
-        temporal_pxs = 1:200;
     else
         frame = single(right_eye_frame);
-%         temporal_pxs = 301:500;
-        temporal_pxs = 134:224;
     end
     
     frame = imresize(frame, net_input_size);
@@ -24,12 +20,13 @@ for ncam = 1:2
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 5000, 0.001) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
         end        
     else
         this_score = 0;
+        temporal_score = 0;
     end
     vis_pref_vals(1, ncam) = this_score;
     vis_pref_vals(2, ncam) = temporal_score;
@@ -45,12 +42,13 @@ for ncam = 1:2
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 5000, 0.001) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
         end         
     else
         this_score = 0;
+        temporal_score = 0;
     end
     vis_pref_vals(3, ncam) = this_score;
     vis_pref_vals(4, ncam) = temporal_score;
@@ -66,12 +64,13 @@ for ncam = 1:2
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 5000, 0.001) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 10) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
         end        
     else
         this_score = 0;
+        temporal_score = 0;
     end
     vis_pref_vals(5, ncam) = this_score;
     vis_pref_vals(6, ncam) = temporal_score;
@@ -100,18 +99,18 @@ for ncam = 1:2
             if ~isempty(bbox)
                 if ncam == 1
                     this_val = ((227 - (bbox(1) + (bbox(3) / 2))) / 227);
-                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 10);
+                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
                 elseif ncam == 2
                     this_val = ((bbox(1) + (bbox(3) / 2)) / 227);
-                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 10);
+                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
                 end
             else
                 temporal_cnn_out = 0;
             end
             vis_pref_vals(8, ncam) = temporal_cnn_out;
-            disp(horzcat('final neurorobot signal = ', num2str(cnn_out), ', detector score = ', num2str(score)))
+%             disp(horzcat('final neurorobot signal = ', num2str(cnn_out), ', detector score = ', num2str(score)))
         catch
-            disp('break')
+            disp('process visual input break')
         end
     end
 end

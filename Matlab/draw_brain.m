@@ -187,11 +187,11 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
 
                 % Indicate synapse filter (add rich neuron symbols here)
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
-                    if find(vis_prefs(nneuron, :, ncontact)) == 1 || find(vis_prefs(nneuron, :, ncontact)) == 4
+                    if find(vis_prefs(nneuron, :, ncontact)) == 1 || find(vis_prefs(nneuron, :, ncontact)) == 2
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'r', 'markeredgecolor', 'k', 'markersize', fs);
-                    elseif find(vis_prefs(nneuron, :, ncontact)) == 2 || find(vis_prefs(nneuron, :, ncontact)) == 5
+                    elseif find(vis_prefs(nneuron, :, ncontact)) == 3 || find(vis_prefs(nneuron, :, ncontact)) == 4
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0 0.8 0], 'markeredgecolor', 'k', 'markersize', fs);
-                    elseif find(vis_prefs(nneuron, :, ncontact)) == 3 || find(vis_prefs(nneuron, :, ncontact)) == 6
+                    elseif find(vis_prefs(nneuron, :, ncontact)) == 5 || find(vis_prefs(nneuron, :, ncontact)) == 6
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'b', 'markeredgecolor', 'k', 'markersize', fs);
                     else
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', fs);
