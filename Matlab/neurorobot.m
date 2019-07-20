@@ -19,7 +19,7 @@ brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
 use_rcnn = 1;
-use_profile = 0;
+use_profile = 1;
 
 bg_brain = 1;
 draw_synapse_strengths = 1;
@@ -172,13 +172,13 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
 ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
-vis_pref_names = {'red', 'green', 'blue', 'off-center red', 'off-center green', 'off-center blue'};
+vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn
     load object_strs
     load object_ns
     vis_pref_names = [vis_pref_names, object_strs];
 elseif use_rcnn
-    vis_pref_names = [vis_pref_names, 'neurorobots'];
+    vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots'];
 end
 n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];

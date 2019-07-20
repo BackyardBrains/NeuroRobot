@@ -12,10 +12,11 @@ delete(timerfind)
 
 %% Settings
 pulse_period = 0.1;
-frame_dir = '.\Pictures\';
+frame_dir = 'C:\Users\Christopher Harris\Desktop\Pictures\';
 
 %% Prepare
-ii = 34;
+dir_info = dir(frame_dir);
+ii = size(dir_info, 1);
 
 
 %% Figure
