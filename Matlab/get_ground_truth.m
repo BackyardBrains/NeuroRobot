@@ -46,7 +46,7 @@ button_capture = uicontrol('Style', 'pushbutton', 'String', 'Capture', 'units', 
 set(button_capture, 'Callback', 'capture_now = 1;', 'FontSize', 12, 'FontName', 'Arial', 'FontWeight', 'bold', 'BackgroundColor', [0.8 0.8 0.8])
 button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'normalized', 'position', [0.51 0.02 0.47 0.06]);
 set(button_stop, 'Callback', 'stop(ground_truth_pulse);', 'FontSize', 12, 'FontName', 'Arial', 'FontWeight', 'bold', 'BackgroundColor', [0.8 0.8 0.8])
-fig_title = title('score = 0');
+fig_title = title('preparing...');
     
 %% RAK
 if ~exist('RAK5206.mexw64', 'file')

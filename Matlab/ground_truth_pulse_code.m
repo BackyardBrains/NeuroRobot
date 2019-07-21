@@ -17,6 +17,8 @@ frame = imresize(frame, [227 227]);
 
 tic
 [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+% [bbox, score] = detect(rcnn, frame, 'ExecutionEnvironment', 'gpu');
+
 if isempty(bbox)
     score = 0;
 end
