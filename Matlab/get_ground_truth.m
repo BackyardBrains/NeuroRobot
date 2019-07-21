@@ -17,6 +17,7 @@ frame_dir = 'C:\Users\Christopher Harris\Desktop\Pictures\';
 %% Prepare
 dir_info = dir(frame_dir);
 ii = size(dir_info, 1);
+disp(horzcat('npics in current directory: ', num2str(ii)))
 
 %% RCNN
 if ~exist('rcnn', 'var')
@@ -25,13 +26,13 @@ if ~exist('rcnn', 'var')
     disp('done')
 end
 
-%% Sigmoid figure
-figure(2)
-clf
-% subplot(2,2,1)
-plot(0.01:0.01:1, sigmoid(0.01:0.01:1, 0.65, 50) * 50)
-xlabel('score')
-ylabel('cnn out')
+% %% Sigmoid figure
+% figure(2)
+% clf
+% % subplot(2,2,1)
+% plot(0.01:0.01:1, sigmoid(0.01:0.01:1, 0.65, 50) * 50)
+% xlabel('score')
+% ylabel('cnn out')
 
 %% Figure
 figure(1)

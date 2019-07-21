@@ -38,24 +38,25 @@ else
     temporal_cnn_out = 0;
 end
 
-this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str((round(toc * 1000) / 1000) * 1000), ' ms');
-disp(this_text)
-fig_title.String = this_text;
-
 if capture_now
     ii = ii + 1;
     if ii < 10
         id = strcat('000', num2str(ii));
-    elseif ii < 10
+    elseif ii < 100
         id = strcat('00', num2str(ii));
     elseif ii < 1000
         id = strcat('0', num2str(ii));
     else
-        id = num2str(ii);
+        disp('too many images in directory')
     end
+    frame = large_frame(1:720, 301:1020, :);
     imwrite(frame, horzcat(frame_dir, 'frame_', id, '.png'))
     disp(horzcat('Frame ', num2str(ii), ' captured'))
     capture_now = 0;
 end
 
 drawnow
+
+this_text = horzcat('npic = ', num2str(ii), ', score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str((round(toc * 1000) / 1000) * 1000), ' ms');
+disp(this_text)
+fig_title.String = this_text;
