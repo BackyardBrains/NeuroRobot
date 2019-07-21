@@ -84,8 +84,9 @@ for ncam = 1:2
         vis_pref_vals(7:n_vis_prefs, ncam) = cnn_out * 50;
     elseif use_rcnn
         try
+            aitic = tic;
 %             [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'MiniBatchSize', 32, 'ExecutionEnvironment', 'gpu');
-            [bbox, score] = detect(rcnn, frame, 'ExecutionEnvironment', 'gpu');
+            [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 50, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
             if isempty(bbox)
                 score = 0;
             end
@@ -93,9 +94,9 @@ for ncam = 1:2
                 [score, idx] = max(score);
                 bbox = bbox(idx, :);
             end
-            cnn_out = sigmoid(score, 0.75, 40) * 50;
-%             vis_pref_vals(7:n_vis_prefs, ncam) = cnn_out;
+            cnn_out = sigmoid(score, 0.65, 50) * 50;
             vis_pref_vals(7, ncam) = cnn_out;
+            
             if ~isempty(bbox)
                 if ncam == 1
                     this_val = ((227 - (bbox(1) + (bbox(3) / 2))) / 227);
@@ -108,7 +109,9 @@ for ncam = 1:2
                 temporal_cnn_out = 0;
             end
             vis_pref_vals(8, ncam) = temporal_cnn_out;
-%             disp(horzcat('final neurorobot signal = ', num2str(cnn_out), ', detector score = ', num2str(score)))
+            
+            this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str(round(toc(aitic) * 1000)), ' ms');
+            disp(this_text)
         catch
             disp('process visual input break')
         end

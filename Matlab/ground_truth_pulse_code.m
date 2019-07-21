@@ -1,4 +1,6 @@
-function [ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir)
+function [ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir, fig_title, rcnn)
+
+ncam = 1;
 
 try
     large_frame = rak_cam.readVideo();
@@ -9,7 +11,36 @@ end
 
 frame = large_frame(1:720, 301:1020, :);
 show_frame.CData = frame;
-frame = imresize(frame, [224 224]);
+
+frame = single(frame);
+frame = imresize(frame, [227 227]);
+
+tic
+[bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+if isempty(bbox)
+    score = 0;
+end
+if length(score) > 1
+    [score, idx] = max(score);
+    bbox = bbox(idx, :);
+end
+cnn_out = sigmoid(score, 0.65, 50) * 50;
+
+if ~isempty(bbox)
+    if ncam == 1
+        this_val = ((227 - (bbox(1) + (bbox(3) / 2))) / 227);
+        temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
+    elseif ncam == 2
+        this_val = ((bbox(1) + (bbox(3) / 2)) / 227);
+        temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
+    end
+else
+    temporal_cnn_out = 0;
+end
+
+this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str((round(toc * 1000) / 1000) * 1000), ' ms');
+disp(this_text)
+fig_title.String = this_text;
 
 if capture_now
     ii = ii + 1;
@@ -26,3 +57,5 @@ if capture_now
     disp(horzcat('Frame ', num2str(ii), ' captured'))
     capture_now = 0;
 end
+
+drawnow
