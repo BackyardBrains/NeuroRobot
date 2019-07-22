@@ -16,7 +16,8 @@ frame = single(frame);
 frame = imresize(frame, [227 227]);
 
 tic
-[bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+[bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 50, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+% [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
 % [bbox, score] = detect(rcnn, frame, 'ExecutionEnvironment', 'gpu');
 
 if isempty(bbox)
@@ -26,7 +27,7 @@ if length(score) > 1
     [score, idx] = max(score);
     bbox = bbox(idx, :);
 end
-cnn_out = sigmoid(score, 0.65, 50) * 50;
+cnn_out = sigmoid(score, 0.55, 40) * 50;
 
 if ~isempty(bbox)
     if ncam == 1
@@ -41,7 +42,7 @@ else
 end
 
 if capture_now
-    ii = ii + 1;
+    ii = ii + 1
     if ii < 10
         id = strcat('000', num2str(ii));
     elseif ii < 100
@@ -52,6 +53,8 @@ if capture_now
         disp('too many images in directory')
     end
     frame = large_frame(1:720, 301:1020, :);
+%     frame = single(frame);
+    frame = imresize(frame, [227 227]);    
     imwrite(frame, horzcat(frame_dir, 'frame_', id, '.png'))
     disp(horzcat('Frame ', num2str(ii), ' captured'))
     capture_now = 0;

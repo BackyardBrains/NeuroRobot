@@ -94,7 +94,7 @@ for ncam = 1:2
                 [score, idx] = max(score);
                 bbox = bbox(idx, :);
             end
-            cnn_out = sigmoid(score, 0.65, 50) * 50;
+            cnn_out = sigmoid(score, 0.55, 40) * 50;
             vis_pref_vals(7, ncam) = cnn_out;
             
             if ~isempty(bbox)
