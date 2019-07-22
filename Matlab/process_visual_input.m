@@ -86,7 +86,7 @@ for ncam = 1:2
         try
             aitic = tic;
 %             [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'MiniBatchSize', 32, 'ExecutionEnvironment', 'gpu');
-            [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 50, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+            [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
             if isempty(bbox)
                 score = 0;
             end

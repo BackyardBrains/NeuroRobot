@@ -16,9 +16,7 @@ frame = single(frame);
 frame = imresize(frame, [227 227]);
 
 tic
-[bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 50, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
-% [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
-% [bbox, score] = detect(rcnn, frame, 'ExecutionEnvironment', 'gpu');
+[bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
 
 if isempty(bbox)
     score = 0;
@@ -42,7 +40,7 @@ else
 end
 
 if capture_now
-    ii = ii + 1
+    ii = ii + 1;
     if ii < 10
         id = strcat('000', num2str(ii));
     elseif ii < 100
@@ -54,7 +52,7 @@ if capture_now
     end
     frame = large_frame(1:720, 301:1020, :);
 %     frame = single(frame);
-    frame = imresize(frame, [227 227]);    
+%     frame = imresize(frame, [227 227]);    
     imwrite(frame, horzcat(frame_dir, 'frame_', id, '.png'))
     disp(horzcat('Frame ', num2str(ii), ' captured'))
     capture_now = 0;

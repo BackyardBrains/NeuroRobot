@@ -113,7 +113,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             network_ids(nneurons, 1) = str2double(edit_id.String);
             steps_since_last_spike(nneurons, 1) = nan;
             neuron_tones(nneurons, 1) = 0;
-            nnetworks = length(unique(network_ids));
+            nnetworks = length(unique(network_ids)) + 1;
             network_drive = zeros(nnetworks, 3);
             
             % Remove menu

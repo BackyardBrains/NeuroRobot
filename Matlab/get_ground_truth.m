@@ -11,7 +11,7 @@ delete(timerfind)
 
 
 %% Settings
-pulse_period = 0.1;
+pulse_period = 0.2;
 frame_dir = 'C:\Users\Christopher Harris\Desktop\Pictures\';
 
 %% Prepare

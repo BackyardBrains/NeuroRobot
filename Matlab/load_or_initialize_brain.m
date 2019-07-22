@@ -34,7 +34,7 @@ if brain_selection_val > 1
     catch
         neuron_tones = zeros(nneurons, 1);
     end
-    nnetworks = length(unique(network_ids));
+    nnetworks = length(unique(network_ids)) + 1;
     try
         network = brain.network;
     catch
