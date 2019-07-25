@@ -26,7 +26,11 @@ if brain_selection_val > 1
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
     dist_prefs = brain.dist_prefs;
-    audio_prefs = brain.audio_prefs;
+    try
+        audio_prefs = brain.audio_prefs;
+    catch
+        audio_prefs = zeros(nneurons, 1);
+    end
     neuron_cols = brain.neuron_cols;
     network_ids = brain.network_ids;
     da_rew_neurons = brain.da_rew_neurons;

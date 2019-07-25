@@ -8,9 +8,9 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
 
 save_brain_jpg = 1;
@@ -19,7 +19,7 @@ brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
 use_rcnn = 1;
-use_profile = 1;
+use_profile = 0;
 
 bg_brain = 1;
 draw_synapse_strengths = 1;
@@ -180,7 +180,7 @@ if use_cnn
     load object_ns
     vis_pref_names = [vis_pref_names, object_strs];
 elseif use_rcnn
-    vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots'];
+    vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots', 'close-up neurorobots'];
 end
 n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];

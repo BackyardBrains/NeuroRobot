@@ -28,7 +28,7 @@ if rak_only
     this_end = length(audioMat);
     
     audio_max_freq = max_freq;
-    disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
+%     disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
     
     
 end
