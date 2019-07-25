@@ -1,8 +1,8 @@
 
 if rak_only
     
-%     this_audio = rak_cam.readAudio();
-    this_audio = audioMatDouble(140001:170000);
+    this_audio = rak_cam.readAudio();
+%     this_audio = audioMatDouble(140001:170000);
     
     sample_rate = 8000;
     sample_period = 1/sample_rate;
