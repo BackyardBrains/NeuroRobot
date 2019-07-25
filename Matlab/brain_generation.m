@@ -31,6 +31,7 @@ d = zeros(nneurons, 1);
 neuron_contacts = zeros(nneurons, 13);
 vis_prefs = zeros(nneurons, 23, 2);
 dist_prefs = zeros(nneurons, 1);
+audio_prefs = zeros(nneurons, 1);
 network_ids = zeros(nneurons, 1);
 da_rew_neurons = zeros(nneurons, 1);
 neuron_tones = zeros(nneurons, 1);
@@ -72,8 +73,10 @@ for nneuron = 1:nneurons
     end
     
     %% Microphone
-%     neuron_contacts(nneuron, 3) = randsample(0:1, 1); original
-    neuron_contacts(nneuron, 3) = 0; %  microphone not in use yet
+    neuron_contacts(nneuron, 3) = randsample(0:1, 1);
+    if neuron_contacts(nneuron, 3)
+        audio_prefs(nneuron) = randsample(1:3, 1);
+    end    
     
     %% Speaker
     neuron_contacts(nneuron, 4) = randsample([0 100], 1);

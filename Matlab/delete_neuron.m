@@ -32,6 +32,7 @@ spikes_loop(presynaptic_neuron, :) = [];
 neuron_contacts(presynaptic_neuron, :) = [];
 vis_prefs(presynaptic_neuron, :, :) = [];
 dist_prefs(presynaptic_neuron, :) = [];
+audio_prefs(presynaptic_neuron, :) = [];
 neuron_cols(presynaptic_neuron, :) = [];
 network_ids(presynaptic_neuron, :) = [];
 steps_since_last_spike(presynaptic_neuron) = [];
