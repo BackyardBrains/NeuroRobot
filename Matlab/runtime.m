@@ -59,6 +59,8 @@ if use_profile
     profile on    
 end
 audioMat = [];
+audioAmp = [];
+audioFreq = [];
 
 
 %% Create data and command log

@@ -19,6 +19,7 @@ right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
 process_visual_input
+process_audio_input
 if bluetooth_present
     bluetooth_get_distance
 end
@@ -30,9 +31,6 @@ if run_button == 2
 end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
-if rak_only
-    audioMat = [audioMat rak_cam.readAudio()];
-end
 update_ext_cam
 if nstep == nsteps_per_loop
     nstep = 0;

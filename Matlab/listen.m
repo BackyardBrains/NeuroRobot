@@ -3,6 +3,7 @@
 
 [sample_data, sample_rate] = audioread('test.wav');
 
+% audioMatDouble = double(audioMat2);
 % sample_data = audioMatDouble;
 % sample_rate = 8000;
 

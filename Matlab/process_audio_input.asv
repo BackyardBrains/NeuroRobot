@@ -1,0 +1,25 @@
+
+if rak_only
+    
+%     this_audio = rak_cam.readAudio();
+    this_audio = audioMatDouble(140001:170000);
+    
+    sample_rate = 8000;
+    sample_period = 1/sample_rate;
+    t = (0:sample_period:(length(this_audio)-1)/sample_rate);
+
+    m = length(this_audio);
+    n = pow2(nextpow2(m));
+    y = fft(this_audio, n);
+    f = (0:n-1)*(sample_rate/n);
+    amplitude = abs(y)/n;
+subplot(2,2,2)
+plot(f(1:floor(n/2)),amplitude(1:floor(n/2)))
+title('Frequency Domain Representation - Unfiltered Sound')
+xlabel('Frequency')
+ylabel('Amplitude')    
+    
+    
+    
+    audioMat = [audioMat ];
+end
