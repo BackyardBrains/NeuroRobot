@@ -24,5 +24,6 @@ if rak_only
     audioFreq = [audioFreq max_freq];
     
     audio_max_freq = max_freq;
+    disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp)))
     
 end
