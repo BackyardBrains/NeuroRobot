@@ -111,7 +111,7 @@ for ncam = 1:2
             end
             vis_pref_vals(8, ncam) = temporal_cnn_out;
             
-            vis_pref_vals(9, ncam) = cnn_out * ((bbox(3) * bbox(4) > 11000));
+            vis_pref_vals(9, ncam) = cnn_out * ((bbox(3) * bbox(4)) > 11000);
             this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str(round(toc(aitic) * 1000)), ' ms');
         catch
             disp('process visual input break')
