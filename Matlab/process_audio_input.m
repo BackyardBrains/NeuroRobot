@@ -1,8 +1,7 @@
 
 if rak_only
     
-%     this_audio = rak_cam.readAudio();
-    this_audio = audioMatDouble(140001:170000);
+    this_audio = double(rak_cam.readAudio());
     
     sample_rate = 8000;
     sample_period = 1/sample_rate;
@@ -23,5 +22,7 @@ if rak_only
     audioMat = [audioMat this_audio];
     audioAmp = [audioAmp max_amp];
     audioFreq = [audioFreq max_freq];
+    
+    audio_max_freq = max_freq;
     
 end

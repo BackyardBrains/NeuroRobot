@@ -46,6 +46,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
             vis_prefs(nneurons, :, :) = false;
             dist_prefs(nneurons, 1) = 0;
+            audio_prefs(nneurons, 1) = 0;
             network_ids(nneurons, 1) = 0;
             
             da_rew_neurons(nneurons, 1) = 0;
@@ -267,6 +268,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 end
                 vis_prefs(presynaptic_neuron, randsample(3,1), this_contact) = this_val;
                 dist_prefs(presynaptic_neuron, 1) = 0;
+                audio_prefs(presynaptic_neuron, 1) = 0;
                 bg_neurons(presynaptic_neuron, 1) = 0;
                 
                 % Motor output

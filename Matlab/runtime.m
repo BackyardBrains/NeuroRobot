@@ -61,6 +61,7 @@ end
 audioMat = [];
 audioAmp = [];
 audioFreq = [];
+audio_max_freq = 0;
 
 
 %% Create data and command log

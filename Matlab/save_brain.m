@@ -25,6 +25,7 @@ brain.v = v;
 brain.u = u;
 brain.neuron_contacts = neuron_contacts;
 brain.vis_prefs = vis_prefs;
+brain.audio_prefs = audio_prefs;
 brain.dist_prefs = dist_prefs;
 brain.neuron_cols = neuron_cols;
 brain.network_ids = network_ids;

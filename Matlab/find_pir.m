@@ -19,6 +19,7 @@ c = zeros(nneurons, 1);
 d = zeros(nneurons, 1);
 vis_prefs = zeros(nneurons, 23, 2);
 dist_prefs = zeros(nneurons, 1);
+audio_prefs = zeros(nneurons, 1);
 connectome = zeros(nneurons, nneurons);
 vis_pref_vals = zeros(6, 2);
 this_distance = 300;

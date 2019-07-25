@@ -170,6 +170,10 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
 ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
+
+audio_pref_names = {'~500 Hz', '~1000 Hz', '~1500 Hz'};
+n_audio_prefs = size(audio_pref_names, 2);
+
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn
     load object_strs

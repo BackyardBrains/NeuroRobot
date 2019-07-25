@@ -26,6 +26,7 @@ if brain_selection_val > 1
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
     dist_prefs = brain.dist_prefs;
+    audio_prefs = brain.audio_prefs;
     neuron_cols = brain.neuron_cols;
     network_ids = brain.network_ids;
     da_rew_neurons = brain.da_rew_neurons;
@@ -78,6 +79,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     neuron_contacts = zeros(nneurons, ncontacts);
     vis_prefs = false([1, n_vis_prefs, 2]);
     dist_prefs = zeros(1, 1);
+    audio_prefs = zeros(1, 1);
     neuron_cols = [];
     network_ids = 0;
     da_rew_neurons = [];
