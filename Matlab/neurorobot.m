@@ -8,23 +8,23 @@
 
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
+use_webcam = 0;
+
 camera_present = 1;
-use_webcam = 1;
 bluetooth_present = 0;
 
-save_brain_jpg = 1;
+save_brain_jpg = 0;
 save_data_and_commands = 0;
 brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
-use_rcnn = 1;
+use_rcnn = 0; 
 use_profile = 0;
 
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
-save_brain_jpg = 0;
 save_data_and_commands = 0;
 brain_gen = 0;
 manual_controls = 0;
@@ -36,7 +36,7 @@ bfsize = 18; % You may want to change this to 16 if your screen size is smaller 
 
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
-second_screen_analysis = 0;
+second_screen_analysis = 1;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 
@@ -55,7 +55,8 @@ else
     this_workspace_fig = 'workspace.jpg';
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
-
+load('this_f')
+load('these_x')
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -171,7 +172,7 @@ ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 
-audio_pref_names = {'~500 Hz', '~1000 Hz', '~1500 Hz'};
+audio_pref_names = {'~1000 Hz', '~1500 Hz', '~2000 Hz'};
 n_audio_prefs = size(audio_pref_names, 2);
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};

@@ -55,7 +55,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             if ext_cam_id
                 save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
             end
-
+            
             % Open selection menu
             text_heading = uicontrol('Style', 'text', 'String', 'What kind of neuron is this?', 'units', 'normalized', 'position', [0.02 0.95 0.29 0.03], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
@@ -300,7 +300,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             end
             nnetworks = length(unique(network_ids));
             network_drive = zeros(nnetworks, 3);
-            
+                       
             % Remove menus
             delete(text_heading)
             delete(text_w1)

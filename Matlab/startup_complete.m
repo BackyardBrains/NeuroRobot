@@ -38,6 +38,8 @@ else
         tic
         load('rcnn')
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
+    else
+        net_input_size = [227 227];
     end
     if ~exist('rcnn', 'var') && use_rcnn
         tic

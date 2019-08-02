@@ -2,7 +2,6 @@
 nstep = nstep + 1;
 xstep = xstep + 1;
 step_timer = tic;
-
 lifetime = toc(life_timer);
 if lifetime == 5 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime)), ' s'))

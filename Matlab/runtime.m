@@ -62,6 +62,13 @@ audioMat = [];
 audioAmp = [];
 audioFreq = [];
 audio_max_freq = 0;
+max_amp = 0;
+max_freq = 0;
+audio_max_freq = 0;
+pw = zeros(1, 1000); 
+pw2 = zeros(10, 1000);
+pw3 = zeros(1, 1000); 
+ax = 1;
 
 
 %% Create data and command log
