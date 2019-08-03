@@ -8,8 +8,8 @@
 
 
 %% Settings
-rak_only = 0;
-use_webcam = 1;
+rak_only = 1;
+use_webcam = 0;
 
 camera_present = 1;
 bluetooth_present = 0;
@@ -99,9 +99,9 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
+%     startup_fig_pos = [1 41 1920 1017];   
     fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
+    startup_fig_pos = [1921 1 1920 1057];   
 %     fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698

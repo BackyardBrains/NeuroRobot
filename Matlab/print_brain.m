@@ -12,4 +12,5 @@
 % this_time = char(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss'));
 % export_fig(fig_print, horzcat('.\Data\', this_time, '-', brain_name, '-brain_print'), '-r150', '-jpg', '-nocrop')
 
+this_time = char(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss'));
 export_fig(fig_design, horzcat('.\Data\', this_time, '-', brain_name, '-fig_design'), '-r150', '-jpg', '-nocrop')
