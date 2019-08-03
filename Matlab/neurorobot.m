@@ -14,7 +14,7 @@ use_webcam = 0;
 camera_present = 1;
 bluetooth_present = 0;
 
-save_brain_jpg = 0;
+save_brain_jpg = 1;
 save_data_and_commands = 0;
 brain_gen = 0;
 grey_background = 1;
