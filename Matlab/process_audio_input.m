@@ -4,7 +4,10 @@ if rak_only
     this_audio = double(rak_cam.readAudio());
     if isempty(this_audio)
         disp('no audio data received')
+    else
+        this_audio = this_audio(1:1000);
     end
+    
     
 %     sample_rate = 8000;
 %     sample_period = 1/sample_rate;
@@ -67,7 +70,7 @@ if rak_only
     this_end = length(audioMat);
     
     audio_max_freq = max_freq;
-    disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
+%     disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
     
     
 end
