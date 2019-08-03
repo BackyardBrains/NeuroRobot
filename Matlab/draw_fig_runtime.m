@@ -141,7 +141,8 @@ if second_screen_analysis
     % Total input
     axes(analysis_2_ax)
     draw_analysis_2 = plot(this_f, zeros(1, length(this_f)));
-    set(gca, 'ylim', [0 10^11])
+%     set(gca, 'ylim', [0 10^11])
+    set(gca, 'ylim', [0 5])
 %     set(gca, 'xlim', [100 500])
     title('Audio spectrum', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Hz', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight) 

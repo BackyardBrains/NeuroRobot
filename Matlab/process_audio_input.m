@@ -2,6 +2,9 @@
 if rak_only
     
     this_audio = double(rak_cam.readAudio());
+    if isempty(this_audio)
+        disp('no audio data received')
+    end
     
 %     sample_rate = 8000;
 %     sample_period = 1/sample_rate;
@@ -23,21 +26,24 @@ if rak_only
     pw = (abs(y).^2)/n;
     f = (0:n-1)*(fs/n);
     
-%     % Convert to Z scores
-%     if ax < 10
-%         these_vals = (pw - mean(pw)) / std(pw);
-%         if length(these_vals) == 1000
-%             pw2(ax, :) = these_vals;
-%         end
-%     else
-%         ax = 1;
-%     end
-%     pw3 = mean(pw2);
+    
+    if ~isempty(pw)
+        % Convert to Z scores
+        if ax < 10
+            these_vals = (pw - mean(pw)) / std(pw);
+            if length(these_vals) == 1000
+                pw2(ax, :) = these_vals;
+            end
+        else
+            ax = 1;
+        end
+        pw3 = mean(pw2);
+        pw = pw3;
     
     %
-    if ~isempty(pw)
+   
 %         [max_amp, j] = max(pw(these_x));
-        [max_amp, j] = max(pw);
+        [max_amp, j] = max(pw(1:500));
         f2 = f;
 
 %         j = j + f(these_x(1));
@@ -61,7 +67,7 @@ if rak_only
     this_end = length(audioMat);
     
     audio_max_freq = max_freq;
-%     disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
+    disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
     
     
 end
