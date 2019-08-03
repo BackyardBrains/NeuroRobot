@@ -69,6 +69,7 @@ pw = zeros(1, 1000);
 pw2 = zeros(10, 1000);
 pw3 = zeros(1, 1000); 
 ax = 1;
+audio_I = zeros(nneurons, 1);
 
 
 %% Create data and command log

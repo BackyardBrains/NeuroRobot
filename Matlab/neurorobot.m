@@ -8,8 +8,8 @@
 
 
 %% Settings
-rak_only = 1;
-use_webcam = 0;
+rak_only = 0;
+use_webcam = 1;
 
 camera_present = 1;
 bluetooth_present = 0;
