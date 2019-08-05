@@ -13,8 +13,8 @@ use_webcam = 0;
 
 % pit_start_time = [11 12];
 % pit_stop_time = [11 13];
-pit_start_time = [];
-pit_stop_time = [];
+pit_start_time = [13 33];
+pit_stop_time = [13 37];
 
 camera_present = 1;
 bluetooth_present = 0;
@@ -24,7 +24,7 @@ save_data_and_commands = 1;
 brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
-use_rcnn = 0; 
+use_rcnn = 1; 
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
