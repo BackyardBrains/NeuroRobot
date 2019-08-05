@@ -13,8 +13,8 @@ use_webcam = 0;
 
 % pit_start_time = [11 12];
 % pit_stop_time = [11 13];
-pit_start_time = [];
-pit_stop_time = [];
+pit_start_time = [13 33];
+pit_stop_time = [13 37];
 
 camera_present = 1;
 bluetooth_present = 0;
