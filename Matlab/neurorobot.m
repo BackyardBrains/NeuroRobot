@@ -11,22 +11,22 @@
 rak_only = 1;
 use_webcam = 0;
 
+pit_start_time = [11 12];
+pit_stop_time = [11 13];
+
 camera_present = 1;
 bluetooth_present = 0;
 
-save_brain_jpg = 1;
-save_data_and_commands = 0;
+save_brain_jpg = 0;
+save_data_and_commands = 1;
 brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
 use_rcnn = 0; 
 use_profile = 0;
-
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
-save_data_and_commands = 0;
-brain_gen = 0;
 manual_controls = 0;
 
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
@@ -34,9 +34,7 @@ startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is differe
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
 
-draw_synapse_strengths = 1;
-draw_neuron_numbers = 1;
-second_screen_analysis = 1;
+second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 
@@ -99,9 +97,9 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-%     startup_fig_pos = [1 41 1920 1017];   
+    startup_fig_pos = [1 41 1920 1017];   
     fig_pos = [1 41 1920 1017];
-    startup_fig_pos = [1921 1 1920 1057];   
+%     startup_fig_pos = [1921 1 1920 1057];   
 %     fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698

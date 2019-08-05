@@ -51,6 +51,16 @@ if save_data_and_commands
         data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     end
 end
+if ~isempty(pit_stop_time)
+    this_clock = clock;
+    if this_clock(4) >= pit_stop_time(1) && this_clock(5) >= pit_stop_time(2)
+        disp('Pit recording stop time')
+        disp('Pit recording stopped')
+        stop(runtime_pulse)
+    else
+        pause(0.01)
+    end
+end
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
 catch
