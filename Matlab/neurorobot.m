@@ -8,13 +8,13 @@
 
 
 %% Settings
-rak_only = 0;
-use_webcam = 1;
+rak_only = 1;
+use_webcam = 0;
 
 % pit_start_time = [11 12];
 % pit_stop_time = [11 13];
-pit_start_time = [13 33];
-pit_stop_time = [13 37];
+pit_start_time = [];
+pit_stop_time = [];
 
 camera_present = 1;
 bluetooth_present = 0;
@@ -36,7 +36,7 @@ startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is differe
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
 
-second_screen_analysis = 0;
+second_screen_analysis = 1;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 
