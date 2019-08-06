@@ -26,6 +26,7 @@ if save_data_and_commands
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     data.stop_time  = this_time;
     data.brain = brain;
+    data.audio = audioMat;
     save(data_file_name, 'data')
 
     if run_button == 4 

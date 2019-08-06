@@ -8,8 +8,8 @@
 
 
 %% Settings
-rak_only = 1;
-use_webcam = 0;
+rak_only = 0;
+use_webcam = 1;
 
 % pit_start_time = [11 12];
 % pit_stop_time = [11 13];
