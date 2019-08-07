@@ -1,4 +1,4 @@
-brain = brain_1_data.data.brain;
+
 nneurons = brain.nneurons;
 neuron_xys = brain.neuron_xys;
 connectome = brain.connectome;
