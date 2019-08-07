@@ -12,8 +12,8 @@ this_input_file = horzcat(data_dir, file_name, '.mp4');
 audio_output_file = horzcat(data_dir, file_name(1:19), '_audio_out.wav');
 video_output_file = horzcat(data_dir, file_name(1:19), '_video_out.mp4');
 brain_dir = 'C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\';
-brain(1).file_name = '2019-08-07-03-45-41-4541-Crimson36';
-brain(2).file_name = '2019-08-07-04-13-02-1320-Crimson25';
+brain(1).file_name = '2019-08-07-04-35-27-3527-Crimson36';
+brain(2).file_name = '2019-08-07-04-35-29-3529-Crimson25';
 brain_data(1) = load(horzcat(brain_dir, brain(1).file_name, '.mat'));
 brain_data(2) = load(horzcat(brain_dir, brain(2).file_name, '.mat'));
 brain_name(1).name = brain(1).file_name(26:end);
@@ -37,7 +37,6 @@ ncontacts = size(contact_xys, 1);
 
 %% Get audio
 [y,Fs] = audioread(this_input_file);
-audiowrite(audio_output_file,y,Fs)
 these_samples = round(linspace(1, length(y), round(length(y) * (8000 / 44100))));
 phone_audio = y(these_samples, 1);
 brain_1_audio = bandpass(brain_data(1).data.audio, [1000 3000], 8000);
@@ -69,6 +68,14 @@ brain_to_phone_lag = lag(j);
 if brain_to_phone_lag > 0
     error('Brain recording appears to have started before phone recording')
 end
+
+if brain_1_to_2_lag > 0
+    error('Brain recording appears to have started before phone recording')
+else
+    y(1:round(-(brain_to_phone_lag / 8000) * 44100)) = [];
+end
+
+audiowrite(audio_output_file,y,Fs)
 
 % % Test audio lags
 % a = 1;
@@ -113,7 +120,7 @@ video_reader = VideoReader(this_input_file, 'CurrentTime', start_time_in_sec);
 [i, j] = min([(length(phone_audio) / 8000) - start_time_in_sec, length(brain_data(1).data.firing) / 10, length(brain_data(2).data.firing) / 10]);
 n_phone_frames = round(i * 30);
 n_spike_steps = round(i * 10);
-this_adjust = 50; % Custom sync (2 s * 30 fps)
+this_adjust = 0; % Custom sync (2 s * 30 fps)
 spike_steps_in_frames = round(linspace(1 + this_adjust, n_phone_frames, n_spike_steps));
 these_frames = zeros(1080, 1920, 3, n_phone_frames, 'uint8');
 nstep = 1;
