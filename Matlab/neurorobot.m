@@ -11,11 +11,6 @@
 rak_only = 1;
 use_webcam = 0;
 
-% pit_start_time = [11 12];
-% pit_stop_time = [11 13];
-pit_start_time = [];
-pit_stop_time = [];
-
 camera_present = 1;
 bluetooth_present = 0;
 

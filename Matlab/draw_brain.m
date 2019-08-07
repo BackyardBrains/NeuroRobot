@@ -280,4 +280,8 @@ end
 drawnow
 
 % Adjust brain axes
-axis([-3 3 -3 3])
+if exist('this_input_file', 'var')
+    axis([-3 3 -3.5 3])
+else
+    axis([-3 3 -3 3])
+end
