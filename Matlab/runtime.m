@@ -92,19 +92,19 @@ end
 
 
 %% Run
-if ~isempty(pit_start_time)
-    this_flag = 0;
-    disp('Waiting for pit recording start time')
-    while ~this_flag
-        this_clock = clock;
-        if this_clock(4) >= pit_start_time(1) && this_clock(5) >= pit_start_time(2)
-            this_flag = 1;
-            disp('Pit recording started')
-        else
-            pause(0.01)
-        end
-    end
-end
+% if ~isempty(pit_start_time)
+%     this_flag = 0;
+%     disp('Waiting for pit recording start time')
+%     while ~this_flag
+%         this_clock = clock;
+%         if this_clock(4) >= pit_start_time(1) && this_clock(5) >= pit_start_time(2)
+%             this_flag = 1;
+%             disp('Pit recording started')
+%         else
+%             pause(0.01)
+%         end
+%     end
+% end
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)
 
