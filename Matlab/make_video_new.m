@@ -7,13 +7,13 @@ profile on
     
 %% Get data
 data_dir = 'C:\Users\Christopher Harris\Desktop\Neurorobot Video\';
-file_name = 'VID_20190807_113430';
+file_name = 'VID_20190807_163619';
 this_input_file = horzcat(data_dir, file_name, '.mp4');
 audio_output_file = horzcat(data_dir, file_name(1:19), '_audio_out.wav');
 video_output_file = horzcat(data_dir, file_name(1:19), '_video_out.mp4');
 brain_dir = 'C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\';
-brain(1).file_name = '2019-08-07-11-33-48-3348-Signet';
-brain(2).file_name = '2019-08-07-11-33-52-3352-Moinet';
+brain(1).file_name = '2019-08-07-03-45-41-4541-Crimson36';
+brain(2).file_name = '2019-08-07-04-13-02-1320-Crimson25';
 brain_data(1) = load(horzcat(brain_dir, brain(1).file_name, '.mat'));
 brain_data(2) = load(horzcat(brain_dir, brain(2).file_name, '.mat'));
 brain_name(1).name = brain(1).file_name(26:end);
