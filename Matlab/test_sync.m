@@ -1,5 +1,5 @@
 
-load('C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\2019-08-08-11-35-06-356-Scan')
+% load('C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\2019-08-08-11-35-06-356-Scan')
 
 audio = data.audio;
 audio_hz = 8000;
@@ -17,26 +17,28 @@ clf
 
 subplot(2,1,1)
 % plot(audio)
-[p, f, t] = pspectrum(audio, audio_hz, 'spectrogram', 'frequencylimits', [1000 3000], 'timeresolution', 0.1, 'overlappercent', 0);
+[p, f, t] = pspectrum(audio, audio_hz, 'spectrogram', 'frequencylimits', [1000 3000], 'timeresolution', 1/firing_hz, 'overlappercent', 0);
 power_8000 = mean(p(f > 1900 & f < 2100, :));
-plot(0.1:0.1:audio_dur_in_sec, power_8000)
+plot(power_8000)
+axis tight
 
 subplot(2,1,2)
-plot(firing(1,:))
+plot(mean(firing))
+axis tight
 
 
 
-
-%%
-for ii = 1:length(data.audio_step(:,1))
-    a = data.audio_step(ii, 1);
-    b = data.audio_step(ii, 2);
-    if a == 0
-        c = data.audio_step(ii + 1, 2);
-        if c == b
-            disp('No problem')
-        else
-            error('Problem')
-        end
-    end
-end
+% 
+% %%
+% for ii = 1:length(data.audio_step(:,1))
+%     a = data.audio_step(ii, 1);
+%     b = data.audio_step(ii, 2);
+%     if a == 0
+%         c = data.audio_step(ii + 1, 2);
+%         if c == b
+%             disp('No problem')
+%         else
+%             error('Problem')
+%         end
+%     end
+% end
