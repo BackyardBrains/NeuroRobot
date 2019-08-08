@@ -3,11 +3,30 @@ if rak_only
     
     % Get audio data from RAK
     this_audio = double(rak_cam.readAudio());
-    if isempty(this_audio) || length(this_audio) < 1000
-        disp('no audio data received or audio data < 1000 samples')
-        max_amp = 0;
-        max_freq = 0;
+    if isempty(this_audio)
+        disp('audio data empty')
+        audio_step = [audio_step; 0 xstep];
+        
+        % rak_cam.readAudio sometimes returns an empty this_audio, but
+        % somehow then returns a full this_audio in the same step. if a
+        % full audio array is not eventally returned the RAK has to be
+        % reset (rak_fail = 1);
+        audio_empty_flag = audio_empty_flag + 1;
+        if audio_empty_flag >= 3
+            disp('repeating audio input failure, stopping')
+            run_button = 4;
+        end
+        
+    elseif length(this_audio) < 1000
+        error('audio data < 1000 samples')
+    elseif length(this_audio) > 1000
+        disp('audio data > 1000 samples')
+        audio_step = [audio_step; 2 xstep];
+        this_audio = [];
+        
     else
+        
+        audio_empty_flag = 0;
         
         % Get first 1000 samples
         x = this_audio(1:1000);
@@ -32,8 +51,7 @@ if rak_only
     
     this_start = length(audioMat);
     audioMat = [audioMat this_audio];
-    audioAmp = [audioAmp max_amp];
-    audioFreq = [audioFreq max_freq];
+    audio_step = [audio_step; 1 xstep];
     this_end = length(audioMat);
     audio_max_freq = max_freq;
 %     disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))

@@ -59,14 +59,15 @@ if use_profile
     profile on    
 end
 audioMat = [];
-audioAmp = [];
-audioFreq = [];
+audio_step = [];
+firing_step = [];
 audio_max_freq = 0;
 max_amp = 0;
 max_freq = 0;
 audio_max_freq = 0;
 pw = zeros(1, 1000); 
 audio_I = zeros(nneurons, 1);
+audio_empty_flag = 0;
 
 
 %% Create data and command log

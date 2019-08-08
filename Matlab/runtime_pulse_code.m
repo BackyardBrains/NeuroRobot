@@ -12,9 +12,9 @@ elseif lifetime >= 5 * 60 * 60
 end
 update_brain
 draw_step
-if xstep > 50
+% if xstep > 50
     update_motors
-end
+% end
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
@@ -48,6 +48,7 @@ if save_data_and_commands
     if nneurons
         rec_timer = tic;
         data.firing(:,xstep) = firing;
+        firing_step = [firing_step; 1 xstep];
         data.connectome(:,:,xstep) = connectome;
         data.rec_time(xstep) = toc(rec_timer);
         data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
