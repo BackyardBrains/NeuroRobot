@@ -6,7 +6,7 @@ clear
     
 %% Get data
 data_dir = 'C:\Users\Christopher Harris\Desktop\Neurorobot Video\';
-file_name = 'VID_20190807_171243';
+file_name = 'VID_20190808_111754';
 this_input_file = horzcat(data_dir, file_name, '.mp4');
 audio_output_file = horzcat(data_dir, file_name(1:19), '_audio_out.wav');
 video_output_file = horzcat(data_dir, file_name(1:19), '_video_out.mp4');
