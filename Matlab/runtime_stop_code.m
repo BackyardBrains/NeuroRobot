@@ -28,7 +28,7 @@ if save_data_and_commands
     data.brain = brain;
     data.audio = audioMat;
     data.audio_step = audio_step;
-    data.firing_step = firing_step;
+    data.xstep = xstep;
     save(data_file_name, 'data')
 
     if run_button == 4 

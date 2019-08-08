@@ -3,7 +3,6 @@ nneurons = brain.nneurons;
 neuron_xys = brain.neuron_xys;
 connectome = brain.connectome;
 da_connectome = brain.da_connectome;
-spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
 neuron_contacts = brain.neuron_contacts;
 vis_prefs = brain.vis_prefs;
 dist_prefs = brain.dist_prefs;

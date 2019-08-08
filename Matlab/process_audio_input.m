@@ -5,7 +5,8 @@ if rak_only
     this_audio = double(rak_cam.readAudio());
     if isempty(this_audio)
         disp('audio data empty')
-        audio_step = [audio_step; 0 xstep];
+        c = clock;
+        audio_step = [audio_step; 0 xstep c(6) length(this_audio)];
         
         % rak_cam.readAudio sometimes returns an empty this_audio, but
         % somehow then returns a full this_audio in the same step. if a
@@ -21,7 +22,8 @@ if rak_only
         error('audio data < 1000 samples')
     elseif length(this_audio) > 1000
         disp('audio data > 1000 samples')
-        audio_step = [audio_step; 2 xstep];
+        c = clock;
+        audio_step = [audio_step; 2 xstep c(6) length(this_audio)];
         this_audio = [];
         
     else
@@ -51,7 +53,8 @@ if rak_only
     
     this_start = length(audioMat);
     audioMat = [audioMat this_audio];
-    audio_step = [audio_step; 1 xstep];
+    c = clock;
+    audio_step = [audio_step; 1 xstep c(6) length(this_audio)];
     this_end = length(audioMat);
     audio_max_freq = max_freq;
 %     disp(horzcat('audio max freq = ', num2str(max_freq), ', amp = ', num2str(max_amp), ', start = ', num2str(this_start), ', end = ', num2str(this_end)))
