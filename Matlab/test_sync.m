@@ -1,12 +1,12 @@
 
-load('C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\2019-08-08-11-04-13-413-Scan')
+load('C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\2019-08-08-11-35-06-356-Scan')
 
 audio = data.audio;
 audio_hz = 8000;
 audio_dur_in_sec = length(audio) / audio_hz;
 disp(horzcat('Audio duration = ', num2str(audio_dur_in_sec), ' s'))
 firing = data.firing;
-firing_hz = 10;
+firing_hz = 8;
 firing_dur_in_sec = length(firing) / firing_hz;
 disp(horzcat('Firing duration = ', num2str(firing_dur_in_sec), ' s'))
 
@@ -28,11 +28,11 @@ plot(firing(1,:))
 
 
 %%
-for ii = 1:length(audio_step(:,1))
-    a = audio_step(ii, 1);
-    b = audio_step(ii, 2);
-    if a == 0
-        c = audio_step(ii + 1, 2);
+for ii = 1:length(data.audio_step(:,1))
+    a = data.audio_step(ii, 1);
+    b = data.audio_step(ii, 2);
+    if a == 2
+        c = data.audio_step(ii + 1, 2);
         if c == b
             disp('No problem')
         else

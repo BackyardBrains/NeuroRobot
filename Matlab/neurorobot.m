@@ -37,7 +37,7 @@ ext_cam_nsteps = 100; % check this
 
 nsteps_per_loop = 100;
 brain_facts = 0;
-pulse_period = 0.1; % in seconds
+pulse_period = 0.125; % in seconds
 max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
