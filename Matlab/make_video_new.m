@@ -6,17 +6,17 @@ clear
     
 %% Get data
 data_dir = 'C:\Users\Christopher Harris\Desktop\Neurorobot Video\';
-file_name = 'VID_20190808_123829';
+file_name = 'VID_20190808_143838';
 this_input_file = horzcat(data_dir, file_name, '.mp4');
 audio_output_file = horzcat(data_dir, file_name(1:19), '_audio_out.wav');
 video_output_file = horzcat(data_dir, file_name(1:19), '_video_out.mp4');
 brain_dir = 'C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\';
-brain(1).file_name = '2019-08-08-02-18-53-1853-Scan';
-brain(2).file_name = '2019-08-08-02-18-56-1856-Scan';
+brain(1).file_name = '2019-08-08-02-37-59-3759-Scan';
+brain(2).file_name = '2019-08-08-02-38-04-384-Scan';
 brain_data(1) = load(horzcat(brain_dir, brain(1).file_name, '.mat'));
 brain_data(2) = load(horzcat(brain_dir, brain(2).file_name, '.mat'));
 brain_name(1).name = brain(1).file_name(26:end);
-brain_name(2).name = brain(2).file_name(26:end);
+brain_name(2).name = brain(2).file_name(25:end);
 
 audio_hz = 8000;
 firing_hz = 8;
@@ -83,6 +83,11 @@ plot(lag, c)
 title('Brain 2 to phone xcorr')
 
 % Check similarity here
+if abs(brain_1_to_phone_lag - brain_2_to_phone_lag) > 800
+    error('Brain lags to phone significantly different')
+else
+    brain_to_phone_lag = mean([brain_1_to_phone_lag, brain_2_to_phone_lag]);
+end
 
 if brain_to_phone_lag > 0
     error('Brain recording appears to have started before phone recording')
@@ -92,11 +97,11 @@ end
 
 audiowrite(audio_output_file,y,Fs)
 
-% Test audio lags
-a = 1;
-b = 40000;
-soundsc(brain_1_audio(a:b), 8000)
-soundsc(y(a:b), 44100)
+% % Test audio lags
+% a = 1;
+% b = 40000;
+% soundsc(brain_1_audio(a:b), 8000)
+% soundsc(y(a:b), 44100)
 
 % % Test audio lags
 % a = 1;
@@ -115,7 +120,7 @@ set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 axis([-3 3 -3.5 3])
 hold on 
 brain = brain_data(1).data.brain;
-read_brain
+read_brain_for_movies
 nbrain = 1;
 draw_brain_for_movies
 xplot(1).this_text = text(0, -3.3, brain_name(1).name, 'fontsize', 34, 'fontname', ...
@@ -130,7 +135,7 @@ set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 axis([-3 3 -3.5 3])
 hold on 
 brain = brain_data(2).data.brain;
-read_brain
+read_brain_for_movies
 nbrain = 2;
 draw_brain_for_movies
 xplot(2).this_text = text(0, -3.25, brain_name(2).name, 'fontsize', 30, 'fontname', ...
