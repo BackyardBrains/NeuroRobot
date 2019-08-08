@@ -31,7 +31,7 @@ plot(firing(1,:))
 for ii = 1:length(data.audio_step(:,1))
     a = data.audio_step(ii, 1);
     b = data.audio_step(ii, 2);
-    if a == 2
+    if a == 0
         c = data.audio_step(ii + 1, 2);
         if c == b
             disp('No problem')

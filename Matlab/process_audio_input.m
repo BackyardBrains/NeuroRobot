@@ -12,7 +12,7 @@ if rak_only
         % full audio array is not eventally returned the RAK has to be
         % reset (rak_fail = 1);
         audio_empty_flag = audio_empty_flag + 1;
-        if audio_empty_flag >= 3
+        if audio_empty_flag >= 10
             disp('repeating audio input failure, stopping')
             run_button = 4;
         end
