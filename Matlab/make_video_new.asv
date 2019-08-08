@@ -116,7 +116,7 @@ xplot(2).this_text = text(0, -3.25, brain_name(2).name, 'fontsize', 30, 'fontnam
 
 %% Get video
 tic
-start_time_in_sec = -(brain_to_phone_lag / 8000) + 1.4;
+start_time_in_sec = -(brain_to_phone_lag / 8000) - 1.7;
 video_reader = VideoReader(this_input_file, 'CurrentTime', start_time_in_sec);
 [i, j] = min([(length(phone_audio) / 8000) - start_time_in_sec, length(brain_data(1).data.firing) / 10, length(brain_data(2).data.firing) / 10]);
 n_phone_frames = round(i * 30);
@@ -126,7 +126,7 @@ these_frames = zeros(1080, 1920, 3, n_phone_frames, 'uint8');
 nstep = 1;
 for nframe = 1:n_phone_frames
     
-    disp(horzcat('nframe ', num2str(nframe), ' of ', num2str(n_phone_frames)))
+    disp(horzcat('nframe ', num2str(nframe)))
     
     % Get phone frame
     frame = readFrame(video_reader);
@@ -175,8 +175,8 @@ for nframe = 1:n_phone_frames
     
     % Step
     if nframe == spike_steps_in_frames(nstep)
-        disp(horzcat('nstep ', num2str(nstep), ' of ', num2str(n_spike_steps)))
         nstep = nstep + 1;
+        disp(horzcat('nstep ', num2str(nstep)))
     end    
     
 end
