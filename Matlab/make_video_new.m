@@ -6,17 +6,17 @@ clear
     
 %% Get data
 data_dir = 'C:\Users\Christopher Harris\Desktop\Neurorobot Video\';
-file_name = 'VID_20190808_143838';
+file_name = 'VID_20190808_172313';
 this_input_file = horzcat(data_dir, file_name, '.mp4');
 audio_output_file = horzcat(data_dir, file_name(1:19), '_audio_out.wav');
 video_output_file = horzcat(data_dir, file_name(1:19), '_video_out.mp4');
 brain_dir = 'C:\Users\Christopher Harris\NeuroRobot\Matlab\Data\';
-brain(1).file_name = '2019-08-08-02-37-59-3759-Scan';
-brain(2).file_name = '2019-08-08-02-38-04-384-Scan';
+brain(1).file_name = '2019-08-08-05-21-10-2110-Signet';
+brain(2).file_name = '2019-08-08-05-21-13-2113-Mos';
 brain_data(1) = load(horzcat(brain_dir, brain(1).file_name, '.mat'));
 brain_data(2) = load(horzcat(brain_dir, brain(2).file_name, '.mat'));
 brain_name(1).name = brain(1).file_name(26:end);
-brain_name(2).name = brain(2).file_name(25:end);
+brain_name(2).name = brain(2).file_name(26:end);
 
 audio_hz = 8000;
 firing_hz = 8;
@@ -91,11 +91,9 @@ end
 
 if brain_to_phone_lag > 0
     error('Brain recording appears to have started before phone recording')
-else
-    y(1:round(-(brain_to_phone_lag / audio_hz) * 44100)) = [];
+% else
+%     y(1:round(-(brain_to_phone_lag / audio_hz) * 44100)) = [];
 end
-
-audiowrite(audio_output_file,y,Fs)
 
 % % Test audio lags
 % a = 1;
@@ -143,79 +141,102 @@ xplot(2).this_text = text(0, -3.25, brain_name(2).name, 'fontsize', 30, 'fontnam
 
 %% Get video
 tic
-start_time_in_sec = -(brain_to_phone_lag / audio_hz);
-video_reader = VideoReader(this_input_file, 'CurrentTime', start_time_in_sec);
-[i, j] = min([(length(phone_audio) / audio_hz) - start_time_in_sec, ...
-    length(brain_data(1).data.firing) / firing_hz, length(brain_data(2).data.firing) / firing_hz]);
-n_phone_frames = round(i * 30);
-n_spike_steps = round(i * firing_hz);
-spike_steps_in_frames = round(linspace(1, n_phone_frames, n_spike_steps));
-these_frames = zeros(1080, 1920, 3, n_phone_frames, 'uint8');
+phone_delay_in_sec = -(brain_to_phone_lag / audio_hz) + 0.4; % 0.68 0.4
+video_duration_in_sec = 30;
+% phone_delay_in_sec = 3;
+phone_delay_in_phone_frames = round(phone_delay_in_sec * 30);
+video_reader = VideoReader(this_input_file);
+
+% [i, j] = min([(length(phone_audio) / audio_hz) - phone_delay_in_sec, ...
+%     length(brain_data(1).data.firing) / firing_hz, length(brain_data(2).data.firing) / firing_hz, 20]);
+
+n_phone_frames = round(video_duration_in_sec * 30);
+n_spike_steps = round(video_duration_in_sec * firing_hz);
+spike_steps_in_frames = round(linspace(1 + phone_delay_in_phone_frames, n_phone_frames + phone_delay_in_phone_frames, n_spike_steps));
+these_frames = zeros(1080, 1920, 3, n_phone_frames + phone_delay_in_phone_frames, 'uint8');
 nstep = 1;
-for nframe = 1:n_phone_frames
+for nframe = 1:n_phone_frames + phone_delay_in_phone_frames
     
-    disp(horzcat('nframe ', num2str(nframe), ' of ', num2str(n_phone_frames)))
+%     disp(horzcat('nframe ', num2str(nframe), ' of ', num2str(n_phone_frames)))
     
     % Get phone frame
     frame = readFrame(video_reader);
     
-    % Get brain frames
-    for nbrain = 1:2
-        
-        brain = brain_data(nbrain).data.brain;
-        read_brain_for_movies
-        firing = brain_data(nbrain).data.firing;
-        xfiring = firing(:,nstep);
-        if nstep < 50
-            xfiring = false(size(xfiring));
-        end
-        
-        figure(nbrain)
-        xplot(nbrain).draw_neuron_core.CData = [1 - xfiring 1 - (xfiring * 0.25) 1 - xfiring] .* neuron_cols;
-        xplot(nbrain).draw_neuron_edge.CData = [zeros(nneurons, 1) xfiring * 0.5 zeros(nneurons, 1)] .* neuron_cols;
-%         if bg_brain
-%             draw_neuron_core.CData(down_neurons, :) = repmat([0.85 0.85 0.85], [sum(down_neurons), 1]);
-%             draw_neuron_edge.CData(down_neurons, :) = repmat([0.4 0.4 0.4], [sum(down_neurons), 1]);
-%         end
-
-        delete(xplot(nbrain).this_text)
-        xplot(nbrain).this_text = text(0, -3.3, brain_name(nbrain).name, 'fontsize', 34, 'fontname', ...
-            gui_font_name, 'horizontalalignment', 'center', 'verticalalignment', 'middle');
-        
-        % Need to clean all the other things at the beginning of draw_brain
-        drawnow
-        
-        if nbrain == 1
-            % Insert brain frames in phone frame
-            frame(1:440, 1:480, :) = 255;
-            this_frame = getframe(fig(1));
-            frame(21:420, 21:460, :) = imresize(this_frame.cdata, [400 440]);
+    if nframe >= phone_delay_in_phone_frames
     
-        else
-            % Frame 2
-            frame(1:440, 1441:1920, :) = 255;
-            this_frame = getframe(fig(2));
-            frame(21:420, 1461:1900, :) = imresize(this_frame.cdata, [400 440]);
+        % Get brain frames
+        for nbrain = 1:2
+
+            brain = brain_data(nbrain).data.brain;
+            read_brain_for_movies
+            firing = brain_data(nbrain).data.firing;
+            xfiring = firing(:,nstep);
+            if nstep < 50
+                xfiring = false(size(xfiring));
+            end
+
+            figure(nbrain)
+            xplot(nbrain).draw_neuron_core.CData = [1 - xfiring 1 - (xfiring * 0.25) 1 - xfiring] .* neuron_cols;
+            xplot(nbrain).draw_neuron_edge.CData = [zeros(nneurons, 1) xfiring * 0.5 zeros(nneurons, 1)] .* neuron_cols;
+    %         if bg_brain
+    %             draw_neuron_core.CData(down_neurons, :) = repmat([0.85 0.85 0.85], [sum(down_neurons), 1]);
+    %             draw_neuron_edge.CData(down_neurons, :) = repmat([0.4 0.4 0.4], [sum(down_neurons), 1]);
+    %         end
+
+            delete(xplot(nbrain).this_text)
+            xplot(nbrain).this_text = text(0, -3.3, brain_name(nbrain).name, 'fontsize', 34, 'fontname', ...
+                gui_font_name, 'horizontalalignment', 'center', 'verticalalignment', 'middle');
+            % Need to clean all the other things at the beginning of draw_brain
+            
+            drawnow
+
+            % Insert brain frames in phone frame
+            if nbrain == 1
+                frame(1:440, 1:480, :) = 255;
+                this_frame = getframe(fig(1));
+                frame(21:420, 21:460, :) = imresize(this_frame.cdata, [400 440]);
+            else
+                frame(1:440, 1441:1920, :) = 255;
+                this_frame = getframe(fig(2));
+                frame(21:420, 1461:1900, :) = imresize(this_frame.cdata, [400 440]);
+            end
         end
+
+        % Step
+        if nframe == spike_steps_in_frames(nstep)
+            if ~rem(nstep, round(n_spike_steps/10))
+                disp(horzcat('nstep ', num2str(nstep), ' of ', num2str(n_spike_steps)))
+            end
+            nstep = nstep + 1;
+        end
+     
     end
     
-    % Insert brain frames into phone frame
     these_frames(:,:,:,nframe) = frame;
-    
-    % Step
-    if nframe == spike_steps_in_frames(nstep)
-        disp(horzcat('nstep ', num2str(nstep), ' of ', num2str(n_spike_steps)))
-        nstep = nstep + 1;
-    end    
     
 end
 
+% these_frames(:,:,:,1:14) = []; % use for sig moi 1 only
 disp(horzcat('video extracted in ', num2str(round(toc)), ' s'))
+
+
+%% Write video
 tic
 video_writer = VideoWriter(video_output_file, 'MPEG-4');
+video_writer.Quality = 100;
 open(video_writer)
 writeVideo(video_writer, these_frames)
 close(video_writer)
 disp(horzcat('video saved in ', num2str(round(toc)), ' s'))
 
-clear
+
+%% Get audio
+tic
+[y,Fs] = audioread(this_input_file, [1 round((video_duration_in_sec + phone_delay_in_sec)*Fs)]);
+y = y(:,1);
+% y(end-Fs/2+((1/30) * Fs):end) = []; % use for sig moi 1 only
+audiowrite(audio_output_file, y, Fs)
+disp(horzcat('audio extracted and saved in ', num2str(round(toc)), ' s'))
+
+%% Done
+disp('done, check quality')
