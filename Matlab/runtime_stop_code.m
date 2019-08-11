@@ -65,15 +65,15 @@ if voluntary_restart
     restarting = 1;
 end
 
-if exist('logFile_SharedMemory.txt', 'file')
-    delete('logFile_SharedMemory.txt')
-end
-if exist('logFile_Socket.txt', 'file')
-    delete('logFile_Socket.txt')
-end
-if exist('logFile_VideoAndAudioObtainer.txt', 'file')
-    delete('logFile_VideoAndAudioObtainer.txt')
-end
+% if exist('logFile_SharedMemory.txt', 'file')
+%     delete('logFile_SharedMemory.txt')
+% end
+% if exist('logFile_Socket.txt', 'file')
+%     delete('logFile_Socket.txt')
+% end
+% if exist('logFile_VideoAndAudioObtainer.txt', 'file')
+%     delete('logFile_VideoAndAudioObtainer.txt')
+% end
 
 %% Return to startup
 neurorobot
