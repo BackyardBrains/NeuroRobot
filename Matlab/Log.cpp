@@ -6,77 +6,44 @@
 #ifndef _Log_cpp
 #define _Log_cpp
 
-#include "Macros.h"
+#include "Log.h"
 #include <iostream>
 
 #ifdef DEBUG
-    #include <fstream>
     #include <ctime>
     #include <chrono>
     #include <typeinfo>
     #include <string>
 #endif
 
-
-class Log
+Log::~Log()
 {
-private:
-    
-public:
-    
-    std::string className = "No_name";
-    
-    ~Log()
-    {
-        closeStreams();
-    }
-    
+    closeStreams();
+}
+void Log::openStreams() {
 #ifdef DEBUG
-    std::ofstream logFile;
-#endif
+    char logFileName[50];
+    strcpy(logFileName, "logFile_");
+    strcat(logFileName, className.c_str());
+    strcat(logFileName, ".txt");
     
-    /**
-     Opens log file.
-     Be sure that `className` is defined like you want. If not, the name of log file will be predefined name.
-     */
-    void openStreams() {
-#ifdef DEBUG
-        char logFileName[50];
-        strcpy(logFileName, "logFile_");
-        strcat(logFileName, className.c_str());
-        strcat(logFileName, ".txt");
-        
-        logFile.open(logFileName);
-        logMessage("openStreams >> Socket >>> opened");
+    logFile.open(logFileName);
+    logMessage("openStreams >> " + className + " >>> opened");
 #endif
-    }
-    
-    /**
-     Closes log file.
-     */
-    void closeStreams() {
+}
+void Log::closeStreams() {
 #ifdef DEBUG
-        logMessage("closeStreams >>> closed");
-        logFile.close();
+    logMessage("closeStreams >> " + className + " >>> closed");
+    logFile.close();
 #endif
-    }
-    
-    /**
-     Writes forwarded message to log file.
-     Only working if is defined #DEBUG macro in Macros.h
-     
-     @see Macros.h file have to have defiend #DEBUG macro
-
-     @param message Message to log
-     */
-    void logMessage(std::string message) {
+}
+void Log::logMessage(std::string message) {
 #ifdef DEBUG
-        std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        std::string t(std::ctime(&end_time));
-        logFile << t.substr( 0, t.length() -1) << " : " << message << std::endl;
-        std::cout << message << std::endl;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string t(std::ctime(&end_time));
+    logFile << t.substr( 0, t.length() -1) << " : " << message << std::endl;
+    std::cout << message << std::endl;
 #endif
-    }
-};
+}
 
 #endif // ! _Log_cpp
