@@ -6,10 +6,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     if neuron_or_network == 1
         
         % Log command
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;            
-        command_log.entry(command_log.n).action = 'add single neuron to brain';
-        command_log.n = command_log.n + 1;        
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;            
+            command_log.entry(command_log.n).action = 'add single neuron to brain';
+            command_log.n = command_log.n + 1;    
+        end
 
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
@@ -44,6 +46,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
             vis_prefs(nneurons, :, :) = false;
             dist_prefs(nneurons, 1) = 0;
+            audio_prefs(nneurons, 1) = 0;
             network_ids(nneurons, 1) = 0;
             
             da_rew_neurons(nneurons, 1) = 0;
@@ -52,7 +55,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             if ext_cam_id
                 save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
             end
-
+            
             % Open selection menu
             text_heading = uicontrol('Style', 'text', 'String', 'What kind of neuron is this?', 'units', 'normalized', 'position', [0.02 0.95 0.29 0.03], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
@@ -111,7 +114,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             network_ids(nneurons, 1) = str2double(edit_id.String);
             steps_since_last_spike(nneurons, 1) = nan;
             neuron_tones(nneurons, 1) = 0;
-            nnetworks = length(unique(network_ids));
+            nnetworks = length(unique(network_ids)) + 1;
             network_drive = zeros(nnetworks, 3);
             
             % Remove menu
@@ -147,10 +150,12 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     elseif neuron_or_network == 2
         
         % Command log
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        command_log.entry(command_log.n).time = this_time;        
-        command_log.entry(command_log.n).action = 'add many neurons to brain';
-        command_log.n = command_log.n + 1;
+        if save_data_and_commands
+            this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+            command_log.entry(command_log.n).time = this_time;        
+            command_log.entry(command_log.n).action = 'add many neurons to brain';
+            command_log.n = command_log.n + 1;
+        end
         
         % Get the location of the new neuron from the user
         mouse_location = get(gca, 'CurrentPoint');
@@ -263,6 +268,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 end
                 vis_prefs(presynaptic_neuron, randsample(3,1), this_contact) = this_val;
                 dist_prefs(presynaptic_neuron, 1) = 0;
+                audio_prefs(presynaptic_neuron, 1) = 0;
                 bg_neurons(presynaptic_neuron, 1) = 0;
                 
                 % Motor output
@@ -294,7 +300,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             end
             nnetworks = length(unique(network_ids));
             network_drive = zeros(nnetworks, 3);
-            
+                       
             % Remove menus
             delete(text_heading)
             delete(text_w1)

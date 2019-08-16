@@ -6,7 +6,7 @@ disp(horzcat('Lifetime = ', num2str(round(lifetime/60)), ' min'))
 
 %% Stop and reset motors
 if rak_only
-    rak_cam.writeSerial('l:0;r:0;')
+    rak_cam.writeSerial('l:0;r:0;s:0;')
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];
@@ -17,24 +17,29 @@ end
 %% Save brain figure
 if ~restarting && save_brain_jpg
     print_brain
-    close(fig_print)
+%     close(fig_print)
 end
 
 
 %% Save data and command log
-this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-data.stop_time  = this_time;
-data.brain = brain;
-save(data_file_name, 'data')
+if save_data_and_commands
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    data.stop_time  = this_time;
+    data.brain = brain;
+    data.audio = audioMat;
+    data.audio_step = audio_step;
+    data.xstep = xstep;
+    save(data_file_name, 'data')
 
-if run_button == 4 
-    command_log.stop_event = 'stop button';
-elseif rak_fail
-    command_log.stop_event = 'rak fail';
+    if run_button == 4 
+        command_log.stop_event = 'stop button';
+    elseif rak_fail
+        command_log.stop_event = 'rak fail';
+    end
+    command_log.stop_time = this_time;
+    save(command_log_file_name, 'command_log')
+    clear command_log
 end
-command_log.stop_time = this_time;
-save(command_log_file_name, 'command_log')
-clear command_log
 
 
 %% End runtime
@@ -59,6 +64,16 @@ end
 if voluntary_restart
     restarting = 1;
 end
+
+% if exist('logFile_SharedMemory.txt', 'file')
+%     delete('logFile_SharedMemory.txt')
+% end
+% if exist('logFile_Socket.txt', 'file')
+%     delete('logFile_Socket.txt')
+% end
+% if exist('logFile_VideoAndAudioObtainer.txt', 'file')
+%     delete('logFile_VideoAndAudioObtainer.txt')
+% end
 
 %% Return to startup
 neurorobot

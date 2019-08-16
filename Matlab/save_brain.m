@@ -1,9 +1,11 @@
 
 % Log command
-this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-command_log.entry(command_log.n).time = this_time;            
-command_log.entry(command_log.n).action = 'save brain';
-command_log.n = command_log.n + 1;
+if save_data_and_commands
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    command_log.entry(command_log.n).time = this_time;            
+    command_log.entry(command_log.n).action = 'save brain';
+    command_log.n = command_log.n + 1;
+end
 
 % Collect variables
 brain.nneurons = nneurons;
@@ -23,6 +25,7 @@ brain.v = v;
 brain.u = u;
 brain.neuron_contacts = neuron_contacts;
 brain.vis_prefs = vis_prefs;
+brain.audio_prefs = audio_prefs;
 brain.dist_prefs = dist_prefs;
 brain.neuron_cols = neuron_cols;
 brain.network_ids = network_ids;

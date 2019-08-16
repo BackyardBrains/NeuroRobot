@@ -1,9 +1,11 @@
 
 % Command log
-this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-command_log.entry(command_log.n).time = this_time;    
-command_log.entry(command_log.n).action = 'edit properties';
-command_log.n = command_log.n + 1;
+if save_data_and_commands
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    command_log.entry(command_log.n).time = this_time;    
+    command_log.entry(command_log.n).action = 'edit properties';
+    command_log.n = command_log.n + 1;
+end
 
 % Remove select neuron menu
 delete(text_heading)
@@ -98,7 +100,7 @@ c(presynaptic_neuron) = str2double(edit_c.String);
 d(presynaptic_neuron) = str2double(edit_d.String);
 neuron_cols(presynaptic_neuron, 1:3) = col;
 network_ids(presynaptic_neuron) = str2double(edit_id.String);
-nnetworks = length(unique(network_ids));
+nnetworks = length(unique(network_ids)) + 1;
 network_drive = zeros(nnetworks, 3);
 
 % Remove menu

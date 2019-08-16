@@ -2,7 +2,6 @@
 nstep = nstep + 1;
 xstep = xstep + 1;
 step_timer = tic;
-
 lifetime = toc(life_timer);
 if lifetime == 5 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime)), ' s'))
@@ -13,12 +12,15 @@ elseif lifetime >= 5 * 60 * 60
 end
 update_brain
 draw_step
-update_motors
+if xstep > 50
+    update_motors
+end
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
 process_visual_input
+process_audio_input
 if bluetooth_present
     bluetooth_get_distance
 end
@@ -30,9 +32,6 @@ if run_button == 2
 end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
-if rak_only
-    audioMat = [audioMat rak_cam.readAudio()];
-end
 update_ext_cam
 if nstep == nsteps_per_loop
     nstep = 0;
@@ -45,13 +44,25 @@ end
 enter_design % if run_button = 1
 drawnow
 % Record data
-if nneurons
-    rec_timer = tic;
-    data.firing(:,xstep) = firing;
-    data.connectome(:,:,xstep) = connectome;
-    data.rec_time(xstep) = toc(rec_timer);
-    data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+if save_data_and_commands
+    if nneurons
+        rec_timer = tic;
+        data.firing(:,xstep) = firing;
+        data.connectome(:,:,xstep) = connectome;
+        data.rec_time(xstep) = toc(rec_timer);
+        data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    end
 end
+% if ~isempty(pit_stop_time)
+%     this_clock = clock;
+%     if this_clock(4) >= pit_stop_time(1) && this_clock(5) >= pit_stop_time(2)
+%         disp('Pit recording stop time')
+%         disp('Pit recording stopped')
+%         stop(runtime_pulse)
+%     else
+%         pause(0.01)
+%     end
+% end
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
 catch

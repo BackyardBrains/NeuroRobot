@@ -26,6 +26,11 @@ if brain_selection_val > 1
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
     dist_prefs = brain.dist_prefs;
+    try
+        audio_prefs = brain.audio_prefs;
+    catch
+        audio_prefs = zeros(nneurons, 1);
+    end
     neuron_cols = brain.neuron_cols;
     network_ids = brain.network_ids;
     da_rew_neurons = brain.da_rew_neurons;
@@ -34,7 +39,7 @@ if brain_selection_val > 1
     catch
         neuron_tones = zeros(nneurons, 1);
     end
-    nnetworks = length(unique(network_ids));
+    nnetworks = length(unique(network_ids)) + 1;
     try
         network = brain.network;
     catch
@@ -57,6 +62,7 @@ if brain_selection_val > 1
     end
     
 elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
+  
     brain = struct;
     nneurons = 0;
     neuron_xys = [];
@@ -77,6 +83,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     neuron_contacts = zeros(nneurons, ncontacts);
     vis_prefs = false([1, n_vis_prefs, 2]);
     dist_prefs = zeros(1, 1);
+    audio_prefs = zeros(1, 1);
     neuron_cols = [];
     network_ids = 0;
     da_rew_neurons = [];
@@ -85,4 +92,8 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     network_drive = zeros(1, 3);
     nnetworks = 0;
     bg_neurons = [];
+
+    if brain_gen
+        brain_generation
+    end
 end

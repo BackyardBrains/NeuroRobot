@@ -1,9 +1,11 @@
 
 % Command log
-this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-command_log.entry(command_log.n).time = this_time;    
-command_log.entry(command_log.n).action = 'delete neuron';
-command_log.n = command_log.n + 1;
+if save_data_and_commands
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    command_log.entry(command_log.n).time = this_time;    
+    command_log.entry(command_log.n).action = 'delete neuron';
+    command_log.n = command_log.n + 1;
+end
 
 % Remove select neuron menu
 delete(text_heading)
@@ -30,6 +32,7 @@ spikes_loop(presynaptic_neuron, :) = [];
 neuron_contacts(presynaptic_neuron, :) = [];
 vis_prefs(presynaptic_neuron, :, :) = [];
 dist_prefs(presynaptic_neuron, :) = [];
+audio_prefs(presynaptic_neuron, :) = [];
 neuron_cols(presynaptic_neuron, :) = [];
 network_ids(presynaptic_neuron, :) = [];
 steps_since_last_spike(presynaptic_neuron) = [];

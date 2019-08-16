@@ -1,6 +1,8 @@
-// Vertebot Arduino Code
+
+// Neurorobot Arduino Code
 // Written by Christopher Harris at Backyard Brains, Inc.
 // This code is licensed under a GNU 2.1 license
+// For more information, see https://www.biorxiv.org/content/10.1101/597609v1
 
 // Libraries
 #include <Wire.h>

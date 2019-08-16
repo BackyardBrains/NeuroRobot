@@ -59,29 +59,52 @@ if use_profile
     profile on    
 end
 audioMat = [];
+audio_step = [];
+audio_max_freq = 0;
+max_amp = 0;
+max_freq = 0;
+audio_max_freq = 0;
+pw = zeros(1, 1000); 
+audio_I = zeros(nneurons, 1);
+audio_empty_flag = 0;
 
 
 %% Create data and command log
-this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+if save_data_and_commands
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 
-data_file_name = strcat('.\Data\', this_time, '-', brain_name, '.mat');
-data = struct;
-data.computer_name = computer_name;
-data.start_time = this_time;
+    data_file_name = strcat('.\Data\', this_time, '-', brain_name, '.mat');
+    data = struct;
+    data.computer_name = computer_name;
+    data.start_time = this_time;
 
-command_log_file_name = strcat('.\Command\', this_time, '-', brain_name, '.mat');
-if exist('command_log', 'var')
-    command_log.stop_event = 'other';
-    save(command_log_file_name, 'command_log')
-    clear command_log
+    command_log_file_name = strcat('.\Command\', this_time, '-', brain_name, '.mat');
+    if exist('command_log', 'var')
+        command_log.stop_event = 'other';
+        save(command_log_file_name, 'command_log')
+        clear command_log
+    end
+    command_log = struct;
+    command_log.computer_name = computer_name;
+    command_log.start_time = this_time;
+    command_log.n = 1;
 end
-command_log = struct;
-command_log.computer_name = computer_name;
-command_log.start_time = this_time;
-command_log.n = 1;
 
 
 %% Run
+% if ~isempty(pit_start_time)
+%     this_flag = 0;
+%     disp('Waiting for pit recording start time')
+%     while ~this_flag
+%         this_clock = clock;
+%         if this_clock(4) >= pit_start_time(1) && this_clock(5) >= pit_start_time(2)
+%             this_flag = 1;
+%             disp('Pit recording started')
+%         else
+%             pause(0.01)
+%         end
+%     end
+% end
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)
 

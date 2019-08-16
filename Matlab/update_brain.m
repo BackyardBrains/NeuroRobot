@@ -16,7 +16,16 @@ if nneurons
     dist_I = zeros(nneurons, 1);
     dist_I(dist_prefs == 1) = sigmoid(this_distance, 20, -0.4) * 50;
     dist_I(dist_prefs == 2) = sigmoid(this_distance, 40, -0.4) * 50;
-    dist_I(dist_prefs == 3) = sigmoid(this_distance, 60, -0.4) * 50;     
+    dist_I(dist_prefs == 3) = sigmoid(this_distance, 60, -0.4) * 50;
+
+    % Calculate distance sensor input current
+    audio_I = zeros(nneurons, 1);
+    if isempty(audio_max_freq)
+        audio_max_freq = 0;
+    end
+    audio_I(audio_prefs == 1) = (audio_max_freq > 900 && audio_max_freq < 1100) * 50 * max_amp;
+    audio_I(audio_prefs == 2) = (audio_max_freq > 1400 && audio_max_freq < 1600) * 50 * max_amp;
+    audio_I(audio_prefs == 3) = (audio_max_freq > 1900 && audio_max_freq < 2100) * 50 * max_amp;
 
     % Run brain simulation
     for t = 1:ms_per_step
@@ -38,7 +47,7 @@ if nneurons
         I = I + sum(connectome(fired_now,:), 1)';
 
         % Add sensory input currents
-        I = I + vis_I + dist_I;
+        I = I + vis_I + dist_I + audio_I;
         I_step(:, t) = I;
 
         % Update v
@@ -126,10 +135,10 @@ if nneurons
 
     % Create xfiring for analog MSN color
     xfiring = double(firing);
-    msn_vals = network_drive(:,1);
-    msn_vals(1) = [];
-    msn_vals = msn_vals / 250;
-    xfiring(logical(bg_neurons)) = msn_vals;
+%     msn_vals = network_drive(:,1);
+%     msn_vals(1) = [];
+%     msn_vals = msn_vals / 250;
+%     xfiring(logical(bg_neurons)) = msn_vals;
     
     % Learning (STDP)
     for nneuron = find(firing)' % for each spiking neuron
