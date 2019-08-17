@@ -16,7 +16,7 @@ drawnow
 try
 
     if rak_only
-        if ~exist('RAK5206.mexw64', 'file')
+        if ~exist('RAK_MatlabBridge.mexw64', 'file')
             disp('Building mex')
             rak_mex_build
         end
