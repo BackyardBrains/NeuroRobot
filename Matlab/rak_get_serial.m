@@ -1,4 +1,5 @@
 serial_receive = rak_cam.readSerial();
+
 if ~isempty(serial_receive)
     these_vals = str2num(serial_receive(1:24));
     this_duration = these_vals(3);

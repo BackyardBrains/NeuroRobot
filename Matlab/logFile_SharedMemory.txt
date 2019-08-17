@@ -1,466 +1,4378 @@
-Wed Aug 14 14:59:57 2019 : openStreams >> Socket >>> opened
-Wed Aug 14 14:59:57 2019 : SharedMemory >>> init
-Wed Aug 14 15:00:00 2019 : srwse 24
-Wed Aug 14 15:00:00 2019 : srwse 48
-Wed Aug 14 15:00:00 2019 : srwse 72
-Wed Aug 14 15:00:00 2019 : srwse 96
-Wed Aug 14 15:00:00 2019 : srwse 120
-Wed Aug 14 15:00:00 2019 : srwse 144
-Wed Aug 14 15:00:00 2019 : srwse 168
-Wed Aug 14 15:00:00 2019 : srwse 192
-Wed Aug 14 15:00:00 2019 : srwse 216
-Wed Aug 14 15:00:00 2019 : srwse 240
-Wed Aug 14 15:00:01 2019 : srwse 264
-Wed Aug 14 15:00:01 2019 : srwse 288
-Wed Aug 14 15:00:01 2019 : srwse 312
-Wed Aug 14 15:00:01 2019 : srwse 336
-Wed Aug 14 15:00:01 2019 : srwse 360
-Wed Aug 14 15:00:01 2019 : srwse 384
-Wed Aug 14 15:00:01 2019 : srwse 0
-Wed Aug 14 15:00:01 2019 : srwse 24
-Wed Aug 14 15:00:01 2019 : srwse 48
-Wed Aug 14 15:00:01 2019 : srwse 72
-Wed Aug 14 15:00:02 2019 : srwse 96
-Wed Aug 14 15:00:02 2019 : srwse 120
-Wed Aug 14 15:00:02 2019 : srwse 144
-Wed Aug 14 15:00:02 2019 : srwse 168
-Wed Aug 14 15:00:02 2019 : srwse 192
-Wed Aug 14 15:00:02 2019 : srwse 216
-Wed Aug 14 15:00:02 2019 : srwse 240
-Wed Aug 14 15:00:02 2019 : srwse 264
-Wed Aug 14 15:00:02 2019 : srwse 288
-Wed Aug 14 15:00:02 2019 : srwse 312
-Wed Aug 14 15:00:03 2019 : srwse 336
-Wed Aug 14 15:00:03 2019 : srwse 360
-Wed Aug 14 15:00:03 2019 : srwse 384
-Wed Aug 14 15:00:03 2019 : srwse 0
-Wed Aug 14 15:00:03 2019 : srwse 24
-Wed Aug 14 15:00:03 2019 : srwse 48
-Wed Aug 14 15:00:03 2019 : srwse 72
-Wed Aug 14 15:00:03 2019 : srwse 96
-Wed Aug 14 15:00:03 2019 : srwse 120
-Wed Aug 14 15:00:03 2019 : srwse 144
-Wed Aug 14 15:00:04 2019 : srwse 168
-Wed Aug 14 15:00:04 2019 : srwse 192
-Wed Aug 14 15:00:04 2019 : srwse 216
-Wed Aug 14 15:00:04 2019 : srwse 240
-Wed Aug 14 15:00:04 2019 : srwse 264
-Wed Aug 14 15:00:04 2019 : srwse 288
-Wed Aug 14 15:00:04 2019 : srwse 312
-Wed Aug 14 15:00:04 2019 : srwse 336
-Wed Aug 14 15:00:04 2019 : srwse 360
-Wed Aug 14 15:00:04 2019 : srwse 384
-Wed Aug 14 15:00:05 2019 : srwse 0
-Wed Aug 14 15:00:05 2019 : srwse 24
-Wed Aug 14 15:00:05 2019 : srwse 48
-Wed Aug 14 15:00:05 2019 : srwse 72
-Wed Aug 14 15:00:05 2019 : srwse 96
-Wed Aug 14 15:00:05 2019 : srwse 120
-Wed Aug 14 15:00:05 2019 : srwse 144
-Wed Aug 14 15:00:05 2019 : srwse 168
-Wed Aug 14 15:00:05 2019 : srwse 192
-Wed Aug 14 15:00:05 2019 : srwse 216
-Wed Aug 14 15:00:06 2019 : srwse 240
-Wed Aug 14 15:00:06 2019 : srwse 264
-Wed Aug 14 15:00:06 2019 : srwse 288
-Wed Aug 14 15:00:06 2019 : srwse 312
-Wed Aug 14 15:00:06 2019 : srwse 336
-Wed Aug 14 15:00:06 2019 : srwse 360
-Wed Aug 14 15:00:06 2019 : srwse 384
-Wed Aug 14 15:00:06 2019 : srwse 0
-Wed Aug 14 15:00:06 2019 : srwse 24
-Wed Aug 14 15:00:06 2019 : srwse 48
-Wed Aug 14 15:00:07 2019 : srwse 72
-Wed Aug 14 15:00:07 2019 : srwse 96
-Wed Aug 14 15:00:07 2019 : srwse 120
-Wed Aug 14 15:00:07 2019 : srwse 144
-Wed Aug 14 15:00:07 2019 : srwse 168
-Wed Aug 14 15:00:07 2019 : srwse 192
-Wed Aug 14 15:00:07 2019 : srwse 216
-Wed Aug 14 15:00:07 2019 : srwse 240
-Wed Aug 14 15:00:07 2019 : srwse 264
-Wed Aug 14 15:00:07 2019 : srwse 288
-Wed Aug 14 15:00:08 2019 : srwse 312
-Wed Aug 14 15:00:08 2019 : srwse 336
-Wed Aug 14 15:00:08 2019 : srwse 360
-Wed Aug 14 15:00:08 2019 : srwse 384
-Wed Aug 14 15:00:08 2019 : srwse 0
-Wed Aug 14 15:00:08 2019 : srwse 24
-Wed Aug 14 15:00:08 2019 : srwse 48
-Wed Aug 14 15:00:08 2019 : srwse 72
-Wed Aug 14 15:00:08 2019 : srwse 96
-Wed Aug 14 15:00:08 2019 : srwse 120
-Wed Aug 14 15:00:09 2019 : srwse 144
-Wed Aug 14 15:00:09 2019 : srwse 168
-Wed Aug 14 15:00:09 2019 : srwse 192
-Wed Aug 14 15:00:09 2019 : srwse 216
-Wed Aug 14 15:00:09 2019 : srwse 240
-Wed Aug 14 15:00:09 2019 : srwse 264
-Wed Aug 14 15:00:09 2019 : srwse 288
-Wed Aug 14 15:00:09 2019 : srwse 312
-Wed Aug 14 15:00:09 2019 : srwse 336
-Wed Aug 14 15:00:09 2019 : srwse 360
-Wed Aug 14 15:00:10 2019 : srwse 384
-Wed Aug 14 15:00:10 2019 : srwse 0
-Wed Aug 14 15:00:10 2019 : srwse 24
-Wed Aug 14 15:00:10 2019 : srwse 48
-Wed Aug 14 15:00:10 2019 : srwse 72
-Wed Aug 14 15:00:10 2019 : srwse 99
-Wed Aug 14 15:00:10 2019 : srwse 123
-Wed Aug 14 15:00:10 2019 : srwse 147
-Wed Aug 14 15:00:10 2019 : srwse 171
-Wed Aug 14 15:00:10 2019 : srwse 195
-Wed Aug 14 15:00:11 2019 : srwse 219
-Wed Aug 14 15:00:11 2019 : srwse 243
-Wed Aug 14 15:00:11 2019 : srwse 267
-Wed Aug 14 15:00:11 2019 : srwse 291
-Wed Aug 14 15:00:11 2019 : srwse 315
-Wed Aug 14 15:00:11 2019 : srwse 339
-Wed Aug 14 15:00:11 2019 : srwse 363
-Wed Aug 14 15:00:11 2019 : srwse 387
-Wed Aug 14 15:00:11 2019 : srwse 0
-Wed Aug 14 15:00:11 2019 : srwse 24
-Wed Aug 14 15:00:12 2019 : srwse 48
-Wed Aug 14 15:00:12 2019 : srwse 72
-Wed Aug 14 15:00:12 2019 : srwse 96
-Wed Aug 14 15:00:12 2019 : srwse 120
-Wed Aug 14 15:00:12 2019 : srwse 144
-Wed Aug 14 15:00:12 2019 : srwse 168
-Wed Aug 14 15:00:12 2019 : srwse 192
-Wed Aug 14 15:00:12 2019 : srwse 216
-Wed Aug 14 15:00:12 2019 : srwse 240
-Wed Aug 14 15:00:12 2019 : srwse 264
-Wed Aug 14 15:00:13 2019 : srwse 288
-Wed Aug 14 15:00:13 2019 : srwse 312
-Wed Aug 14 15:00:13 2019 : srwse 336
-Wed Aug 14 15:00:13 2019 : srwse 360
-Wed Aug 14 15:00:13 2019 : srwse 384
-Wed Aug 14 15:00:13 2019 : srwse 0
-Wed Aug 14 15:00:13 2019 : srwse 24
-Wed Aug 14 15:00:13 2019 : srwse 48
-Wed Aug 14 15:00:13 2019 : srwse 72
-Wed Aug 14 15:00:13 2019 : srwse 96
-Wed Aug 14 15:00:14 2019 : srwse 120
-Wed Aug 14 15:00:14 2019 : srwse 144
-Wed Aug 14 15:00:14 2019 : srwse 168
-Wed Aug 14 15:00:14 2019 : srwse 192
-Wed Aug 14 15:00:14 2019 : srwse 216
-Wed Aug 14 15:00:14 2019 : srwse 240
-Wed Aug 14 15:00:14 2019 : srwse 264
-Wed Aug 14 15:00:14 2019 : srwse 288
-Wed Aug 14 15:00:14 2019 : srwse 312
-Wed Aug 14 15:00:14 2019 : srwse 336
-Wed Aug 14 15:00:15 2019 : srwse 360
-Wed Aug 14 15:00:15 2019 : srwse 384
-Wed Aug 14 15:00:15 2019 : srwse 0
-Wed Aug 14 15:00:15 2019 : srwse 24
-Wed Aug 14 15:00:15 2019 : srwse 48
-Wed Aug 14 15:00:15 2019 : srwse 72
-Wed Aug 14 15:00:15 2019 : srwse 96
-Wed Aug 14 15:00:15 2019 : srwse 120
-Wed Aug 14 15:00:15 2019 : srwse 144
-Wed Aug 14 15:00:15 2019 : srwse 168
-Wed Aug 14 15:00:16 2019 : srwse 192
-Wed Aug 14 15:00:16 2019 : srwse 216
-Wed Aug 14 15:00:16 2019 : srwse 240
-Wed Aug 14 15:00:16 2019 : srwse 264
-Wed Aug 14 15:00:16 2019 : srwse 288
-Wed Aug 14 15:00:16 2019 : srwse 312
-Wed Aug 14 15:00:16 2019 : srwse 336
-Wed Aug 14 15:00:16 2019 : srwse 360
-Wed Aug 14 15:00:16 2019 : srwse 384
-Wed Aug 14 15:00:16 2019 : srwse 0
-Wed Aug 14 15:00:17 2019 : srwse 24
-Wed Aug 14 15:00:17 2019 : srwse 48
-Wed Aug 14 15:00:17 2019 : srwse 72
-Wed Aug 14 15:00:17 2019 : srwse 96
-Wed Aug 14 15:00:17 2019 : srwse 120
-Wed Aug 14 15:00:17 2019 : srwse 144
-Wed Aug 14 15:00:17 2019 : srwse 168
-Wed Aug 14 15:00:17 2019 : srwse 192
-Wed Aug 14 15:00:17 2019 : srwse 216
-Wed Aug 14 15:00:17 2019 : srwse 240
-Wed Aug 14 15:00:18 2019 : srwse 264
-Wed Aug 14 15:00:18 2019 : srwse 288
-Wed Aug 14 15:00:18 2019 : srwse 312
-Wed Aug 14 15:00:18 2019 : srwse 336
-Wed Aug 14 15:00:18 2019 : srwse 360
-Wed Aug 14 15:00:18 2019 : srwse 384
-Wed Aug 14 15:00:18 2019 : srwse 0
-Wed Aug 14 15:00:18 2019 : srwse 24
-Wed Aug 14 15:00:18 2019 : srwse 48
-Wed Aug 14 15:00:18 2019 : srwse 72
-Wed Aug 14 15:00:19 2019 : srwse 96
-Wed Aug 14 15:00:19 2019 : srwse 120
-Wed Aug 14 15:00:19 2019 : srwse 144
-Wed Aug 14 15:00:19 2019 : srwse 168
-Wed Aug 14 15:00:19 2019 : srwse 192
-Wed Aug 14 15:00:19 2019 : srwse 216
-Wed Aug 14 15:00:19 2019 : srwse 240
-Wed Aug 14 15:00:19 2019 : srwse 264
-Wed Aug 14 15:00:19 2019 : srwse 288
-Wed Aug 14 15:00:19 2019 : srwse 312
-Wed Aug 14 15:00:20 2019 : srwse 336
-Wed Aug 14 15:00:20 2019 : srwse 360
-Wed Aug 14 15:00:20 2019 : srwse 384
-Wed Aug 14 15:00:20 2019 : srwse 0
-Wed Aug 14 15:00:20 2019 : srwse 24
-Wed Aug 14 15:00:20 2019 : srwse 48
-Wed Aug 14 15:00:20 2019 : srwse 72
-Wed Aug 14 15:00:20 2019 : srwse 96
-Wed Aug 14 15:00:20 2019 : srwse 120
-Wed Aug 14 15:00:20 2019 : srwse 144
-Wed Aug 14 15:00:21 2019 : srwse 168
-Wed Aug 14 15:00:21 2019 : srwse 192
-Wed Aug 14 15:00:21 2019 : srwse 216
-Wed Aug 14 15:00:21 2019 : srwse 240
-Wed Aug 14 15:00:21 2019 : srwse 264
-Wed Aug 14 15:00:21 2019 : srwse 288
-Wed Aug 14 15:00:21 2019 : srwse 312
-Wed Aug 14 15:00:21 2019 : srwse 336
-Wed Aug 14 15:00:21 2019 : srwse 360
-Wed Aug 14 15:00:21 2019 : srwse 384
-Wed Aug 14 15:00:22 2019 : srwse 0
-Wed Aug 14 15:00:22 2019 : srwse 24
-Wed Aug 14 15:00:22 2019 : srwse 48
-Wed Aug 14 15:00:22 2019 : srwse 72
-Wed Aug 14 15:00:22 2019 : srwse 96
-Wed Aug 14 15:00:22 2019 : srwse 120
-Wed Aug 14 15:00:22 2019 : srwse 144
-Wed Aug 14 15:00:22 2019 : srwse 168
-Wed Aug 14 15:00:22 2019 : srwse 192
-Wed Aug 14 15:00:23 2019 : srwse 216
-Wed Aug 14 15:00:23 2019 : srwse 240
-Wed Aug 14 15:00:23 2019 : srwse 264
-Wed Aug 14 15:00:23 2019 : srwse 288
-Wed Aug 14 15:00:23 2019 : srwse 312
-Wed Aug 14 15:00:23 2019 : srwse 336
-Wed Aug 14 15:00:23 2019 : srwse 360
-Wed Aug 14 15:00:23 2019 : srwse 384
-Wed Aug 14 15:00:23 2019 : srwse 0
-Wed Aug 14 15:00:23 2019 : srwse 24
-Wed Aug 14 15:00:24 2019 : srwse 48
-Wed Aug 14 15:00:24 2019 : srwse 24
-Wed Aug 14 15:00:24 2019 : srwse 48
-Wed Aug 14 15:00:24 2019 : srwse 72
-Wed Aug 14 15:00:24 2019 : srwse 96
-Wed Aug 14 15:00:24 2019 : srwse 120
-Wed Aug 14 15:00:24 2019 : srwse 24
-Wed Aug 14 15:00:24 2019 : srwse 48
-Wed Aug 14 15:00:24 2019 : srwse 72
-Wed Aug 14 15:00:24 2019 : srwse 96
-Wed Aug 14 15:00:25 2019 : srwse 120
-Wed Aug 14 15:00:25 2019 : srwse 24
-Wed Aug 14 15:00:25 2019 : srwse 48
-Wed Aug 14 15:00:25 2019 : srwse 24
-Wed Aug 14 15:00:25 2019 : srwse 48
-Wed Aug 14 15:00:25 2019 : srwse 72
-Wed Aug 14 15:00:25 2019 : srwse 24
-Wed Aug 14 15:00:25 2019 : srwse 24
-Wed Aug 14 15:00:25 2019 : srwse 48
-Wed Aug 14 15:00:25 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 48
-Wed Aug 14 15:00:26 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 48
-Wed Aug 14 15:00:26 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 48
-Wed Aug 14 15:00:26 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 48
-Wed Aug 14 15:00:26 2019 : srwse 24
-Wed Aug 14 15:00:26 2019 : srwse 48
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:27 2019 : srwse 48
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:27 2019 : srwse 48
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:27 2019 : srwse 51
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:27 2019 : srwse 48
-Wed Aug 14 15:00:27 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 48
-Wed Aug 14 15:00:28 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 48
-Wed Aug 14 15:00:28 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 48
-Wed Aug 14 15:00:28 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 48
-Wed Aug 14 15:00:28 2019 : srwse 24
-Wed Aug 14 15:00:28 2019 : srwse 48
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:29 2019 : srwse 48
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:29 2019 : srwse 48
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:29 2019 : srwse 48
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:29 2019 : srwse 48
-Wed Aug 14 15:00:29 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 48
-Wed Aug 14 15:00:30 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 48
-Wed Aug 14 15:00:30 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 48
-Wed Aug 14 15:00:30 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 48
-Wed Aug 14 15:00:30 2019 : srwse 24
-Wed Aug 14 15:00:30 2019 : srwse 48
-Wed Aug 14 15:00:31 2019 : srwse 24
-Wed Aug 14 15:00:31 2019 : srwse 48
-Wed Aug 14 15:00:31 2019 : srwse 24
-Wed Aug 14 15:00:31 2019 : srwse 24
-Wed Aug 14 15:00:31 2019 : srwse 48
-Wed Aug 14 15:00:31 2019 : srwse 24
-Wed Aug 14 15:00:31 2019 : srwse 48
-Wed Aug 14 15:00:31 2019 : srwse 24
-Wed Aug 14 15:00:31 2019 : srwse 48
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 48
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 48
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 48
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:32 2019 : srwse 48
-Wed Aug 14 15:00:32 2019 : srwse 24
-Wed Aug 14 15:00:33 2019 : srwse 48
-Wed Aug 14 15:00:33 2019 : srwse 24
-Wed Aug 14 15:00:33 2019 : srwse 48
-Wed Aug 14 15:00:33 2019 : srwse 24
-Wed Aug 14 15:00:33 2019 : srwse 48
-Wed Aug 14 15:00:33 2019 : srwse 24
-Wed Aug 14 15:00:33 2019 : srwse 48
-Wed Aug 14 15:00:33 2019 : srwse 24
-Wed Aug 14 15:00:33 2019 : srwse 48
-Wed Aug 14 15:00:33 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 48
-Wed Aug 14 15:00:34 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 48
-Wed Aug 14 15:00:34 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 48
-Wed Aug 14 15:00:34 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 48
-Wed Aug 14 15:00:34 2019 : srwse 24
-Wed Aug 14 15:00:34 2019 : srwse 48
-Wed Aug 14 15:00:35 2019 : srwse 24
-Wed Aug 14 15:00:35 2019 : srwse 48
-Wed Aug 14 15:00:35 2019 : srwse 24
-Wed Aug 14 15:00:35 2019 : srwse 48
-Wed Aug 14 15:00:35 2019 : srwse 24
-Wed Aug 14 15:00:35 2019 : srwse 48
-Wed Aug 14 15:00:35 2019 : srwse 24
-Wed Aug 14 15:00:35 2019 : srwse 48
-Wed Aug 14 15:00:35 2019 : srwse 24
-Wed Aug 14 15:00:35 2019 : srwse 48
-Wed Aug 14 15:00:36 2019 : srwse 24
-Wed Aug 14 15:00:36 2019 : srwse 48
-Wed Aug 14 15:00:36 2019 : srwse 27
-Wed Aug 14 15:00:36 2019 : srwse 24
-Wed Aug 14 15:00:36 2019 : srwse 48
-Wed Aug 14 15:00:36 2019 : srwse 24
-Wed Aug 14 15:00:36 2019 : srwse 48
-Wed Aug 14 15:00:36 2019 : srwse 24
-Wed Aug 14 15:00:36 2019 : srwse 48
-Wed Aug 14 15:00:36 2019 : srwse 24
-Wed Aug 14 15:00:37 2019 : srwse 48
-Wed Aug 14 15:00:37 2019 : srwse 24
-Wed Aug 14 15:00:37 2019 : srwse 48
-Wed Aug 14 15:00:37 2019 : srwse 24
-Wed Aug 14 15:00:37 2019 : srwse 48
-Wed Aug 14 15:00:37 2019 : srwse 24
-Wed Aug 14 15:00:37 2019 : srwse 48
-Wed Aug 14 15:00:37 2019 : srwse 24
-Wed Aug 14 15:00:37 2019 : srwse 48
-Wed Aug 14 15:00:37 2019 : srwse 24
-Wed Aug 14 15:00:38 2019 : srwse 48
-Wed Aug 14 15:00:38 2019 : srwse 24
-Wed Aug 14 15:00:38 2019 : srwse 48
-Wed Aug 14 15:00:38 2019 : srwse 24
-Wed Aug 14 15:00:38 2019 : srwse 48
-Wed Aug 14 15:00:38 2019 : srwse 24
-Wed Aug 14 15:00:38 2019 : srwse 48
-Wed Aug 14 15:00:38 2019 : srwse 24
-Wed Aug 14 15:00:38 2019 : srwse 48
-Wed Aug 14 15:00:38 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 48
-Wed Aug 14 15:00:39 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 48
-Wed Aug 14 15:00:39 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 48
-Wed Aug 14 15:00:39 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 48
-Wed Aug 14 15:00:39 2019 : srwse 24
-Wed Aug 14 15:00:39 2019 : srwse 48
-Wed Aug 14 15:00:40 2019 : srwse 24
-Wed Aug 14 15:00:40 2019 : srwse 48
-Wed Aug 14 15:00:40 2019 : srwse 24
-Wed Aug 14 15:00:40 2019 : srwse 48
-Wed Aug 14 15:00:40 2019 : srwse 27
-Wed Aug 14 15:00:40 2019 : srwse 51
-Wed Aug 14 15:00:40 2019 : srwse 75
-Wed Aug 14 15:00:40 2019 : srwse 24
-Wed Aug 14 15:00:40 2019 : srwse 48
-Wed Aug 14 15:00:40 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 48
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 48
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 48
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 48
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:41 2019 : srwse 24
-Wed Aug 14 15:00:42 2019 : srwse 48
-Wed Aug 14 15:00:42 2019 : srwse 24
-Wed Aug 14 15:00:42 2019 : srwse 48
-Wed Aug 14 15:00:42 2019 : srwse 24
-Wed Aug 14 15:00:42 2019 : srwse 48
-Wed Aug 14 15:00:42 2019 : srwse 24
-Wed Aug 14 15:00:42 2019 : srwse 48
-Wed Aug 14 15:00:42 2019 : srwse 24
-Wed Aug 14 15:00:42 2019 : srwse 48
-Wed Aug 14 15:00:42 2019 : srwse 27
-Wed Aug 14 15:00:43 2019 : srwse 24
-Wed Aug 14 15:00:43 2019 : srwse 48
-Wed Aug 14 15:00:43 2019 : srwse 24
-Wed Aug 14 15:00:43 2019 : srwse 48
-Wed Aug 14 15:00:43 2019 : srwse 72
-Wed Aug 14 15:00:43 2019 : srwse 24
-Wed Aug 14 15:00:43 2019 : srwse 48
-Wed Aug 14 15:00:43 2019 : srwse 24
-Wed Aug 14 15:00:43 2019 : srwse 48
-Wed Aug 14 15:00:43 2019 : srwse 24
-Wed Aug 14 15:00:44 2019 : srwse 24
-Wed Aug 14 15:00:44 2019 : srwse 48
-Wed Aug 14 15:00:44 2019 : srwse 24
-Wed Aug 14 15:00:44 2019 : srwse 48
-Wed Aug 14 15:00:44 2019 : srwse 24
-Wed Aug 14 15:00:44 2019 : srwse 48
-Wed Aug 14 15:00:44 2019 : srwse 72
-Wed Aug 14 15:00:44 2019 : srwse 27
-Wed Aug 14 15:00:44 2019 : srwse 51
-Wed Aug 14 15:00:44 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 48
-Wed Aug 14 15:00:45 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 48
-Wed Aug 14 15:00:45 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 48
-Wed Aug 14 15:00:45 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 48
-Wed Aug 14 15:00:45 2019 : srwse 24
-Wed Aug 14 15:00:45 2019 : srwse 48
-Wed Aug 14 15:00:46 2019 : srwse 24
-Wed Aug 14 15:00:46 2019 : srwse 48
-Wed Aug 14 15:00:46 2019 : srwse 24
-Wed Aug 14 15:00:46 2019 : srwse 24
-Wed Aug 14 15:00:46 2019 : srwse 48
+Sat Aug 17 13:19:27 2019 : openStreams >> SharedMemory >>> opened
+Sat Aug 17 13:19:27 2019 : SharedMemory >>> init
+Sat Aug 17 13:19:30 2019 : srwse 0
+Sat Aug 17 13:19:30 2019 : srwse 24
+Sat Aug 17 13:19:30 2019 : srwse 48
+Sat Aug 17 13:19:31 2019 : srwse 72
+Sat Aug 17 13:19:31 2019 : srwse 96
+Sat Aug 17 13:19:31 2019 : srwse 120
+Sat Aug 17 13:19:31 2019 : srwse 144
+Sat Aug 17 13:19:31 2019 : srwse 168
+Sat Aug 17 13:19:31 2019 : srwse 192
+Sat Aug 17 13:19:31 2019 : srwse 216
+Sat Aug 17 13:19:31 2019 : srwse 240
+Sat Aug 17 13:19:31 2019 : srwse 264
+Sat Aug 17 13:19:31 2019 : srwse 288
+Sat Aug 17 13:19:32 2019 : srwse 312
+Sat Aug 17 13:19:32 2019 : srwse 336
+Sat Aug 17 13:19:32 2019 : srwse 360
+Sat Aug 17 13:19:32 2019 : srwse 384
+Sat Aug 17 13:19:32 2019 : srwse 408
+Sat Aug 17 13:19:32 2019 : srwse 432
+Sat Aug 17 13:19:32 2019 : srwse 456
+Sat Aug 17 13:19:32 2019 : srwse 480
+Sat Aug 17 13:19:32 2019 : srwse 504
+Sat Aug 17 13:19:32 2019 : srwse 528
+Sat Aug 17 13:19:33 2019 : srwse 552
+Sat Aug 17 13:19:33 2019 : srwse 576
+Sat Aug 17 13:19:33 2019 : srwse 600
+Sat Aug 17 13:19:33 2019 : srwse 624
+Sat Aug 17 13:19:33 2019 : srwse 648
+Sat Aug 17 13:19:33 2019 : srwse 672
+Sat Aug 17 13:19:33 2019 : srwse 696
+Sat Aug 17 13:19:33 2019 : srwse 720
+Sat Aug 17 13:19:33 2019 : srwse 744
+Sat Aug 17 13:19:33 2019 : srwse 768
+Sat Aug 17 13:19:34 2019 : srwse 792
+Sat Aug 17 13:19:34 2019 : srwse 816
+Sat Aug 17 13:19:34 2019 : srwse 840
+Sat Aug 17 13:19:34 2019 : srwse 864
+Sat Aug 17 13:19:34 2019 : srwse 888
+Sat Aug 17 13:19:34 2019 : srwse 0
+Sat Aug 17 13:19:34 2019 : srwse 24
+Sat Aug 17 13:19:34 2019 : srwse 48
+Sat Aug 17 13:19:34 2019 : srwse 72
+Sat Aug 17 13:19:34 2019 : srwse 96
+Sat Aug 17 13:19:35 2019 : srwse 120
+Sat Aug 17 13:19:35 2019 : srwse 144
+Sat Aug 17 13:19:35 2019 : srwse 168
+Sat Aug 17 13:19:35 2019 : srwse 192
+Sat Aug 17 13:19:35 2019 : srwse 216
+Sat Aug 17 13:19:35 2019 : srwse 240
+Sat Aug 17 13:19:35 2019 : srwse 264
+Sat Aug 17 13:19:35 2019 : srwse 288
+Sat Aug 17 13:19:35 2019 : srwse 312
+Sat Aug 17 13:19:35 2019 : srwse 336
+Sat Aug 17 13:19:36 2019 : srwse 360
+Sat Aug 17 13:19:36 2019 : srwse 384
+Sat Aug 17 13:19:36 2019 : srwse 408
+Sat Aug 17 13:19:36 2019 : srwse 432
+Sat Aug 17 13:19:36 2019 : srwse 456
+Sat Aug 17 13:19:36 2019 : srwse 480
+Sat Aug 17 13:19:36 2019 : srwse 504
+Sat Aug 17 13:19:36 2019 : srwse 528
+Sat Aug 17 13:19:36 2019 : srwse 552
+Sat Aug 17 13:19:36 2019 : srwse 576
+Sat Aug 17 13:19:37 2019 : srwse 600
+Sat Aug 17 13:19:37 2019 : srwse 624
+Sat Aug 17 13:19:37 2019 : srwse 648
+Sat Aug 17 13:19:37 2019 : srwse 672
+Sat Aug 17 13:19:37 2019 : srwse 696
+Sat Aug 17 13:19:37 2019 : srwse 720
+Sat Aug 17 13:19:37 2019 : srwse 744
+Sat Aug 17 13:19:37 2019 : srwse 768
+Sat Aug 17 13:19:37 2019 : srwse 792
+Sat Aug 17 13:19:37 2019 : srwse 816
+Sat Aug 17 13:19:38 2019 : srwse 840
+Sat Aug 17 13:19:38 2019 : srwse 864
+Sat Aug 17 13:19:38 2019 : srwse 888
+Sat Aug 17 13:19:38 2019 : srwse 0
+Sat Aug 17 13:19:38 2019 : srwse 24
+Sat Aug 17 13:19:38 2019 : srwse 48
+Sat Aug 17 13:19:38 2019 : srwse 72
+Sat Aug 17 13:19:38 2019 : srwse 96
+Sat Aug 17 13:19:38 2019 : srwse 120
+Sat Aug 17 13:19:38 2019 : srwse 144
+Sat Aug 17 13:19:39 2019 : srwse 168
+Sat Aug 17 13:19:39 2019 : srwse 192
+Sat Aug 17 13:19:39 2019 : srwse 216
+Sat Aug 17 13:19:39 2019 : srwse 240
+Sat Aug 17 13:19:39 2019 : srwse 264
+Sat Aug 17 13:19:39 2019 : srwse 288
+Sat Aug 17 13:19:39 2019 : srwse 312
+Sat Aug 17 13:19:39 2019 : srwse 336
+Sat Aug 17 13:19:39 2019 : srwse 360
+Sat Aug 17 13:19:39 2019 : srwse 384
+Sat Aug 17 13:19:40 2019 : srwse 408
+Sat Aug 17 13:19:40 2019 : srwse 432
+Sat Aug 17 13:19:40 2019 : srwse 456
+Sat Aug 17 13:19:40 2019 : srwse 480
+Sat Aug 17 13:19:40 2019 : srwse 504
+Sat Aug 17 13:19:40 2019 : srwse 528
+Sat Aug 17 13:19:40 2019 : srwse 552
+Sat Aug 17 13:19:40 2019 : srwse 576
+Sat Aug 17 13:19:40 2019 : srwse 600
+Sat Aug 17 13:19:40 2019 : srwse 624
+Sat Aug 17 13:19:41 2019 : srwse 648
+Sat Aug 17 13:19:41 2019 : srwse 672
+Sat Aug 17 13:19:41 2019 : srwse 696
+Sat Aug 17 13:19:41 2019 : srwse 720
+Sat Aug 17 13:19:41 2019 : srwse 744
+Sat Aug 17 13:19:41 2019 : srwse 768
+Sat Aug 17 13:19:41 2019 : srwse 792
+Sat Aug 17 13:19:41 2019 : srwse 816
+Sat Aug 17 13:19:41 2019 : srwse 840
+Sat Aug 17 13:19:41 2019 : srwse 864
+Sat Aug 17 13:19:42 2019 : srwse 888
+Sat Aug 17 13:19:42 2019 : srwse 0
+Sat Aug 17 13:19:42 2019 : srwse 24
+Sat Aug 17 13:19:42 2019 : srwse 48
+Sat Aug 17 13:19:42 2019 : srwse 72
+Sat Aug 17 13:19:42 2019 : srwse 96
+Sat Aug 17 13:19:42 2019 : srwse 120
+Sat Aug 17 13:19:42 2019 : srwse 144
+Sat Aug 17 13:19:42 2019 : srwse 168
+Sat Aug 17 13:19:42 2019 : srwse 192
+Sat Aug 17 13:19:43 2019 : srwse 216
+Sat Aug 17 13:19:43 2019 : srwse 240
+Sat Aug 17 13:19:43 2019 : srwse 264
+Sat Aug 17 13:19:43 2019 : srwse 288
+Sat Aug 17 13:19:43 2019 : srwse 312
+Sat Aug 17 13:19:43 2019 : srwse 336
+Sat Aug 17 13:19:43 2019 : srwse 360
+Sat Aug 17 13:19:43 2019 : srwse 384
+Sat Aug 17 13:19:43 2019 : srwse 408
+Sat Aug 17 13:19:43 2019 : srwse 432
+Sat Aug 17 13:19:44 2019 : srwse 456
+Sat Aug 17 13:19:44 2019 : srwse 480
+Sat Aug 17 13:19:44 2019 : srwse 504
+Sat Aug 17 13:19:44 2019 : srwse 528
+Sat Aug 17 13:19:44 2019 : srwse 552
+Sat Aug 17 13:19:44 2019 : srwse 576
+Sat Aug 17 13:19:44 2019 : srwse 600
+Sat Aug 17 13:19:44 2019 : srwse 624
+Sat Aug 17 13:19:44 2019 : srwse 648
+Sat Aug 17 13:19:45 2019 : srwse 672
+Sat Aug 17 13:19:45 2019 : srwse 696
+Sat Aug 17 13:19:45 2019 : srwse 720
+Sat Aug 17 13:19:45 2019 : srwse 744
+Sat Aug 17 13:19:45 2019 : srwse 768
+Sat Aug 17 13:19:45 2019 : srwse 792
+Sat Aug 17 13:19:45 2019 : srwse 816
+Sat Aug 17 13:19:45 2019 : srwse 840
+Sat Aug 17 13:19:45 2019 : srwse 864
+Sat Aug 17 13:19:45 2019 : srwse 888
+Sat Aug 17 13:19:46 2019 : srwse 0
+Sat Aug 17 13:19:46 2019 : srwse 24
+Sat Aug 17 13:19:46 2019 : srwse 48
+Sat Aug 17 13:19:46 2019 : srwse 72
+Sat Aug 17 13:19:46 2019 : srwse 96
+Sat Aug 17 13:19:46 2019 : srwse 120
+Sat Aug 17 13:19:46 2019 : srwse 144
+Sat Aug 17 13:19:46 2019 : srwse 168
+Sat Aug 17 13:19:46 2019 : srwse 192
+Sat Aug 17 13:19:46 2019 : srwse 216
+Sat Aug 17 13:19:47 2019 : srwse 240
+Sat Aug 17 13:19:47 2019 : srwse 264
+Sat Aug 17 13:19:47 2019 : srwse 288
+Sat Aug 17 13:19:47 2019 : srwse 312
+Sat Aug 17 13:19:47 2019 : srwse 336
+Sat Aug 17 13:19:47 2019 : srwse 360
+Sat Aug 17 13:19:47 2019 : srwse 384
+Sat Aug 17 13:19:47 2019 : srwse 408
+Sat Aug 17 13:19:47 2019 : srwse 432
+Sat Aug 17 13:19:47 2019 : srwse 456
+Sat Aug 17 13:19:48 2019 : srwse 480
+Sat Aug 17 13:19:48 2019 : srwse 504
+Sat Aug 17 13:19:48 2019 : srwse 528
+Sat Aug 17 13:19:48 2019 : srwse 552
+Sat Aug 17 13:19:48 2019 : srwse 576
+Sat Aug 17 13:19:48 2019 : srwse 600
+Sat Aug 17 13:19:48 2019 : srwse 624
+Sat Aug 17 13:19:48 2019 : srwse 648
+Sat Aug 17 13:19:48 2019 : srwse 672
+Sat Aug 17 13:19:48 2019 : srwse 696
+Sat Aug 17 13:19:49 2019 : srwse 720
+Sat Aug 17 13:19:49 2019 : srwse 744
+Sat Aug 17 13:19:49 2019 : srwse 768
+Sat Aug 17 13:19:49 2019 : srwse 792
+Sat Aug 17 13:19:49 2019 : srwse 816
+Sat Aug 17 13:19:49 2019 : srwse 840
+Sat Aug 17 13:19:49 2019 : srwse 864
+Sat Aug 17 13:19:49 2019 : srwse 888
+Sat Aug 17 13:19:49 2019 : srwse 0
+Sat Aug 17 13:19:49 2019 : srwse 24
+Sat Aug 17 13:19:50 2019 : srwse 48
+Sat Aug 17 13:19:50 2019 : srwse 72
+Sat Aug 17 13:19:50 2019 : srwse 96
+Sat Aug 17 13:19:50 2019 : srwse 120
+Sat Aug 17 13:19:50 2019 : srwse 144
+Sat Aug 17 13:19:50 2019 : srwse 168
+Sat Aug 17 13:19:50 2019 : srwse 192
+Sat Aug 17 13:19:50 2019 : srwse 216
+Sat Aug 17 13:19:50 2019 : srwse 240
+Sat Aug 17 13:19:50 2019 : srwse 264
+Sat Aug 17 13:19:51 2019 : srwse 288
+Sat Aug 17 13:19:51 2019 : srwse 312
+Sat Aug 17 13:19:51 2019 : srwse 336
+Sat Aug 17 13:19:51 2019 : srwse 360
+Sat Aug 17 13:19:51 2019 : srwse 384
+Sat Aug 17 13:19:51 2019 : srwse 408
+Sat Aug 17 13:19:51 2019 : srwse 432
+Sat Aug 17 13:19:51 2019 : srwse 456
+Sat Aug 17 13:19:51 2019 : srwse 480
+Sat Aug 17 13:19:51 2019 : srwse 504
+Sat Aug 17 13:19:52 2019 : srwse 528
+Sat Aug 17 13:19:52 2019 : srwse 552
+Sat Aug 17 13:19:52 2019 : srwse 576
+Sat Aug 17 13:19:52 2019 : srwse 600
+Sat Aug 17 13:19:52 2019 : srwse 624
+Sat Aug 17 13:19:52 2019 : srwse 648
+Sat Aug 17 13:19:52 2019 : srwse 672
+Sat Aug 17 13:19:52 2019 : srwse 696
+Sat Aug 17 13:19:52 2019 : srwse 720
+Sat Aug 17 13:19:52 2019 : srwse 744
+Sat Aug 17 13:19:53 2019 : srwse 768
+Sat Aug 17 13:19:53 2019 : srwse 792
+Sat Aug 17 13:19:53 2019 : srwse 816
+Sat Aug 17 13:19:53 2019 : srwse 840
+Sat Aug 17 13:19:53 2019 : srwse 864
+Sat Aug 17 13:19:53 2019 : srwse 888
+Sat Aug 17 13:19:53 2019 : srwse 0
+Sat Aug 17 13:19:53 2019 : srwse 24
+Sat Aug 17 13:19:53 2019 : srwse 48
+Sat Aug 17 13:19:53 2019 : srwse 72
+Sat Aug 17 13:19:54 2019 : srwse 96
+Sat Aug 17 13:19:54 2019 : srwse 120
+Sat Aug 17 13:19:54 2019 : srwse 144
+Sat Aug 17 13:19:54 2019 : srwse 168
+Sat Aug 17 13:19:54 2019 : srwse 192
+Sat Aug 17 13:19:54 2019 : srwse 216
+Sat Aug 17 13:19:54 2019 : srwse 240
+Sat Aug 17 13:19:54 2019 : srwse 264
+Sat Aug 17 13:19:54 2019 : srwse 288
+Sat Aug 17 13:19:54 2019 : srwse 312
+Sat Aug 17 13:19:55 2019 : srwse 336
+Sat Aug 17 13:19:55 2019 : srwse 360
+Sat Aug 17 13:19:55 2019 : srwse 384
+Sat Aug 17 13:19:55 2019 : srwse 408
+Sat Aug 17 13:19:55 2019 : srwse 432
+Sat Aug 17 13:19:55 2019 : srwse 456
+Sat Aug 17 13:19:55 2019 : srwse 480
+Sat Aug 17 13:19:55 2019 : srwse 504
+Sat Aug 17 13:19:55 2019 : srwse 528
+Sat Aug 17 13:19:55 2019 : srwse 552
+Sat Aug 17 13:19:56 2019 : srwse 576
+Sat Aug 17 13:19:56 2019 : srwse 600
+Sat Aug 17 13:19:56 2019 : srwse 624
+Sat Aug 17 13:19:56 2019 : srwse 648
+Sat Aug 17 13:19:56 2019 : srwse 672
+Sat Aug 17 13:19:56 2019 : srwse 696
+Sat Aug 17 13:19:56 2019 : srwse 720
+Sat Aug 17 13:19:56 2019 : 20000
+Sat Aug 17 13:19:56 2019 : srwse 744
+Sat Aug 17 13:19:56 2019 : srwse 768
+Sat Aug 17 13:19:56 2019 : srwse 792
+Sat Aug 17 13:19:57 2019 : 4000
+Sat Aug 17 13:19:57 2019 : srwse 816
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 840
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 864
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 888
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 0
+Sat Aug 17 13:19:57 2019 : srwse 24
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 48
+Sat Aug 17 13:19:57 2019 : srwse 72
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 96
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:57 2019 : srwse 120
+Sat Aug 17 13:19:57 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 144
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 168
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 192
+Sat Aug 17 13:19:58 2019 : srwse 216
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 240
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 264
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 288
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 312
+Sat Aug 17 13:19:58 2019 : srwse 336
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:58 2019 : srwse 360
+Sat Aug 17 13:19:58 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 384
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 408
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 432
+Sat Aug 17 13:19:59 2019 : srwse 456
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 480
+Sat Aug 17 13:19:59 2019 : 4000
+Sat Aug 17 13:19:59 2019 : srwse 504
+Sat Aug 17 13:19:59 2019 : srwse 528
+Sat Aug 17 13:19:59 2019 : srwse 552
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 576
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:19:59 2019 : srwse 600
+Sat Aug 17 13:19:59 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 624
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 648
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 672
+Sat Aug 17 13:20:00 2019 : srwse 696
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 720
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 744
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 768
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 792
+Sat Aug 17 13:20:00 2019 : srwse 816
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:00 2019 : srwse 840
+Sat Aug 17 13:20:00 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 864
+Sat Aug 17 13:20:01 2019 : srwse 888
+Sat Aug 17 13:20:01 2019 : 4000
+Sat Aug 17 13:20:01 2019 : srwse 0
+Sat Aug 17 13:20:01 2019 : srwse 24
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 48
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 72
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 96
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 120
+Sat Aug 17 13:20:01 2019 : srwse 144
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:01 2019 : srwse 168
+Sat Aug 17 13:20:01 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 192
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 216
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 240
+Sat Aug 17 13:20:02 2019 : srwse 264
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 288
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 312
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 336
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 360
+Sat Aug 17 13:20:02 2019 : srwse 384
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:02 2019 : srwse 410
+Sat Aug 17 13:20:02 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 434
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 458
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 484
+Sat Aug 17 13:20:03 2019 : srwse 510
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 536
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 560
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 584
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 608
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:03 2019 : srwse 632
+Sat Aug 17 13:20:03 2019 : srwse 656
+Sat Aug 17 13:20:03 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 680
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 704
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 728
+Sat Aug 17 13:20:04 2019 : srwse 752
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 776
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 800
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 824
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 848
+Sat Aug 17 13:20:04 2019 : srwse 872
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:04 2019 : srwse 896
+Sat Aug 17 13:20:04 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 0
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 27
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 54
+Sat Aug 17 13:20:05 2019 : srwse 78
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 102
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 126
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 150
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 174
+Sat Aug 17 13:20:05 2019 : srwse 198
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:05 2019 : srwse 225
+Sat Aug 17 13:20:05 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 252
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 279
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 306
+Sat Aug 17 13:20:06 2019 : srwse 330
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 357
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 384
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 411
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 438
+Sat Aug 17 13:20:06 2019 : srwse 465
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:06 2019 : srwse 489
+Sat Aug 17 13:20:06 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 513
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 537
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 561
+Sat Aug 17 13:20:07 2019 : srwse 588
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 612
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 639
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 663
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 687
+Sat Aug 17 13:20:07 2019 : srwse 711
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:07 2019 : srwse 735
+Sat Aug 17 13:20:07 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 759
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 783
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 807
+Sat Aug 17 13:20:08 2019 : srwse 831
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 855
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 879
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 0
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 24
+Sat Aug 17 13:20:08 2019 : srwse 48
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:08 2019 : srwse 72
+Sat Aug 17 13:20:08 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 96
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 120
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 144
+Sat Aug 17 13:20:09 2019 : srwse 168
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 192
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 216
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 240
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 267
+Sat Aug 17 13:20:09 2019 : srwse 294
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:09 2019 : srwse 321
+Sat Aug 17 13:20:09 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 348
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 375
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 401
+Sat Aug 17 13:20:10 2019 : srwse 428
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 455
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 482
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 509
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 536
+Sat Aug 17 13:20:10 2019 : srwse 563
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:10 2019 : srwse 590
+Sat Aug 17 13:20:10 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 617
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 644
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 671
+Sat Aug 17 13:20:11 2019 : srwse 698
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 725
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 752
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 779
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 806
+Sat Aug 17 13:20:11 2019 : srwse 833
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:11 2019 : srwse 860
+Sat Aug 17 13:20:11 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 886
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 0
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 26
+Sat Aug 17 13:20:12 2019 : srwse 52
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 78
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 104
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 130
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 156
+Sat Aug 17 13:20:12 2019 : srwse 182
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:12 2019 : srwse 208
+Sat Aug 17 13:20:12 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 234
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 260
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 286
+Sat Aug 17 13:20:13 2019 : srwse 312
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 338
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 364
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 390
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 416
+Sat Aug 17 13:20:13 2019 : srwse 440
+Sat Aug 17 13:20:13 2019 : 2000
+Sat Aug 17 13:20:13 2019 : srwse 467
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 494
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 521
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 548
+Sat Aug 17 13:20:14 2019 : srwse 575
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 599
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 626
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 653
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 680
+Sat Aug 17 13:20:14 2019 : srwse 707
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:14 2019 : srwse 734
+Sat Aug 17 13:20:14 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 758
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 782
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 809
+Sat Aug 17 13:20:15 2019 : srwse 833
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 860
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 887
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 0
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 24
+Sat Aug 17 13:20:15 2019 : srwse 48
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:15 2019 : srwse 72
+Sat Aug 17 13:20:15 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 96
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 120
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 144
+Sat Aug 17 13:20:16 2019 : srwse 168
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 192
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 216
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 240
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 267
+Sat Aug 17 13:20:16 2019 : srwse 291
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:16 2019 : srwse 318
+Sat Aug 17 13:20:16 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 345
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 372
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 399
+Sat Aug 17 13:20:17 2019 : srwse 426
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 453
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 480
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 506
+Sat Aug 17 13:20:17 2019 : srwse 532
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 558
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:17 2019 : srwse 584
+Sat Aug 17 13:20:17 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 611
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 638
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 665
+Sat Aug 17 13:20:18 2019 : srwse 692
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 719
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 746
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 773
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 800
+Sat Aug 17 13:20:18 2019 : srwse 827
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:18 2019 : srwse 851
+Sat Aug 17 13:20:18 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 875
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 899
+Sat Aug 17 13:20:19 2019 : srwse 0
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 27
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 54
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 78
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 102
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 126
+Sat Aug 17 13:20:19 2019 : srwse 150
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:19 2019 : srwse 174
+Sat Aug 17 13:20:19 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 198
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 222
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 246
+Sat Aug 17 13:20:20 2019 : srwse 270
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 294
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 318
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 342
+Sat Aug 17 13:20:20 2019 : srwse 366
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 390
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:20 2019 : srwse 414
+Sat Aug 17 13:20:20 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 438
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 462
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 486
+Sat Aug 17 13:20:21 2019 : srwse 510
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 534
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 558
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 582
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 606
+Sat Aug 17 13:20:21 2019 : srwse 630
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:21 2019 : srwse 654
+Sat Aug 17 13:20:21 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 678
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 702
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 726
+Sat Aug 17 13:20:22 2019 : srwse 750
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 774
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 798
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 825
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 849
+Sat Aug 17 13:20:22 2019 : srwse 873
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:22 2019 : srwse 900
+Sat Aug 17 13:20:22 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 0
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 24
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 48
+Sat Aug 17 13:20:23 2019 : srwse 72
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 99
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 126
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 152
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 178
+Sat Aug 17 13:20:23 2019 : srwse 204
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:23 2019 : srwse 230
+Sat Aug 17 13:20:23 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 256
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 282
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 308
+Sat Aug 17 13:20:24 2019 : srwse 334
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 360
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 386
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 412
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 438
+Sat Aug 17 13:20:24 2019 : srwse 465
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:24 2019 : srwse 492
+Sat Aug 17 13:20:24 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 518
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 544
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 570
+Sat Aug 17 13:20:25 2019 : srwse 596
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 622
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 649
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 676
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 700
+Sat Aug 17 13:20:25 2019 : srwse 724
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:25 2019 : srwse 748
+Sat Aug 17 13:20:25 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 772
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 796
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 820
+Sat Aug 17 13:20:26 2019 : srwse 844
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 868
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 895
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 0
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 24
+Sat Aug 17 13:20:26 2019 : srwse 51
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:26 2019 : srwse 75
+Sat Aug 17 13:20:26 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 99
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 123
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 147
+Sat Aug 17 13:20:27 2019 : srwse 171
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 195
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 219
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 243
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 267
+Sat Aug 17 13:20:27 2019 : srwse 291
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:27 2019 : srwse 315
+Sat Aug 17 13:20:27 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 339
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 363
+Sat Aug 17 13:20:28 2019 : srwse 387
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 411
+Sat Aug 17 13:20:28 2019 : srwse 435
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 461
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 487
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 513
+Sat Aug 17 13:20:28 2019 : srwse 539
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:28 2019 : srwse 565
+Sat Aug 17 13:20:28 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 591
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 617
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 643
+Sat Aug 17 13:20:29 2019 : srwse 669
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 695
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 721
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 747
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 773
+Sat Aug 17 13:20:29 2019 : srwse 799
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:29 2019 : srwse 825
+Sat Aug 17 13:20:29 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 851
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 877
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 0
+Sat Aug 17 13:20:30 2019 : srwse 26
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 52
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 76
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 100
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 126
+Sat Aug 17 13:20:30 2019 : srwse 150
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:30 2019 : srwse 174
+Sat Aug 17 13:20:30 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 198
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 222
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 249
+Sat Aug 17 13:20:31 2019 : srwse 273
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 297
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 321
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 345
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 369
+Sat Aug 17 13:20:31 2019 : srwse 393
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:31 2019 : srwse 417
+Sat Aug 17 13:20:31 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 441
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 465
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 489
+Sat Aug 17 13:20:32 2019 : srwse 513
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 537
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 561
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 585
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 609
+Sat Aug 17 13:20:32 2019 : srwse 633
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:32 2019 : srwse 657
+Sat Aug 17 13:20:32 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 681
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 705
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 729
+Sat Aug 17 13:20:33 2019 : srwse 753
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 777
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 804
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 831
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 855
+Sat Aug 17 13:20:33 2019 : srwse 882
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:33 2019 : srwse 0
+Sat Aug 17 13:20:33 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 24
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 51
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 75
+Sat Aug 17 13:20:34 2019 : srwse 99
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 123
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 147
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 171
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 195
+Sat Aug 17 13:20:34 2019 : srwse 219
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:34 2019 : srwse 243
+Sat Aug 17 13:20:34 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 267
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 291
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 315
+Sat Aug 17 13:20:35 2019 : srwse 339
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 363
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 387
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 411
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 435
+Sat Aug 17 13:20:35 2019 : srwse 459
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:35 2019 : srwse 483
+Sat Aug 17 13:20:35 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 507
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 531
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 555
+Sat Aug 17 13:20:36 2019 : srwse 579
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 603
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 627
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 651
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 675
+Sat Aug 17 13:20:36 2019 : srwse 699
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:36 2019 : srwse 723
+Sat Aug 17 13:20:36 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 747
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 773
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 799
+Sat Aug 17 13:20:37 2019 : srwse 825
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 851
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 877
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 0
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 26
+Sat Aug 17 13:20:37 2019 : srwse 52
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:37 2019 : srwse 78
+Sat Aug 17 13:20:37 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 104
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 130
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 156
+Sat Aug 17 13:20:38 2019 : srwse 180
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 204
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 228
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 252
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 276
+Sat Aug 17 13:20:38 2019 : srwse 300
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:38 2019 : srwse 324
+Sat Aug 17 13:20:38 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 348
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 372
+Sat Aug 17 13:20:39 2019 : srwse 396
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 420
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 444
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 468
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 492
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 516
+Sat Aug 17 13:20:39 2019 : srwse 540
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:39 2019 : srwse 564
+Sat Aug 17 13:20:39 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 588
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 612
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 636
+Sat Aug 17 13:20:40 2019 : srwse 660
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 684
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 708
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 732
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 756
+Sat Aug 17 13:20:40 2019 : srwse 780
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:40 2019 : srwse 804
+Sat Aug 17 13:20:40 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 828
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 852
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 876
+Sat Aug 17 13:20:41 2019 : srwse 900
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 0
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 24
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 48
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 72
+Sat Aug 17 13:20:41 2019 : srwse 96
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:41 2019 : srwse 120
+Sat Aug 17 13:20:41 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 144
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 168
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 192
+Sat Aug 17 13:20:42 2019 : srwse 216
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 240
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 264
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 288
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 312
+Sat Aug 17 13:20:42 2019 : srwse 336
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:42 2019 : srwse 360
+Sat Aug 17 13:20:42 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 384
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 408
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 432
+Sat Aug 17 13:20:43 2019 : srwse 456
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 480
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 504
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 528
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 552
+Sat Aug 17 13:20:43 2019 : srwse 576
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:43 2019 : srwse 600
+Sat Aug 17 13:20:43 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 624
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 648
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 672
+Sat Aug 17 13:20:44 2019 : srwse 696
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 720
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 744
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 768
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 792
+Sat Aug 17 13:20:44 2019 : srwse 816
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:44 2019 : srwse 840
+Sat Aug 17 13:20:44 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 864
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 888
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 0
+Sat Aug 17 13:20:45 2019 : srwse 24
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 48
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 72
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 96
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 120
+Sat Aug 17 13:20:45 2019 : srwse 144
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:45 2019 : srwse 168
+Sat Aug 17 13:20:45 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 192
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 216
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 240
+Sat Aug 17 13:20:46 2019 : srwse 264
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 288
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 312
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 336
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 360
+Sat Aug 17 13:20:46 2019 : srwse 384
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:46 2019 : srwse 408
+Sat Aug 17 13:20:46 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 432
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 456
+Sat Aug 17 13:20:47 2019 : srwse 480
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 504
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 528
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 552
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 576
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 600
+Sat Aug 17 13:20:47 2019 : srwse 624
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:47 2019 : srwse 648
+Sat Aug 17 13:20:47 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 672
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 696
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 720
+Sat Aug 17 13:20:48 2019 : srwse 744
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 768
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 795
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 819
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 846
+Sat Aug 17 13:20:48 2019 : srwse 873
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:48 2019 : srwse 900
+Sat Aug 17 13:20:48 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 0
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 27
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 54
+Sat Aug 17 13:20:49 2019 : srwse 78
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 105
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 132
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 159
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 186
+Sat Aug 17 13:20:49 2019 : srwse 213
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:49 2019 : srwse 240
+Sat Aug 17 13:20:49 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 264
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 288
+Sat Aug 17 13:20:50 2019 : srwse 315
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 342
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 366
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 390
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 414
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 440
+Sat Aug 17 13:20:50 2019 : srwse 466
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:50 2019 : srwse 492
+Sat Aug 17 13:20:50 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 518
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 544
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 570
+Sat Aug 17 13:20:51 2019 : srwse 596
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 622
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 648
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 674
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 700
+Sat Aug 17 13:20:51 2019 : srwse 726
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:51 2019 : srwse 752
+Sat Aug 17 13:20:51 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 779
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 806
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 833
+Sat Aug 17 13:20:52 2019 : srwse 857
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 881
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 0
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 24
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 48
+Sat Aug 17 13:20:52 2019 : srwse 72
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:52 2019 : srwse 96
+Sat Aug 17 13:20:52 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 120
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 144
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 168
+Sat Aug 17 13:20:53 2019 : srwse 192
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 216
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 240
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 264
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 288
+Sat Aug 17 13:20:53 2019 : srwse 312
+Sat Aug 17 13:20:53 2019 : 2000
+Sat Aug 17 13:20:53 2019 : srwse 339
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 363
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 387
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 413
+Sat Aug 17 13:20:54 2019 : srwse 439
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 465
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 491
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 517
+Sat Aug 17 13:20:54 2019 : srwse 543
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 569
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:54 2019 : srwse 595
+Sat Aug 17 13:20:54 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 621
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 647
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 673
+Sat Aug 17 13:20:55 2019 : srwse 699
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 725
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 751
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 777
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 803
+Sat Aug 17 13:20:55 2019 : srwse 829
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:55 2019 : srwse 855
+Sat Aug 17 13:20:55 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 881
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 0
+Sat Aug 17 13:20:56 2019 : srwse 26
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 52
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 78
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 104
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 130
+Sat Aug 17 13:20:56 2019 : srwse 156
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 182
+Sat Aug 17 13:20:56 2019 : 2000
+Sat Aug 17 13:20:56 2019 : srwse 208
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 235
+Sat Aug 17 13:20:57 2019 : srwse 262
+Sat Aug 17 13:20:57 2019 : 4000
+Sat Aug 17 13:20:57 2019 : srwse 286
+Sat Aug 17 13:20:57 2019 : srwse 310
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 334
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 358
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 382
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 406
+Sat Aug 17 13:20:57 2019 : srwse 430
+Sat Aug 17 13:20:57 2019 : 2000
+Sat Aug 17 13:20:57 2019 : srwse 454
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 478
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 502
+Sat Aug 17 13:20:58 2019 : srwse 526
+Sat Aug 17 13:20:58 2019 : srwse 550
+Sat Aug 17 13:20:58 2019 : 4000
+Sat Aug 17 13:20:58 2019 : srwse 574
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 598
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 622
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 646
+Sat Aug 17 13:20:58 2019 : srwse 670
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:58 2019 : srwse 694
+Sat Aug 17 13:20:58 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 718
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 742
+Sat Aug 17 13:20:59 2019 : srwse 766
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 793
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 817
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 841
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 865
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 889
+Sat Aug 17 13:20:59 2019 : srwse 0
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:20:59 2019 : srwse 24
+Sat Aug 17 13:20:59 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 48
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 72
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 96
+Sat Aug 17 13:21:00 2019 : srwse 120
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 144
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 168
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 192
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 216
+Sat Aug 17 13:21:00 2019 : srwse 240
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:00 2019 : srwse 264
+Sat Aug 17 13:21:00 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 288
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 315
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 339
+Sat Aug 17 13:21:01 2019 : srwse 363
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 387
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 411
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 435
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 459
+Sat Aug 17 13:21:01 2019 : srwse 483
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:01 2019 : srwse 507
+Sat Aug 17 13:21:01 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 531
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 555
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 579
+Sat Aug 17 13:21:02 2019 : srwse 603
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 627
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 651
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 675
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 699
+Sat Aug 17 13:21:02 2019 : srwse 726
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:02 2019 : srwse 753
+Sat Aug 17 13:21:02 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 780
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 804
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 828
+Sat Aug 17 13:21:03 2019 : srwse 852
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 876
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 900
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 0
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 24
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:03 2019 : srwse 48
+Sat Aug 17 13:21:03 2019 : srwse 72
+Sat Aug 17 13:21:03 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 96
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 120
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 144
+Sat Aug 17 13:21:04 2019 : srwse 168
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 192
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 216
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 243
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 270
+Sat Aug 17 13:21:04 2019 : srwse 297
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:04 2019 : srwse 323
+Sat Aug 17 13:21:04 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 347
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 373
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 397
+Sat Aug 17 13:21:05 2019 : srwse 421
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 447
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 471
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 498
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 524
+Sat Aug 17 13:21:05 2019 : srwse 550
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:05 2019 : srwse 576
+Sat Aug 17 13:21:05 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 600
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 627
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 654
+Sat Aug 17 13:21:06 2019 : srwse 681
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 708
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 735
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 762
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 788
+Sat Aug 17 13:21:06 2019 : srwse 814
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:06 2019 : srwse 840
+Sat Aug 17 13:21:06 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 866
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 892
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 0
+Sat Aug 17 13:21:07 2019 : srwse 26
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 53
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 80
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 107
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 134
+Sat Aug 17 13:21:07 2019 : srwse 161
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:07 2019 : srwse 188
+Sat Aug 17 13:21:07 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 215
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 242
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 269
+Sat Aug 17 13:21:08 2019 : srwse 296
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 323
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 350
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 374
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 401
+Sat Aug 17 13:21:08 2019 : srwse 428
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:08 2019 : srwse 455
+Sat Aug 17 13:21:08 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 482
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 506
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 533
+Sat Aug 17 13:21:09 2019 : srwse 557
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 584
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 608
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 632
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 656
+Sat Aug 17 13:21:09 2019 : srwse 680
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:09 2019 : srwse 704
+Sat Aug 17 13:21:09 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 728
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 752
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 776
+Sat Aug 17 13:21:10 2019 : srwse 800
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 824
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 848
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 872
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 896
+Sat Aug 17 13:21:10 2019 : srwse 0
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:10 2019 : srwse 24
+Sat Aug 17 13:21:10 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 48
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 72
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 96
+Sat Aug 17 13:21:11 2019 : srwse 120
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 144
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 168
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 192
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 216
+Sat Aug 17 13:21:11 2019 : srwse 240
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:11 2019 : srwse 264
+Sat Aug 17 13:21:11 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 288
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 312
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 336
+Sat Aug 17 13:21:12 2019 : srwse 360
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 384
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 408
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 432
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 456
+Sat Aug 17 13:21:12 2019 : srwse 480
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:12 2019 : srwse 504
+Sat Aug 17 13:21:12 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 528
+Sat Aug 17 13:21:13 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 552
+Sat Aug 17 13:21:13 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 576
+Sat Aug 17 13:21:13 2019 : srwse 600
+Sat Aug 17 13:21:13 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 624
+Sat Aug 17 13:21:13 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 648
+Sat Aug 17 13:21:13 2019 : 2000
+Sat Aug 17 13:21:13 2019 : srwse 672
+Sat Aug 17 13:21:13 2019 : srwse 696
+Sat Aug 17 13:21:13 2019 : srwse 720
+Sat Aug 17 13:21:13 2019 : srwse 744
+Sat Aug 17 13:21:14 2019 : srwse 768
+Sat Aug 17 13:21:14 2019 : srwse 792
+Sat Aug 17 13:21:14 2019 : srwse 816
+Sat Aug 17 13:21:14 2019 : srwse 840
+Sat Aug 17 13:21:14 2019 : srwse 864
+Sat Aug 17 13:21:14 2019 : srwse 888
+Sat Aug 17 13:21:14 2019 : srwse 0
+Sat Aug 17 13:21:14 2019 : srwse 24
+Sat Aug 17 13:21:14 2019 : srwse 48
+Sat Aug 17 13:21:14 2019 : srwse 72
+Sat Aug 17 13:21:15 2019 : srwse 96
+Sat Aug 17 13:21:15 2019 : srwse 120
+Sat Aug 17 13:21:15 2019 : srwse 144
+Sat Aug 17 13:21:15 2019 : srwse 168
+Sat Aug 17 13:21:15 2019 : srwse 192
+Sat Aug 17 13:21:15 2019 : srwse 216
+Sat Aug 17 13:21:15 2019 : srwse 240
+Sat Aug 17 13:21:15 2019 : srwse 264
+Sat Aug 17 13:21:15 2019 : srwse 288
+Sat Aug 17 13:21:15 2019 : srwse 312
+Sat Aug 17 13:21:16 2019 : srwse 336
+Sat Aug 17 13:21:16 2019 : srwse 360
+Sat Aug 17 13:21:16 2019 : srwse 384
+Sat Aug 17 13:21:16 2019 : srwse 408
+Sat Aug 17 13:21:16 2019 : srwse 432
+Sat Aug 17 13:21:16 2019 : srwse 456
+Sat Aug 17 13:21:16 2019 : srwse 480
+Sat Aug 17 13:21:16 2019 : srwse 504
+Sat Aug 17 13:21:16 2019 : srwse 528
+Sat Aug 17 13:21:16 2019 : srwse 552
+Sat Aug 17 13:21:17 2019 : srwse 576
+Sat Aug 17 13:21:17 2019 : srwse 600
+Sat Aug 17 13:21:17 2019 : srwse 624
+Sat Aug 17 13:21:17 2019 : srwse 648
+Sat Aug 17 13:21:17 2019 : srwse 672
+Sat Aug 17 13:21:17 2019 : srwse 696
+Sat Aug 17 13:21:17 2019 : srwse 720
+Sat Aug 17 13:21:17 2019 : srwse 744
+Sat Aug 17 13:21:17 2019 : srwse 768
+Sat Aug 17 13:21:17 2019 : srwse 792
+Sat Aug 17 13:21:18 2019 : srwse 816
+Sat Aug 17 13:21:18 2019 : srwse 840
+Sat Aug 17 13:21:18 2019 : srwse 867
+Sat Aug 17 13:21:18 2019 : srwse 891
+Sat Aug 17 13:21:18 2019 : srwse 0
+Sat Aug 17 13:21:18 2019 : srwse 24
+Sat Aug 17 13:21:18 2019 : srwse 48
+Sat Aug 17 13:21:18 2019 : srwse 72
+Sat Aug 17 13:21:18 2019 : srwse 96
+Sat Aug 17 13:21:19 2019 : srwse 120
+Sat Aug 17 13:21:19 2019 : srwse 144
+Sat Aug 17 13:21:19 2019 : srwse 168
+Sat Aug 17 13:21:19 2019 : srwse 192
+Sat Aug 17 13:21:19 2019 : srwse 216
+Sat Aug 17 13:21:19 2019 : srwse 240
+Sat Aug 17 13:21:19 2019 : srwse 264
+Sat Aug 17 13:21:19 2019 : srwse 288
+Sat Aug 17 13:21:19 2019 : srwse 312
+Sat Aug 17 13:21:19 2019 : srwse 336
+Sat Aug 17 13:21:20 2019 : srwse 360
+Sat Aug 17 13:21:20 2019 : srwse 384
+Sat Aug 17 13:21:20 2019 : srwse 408
+Sat Aug 17 13:21:20 2019 : srwse 432
+Sat Aug 17 13:21:20 2019 : srwse 456
+Sat Aug 17 13:21:20 2019 : srwse 480
+Sat Aug 17 13:21:20 2019 : srwse 504
+Sat Aug 17 13:21:20 2019 : srwse 528
+Sat Aug 17 13:21:20 2019 : srwse 552
+Sat Aug 17 13:21:20 2019 : srwse 576
+Sat Aug 17 13:21:21 2019 : srwse 600
+Sat Aug 17 13:21:21 2019 : srwse 624
+Sat Aug 17 13:21:21 2019 : srwse 648
+Sat Aug 17 13:21:21 2019 : srwse 672
+Sat Aug 17 13:21:21 2019 : srwse 696
+Sat Aug 17 13:21:21 2019 : srwse 720
+Sat Aug 17 13:21:21 2019 : srwse 744
+Sat Aug 17 13:21:21 2019 : srwse 768
+Sat Aug 17 13:21:21 2019 : srwse 792
+Sat Aug 17 13:21:21 2019 : srwse 816
+Sat Aug 17 13:21:22 2019 : srwse 840
+Sat Aug 17 13:21:22 2019 : srwse 864
+Sat Aug 17 13:21:22 2019 : srwse 888
+Sat Aug 17 13:21:22 2019 : srwse 0
+Sat Aug 17 13:21:22 2019 : srwse 24
+Sat Aug 17 13:21:22 2019 : srwse 48
+Sat Aug 17 13:21:22 2019 : srwse 72
+Sat Aug 17 13:21:22 2019 : srwse 96
+Sat Aug 17 13:21:22 2019 : srwse 120
+Sat Aug 17 13:21:22 2019 : srwse 144
+Sat Aug 17 13:21:23 2019 : srwse 168
+Sat Aug 17 13:21:23 2019 : srwse 192
+Sat Aug 17 13:21:23 2019 : srwse 216
+Sat Aug 17 13:21:23 2019 : srwse 240
+Sat Aug 17 13:21:23 2019 : srwse 264
+Sat Aug 17 13:21:23 2019 : srwse 288
+Sat Aug 17 13:21:23 2019 : srwse 312
+Sat Aug 17 13:21:23 2019 : srwse 336
+Sat Aug 17 13:21:23 2019 : srwse 360
+Sat Aug 17 13:21:23 2019 : srwse 384
+Sat Aug 17 13:21:24 2019 : srwse 408
+Sat Aug 17 13:21:24 2019 : srwse 432
+Sat Aug 17 13:21:24 2019 : srwse 456
+Sat Aug 17 13:21:24 2019 : srwse 480
+Sat Aug 17 13:21:24 2019 : srwse 504
+Sat Aug 17 13:21:24 2019 : srwse 528
+Sat Aug 17 13:21:24 2019 : srwse 552
+Sat Aug 17 13:21:24 2019 : srwse 576
+Sat Aug 17 13:21:24 2019 : srwse 600
+Sat Aug 17 13:21:24 2019 : srwse 624
+Sat Aug 17 13:21:25 2019 : srwse 648
+Sat Aug 17 13:21:25 2019 : srwse 672
+Sat Aug 17 13:21:25 2019 : srwse 696
+Sat Aug 17 13:21:25 2019 : srwse 720
+Sat Aug 17 13:21:25 2019 : srwse 744
+Sat Aug 17 13:21:25 2019 : srwse 768
+Sat Aug 17 13:21:25 2019 : srwse 792
+Sat Aug 17 13:21:25 2019 : srwse 816
+Sat Aug 17 13:21:25 2019 : srwse 840
+Sat Aug 17 13:21:25 2019 : srwse 864
+Sat Aug 17 13:21:26 2019 : srwse 888
+Sat Aug 17 13:21:26 2019 : srwse 0
+Sat Aug 17 13:21:26 2019 : srwse 24
+Sat Aug 17 13:21:26 2019 : srwse 48
+Sat Aug 17 13:21:26 2019 : srwse 72
+Sat Aug 17 13:21:26 2019 : srwse 96
+Sat Aug 17 13:21:26 2019 : srwse 120
+Sat Aug 17 13:21:26 2019 : srwse 144
+Sat Aug 17 13:21:26 2019 : srwse 168
+Sat Aug 17 13:21:26 2019 : srwse 192
+Sat Aug 17 13:21:27 2019 : srwse 216
+Sat Aug 17 13:21:27 2019 : srwse 240
+Sat Aug 17 13:21:27 2019 : srwse 264
+Sat Aug 17 13:21:27 2019 : srwse 288
+Sat Aug 17 13:21:27 2019 : srwse 312
+Sat Aug 17 13:21:27 2019 : srwse 336
+Sat Aug 17 13:21:27 2019 : srwse 360
+Sat Aug 17 13:21:27 2019 : srwse 384
+Sat Aug 17 13:21:27 2019 : srwse 408
+Sat Aug 17 13:21:27 2019 : srwse 432
+Sat Aug 17 13:21:28 2019 : srwse 456
+Sat Aug 17 13:21:28 2019 : srwse 480
+Sat Aug 17 13:21:28 2019 : srwse 504
+Sat Aug 17 13:21:28 2019 : srwse 528
+Sat Aug 17 13:21:28 2019 : srwse 552
+Sat Aug 17 13:21:28 2019 : srwse 576
+Sat Aug 17 13:21:28 2019 : srwse 600
+Sat Aug 17 13:21:28 2019 : srwse 624
+Sat Aug 17 13:21:28 2019 : srwse 648
+Sat Aug 17 13:21:28 2019 : srwse 672
+Sat Aug 17 13:21:29 2019 : srwse 696
+Sat Aug 17 13:21:29 2019 : srwse 720
+Sat Aug 17 13:21:29 2019 : srwse 744
+Sat Aug 17 13:21:29 2019 : srwse 768
+Sat Aug 17 13:21:29 2019 : srwse 792
+Sat Aug 17 13:21:29 2019 : srwse 816
+Sat Aug 17 13:21:29 2019 : srwse 840
+Sat Aug 17 13:21:29 2019 : srwse 864
+Sat Aug 17 13:21:29 2019 : srwse 888
+Sat Aug 17 13:21:29 2019 : srwse 0
+Sat Aug 17 13:21:30 2019 : srwse 24
+Sat Aug 17 13:21:30 2019 : srwse 48
+Sat Aug 17 13:21:30 2019 : srwse 72
+Sat Aug 17 13:21:30 2019 : srwse 96
+Sat Aug 17 13:21:30 2019 : srwse 120
+Sat Aug 17 13:21:30 2019 : srwse 144
+Sat Aug 17 13:21:30 2019 : srwse 168
+Sat Aug 17 13:21:30 2019 : srwse 192
+Sat Aug 17 13:21:30 2019 : srwse 216
+Sat Aug 17 13:21:30 2019 : srwse 240
+Sat Aug 17 13:21:31 2019 : srwse 264
+Sat Aug 17 13:21:31 2019 : srwse 288
+Sat Aug 17 13:21:31 2019 : srwse 312
+Sat Aug 17 13:21:31 2019 : srwse 336
+Sat Aug 17 13:21:31 2019 : srwse 360
+Sat Aug 17 13:21:31 2019 : srwse 384
+Sat Aug 17 13:21:31 2019 : srwse 408
+Sat Aug 17 13:21:31 2019 : srwse 432
+Sat Aug 17 13:21:31 2019 : srwse 456
+Sat Aug 17 13:21:31 2019 : srwse 480
+Sat Aug 17 13:21:32 2019 : srwse 504
+Sat Aug 17 13:21:32 2019 : srwse 528
+Sat Aug 17 13:21:32 2019 : srwse 552
+Sat Aug 17 13:21:32 2019 : srwse 576
+Sat Aug 17 13:21:32 2019 : srwse 600
+Sat Aug 17 13:21:32 2019 : srwse 624
+Sat Aug 17 13:21:32 2019 : srwse 648
+Sat Aug 17 13:21:32 2019 : srwse 672
+Sat Aug 17 13:21:32 2019 : srwse 696
+Sat Aug 17 13:21:32 2019 : srwse 720
+Sat Aug 17 13:21:33 2019 : srwse 744
+Sat Aug 17 13:21:33 2019 : srwse 768
+Sat Aug 17 13:21:33 2019 : srwse 792
+Sat Aug 17 13:21:33 2019 : srwse 816
+Sat Aug 17 13:21:33 2019 : srwse 840
+Sat Aug 17 13:21:33 2019 : srwse 864
+Sat Aug 17 13:21:33 2019 : srwse 888
+Sat Aug 17 13:21:33 2019 : srwse 0
+Sat Aug 17 13:21:33 2019 : srwse 24
+Sat Aug 17 13:21:34 2019 : srwse 48
+Sat Aug 17 13:21:34 2019 : 20000
+Sat Aug 17 13:21:34 2019 : srwse 72
+Sat Aug 17 13:21:34 2019 : srwse 96
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 120
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 144
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 168
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 192
+Sat Aug 17 13:21:34 2019 : srwse 216
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 240
+Sat Aug 17 13:21:34 2019 : 2000
+Sat Aug 17 13:21:34 2019 : srwse 264
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 288
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 312
+Sat Aug 17 13:21:35 2019 : srwse 336
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 360
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 384
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 408
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 432
+Sat Aug 17 13:21:35 2019 : srwse 456
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 480
+Sat Aug 17 13:21:35 2019 : 2000
+Sat Aug 17 13:21:35 2019 : srwse 504
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 528
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 552
+Sat Aug 17 13:21:36 2019 : srwse 576
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 600
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 624
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 648
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 672
+Sat Aug 17 13:21:36 2019 : srwse 696
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 720
+Sat Aug 17 13:21:36 2019 : 2000
+Sat Aug 17 13:21:36 2019 : srwse 744
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 768
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 792
+Sat Aug 17 13:21:37 2019 : srwse 816
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 840
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 864
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 888
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 0
+Sat Aug 17 13:21:37 2019 : srwse 24
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 48
+Sat Aug 17 13:21:37 2019 : 2000
+Sat Aug 17 13:21:37 2019 : srwse 72
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 96
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 120
+Sat Aug 17 13:21:38 2019 : srwse 144
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 168
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 192
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 216
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 240
+Sat Aug 17 13:21:38 2019 : srwse 264
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 288
+Sat Aug 17 13:21:38 2019 : 2000
+Sat Aug 17 13:21:38 2019 : srwse 312
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 336
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 360
+Sat Aug 17 13:21:39 2019 : srwse 384
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 408
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 432
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 456
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 480
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 504
+Sat Aug 17 13:21:39 2019 : srwse 528
+Sat Aug 17 13:21:39 2019 : 2000
+Sat Aug 17 13:21:39 2019 : srwse 552
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 576
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 600
+Sat Aug 17 13:21:40 2019 : srwse 624
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 650
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 676
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 702
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 728
+Sat Aug 17 13:21:40 2019 : srwse 754
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 780
+Sat Aug 17 13:21:40 2019 : 2000
+Sat Aug 17 13:21:40 2019 : srwse 806
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 832
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 856
+Sat Aug 17 13:21:41 2019 : srwse 880
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 0
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 24
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 48
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 72
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 96
+Sat Aug 17 13:21:41 2019 : srwse 120
+Sat Aug 17 13:21:41 2019 : 2000
+Sat Aug 17 13:21:41 2019 : srwse 144
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 168
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 192
+Sat Aug 17 13:21:42 2019 : srwse 216
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 240
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 264
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 288
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 312
+Sat Aug 17 13:21:42 2019 : srwse 336
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 360
+Sat Aug 17 13:21:42 2019 : 2000
+Sat Aug 17 13:21:42 2019 : srwse 384
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 408
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 432
+Sat Aug 17 13:21:43 2019 : srwse 456
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 480
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 504
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 528
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 552
+Sat Aug 17 13:21:43 2019 : srwse 576
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 603
+Sat Aug 17 13:21:43 2019 : 2000
+Sat Aug 17 13:21:43 2019 : srwse 627
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 654
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 681
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 705
+Sat Aug 17 13:21:44 2019 : srwse 729
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 753
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 777
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 801
+Sat Aug 17 13:21:44 2019 : srwse 825
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 849
+Sat Aug 17 13:21:44 2019 : 2000
+Sat Aug 17 13:21:44 2019 : srwse 873
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 897
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 0
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 24
+Sat Aug 17 13:21:45 2019 : srwse 48
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 75
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 102
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 129
+Sat Aug 17 13:21:45 2019 : srwse 153
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 180
+Sat Aug 17 13:21:45 2019 : 2000
+Sat Aug 17 13:21:45 2019 : srwse 207
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 234
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 261
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 288
+Sat Aug 17 13:21:46 2019 : srwse 315
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 342
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 369
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 396
+Sat Aug 17 13:21:46 2019 : srwse 423
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 450
+Sat Aug 17 13:21:46 2019 : 2000
+Sat Aug 17 13:21:46 2019 : srwse 477
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 504
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 530
+Sat Aug 17 13:21:47 2019 : srwse 556
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 582
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 608
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 634
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 660
+Sat Aug 17 13:21:47 2019 : srwse 686
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 712
+Sat Aug 17 13:21:47 2019 : 2000
+Sat Aug 17 13:21:47 2019 : srwse 738
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 765
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 792
+Sat Aug 17 13:21:48 2019 : srwse 819
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 846
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 873
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 900
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 0
+Sat Aug 17 13:21:48 2019 : srwse 27
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 54
+Sat Aug 17 13:21:48 2019 : 2000
+Sat Aug 17 13:21:48 2019 : srwse 81
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 109
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 134
+Sat Aug 17 13:21:49 2019 : srwse 162
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 190
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 218
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 246
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 274
+Sat Aug 17 13:21:49 2019 : srwse 302
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 330
+Sat Aug 17 13:21:49 2019 : 2000
+Sat Aug 17 13:21:49 2019 : srwse 358
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 386
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 414
+Sat Aug 17 13:21:50 2019 : srwse 442
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 470
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 498
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 526
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 554
+Sat Aug 17 13:21:50 2019 : srwse 582
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 610
+Sat Aug 17 13:21:50 2019 : 2000
+Sat Aug 17 13:21:50 2019 : srwse 638
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 666
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 691
+Sat Aug 17 13:21:51 2019 : srwse 716
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 744
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 769
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 797
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 825
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 853
+Sat Aug 17 13:21:51 2019 : srwse 881
+Sat Aug 17 13:21:51 2019 : 2000
+Sat Aug 17 13:21:51 2019 : srwse 0
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 28
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 56
+Sat Aug 17 13:21:52 2019 : srwse 84
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 111
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 138
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 165
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 192
+Sat Aug 17 13:21:52 2019 : srwse 219
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 246
+Sat Aug 17 13:21:52 2019 : 2000
+Sat Aug 17 13:21:52 2019 : srwse 273
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 297
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 321
+Sat Aug 17 13:21:53 2019 : srwse 345
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 372
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 399
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 426
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 453
+Sat Aug 17 13:21:53 2019 : srwse 480
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 507
+Sat Aug 17 13:21:53 2019 : 2000
+Sat Aug 17 13:21:53 2019 : srwse 531
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 555
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 579
+Sat Aug 17 13:21:54 2019 : srwse 603
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 627
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 651
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 675
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 699
+Sat Aug 17 13:21:54 2019 : srwse 723
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 747
+Sat Aug 17 13:21:54 2019 : 2000
+Sat Aug 17 13:21:54 2019 : srwse 771
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 795
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 819
+Sat Aug 17 13:21:55 2019 : srwse 843
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 867
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 891
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 0
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 24
+Sat Aug 17 13:21:55 2019 : srwse 48
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 72
+Sat Aug 17 13:21:55 2019 : 2000
+Sat Aug 17 13:21:55 2019 : srwse 96
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 120
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 144
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 168
+Sat Aug 17 13:21:56 2019 : srwse 192
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 216
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 240
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 264
+Sat Aug 17 13:21:56 2019 : srwse 288
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 312
+Sat Aug 17 13:21:56 2019 : 2000
+Sat Aug 17 13:21:56 2019 : srwse 336
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 360
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 384
+Sat Aug 17 13:21:57 2019 : srwse 408
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 432
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 456
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 480
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 504
+Sat Aug 17 13:21:57 2019 : srwse 528
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 552
+Sat Aug 17 13:21:57 2019 : 2000
+Sat Aug 17 13:21:57 2019 : srwse 576
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 600
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 624
+Sat Aug 17 13:21:58 2019 : srwse 648
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 672
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 696
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 720
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 744
+Sat Aug 17 13:21:58 2019 : srwse 768
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 792
+Sat Aug 17 13:21:58 2019 : 2000
+Sat Aug 17 13:21:58 2019 : srwse 816
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 840
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 864
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 888
+Sat Aug 17 13:21:59 2019 : srwse 0
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 24
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 48
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 72
+Sat Aug 17 13:21:59 2019 : srwse 96
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 120
+Sat Aug 17 13:21:59 2019 : 2000
+Sat Aug 17 13:21:59 2019 : srwse 144
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 168
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 192
+Sat Aug 17 13:22:00 2019 : srwse 216
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 240
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 264
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 288
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 312
+Sat Aug 17 13:22:00 2019 : 2000
+Sat Aug 17 13:22:00 2019 : srwse 336
+Sat Aug 17 13:22:00 2019 : srwse 360
+Sat Aug 17 13:22:00 2019 : srwse 384
+Sat Aug 17 13:22:01 2019 : srwse 408
+Sat Aug 17 13:22:01 2019 : srwse 432
+Sat Aug 17 13:22:01 2019 : srwse 456
+Sat Aug 17 13:22:01 2019 : srwse 480
+Sat Aug 17 13:22:01 2019 : srwse 504
+Sat Aug 17 13:22:01 2019 : srwse 528
+Sat Aug 17 13:22:01 2019 : srwse 552
+Sat Aug 17 13:22:01 2019 : srwse 576
+Sat Aug 17 13:22:01 2019 : srwse 600
+Sat Aug 17 13:22:01 2019 : srwse 624
+Sat Aug 17 13:22:02 2019 : srwse 648
+Sat Aug 17 13:22:02 2019 : srwse 672
+Sat Aug 17 13:22:02 2019 : srwse 696
+Sat Aug 17 13:22:02 2019 : srwse 720
+Sat Aug 17 13:22:02 2019 : srwse 744
+Sat Aug 17 13:22:02 2019 : srwse 768
+Sat Aug 17 13:22:02 2019 : srwse 792
+Sat Aug 17 13:22:02 2019 : srwse 816
+Sat Aug 17 13:22:02 2019 : srwse 840
+Sat Aug 17 13:22:02 2019 : srwse 864
+Sat Aug 17 13:22:03 2019 : srwse 891
+Sat Aug 17 13:22:03 2019 : srwse 0
+Sat Aug 17 13:22:03 2019 : srwse 24
+Sat Aug 17 13:22:03 2019 : srwse 48
+Sat Aug 17 13:22:03 2019 : srwse 72
+Sat Aug 17 13:22:03 2019 : srwse 96
+Sat Aug 17 13:22:03 2019 : srwse 120
+Sat Aug 17 13:22:03 2019 : srwse 144
+Sat Aug 17 13:22:03 2019 : srwse 168
+Sat Aug 17 13:22:03 2019 : srwse 192
+Sat Aug 17 13:22:04 2019 : srwse 216
+Sat Aug 17 13:22:04 2019 : srwse 240
+Sat Aug 17 13:22:04 2019 : srwse 264
+Sat Aug 17 13:22:04 2019 : srwse 288
+Sat Aug 17 13:22:04 2019 : srwse 312
+Sat Aug 17 13:22:04 2019 : srwse 336
+Sat Aug 17 13:22:04 2019 : srwse 360
+Sat Aug 17 13:22:04 2019 : srwse 384
+Sat Aug 17 13:22:04 2019 : srwse 408
+Sat Aug 17 13:22:04 2019 : srwse 432
+Sat Aug 17 13:22:05 2019 : srwse 456
+Sat Aug 17 13:22:05 2019 : srwse 480
+Sat Aug 17 13:22:05 2019 : srwse 507
+Sat Aug 17 13:22:05 2019 : srwse 531
+Sat Aug 17 13:22:05 2019 : srwse 555
+Sat Aug 17 13:22:05 2019 : srwse 579
+Sat Aug 17 13:22:05 2019 : srwse 603
+Sat Aug 17 13:22:05 2019 : srwse 627
+Sat Aug 17 13:22:05 2019 : srwse 651
+Sat Aug 17 13:22:06 2019 : srwse 675
+Sat Aug 17 13:22:06 2019 : srwse 699
+Sat Aug 17 13:22:06 2019 : srwse 723
+Sat Aug 17 13:22:06 2019 : srwse 747
+Sat Aug 17 13:22:06 2019 : srwse 771
+Sat Aug 17 13:22:06 2019 : srwse 795
+Sat Aug 17 13:22:06 2019 : srwse 819
+Sat Aug 17 13:22:06 2019 : srwse 843
+Sat Aug 17 13:22:06 2019 : srwse 867
+Sat Aug 17 13:22:07 2019 : srwse 891
+Sat Aug 17 13:22:07 2019 : srwse 0
+Sat Aug 17 13:22:07 2019 : srwse 24
+Sat Aug 17 13:22:07 2019 : srwse 48
+Sat Aug 17 13:22:07 2019 : srwse 72
+Sat Aug 17 13:22:07 2019 : srwse 96
+Sat Aug 17 13:22:07 2019 : srwse 120
+Sat Aug 17 13:22:07 2019 : srwse 144
+Sat Aug 17 13:22:07 2019 : srwse 168
+Sat Aug 17 13:22:07 2019 : srwse 192
+Sat Aug 17 13:22:08 2019 : srwse 216
+Sat Aug 17 13:22:08 2019 : srwse 240
+Sat Aug 17 13:22:08 2019 : srwse 264
+Sat Aug 17 13:22:08 2019 : srwse 288
+Sat Aug 17 13:22:08 2019 : srwse 312
+Sat Aug 17 13:22:08 2019 : srwse 336
+Sat Aug 17 13:22:08 2019 : srwse 360
+Sat Aug 17 13:22:08 2019 : srwse 384
+Sat Aug 17 13:22:08 2019 : srwse 408
+Sat Aug 17 13:22:08 2019 : srwse 432
+Sat Aug 17 13:22:09 2019 : srwse 456
+Sat Aug 17 13:22:09 2019 : srwse 480
+Sat Aug 17 13:22:09 2019 : srwse 504
+Sat Aug 17 13:22:09 2019 : srwse 528
+Sat Aug 17 13:22:09 2019 : srwse 552
+Sat Aug 17 13:22:09 2019 : srwse 576
+Sat Aug 17 13:22:09 2019 : srwse 600
+Sat Aug 17 13:22:09 2019 : srwse 624
+Sat Aug 17 13:22:09 2019 : srwse 648
+Sat Aug 17 13:22:09 2019 : srwse 672
+Sat Aug 17 13:22:10 2019 : srwse 696
+Sat Aug 17 13:22:10 2019 : srwse 720
+Sat Aug 17 13:22:10 2019 : srwse 744
+Sat Aug 17 13:22:10 2019 : srwse 768
+Sat Aug 17 13:22:10 2019 : srwse 792
+Sat Aug 17 13:22:10 2019 : srwse 816
+Sat Aug 17 13:22:10 2019 : srwse 840
+Sat Aug 17 13:22:10 2019 : srwse 864
+Sat Aug 17 13:22:10 2019 : srwse 888
+Sat Aug 17 13:22:10 2019 : srwse 0
+Sat Aug 17 13:22:11 2019 : srwse 24
+Sat Aug 17 13:22:11 2019 : srwse 48
+Sat Aug 17 13:22:11 2019 : srwse 72
+Sat Aug 17 13:22:11 2019 : srwse 96
+Sat Aug 17 13:22:11 2019 : srwse 120
+Sat Aug 17 13:22:11 2019 : srwse 144
+Sat Aug 17 13:22:11 2019 : srwse 168
+Sat Aug 17 13:22:11 2019 : srwse 192
+Sat Aug 17 13:22:11 2019 : srwse 216
+Sat Aug 17 13:22:11 2019 : srwse 240
+Sat Aug 17 13:22:12 2019 : srwse 264
+Sat Aug 17 13:22:12 2019 : srwse 288
+Sat Aug 17 13:22:12 2019 : srwse 312
+Sat Aug 17 13:22:12 2019 : srwse 336
+Sat Aug 17 13:22:12 2019 : srwse 360
+Sat Aug 17 13:22:12 2019 : srwse 384
+Sat Aug 17 13:22:12 2019 : srwse 408
+Sat Aug 17 13:22:12 2019 : srwse 432
+Sat Aug 17 13:22:12 2019 : srwse 456
+Sat Aug 17 13:22:12 2019 : srwse 480
+Sat Aug 17 13:22:13 2019 : srwse 504
+Sat Aug 17 13:22:13 2019 : srwse 528
+Sat Aug 17 13:22:13 2019 : srwse 552
+Sat Aug 17 13:22:13 2019 : srwse 576
+Sat Aug 17 13:22:13 2019 : srwse 600
+Sat Aug 17 13:22:13 2019 : srwse 624
+Sat Aug 17 13:22:13 2019 : srwse 648
+Sat Aug 17 13:22:13 2019 : srwse 672
+Sat Aug 17 13:22:13 2019 : srwse 696
+Sat Aug 17 13:22:13 2019 : srwse 720
+Sat Aug 17 13:22:14 2019 : srwse 744
+Sat Aug 17 13:22:14 2019 : srwse 768
+Sat Aug 17 13:22:14 2019 : srwse 792
+Sat Aug 17 13:22:14 2019 : srwse 816
+Sat Aug 17 13:22:14 2019 : srwse 840
+Sat Aug 17 13:22:14 2019 : srwse 864
+Sat Aug 17 13:22:14 2019 : srwse 888
+Sat Aug 17 13:22:14 2019 : srwse 0
+Sat Aug 17 13:22:14 2019 : srwse 24
+Sat Aug 17 13:22:14 2019 : srwse 48
+Sat Aug 17 13:22:15 2019 : srwse 72
+Sat Aug 17 13:22:15 2019 : srwse 96
+Sat Aug 17 13:22:15 2019 : srwse 120
+Sat Aug 17 13:22:15 2019 : srwse 144
+Sat Aug 17 13:22:15 2019 : srwse 168
+Sat Aug 17 13:22:15 2019 : srwse 192
+Sat Aug 17 13:22:15 2019 : srwse 216
+Sat Aug 17 13:22:15 2019 : srwse 240
+Sat Aug 17 13:22:15 2019 : srwse 264
+Sat Aug 17 13:22:15 2019 : srwse 288
+Sat Aug 17 13:22:16 2019 : srwse 312
+Sat Aug 17 13:22:16 2019 : srwse 336
+Sat Aug 17 13:22:16 2019 : srwse 360
+Sat Aug 17 13:22:16 2019 : srwse 384
+Sat Aug 17 13:22:16 2019 : srwse 408
+Sat Aug 17 13:22:16 2019 : srwse 432
+Sat Aug 17 13:22:16 2019 : srwse 456
+Sat Aug 17 13:22:16 2019 : srwse 480
+Sat Aug 17 13:22:16 2019 : srwse 504
+Sat Aug 17 13:22:16 2019 : srwse 528
+Sat Aug 17 13:22:17 2019 : srwse 552
+Sat Aug 17 13:22:17 2019 : srwse 576
+Sat Aug 17 13:22:17 2019 : srwse 600
+Sat Aug 17 13:22:17 2019 : srwse 624
+Sat Aug 17 13:22:17 2019 : srwse 648
+Sat Aug 17 13:22:17 2019 : srwse 672
+Sat Aug 17 13:22:17 2019 : srwse 696
+Sat Aug 17 13:22:17 2019 : srwse 720
+Sat Aug 17 13:22:17 2019 : srwse 744
+Sat Aug 17 13:22:17 2019 : srwse 768
+Sat Aug 17 13:22:18 2019 : srwse 792
+Sat Aug 17 13:22:18 2019 : srwse 816
+Sat Aug 17 13:22:18 2019 : srwse 840
+Sat Aug 17 13:22:18 2019 : srwse 864
+Sat Aug 17 13:22:18 2019 : srwse 888
+Sat Aug 17 13:22:18 2019 : srwse 0
+Sat Aug 17 13:22:18 2019 : srwse 24
+Sat Aug 17 13:22:18 2019 : srwse 48
+Sat Aug 17 13:22:18 2019 : srwse 72
+Sat Aug 17 13:22:18 2019 : srwse 96
+Sat Aug 17 13:22:19 2019 : srwse 120
+Sat Aug 17 13:22:19 2019 : srwse 144
+Sat Aug 17 13:22:19 2019 : srwse 168
+Sat Aug 17 13:22:19 2019 : srwse 192
+Sat Aug 17 13:22:19 2019 : srwse 216
+Sat Aug 17 13:22:19 2019 : srwse 240
+Sat Aug 17 13:22:19 2019 : srwse 264
+Sat Aug 17 13:22:19 2019 : srwse 288
+Sat Aug 17 13:22:19 2019 : srwse 312
+Sat Aug 17 13:22:19 2019 : srwse 336
+Sat Aug 17 13:22:20 2019 : srwse 360
+Sat Aug 17 13:22:20 2019 : srwse 384
+Sat Aug 17 13:22:20 2019 : srwse 408
+Sat Aug 17 13:22:20 2019 : srwse 432
+Sat Aug 17 13:22:20 2019 : srwse 456
+Sat Aug 17 13:22:20 2019 : srwse 480
+Sat Aug 17 13:22:20 2019 : srwse 504
+Sat Aug 17 13:22:20 2019 : srwse 528
+Sat Aug 17 13:22:20 2019 : srwse 552
+Sat Aug 17 13:22:21 2019 : srwse 576
+Sat Aug 17 13:22:21 2019 : srwse 600
+Sat Aug 17 13:22:21 2019 : srwse 624
+Sat Aug 17 13:22:21 2019 : srwse 648
+Sat Aug 17 13:22:21 2019 : srwse 672
+Sat Aug 17 13:22:21 2019 : srwse 696
+Sat Aug 17 13:22:21 2019 : srwse 720
+Sat Aug 17 13:22:21 2019 : srwse 744
+Sat Aug 17 13:22:21 2019 : srwse 768
+Sat Aug 17 13:22:21 2019 : srwse 792
+Sat Aug 17 13:22:22 2019 : srwse 816
+Sat Aug 17 13:22:22 2019 : srwse 840
+Sat Aug 17 13:22:22 2019 : srwse 864
+Sat Aug 17 13:22:22 2019 : srwse 888
+Sat Aug 17 13:22:22 2019 : srwse 0
+Sat Aug 17 13:22:22 2019 : srwse 24
+Sat Aug 17 13:22:22 2019 : srwse 48
+Sat Aug 17 13:22:22 2019 : srwse 72
+Sat Aug 17 13:22:22 2019 : srwse 96
+Sat Aug 17 13:22:22 2019 : srwse 120
+Sat Aug 17 13:22:23 2019 : srwse 144
+Sat Aug 17 13:22:23 2019 : srwse 168
+Sat Aug 17 13:22:23 2019 : srwse 192
+Sat Aug 17 13:22:23 2019 : srwse 216
+Sat Aug 17 13:22:23 2019 : srwse 240
+Sat Aug 17 13:22:23 2019 : srwse 264
+Sat Aug 17 13:22:23 2019 : srwse 288
+Sat Aug 17 13:22:23 2019 : srwse 312
+Sat Aug 17 13:22:23 2019 : srwse 336
+Sat Aug 17 13:22:23 2019 : srwse 360
+Sat Aug 17 13:22:24 2019 : srwse 384
+Sat Aug 17 13:22:24 2019 : srwse 408
+Sat Aug 17 13:22:24 2019 : srwse 432
+Sat Aug 17 13:22:24 2019 : srwse 456
+Sat Aug 17 13:22:24 2019 : srwse 480
+Sat Aug 17 13:22:24 2019 : srwse 504
+Sat Aug 17 13:22:24 2019 : srwse 528
+Sat Aug 17 13:22:24 2019 : srwse 552
+Sat Aug 17 13:22:24 2019 : srwse 576
+Sat Aug 17 13:22:24 2019 : srwse 600
+Sat Aug 17 13:22:25 2019 : srwse 624
+Sat Aug 17 13:22:25 2019 : srwse 648
+Sat Aug 17 13:22:25 2019 : srwse 672
+Sat Aug 17 13:22:25 2019 : srwse 696
+Sat Aug 17 13:22:25 2019 : srwse 720
+Sat Aug 17 13:22:25 2019 : srwse 744
+Sat Aug 17 13:22:25 2019 : srwse 768
+Sat Aug 17 13:22:25 2019 : srwse 792
+Sat Aug 17 13:22:25 2019 : srwse 816
+Sat Aug 17 13:22:25 2019 : srwse 840
+Sat Aug 17 13:22:26 2019 : srwse 864
+Sat Aug 17 13:22:26 2019 : srwse 888
+Sat Aug 17 13:22:26 2019 : srwse 0
+Sat Aug 17 13:22:26 2019 : srwse 24
+Sat Aug 17 13:22:26 2019 : srwse 48
+Sat Aug 17 13:22:26 2019 : srwse 72
+Sat Aug 17 13:22:26 2019 : srwse 96
+Sat Aug 17 13:22:26 2019 : srwse 120
+Sat Aug 17 13:22:26 2019 : srwse 144
+Sat Aug 17 13:22:26 2019 : srwse 168
+Sat Aug 17 13:22:27 2019 : srwse 192
+Sat Aug 17 13:22:27 2019 : srwse 216
+Sat Aug 17 13:22:27 2019 : srwse 240
+Sat Aug 17 13:22:27 2019 : srwse 264
+Sat Aug 17 13:22:27 2019 : srwse 288
+Sat Aug 17 13:22:27 2019 : srwse 312
+Sat Aug 17 13:22:27 2019 : srwse 336
+Sat Aug 17 13:22:27 2019 : srwse 360
+Sat Aug 17 13:22:27 2019 : srwse 384
+Sat Aug 17 13:22:28 2019 : srwse 408
+Sat Aug 17 13:22:28 2019 : srwse 432
+Sat Aug 17 13:22:28 2019 : srwse 456
+Sat Aug 17 13:22:28 2019 : srwse 480
+Sat Aug 17 13:22:28 2019 : srwse 504
+Sat Aug 17 13:22:28 2019 : srwse 528
+Sat Aug 17 13:22:28 2019 : srwse 552
+Sat Aug 17 13:22:28 2019 : srwse 576
+Sat Aug 17 13:22:28 2019 : srwse 600
+Sat Aug 17 13:22:28 2019 : srwse 624
+Sat Aug 17 13:22:29 2019 : srwse 648
+Sat Aug 17 13:22:29 2019 : srwse 672
+Sat Aug 17 13:22:29 2019 : srwse 696
+Sat Aug 17 13:22:29 2019 : srwse 720
+Sat Aug 17 13:22:29 2019 : srwse 744
+Sat Aug 17 13:22:29 2019 : srwse 768
+Sat Aug 17 13:22:29 2019 : srwse 792
+Sat Aug 17 13:22:29 2019 : srwse 816
+Sat Aug 17 13:22:29 2019 : srwse 840
+Sat Aug 17 13:22:29 2019 : srwse 864
+Sat Aug 17 13:22:30 2019 : srwse 888
+Sat Aug 17 13:22:30 2019 : srwse 0
+Sat Aug 17 13:22:30 2019 : srwse 24
+Sat Aug 17 13:22:30 2019 : srwse 48
+Sat Aug 17 13:22:30 2019 : srwse 72
+Sat Aug 17 13:22:30 2019 : srwse 96
+Sat Aug 17 13:22:30 2019 : srwse 120
+Sat Aug 17 13:22:30 2019 : srwse 144
+Sat Aug 17 13:22:30 2019 : srwse 168
+Sat Aug 17 13:22:30 2019 : srwse 192
+Sat Aug 17 13:22:31 2019 : srwse 216
+Sat Aug 17 13:22:31 2019 : srwse 240
+Sat Aug 17 13:22:31 2019 : srwse 264
+Sat Aug 17 13:22:31 2019 : srwse 288
+Sat Aug 17 13:22:31 2019 : srwse 312
+Sat Aug 17 13:22:31 2019 : srwse 336
+Sat Aug 17 13:22:31 2019 : srwse 360
+Sat Aug 17 13:22:31 2019 : srwse 384
+Sat Aug 17 13:22:31 2019 : srwse 408
+Sat Aug 17 13:22:31 2019 : srwse 432
+Sat Aug 17 13:22:32 2019 : srwse 456
+Sat Aug 17 13:22:32 2019 : srwse 480
+Sat Aug 17 13:22:32 2019 : srwse 504
+Sat Aug 17 13:22:32 2019 : srwse 531
+Sat Aug 17 13:22:32 2019 : srwse 555
+Sat Aug 17 13:22:32 2019 : srwse 579
+Sat Aug 17 13:22:32 2019 : srwse 606
+Sat Aug 17 13:22:32 2019 : srwse 633
+Sat Aug 17 13:22:32 2019 : srwse 657
+Sat Aug 17 13:22:32 2019 : srwse 684
+Sat Aug 17 13:22:33 2019 : srwse 708
+Sat Aug 17 13:22:33 2019 : srwse 735
+Sat Aug 17 13:22:33 2019 : srwse 759
+Sat Aug 17 13:22:33 2019 : srwse 783
+Sat Aug 17 13:22:33 2019 : srwse 807
+Sat Aug 17 13:22:33 2019 : srwse 833
+Sat Aug 17 13:22:33 2019 : srwse 860
+Sat Aug 17 13:22:33 2019 : srwse 887
+Sat Aug 17 13:22:33 2019 : srwse 0
+Sat Aug 17 13:22:33 2019 : srwse 24
+Sat Aug 17 13:22:34 2019 : srwse 48
+Sat Aug 17 13:22:34 2019 : srwse 72
+Sat Aug 17 13:22:34 2019 : srwse 96
+Sat Aug 17 13:22:34 2019 : srwse 120
+Sat Aug 17 13:22:34 2019 : srwse 144
+Sat Aug 17 13:22:34 2019 : srwse 168
+Sat Aug 17 13:22:34 2019 : srwse 195
+Sat Aug 17 13:22:34 2019 : srwse 222
+Sat Aug 17 13:22:34 2019 : srwse 249
+Sat Aug 17 13:22:34 2019 : srwse 273
+Sat Aug 17 13:22:35 2019 : srwse 300
+Sat Aug 17 13:22:35 2019 : srwse 324
+Sat Aug 17 13:22:35 2019 : srwse 348
+Sat Aug 17 13:22:35 2019 : srwse 372
+Sat Aug 17 13:22:35 2019 : srwse 396
+Sat Aug 17 13:22:35 2019 : srwse 420
+Sat Aug 17 13:22:35 2019 : srwse 444
+Sat Aug 17 13:22:35 2019 : srwse 468
+Sat Aug 17 13:22:35 2019 : srwse 492
+Sat Aug 17 13:22:35 2019 : srwse 516
+Sat Aug 17 13:22:36 2019 : srwse 540
+Sat Aug 17 13:22:36 2019 : srwse 564
+Sat Aug 17 13:22:36 2019 : srwse 588
+Sat Aug 17 13:22:36 2019 : srwse 612
+Sat Aug 17 13:22:36 2019 : srwse 636
+Sat Aug 17 13:22:36 2019 : srwse 660
+Sat Aug 17 13:22:36 2019 : srwse 684
+Sat Aug 17 13:22:36 2019 : srwse 708
+Sat Aug 17 13:22:36 2019 : srwse 732
+Sat Aug 17 13:22:36 2019 : srwse 756
+Sat Aug 17 13:22:37 2019 : srwse 780
+Sat Aug 17 13:22:37 2019 : srwse 804
+Sat Aug 17 13:22:37 2019 : srwse 828
+Sat Aug 17 13:22:37 2019 : srwse 852
+Sat Aug 17 13:22:37 2019 : srwse 876
+Sat Aug 17 13:22:37 2019 : srwse 900
+Sat Aug 17 13:22:37 2019 : srwse 0
+Sat Aug 17 13:22:37 2019 : srwse 24
+Sat Aug 17 13:22:37 2019 : srwse 48
+Sat Aug 17 13:22:37 2019 : srwse 72
+Sat Aug 17 13:22:38 2019 : srwse 96
+Sat Aug 17 13:22:38 2019 : srwse 120
+Sat Aug 17 13:22:38 2019 : srwse 144
+Sat Aug 17 13:22:38 2019 : srwse 168
+Sat Aug 17 13:22:38 2019 : srwse 192
+Sat Aug 17 13:22:38 2019 : srwse 216
+Sat Aug 17 13:22:38 2019 : srwse 240
+Sat Aug 17 13:22:38 2019 : srwse 264
+Sat Aug 17 13:22:38 2019 : srwse 288
+Sat Aug 17 13:22:38 2019 : srwse 312
+Sat Aug 17 13:22:39 2019 : srwse 336
+Sat Aug 17 13:22:39 2019 : srwse 360
+Sat Aug 17 13:22:39 2019 : srwse 384
+Sat Aug 17 13:22:39 2019 : srwse 408
+Sat Aug 17 13:22:39 2019 : srwse 432
+Sat Aug 17 13:22:39 2019 : srwse 456
+Sat Aug 17 13:22:39 2019 : srwse 480
+Sat Aug 17 13:22:39 2019 : srwse 504
+Sat Aug 17 13:22:39 2019 : srwse 528
+Sat Aug 17 13:22:39 2019 : srwse 552
+Sat Aug 17 13:22:40 2019 : srwse 576
+Sat Aug 17 13:22:40 2019 : srwse 600
+Sat Aug 17 13:22:40 2019 : srwse 624
+Sat Aug 17 13:22:40 2019 : srwse 648
+Sat Aug 17 13:22:40 2019 : srwse 672
+Sat Aug 17 13:22:40 2019 : srwse 696
+Sat Aug 17 13:22:40 2019 : srwse 720
+Sat Aug 17 13:22:40 2019 : srwse 744
+Sat Aug 17 13:22:40 2019 : srwse 768
+Sat Aug 17 13:22:40 2019 : srwse 792
+Sat Aug 17 13:22:41 2019 : srwse 816
+Sat Aug 17 13:22:41 2019 : srwse 840
+Sat Aug 17 13:22:41 2019 : srwse 864
+Sat Aug 17 13:22:41 2019 : srwse 888
+Sat Aug 17 13:22:41 2019 : srwse 0
+Sat Aug 17 13:22:41 2019 : srwse 24
+Sat Aug 17 13:22:41 2019 : srwse 48
+Sat Aug 17 13:22:41 2019 : srwse 72
+Sat Aug 17 13:22:41 2019 : srwse 96
+Sat Aug 17 13:22:41 2019 : srwse 120
+Sat Aug 17 13:22:42 2019 : srwse 144
+Sat Aug 17 13:22:42 2019 : srwse 168
+Sat Aug 17 13:22:42 2019 : srwse 192
+Sat Aug 17 13:22:42 2019 : srwse 216
+Sat Aug 17 13:22:42 2019 : srwse 240
+Sat Aug 17 13:22:42 2019 : srwse 264
+Sat Aug 17 13:22:42 2019 : srwse 288
+Sat Aug 17 13:22:42 2019 : srwse 312
+Sat Aug 17 13:22:42 2019 : srwse 336
+Sat Aug 17 13:22:42 2019 : srwse 360
+Sat Aug 17 13:22:43 2019 : srwse 384
+Sat Aug 17 13:22:43 2019 : srwse 408
+Sat Aug 17 13:22:43 2019 : srwse 432
+Sat Aug 17 13:22:43 2019 : srwse 456
+Sat Aug 17 13:22:43 2019 : srwse 480
+Sat Aug 17 13:22:43 2019 : srwse 504
+Sat Aug 17 13:22:43 2019 : srwse 528
+Sat Aug 17 13:22:43 2019 : srwse 552
+Sat Aug 17 13:22:43 2019 : srwse 576
+Sat Aug 17 13:22:43 2019 : srwse 600
+Sat Aug 17 13:22:44 2019 : srwse 624
+Sat Aug 17 13:22:44 2019 : srwse 648
+Sat Aug 17 13:22:44 2019 : srwse 672
+Sat Aug 17 13:22:44 2019 : srwse 696
+Sat Aug 17 13:22:44 2019 : srwse 720
+Sat Aug 17 13:22:44 2019 : srwse 744
+Sat Aug 17 13:22:44 2019 : srwse 768
+Sat Aug 17 13:22:44 2019 : srwse 792
+Sat Aug 17 13:22:44 2019 : srwse 816
+Sat Aug 17 13:22:44 2019 : srwse 840
+Sat Aug 17 13:22:45 2019 : srwse 864
+Sat Aug 17 13:22:45 2019 : srwse 888
+Sat Aug 17 13:22:45 2019 : srwse 0
+Sat Aug 17 13:22:45 2019 : srwse 24
+Sat Aug 17 13:22:45 2019 : srwse 48
+Sat Aug 17 13:22:45 2019 : srwse 72
+Sat Aug 17 13:22:45 2019 : srwse 96
+Sat Aug 17 13:22:45 2019 : srwse 120
+Sat Aug 17 13:22:45 2019 : srwse 144
+Sat Aug 17 13:22:45 2019 : srwse 168
+Sat Aug 17 13:22:46 2019 : srwse 192
+Sat Aug 17 13:22:46 2019 : srwse 216
+Sat Aug 17 13:22:46 2019 : srwse 240
+Sat Aug 17 13:22:46 2019 : srwse 264
+Sat Aug 17 13:22:46 2019 : srwse 288
+Sat Aug 17 13:22:46 2019 : srwse 312
+Sat Aug 17 13:22:46 2019 : srwse 336
+Sat Aug 17 13:22:46 2019 : srwse 360
+Sat Aug 17 13:22:46 2019 : srwse 384
+Sat Aug 17 13:22:46 2019 : srwse 408
+Sat Aug 17 13:22:47 2019 : srwse 432
+Sat Aug 17 13:22:47 2019 : srwse 456
+Sat Aug 17 13:22:47 2019 : srwse 480
+Sat Aug 17 13:22:47 2019 : srwse 504
+Sat Aug 17 13:22:47 2019 : srwse 528
+Sat Aug 17 13:22:47 2019 : srwse 552
+Sat Aug 17 13:22:47 2019 : srwse 576
+Sat Aug 17 13:22:47 2019 : srwse 600
+Sat Aug 17 13:22:47 2019 : srwse 624
+Sat Aug 17 13:22:47 2019 : srwse 648
+Sat Aug 17 13:22:48 2019 : srwse 672
+Sat Aug 17 13:22:48 2019 : srwse 696
+Sat Aug 17 13:22:48 2019 : srwse 720
+Sat Aug 17 13:22:48 2019 : srwse 744
+Sat Aug 17 13:22:48 2019 : srwse 768
+Sat Aug 17 13:22:48 2019 : srwse 792
+Sat Aug 17 13:22:48 2019 : srwse 816
+Sat Aug 17 13:22:48 2019 : srwse 840
+Sat Aug 17 13:22:48 2019 : srwse 864
+Sat Aug 17 13:22:48 2019 : srwse 888
+Sat Aug 17 13:22:49 2019 : srwse 0
+Sat Aug 17 13:22:49 2019 : srwse 24
+Sat Aug 17 13:22:49 2019 : srwse 48
+Sat Aug 17 13:22:49 2019 : srwse 72
+Sat Aug 17 13:22:49 2019 : srwse 96
+Sat Aug 17 13:22:49 2019 : srwse 120
+Sat Aug 17 13:22:49 2019 : srwse 144
+Sat Aug 17 13:22:49 2019 : srwse 168
+Sat Aug 17 13:22:49 2019 : srwse 192
+Sat Aug 17 13:22:49 2019 : srwse 216
+Sat Aug 17 13:22:50 2019 : srwse 240
+Sat Aug 17 13:22:50 2019 : srwse 264
+Sat Aug 17 13:22:50 2019 : srwse 288
+Sat Aug 17 13:22:50 2019 : srwse 312
+Sat Aug 17 13:22:50 2019 : srwse 336
+Sat Aug 17 13:22:50 2019 : srwse 360
+Sat Aug 17 13:22:50 2019 : srwse 384
+Sat Aug 17 13:22:50 2019 : srwse 408
+Sat Aug 17 13:22:50 2019 : srwse 432
+Sat Aug 17 13:22:50 2019 : srwse 456
+Sat Aug 17 13:22:51 2019 : srwse 480
+Sat Aug 17 13:22:51 2019 : srwse 504
+Sat Aug 17 13:22:51 2019 : srwse 528
+Sat Aug 17 13:22:51 2019 : srwse 552
+Sat Aug 17 13:22:51 2019 : srwse 576
+Sat Aug 17 13:22:51 2019 : srwse 600
+Sat Aug 17 13:22:51 2019 : srwse 624
+Sat Aug 17 13:22:51 2019 : srwse 648
+Sat Aug 17 13:22:51 2019 : srwse 672
+Sat Aug 17 13:22:51 2019 : srwse 696
+Sat Aug 17 13:22:52 2019 : srwse 720
+Sat Aug 17 13:22:52 2019 : srwse 744
+Sat Aug 17 13:22:52 2019 : srwse 768
+Sat Aug 17 13:22:52 2019 : srwse 792
+Sat Aug 17 13:22:52 2019 : srwse 816
+Sat Aug 17 13:22:52 2019 : srwse 840
+Sat Aug 17 13:22:52 2019 : srwse 864
+Sat Aug 17 13:22:52 2019 : srwse 888
+Sat Aug 17 13:22:52 2019 : srwse 0
+Sat Aug 17 13:22:52 2019 : srwse 24
+Sat Aug 17 13:22:53 2019 : srwse 48
+Sat Aug 17 13:22:53 2019 : srwse 75
+Sat Aug 17 13:22:53 2019 : srwse 102
+Sat Aug 17 13:22:53 2019 : srwse 129
+Sat Aug 17 13:22:53 2019 : srwse 153
+Sat Aug 17 13:22:53 2019 : srwse 180
+Sat Aug 17 13:22:53 2019 : srwse 207
+Sat Aug 17 13:22:53 2019 : 20000
+Sat Aug 17 13:22:53 2019 : srwse 231
+Sat Aug 17 13:22:53 2019 : 2000
+Sat Aug 17 13:22:53 2019 : srwse 255
+Sat Aug 17 13:22:53 2019 : srwse 279
+Sat Aug 17 13:22:53 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 303
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 327
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 351
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 375
+Sat Aug 17 13:22:54 2019 : srwse 399
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 423
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 450
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 477
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:54 2019 : srwse 504
+Sat Aug 17 13:22:54 2019 : srwse 531
+Sat Aug 17 13:22:54 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 558
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 585
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 612
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 639
+Sat Aug 17 13:22:55 2019 : srwse 666
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 693
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 720
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 747
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:55 2019 : srwse 774
+Sat Aug 17 13:22:55 2019 : srwse 801
+Sat Aug 17 13:22:55 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 828
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 855
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 882
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 0
+Sat Aug 17 13:22:56 2019 : srwse 27
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 54
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 81
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 107
+Sat Aug 17 13:22:56 2019 : srwse 133
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:56 2019 : srwse 159
+Sat Aug 17 13:22:56 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 185
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 211
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 237
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 263
+Sat Aug 17 13:22:57 2019 : srwse 289
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 316
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 342
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 368
+Sat Aug 17 13:22:57 2019 : srwse 394
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:57 2019 : srwse 420
+Sat Aug 17 13:22:57 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 446
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 472
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 498
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 524
+Sat Aug 17 13:22:58 2019 : srwse 550
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 576
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 602
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 628
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:58 2019 : srwse 654
+Sat Aug 17 13:22:58 2019 : srwse 680
+Sat Aug 17 13:22:58 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 706
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 732
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 758
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 784
+Sat Aug 17 13:22:59 2019 : srwse 810
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 837
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 864
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 891
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:22:59 2019 : srwse 0
+Sat Aug 17 13:22:59 2019 : srwse 27
+Sat Aug 17 13:22:59 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 54
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 81
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 108
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 135
+Sat Aug 17 13:23:00 2019 : srwse 162
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 189
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 216
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 243
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:00 2019 : srwse 270
+Sat Aug 17 13:23:00 2019 : srwse 297
+Sat Aug 17 13:23:00 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 324
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 351
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 378
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 405
+Sat Aug 17 13:23:01 2019 : srwse 432
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 459
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 486
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 513
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:01 2019 : srwse 540
+Sat Aug 17 13:23:01 2019 : srwse 567
+Sat Aug 17 13:23:01 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 594
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 621
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 648
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 675
+Sat Aug 17 13:23:02 2019 : srwse 702
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 729
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 756
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 780
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:02 2019 : srwse 807
+Sat Aug 17 13:23:02 2019 : srwse 834
+Sat Aug 17 13:23:02 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 861
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 888
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 0
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 24
+Sat Aug 17 13:23:03 2019 : srwse 48
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 72
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 96
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 120
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:03 2019 : srwse 144
+Sat Aug 17 13:23:03 2019 : srwse 168
+Sat Aug 17 13:23:03 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 192
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 216
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 240
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 264
+Sat Aug 17 13:23:04 2019 : srwse 288
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 312
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 336
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 360
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:04 2019 : srwse 384
+Sat Aug 17 13:23:04 2019 : srwse 408
+Sat Aug 17 13:23:04 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 435
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 459
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 483
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 507
+Sat Aug 17 13:23:05 2019 : srwse 534
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 561
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 588
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 615
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:05 2019 : srwse 642
+Sat Aug 17 13:23:05 2019 : srwse 666
+Sat Aug 17 13:23:05 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 693
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 717
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 744
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 771
+Sat Aug 17 13:23:06 2019 : srwse 798
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 825
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 852
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 879
+Sat Aug 17 13:23:06 2019 : srwse 0
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:06 2019 : srwse 27
+Sat Aug 17 13:23:06 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 54
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 81
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 108
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 135
+Sat Aug 17 13:23:07 2019 : srwse 162
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 189
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 216
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 243
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:07 2019 : srwse 270
+Sat Aug 17 13:23:07 2019 : srwse 297
+Sat Aug 17 13:23:07 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 324
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 351
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 378
+Sat Aug 17 13:23:08 2019 : srwse 405
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 432
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 459
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 486
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 513
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:08 2019 : srwse 540
+Sat Aug 17 13:23:08 2019 : srwse 567
+Sat Aug 17 13:23:08 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 594
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 621
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 648
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 675
+Sat Aug 17 13:23:09 2019 : srwse 702
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 728
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 754
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 780
+Sat Aug 17 13:23:09 2019 : srwse 806
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:09 2019 : srwse 832
+Sat Aug 17 13:23:09 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 856
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 882
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 0
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 26
+Sat Aug 17 13:23:10 2019 : srwse 52
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 78
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 104
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 130
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:10 2019 : srwse 156
+Sat Aug 17 13:23:10 2019 : srwse 182
+Sat Aug 17 13:23:10 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 209
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 233
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 257
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 281
+Sat Aug 17 13:23:11 2019 : srwse 305
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 329
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 353
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 377
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:11 2019 : srwse 401
+Sat Aug 17 13:23:11 2019 : srwse 425
+Sat Aug 17 13:23:11 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 449
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 473
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 497
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 521
+Sat Aug 17 13:23:12 2019 : srwse 545
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 569
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 593
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 617
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:12 2019 : srwse 641
+Sat Aug 17 13:23:12 2019 : srwse 665
+Sat Aug 17 13:23:12 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 689
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 713
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 737
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 761
+Sat Aug 17 13:23:13 2019 : srwse 785
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 809
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 833
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 857
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:13 2019 : srwse 881
+Sat Aug 17 13:23:13 2019 : srwse 0
+Sat Aug 17 13:23:13 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 24
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 48
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 72
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 96
+Sat Aug 17 13:23:14 2019 : srwse 120
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 144
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 168
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 192
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:14 2019 : srwse 216
+Sat Aug 17 13:23:14 2019 : srwse 240
+Sat Aug 17 13:23:14 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 264
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 288
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 312
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 336
+Sat Aug 17 13:23:15 2019 : srwse 360
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 384
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 408
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 435
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:15 2019 : srwse 462
+Sat Aug 17 13:23:15 2019 : srwse 489
+Sat Aug 17 13:23:15 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 516
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 543
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 567
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 591
+Sat Aug 17 13:23:16 2019 : srwse 618
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 642
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 669
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 693
+Sat Aug 17 13:23:16 2019 : srwse 719
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:16 2019 : srwse 745
+Sat Aug 17 13:23:16 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 771
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 797
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 823
+Sat Aug 17 13:23:17 2019 : srwse 849
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 875
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 0
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 26
+Sat Aug 17 13:23:17 2019 : 2000
+Sat Aug 17 13:23:17 2019 : srwse 52
+Sat Aug 17 13:23:17 2019 : srwse 76
+Sat Aug 17 13:23:17 2019 : srwse 100
+Sat Aug 17 13:23:17 2019 : 4000
+Sat Aug 17 13:23:18 2019 : srwse 127
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 151
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 175
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 199
+Sat Aug 17 13:23:18 2019 : srwse 223
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 247
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 271
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 295
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:18 2019 : srwse 319
+Sat Aug 17 13:23:18 2019 : srwse 343
+Sat Aug 17 13:23:18 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 370
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 397
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 424
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 451
+Sat Aug 17 13:23:19 2019 : srwse 478
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 505
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 532
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 559
+Sat Aug 17 13:23:19 2019 : srwse 586
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:19 2019 : srwse 613
+Sat Aug 17 13:23:19 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 640
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 667
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 694
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 721
+Sat Aug 17 13:23:20 2019 : srwse 748
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 775
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 802
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 829
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:20 2019 : srwse 856
+Sat Aug 17 13:23:20 2019 : srwse 883
+Sat Aug 17 13:23:20 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 0
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 27
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 54
+Sat Aug 17 13:23:21 2019 : srwse 78
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 105
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 132
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 159
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 186
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:21 2019 : srwse 213
+Sat Aug 17 13:23:21 2019 : srwse 240
+Sat Aug 17 13:23:21 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 267
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 294
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 321
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 348
+Sat Aug 17 13:23:22 2019 : srwse 372
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 396
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 423
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 450
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:22 2019 : srwse 474
+Sat Aug 17 13:23:22 2019 : srwse 498
+Sat Aug 17 13:23:22 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 522
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 546
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 573
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 597
+Sat Aug 17 13:23:23 2019 : srwse 621
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 648
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 672
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 696
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:23 2019 : srwse 723
+Sat Aug 17 13:23:23 2019 : srwse 750
+Sat Aug 17 13:23:23 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 774
+Sat Aug 17 13:23:24 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 801
+Sat Aug 17 13:23:24 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 825
+Sat Aug 17 13:23:24 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 849
+Sat Aug 17 13:23:24 2019 : srwse 873
+Sat Aug 17 13:23:24 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 897
+Sat Aug 17 13:23:24 2019 : srwse 0
+Sat Aug 17 13:23:24 2019 : 4000
+Sat Aug 17 13:23:24 2019 : srwse 24
+Sat Aug 17 13:23:24 2019 : 2000
+Sat Aug 17 13:23:24 2019 : srwse 48
+Sat Aug 17 13:23:24 2019 : srwse 72
+Sat Aug 17 13:23:25 2019 : srwse 96
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 120
+Sat Aug 17 13:23:25 2019 : 4000
+Sat Aug 17 13:23:25 2019 : srwse 144
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 168
+Sat Aug 17 13:23:25 2019 : srwse 192
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 216
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 240
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 264
+Sat Aug 17 13:23:25 2019 : srwse 288
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:25 2019 : srwse 312
+Sat Aug 17 13:23:25 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 336
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 360
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 384
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 408
+Sat Aug 17 13:23:26 2019 : srwse 435
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 459
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 483
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 507
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:26 2019 : srwse 531
+Sat Aug 17 13:23:26 2019 : srwse 558
+Sat Aug 17 13:23:26 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 582
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 606
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 630
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 654
+Sat Aug 17 13:23:27 2019 : srwse 678
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 702
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 726
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 750
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:27 2019 : srwse 774
+Sat Aug 17 13:23:27 2019 : srwse 798
+Sat Aug 17 13:23:27 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 822
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 846
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 870
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 894
+Sat Aug 17 13:23:28 2019 : srwse 0
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 24
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 48
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 72
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:28 2019 : srwse 96
+Sat Aug 17 13:23:28 2019 : srwse 120
+Sat Aug 17 13:23:28 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 144
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 168
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 192
+Sat Aug 17 13:23:29 2019 : srwse 216
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 240
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 264
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 288
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 312
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:29 2019 : srwse 336
+Sat Aug 17 13:23:29 2019 : srwse 363
+Sat Aug 17 13:23:29 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 387
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 411
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 435
+Sat Aug 17 13:23:30 2019 : srwse 459
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 483
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 507
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 531
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 555
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:30 2019 : srwse 579
+Sat Aug 17 13:23:30 2019 : srwse 603
+Sat Aug 17 13:23:30 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 627
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 651
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 675
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 699
+Sat Aug 17 13:23:31 2019 : srwse 723
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 747
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 771
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 795
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:31 2019 : srwse 819
+Sat Aug 17 13:23:31 2019 : srwse 843
+Sat Aug 17 13:23:31 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 867
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 891
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 0
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 24
+Sat Aug 17 13:23:32 2019 : srwse 48
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 72
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 96
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 120
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:32 2019 : srwse 144
+Sat Aug 17 13:23:32 2019 : srwse 168
+Sat Aug 17 13:23:32 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 192
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 216
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 240
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 264
+Sat Aug 17 13:23:33 2019 : srwse 288
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 312
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 336
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 360
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:33 2019 : srwse 384
+Sat Aug 17 13:23:33 2019 : srwse 408
+Sat Aug 17 13:23:33 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 432
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 456
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 480
+Sat Aug 17 13:23:34 2019 : srwse 504
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 528
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 552
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 576
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 600
+Sat Aug 17 13:23:34 2019 : srwse 624
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:34 2019 : srwse 648
+Sat Aug 17 13:23:34 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 672
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 696
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 720
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 744
+Sat Aug 17 13:23:35 2019 : srwse 771
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 795
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 819
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 843
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 867
+Sat Aug 17 13:23:35 2019 : 2000
+Sat Aug 17 13:23:35 2019 : srwse 891
+Sat Aug 17 13:23:36 2019 : srwse 0
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 24
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 48
+Sat Aug 17 13:23:36 2019 : srwse 72
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 96
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 120
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 144
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 168
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:36 2019 : srwse 192
+Sat Aug 17 13:23:36 2019 : srwse 216
+Sat Aug 17 13:23:36 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 240
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 264
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 288
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 312
+Sat Aug 17 13:23:37 2019 : srwse 336
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 360
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 384
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 408
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 432
+Sat Aug 17 13:23:37 2019 : 2000
+Sat Aug 17 13:23:37 2019 : srwse 456
+Sat Aug 17 13:23:38 2019 : srwse 480
+Sat Aug 17 13:23:38 2019 : 2000
+Sat Aug 17 13:23:38 2019 : srwse 504
+Sat Aug 17 13:23:38 2019 : 2000
+Sat Aug 17 13:23:38 2019 : srwse 528
+Sat Aug 17 13:23:38 2019 : 2000
+Sat Aug 17 13:23:38 2019 : srwse 552
+Sat Aug 17 13:23:38 2019 : srwse 576
+Sat Aug 17 13:23:38 2019 : 2000
+Sat Aug 17 13:23:38 2019 : srwse 600
+Sat Aug 17 13:23:38 2019 : srwse 624
+Sat Aug 17 13:23:38 2019 : srwse 648
+Sat Aug 17 13:23:38 2019 : srwse 672
+Sat Aug 17 13:23:38 2019 : srwse 696
+Sat Aug 17 13:23:39 2019 : srwse 720
+Sat Aug 17 13:23:39 2019 : srwse 744
+Sat Aug 17 13:23:39 2019 : srwse 771
+Sat Aug 17 13:23:39 2019 : srwse 795
+Sat Aug 17 13:23:39 2019 : srwse 819
+Sat Aug 17 13:23:39 2019 : srwse 843
+Sat Aug 17 13:23:39 2019 : srwse 867
+Sat Aug 17 13:23:39 2019 : srwse 891
+Sat Aug 17 13:23:39 2019 : srwse 0
+Sat Aug 17 13:23:39 2019 : srwse 24
+Sat Aug 17 13:23:40 2019 : srwse 48
+Sat Aug 17 13:23:40 2019 : srwse 72
+Sat Aug 17 13:23:40 2019 : srwse 96
+Sat Aug 17 13:23:40 2019 : srwse 120
+Sat Aug 17 13:23:40 2019 : srwse 144
+Sat Aug 17 13:23:40 2019 : srwse 168
+Sat Aug 17 13:23:40 2019 : srwse 192
+Sat Aug 17 13:23:40 2019 : srwse 216
+Sat Aug 17 13:23:40 2019 : srwse 240
+Sat Aug 17 13:23:40 2019 : srwse 264
+Sat Aug 17 13:23:41 2019 : srwse 288
+Sat Aug 17 13:23:41 2019 : srwse 312
+Sat Aug 17 13:23:41 2019 : srwse 336
+Sat Aug 17 13:23:41 2019 : srwse 360
+Sat Aug 17 13:23:41 2019 : srwse 384
+Sat Aug 17 13:23:41 2019 : srwse 408
+Sat Aug 17 13:23:41 2019 : srwse 432
+Sat Aug 17 13:23:41 2019 : srwse 456
+Sat Aug 17 13:23:41 2019 : srwse 480
+Sat Aug 17 13:23:41 2019 : srwse 504
+Sat Aug 17 13:23:42 2019 : srwse 528
+Sat Aug 17 13:23:42 2019 : srwse 552
+Sat Aug 17 13:23:42 2019 : srwse 576
+Sat Aug 17 13:23:42 2019 : srwse 600
+Sat Aug 17 13:23:42 2019 : srwse 624
+Sat Aug 17 13:23:42 2019 : srwse 648
+Sat Aug 17 13:23:42 2019 : srwse 672
+Sat Aug 17 13:23:42 2019 : srwse 696
+Sat Aug 17 13:23:42 2019 : srwse 720
+Sat Aug 17 13:23:42 2019 : srwse 744
+Sat Aug 17 13:23:43 2019 : srwse 768
+Sat Aug 17 13:23:43 2019 : srwse 792
+Sat Aug 17 13:23:43 2019 : srwse 816
+Sat Aug 17 13:23:43 2019 : srwse 840
+Sat Aug 17 13:23:43 2019 : srwse 864
+Sat Aug 17 13:23:43 2019 : srwse 888
+Sat Aug 17 13:23:43 2019 : srwse 0
+Sat Aug 17 13:23:43 2019 : srwse 24
+Sat Aug 17 13:23:43 2019 : srwse 48
+Sat Aug 17 13:23:43 2019 : srwse 72
+Sat Aug 17 13:23:44 2019 : srwse 96
+Sat Aug 17 13:23:44 2019 : srwse 120
+Sat Aug 17 13:23:44 2019 : srwse 144
+Sat Aug 17 13:23:44 2019 : srwse 168
+Sat Aug 17 13:23:44 2019 : srwse 192
+Sat Aug 17 13:23:44 2019 : srwse 216
+Sat Aug 17 13:23:44 2019 : srwse 240
+Sat Aug 17 13:23:44 2019 : srwse 264
+Sat Aug 17 13:23:44 2019 : srwse 288
+Sat Aug 17 13:23:44 2019 : srwse 312
+Sat Aug 17 13:23:45 2019 : srwse 336
+Sat Aug 17 13:23:45 2019 : srwse 360
+Sat Aug 17 13:23:45 2019 : srwse 384
+Sat Aug 17 13:23:45 2019 : srwse 408
+Sat Aug 17 13:23:45 2019 : srwse 432
+Sat Aug 17 13:23:45 2019 : srwse 456
+Sat Aug 17 13:23:45 2019 : srwse 480
+Sat Aug 17 13:23:45 2019 : srwse 504
+Sat Aug 17 13:23:45 2019 : srwse 528
+Sat Aug 17 13:23:45 2019 : srwse 552
+Sat Aug 17 13:23:46 2019 : srwse 576
+Sat Aug 17 13:23:46 2019 : srwse 600
+Sat Aug 17 13:23:46 2019 : srwse 624
+Sat Aug 17 13:23:46 2019 : srwse 648
+Sat Aug 17 13:23:46 2019 : srwse 672
+Sat Aug 17 13:23:46 2019 : srwse 696
+Sat Aug 17 13:23:46 2019 : srwse 720
+Sat Aug 17 13:23:46 2019 : srwse 744
+Sat Aug 17 13:23:46 2019 : srwse 768
+Sat Aug 17 13:23:46 2019 : srwse 792
+Sat Aug 17 13:23:47 2019 : srwse 816
+Sat Aug 17 13:23:47 2019 : srwse 840
+Sat Aug 17 13:23:47 2019 : srwse 864
+Sat Aug 17 13:23:47 2019 : srwse 888
+Sat Aug 17 13:23:47 2019 : srwse 0
+Sat Aug 17 13:23:47 2019 : srwse 24
+Sat Aug 17 13:23:47 2019 : srwse 48
+Sat Aug 17 13:23:47 2019 : srwse 72
+Sat Aug 17 13:23:47 2019 : 20000
+Sat Aug 17 13:23:47 2019 : srwse 96
+Sat Aug 17 13:23:47 2019 : 2000
+Sat Aug 17 13:23:47 2019 : srwse 120
+Sat Aug 17 13:23:48 2019 : srwse 144
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 168
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 192
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 216
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 240
+Sat Aug 17 13:23:48 2019 : srwse 264
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 288
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 312
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 336
+Sat Aug 17 13:23:48 2019 : 2000
+Sat Aug 17 13:23:48 2019 : srwse 360
+Sat Aug 17 13:23:49 2019 : srwse 384
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 408
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 432
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 456
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 480
+Sat Aug 17 13:23:49 2019 : srwse 504
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 528
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 552
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 576
+Sat Aug 17 13:23:49 2019 : 2000
+Sat Aug 17 13:23:49 2019 : srwse 600
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 624
+Sat Aug 17 13:23:50 2019 : srwse 648
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 672
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 696
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 720
+Sat Aug 17 13:23:50 2019 : srwse 744
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 768
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 792
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 816
+Sat Aug 17 13:23:50 2019 : 2000
+Sat Aug 17 13:23:50 2019 : srwse 840
+Sat Aug 17 13:23:51 2019 : srwse 864
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 888
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 0
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 24
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 48
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 72
+Sat Aug 17 13:23:51 2019 : srwse 96
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 120
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 144
+Sat Aug 17 13:23:51 2019 : 2000
+Sat Aug 17 13:23:51 2019 : srwse 168
+Sat Aug 17 13:23:52 2019 : srwse 192
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 216
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 240
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 264
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 288
+Sat Aug 17 13:23:52 2019 : srwse 312
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 336
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 360
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 384
+Sat Aug 17 13:23:52 2019 : 2000
+Sat Aug 17 13:23:52 2019 : srwse 408
+Sat Aug 17 13:23:53 2019 : srwse 432
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 456
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 480
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 504
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 528
+Sat Aug 17 13:23:53 2019 : srwse 552
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 576
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 600
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 624
+Sat Aug 17 13:23:53 2019 : 2000
+Sat Aug 17 13:23:53 2019 : srwse 648
+Sat Aug 17 13:23:54 2019 : srwse 672
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 696
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 720
+Sat Aug 17 13:23:54 2019 : 4000
+Sat Aug 17 13:23:54 2019 : srwse 744
+Sat Aug 17 13:23:54 2019 : srwse 768
+Sat Aug 17 13:23:54 2019 : srwse 792
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 816
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 840
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 865
+Sat Aug 17 13:23:54 2019 : 2000
+Sat Aug 17 13:23:54 2019 : srwse 890
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 0
+Sat Aug 17 13:23:55 2019 : srwse 25
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 49
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 73
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 97
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 121
+Sat Aug 17 13:23:55 2019 : srwse 145
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 169
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 196
+Sat Aug 17 13:23:55 2019 : 2000
+Sat Aug 17 13:23:55 2019 : srwse 223
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 250
+Sat Aug 17 13:23:56 2019 : srwse 277
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 304
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 331
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 355
+Sat Aug 17 13:23:56 2019 : srwse 382
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 409
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 436
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 463
+Sat Aug 17 13:23:56 2019 : 2000
+Sat Aug 17 13:23:56 2019 : srwse 490
+Sat Aug 17 13:23:57 2019 : srwse 517
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 544
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 571
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 598
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 625
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 652
+Sat Aug 17 13:23:57 2019 : srwse 676
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 700
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 724
+Sat Aug 17 13:23:57 2019 : 2000
+Sat Aug 17 13:23:57 2019 : srwse 750
+Sat Aug 17 13:23:58 2019 : srwse 774
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 798
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 822
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 849
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 876
+Sat Aug 17 13:23:58 2019 : srwse 0
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 27
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 54
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 81
+Sat Aug 17 13:23:58 2019 : 2000
+Sat Aug 17 13:23:58 2019 : srwse 108
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 135
+Sat Aug 17 13:23:59 2019 : srwse 162
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 189
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 216
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 243
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 267
+Sat Aug 17 13:23:59 2019 : srwse 291
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 315
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 341
+Sat Aug 17 13:23:59 2019 : 2000
+Sat Aug 17 13:23:59 2019 : srwse 365
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 389
+Sat Aug 17 13:24:00 2019 : srwse 413
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 437
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 461
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 485
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 509
+Sat Aug 17 13:24:00 2019 : srwse 533
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 557
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 581
+Sat Aug 17 13:24:00 2019 : 2000
+Sat Aug 17 13:24:00 2019 : srwse 605
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 629
+Sat Aug 17 13:24:01 2019 : srwse 656
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 683
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 711
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 736
+Sat Aug 17 13:24:01 2019 : srwse 761
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 789
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 814
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 838
+Sat Aug 17 13:24:01 2019 : 2000
+Sat Aug 17 13:24:01 2019 : srwse 865
+Sat Aug 17 13:24:02 2019 : srwse 892
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 0
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 27
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 51
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 75
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 99
+Sat Aug 17 13:24:02 2019 : srwse 123
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 147
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 171
+Sat Aug 17 13:24:02 2019 : 2000
+Sat Aug 17 13:24:02 2019 : srwse 195
+Sat Aug 17 13:24:03 2019 : srwse 219
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 246
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 273
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 297
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 321
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 348
+Sat Aug 17 13:24:03 2019 : srwse 375
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 402
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 429
+Sat Aug 17 13:24:03 2019 : 2000
+Sat Aug 17 13:24:03 2019 : srwse 456
+Sat Aug 17 13:24:04 2019 : srwse 480
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 507
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 534
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 561
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 588
+Sat Aug 17 13:24:04 2019 : srwse 612
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 639
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 666
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 693
+Sat Aug 17 13:24:04 2019 : 2000
+Sat Aug 17 13:24:04 2019 : srwse 720
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 747
+Sat Aug 17 13:24:05 2019 : srwse 774
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 801
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 828
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 855
+Sat Aug 17 13:24:05 2019 : srwse 882
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 0
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 27
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 54
+Sat Aug 17 13:24:05 2019 : 2000
+Sat Aug 17 13:24:05 2019 : srwse 81
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 108
+Sat Aug 17 13:24:06 2019 : srwse 136
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 164
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 192
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 219
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 246
+Sat Aug 17 13:24:06 2019 : srwse 273
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 300
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 327
+Sat Aug 17 13:24:06 2019 : 2000
+Sat Aug 17 13:24:06 2019 : srwse 354
+Sat Aug 17 13:24:07 2019 : srwse 381
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 408
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 435
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 462
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 489
+Sat Aug 17 13:24:07 2019 : srwse 516
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 543
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 570
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:07 2019 : srwse 597
+Sat Aug 17 13:24:07 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 624
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 651
+Sat Aug 17 13:24:08 2019 : srwse 678
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 705
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 732
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 759
+Sat Aug 17 13:24:08 2019 : srwse 786
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 813
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 840
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 867
+Sat Aug 17 13:24:08 2019 : 2000
+Sat Aug 17 13:24:08 2019 : srwse 894
+Sat Aug 17 13:24:09 2019 : srwse 0
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 27
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 54
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 81
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 105
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 129
+Sat Aug 17 13:24:09 2019 : srwse 153
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 177
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 205
+Sat Aug 17 13:24:09 2019 : 2000
+Sat Aug 17 13:24:09 2019 : srwse 233
+Sat Aug 17 13:24:10 2019 : srwse 261
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 288
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 316
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 344
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 372
+Sat Aug 17 13:24:10 2019 : srwse 400
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 428
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 453
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 481
+Sat Aug 17 13:24:10 2019 : 2000
+Sat Aug 17 13:24:10 2019 : srwse 508
+Sat Aug 17 13:24:11 2019 : srwse 535
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 563
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 591
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 618
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 645
+Sat Aug 17 13:24:11 2019 : srwse 669
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 696
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 723
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 750
+Sat Aug 17 13:24:11 2019 : 2000
+Sat Aug 17 13:24:11 2019 : srwse 777
+Sat Aug 17 13:24:12 2019 : srwse 804
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 831
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 858
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 885
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 0
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 27
+Sat Aug 17 13:24:12 2019 : srwse 54
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 81
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 108
+Sat Aug 17 13:24:12 2019 : 2000
+Sat Aug 17 13:24:12 2019 : srwse 135
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 159
+Sat Aug 17 13:24:13 2019 : srwse 186
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 213
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 237
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 264
+Sat Aug 17 13:24:13 2019 : srwse 291
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 318
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 345
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 369
+Sat Aug 17 13:24:13 2019 : 2000
+Sat Aug 17 13:24:13 2019 : srwse 393
+Sat Aug 17 13:24:14 2019 : srwse 417
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 442
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 467
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 492
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 516
+Sat Aug 17 13:24:14 2019 : srwse 540
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 564
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 588
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 612
+Sat Aug 17 13:24:14 2019 : 2000
+Sat Aug 17 13:24:14 2019 : srwse 636
+Sat Aug 17 13:24:15 2019 : srwse 660
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 684
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 708
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 732
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 756
+Sat Aug 17 13:24:15 2019 : srwse 780
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 804
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 828
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 852
+Sat Aug 17 13:24:15 2019 : 2000
+Sat Aug 17 13:24:15 2019 : srwse 876
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 900
+Sat Aug 17 13:24:16 2019 : srwse 0
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 24
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 48
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 72
+Sat Aug 17 13:24:16 2019 : srwse 96
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 120
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 144
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 168
+Sat Aug 17 13:24:16 2019 : 2000
+Sat Aug 17 13:24:16 2019 : srwse 192
+Sat Aug 17 13:24:17 2019 : srwse 216
+Sat Aug 17 13:24:17 2019 : 2000
+Sat Aug 17 13:24:17 2019 : srwse 240
+Sat Aug 17 13:24:17 2019 : 2000
+Sat Aug 17 13:24:17 2019 : srwse 264
+Sat Aug 17 13:24:17 2019 : 2000
+Sat Aug 17 13:24:17 2019 : srwse 288
+Sat Aug 17 13:24:17 2019 : srwse 312
+Sat Aug 17 13:24:17 2019 : srwse 336
+Sat Aug 17 13:24:17 2019 : srwse 360
+Sat Aug 17 13:24:17 2019 : srwse 384
+Sat Aug 17 13:24:17 2019 : srwse 408
+Sat Aug 17 13:24:17 2019 : srwse 432
+Sat Aug 17 13:24:18 2019 : srwse 456
+Sat Aug 17 13:24:18 2019 : srwse 480
+Sat Aug 17 13:24:18 2019 : srwse 504
+Sat Aug 17 13:24:18 2019 : srwse 528
+Sat Aug 17 13:24:18 2019 : srwse 552
+Sat Aug 17 13:24:18 2019 : srwse 576
+Sat Aug 17 13:24:18 2019 : srwse 600
+Sat Aug 17 13:24:18 2019 : srwse 624
+Sat Aug 17 13:24:18 2019 : srwse 648
+Sat Aug 17 13:24:18 2019 : srwse 672
+Sat Aug 17 13:24:19 2019 : srwse 696
+Sat Aug 17 13:24:19 2019 : srwse 720
+Sat Aug 17 13:24:19 2019 : srwse 744
+Sat Aug 17 13:24:19 2019 : srwse 768
+Sat Aug 17 13:24:19 2019 : srwse 792
+Sat Aug 17 13:24:19 2019 : srwse 816
+Sat Aug 17 13:24:19 2019 : srwse 840
+Sat Aug 17 13:24:19 2019 : srwse 864
+Sat Aug 17 13:24:19 2019 : srwse 888
+Sat Aug 17 13:24:19 2019 : srwse 0
+Sat Aug 17 13:24:20 2019 : srwse 24
+Sat Aug 17 13:24:20 2019 : srwse 48
+Sat Aug 17 13:24:20 2019 : srwse 72
+Sat Aug 17 13:24:20 2019 : srwse 96
+Sat Aug 17 13:24:20 2019 : srwse 120
+Sat Aug 17 13:24:20 2019 : srwse 144
+Sat Aug 17 13:24:20 2019 : srwse 168
+Sat Aug 17 13:24:20 2019 : srwse 192
+Sat Aug 17 13:24:20 2019 : srwse 216
+Sat Aug 17 13:24:20 2019 : srwse 240
+Sat Aug 17 13:24:21 2019 : srwse 264
+Sat Aug 17 13:24:21 2019 : srwse 288
+Sat Aug 17 13:24:21 2019 : srwse 312
+Sat Aug 17 13:24:21 2019 : srwse 336
+Sat Aug 17 13:24:21 2019 : srwse 360
+Sat Aug 17 13:24:21 2019 : srwse 384
+Sat Aug 17 13:24:21 2019 : srwse 408
+Sat Aug 17 13:24:21 2019 : srwse 432
+Sat Aug 17 13:24:21 2019 : srwse 456
+Sat Aug 17 13:24:21 2019 : srwse 480
+Sat Aug 17 13:24:22 2019 : srwse 504
+Sat Aug 17 13:24:22 2019 : srwse 528
+Sat Aug 17 13:24:22 2019 : srwse 552
+Sat Aug 17 13:24:22 2019 : srwse 576
+Sat Aug 17 13:24:22 2019 : srwse 600
+Sat Aug 17 13:24:22 2019 : srwse 624
+Sat Aug 17 13:24:22 2019 : srwse 648
+Sat Aug 17 13:24:22 2019 : srwse 672
+Sat Aug 17 13:24:22 2019 : srwse 696
+Sat Aug 17 13:24:22 2019 : srwse 720
+Sat Aug 17 13:24:23 2019 : srwse 744
+Sat Aug 17 13:24:23 2019 : srwse 768
+Sat Aug 17 13:24:23 2019 : srwse 792
+Sat Aug 17 13:24:23 2019 : srwse 816
+Sat Aug 17 13:24:23 2019 : srwse 840
+Sat Aug 17 13:24:23 2019 : srwse 864
+Sat Aug 17 13:24:23 2019 : srwse 888
+Sat Aug 17 13:24:23 2019 : srwse 0
+Sat Aug 17 13:24:23 2019 : srwse 24
+Sat Aug 17 13:24:23 2019 : srwse 48
+Sat Aug 17 13:24:24 2019 : srwse 72
+Sat Aug 17 13:24:24 2019 : srwse 96
+Sat Aug 17 13:24:24 2019 : srwse 120
+Sat Aug 17 13:24:24 2019 : srwse 144
+Sat Aug 17 13:24:24 2019 : srwse 168
+Sat Aug 17 13:24:24 2019 : srwse 192
+Sat Aug 17 13:24:24 2019 : srwse 216
+Sat Aug 17 13:24:24 2019 : srwse 240
+Sat Aug 17 13:24:24 2019 : srwse 264
+Sat Aug 17 13:24:24 2019 : srwse 288
+Sat Aug 17 13:24:25 2019 : srwse 312
+Sat Aug 17 13:24:25 2019 : srwse 336
+Sat Aug 17 13:24:25 2019 : srwse 360
+Sat Aug 17 13:24:25 2019 : srwse 384
+Sat Aug 17 13:24:25 2019 : srwse 411
+Sat Aug 17 13:24:25 2019 : srwse 435
+Sat Aug 17 13:24:25 2019 : srwse 459
+Sat Aug 17 13:24:25 2019 : srwse 483
+Sat Aug 17 13:24:25 2019 : srwse 507
+Sat Aug 17 13:24:25 2019 : srwse 531
+Sat Aug 17 13:24:26 2019 : srwse 555
+Sat Aug 17 13:24:26 2019 : srwse 579
+Sat Aug 17 13:24:26 2019 : srwse 606
+Sat Aug 17 13:24:26 2019 : srwse 630
+Sat Aug 17 13:24:26 2019 : srwse 654
+Sat Aug 17 13:24:26 2019 : srwse 678
+Sat Aug 17 13:24:26 2019 : srwse 702
+Sat Aug 17 13:24:26 2019 : srwse 726
+Sat Aug 17 13:24:26 2019 : srwse 750
+Sat Aug 17 13:24:26 2019 : srwse 774
+Sat Aug 17 13:24:27 2019 : srwse 798
+Sat Aug 17 13:24:27 2019 : srwse 822
+Sat Aug 17 13:24:27 2019 : srwse 846
