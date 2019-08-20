@@ -7,3 +7,8 @@ RAK-Matlab/test.wav
 RAK-Matlab/*.asv
 RAK-Matlab/**.*~
 RAK-Matlab/delays.txt
+Matlab/logFile_VideoAndAudioObtainer.txt
+Matlab/logFile_SharedMemory.txt
+Matlab/logFile_Socket.txt
+OGLdpf.log
+Matlab/logFile_SharedMemory.txt
