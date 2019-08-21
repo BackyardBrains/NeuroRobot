@@ -38,6 +38,10 @@ if nstep == nsteps_per_loop
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
 end
+if ~rak_cam.isRunning()
+    camera_present = 0;
+    rak_fail = 1;
+end
 if run_button == 4 || rak_fail
     stop(runtime_pulse)
 end

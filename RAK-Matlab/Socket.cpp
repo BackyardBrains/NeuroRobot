@@ -50,7 +50,7 @@ void Socket::run()
         
         if (ec == boost::asio::error::eof) {
             mutexSendingToSocket.lock();
-            logMessage("error while receiving: eof");
+            logMessage("error eof received in serial socket");
             socket_.close();
             connectSerialSocket(ipAddress_, port_);
 #ifdef _WIN32
