@@ -205,7 +205,7 @@ text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'norma
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 clear brain_string
 brain_string{1} = '-- Create new brain --';
-brain_directory = '.\Brains\*.mat';
+brain_directory = './Brains/*.mat';
 available_brains = dir(brain_directory);
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
