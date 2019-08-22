@@ -19,7 +19,7 @@ else
     set(button_startup_complete, 'enable', 'off')
     drawnow    
     
-    load(strcat('.\Brains\', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
+    load(strcat('./Brains/', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
     edit_name.String = popup_select_brain.String{popup_select_brain.Value};
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;
