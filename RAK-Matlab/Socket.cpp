@@ -50,7 +50,7 @@ void Socket::run()
         
         if (ec == boost::asio::error::eof) {
             mutexSendingToSocket.lock();
-            logMessage("error eof received in serial socket");
+            logMessage("error while receiving: eof");
             socket_.close();
             connectSerialSocket(ipAddress_, port_);
 #ifdef _WIN32
@@ -305,6 +305,26 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
     
     mutexSendingToSocket.lock();
     size_t sentSize = boost::asio::write(*socket, boost::asio::buffer(data, length), ec);
+    if(ec)
+    {
+        if ((boost::asio::error::eof == ec) ||
+        (boost::asio::error::connection_reset == ec))
+        {
+          //when we loose wifi network completely this error will appear net time we try to send something:
+            //Error in Socket::send: An existing connection was forcibly closed by the remote host
+            logMessage("We lost WiFi network. Need to reset everything.");
+            lostConnectionFlag = true;
+        }
+        else
+        {
+            char stringg[50];
+            sprintf(stringg, "Error in Socket::send: %s", ec.message().c_str());
+            logMessage(stringg);
+        }
+        
+
+    }
+   
     boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
     mutexSendingToSocket.unlock();
     
@@ -339,9 +359,15 @@ std::string Socket::receiveSerial(boost::system::error_code* ec)
     return dataPreLastLine;
 }
 
+bool Socket::lostConnection()
+{
+    return lostConnectionFlag;
+}
+
 void Socket::closeSocket()
 {
     logMessage("------------- Close socket -----------");
     socket_.close();
     audioSocket_.close();
+    lostConnectionFlag = false;
 }
