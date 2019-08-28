@@ -8,4 +8,6 @@ RAK-Matlab/*.asv
 RAK-Matlab/**.*~
 RAK-Matlab/delays.txt
 Matlab/logFile_*.txt
+Matlab/*.mexw64
+Matlab/*.mexmaci64
 OGLdpf.log
