@@ -12,9 +12,7 @@ elseif lifetime >= 5 * 60 * 60
 end
 update_brain
 draw_step
-if xstep > 50
-    update_motors
-end
+update_motors
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
