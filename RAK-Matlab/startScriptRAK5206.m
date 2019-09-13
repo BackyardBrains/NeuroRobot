@@ -3,12 +3,12 @@ clear all;
 close all;
 clear functions;
 
-if ~exist('RAK5206.mexw64', 'file') && ispc
+if ~exist('RAK_MatlabBridge.mexw64', 'file') && ispc
     % Windows
     
     % FFMPEG - Libraries (*.dll) must be in root folder. So copy from libraries/windows/ffmpeg/lib/bin to root.
     mex RAK_MatlabBridge.cpp RAK5206.cpp SharedMemory.cpp Log.cpp VideoAndAudioObtainer.cpp Socket.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
-elseif ~isfile('RAK5206.mexmaci64') && ismac
+elseif ~isfile('RAK_MatlabBridge.mexmaci64') && ismac
     % macOS
     
     % FFMPEG - Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.

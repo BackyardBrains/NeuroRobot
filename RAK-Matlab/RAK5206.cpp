@@ -64,7 +64,7 @@ void RAK5206::stop()
  */
 bool RAK5206::isRunning()
 {
-    return videoAndAudioObtainerObject->isRunning();
+    return videoAndAudioObtainerObject->isRunning() && !socketObject->lostConnection();
 }
 
 /**

@@ -32,14 +32,15 @@ public:
     static const int audioSize = 1000;
     static const int frameSize = 2764800;
     static const int serialReadTotalSize = 1000;
-    
+
+    int lastSerialSize = 0;
     // Bridge iOS
     uint8_t *videoData = new uint8_t[frameSize];
     int16_t *audioData = new int16_t[audioSize * 2 * 10];
     std::string serialDataString = "";
     uint8_t *serialData = new uint8_t[serialReadTotalSize + 1];
-    
-    
+    uint8_t *lastSerialResult = new uint8_t[serialReadTotalSize + 1];
+    uint8_t *returnSerialBuffer = new uint8_t[serialReadTotalSize + 1];
     SharedMemory();
     ~SharedMemory();
     

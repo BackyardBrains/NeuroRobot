@@ -12,9 +12,7 @@ elseif lifetime >= 5 * 60 * 60
 end
 update_brain
 draw_step
-if xstep > 50
-    update_motors
-end
+update_motors
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
@@ -37,6 +35,10 @@ if nstep == nsteps_per_loop
     nstep = 0;
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
+end
+if ~use_webcam && ~rak_cam.isRunning()
+    camera_present = 0; % Tnis is probably not necessary
+    rak_fail = 1;
 end
 if run_button == 4 || rak_fail
     stop(runtime_pulse)

@@ -51,6 +51,7 @@ private:
     bool sendingInProgress = false;
     bool pendingWriting = false;
     std::string pendingData = "";
+    bool lostConnectionFlag = false;
     
 public:
     Socket(SharedMemory* sharedMemory, std::string ip, std::string port);
@@ -177,6 +178,11 @@ public:
      @return Received data from socket data
      */
     std::string receiveSerial(boost::system::error_code* ec);
+    
+    /**
+     * Return True if we detected via socket that we lost connection with WiFi 
+     */
+    bool lostConnection();
     
     /**
      Closes audio and serial sockets.

@@ -10,9 +10,9 @@
 #define Log_h
 
 #include "Macros.h"
+#include <string>
 
 #ifdef DEBUG
-    #include <string>
     #include <fstream>
 #endif
 
