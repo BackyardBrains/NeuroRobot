@@ -69,20 +69,6 @@ audio_I = zeros(nneurons, 1);
 audio_empty_flag = 0;
 
 
-% Reward history
-if isfield(brain, 'rewarded_frames')
-    nreward = size(brain.rewarded_frames, 1) + 1;
-else
-    brain.rewarded_frames = zeros(1, 720, 1280, 3, 'uint8');
-    nreward = 2; % Why not 1?
-end
-if isfield(brain, 'nrewarded_sounds')
-    nrewarded_sound = size(brain.nrewarded_sounds, 1) + 1;
-else
-    brain.nrewarded_sounds = zeros(1, 1000);
-end  
-
-
 %% Create data and command log
 if save_data_and_commands
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));

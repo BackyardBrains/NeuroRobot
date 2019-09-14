@@ -10,8 +10,15 @@ if run_button == 5
     end
 
     % Capture video and audio
-    brain.rewarded_frames(nreward, :, :, :) = large_frame;
-    brain.nrewarded_sounds(nreward, :) = this_audio; 
+    if isfield(brain, 'rewarded_frames')
+        nreward = size(brain.rewarded_frames, 4) + 1;
+    else
+        brain.rewarded_frames = zeros(720, 1280, 3, 'uint8');
+        brain.nrewarded_sounds = zeros(1000, 1);
+        nreward = 1;
+    end  
+    brain.rewarded_frames(:, :, :, nreward) = large_frame;
+    brain.nrewarded_sounds(:, nreward) = this_audio; 
     
     % Display and update
     disp(horzcat('Dopamine reward :)'))
@@ -25,7 +32,7 @@ if sum(da_rew_neurons(firing))
 end
 
 if reward
-    set(button_reward, 'BackgroundColor', [0.75 1 0.5]);
+    set(button_reward, 'BackgroundColor', [0.8 1 0.8]);
 else
     set(button_reward, 'BackgroundColor', [0.8 0.8 0.8]);
 end
