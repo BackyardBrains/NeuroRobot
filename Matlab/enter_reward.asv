@@ -9,15 +9,22 @@ if run_button == 5
         command_log.n = command_log.n + 1;
     end
 
-    % Capture video and audio
-    brain.rewarded_frames(nreward, :, :, :) = large_frame;
-    brain.nrewarded_sounds(nreward, :) = this_audio; 
-    
-    % Display and update
+    % Capture frame
+    if isfield(brain, 'rewarded_frames')
+        nrewarded_frame = size(brain.rewarded_frames, 1) + 1;
+    end
+    if isfield(brain, 'nrewarded_sounds')
+        nrewarded_sounds = size(brain.nrewarded_sounds, 1) + 1;
+    else
+        brain.rewarded_frames = zeros(1, 720, 1280, 3, 'uint8');
+        brain.nrewarded_sounds = zeros(1, 720, 1280, 3, 'uint8');
+        nrewarded_frame = 2; % Why not 1?
+    end
+    brain.rewarded_frames(nrewarded_frame, :, :, :) = large_frame;
+
     disp(horzcat('Dopamine reward :)'))
     run_button = 0;
     reward = 1;
-    
 end
 
 if sum(da_rew_neurons(firing))
@@ -25,10 +32,11 @@ if sum(da_rew_neurons(firing))
 end
 
 if reward
-    set(button_reward, 'BackgroundColor', [0.75 1 0.5]);
+    set(button_reward, 'BackgroundColor', [1 0.75 0.5]);
 else
     set(button_reward, 'BackgroundColor', [0.8 0.8 0.8]);
 end
+
 
 
 %%% SCRAP? %%%
@@ -52,4 +60,3 @@ end
 %         end          
 %         pause(0.05)
 %     end
-
