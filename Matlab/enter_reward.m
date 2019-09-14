@@ -9,7 +9,7 @@ if run_button == 5
         command_log.n = command_log.n + 1;
     end
 
-    % Capture video and audio
+    % Capture reward image and audio
     if isfield(brain, 'rewarded_frames')
         nreward = size(brain.rewarded_frames, 4) + 1;
     else
@@ -18,6 +18,11 @@ if run_button == 5
         nreward = 1;
     end  
     brain.rewarded_frames(:, :, :, nreward) = large_frame;
+    if isempty(this_audio)
+        this_audio = zeros(1, 1000);
+    elseif length(this_audio) > 1000
+        this_audio = this_audio(1, 1:1000);
+    end
     brain.nrewarded_sounds(:, nreward) = this_audio; 
     
     % Display and update
