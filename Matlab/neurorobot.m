@@ -15,11 +15,11 @@ camera_present = 1;
 bluetooth_present = 0;
 
 save_brain_jpg = 0;
-save_data_and_commands = 0;
+save_data_and_commands = 1; %%%
 brain_gen = 0;
 grey_background = 1;
 use_cnn = 0;
-use_rcnn = 0; 
+use_rcnn = 1; 
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
