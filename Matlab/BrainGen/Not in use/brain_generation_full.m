@@ -2,28 +2,26 @@
 
 % BRAIN GENERATION for NEUROROBOT APP by Backyard Brains
 % By Christopher Harris, Neurorobotics Lead at Backyard Brains (christopher@backyardbrains.com)
-%
-% This script generates a brain at a random point in brain search space.
-%
-% Aims:
-% Explore brain search space
-% Deliniate space containing working brains
-% Apply Matlab ML and generative ANNs to existing brains and new brains that receive significant reward from interns
-% Collect data for generative reinforcement learning
-% Generate better brains
-%
+% This script generates a brain at a random point in the space of all possible brains.
+% Aim: Apply Matlab ML and generative ANNs to existing brains and new brains that receive significant reward from users
 % This code is licensed under a GNU 2.1 license
 
-nneurons = 40; %100
 
+%% Brain parameters
+nneurons = 40;
 p_connect = 0.1;
 synmin = -30;
 synmax = 30;
 motormax = 70;
+nnetworks = 1;
+network_output_dropout = [];
 
-nnetworks = 3; %6
-network_output_dropout = []; % [1 3 5]
 
+%% Other settings
+use_cnn = 0;
+
+
+%% Prepare
 a = zeros(nneurons, 1);
 b = zeros(nneurons, 1);
 c = zeros(nneurons, 1);
@@ -38,10 +36,8 @@ neuron_tones = zeros(nneurons, 1);
 bg_neurons = zeros(nneurons, 1);
 connectome = zeros(nneurons, nneurons);
 da_connectome = zeros(nneurons, nneurons, 3);
-
 clear neuron_cols
 clear steps_since_last_spike
-
 if use_cnn
     nviscategories = 23;
 else
@@ -90,8 +86,6 @@ for nneuron = 1:nneurons
         dist_prefs(nneuron) = randsample(1:3, 1);
     end
     
-    %% Motors
-    neuron_contacts(nneuron, 6:13) = randsample(0:motormax, 8);
     
     %% Connectome
     for nneuron2 = 1:nneurons
@@ -121,6 +115,12 @@ for nneuron = 1:nneurons
             c(nneuron) = -65;
         end
     end
+    
+    
+    %% Motors
+    neuron_contacts(nneuron, 6:13) = randsample(0:motormax, 8);
+    
+
     
     %% Reduce motor output
     if sum(network_ids(nneuron) == network_output_dropout)

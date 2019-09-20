@@ -54,6 +54,7 @@ else
     adjust2 = 0.29;
 end                                            
 for p1 = 1:nneurons
+    disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
 	for p2 = 1:nneurons
 		w = connectome(p1, p2);
 		if w ~= 0
