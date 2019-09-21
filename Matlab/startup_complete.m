@@ -38,6 +38,8 @@ else
         tic
         load('rcnn')
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
+    elseif use_cnn
+        net_input_size = [224 224];
     else
         net_input_size = [227 227];
     end
