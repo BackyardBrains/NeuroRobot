@@ -44,101 +44,103 @@ if exist('fig_design', 'var') && isvalid(fig_design)
 end
 
 
-% Draw synapses
-flags = zeros(size(connectome));
-adjust1 = 0.05;
-if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
-    % If in runtime (not sure why this conditional is so complex)
-    adjust2 = 0.22;
-else
-    adjust2 = 0.29;
-end                                            
-for p1 = 1:nneurons
-    disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
-	for p2 = 1:nneurons
-		w = connectome(p1, p2);
-		if w ~= 0
-            x1 = neuron_xys(p1,1);
-            x2 = neuron_xys(p2,1);
-            y1 = neuron_xys(p1,2);
-            y2 = neuron_xys(p2,2); 
-            slope = (y2-y1)/(x2-x1);
-            dx = abs(x1- x2);
-            dy = abs(y1- y2);
-            rx = dx / (dx + dy);
-            ry = dy / (dx + dy);            
-            if connectome(p2, p1)
-                if ~flags(p2, p1)
-                    if slope > 0
-                        x1 = x1 + adjust1 * ry;
-                        x2 = x2 + adjust1 * ry;
-                        y1 = y1 - adjust1 * rx;
-                        y2 = y2 - adjust1 * rx;                    
+% % Draw synapses
+if draw_synapses
+    flags = zeros(size(connectome));
+    adjust1 = 0.05;
+    if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
+        % If in runtime (not sure why this conditional is so complex)
+        adjust2 = 0.22;
+    else
+        adjust2 = 0.29;
+    end                                            
+    for p1 = 1:nneurons
+        disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
+        for p2 = 1:nneurons
+            w = connectome(p1, p2);
+            if w ~= 0
+                x1 = neuron_xys(p1,1);
+                x2 = neuron_xys(p2,1);
+                y1 = neuron_xys(p1,2);
+                y2 = neuron_xys(p2,2); 
+                slope = (y2-y1)/(x2-x1);
+                dx = abs(x1- x2);
+                dy = abs(y1- y2);
+                rx = dx / (dx + dy);
+                ry = dy / (dx + dy);            
+                if connectome(p2, p1)
+                    if ~flags(p2, p1)
+                        if slope > 0
+                            x1 = x1 + adjust1 * ry;
+                            x2 = x2 + adjust1 * ry;
+                            y1 = y1 - adjust1 * rx;
+                            y2 = y2 - adjust1 * rx;                    
+                        else
+                            x1 = x1 + adjust1 * ry;
+                            x2 = x2 + adjust1 * ry;
+                            y1 = y1 + adjust1 * rx;
+                            y2 = y2 + adjust1 * rx;  
+                        end
+                        flags(p1, p2) = 1;
                     else
-                        x1 = x1 + adjust1 * ry;
-                        x2 = x2 + adjust1 * ry;
-                        y1 = y1 + adjust1 * rx;
-                        y2 = y2 + adjust1 * rx;  
-                    end
-                    flags(p1, p2) = 1;
-                else
-                    if slope > 0
-                        x1 = x1 - adjust1 * ry;
-                        x2 = x2 - adjust1 * ry;
-                        y1 = y1 + adjust1 * rx;
-                        y2 = y2 + adjust1 * rx;                    
-                    else
-                        x1 = x1 - adjust1 * ry;
-                        x2 = x2 - adjust1 * ry;
-                        y1 = y1 - adjust1 * rx;
-                        y2 = y2 - adjust1 * rx;  
+                        if slope > 0
+                            x1 = x1 - adjust1 * ry;
+                            x2 = x2 - adjust1 * ry;
+                            y1 = y1 + adjust1 * rx;
+                            y2 = y2 + adjust1 * rx;                    
+                        else
+                            x1 = x1 - adjust1 * ry;
+                            x2 = x2 - adjust1 * ry;
+                            y1 = y1 - adjust1 * rx;
+                            y2 = y2 - adjust1 * rx;  
+                        end
                     end
                 end
-            end
-            if bg_neurons(p2)
-                adjust3 = adjust2 * 1.2;
-            else
-                adjust3 = adjust2;
-            end
-            if x1 <= x2 && y1 <= y2
-                x2 = x2 - adjust3 * rx;
-                y2 = y2 - adjust3 * ry;
-            elseif x1 > x2 && y1 <= y2
-                x2 = x2 + adjust3 * rx;
-                y2 = y2 - adjust3 * ry;      
-            elseif x1 > x2 && y1 > y2
-                x2 = x2 + adjust3 * rx;
-                y2 = y2 + adjust3 * ry; 
-            elseif x1 <= x2 && y1 > y2
-                x2 = x2 - adjust3 * rx;
-                y2 = y2 + adjust3 * ry;                 
-            end
-            
-            
-            plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
-            if connectome(p1, p2) > 0
-                lw = 2;
-                s = 9;
-                m = 'square';
-                if da_connectome(p1, p2)
-                    mf = [0.7 0.7 1];
+                if bg_neurons(p2)
+                    adjust3 = adjust2 * 1.2;
                 else
-                    mf = 'w';
+                    adjust3 = adjust2;
                 end
-            else
-                lw = 2;
-                s = 30;                
-                m = '.';
-                mf = 'k';
+                if x1 <= x2 && y1 <= y2
+                    x2 = x2 - adjust3 * rx;
+                    y2 = y2 - adjust3 * ry;
+                elseif x1 > x2 && y1 <= y2
+                    x2 = x2 + adjust3 * rx;
+                    y2 = y2 - adjust3 * ry;      
+                elseif x1 > x2 && y1 > y2
+                    x2 = x2 + adjust3 * rx;
+                    y2 = y2 + adjust3 * ry; 
+                elseif x1 <= x2 && y1 > y2
+                    x2 = x2 - adjust3 * rx;
+                    y2 = y2 + adjust3 * ry;                 
+                end
+
+
+                plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
+                if connectome(p1, p2) > 0
+                    lw = 2;
+                    s = 9;
+                    m = 'square';
+                    if da_connectome(p1, p2)
+                        mf = [0.7 0.7 1];
+                    else
+                        mf = 'w';
+                    end
+                else
+                    lw = 2;
+                    s = 30;                
+                    m = '.';
+                    mf = 'k';
+                end
+                plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
+                if draw_synapse_strengths
+    %                 w = round(w * 100) / 100;
+                    w = round(w);
+                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
+                end
             end
-            plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
-            if draw_synapse_strengths
-%                 w = round(w * 100) / 100;
-                w = round(w);
-                plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
-            end
-		end
-	end
+        end
+    end
 end
 
 if ~isempty(neuron_contacts) % This is until I've figured out the contacts for two_spiking_neurons

@@ -18,13 +18,14 @@ save_brain_jpg = 0;
 save_data_and_commands = 0; %%%
 brain_gen = 1;
 grey_background = 0;
-use_cnn = 1;
+use_cnn = 0;
 use_rcnn = 0; 
 use_profile = 1;
 bg_brain = 1;
 draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 manual_controls = 0;
+draw_synapses = 0;
 
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
@@ -37,7 +38,7 @@ ext_cam_nsteps = 100; % check this
 
 nsteps_per_loop = 100;
 brain_facts = 0;
-pulse_period = 0.125; % in seconds
+pulse_period = 0.07; % in seconds
 max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period

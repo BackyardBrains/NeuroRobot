@@ -50,7 +50,7 @@ for nneuron = 1:n
     theta = 2*pi*nneuron/phi^2;
     xys = [r*cos(theta), r*sin(theta)];
     xys = xys * xx;
-    xys(2) = xys(2) - 0.35;
+    xys(2) = xys(2) - 0;
     neuron_xys(nneuron, :) = xys;
 end
 
