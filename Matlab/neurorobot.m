@@ -8,24 +8,24 @@
 
 
 %% Settings
-rak_only = 0;
-use_webcam = 1;
+rak_only = 1;
+use_webcam = 0;
 
 camera_present = 1;
 bluetooth_present = 0;
 
 save_brain_jpg = 0;
 save_data_and_commands = 0; %%%
-brain_gen = 1;
+brain_gen = 0;
 grey_background = 0;
 use_cnn = 0;
 use_rcnn = 0; 
-use_profile = 1;
+use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 manual_controls = 0;
-draw_synapses = 0;
+draw_synapses = 1;
 
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
