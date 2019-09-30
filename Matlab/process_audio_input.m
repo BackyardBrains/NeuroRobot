@@ -18,7 +18,8 @@ if rak_only
         audio_empty_flag = audio_empty_flag + 1;
         if audio_empty_flag >= 10
             disp('repeating audio input failure, stopping')
-            run_button = 4;
+%             run_button = 4;
+            rak_fail = 1;
         end
         
     elseif length(this_audio) < 1000
