@@ -33,6 +33,7 @@ if rak_only
         if xstep == 1
             this_audio = zeros(1, 1000);
         end
+        audio_empty_flag = 0;
         
     else
         
