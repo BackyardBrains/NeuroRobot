@@ -62,7 +62,7 @@ if rak_only
         
     end
     
-    audioMat = [audioMat this_audio];
+%     audioMat = [audioMat this_audio];
     audio_max_freq = max_freq;
 %     disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
 
