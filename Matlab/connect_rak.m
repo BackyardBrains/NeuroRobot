@@ -20,8 +20,24 @@ try
             disp('Building mex')
             rak_mex_build
         end
+        if exist('rak_pulse', 'var')
+            delete(rak_pulse)
+            clear rak_pulse
+            disp('Previous rak_pulse deleted')
+        end
+        if exist('rak_cam', 'var')
+            clear rak_cam
+            disp('Previous rak_cam cleared')
+        end        
         rak_cam = RAK5206_matlab('192.168.100.1', '80');
         disp('rak_cam created')
+        rak_cam.start();
+        if ~rak_cam.isRunning()
+            disp('rak_cam started but not running')
+            error('rak_cam started but not running')
+        else
+            disp('rak_cam is running')
+        end
     elseif ~use_webcam
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';
         rak_cam = HebiCam(url);
@@ -43,7 +59,7 @@ try
 
 catch
 
-    disp('RAK connection failed. Is your WiFi connected to the correct SSID ("LTH...")?')
+    disp('RAK connection failed. Is your computer connected to the correct WiFi?')
     button_camera.BackgroundColor = [1 0.5 0.5];
     if bluetooth_present && exist('life_timer', 'var')
         motor_command = [0 0 0 0 0];
@@ -63,9 +79,3 @@ if camera_present
     set(button_camera, 'enable', 'on')
 end
 set(button_startup_complete, 'enable', 'on')
-
-if rak_only && exist('rak_cam', 'var')
-    disp('Trying to start rak_cam')
-    rak_cam.start();
-    disp('rak_cam started')
-end

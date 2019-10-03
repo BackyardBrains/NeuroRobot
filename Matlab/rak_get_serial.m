@@ -7,8 +7,8 @@ if ~isempty(serial_receive)
         this_distance = (this_duration/2) / 29.1;
         this_distance(this_distance == 0) = 300;
     else
-        disp('rak_cam readSerial size less than required:')
-        disp(serial_receive)
+        disp('rak serial < 24 samples')
+        this_distance = 300;
     end
 else
     this_distance = 300;

@@ -6,7 +6,11 @@ disp(horzcat('Lifetime = ', num2str(round(lifetime/60)), ' min'))
 
 %% Stop and reset motors
 if rak_only
-    rak_cam.writeSerial('l:0;r:0;s:0;')
+    try
+        rak_cam.writeSerial('l:0;r:0;s:0;')
+    catch
+        disp('Unable to stop and reset motors')
+    end
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];
@@ -26,7 +30,7 @@ if save_data_and_commands
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     data.stop_time  = this_time;
     data.brain = brain;
-    data.audio = audioMat;
+%     data.audio = audioMat;
     data.audio_step = audio_step;
     data.xstep = xstep;
     save(data_file_name, 'data')
@@ -65,16 +69,14 @@ if voluntary_restart
     restarting = 1;
 end
 
-% if exist('logFile_SharedMemory.txt', 'file')
-%     delete('logFile_SharedMemory.txt')
-% end
-% if exist('logFile_Socket.txt', 'file')
-%     delete('logFile_Socket.txt')
-% end
-% if exist('logFile_VideoAndAudioObtainer.txt', 'file')
-%     delete('logFile_VideoAndAudioObtainer.txt')
-% end
 
 %% Return to startup
-neurorobot
+if restarting && ~voluntary_restart % can we use the total reset code instead?
+    !matlab -r neurorobot &
+    close(fig_startup)
+    exit
+else
+    neurorobot
+end
+
 

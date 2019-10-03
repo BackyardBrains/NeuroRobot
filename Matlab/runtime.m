@@ -58,7 +58,7 @@ if use_profile
     profile clear
     profile on    
 end
-audioMat = [];
+% audioMat = [];
 audio_step = [];
 audio_max_freq = 0;
 max_amp = 0;
@@ -105,6 +105,10 @@ end
 %         end
 %     end
 % end
+if exist('runtime_pulse', 'var')
+    delete(runtime_pulse)
+    disp('Previous runtime pulse deleted')
+end
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)
 

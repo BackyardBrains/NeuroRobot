@@ -16,9 +16,11 @@ if rak_only
         % full audio array is not eventally returned the RAK has to be
         % reset (rak_fail = 1);
         audio_empty_flag = audio_empty_flag + 1;
-        if audio_empty_flag >= 10
+        if audio_empty_flag >= 100
             disp('repeating audio input failure, stopping')
 %             run_button = 4;
+            stop(rak_pulse)
+            pause(0.5)
             rak_fail = 1;
         end
         
@@ -63,7 +65,6 @@ if rak_only
         
     end
     
-%     audioMat = [audioMat this_audio];
     audio_max_freq = max_freq;
 %     disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
 

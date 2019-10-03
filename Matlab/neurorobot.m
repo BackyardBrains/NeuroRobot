@@ -94,10 +94,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057];    
+%     startup_fig_pos = [1 41 1920 1017];   
+%     fig_pos = [1 41 1920 1017];
+    startup_fig_pos = [1921 1 1920 1057];   
+    fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
 %     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
@@ -222,7 +222,8 @@ edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'normalize
     'FontName', gui_font_name, 'fontweight', gui_font_weight);
 
 % Camera button
-if exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')
+if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
+        && ~(exist('rak_cam', 'var') && ~rak_cam.isRunning)
     this_col = [0.6 0.95 0.6];
 elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'off'))
     this_col = [1 0.5 0.5];
@@ -299,9 +300,27 @@ if exist('restarting', 'var') && restarting
     
     % Attempt to reconnect RAK
     if ~voluntary_restart && camera_present
-        [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
-        start(rak_pulse)
-        disp('RAK reconnected')
+        if exist('rak_pulse', 'var')
+            delete(rak_pulse)
+            clear rak_pulse
+            disp('Previous rak_pulse deleted')
+        end
+        if exist('rak_cam', 'var')
+            clear rak_cam
+            disp('Previous rak_cam cleared')
+        end
+        disp('Pausing 5 s...')
+        pause(5)
+        disp('Attempting to reconnect...')
+        rak_reconnected = 0;
+        try
+            [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
+            start(rak_pulse)
+            rak_reconnected = 1;
+            disp('RAK reconnected')
+        catch
+            disp('Unable to reconnect to RAK')
+        end
     end
     voluntary_restart = 0;
     
@@ -328,6 +347,8 @@ if exist('restarting', 'var') && restarting
     text_title.String = 'Neurorobot Startup';
     drawnow
     
-    startup_complete
+    if rak_reconnected
+        startup_complete
+    end
 end
     
