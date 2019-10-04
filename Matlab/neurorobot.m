@@ -94,10 +94,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-%     startup_fig_pos = [1 41 1920 1017];   
-%     fig_pos = [1 41 1920 1017];
-    startup_fig_pos = [1921 1 1920 1057];   
-    fig_pos = [1921 1 1920 1057];    
+    startup_fig_pos = [1 41 1920 1017];   
+    fig_pos = [1 41 1920 1017];
+%     startup_fig_pos = [1921 1 1920 1057];   
+%     fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
 %     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
@@ -230,8 +230,8 @@ elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && i
 else
     this_col = [0.8 0.8 0.8];
 end
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect camera(s)', 'units', 'normalized', 'position', [0.05 0.4 0.35 0.1]);
-set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect Camera', 'units', 'normalized', 'position', [0.05 0.42 0.35 0.07]);
+set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_system_restart); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
     'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
@@ -253,14 +253,14 @@ if ~rak_only
     else
         this_col = [0.8 0.8 0.8];
     end
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect bluetooth', 'units', 'normalized', 'position', [0.05 0.25 0.35 0.1]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.31 0.35 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
     if ~bluetooth_present
         set(button_bluetooth, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
     end
 else
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect bluetooth', 'units', 'normalized', 'position', [0.05 0.25 0.35 0.1]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.31 0.35 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     set(button_bluetooth, 'enable', 'off')
@@ -271,8 +271,13 @@ end
 % check_ood = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.3 0.25 0.09 0.05], 'BackgroundColor', 'w');
 
 % Start button
-button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start neurorobot', 'units', 'normalized', 'position', [0.05 0.1 0.35 0.1]);
+button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start Neurorobot', 'units', 'normalized', 'position', [0.05 0.2 0.35 0.07]);
 set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+    'BackgroundColor', [0.8 0.8 0.8])
+
+% Reboot button
+button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'System Restart', 'units', 'normalized', 'position', [0.05 0.09 0.35 0.07]);
+set(button_system_restart, 'Callback', 'system_restart', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 % Brain display
@@ -285,46 +290,42 @@ box off
 ext_ax = brain_ax;
 
 
-% Restart code
-if exist('restarting', 'var') && restarting
-    
-    % Lock GUI
+% New restart code
+if exist('brain_name.mat', 'file')
     disp('Restarting...')
-    text_title.String = 'Restarting...';
-    set(button_bluetooth, 'enable', 'off')
-    set(popup_select_brain, 'visible', 'off')
-    set(edit_name, 'enable', 'off')
-    set(button_camera, 'enable', 'off')
-    set(button_startup_complete, 'enable', 'off')
-    drawnow
-    
-    % Attempt to reconnect RAK
-    if ~voluntary_restart && camera_present
-        if exist('rak_pulse', 'var')
-            delete(rak_pulse)
-            clear rak_pulse
-            disp('Previous rak_pulse deleted')
+    load('brain_name')
+	delete brain_name.mat
+    for nbrain = 1:nbrains
+        if strcmp(brain_name, available_brains(nbrain).name(1:end-4))
+            nbrains = size(available_brains, 1);
+            popup_select_brain.Value = nbrain + 1;
         end
-        if exist('rak_cam', 'var')
-            clear rak_cam
-            disp('Previous rak_cam cleared')
+    end    
+    edit_name.String = brain_name;      
+    try
+        [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
+        start(rak_pulse)
+        disp('RAK reconnected')
+        startup_complete
+    catch
+        if bluetooth_present
+            set(button_bluetooth, 'enable', 'on')
         end
-        disp('Pausing 5 s...')
-        pause(5)
-        disp('Attempting to reconnect...')
-        rak_reconnected = 0;
-        try
-            [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
-            start(rak_pulse)
-            rak_reconnected = 1;
-            disp('RAK reconnected')
-        catch
-            disp('Unable to reconnect to RAK')
+        set(popup_select_brain, 'visible', 'on')
+        set(edit_name, 'enable', 'on')
+        if camera_present
+            set(button_camera, 'enable', 'on')
         end
-    end
-    voluntary_restart = 0;
-    
-    % Update brain selection properties
+        set(button_startup_complete, 'enable', 'on')
+        set(button_system_restart, 'enable', 'on')
+        button_camera.BackgroundColor = [1 0.5 0.5];
+        disp('Unable to reconnect to RAK')
+    end    
+end
+
+
+% Manual restart code
+if exist('restarting', 'var') && restarting
     for nbrain = 1:nbrains
         if strcmp(brain_name, available_brains(nbrain).name(1:end-4))
             nbrains = size(available_brains, 1);
@@ -332,23 +333,8 @@ if exist('restarting', 'var') && restarting
         end
     end    
     edit_name.String = brain_name;
-    
-    % Restore GUI
     restarting = 0;
-    if bluetooth_present
-        set(button_bluetooth, 'enable', 'on')
-    end
-    set(popup_select_brain, 'visible', 'on')
-    set(edit_name, 'enable', 'on')
-    if camera_present
-        set(button_camera, 'enable', 'on')
-    end
-    set(button_startup_complete, 'enable', 'on')
-    text_title.String = 'Neurorobot Startup';
-    drawnow
-    
-    if rak_reconnected
-        startup_complete
-    end
+    voluntary_restart = 0;
+    startup_complete
 end
     

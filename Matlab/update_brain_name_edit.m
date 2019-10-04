@@ -17,6 +17,7 @@ else
     set(edit_name, 'enable', 'off')
     set(button_camera, 'enable', 'off')
     set(button_startup_complete, 'enable', 'off')
+    set(button_system_restart, 'enable', 'off')
     drawnow    
     
     load(strcat('./Brains/', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
@@ -45,6 +46,7 @@ else
         set(button_camera, 'enable', 'on')
     end
     set(button_startup_complete, 'enable', 'on')
+    set(button_system_restart, 'enable', 'on')
     text_title.String = 'Neurorobot Startup';
     text_load.String = 'Select brain';
     drawnow    

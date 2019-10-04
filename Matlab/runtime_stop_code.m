@@ -61,8 +61,8 @@ end
 if rak_fail
     disp('RAK connection lost')
     sound(gong, Fs * 7)
+    pause(0.5)
     restarting = 1;
-    restarts = restarts + 1;
 end
 
 if voluntary_restart
@@ -71,10 +71,8 @@ end
 
 
 %% Return to startup
-if restarting && ~voluntary_restart % can we use the total reset code instead?
-    !matlab -r neurorobot &
-    close(fig_startup)
-    exit
+if restarting && ~voluntary_restart
+    system_restart
 else
     neurorobot
 end
