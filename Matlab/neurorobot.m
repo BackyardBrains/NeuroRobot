@@ -230,7 +230,7 @@ elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && i
 else
     this_col = [0.8 0.8 0.8];
 end
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect Camera', 'units', 'normalized', 'position', [0.05 0.42 0.35 0.07]);
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect RAK module', 'units', 'normalized', 'position', [0.05 0.42 0.35 0.07]);
 set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_system_restart); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
     'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
