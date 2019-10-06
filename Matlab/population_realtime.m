@@ -56,3 +56,9 @@ save('neurorobot_data.mat', 'neurorobot_data')
 disp(horzcat('added ', num2str(nnews), ' new neurorobot datafiles from this computer to the database'))
 disp(horzcat(num2str(nexists), ' files already in data base'))
 
+%% Process data
+for nexist = nexists
+    if neurorobot_data.
+end
+
+%% Plot data
