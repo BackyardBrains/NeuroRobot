@@ -1,3 +1,0 @@
-openStreams >> SharedMemory >>> opened
-SharedMemory >>> init
-openStreams >> VideoAndAudioObtainer >>> opened
