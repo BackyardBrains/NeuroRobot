@@ -1,0 +1,5 @@
+openStreams >> SharedMemory >>> opened
+SharedMemory >>> init
+openStreams >> VideoAndAudioObtainer >>> opened
+init >>> not succeeded 'avformat_open_input' >>> Invalid data found when processing input
+openStreams >> Socket >>> opened

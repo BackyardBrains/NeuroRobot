@@ -1,0 +1,3 @@
+Warning: GPU is low on memory, which can slow performance due to additional data transfers with main
+memory. Try reducing the 'MiniBatchSize' training option. This warning will not appear again unless
+you run the command: warning('on','nnet_cnn:warning:GPULowOnMemory'). 
