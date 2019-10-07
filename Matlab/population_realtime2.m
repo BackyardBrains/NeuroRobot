@@ -1,4 +1,5 @@
 
+close all
 clear
 
 tic
@@ -8,6 +9,7 @@ t2 = datetime(2019,10,4,12,00,00);
 
 n = 0;
 a = [];
+b = [];
 
 local_database = dir('.\Data\*.mat');
 for n_local_data = 1:size(local_database, 1)
@@ -15,14 +17,20 @@ for n_local_data = 1:size(local_database, 1)
     if isfield(data, 'start_time')
         start_time_chars = char(data.start_time);
         end_time_chars = char(data.stop_time);
-        t = datetime(start_time_chars(1:22), 'InputFormat', 'yyyy-MM-dd-hh-mm-ss-ms')
-        if isbetween(t,t1,t2)
+        t = datetime(start_time_chars(1:22), 'InputFormat', 'yyyy-MM-dd-hh-mm-ss-ms');
+        tx = datetime(end_time_chars(1:22), 'InputFormat', 'yyyy-MM-dd-hh-mm-ss-ms');
+        if isbetween(t,t1,t2) && isfield(data, 'firing')
             n = n + 1;
-            firing = data(n_local_data).firing;
-            nsteps = size(firing);
-    %         scatter(linspace(data(n_local_data).start_time, data(n_local_data).stop_time
-    %         a = [a; data(n_local_data).
-            t
+            nx = rand;
+            disp(horzcat('lifetimes: ', num2str(n)))
+            firing = data.firing;
+            nneurons = size(firing, 1);
+            nsteps = size(firing, 2);
+%             plot(linspace(t, tx, nsteps), mean(firing))
+            plot([t tx], [nx nx], 'linewidth', 5, 'color', 'k')
+            hold on
+            drawnow
+
         end
     end
 end
