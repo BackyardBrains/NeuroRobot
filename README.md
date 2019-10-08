@@ -38,4 +38,4 @@ Also - to use object recognition functionality:
 </ul>
 
 ## Neurorobot Data
-<p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Code/Matlab/ontimes.jpg"></p>
+<p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Matlab/ontimes.jpg"></p>
