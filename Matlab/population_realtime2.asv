@@ -95,10 +95,10 @@ for n_local_data = 1:n_local_datas
         plot(b(end), c(end), 'marker', '.', 'markersize', 36, 'color', col)
         
         dt = t_stop - t_start;
-        t_mid = t_start + dt/2;        
+        t_mid = t1 + dt/2;        
         
         if dt > minutes(1)
-            text(t_mid, c(end) + 0.4, 'Brain name', 'horizontalalignment', 'center', 'verticalalignment', 'middle')
+            text(t_mid, c(end) + 0.2, 'Brain name here')
         end
         
     end
@@ -107,8 +107,8 @@ end
 ylim([0 max(c) + 1])
 xlim([t1 t2])
 box on
-title('Neurorobot on-time')
-ylabel('Laptop-robot pair')
+title('Neurorobot On-Time')
+ylabel('Laptop-Robot Pair')
 xlabel('Time')
 
 % scatter(a, c, 'filled', 'markerfacecolor', [0.1 0.8 0.1])
@@ -116,4 +116,3 @@ xlabel('Time')
 % scatter(b, c, 'markerfacecolor', [1 0.3 0.3])
 % xlim([t1 t2])
 
-export_fig(gcf, 'ontimes', '-r150', '-jpg', '-nocrop')
