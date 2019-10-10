@@ -10,7 +10,7 @@ load intended_activity
 
 
 %% Specify number of neurons
-nneurons = 200;
+nneurons = 10;
 
 
 %% Generate brain that produces intended activity
@@ -24,7 +24,8 @@ spike_log = brainSim(a, b, c, d, connectome, nsteps);
 mean_activity = mean(spike_log);
 mean_activity = mean_activity - min(mean_activity);
 mean_activity = mean_activity / max(mean_activity);
-r = corr(mean_activity', intended_activity);
+% r = corr(mean_activity', intended_activity);
+r = 1 / sum(abs(mean_activity' - intended_activity));
 
 figure(1)
 clf

@@ -1,9 +1,19 @@
 
 
 %% Load brain parameters and connectome
-load bursting_brain
-nneurons = size(a, 1);
-
+% load bursting_brain
+load saved_brain_2
+saved_brain = saved_brain_2;
+nneurons = 100;
+saved_brain = reshape(saved_brain, [nneurons + 4, nneurons]);
+% Reshape to brain
+a = saved_brain(1,:)';
+b = saved_brain(2,:)';
+c = saved_brain(3,:)';
+d = saved_brain(4,:)';
+for nneuron = 1:nneurons
+    connectome(nneuron,:) = saved_brain(4+nneuron,:);
+end
 
 %% Build brain vehicle
 brain = struct;

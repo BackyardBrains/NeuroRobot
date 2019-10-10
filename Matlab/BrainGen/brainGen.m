@@ -49,19 +49,32 @@ for iib = b_range
                     end                
                 end
 
+                % Convert brain parameters to single vector
+                x = zeros(nneurons + 4, nneurons);
+                x(1,:) = a;
+                x(2,:) = b;
+                x(3,:) = c;
+                x(4,:) = d;
+                for nneuron = 1:nneurons
+                    x(4+nneuron,:) = connectome(nneuron,:);
+                end
+                
                 % Simulate brain
-                spike_log = brainSim(a, b, c, d, connectome, nsteps);
+                r = brainSim2(x);
+                r = 1/r;
 
-                % Correlate with intended network activity
-                mean_activity = mean(spike_log);
-                mean_activity = mean_activity - min(mean_activity);
-                mean_activity = mean_activity / max(mean_activity);
-                r = corr(mean_activity', intended_activity);
+%                 % Correlate with intended network activity
+%                 mean_activity = mean(spike_log);
+%                 mean_activity = mean_activity - min(mean_activity);
+%                 mean_activity = mean_activity / max(mean_activity);
+% %                 r = corr(mean_activity', intended_activity);
+%                 r = 1 / sum(abs(mean_activity' - intended_activity));
 
 
                 % If correlation is highest ever save parameters
                 if r > max_corr
                     max_corr = r;
+                    disp(num2str(r))
 
                     % Save parameters
                     ax = a;

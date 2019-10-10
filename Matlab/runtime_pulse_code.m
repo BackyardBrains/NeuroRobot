@@ -36,7 +36,7 @@ if nstep == nsteps_per_loop
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
 end
-if ~use_webcam && ~rak_cam.isRunning() % This screws with DIY no?
+if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     disp('rak_cam is no longer running, stopping')
     stop(rak_pulse)
     pause(0.5)
