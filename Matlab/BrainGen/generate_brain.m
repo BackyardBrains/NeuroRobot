@@ -47,6 +47,10 @@ elseif strcmp(approach, 'particleswarm')
     nvars = length(start_brain_vector);
     [brain_vector,fval,exitFlag,output] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options);    
 elseif strcmp(approach, 'ga')
+    disp(approach)
+    options = optimoptions('ga','Display','iter');
+    nvars = length(start_brain_vector);
+    [brain_vector,fval,exitFlag,output] = ga(@brainSim2, nvars, start_brain, A, b, Aeq, beq, lb, ub, [], options);      
 elseif strcmp(approach, '-')
 elseif strcmp(approach, '-')
 else
