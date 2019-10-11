@@ -11,7 +11,7 @@ tic
 brain_name = 'Rise';
 intended_network_behavior = load('intended_activity'); % What network behavior are you aiming for? see get_intended_activity
 nneurons = 100; % How many neurons in the brain?
-% approach = 'fmincon'; % What's your search strategy?
+% approach = 'fmincon';
 % approach = 'patternsearch';
 approach = 'particleswarm';
 % approach = 'ga';
