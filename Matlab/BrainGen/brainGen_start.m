@@ -11,6 +11,7 @@ tic
 brain_name = 'Rise_GA';
 load('intended_activity'); % What network behavior are you aiming for? see get_intended_activity
 intended_network_behavior = intended_activity;
+figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
 nneurons = 100; % How many neurons in the brain?
 % approach = 'fmincon';
 % approach = 'patternsearch';
