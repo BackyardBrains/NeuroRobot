@@ -47,12 +47,10 @@ beq = [];
 
 % particleswarm
 options = optimoptions('particleswarm', 'Display', 'iter', ...
-    'PlotFcn',{@psplotbestf,@psplotfuncount},'SwarmSize',100000,'HybridFcn',@fmincon);
+    'PlotFcn',{@psplotbestf,@psplotfuncount},'SwarmSize',100,'HybridFcn',@fmincon);
 options.InitialSwarmMatrix = v1;
 nvars = length(v1);
 [x,fval,exitflag,output] = particleswarm(@brainSim2,nvars,v2,v3);
-
-
 
 formatstring = 'particleswarm reached the value %f using %d function evaluations.\n';
 fprintf(formatstring,fval,output.funccount)

@@ -1,20 +1,5 @@
 
 
-%% Load brain parameters and connectome
-% load bursting_brain
-load saved_brain_2 % I think this is a quiet 100 neuron brain
-saved_brain = saved_brain_2;
-nneurons = 100;
-saved_brain = reshape(saved_brain, [nneurons + 4, nneurons]);
-% Reshape to brain
-a = saved_brain(1,:)';
-b = saved_brain(2,:)';
-c = saved_brain(3,:)';
-d = saved_brain(4,:)';
-for nneuron = 1:nneurons
-    connectome(nneuron,:) = saved_brain(4+nneuron,:);
-end
-
 %% Build brain vehicle
 brain = struct;
 clear v
@@ -43,8 +28,6 @@ network = struct;
 nnetworks = length(unique(network_ids));
 network_drive = zeros(nnetworks, 3);
 
-
-%% Get XYs
 neuron_xys = zeros(nneurons, 2);
 n = nneurons;
 eqdist_const = 0.01; % 0.006;         
@@ -63,4 +46,37 @@ for nneuron = 1:n
     xys(2) = xys(2) - 0;
     neuron_xys(nneuron, :) = xys;
 end
+
+
+% Save brain
+brain.nneurons = nneurons;
+brain.neuron_xys = neuron_xys;
+brain.connectome = connectome;
+brain.da_connectome = da_connectome;
+brain.a_init = 0.2;
+brain.b_init = 0.02;
+brain.c_init = -65;
+brain.d_init = 2;
+brain.w_init = 0;
+brain.a = a;
+brain.b = b;
+brain.c = c;
+brain.d = d;
+brain.v = v;
+brain.u = u;
+brain.neuron_contacts = neuron_contacts;
+brain.vis_prefs = vis_prefs;
+brain.audio_prefs = audio_prefs;
+brain.dist_prefs = dist_prefs;
+brain.neuron_cols = neuron_cols;
+brain.network_ids = network_ids;
+brain.da_rew_neurons = da_rew_neurons;
+brain.neuron_tones = neuron_tones;
+brain.network_drive = network_drive;
+brain.network = network;
+brain.bg_neurons = bg_neurons;
+brain_file_name = strcat('C:/Users/Christopher Harris/NeuroRobot/Matlab/Brains/', brain_name, '.mat');
+save(brain_file_name, 'brain')
+disp('Brain saved')
+
 
