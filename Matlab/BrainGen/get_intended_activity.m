@@ -31,13 +31,16 @@ intended_activity_3 = intended_activity_3 / max(intended_activity_3);
 
 intended_activity = intended_activity_3;
 
-% clf
-% plot(intended_activity_1)
-% hold on
-% plot(intended_activity_2)
-% plot(intended_activity_3)
-% plot(intended_activity, 'linewidth', 3, 'color', 'k')
-% title('Intended activity')
-% 
-% save('intended_activity', 'intended_activity')
+intended_activity = intended_activity(1:2:end);
+intended_activity = [intended_activity; flipud(intended_activity)];
+
+clf
+plot(intended_activity_1)
+hold on
+plot(intended_activity_2)
+plot(intended_activity_3)
+plot(intended_activity, 'linewidth', 3, 'color', 'k')
+title('Intended activity')
+
+save('intended_activity', 'intended_activity')
 
