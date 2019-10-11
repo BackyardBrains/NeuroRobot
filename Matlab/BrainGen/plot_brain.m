@@ -1,14 +1,14 @@
 
 
-figure; bar(sort(a, 'descend')); title('A'); set(gcf, 'position', [2033 540 560 420], 'color', 'w'); xlabel('Neuron');
-figure; bar(sort(b, 'descend')); title('B'); set(gcf, 'position', [2604 540 560 420], 'color', 'w'); xlabel('Neuron');
-figure; bar(sort(c, 'descend')); title('C'); set(gcf, 'position', [2033 30 560 420], 'color', 'w'); xlabel('Neuron');
-figure; bar(sort(d, 'descend')); title('D'); set(gcf, 'position', [2604 30 560 420], 'color', 'w'); xlabel('Neuron');
+figure; bar(sort(a, 'descend')); title('A'); set(gcf, 'position', [1 540 400 300], 'color', 'w'); xlabel('Neuron');
+figure; bar(sort(b, 'descend')); title('B'); set(gcf, 'position', [600 540 400 300], 'color', 'w'); xlabel('Neuron');
+figure; bar(sort(c, 'descend')); title('C'); set(gcf, 'position', [600 30 400 300], 'color', 'w'); xlabel('Neuron');
+figure; bar(sort(d, 'descend')); title('D'); set(gcf, 'position', [1 30 400 300], 'color', 'w'); xlabel('Neuron');
 
 figure; imagesc(connectome); title('Connectome'); hc = colorbar; ylabel(hc, 'Synaptic Strength (w)'); ...
-    set(gcf, 'position', [3177 540 560 420], 'color', 'w'); xlabel('Postsynaptic'); ylabel('Presynaptic');
+    set(gcf, 'position', [1200 540 400 300], 'color', 'w'); xlabel('Postsynaptic'); ylabel('Presynaptic');
 
-figure; set(gcf, 'position', [3177 30 560 420], 'color', 'w'); brain_ax = axes('position', [0 0 1 1]);
+figure; set(gcf, 'position', [1200 30 400 300], 'color', 'w'); brain_ax = axes('position', [0 0 1 1]);
 im3 = flipud(255 - ((255 - imread('workspace.jpg')))); draw_synapses = 1; draw_synapse_strengths = 0; bfsize = 18;
 gui_font_name = 'Comic Book'; gui_font_weight = 'normal'; draw_neuron_numbers = 0;
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...

@@ -1,4 +1,4 @@
-function [brain_matrix, fval, exitFlag] = generate_brain(nneurons, intended_network_behavior, approach)
+function [brain_vector, fval, exitFlag] = generate_brain(nneurons, intended_network_behavior, approach)
 
 %% Starting point in brain space
 start_brain = zeros(nneurons + 4, nneurons);
@@ -35,17 +35,17 @@ beq = [];
 if strcmp(approach, 'fmincon')
     disp(approach)
     options = optimoptions('fmincon','Display','iter');
-    [brain_matrix,fval,exitFlag,output] = fmincon(@brainSim2, start_brain, A, b, Aeq, beq, lb, ub, [], options);
+    [brain_vector,fval,exitFlag,output] = fmincon(@brainSim2, start_brain, A, b, Aeq, beq, lb, ub, [], options);
 elseif strcmp(approach, 'patternsearch')
     disp(approach)
     options = optimoptions('patternsearch','Display','iter', 'PlotFcn',{@psplotbestf,@psplotfuncount});
-    [brain_matrix,fval,exitFlag,output] = patternsearch(@brainSim2, start_brain, A, b, Aeq, beq, lb, ub, [], options);    
+    [brain_vector,fval,exitFlag,output] = patternsearch(@brainSim2, start_brain, A, b, Aeq, beq, lb, ub, [], options);    
 elseif strcmp(approach, 'particleswarm')
     disp(approach)
-    options = optimoptions('particleswarm', 'Display', 'iter', 'PlotFcn',{@psplotbestf,@psplotfuncount},'SwarmSize',100, ...
-        'HybridFcn',@fmincon, 'InitialSwarmMatrix', start_brain_vector);
+    options = optimoptions('particleswarm', 'Display', 'iter','SwarmSize', 100, ...
+        'InitialSwarmMatrix', start_brain_vector');
     nvars = length(start_brain_vector);
-    [brain_matrix,fval,exitFlag,output] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options);    
+    [brain_vector,fval,exitFlag,output] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options);    
 elseif strcmp(approach, 'ga')
 elseif strcmp(approach, '-')
 elseif strcmp(approach, '-')
