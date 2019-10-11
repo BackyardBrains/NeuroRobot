@@ -75,8 +75,8 @@ brain.neuron_tones = neuron_tones;
 brain.network_drive = network_drive;
 brain.network = network;
 brain.bg_neurons = bg_neurons;
-brain_file_name = strcat('C:/Users/Christopher Harris/NeuroRobot/Matlab/Brains/', brain_name, '.mat');
-save(brain_file_name, 'brain')
+% brain_file_name = strcat('C:/Users/Christopher Harris/NeuroRobot/Matlab/Brains/', brain_name, '.mat');
+% save(brain_file_name, 'brain')
 disp('Brain saved')
 
 

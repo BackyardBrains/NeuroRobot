@@ -1,9 +1,10 @@
 
 
+% This script uses optimization algorithms to search for a brain whose
+% behavior matches get_intended_activity
+
 close all
 clear
-
-
 tic
 
 %% Settings
@@ -35,7 +36,7 @@ plot_brain % This needs many of the vars unpacked by save_to_runnable_brain
 nsteps = 3000;
 [mean_activity, spike_log] = run_brain(a, b, c, d, connectome, nsteps);
 get_intended_activity
-this_error = sum((mean_activity - intended_activity).^2);
+this_error = sum((mean_activity' - intended_activity).^2);
 plot_intended_vs_actual
 
 

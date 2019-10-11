@@ -21,26 +21,28 @@ end
 intended_activity_1 = intended_activity_1 - min(intended_activity_1);
 intended_activity_1 = intended_activity_1 / max(intended_activity_1);
 
-intended_activity_2 = sigmoid(0.02:0.003327:10, 5);
-intended_activity_2 = intended_activity_2 - min(intended_activity_2);
-intended_activity_2 = intended_activity_2 / max(intended_activity_2);
+intended_activity = intended_activity_1;
 
-intended_activity_3 = intended_activity_1 + intended_activity_2';
-intended_activity_3 = intended_activity_3 - min(intended_activity_3);
-intended_activity_3 = intended_activity_3 / max(intended_activity_3);
+% intended_activity_2 = sigmoid(0.02:0.003327:10, 5);
+% intended_activity_2 = intended_activity_2 - min(intended_activity_2);
+% intended_activity_2 = intended_activity_2 / max(intended_activity_2);
+% 
+% intended_activity_3 = intended_activity_1 + intended_activity_2';
+% intended_activity_3 = intended_activity_3 - min(intended_activity_3);
+% intended_activity_3 = intended_activity_3 / max(intended_activity_3);
+% 
+% intended_activity = intended_activity_3;
+% 
+% intended_activity = intended_activity(1:2:end);
+% intended_activity = [intended_activity; flipud(intended_activity)];
+% 
+% clf
+% plot(intended_activity_1)
+% hold on
+% plot(intended_activity_2)
+% plot(intended_activity_3)
+% plot(intended_activity, 'linewidth', 3, 'color', 'k')
+% title('Intended activity')
 
-intended_activity = intended_activity_3;
-
-intended_activity = intended_activity(1:2:end);
-intended_activity = [intended_activity; flipud(intended_activity)];
-
-clf
-plot(intended_activity_1)
-hold on
-plot(intended_activity_2)
-plot(intended_activity_3)
-plot(intended_activity, 'linewidth', 3, 'color', 'k')
-title('Intended activity')
-
-save('intended_activity', 'intended_activity')
+% save('intended_activity', 'intended_activity')
 

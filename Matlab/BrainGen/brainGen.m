@@ -1,18 +1,15 @@
-function [ax, bx, cx, dx, connectomex, max_corr] = brainGen(intended_activity, nneurons)
+function [ax, bx, cx, dx, connectomex, this_error] = brainGen(intended_activity, nneurons)
 
-% Get duration
 nsteps = size(intended_activity, 1);
-
-% Define parameter space
 b_range = 0.1 : 0.02 : 0.25;
 weight_range = 0 : 1 : 20;
 probability_range_1 = 0.1 : 0.1 : 1;
 probability_range_2 = 0.1 : 0.1 : 1;
 
-% Search parameter space (brute force)
+% Search parameter space
 nsearches = length(b_range) * length(weight_range) * length(probability_range_1) * length(probability_range_2);
 nsearch = 0;
-max_corr = 0;
+min_error = Inf;
 for iib = b_range
     for iiw = weight_range
         for iip = probability_range_1
@@ -50,31 +47,22 @@ for iib = b_range
                 end
 
                 % Convert brain parameters to single vector
-                x = zeros(nneurons + 4, nneurons);
-                x(1,:) = a;
-                x(2,:) = b;
-                x(3,:) = c;
-                x(4,:) = d;
+                brain_vector = zeros(nneurons + 4, nneurons);
+                brain_vector(1,:) = a;
+                brain_vector(2,:) = b;
+                brain_vector(3,:) = c;
+                brain_vector(4,:) = d;
                 for nneuron = 1:nneurons
-                    x(4+nneuron,:) = connectome(nneuron,:);
+                    brain_vector(4+nneuron,:) = connectome(nneuron,:);
                 end
                 
                 % Simulate brain
-                r = brainSim2(x);
-                r = 1/r;
-
-%                 % Correlate with intended network activity
-%                 mean_activity = mean(spike_log);
-%                 mean_activity = mean_activity - min(mean_activity);
-%                 mean_activity = mean_activity / max(mean_activity);
-% %                 r = corr(mean_activity', intended_activity);
-%                 r = 1 / sum(abs(mean_activity' - intended_activity));
-
+                this_error = brainSim2(brain_vector);
 
                 % If correlation is highest ever save parameters
-                if r > max_corr
-                    max_corr = r;
-                    disp(num2str(r))
+                if this_error < min_error
+                    min_error = this_error;
+                    disp(horzcat('Lowest error so far: ', num2str(min_error)))
 
                     % Save parameters
                     ax = a;

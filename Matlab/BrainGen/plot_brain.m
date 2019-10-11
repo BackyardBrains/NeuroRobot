@@ -9,7 +9,7 @@ figure; imagesc(connectome); title('Connectome'); hc = colorbar; ylabel(hc, 'Syn
     set(gcf, 'position', [1200 540 400 300], 'color', 'w'); xlabel('Postsynaptic'); ylabel('Presynaptic');
 
 figure; set(gcf, 'position', [1200 30 400 300], 'color', 'w'); brain_ax = axes('position', [0 0 1 1]);
-im3 = flipud(255 - ((255 - imread('workspace.jpg')))); draw_synapses = 1; draw_synapse_strengths = 0; bfsize = 18;
+im3 = flipud(255 - ((255 - imread('workspace.jpg')))); draw_synapses = 0; draw_synapse_strengths = 0; bfsize = 18;
 gui_font_name = 'Comic Book'; gui_font_weight = 'normal'; draw_neuron_numbers = 0;
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
