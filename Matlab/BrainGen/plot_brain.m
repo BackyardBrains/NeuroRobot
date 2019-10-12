@@ -2,7 +2,7 @@
 
 figure(1)
 clf
-set(gcf, 'color', 'w')
+set(gcf, 'color', 'w', 'position', [200 200 1280 720])
 
 subplot(2,3,1)
 bar(sort(a, 'descend')); title('Izhikevich A'); xlabel('Neuron');

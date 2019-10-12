@@ -8,15 +8,15 @@ clear
 tic
 
 %% Settings
-brain_name = 'Rise_particleswarm_fmincon_2';
+brain_name = 'decreasing_fmincon_1';
 get_nneurons
 get_intended_activity
 
 figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
 
-% approach = 'fmincon';
+approach = 'fmincon';
 % approach = 'patternsearch';
-approach = 'particleswarm';
+% approach = 'particleswarm';
 % approach = 'ga';
 
 
@@ -43,4 +43,4 @@ plot_intended_vs_actual
 
 
 %% Exit
-disp(horzcat('Brain generation complete in ', num2str(round(toc)), ' seconds'))
+disp(horzcat('Brain generation completed in ', num2str(round(toc)), ' seconds'))

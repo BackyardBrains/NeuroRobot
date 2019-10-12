@@ -35,24 +35,24 @@ ub_vector = reshape(ub, [(nneurons + 4) * nneurons, 1]);
 if strcmp(approach, 'fmincon')
     disp(approach)
     options = optimoptions('fmincon','Display','iter');
-    [brain_vector,fval,exitFlag,output] = fmincon(@brainSim2, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);
+    [brain_vector,fval,exitFlag] = fmincon(@brainSim2, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);
     
 elseif strcmp(approach, 'patternsearch')
     disp(approach)
     options = optimoptions('patternsearch','Display','iter', 'PlotFcn',@pswplotbestf);
-    [brain_vector,fval,exitFlag,output] = patternsearch(@brainSim2, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);  
+    [brain_vector,fval,exitFlag] = patternsearch(@brainSim2, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);  
     
 elseif strcmp(approach, 'particleswarm')
     disp(approach)
     options = optimoptions('particleswarm', 'Display', 'iter','SwarmSize', 200, 'InitialSwarmMatrix', start_brain_vector','HybridFcn',@fmincon);
     nvars = length(start_brain_vector);
-    [brain_vector,fval,exitFlag,output] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options); 
+    [brain_vector,fval,exitFlag] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options); 
     
 elseif strcmp(approach, 'ga')
     disp(approach)
     options = optimoptions('ga','Display','iter','PlotFcn',@gabestf, 'InitialPopulationMatrix', start_brain_vector);
     nvars = length(start_brain_vector);
-    [brain_vector,fval,exitFlag,output] = ga(@brainSim2, nvars, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);   
+    [brain_vector,fval,exitFlag] = ga(@brainSim2, nvars, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);   
     
 else
     disp('Unknown approach')
