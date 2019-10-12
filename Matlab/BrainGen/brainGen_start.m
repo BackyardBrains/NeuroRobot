@@ -14,9 +14,9 @@ get_intended_activity
 
 figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
 
-approach = 'fmincon';
+% approach = 'fmincon';
 % approach = 'patternsearch';
-% approach = 'particleswarm';
+approach = 'particleswarm';
 % approach = 'ga';
 
 

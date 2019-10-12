@@ -31,7 +31,7 @@ intended_activity_1 = intended_activity_1 / max(intended_activity_1);
 
 %%
 nsteps = 3000;
-intended_activity = linspace(1, 0, nsteps);
+intended_activity = linspace(0, 1, nsteps);
 
 %%
 % intended_activity_2 = sigmoid(0.02:0.003327:10, 5);
