@@ -44,7 +44,7 @@ elseif strcmp(approach, 'patternsearch')
     
 elseif strcmp(approach, 'particleswarm')
     disp(approach)
-    options = optimoptions('particleswarm', 'Display', 'iter','SwarmSize', 200, 'InitialSwarmMatrix', start_brain_vector','HybridFcn',@fmincon);
+    options = optimoptions('particleswarm', 'Display', 'iter','InitialSwarmMatrix', start_brain_vector');
     nvars = length(start_brain_vector);
     [brain_vector,fval,exitFlag] = particleswarm(@brainSim2,nvars,lb_vector,ub_vector,options); 
     
