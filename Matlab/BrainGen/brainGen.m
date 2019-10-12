@@ -2,9 +2,9 @@ function [ax, bx, cx, dx, connectomex, this_error] = brainGen(intended_activity,
 
 nsteps = size(intended_activity, 1);
 b_range = 0.1 : 0.02 : 0.25;
-weight_range = 0 : 2 : 20;
-probability_range_1 = 0.1 : 0.2 : 1;
-probability_range_2 = 0.1 : 0.2 : 1;
+weight_range = 0 : 1 : 20;
+probability_range_1 = 0.1 : 0.1 : 1;
+probability_range_2 = 0.1 : 0.1 : 1;
 
 % Search parameter space
 nsearches = length(b_range) * length(weight_range) * length(probability_range_1) * length(probability_range_2);

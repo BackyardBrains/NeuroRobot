@@ -5,7 +5,7 @@
 close all
 clear
 
-nneurons = 100;
+get_nneurons
 get_intended_activity
 
 [a, b, c, d, connectome] = brainGen(intended_activity, nneurons);
@@ -13,6 +13,7 @@ get_intended_activity
 nsteps = size(intended_activity, 1);
 spike_log = brainSim(a, b, c, d, connectome, nsteps);
 mean_activity = mean(spike_log);
+mean_activity(1:50) = mean(mean_activity);
 if sum(mean_activity)
     mean_activity = mean_activity - min(mean_activity);
     mean_activity = mean_activity / max(mean_activity);

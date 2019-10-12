@@ -21,7 +21,12 @@ end
 intended_activity_1 = intended_activity_1 - min(intended_activity_1);
 intended_activity_1 = intended_activity_1 / max(intended_activity_1);
 
-intended_activity = intended_activity_1;
+% intended_activity = intended_activity_1;
+
+intended_activity_4 = sin(0:0.01:29.99);
+intended_activity_4(intended_activity_4 < 0) = 0;
+
+intended_activity = intended_activity_4;
 
 % intended_activity_2 = sigmoid(0.02:0.003327:10, 5);
 % intended_activity_2 = intended_activity_2 - min(intended_activity_2);

@@ -14,7 +14,7 @@ subplot(2,3,4)
 bar(sort(c, 'descend')); title('Izhikevich C'); xlabel('Neuron');
 
 subplot(2,3,5)
-bar(sort(a, 'descend')); title('Izhikevich D'); xlabel('Neuron');
+bar(sort(d, 'descend')); title('Izhikevich D'); xlabel('Neuron');
 
 subplot(2,3,3)
 imagesc(connectome); title('Connectome'); hc = colorbar; ylabel(hc, 'Synaptic Strength (w)'); 

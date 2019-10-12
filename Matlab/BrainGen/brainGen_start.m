@@ -8,19 +8,20 @@ clear
 tic
 
 %% Settings
-brain_name = 'Rise_GA';
-load('intended_activity'); % What network behavior are you aiming for? see get_intended_activity
-intended_network_behavior = intended_activity;
+brain_name = 'Rise_particleswarm_fmincon_2';
+get_nneurons
+get_intended_activity
+
 figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
-nneurons = 100; % How many neurons in the brain?
+
 % approach = 'fmincon';
 % approach = 'patternsearch';
-% approach = 'particleswarm';
-approach = 'ga';
+approach = 'particleswarm';
+% approach = 'ga';
 
 
 %% Run the search
-[brain_vector, fval, exitflag] = generate_brain(nneurons, intended_network_behavior, approach);
+[brain_vector, fval, exitflag] = generate_brain(approach);
 
 
 %% Unpack and save brain
@@ -35,10 +36,9 @@ plot_brain % This needs many of the vars unpacked by save_to_runnable_brain
 
 
 %% Resimulate brain and compare intended activity to actual
-nsteps = 3000;
+nsteps = length(intended_activity);
 [mean_activity, spike_log] = run_brain(a, b, c, d, connectome, nsteps);
-get_intended_activity
-this_error = sum((mean_activity' - intended_activity).^2);
+this_error = sum(abs(mean_activity - intended_activity));
 plot_intended_vs_actual
 
 

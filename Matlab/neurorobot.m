@@ -14,8 +14,8 @@ camera_present = 1;
 bluetooth_present = 0;
 pulse_period = 0.125; % in seconds
 save_data_and_commands = 1; %%%
-grey_background = 1;
-draw_synapses = 1;
+grey_background = 0;
+draw_synapses = 0;
 use_cnn = 0;
 use_rcnn = 0; 
 
