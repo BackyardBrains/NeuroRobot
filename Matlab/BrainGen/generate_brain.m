@@ -39,7 +39,7 @@ if strcmp(approach, 'fmincon')
     
 elseif strcmp(approach, 'patternsearch')
     disp(approach)
-    options = optimoptions('patternsearch','Display','iter', 'PlotFcn',@pswplotbestf);
+    options = optimoptions('patternsearch','Display','iter');
     [brain_vector,fval,exitFlag] = patternsearch(@brainSim2, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);  
     
 elseif strcmp(approach, 'particleswarm')
