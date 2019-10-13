@@ -10,12 +10,16 @@
 #define VideoAndAudioObtainer_h
 
 
-#include "MexThread.h"
+#include "BackgroundThread.h"
 #include "Macros.h"
 #include "SharedMemory.h"
 #include "Log.h"
 
-//#include <iostream>
+#ifdef MATLAB
+    #include "TypeDefs.h"
+#else
+    #include "Bridge/TypeDefs.h"
+#endif
 
 //// FFMPEG includes
 extern "C" {
@@ -30,21 +34,21 @@ extern "C" {
  Derived class.
  Reads video and audio data from RAK5206 and saves data to shared memory
  */
-class VideoAndAudioObtainer : public MexThread, public Log {
+class VideoAndAudioObtainer : public BackgroundThread, public Log {
     
 private:
     AVFormatContext* format_ctx = NULL;
     AVCodecContext* videoCodec_ctx = NULL;
-    struct SwsContext* img_convert_ctx = nullptr;
+    struct SwsContext* img_convert_ctx = NULL;
     int video_stream_index = 0;
     int audio_stream_index;
     int openInput = -1;
     
     AVPacket packet;
     AVCodec* videoCodec = NULL;
-    AVFrame* picture = NULL;
+    AVFrame* frame = NULL;
     AVFrame* picture_rgb = NULL;
-    int cnt = 0;
+    bool tryingToReconnect = false;
     
     SharedMemory* sharedMemoryInstance;
     
@@ -61,21 +65,23 @@ private:
     //----------------------------------
     // Rest of the methods.
     int decode(AVCodecContext* avctx, AVFrame* frame, int* got_frame, AVPacket* pkt);
+    void errorOccurred(VideoAudioErrorType *errorToReturn, VideoAudioErrorType errorType, int errorInt);
+    void reset(VideoAudioErrorType *error);
     
-    void reset(int *error);
-//    static int interrupt_cb(void *ctx);
-//    static int interrupt_cb(void *ctx);
-//    static std::clock_t startTime;
-    
+    ErrorOccurredCallback errorCallback;
 public:
+    
+    
     
     //-----------------------------------
     // Init methods.
-    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, int *error);
+    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, VideoAudioErrorType *error, ErrorOccurredCallback callback);
     
     //-----------------------------------
     // Overloaded methods.
     void run();
+    
+    VideoAudioErrorType error = VideoAudioErrorNone;
 };
 
 

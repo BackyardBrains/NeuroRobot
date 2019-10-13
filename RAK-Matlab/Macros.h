@@ -7,8 +7,8 @@
 #define _Macros_h
 
 
-//#define DEBUG
-//  #undef DEBUG
+#define DEBUG
+//#undef DEBUG
 
 #define MATLAB
 

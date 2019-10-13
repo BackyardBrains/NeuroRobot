@@ -46,12 +46,12 @@ public:
             
             std::string ipAddressString = std::string(ipAddress, mxGetN(prhs[1]));
             std::string portString = std::string(port, mxGetN(prhs[2]));
-            int error = 0;
+            VideoAudioErrorType error = VideoAudioErrorNone;
             
             free(ipAddress);
             free(port);
             
-            rakObject = new RAK5206(ipAddressString, portString, &error);
+            rakObject = new RAK5206(ipAddressString, portString, &error, nullptr);
             return;
         } else if ( !strcmp("start", cmd) ) {
             
@@ -65,8 +65,6 @@ public:
             yp  = (int16_t*) mxGetData(plhs[0]);
             std::memcpy(yp, reply, size);
             
-            
-//             free(reply);
             return;
         } else if ( !strcmp("readVideo", cmd) ) {
             

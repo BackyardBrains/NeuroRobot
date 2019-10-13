@@ -144,4 +144,4 @@ rak.stop();
 pause(2);
 audiowrite('test.wav', audioMat, 8000);
 close all;
-serialData
+serialData;

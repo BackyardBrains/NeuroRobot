@@ -7,7 +7,6 @@
 #define _Log_cpp
 
 #include "Log.h"
-#include <stdio.h>
 #include <iostream>
 
 #ifdef DEBUG

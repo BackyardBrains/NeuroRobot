@@ -26,7 +26,8 @@ SharedMemory::~SharedMemory()
     
     delete [] videoData;
     delete [] audioData;
-    delete [] serialData;
+    delete [] lastSerialResult;
+    delete [] returnSerialBuffer;
 }
 
 /**
@@ -158,8 +159,9 @@ void SharedMemory::writeSerialRead(std::string data)
     }
     mutexSerialRead.lock();
     
-    memcpy(&serialData[serialReadWrittenSize], data.c_str(), data.length());
-    
+    memcpy(lastSerialResult, data.c_str(), data.length());
+    lastSerialSize = (int)data.length();
+
     char string[50];
     sprintf(string, "srwse %d", serialReadWrittenSize);
     logMessage(string);
@@ -182,21 +184,12 @@ uint8_t* SharedMemory::readSerialRead(int* size)
 {
     mutexSerialRead.lock();
     
-    *size = serialReadWrittenSize;
+    memcpy(returnSerialBuffer, lastSerialResult, serialReadTotalSize + 1);
+    *size = lastSerialSize;
     
     mutexSerialRead.unlock();
     
-    return serialData;
-}
-
-/**
- Reads serial data as string from shared memory.
- 
- @return Serial data as string
- */
-std::string SharedMemory::readSerialRead()
-{
-    return serialDataString;
+    return returnSerialBuffer;
 }
 
 #endif // ! _SharedMemory_cpp
