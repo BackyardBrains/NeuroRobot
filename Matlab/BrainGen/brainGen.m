@@ -2,9 +2,9 @@ function [ax, bx, cx, dx, connectomex, this_error] = brainGen(intended_activity,
 
 nsteps = size(intended_activity, 1);
 b_range = 0.1 : 0.02 : 0.25;
-weight_range = 0 : 2 : 20;
-probability_range_1 = 0.1 : 0.2 : 1;
-probability_range_2 = 0.1 : 0.2 : 1;
+weight_range = 0 : 1 : 20;
+probability_range_1 = 0.1 : 0.1 : 1;
+probability_range_2 = 0.1 : 0.1 : 1;
 
 % Search parameter space
 nsearches = length(b_range) * length(weight_range) * length(probability_range_1) * length(probability_range_2);
@@ -47,14 +47,15 @@ for iib = b_range
                 end
 
                 % Convert brain parameters to single vector
-                brain_vector = zeros(nneurons + 4, nneurons);
-                brain_vector(1,:) = a;
-                brain_vector(2,:) = b;
-                brain_vector(3,:) = c;
-                brain_vector(4,:) = d;
+                brain_matrix = zeros(nneurons + 4, nneurons);
+                brain_matrix(1,:) = a;
+                brain_matrix(2,:) = b;
+                brain_matrix(3,:) = c;
+                brain_matrix(4,:) = d;
                 for nneuron = 1:nneurons
-                    brain_vector(4+nneuron,:) = connectome(nneuron,:);
+                    brain_matrix(4+nneuron,:) = connectome(nneuron,:);
                 end
+                brain_vector = reshape(brain_matrix, [(nneurons + 4) * nneurons, 1]);
                 
                 % Simulate brain
                 this_error = brainSim2(brain_vector);

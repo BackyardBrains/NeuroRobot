@@ -1,11 +1,9 @@
 function this_error = brainSim2(brain_vector)
 
-%% Get intended activity
-get_intended_activity % This should be passes from parent function
+get_nneurons
+get_intended_activity
 
 %% Unpack brain
-nneurons = 100; % This needs to be read from brain vector somehow, maybe just a header but the whole
-                % input vector gets omptimized right?
 brain = reshape(brain_vector, [nneurons + 4, nneurons]);
 a = brain(1,:)';
 b = brain(2,:)';
@@ -17,8 +15,8 @@ end
 
 %% Simulate brain
 nsteps = 3000; % Ditto
-mean_errors = zeros(10, 1);
-for nsim = 1:10
+mean_errors = zeros(5, 1);
+for nsim = 1:5
     spike_log = zeros(nneurons, nsteps);
     v(:, 1) = -65 + 5 * randn(nneurons,1);
     u = b .* v;
@@ -37,13 +35,14 @@ for nsim = 1:10
 
     %% Get mean activity
     mean_activity = mean(spike_log);
+    mean_activity(1:50) = mean(mean_activity);
     if sum(mean_activity)
         mean_activity = mean_activity - min(mean_activity);
         mean_activity = mean_activity / max(mean_activity);
     end
     
     %% Get error
-    this_error = sum((mean_activity' - intended_activity).^2);  
+    this_error = sum(abs(mean_activity - intended_activity));  
     if isnan(this_error)
         this_error = nsteps^2;
     end
