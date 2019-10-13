@@ -21,7 +21,7 @@ end
 intended_activity_1 = intended_activity_1 - min(intended_activity_1);
 intended_activity_1 = intended_activity_1 / max(intended_activity_1);
 
-% intended_activity = intended_activity_1;
+intended_activity = intended_activity_1';
 
 %%
 % intended_activity_4 = sin(0:0.01:29.99);
@@ -29,9 +29,9 @@ intended_activity_1 = intended_activity_1 / max(intended_activity_1);
 % 
 % intended_activity = intended_activity_4;
 
-%%
-nsteps = 3000;
-intended_activity = linspace(0, 1, nsteps);
+% %%
+% nsteps = 3000;
+% intended_activity = linspace(0, 1, nsteps);
 
 %%
 % intended_activity_2 = sigmoid(0.02:0.003327:10, 5);
@@ -47,9 +47,10 @@ intended_activity = linspace(0, 1, nsteps);
 % intended_activity = intended_activity(1:2:end);
 % intended_activity = [intended_activity; flipud(intended_activity)];
 
-%%
-clf
-plot(intended_activity, 'linewidth', 3, 'color', 'k')
+% %%
+% figure(10)
+% clf
+% plot(intended_activity, 'linewidth', 3, 'color', 'k')
 
 %%
 % save('intended_activity', 'intended_activity')

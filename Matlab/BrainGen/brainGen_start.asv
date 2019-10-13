@@ -8,7 +8,7 @@ clear
 tic
 
 %% Settings
-brain_name = 'Child of Bursting Brain';
+brain_name = 'Bursting Brain';
 get_nneurons
 get_intended_activity
 
