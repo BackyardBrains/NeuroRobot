@@ -1,1 +1,1 @@
-nneurons = 100;
+nneurons = 200;

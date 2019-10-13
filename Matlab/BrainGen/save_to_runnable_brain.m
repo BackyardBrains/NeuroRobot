@@ -1,6 +1,7 @@
 
 
 %% Build brain vehicle
+nneurons = length(b);
 brain = struct;
 clear v
 v(:, 1) = -65 + 5 * randn(nneurons,1);

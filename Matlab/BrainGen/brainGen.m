@@ -47,14 +47,15 @@ for iib = b_range
                 end
 
                 % Convert brain parameters to single vector
-                brain_vector = zeros(nneurons + 4, nneurons);
-                brain_vector(1,:) = a;
-                brain_vector(2,:) = b;
-                brain_vector(3,:) = c;
-                brain_vector(4,:) = d;
+                brain_matrix = zeros(nneurons + 4, nneurons);
+                brain_matrix(1,:) = a;
+                brain_matrix(2,:) = b;
+                brain_matrix(3,:) = c;
+                brain_matrix(4,:) = d;
                 for nneuron = 1:nneurons
-                    brain_vector(4+nneuron,:) = connectome(nneuron,:);
+                    brain_matrix(4+nneuron,:) = connectome(nneuron,:);
                 end
+                brain_vector = reshape(brain_matrix, [(nneurons + 4) * nneurons, 1]);
                 
                 % Simulate brain
                 this_error = brainSim2(brain_vector);

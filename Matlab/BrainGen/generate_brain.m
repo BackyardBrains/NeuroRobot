@@ -11,21 +11,22 @@ start_brain(2,:) = repmat(0.1, [nneurons, 1]);
 start_brain(3,:) = repmat(-65, [nneurons, 1]);
 start_brain(4,:) = repmat(2, [nneurons, 1]);
 start_brain_vector = reshape(start_brain, [(nneurons + 4) * nneurons, 1]);
+get_preloaded_brain
 
 
 %% Bounds
 lb = zeros(nneurons + 4, nneurons);
 lb(1,:) = 0;
-lb(2,:) = 0;
-lb(3,:) = -90;
+lb(2,:) = 0.1;
+lb(3,:) = -80;
 lb(4,:) = 0;
 lb(5:nneurons+4,:) = -30;
 lb_vector = reshape(lb, [(nneurons + 4) * nneurons, 1]);
 
 ub = zeros(nneurons + 4, nneurons);
-ub(1,:) = 0.15;
-ub(2,:) = 0.4;
-ub(3,:) = -30;
+ub(1,:) = 0.1;
+ub(2,:) = 0.3;
+ub(3,:) = -50;
 ub(4,:) = 10;
 ub(5:nneurons+4,:) = 30;
 ub_vector = reshape(ub, [(nneurons + 4) * nneurons, 1]);
@@ -50,9 +51,9 @@ elseif strcmp(approach, 'particleswarm')
     
 elseif strcmp(approach, 'ga')
     disp(approach)
-    options = optimoptions('ga','Display','iter','PlotFcn',@gabestf, 'InitialPopulationMatrix', start_brain_vector);
+    options = optimoptions('ga','Display','iter', 'InitialPopulationMatrix', start_brain_vector','PlotFcn',{@gaplotbestf,@gaplotstopping});
     nvars = length(start_brain_vector);
-    [brain_vector,fval,exitFlag] = ga(@brainSim2, nvars, start_brain, [], [], [], [], lb_vector, ub_vector, [], options);   
+    [brain_vector,fval,exitFlag] = ga(@brainSim2, nvars, [], [], [], [], lb_vector, ub_vector, [], options);   
     
 else
     disp('Unknown approach')

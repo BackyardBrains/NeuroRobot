@@ -8,16 +8,16 @@ clear
 tic
 
 %% Settings
-brain_name = 'decreasing_fmincon_1';
+brain_name = 'Bursting Brain';
 get_nneurons
 get_intended_activity
 
-figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
+% figure(100); plot(intended_activity); title('Intended activity'); xlabel('Time (msec')
 
 % approach = 'fmincon';
 % approach = 'patternsearch';
-approach = 'particleswarm';
-% approach = 'ga';
+% approach = 'particleswarm';
+approach = 'ga';
 
 
 %% Run the search
