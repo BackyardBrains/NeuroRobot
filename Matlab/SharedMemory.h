@@ -15,7 +15,7 @@
 #include <mutex>
 
 /**
- Intended to handle with shared memory.
+ Intended for data store.
  */
 class SharedMemory : public Log {
     
@@ -27,20 +27,19 @@ private:
     uint8_t audioChunkCounter = 0;
     bool isWrittersBlocked = false;
     int serialReadWrittenSize = 0;
+    int lastSerialSize = 0;
     
 public:
     static const int audioSize = 1000;
     static const int frameSize = 2764800;
     static const int serialReadTotalSize = 1000;
-
-    int lastSerialSize = 0;
-    // Bridge iOS
+    
+    // Bridge
     uint8_t *videoData = new uint8_t[frameSize];
     int16_t *audioData = new int16_t[audioSize * 2 * 10];
-    std::string serialDataString = "";
-    uint8_t *serialData = new uint8_t[serialReadTotalSize + 1];
     uint8_t *lastSerialResult = new uint8_t[serialReadTotalSize + 1];
     uint8_t *returnSerialBuffer = new uint8_t[serialReadTotalSize + 1];
+    
     SharedMemory();
     ~SharedMemory();
     
@@ -98,13 +97,6 @@ public:
      @return Serial data
      */
     uint8_t* readSerialRead(int* size);
-    
-    /**
-     Reads serial data as string from shared memory.
-     
-     @return Serial data as string
-     */
-    std::string readSerialRead();
 };
 
 #endif /* SharedMemory_h */

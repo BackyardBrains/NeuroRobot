@@ -9,14 +9,18 @@
 #ifndef Socket_h
 #define Socket_h
 
-#include "MexThread.h"
+#include "BackgroundThread.h"
 #include "Macros.h"
 #include "SharedMemory.h"
 #include "Log.h"
 
-//#include <iostream>
+#ifdef MATLAB
+    #include "TypeDefs.h"
+#else
+    #include "Bridge/TypeDefs.h"
+#endif
+
 #include <chrono>
-//#include <mutex>
 
 // Boost includes
 #include <boost/asio.hpp>
@@ -30,7 +34,7 @@ using boost::asio::ip::tcp;
  Intended to communicate with RAK through socket.
  Used to write and read serial data and send audio data.
  */
-class Socket : public MexThread, public Log {
+class Socket : public BackgroundThread, public Log {
     
 private:
     std::string ipAddress_;
@@ -188,6 +192,8 @@ public:
      Closes audio and serial sockets.
      */
     void closeSocket();
+    
+    SocketErrorType error = SocketErrorNone;
 };
 
 
