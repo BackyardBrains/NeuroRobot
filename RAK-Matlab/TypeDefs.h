@@ -13,6 +13,7 @@ typedef enum : int {
     SocketNotStarted = 0,
     SocketErrorNone,
     SocketErrorExists,
+    SocketErrorLostConnection,
 } SocketStateType;
 
 typedef enum : int {

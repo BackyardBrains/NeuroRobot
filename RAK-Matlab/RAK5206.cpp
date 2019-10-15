@@ -64,7 +64,7 @@ void RAK5206::stop()
  */
 bool RAK5206::isRunning()
 {
-    return videoAndAudioObtainerObject->state == StreamErrorNone && socketObject->state == SocketErrorNone;
+    return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone && socketObject->isRunning() && socketObject->state == SocketErrorNone;
 }
 
 /**

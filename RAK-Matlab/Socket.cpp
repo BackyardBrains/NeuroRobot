@@ -328,7 +328,7 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
             //when we loose wifi network completely this error will appear net time we try to send something:
             //Error in Socket::send: An existing connection was forcibly closed by the remote host
             logMessage("We lost WiFi network. Need to reset everything.");
-            lostConnectionFlag = true;
+            state = SocketErrorLostConnection;
         } else {
             char stringg[50];
             sprintf(stringg, "Error in Socket::send: %s", ec.message().c_str());
@@ -375,15 +375,9 @@ std::string Socket::receiveSerial(boost::system::error_code* ec)
     return dataPreLastLine;
 }
 
-bool Socket::lostConnection()
-{
-    return lostConnectionFlag;
-}
-
 void Socket::closeSocket()
 {
     logMessage("------------- Close socket -----------");
     socket_.close();
     audioSocket_.close();
-    lostConnectionFlag = false;
 }
