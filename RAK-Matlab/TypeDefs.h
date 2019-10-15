@@ -10,22 +10,24 @@
 #define TypeDefs_h
 
 typedef enum : int {
-    SocketErrorNone = 0,
+    SocketNotStarted = 0,
+    SocketErrorNone,
     SocketErrorExists,
-} SocketErrorType;
+} SocketStateType;
 
 typedef enum : int {
-    VideoAudioErrorNone = 0,
-    VideoAudioErrorAvformatOpenInput,
-    VideoAudioErrorAvformatFindStreamInfo,
-    VideoAudioErrorAvcodecFindDecoderVideo,
-    VideoAudioErrorAvcodecParametersToContextVideo,
-    VideoAudioErrorAvcodecOpen2Video,
-    VideoAudioErrorAvcodecFindDecoderAudio,
-    VideoAudioErrorAvcodecParametersToContextAudio,
-    VideoAudioErrorAvcodecOpen2Audio,
+    StreamNotStarted = 0,
+    StreamErrorNone,
+    StreamErrorAvformatOpenInput,
+    StreamErrorAvformatFindStreamInfo,
+    StreamErrorAvcodecFindDecoderVideo,
+    StreamErrorAvcodecParametersToContextVideo,
+    StreamErrorAvcodecOpen2Video,
+    StreamErrorAvcodecFindDecoderAudio,
+    StreamErrorAvcodecParametersToContextAudio,
+    StreamErrorAvcodecOpen2Audio,
     
-} VideoAudioErrorType;
-typedef void (*ErrorOccurredCallback) (VideoAudioErrorType error);
+} StreamStateType;
+typedef void (*ErrorOccurredCallback) (StreamStateType error);
 
 #endif /* TypeDefs_h */

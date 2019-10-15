@@ -31,7 +31,7 @@ Socket::Socket(SharedMemory* sharedMemory, std::string ip, std::string port)
 void Socket::run()
 {
     connectSerialSocket(ipAddress_, port_);
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         return;
     }
 #ifdef _WIN32
@@ -51,7 +51,7 @@ void Socket::run()
             logMessage("error while receiving: eof");
             socket_.close();
             connectSerialSocket(ipAddress_, port_);
-            if (error != SocketErrorNone) {
+            if (state != SocketErrorNone) {
                 mutexSendingToSocket.unlock();
                 break;
             }
@@ -79,7 +79,7 @@ void Socket::run()
 
 void Socket::writeSerial(std::string data)
 {
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         return;
     }
     mutexSendingToSocket2.lock();
@@ -122,7 +122,7 @@ void Socket::writeSerialThreaded(uint8_t* data, size_t length)
 
 void Socket::sendAudio(int16_t* data, long long numberOfBytes)
 {
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         return;
     }
     int16_t* dataToSend = (int16_t*)malloc((size_t)numberOfBytes + 1);
@@ -146,7 +146,7 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
     std::chrono::system_clock::time_point beginTime;
     
     connectAudioSocket(ipAddress_, port_);
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         mutexSendingAudio.unlock();
         return;
     }
@@ -297,7 +297,9 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
     boost::asio::connect(socket_, resolver.resolve(host, service), ec);
     if (ec) {
         logMessage("Connect to serial socket error");
-        error = SocketErrorExists;
+        state = SocketErrorExists;
+    } else {
+        state = SocketErrorNone;
     }
 }
 
@@ -308,13 +310,13 @@ void Socket::connectAudioSocket(const std::string& host, const std::string& serv
     boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
     if (ec) {
         logMessage("Connect to audio socket error");
-        error = SocketErrorExists;
+        state = SocketErrorExists;
     }
 }
 
 size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
 {
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         return 0;
     }
     boost::system::error_code ec;
@@ -344,7 +346,7 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
 
 std::string Socket::receiveSerial(boost::system::error_code* ec)
 {
-    if (error != SocketErrorNone) {
+    if (state != SocketErrorNone) {
         return "";
     }
     boost::asio::streambuf b;

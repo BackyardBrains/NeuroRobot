@@ -193,7 +193,7 @@ public:
      */
     void closeSocket();
     
-    SocketErrorType error = SocketErrorNone;
+    SocketStateType state = SocketNotStarted;
 };
 
 

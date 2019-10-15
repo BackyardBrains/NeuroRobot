@@ -11,7 +11,7 @@
 /**
  Inits video and audio obtainer object and socket object.
  */
-RAK5206::RAK5206(std::string ipAddress, std::string port, VideoAudioErrorType *error, ErrorOccurredCallback errorCallback)
+RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback)
 {
     videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback);
     socketObject = new Socket(sharedMemory, ipAddress, port);
@@ -64,7 +64,7 @@ void RAK5206::stop()
  */
 bool RAK5206::isRunning()
 {
-    return videoAndAudioObtainerObject->isRunning() && !socketObject->lostConnection();
+    return videoAndAudioObtainerObject->state == StreamErrorNone && socketObject->state == SocketErrorNone;
 }
 
 /**
@@ -103,7 +103,12 @@ void RAK5206::sendAudio(int16_t *data, long long numberOfBytes)
     socketObject->sendAudio(data, numberOfBytes);
 }
 
-VideoAudioErrorType RAK5206::readError()
+StreamStateType RAK5206::readStreamState()
 {
-    return videoAndAudioObtainerObject->error;
+    return videoAndAudioObtainerObject->state;
+}
+
+SocketStateType RAK5206::readSocketState()
+{
+    return socketObject->state;
 }

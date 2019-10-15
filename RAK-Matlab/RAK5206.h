@@ -32,7 +32,7 @@ private:
     Socket *socketObject;
     
 public:
-    RAK5206(std::string ipAddress, std::string port, VideoAudioErrorType *error, ErrorOccurredCallback errorCallback);
+    RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback);
     void start();
     int16_t *readAudio(int *size);
     uint8_t *readVideo();
@@ -42,7 +42,8 @@ public:
     void writeSerial(char *data);
     uint8_t *readSerial(int *size);
     
-    VideoAudioErrorType readError();
+    StreamStateType readStreamState();
+    SocketStateType readSocketState();
     
     void sendAudio(int16_t *data, long long numberOfBytes);
 };
