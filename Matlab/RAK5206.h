@@ -14,6 +14,13 @@
 #include "VideoAndAudioObtainer.h"
 #include "Socket.h"
 
+#ifdef MATLAB
+    #include "TypeDefs.h"
+#else
+    #include "Bridge/TypeDefs.h"
+#endif
+
+
 /**
  Base RAK API class. It is intended to have only one statically allocated object of this class and all mex calls will be executed through that object.
  */
@@ -25,10 +32,7 @@ private:
     Socket *socketObject;
     
 public:
-    RAK5206(std::string ipAddress, std::string port, int *error);
-//    RAK5206(char *ipAddress, char *port);
-//    void init(std::string ipAddress, std::string port);
-//    void initialize(char *ipAddress, char *port);
+    RAK5206(std::string ipAddress, std::string port, VideoAudioErrorType *error, ErrorOccurredCallback errorCallback);
     void start();
     int16_t *readAudio(int *size);
     uint8_t *readVideo();
@@ -37,13 +41,8 @@ public:
     void writeSerial(std::string data);
     void writeSerial(char *data);
     uint8_t *readSerial(int *size);
-    /**
-     Reads serial data from shared memory object as string.
-     
-     @param size Size of serial data which is forwarded parallel
-     @return Serial data
-     */
-    std::string readSerial();
+    
+    VideoAudioErrorType readError();
     
     void sendAudio(int16_t *data, long long numberOfBytes);
 };

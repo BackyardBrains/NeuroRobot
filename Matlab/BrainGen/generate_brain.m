@@ -11,23 +11,23 @@ start_brain(2,:) = repmat(0.1, [nneurons, 1]);
 start_brain(3,:) = repmat(-65, [nneurons, 1]);
 start_brain(4,:) = repmat(2, [nneurons, 1]);
 start_brain_vector = reshape(start_brain, [(nneurons + 4) * nneurons, 1]);
-get_preloaded_brain
+% get_preloaded_brain
 
 
 %% Bounds
 lb = zeros(nneurons + 4, nneurons);
 lb(1,:) = 0;
-lb(2,:) = 0.1;
-lb(3,:) = -80;
-lb(4,:) = 0;
+lb(2,:) = 0.15;
+lb(3,:) = -70;
+lb(4,:) = 1;
 lb(5:nneurons+4,:) = -30;
 lb_vector = reshape(lb, [(nneurons + 4) * nneurons, 1]);
 
 ub = zeros(nneurons + 4, nneurons);
-ub(1,:) = 0.1;
-ub(2,:) = 0.3;
+ub(1,:) = 0.3;
+ub(2,:) = 0.25;
 ub(3,:) = -50;
-ub(4,:) = 10;
+ub(4,:) = 3;
 ub(5:nneurons+4,:) = 30;
 ub_vector = reshape(ub, [(nneurons + 4) * nneurons, 1]);
 

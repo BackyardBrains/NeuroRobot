@@ -1,13 +1,10 @@
+
 //
 //  Created by Djordje Jovic on 11/5/18.
 //  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #include "Socket.h"
-//#include "MexThread.h"
-//#include "Macros.h"
-//#include "SharedMemory.cpp"
-//#include "Log.cpp"
 
 #include <iostream>
 #include <chrono>
@@ -15,8 +12,6 @@
 // Boost includes
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
-
-//using boost::asio::ip::tcp;
 
 typedef boost::asio::detail::socket_option::integer<SOL_SOCKET, SO_RCVTIMEO> rcv_timeout_option;
 
@@ -36,6 +31,9 @@ Socket::Socket(SharedMemory* sharedMemory, std::string ip, std::string port)
 void Socket::run()
 {
     connectSerialSocket(ipAddress_, port_);
+    if (error != SocketErrorNone) {
+        return;
+    }
 #ifdef _WIN32
     socket_.set_option(rcv_timeout_option{ 1000 });
 #endif
@@ -53,6 +51,10 @@ void Socket::run()
             logMessage("error while receiving: eof");
             socket_.close();
             connectSerialSocket(ipAddress_, port_);
+            if (error != SocketErrorNone) {
+                mutexSendingToSocket.unlock();
+                break;
+            }
 #ifdef _WIN32
             socket_.set_option(rcv_timeout_option{ 1000 });
 #endif
@@ -62,7 +64,6 @@ void Socket::run()
             
             readSerialData = receiveSerial(&ec);
         }
-        
         
         if (readSerialData.length() > 0) {
             if (isRunning()) {
@@ -78,6 +79,9 @@ void Socket::run()
 
 void Socket::writeSerial(std::string data)
 {
+    if (error != SocketErrorNone) {
+        return;
+    }
     mutexSendingToSocket2.lock();
     if (sendingInProgress) {
         pendingWriting = true;
@@ -118,10 +122,14 @@ void Socket::writeSerialThreaded(uint8_t* data, size_t length)
 
 void Socket::sendAudio(int16_t* data, long long numberOfBytes)
 {
-    int16_t* dataToSend = (int16_t*)malloc(numberOfBytes + 1);
-    std::memcpy(dataToSend, data, numberOfBytes);
+    if (error != SocketErrorNone) {
+        return;
+    }
+    int16_t* dataToSend = (int16_t*)malloc((size_t)numberOfBytes + 1);
+    std::memcpy(dataToSend, data, (size_t)numberOfBytes);
     std::thread thread(&Socket::sendAudioThreaded, this, dataToSend, numberOfBytes);
     thread.detach();
+    
 }
 
 void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
@@ -138,6 +146,10 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
     std::chrono::system_clock::time_point beginTime;
     
     connectAudioSocket(ipAddress_, port_);
+    if (error != SocketErrorNone) {
+        mutexSendingAudio.unlock();
+        return;
+    }
     
     std::string header = std::string();
     header.append("POST /audio.input HTTP/1.1\r\n");
@@ -157,14 +169,13 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
     uint8_t* repackedData = repack(data, numberOfBytes);
     free(data);
     
-    
     beginTime = std::chrono::system_clock::now();
     
     while (numberOfBytes && isRunning()) {
         size_t sentSize;
         
         // Calculating how many seconds there are in RAK's buffer which are not played. Try to keep 1 second adventege of data in buffer.
-        elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
+        elapsedTime = (long)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
         long sentDataInMilliseconds = (float)sentBytes / packetSize * packetSizeInMilliseconds;
         difference = sentDataInMilliseconds - elapsedTime;
         if (difference > 1000) {
@@ -180,7 +191,7 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
             numberOfBytes -= packetSize;
             sentBytes += packetSize;
         } else {
-            sentSize = send(&audioSocket_, &repackedData[sentBytes], numberOfBytes);
+            sentSize = send(&audioSocket_, &repackedData[sentBytes], (size_t)numberOfBytes);
             sentBytes += packetSize;
             numberOfBytes = 0;
             
@@ -204,14 +215,14 @@ uint8_t* Socket::repack(int16_t* data, long long numberOfBytes)
     long long numberOfSamples_16bit = numberOfBytes * 0.5;
     
     // Creating two channels signal. LRLR patern
-    int16_t* twoChannelsData = (int16_t*)malloc(numberOfChannels * numberOfBytes);
+    int16_t* twoChannelsData = (int16_t*)malloc((size_t)(numberOfChannels * numberOfBytes));
     for (long long i = 0; i < numberOfSamples_16bit; i++) {
         memcpy(&twoChannelsData[i * 2], &data[i], 2);
         memcpy(&twoChannelsData[i * 2 + 1], &data[i], 2);
     }
     
     // Repacking signed 16bit linear signal to unsigned 8bit ulaw signal
-    uint8_t* PCM_Data = (uint8_t*)malloc(numberOfChannels * numberOfSamples_16bit);
+    uint8_t* PCM_Data = (uint8_t*)malloc((size_t)(numberOfChannels * numberOfSamples_16bit));
     for (long long i = 0; i < numberOfSamples_16bit * numberOfChannels; i++) {
         PCM_Data[i] = linear2ulaw(twoChannelsData[i]);
     }
@@ -286,6 +297,7 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
     boost::asio::connect(socket_, resolver.resolve(host, service), ec);
     if (ec) {
         logMessage("Connect to serial socket error");
+        error = SocketErrorExists;
     }
 }
 
@@ -296,43 +308,45 @@ void Socket::connectAudioSocket(const std::string& host, const std::string& serv
     boost::asio::connect(audioSocket_, resolver.resolve(host, service), ec);
     if (ec) {
         logMessage("Connect to audio socket error");
+        error = SocketErrorExists;
     }
 }
 
 size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
 {
+    if (error != SocketErrorNone) {
+        return 0;
+    }
     boost::system::error_code ec;
     
     mutexSendingToSocket.lock();
     size_t sentSize = boost::asio::write(*socket, boost::asio::buffer(data, length), ec);
-    if(ec)
-    {
-        if ((boost::asio::error::eof == ec) ||
-        (boost::asio::error::connection_reset == ec))
-        {
-          //when we loose wifi network completely this error will appear net time we try to send something:
+    if (ec) {
+        if ((boost::asio::error::eof == ec) || (boost::asio::error::connection_reset == ec)) {
+            //when we loose wifi network completely this error will appear net time we try to send something:
             //Error in Socket::send: An existing connection was forcibly closed by the remote host
             logMessage("We lost WiFi network. Need to reset everything.");
             lostConnectionFlag = true;
-        }
-        else
-        {
+        } else {
             char stringg[50];
             sprintf(stringg, "Error in Socket::send: %s", ec.message().c_str());
             logMessage(stringg);
         }
-        
-
     }
-   
+    
     boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
     mutexSendingToSocket.unlock();
     
     return sentSize;
+    
+    
 }
 
 std::string Socket::receiveSerial(boost::system::error_code* ec)
 {
+    if (error != SocketErrorNone) {
+        return "";
+    }
     boost::asio::streambuf b;
     boost::asio::read_until(socket_, b, "\r\n", *ec);
     if (*ec == boost::asio::error::eof) {

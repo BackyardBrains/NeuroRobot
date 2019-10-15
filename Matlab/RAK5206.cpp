@@ -11,9 +11,9 @@
 /**
  Inits video and audio obtainer object and socket object.
  */
-RAK5206::RAK5206(std::string ipAddress, std::string port, int *error)
+RAK5206::RAK5206(std::string ipAddress, std::string port, VideoAudioErrorType *error, ErrorOccurredCallback errorCallback)
 {
-    videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error);
+    videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback);
     socketObject = new Socket(sharedMemory, ipAddress, port);
 }
 
@@ -93,17 +93,6 @@ uint8_t *RAK5206::readSerial(int *size)
 }
 
 /**
- Reads serial data from shared memory object as string.
- 
- @param size Size of serial data which is forwarded parallel
- @return Serial data
- */
-std::string RAK5206::readSerial()
-{
-    return sharedMemory->readSerialRead();
-}
-
-/**
  Sends audio data through socket object.
  
  @param data Data to send
@@ -113,5 +102,8 @@ void RAK5206::sendAudio(int16_t *data, long long numberOfBytes)
 {
     socketObject->sendAudio(data, numberOfBytes);
 }
-//    }
 
+VideoAudioErrorType RAK5206::readError()
+{
+    return videoAndAudioObtainerObject->error;
+}
