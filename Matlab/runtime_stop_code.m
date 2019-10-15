@@ -72,7 +72,9 @@ end
 
 %% Return to startup
 if restarting && ~voluntary_restart
-    system_restart
+%     system_restart
+    save('brain_name', 'brain_name')
+    neurorobot
 else
     neurorobot
 end
