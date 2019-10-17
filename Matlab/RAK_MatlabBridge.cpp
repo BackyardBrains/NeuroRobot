@@ -6,11 +6,6 @@
 //  Copyright © 2019 Backyard Brains. All rights reserved.
 //
 
-//#include "Macros.h"
-//#include "SharedMemory.cpp"
-//#include "VideoAndAudioObtainer.cpp"
-//#include "Socket.cpp"
-
 #include "RAK5206.h"
 #include <iostream>
 #include <mex.h>
@@ -46,7 +41,7 @@ public:
             
             std::string ipAddressString = std::string(ipAddress, mxGetN(prhs[1]));
             std::string portString = std::string(port, mxGetN(prhs[2]));
-            VideoAudioErrorType error = VideoAudioErrorNone;
+            StreamStateType error = StreamNotStarted;
             
             free(ipAddress);
             free(port);
@@ -65,6 +60,8 @@ public:
             yp  = (int16_t*) mxGetData(plhs[0]);
             std::memcpy(yp, reply, size);
             
+            
+//             free(reply);
             return;
         } else if ( !strcmp("readVideo", cmd) ) {
             
@@ -139,6 +136,22 @@ public:
             
             rakObject->sendAudio(data, rows * 2);
             
+            return;
+        } else if ( !strcmp("readStreamState", cmd) ) {
+            
+            StreamStateType error = rakObject->readStreamState();
+            plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
+            uint8_t *yp;
+            yp  = (uint8_t*) mxGetData(plhs[0]);
+            std::memcpy(yp, &error, 1);
+            return;
+        } else if ( !strcmp("readSocketState", cmd) ) {
+            
+            SocketStateType error = rakObject->readSocketState();
+            plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
+            uint8_t *yp;
+            yp  = (uint8_t*) mxGetData(plhs[0]);
+            std::memcpy(yp, &error, 1);
             return;
         }
     }

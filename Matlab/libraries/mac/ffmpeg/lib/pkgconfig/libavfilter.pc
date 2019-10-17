@@ -1,0 +1,14 @@
+prefix=./install
+exec_prefix=${prefix}
+libdir=./install/lib
+includedir=./install/include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 7.55.100
+Requires: 
+Requires.private: libswscale >= 5.4.101, libavformat >= 58.27.103, libavcodec >= 58.52.102, libswresample >= 3.4.100, libavutil >= 56.28.100
+Conflicts:
+Libs: -L${libdir}  -lavfilter 
+Libs.private: -framework OpenGL -framework OpenGL -pthread -lm -framework CoreImage -framework AppKit
+Cflags: -I${includedir}

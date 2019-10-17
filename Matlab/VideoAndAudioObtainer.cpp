@@ -24,7 +24,7 @@ static int interrupt_cb(void* ctx)
     return 0;
 }
 
-VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, VideoAudioErrorType *error, ErrorOccurredCallback callback)
+VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback)
 {
     className = "VideoAndAudioObtainer";
     sharedMemoryInstance = sharedMemory;
@@ -34,7 +34,7 @@ VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::st
     reset(error);
 }
 
-void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
+void VideoAndAudioObtainer::reset(StreamStateType *error)
 {
     int retVal = -1;
     
@@ -65,14 +65,14 @@ void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
     openInput = avformat_open_input(&format_ctx, url.c_str(), NULL, &stream_opts);
 
     if (openInput != 0) {
-        errorOccurred(error, VideoAudioErrorAvformatOpenInput, openInput);
+        errorOccurred(error, StreamErrorAvformatOpenInput, openInput);
         return;
     }
     logMessage("init >>> succeeded 'avformat_open_input'");
 
     retVal = avformat_find_stream_info(format_ctx, NULL);
     if (retVal < 0) {
-        errorOccurred(error, VideoAudioErrorAvformatFindStreamInfo, retVal);
+        errorOccurred(error, StreamErrorAvformatFindStreamInfo, retVal);
         return;
     }
 
@@ -94,7 +94,7 @@ void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
     /// Get the codec
     videoCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
     if (!videoCodec) {
-        errorOccurred(error, VideoAudioErrorAvcodecFindDecoderAudio, -1);
+        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
         return;
     }
 
@@ -102,13 +102,13 @@ void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
 
     retVal = avcodec_parameters_to_context(videoCodec_ctx, format_ctx->streams[video_stream_index]->codecpar);
     if (retVal < 0) {
-        errorOccurred(error, VideoAudioErrorAvcodecParametersToContextVideo, retVal);
+        errorOccurred(error, StreamErrorAvcodecParametersToContextVideo, retVal);
         return;
     }
 
     retVal = avcodec_open2(videoCodec_ctx, videoCodec, NULL);
     if (retVal < 0) {
-        errorOccurred(error, VideoAudioErrorAvcodecOpen2Video, retVal);
+        errorOccurred(error, StreamErrorAvcodecOpen2Video, retVal);
         return;
     }
 
@@ -126,20 +126,20 @@ void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
 
     audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
     if (!audioCodec) {
-        errorOccurred(error, VideoAudioErrorAvcodecFindDecoderAudio, -1);
+        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
         return;
     }
     // Add this to allocate the context by codec
     audio_dec_ctx = avcodec_alloc_context3(audioCodec);
     retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
     if (retVal < 0) {
-        errorOccurred(error, VideoAudioErrorAvcodecParametersToContextAudio, retVal);
+        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
         return;
     }
 
     retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
     if (retVal < 0) {
-        errorOccurred(error, VideoAudioErrorAvcodecOpen2Audio, retVal);
+        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
         return;
     }
 
@@ -151,23 +151,23 @@ void VideoAndAudioObtainer::reset(VideoAudioErrorType *error)
     }
     
     if (error) {
-        *error = VideoAudioErrorNone;
+        *error = state;
     }
     
     initDone = true;
     logMessage("init >>> done");
 }
 
-void VideoAndAudioObtainer::errorOccurred(VideoAudioErrorType *errorToReturn, VideoAudioErrorType errorType, int errorInt)
+void VideoAndAudioObtainer::errorOccurred(StreamStateType *errorToReturn, StreamStateType errorType, int errorInt)
 {
-    error = errorType;
+    state = errorType;
     
     char buf[256];
     if (errorInt != -1) {
         av_strerror(errorInt, buf, sizeof(buf));
     }
     
-    logMessage("init >>> not succeeded '" + std::to_string(errorType) + "' (@see VideoAudioErrorType in `TypeDefs.h` for details) >>> " + std::string(buf));
+    logMessage("init >>> not succeeded '" + std::to_string(errorType) + "' (@see StreamErrorType for details) >>> " + std::string(buf));
     if (errorCallback) {
         errorCallback(errorType);
     }
@@ -180,8 +180,11 @@ void VideoAndAudioObtainer::errorOccurred(VideoAudioErrorType *errorToReturn, Vi
 // MARK:- Overloaded methods
 void VideoAndAudioObtainer::run()
 {
+    if (state == StreamNotStarted) {
+        state = StreamErrorNone;
+    }
     if (openInput != 0) {
-        errorOccurred(NULL, VideoAudioErrorAvformatOpenInput, openInput);
+        errorOccurred(NULL, StreamErrorAvformatOpenInput, openInput);
         return;
     }
 
@@ -259,6 +262,8 @@ void VideoAndAudioObtainer::run()
         reset(NULL);
         return;
     }
+
+    //         avformat_close_input(&format_ctx);
     
     freeAllObjects();
 }
