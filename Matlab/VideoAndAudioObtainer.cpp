@@ -124,7 +124,8 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
 
-    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+//     audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
     if (!audioCodec) {
         errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
         return;
