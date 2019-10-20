@@ -72,7 +72,7 @@ classdef HebiCam < handle
             % method assumes that the jar file is located in the same
             % directory as this class-script, and that the file name
             % matches the string below.
-            jarFileName = './Library/hebicam-1.2-SNAPSHOT-all-x86_64.jar';
+            jarFileName = './libraries/hebicam-1.2-SNAPSHOT-all-x86_64.jar';
             
             % Load only once
             if ~exist(...

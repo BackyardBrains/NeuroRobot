@@ -124,25 +124,25 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
 
-//     audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
-    if (!audioCodec) {
-        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
-        return;
-    }
-    // Add this to allocate the context by codec
-    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
-    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
-        return;
-    }
-
-    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
-        return;
-    }
+// //     audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+//     audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
+//     if (!audioCodec) {
+//         errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
+//         return;
+//     }
+//     // Add this to allocate the context by codec
+//     audio_dec_ctx = avcodec_alloc_context3(audioCodec);
+//     retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
+//     if (retVal < 0) {
+//         errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
+//         return;
+//     }
+// 
+//     retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
+//     if (retVal < 0) {
+//         errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
+//         return;
+//     }
 
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     

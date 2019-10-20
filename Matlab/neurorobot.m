@@ -9,8 +9,8 @@
 
 %% Settings
 rak_only = 0;
-use_webcam = 0;
-camera_present = 0;
+use_webcam = 1;
+camera_present = 1;
 bluetooth_present = 0;
 pulse_period = 0.125; % in seconds
 save_data_and_commands = 1; %%%
@@ -19,7 +19,7 @@ draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0; 
 
-save_brain_jpg = 1;
+save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 1;
 bg_brain = 1;
