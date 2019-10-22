@@ -54,6 +54,12 @@ void SharedMemory::unblockWritters()
 void SharedMemory::writeFrame(uint8_t* data)
 {
     mutexVideo.lock();
+    if (!videoData) {
+        logMessage("no videoData " + std::to_string(frameSize));
+        videoData = new uint8_t[frameSize];
+        logMessage("videoData created");
+    }
+    logMessage("copying frame");
     memcpy(videoData, data, frameSize);
     mutexVideo.unlock();
 }

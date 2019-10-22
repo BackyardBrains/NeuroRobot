@@ -31,11 +31,11 @@ private:
     
 public:
     static const int audioSize = 1000;
-    static const int frameSize = 2764800;
+    int frameSize = 1;
     static const int serialReadTotalSize = 1000;
     
     // Bridge
-    uint8_t *videoData = new uint8_t[frameSize];
+    uint8_t *videoData = NULL;
     int16_t *audioData = new int16_t[audioSize * 2 * 10];
     uint8_t *lastSerialResult = new uint8_t[serialReadTotalSize + 1];
     uint8_t *returnSerialBuffer = new uint8_t[serialReadTotalSize + 1];
