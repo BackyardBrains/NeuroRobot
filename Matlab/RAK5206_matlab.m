@@ -63,6 +63,16 @@ classdef RAK5206_matlab
             data = int16(data * 8158);
             RAK_MatlabBridge( 'sendAudio' , data);
         end
+        
+        % Reads stream error
+        function data = readStreamState(this)
+            data = RAK_MatlabBridge( 'readStreamState' );
+        end
+        
+        % Reads socket error
+        function data = readSocketState(this)
+            data = RAK_MatlabBridge( 'readSocketState' );
+        end
     end
 end
 

@@ -65,8 +65,8 @@ private:
     //----------------------------------
     // Rest of the methods.
     int decode(AVCodecContext* avctx, AVFrame* frame, int* got_frame, AVPacket* pkt);
-    void errorOccurred(VideoAudioErrorType *errorToReturn, VideoAudioErrorType errorType, int errorInt);
-    void reset(VideoAudioErrorType *error);
+    void errorOccurred(StreamStateType *errorToReturn, StreamStateType errorType, int errorInt);
+    void reset(StreamStateType *error);
     
     ErrorOccurredCallback errorCallback;
 public:
@@ -75,13 +75,15 @@ public:
     
     //-----------------------------------
     // Init methods.
-    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, VideoAudioErrorType *error, ErrorOccurredCallback callback);
+    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback);
     
     //-----------------------------------
     // Overloaded methods.
     void run();
     
-    VideoAudioErrorType error = VideoAudioErrorNone;
+    StreamStateType state = StreamNotStarted;
+    
+//    void stop() override;
 };
 
 
