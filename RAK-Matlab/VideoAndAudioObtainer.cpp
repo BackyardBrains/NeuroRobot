@@ -49,13 +49,16 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
 
     /// Open RTSP
     std::string url = std::string();
+    // rtsp://admin:admin@192.168.100.1:554/cam1/h264
     url.append("rtsp://admin:admin@");
     url.append(this->ipAddress);
-    url.append("/cam1/h264");
+    url.append(":554/cam1/h264");
+    
+    int dictSetRet = 0;
     AVDictionary* stream_opts = 0;
-    av_dict_set(&stream_opts, "rtp", "write_to_source", 0);
-    av_dict_set_int(&stream_opts, "stimeout", (int64_t)5, 0); // timeout while connecting, 5sec
-
+    dictSetRet = av_dict_set(&stream_opts, "rtp", "write_to_source", 0);
+    dictSetRet = av_dict_set_int(&stream_opts, "stimeout", (int64_t)5, 0); // timeout while connecting, 5sec
+    
     beginTime = std::chrono::system_clock::now();
     initDone = false;
 
@@ -68,7 +71,6 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
         errorOccurred(error, StreamErrorAvformatOpenInput, openInput);
         return;
     }
-    logMessage("init >>> succeeded 'avformat_open_input'");
 
     retVal = avformat_find_stream_info(format_ctx, NULL);
     if (retVal < 0) {
@@ -94,7 +96,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     /// Get the codec
     videoCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
     if (!videoCodec) {
-        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
+        errorOccurred(error, StreamErrorAvcodecFindDecoderVideo, -1);
         return;
     }
 
@@ -124,7 +126,8 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
 
-    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+//    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
     if (!audioCodec) {
         errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
         return;
@@ -167,7 +170,7 @@ void VideoAndAudioObtainer::errorOccurred(StreamStateType *errorToReturn, Stream
         av_strerror(errorInt, buf, sizeof(buf));
     }
     
-    logMessage("init >>> not succeeded '" + std::to_string(errorType) + "' (@see StreamErrorType for details) >>> " + std::string(buf));
+    logMessage("init >>> not succeeded '" + std::to_string(errorType) + "' (@see StreamStateType in TypeDefs.h for details) >>> " + std::string(buf));
     if (errorCallback) {
         errorCallback(errorType);
     }
@@ -197,7 +200,7 @@ void VideoAndAudioObtainer::run()
 
         rgb_data[i] = (uint8_t*)malloc(sharedMemoryInstance->frameSize);
     }
-
+    
     while (avReadFrameResponse >= 0 && isRunning()) {
 
         if (packet.stream_index == video_stream_index) {
@@ -254,10 +257,9 @@ void VideoAndAudioObtainer::run()
         av_packet_unref(&packet);
         av_free(frame);
         av_free(picture_rgb);
-        av_read_pause(format_ctx);
-//        sws_freeContext(img_convert_ctx);
+        avcodec_close(videoCodec_ctx);
+        sws_freeContext(img_convert_ctx);
         avformat_close_input(&format_ctx);
-        
         
         reset(NULL);
         return;
@@ -303,9 +305,12 @@ void VideoAndAudioObtainer::freeAllObjects()
         av_packet_unref(&packet);
         av_free(frame);
         av_free(picture_rgb);
-        av_read_pause(format_ctx);
+//        av_read_pause(format_ctx);
+//        av_write_trailer(format_ctx);
+        avcodec_close(videoCodec_ctx);
         sws_freeContext(img_convert_ctx);
         avformat_close_input(&format_ctx);
+        
 
     } catch (...) {
 
