@@ -62,7 +62,7 @@ if rak_fail
     disp('RAK connection lost')
     sound(gong, Fs * 7)
     pause(0.5)
-    restarting = 1;
+%     restarting = 1;
 end
 
 if voluntary_restart
