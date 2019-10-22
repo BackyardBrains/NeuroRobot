@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <thread>
+#include <boost/thread/thread.hpp>
 
 static std::chrono::system_clock::time_point beginTime;
 static bool initDone;
@@ -91,6 +92,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     packet.size = 0;
 
     av_read_play(format_ctx);
+    logMessage("av_read_play completed");
 
     // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
     /// Get the codec
@@ -115,6 +117,11 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     }
 
     int size2 = av_image_get_buffer_size(AV_PIX_FMT_BGR24, videoCodec_ctx->width, videoCodec_ctx->height, 1);
+    
+    logMessage("reset >> width: " + std::to_string(videoCodec_ctx->width));
+    logMessage("reset >> height: " + std::to_string(videoCodec_ctx->height));
+    
+    
     uint8_t* picture_buffer = (uint8_t*)(av_malloc(size2));
     av_image_fill_arrays(picture_rgb->data, picture_rgb->linesize,
         picture_buffer, AV_PIX_FMT_BGR24,
@@ -124,29 +131,29 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
 
     
-    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
-
-//    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
-    if (!audioCodec) {
-        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
-        return;
-    }
-    // Add this to allocate the context by codec
-    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
-    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
-        return;
-    }
-
-    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
-        return;
-    }
-
-    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+//    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+//
+////    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+//    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
+//    if (!audioCodec) {
+//        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
+//        return;
+//    }
+//    // Add this to allocate the context by codec
+//    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
+//    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
+//    if (retVal < 0) {
+//        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
+//        return;
+//    }
+//
+//    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
+//    if (retVal < 0) {
+//        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
+//        return;
+//    }
+//
+//    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     
     if (tryingToReconnect) {
         tryingToReconnect = false;
@@ -194,13 +201,23 @@ void VideoAndAudioObtainer::run()
     uint8_t* rgb_data[8];
     int avReadFrameResponse = av_read_frame(format_ctx, &packet);
 
+    logMessage("run >>> av_read_frame completed");
+    
     for (int i = 0; i < 1; i++) {
-
-        logMessage("frameSize: " + std::to_string(sharedMemoryInstance->frameSize));
-
-        rgb_data[i] = (uint8_t*)malloc(sharedMemoryInstance->frameSize);
+        rgb_data[i] = (uint8_t*)malloc(6220800);
+        
+        logMessage("run >>> rgb_data initialized");
     }
     
+//    avio_open(&format_ctx->pb, NULL, AVIO_FLAG_WRITE);
+//
+//    int dictSetRet = 0;
+//    AVDictionary* stream_opts = 0;
+//    dictSetRet = av_dict_set(&stream_opts, "rtp", "write_to_source", 0);
+//    dictSetRet = av_dict_set_int(&stream_opts, "stimeout", (int64_t)5, 0);
+//    dictSetRet = av_dict_set(&stream_opts, "rtpflags", "send_bye", 0);
+//    avformat_write_header(format_ctx, &stream_opts);
+
     while (avReadFrameResponse >= 0 && isRunning()) {
 
         if (packet.stream_index == video_stream_index) {
@@ -209,61 +226,76 @@ void VideoAndAudioObtainer::run()
             int check = 0;
 
             decode(videoCodec_ctx, frame, &check, &packet);
-
+            logMessage("run >>> decode completed");
             if (check != 0) {
+                logMessage("run >>> check not 0");
+                
                 img_convert_ctx = sws_getCachedContext(
                     img_convert_ctx, videoCodec_ctx->width, videoCodec_ctx->height,
                     videoCodec_ctx->pix_fmt, videoCodec_ctx->width,
                     videoCodec_ctx->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, NULL, NULL,
                     NULL);
+                logMessage("run >>> sws_getCachedContext converted");
                 sws_scale(img_convert_ctx, frame->data, frame->linesize, 0,
                     videoCodec_ctx->height, rgb_data, picture_rgb->linesize);
-
+                logMessage("run >>> sws_scale converted");
+                
+                logMessage("width: " + std::to_string(picture_rgb->width));
+                logMessage("height: " + std::to_string(picture_rgb->height));
+                logMessage("linesize[0]: " + std::to_string(picture_rgb->linesize[0]));
+                
+                sharedMemoryInstance->frameSize = videoCodec_ctx->width * videoCodec_ctx->height * 3;
+                logMessage("frameSize: " + std::to_string(sharedMemoryInstance->frameSize));
+                
                 sharedMemoryInstance->writeFrame(rgb_data[0]);
+                logMessage("frame copy completed");
             }
         } else if (packet.stream_index == audio_stream_index) {
-            /// decode audio packet
-            logMessage("run >>> audio packet");
-            int ret = 0;
-
-            int decoded = packet.size;
-            
-            avcodec_send_packet(audio_dec_ctx, &packet);
-            ret = avcodec_receive_frame(audio_dec_ctx, frame);
-            if (ret < 0) {
-                break;
-            }
-            decoded = FFMIN(ret, packet.size);
-            if (ret == 0) {
-                sharedMemoryInstance->writeAudio(frame->extended_data[0]);
-            }
+//            /// decode audio packet
+//            logMessage("run >>> audio packet");
+//            int ret = 0;
+//
+//            int decoded = packet.size;
+//            
+//            avcodec_send_packet(audio_dec_ctx, &packet);
+//            ret = avcodec_receive_frame(audio_dec_ctx, frame);
+//            if (ret < 0) {
+//                break;
+//            }
+//            decoded = FFMIN(ret, packet.size);
+//            if (ret == 0) {
+//                sharedMemoryInstance->writeAudio(frame->extended_data[0]);
+//            }
         }
         av_packet_unref(&packet);
+        logMessage("run >>> av_packet_unref completed");
 
         avReadFrameResponse = av_read_frame(format_ctx, &packet);
+        logMessage("run >>> av_read_frame completed");
     }
     free(rgb_data[0]);
+    logMessage("run >>> free(rgb_data[0]) completed");
     
     logMessage("End of run()");
-    if (avReadFrameResponse < 0 && isRunning()) {
-        char buf[256];
-        av_strerror(avReadFrameResponse, buf, sizeof(buf));
-        logMessage("End of run error' >>> " + std::string(buf));
-        
-        
-        
-        tryingToReconnect = true;
-        
-        av_packet_unref(&packet);
-        av_free(frame);
-        av_free(picture_rgb);
-        avcodec_close(videoCodec_ctx);
-        sws_freeContext(img_convert_ctx);
-        avformat_close_input(&format_ctx);
-        
-        reset(NULL);
-        return;
-    }
+//    if (avReadFrameResponse < 0 && isRunning()) {
+//        char buf[256];
+//        av_strerror(avReadFrameResponse, buf, sizeof(buf));
+//        logMessage("End of run error' >>> " + std::string(buf));
+//
+//
+//        
+//        tryingToReconnect = true;
+//
+//        av_packet_unref(&packet);
+//        av_free(frame);
+//        av_free(picture_rgb);
+//        avcodec_close(videoCodec_ctx);
+//        sws_freeContext(img_convert_ctx);
+//        avformat_close_input(&format_ctx);
+//
+//        reset(NULL);
+//        return;
+//    }
 
     //         avformat_close_input(&format_ctx);
     
@@ -303,19 +335,24 @@ void VideoAndAudioObtainer::freeAllObjects()
 
     try {
         av_packet_unref(&packet);
+        logMessage("freeAllObjects >>> av_packet_unref");
         av_free(frame);
+        logMessage("freeAllObjects >>> av_free(frame);");
         av_free(picture_rgb);
-//        av_read_pause(format_ctx);
-//        av_write_trailer(format_ctx);
+        logMessage("freeAllObjects >>> av_free(picture_rgb);");
         avcodec_close(videoCodec_ctx);
+        logMessage("freeAllObjects >>> avcodec_close(videoCodec_ctx);");
         sws_freeContext(img_convert_ctx);
+        logMessage("freeAllObjects >>> sws_freeContext(img_convert_ctx);");
         avformat_close_input(&format_ctx);
-        
+        logMessage("freeAllObjects >>> avformat_close_input(&format_ctx);");
 
     } catch (...) {
 
         logMessage("freeAllObjects >>> catched error");
     }
+    
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(1020));
 
     closeStreams();
     format_ctx = NULL;

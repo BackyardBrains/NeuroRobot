@@ -26,12 +26,12 @@
  */
 class RAK5206
 {
-private:
+public:
     SharedMemory *sharedMemory = new SharedMemory();
     VideoAndAudioObtainer *videoAndAudioObtainerObject;
     Socket *socketObject;
     
-public:
+
     RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback);
     void start();
     int16_t *readAudio(int *size);

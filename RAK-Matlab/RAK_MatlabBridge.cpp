@@ -68,10 +68,10 @@ public:
             
             uint8_t *videoData = rakObject->readVideo();
             
-            plhs[0] = mxCreateNumericMatrix(1, SharedMemory::frameSize, mxUINT8_CLASS, mxREAL);
+            plhs[0] = mxCreateNumericMatrix(1, rakObject->sharedMemory->frameSize, mxUINT8_CLASS, mxREAL);
             uint8_t *yp;
             yp  = (uint8_t*) mxGetData(plhs[0]);
-            std::memcpy(yp, videoData, SharedMemory::frameSize);
+            std::memcpy(yp, videoData, rakObject->sharedMemory->frameSize);
             
             return;
         } else if ( !strcmp("stop", cmd) ) {

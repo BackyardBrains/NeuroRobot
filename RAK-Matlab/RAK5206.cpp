@@ -14,7 +14,7 @@
 RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback)
 {
     videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback);
-    socketObject = new Socket(sharedMemory, ipAddress, port);
+//    socketObject = new Socket(sharedMemory, ipAddress, port);
 }
 
 /**
@@ -23,7 +23,7 @@ RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error
 void RAK5206::start()
 {
     videoAndAudioObtainerObject->startThreaded();
-    socketObject->startThreaded();
+//    socketObject->startThreaded();
 }
 
 /**
@@ -34,8 +34,9 @@ void RAK5206::start()
  */
 int16_t *RAK5206::readAudio(int *size)
 {
-    int16_t *reply = sharedMemory->readAudio(size);
-    return reply;
+    static int16_t *audioDataFoo = new int16_t[1000 * 2 * 10];
+//    int16_t *reply = sharedMemory->readAudio(size);
+    return audioDataFoo;
 }
 
 /**
@@ -54,7 +55,7 @@ uint8_t *RAK5206::readVideo()
 void RAK5206::stop()
 {
     videoAndAudioObtainerObject->stop();
-    socketObject->stop();
+//    socketObject->stop();
 }
 
 /**
@@ -64,7 +65,7 @@ void RAK5206::stop()
  */
 bool RAK5206::isRunning()
 {
-    return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone && socketObject->isRunning() && socketObject->state == SocketErrorNone;
+    return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone;
 }
 
 /**
@@ -74,11 +75,11 @@ bool RAK5206::isRunning()
  */
 void RAK5206::writeSerial(std::string data)
 {
-    socketObject->writeSerial(data);
+//    socketObject->writeSerial(data);
 }
 void RAK5206::writeSerial(char *data)
 {
-    writeSerial(std::string(data));
+//    writeSerial(std::string(data));
 }
 
 /**
@@ -89,7 +90,9 @@ void RAK5206::writeSerial(char *data)
  */
 uint8_t *RAK5206::readSerial(int *size)
 {
-    return sharedMemory->readSerialRead(size);
+    static uint8_t *returnSerialBuffer = new uint8_t[1000 + 1];
+    return returnSerialBuffer;
+//    return sharedMemory->readSerialRead(size);
 }
 
 /**
@@ -100,7 +103,7 @@ uint8_t *RAK5206::readSerial(int *size)
  */
 void RAK5206::sendAudio(int16_t *data, long long numberOfBytes)
 {
-    socketObject->sendAudio(data, numberOfBytes);
+//    socketObject->sendAudio(data, numberOfBytes);
 }
 
 StreamStateType RAK5206::readStreamState()
@@ -110,5 +113,6 @@ StreamStateType RAK5206::readStreamState()
 
 SocketStateType RAK5206::readSocketState()
 {
-    return socketObject->state;
+    return SocketNotStarted;
+//    return socketObject->state;
 }
