@@ -25,12 +25,13 @@ static int interrupt_cb(void* ctx)
     return 0;
 }
 
-VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback)
+VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback, bool audioBlocked)
 {
     className = "VideoAndAudioObtainer";
     sharedMemoryInstance = sharedMemory;
     this->errorCallback = callback;
     this->ipAddress = ipAddress;
+    this->audioBlocked = audioBlocked;
     openStreams();
     reset(error);
 }
@@ -131,31 +132,33 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
 
     
-    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
-
-    
-    logMessage("reset >> codec id: " + std::to_string(format_ctx->streams[audio_stream_index]->codecpar->codec_id));
-//    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
-    if (!audioCodec) {
-        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
-        return;
+    if (!audioBlocked) {
+        // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+        
+        
+        logMessage("reset >> codec id: " + std::to_string(format_ctx->streams[audio_stream_index]->codecpar->codec_id));
+        //    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+        audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
+        if (!audioCodec) {
+            errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
+            return;
+        }
+        // Add this to allocate the context by codec
+        audio_dec_ctx = avcodec_alloc_context3(audioCodec);
+        retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
+        if (retVal < 0) {
+            errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
+            return;
+        }
+        
+        retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
+        if (retVal < 0) {
+            errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
+            return;
+        }
+        
+        // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     }
-    // Add this to allocate the context by codec
-    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
-    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
-        return;
-    }
-
-    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
-    if (retVal < 0) {
-        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
-        return;
-    }
-
-    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     
     if (tryingToReconnect) {
         tryingToReconnect = false;
@@ -254,31 +257,33 @@ void VideoAndAudioObtainer::run()
             }
         } else if (packet.stream_index == audio_stream_index) {
             /// decode audio packet
-            logMessage("run >>> audio packet");
-            int ret = 0;
-
-            int decoded = packet.size;
-            logMessage("run >>> audio >>> packet size: " + std::to_string(packet.size));
-            
-            avcodec_send_packet(audio_dec_ctx, &packet);
-            logMessage("run >>> audio >>> avcodec_send_packet completed");
-            ret = avcodec_receive_frame(audio_dec_ctx, frame);
-            logMessage("run >>> audio >>> avcodec_receive_frame completed");
-            if (ret < 0) {
-                break;
-            }
-            logMessage("run >>> audio >>> ret greater than 0");
-            decoded = FFMIN(ret, packet.size);
-            logMessage("run >>> audio >>> FFMIN: " + std::to_string(decoded));
-            if (ret == 0) {
-                logMessage("run >>> audio >>> ret = 0");
-                sharedMemoryInstance->audioSize = frame->nb_samples;
-                logMessage("run >>> audio >>> changed size to: " + std::to_string(frame->nb_samples));
-                logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
-                logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
-                readAudioSampleRate = frame->sample_rate;
-                sharedMemoryInstance->writeAudio(frame->extended_data[0]);
-                logMessage("run >>> audio >>> audio written");
+            if (!audioBlocked) {
+                logMessage("run >>> audio packet");
+                int ret = 0;
+                
+                int decoded = packet.size;
+                logMessage("run >>> audio >>> packet size: " + std::to_string(packet.size));
+                
+                avcodec_send_packet(audio_dec_ctx, &packet);
+                logMessage("run >>> audio >>> avcodec_send_packet completed");
+                ret = avcodec_receive_frame(audio_dec_ctx, frame);
+                logMessage("run >>> audio >>> avcodec_receive_frame completed");
+                if (ret < 0) {
+                    break;
+                }
+                logMessage("run >>> audio >>> ret greater than 0");
+                decoded = FFMIN(ret, packet.size);
+                logMessage("run >>> audio >>> FFMIN: " + std::to_string(decoded));
+                if (ret == 0) {
+                    logMessage("run >>> audio >>> ret = 0");
+                    sharedMemoryInstance->audioSize = frame->nb_samples;
+                    logMessage("run >>> audio >>> changed size to: " + std::to_string(frame->nb_samples));
+                    logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
+                    logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
+                    readAudioSampleRate = frame->sample_rate;
+                    sharedMemoryInstance->writeAudio(frame->extended_data[0]);
+                    logMessage("run >>> audio >>> audio written");
+                }
             }
         }
         av_packet_unref(&packet);

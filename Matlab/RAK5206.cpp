@@ -13,7 +13,7 @@
  */
 RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback)
 {
-    videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback);
+    videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback, audioBlocked);
     if (!socketBlocked) {
         socketObject = new Socket(sharedMemory, ipAddress, port);
     }

@@ -75,7 +75,7 @@ public:
     
     //-----------------------------------
     // Init methods.
-    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback);
+    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *error, ErrorOccurredCallback callback, bool audioBlocked);
     
     //-----------------------------------
     // Overloaded methods.
@@ -85,6 +85,9 @@ public:
     
     int readAudioSampleRate = 0;
     
+    
+    /// Inherited from RAK5206.h. Just for testing.
+    bool audioBlocked = true;
 //    void stop() override;
 };
 
