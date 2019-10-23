@@ -30,49 +30,64 @@ Socket::Socket(SharedMemory* sharedMemory, std::string ip, std::string port)
 
 void Socket::run()
 {
+    logMessage("run >> enter");
     connectSerialSocket(ipAddress_, port_);
+    logMessage("run >> connectSerialSocket completed");
     if (state != SocketErrorNone) {
+        logMessage("run >> error: " + std::to_string(state));
         return;
     }
+    logMessage("run >> no error");
 #ifdef _WIN32
     socket_.set_option(rcv_timeout_option{ 1000 });
+    logMessage("run >> set_option completed");
 #endif
     
     uint8_t dataToOpenReceiving[] = { 0x01, 0x55 };
     send(&socket_, dataToOpenReceiving, 2);
+    logMessage("run >> send to open socket completed");
     boost::system::error_code ec;
     
     while (isRunning()) {
-        
+        logMessage("run >>> isRunning >>> enter");
         std::string readSerialData = receiveSerial(&ec);
         
+        logMessage("run >>> isRunning >>> receiveSerial completed");
         if (ec == boost::asio::error::eof) {
             mutexSendingToSocket.lock();
-            logMessage("error while receiving: eof");
+            logMessage("run >>> error while receiving: eof");
             socket_.close();
+            logMessage("run >>> isRunning >>> socked closed");
             connectSerialSocket(ipAddress_, port_);
+            logMessage("run >>> isRunning >>> connectSerialSocket completed");
             if (state != SocketErrorNone) {
+                logMessage("run >>> isRunning >>> error: " + std::to_string(state));
                 mutexSendingToSocket.unlock();
                 break;
             }
 #ifdef _WIN32
             socket_.set_option(rcv_timeout_option{ 1000 });
+            logMessage("run >>> isRunning >>> set_option completed");
 #endif
             mutexSendingToSocket.unlock();
             
             send(&socket_, dataToOpenReceiving, 2);
+            logMessage("run >>> isRunning >>> send to open socket completed");
             
             readSerialData = receiveSerial(&ec);
+            logMessage("run >>> isRunning >>> receiveSerial completed");
         }
         
         if (readSerialData.length() > 0) {
             if (isRunning()) {
                 sharedMemoryInstance->writeSerialRead(readSerialData);
+                logMessage("run >>> writeSerialRead completed");
             }
             logMessage(readSerialData);
         }
     }
     closeSocket();
+    logMessage("run >>> closeSocket completed");
     
     logMessage("Socket -> read serial ended");
 }

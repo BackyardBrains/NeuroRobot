@@ -14,7 +14,9 @@
 RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error, ErrorOccurredCallback errorCallback)
 {
     videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, errorCallback);
-//    socketObject = new Socket(sharedMemory, ipAddress, port);
+    if (!socketBlocked) {
+        socketObject = new Socket(sharedMemory, ipAddress, port);
+    }
 }
 
 /**
@@ -23,7 +25,9 @@ RAK5206::RAK5206(std::string ipAddress, std::string port, StreamStateType *error
 void RAK5206::start()
 {
     videoAndAudioObtainerObject->startThreaded();
-//    socketObject->startThreaded();
+    if (!socketBlocked) {
+        socketObject->startThreaded();
+    }
 }
 
 /**
@@ -34,9 +38,13 @@ void RAK5206::start()
  */
 int16_t *RAK5206::readAudio(int *size)
 {
-    static int16_t *audioDataFoo = new int16_t[1000 * 2 * 10];
-//    int16_t *reply = sharedMemory->readAudio(size);
-    return audioDataFoo;
+    if (!audioBlocked) {
+        int16_t *reply = sharedMemory->readAudio(size);
+        return reply;
+    } else {
+        static int16_t *audioDataFoo = new int16_t[sharedMemory->audioSize * 2 * 10];
+        return audioDataFoo;
+    }
 }
 
 /**
@@ -55,7 +63,9 @@ uint8_t *RAK5206::readVideo()
 void RAK5206::stop()
 {
     videoAndAudioObtainerObject->stop();
-//    socketObject->stop();
+    if (!socketBlocked) {
+        socketObject->stop();
+    }
 }
 
 /**
@@ -65,7 +75,11 @@ void RAK5206::stop()
  */
 bool RAK5206::isRunning()
 {
-    return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone;
+    if (!socketBlocked) {
+        return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone && socketObject->isRunning() && socketObject->state == SocketErrorNone;
+    } else {
+        return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->state == StreamErrorNone;
+    }
 }
 
 /**
@@ -75,11 +89,15 @@ bool RAK5206::isRunning()
  */
 void RAK5206::writeSerial(std::string data)
 {
-//    socketObject->writeSerial(data);
+    if (!socketBlocked) {
+        socketObject->writeSerial(data);
+    }
 }
 void RAK5206::writeSerial(char *data)
 {
-//    writeSerial(std::string(data));
+    if (!socketBlocked) {
+        writeSerial(std::string(data));
+    }
 }
 
 /**
@@ -90,9 +108,12 @@ void RAK5206::writeSerial(char *data)
  */
 uint8_t *RAK5206::readSerial(int *size)
 {
-    static uint8_t *returnSerialBuffer = new uint8_t[1000 + 1];
-    return returnSerialBuffer;
-//    return sharedMemory->readSerialRead(size);
+    if (!socketBlocked) {
+        return sharedMemory->readSerialRead(size);
+    } else {
+        static uint8_t *returnSerialBuffer = new uint8_t[1000 + 1];
+        return returnSerialBuffer;
+    }
 }
 
 /**
@@ -103,7 +124,9 @@ uint8_t *RAK5206::readSerial(int *size)
  */
 void RAK5206::sendAudio(int16_t *data, long long numberOfBytes)
 {
-//    socketObject->sendAudio(data, numberOfBytes);
+    if (!audioBlocked) {
+        socketObject->sendAudio(data, numberOfBytes);
+    }
 }
 
 StreamStateType RAK5206::readStreamState()
@@ -113,6 +136,9 @@ StreamStateType RAK5206::readStreamState()
 
 SocketStateType RAK5206::readSocketState()
 {
-    return SocketNotStarted;
-//    return socketObject->state;
+    if (!socketBlocked) {
+        return socketObject->state;
+    } else {
+        return SocketNotStarted;
+    }
 }

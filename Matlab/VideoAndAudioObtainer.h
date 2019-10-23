@@ -83,6 +83,8 @@ public:
     
     StreamStateType state = StreamNotStarted;
     
+    int readAudioSampleRate = 0;
+    
 //    void stop() override;
 };
 

@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <thread>
-#include <boost/thread/thread.hpp>
+//#include <boost/thread/thread.hpp>
 
 static std::chrono::system_clock::time_point beginTime;
 static bool initDone;
@@ -131,29 +131,31 @@ void VideoAndAudioObtainer::reset(StreamStateType *error)
     // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
 
     
-//    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
-//
-////    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-//    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
-//    if (!audioCodec) {
-//        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
-//        return;
-//    }
-//    // Add this to allocate the context by codec
-//    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
-//    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
-//    if (retVal < 0) {
-//        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
-//        return;
-//    }
-//
-//    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
-//    if (retVal < 0) {
-//        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
-//        return;
-//    }
-//
-//    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+
+    
+    logMessage("reset >> codec id: " + std::to_string(format_ctx->streams[audio_stream_index]->codecpar->codec_id));
+//    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+    audioCodec = avcodec_find_decoder(format_ctx->streams[audio_stream_index]->codecpar->codec_id);
+    if (!audioCodec) {
+        errorOccurred(error, StreamErrorAvcodecFindDecoderAudio, -1);
+        return;
+    }
+    // Add this to allocate the context by codec
+    audio_dec_ctx = avcodec_alloc_context3(audioCodec);
+    retVal = avcodec_parameters_to_context(audio_dec_ctx, format_ctx->streams[audio_stream_index]->codecpar);
+    if (retVal < 0) {
+        errorOccurred(error, StreamErrorAvcodecParametersToContextAudio, retVal);
+        return;
+    }
+
+    retVal = avcodec_open2(audio_dec_ctx, audioCodec, NULL);
+    if (retVal < 0) {
+        errorOccurred(error, StreamErrorAvcodecOpen2Audio, retVal);
+        return;
+    }
+
+    // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     
     if (tryingToReconnect) {
         tryingToReconnect = false;
@@ -228,44 +230,56 @@ void VideoAndAudioObtainer::run()
             decode(videoCodec_ctx, frame, &check, &packet);
             logMessage("run >>> decode completed");
             if (check != 0) {
-                logMessage("run >>> check not 0");
+                logMessage("run >>> video >>> check not 0");
                 
                 img_convert_ctx = sws_getCachedContext(
                     img_convert_ctx, videoCodec_ctx->width, videoCodec_ctx->height,
                     videoCodec_ctx->pix_fmt, videoCodec_ctx->width,
                     videoCodec_ctx->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, NULL, NULL,
                     NULL);
-                logMessage("run >>> sws_getCachedContext converted");
+                logMessage("run >>> video >>> sws_getCachedContext converted");
                 sws_scale(img_convert_ctx, frame->data, frame->linesize, 0,
                     videoCodec_ctx->height, rgb_data, picture_rgb->linesize);
-                logMessage("run >>> sws_scale converted");
+                logMessage("run >>> video >>> sws_scale converted");
                 
-                logMessage("width: " + std::to_string(picture_rgb->width));
-                logMessage("height: " + std::to_string(picture_rgb->height));
-                logMessage("linesize[0]: " + std::to_string(picture_rgb->linesize[0]));
+                logMessage("run >>> video >>> width: " + std::to_string(picture_rgb->width));
+                logMessage("run >>> video >>> height: " + std::to_string(picture_rgb->height));
+                logMessage("run >>> video >>> linesize[0]: " + std::to_string(picture_rgb->linesize[0]));
                 
                 sharedMemoryInstance->frameSize = videoCodec_ctx->width * videoCodec_ctx->height * 3;
-                logMessage("frameSize: " + std::to_string(sharedMemoryInstance->frameSize));
+                logMessage("run >>> video >>> frameSize: " + std::to_string(sharedMemoryInstance->frameSize));
                 
                 sharedMemoryInstance->writeFrame(rgb_data[0]);
-                logMessage("frame copy completed");
+                logMessage("run >>> video >>> frame copy completed");
             }
         } else if (packet.stream_index == audio_stream_index) {
-//            /// decode audio packet
-//            logMessage("run >>> audio packet");
-//            int ret = 0;
-//
-//            int decoded = packet.size;
-//            
-//            avcodec_send_packet(audio_dec_ctx, &packet);
-//            ret = avcodec_receive_frame(audio_dec_ctx, frame);
-//            if (ret < 0) {
-//                break;
-//            }
-//            decoded = FFMIN(ret, packet.size);
-//            if (ret == 0) {
-//                sharedMemoryInstance->writeAudio(frame->extended_data[0]);
-//            }
+            /// decode audio packet
+            logMessage("run >>> audio packet");
+            int ret = 0;
+
+            int decoded = packet.size;
+            logMessage("run >>> audio >>> packet size: " + std::to_string(packet.size));
+            
+            avcodec_send_packet(audio_dec_ctx, &packet);
+            logMessage("run >>> audio >>> avcodec_send_packet completed");
+            ret = avcodec_receive_frame(audio_dec_ctx, frame);
+            logMessage("run >>> audio >>> avcodec_receive_frame completed");
+            if (ret < 0) {
+                break;
+            }
+            logMessage("run >>> audio >>> ret greater than 0");
+            decoded = FFMIN(ret, packet.size);
+            logMessage("run >>> audio >>> FFMIN: " + std::to_string(decoded));
+            if (ret == 0) {
+                logMessage("run >>> audio >>> ret = 0");
+                sharedMemoryInstance->audioSize = frame->nb_samples;
+                logMessage("run >>> audio >>> changed size to: " + std::to_string(frame->nb_samples));
+                logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
+                logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
+                readAudioSampleRate = frame->sample_rate;
+                sharedMemoryInstance->writeAudio(frame->extended_data[0]);
+                logMessage("run >>> audio >>> audio written");
+            }
         }
         av_packet_unref(&packet);
         logMessage("run >>> av_packet_unref completed");
@@ -352,7 +366,7 @@ void VideoAndAudioObtainer::freeAllObjects()
         logMessage("freeAllObjects >>> catched error");
     }
     
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(1020));
+//    boost::this_thread::sleep_for(boost::chrono::milliseconds(1020));
 
     closeStreams();
     format_ctx = NULL;

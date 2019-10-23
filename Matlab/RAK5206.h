@@ -42,6 +42,9 @@ public:
     void writeSerial(char *data);
     uint8_t *readSerial(int *size);
     
+    bool audioBlocked = false;
+    bool socketBlocked = true;
+    
     StreamStateType readStreamState();
     SocketStateType readSocketState();
     

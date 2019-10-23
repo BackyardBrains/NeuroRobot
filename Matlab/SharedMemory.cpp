@@ -86,6 +86,12 @@ void SharedMemory::writeAudio(uint8_t* data)
         return;
     }
     
+    if (audioSize == 0) {
+        logMessage("writeAudio >>> audio size = 0");
+        return;
+    }
+    
+    
 //     static int16_t *audioDataFoo = new int16_t[audioSize * 2 * 10];
 //     memcpy(audioDataFoo, data, 2000);
     
@@ -97,12 +103,21 @@ void SharedMemory::writeAudio(uint8_t* data)
 //    }
     
     mutexAudio.lock();
+    
+    if (audioData == NULL) {
+        logMessage("writeAudio >>> audioData = NULL");
+        audioData = new int16_t[audioSize * 2 * 10];
+    }
+    
     if (audioChunkCounter == 10) {
+        logMessage("writeAudio >>> audioChunkCounter == 10");
         audioChunkCounter--;
         memcpy(audioData, &audioData[audioSize], audioSize * 2 * audioChunkCounter);
+        logMessage("writeAudio >>> deleted last " + std::to_string(audioSize) + " samples");
     }
-    memcpy(&audioData[audioSize * audioChunkCounter], data, audioSize * 2);
     
+    memcpy(&audioData[audioSize * audioChunkCounter], data, audioSize * 2);
+    logMessage("writeAudio >>> audio bytes copied");;
     
 //    static int16_t *audioDataFoo2 = new int16_t[audioSize * 2 * 10];
 //    memcpy(audioDataFoo2, audioData, audioSize * 2 * audioChunkCounter);
