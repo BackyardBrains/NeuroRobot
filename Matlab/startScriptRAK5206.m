@@ -13,7 +13,7 @@ elseif ~isfile('RAK_MatlabBridge.mexmaci64') && ismac
     
     % FFMPEG - Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.
 %     mex RAK5206.cpp -I/usr/local/Cellar/boost/1.69.0_2/include -L/usr/local/Cellar/boost/1.69.0_2/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
-    mex RAK_MatlabBridge.cpp RAK5206.cpp SharedMemory.cpp Log.cpp VideoAndAudioObtainer.cpp Socket.cpp -I/usr/local/Cellar/boost/1.69.0_2/include -L/usr/local/Cellar/boost/1.69.0_2/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
+    mex RAK_MatlabBridge.cpp RAK5206.cpp SharedMemory.cpp Log.cpp VideoAndAudioObtainer.cpp Socket.cpp -Ilibraries/mac/boost/1.70.0/include -Llibraries/mac/boost/1.70.0/lib -Ilibraries/mac/ffmpeg/include -Llibraries/mac/ffmpeg/dylib -lboost_system -lboost_chrono -lboost_thread -lavcodec -lavformat -lavutil -lswscale
 end
 
 if ~exist('rak', 'var')
