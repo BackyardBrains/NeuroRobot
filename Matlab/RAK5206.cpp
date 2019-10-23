@@ -124,7 +124,7 @@ uint8_t *RAK5206::readSerial(int *size)
  */
 void RAK5206::sendAudio(int16_t *data, long long numberOfBytes)
 {
-    if (!audioBlocked) {
+    if (!socketBlocked) {
         socketObject->sendAudio(data, numberOfBytes);
     }
 }
