@@ -7,7 +7,11 @@ RAK-Matlab/test.wav
 RAK-Matlab/*.asv
 RAK-Matlab/**.*~
 RAK-Matlab/delays.txt
-Matlab/logFile_*.txt
+
 Matlab/*.mexw64
 Matlab/*.mexmaci64
+Matlab/logFile_*.txt
+Matlab/test.wav
+Matlab/delays.txt
+
 OGLdpf.log

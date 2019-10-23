@@ -7,6 +7,7 @@
 #include "RAK5206.h"
 
 #include <iostream>
+#include <boost/thread/thread.hpp>
 
 /**
  Inits video and audio obtainer object and socket object.
@@ -28,6 +29,7 @@ void RAK5206::start()
     if (!socketBlocked) {
         socketObject->startThreaded();
     }
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 }
 
 /**
