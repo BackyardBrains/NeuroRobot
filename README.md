@@ -9,16 +9,20 @@ A neurorobot is a robot controlled by a computer simulation of a biological brai
 Always use neurorobot.m to start the Neurorobot App and connect to your robot.
 
 To run the Neurorobot App with the DIY robot, use these settings: 
+<br>
 rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
 
 To run the Neurorobot App with Backyard Brains' fabricated neurorobot, use these settings: 
+<br>
 rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
 
 
 To run the Neurorobot App with a webcamera, use these settings:
+<br>
 rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 
 To run the Neurorobot App without a webcamera, use these settings:
+<br>
 rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 ## Neurorobot Data
