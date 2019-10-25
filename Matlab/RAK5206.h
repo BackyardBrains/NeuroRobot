@@ -43,7 +43,7 @@ public:
     uint8_t *readSerial(int *size);
     
     bool audioBlocked = false;
-    bool socketBlocked = true;
+    bool socketBlocked = false;
     
     StreamStateType readStreamState();
     SocketStateType readSocketState();

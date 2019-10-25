@@ -26,8 +26,10 @@ if rak_only
         
     elseif length(this_audio) < 1000
         error('audio data < 1000 samples')
-    elseif length(this_audio) > 1000
-        disp('audio data > 1000 samples')
+    elseif length(this_audio) >= 1000
+        if nstep == 1
+            disp('audio data > 1000 samples')
+        end
         this_clock = clock;
         audio_step = [audio_step; 2 xstep this_clock(6) length(this_audio)];
         max_freq = 0;
@@ -37,9 +39,6 @@ if rak_only
         end
         audio_empty_flag = 0;
         
-    else
-        
-        audio_empty_flag = 0;
         
         % Get first 1000 samples
         x = this_audio(1:1000);

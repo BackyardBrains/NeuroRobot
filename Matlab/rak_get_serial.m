@@ -1,5 +1,6 @@
 serial_receive = rak_cam.readSerial();
 
+% this may need to read all available somehow or sensory input will pile up   
 if ~isempty(serial_receive)
     if(length(serial_receive)>=24)   
         these_vals = str2num(serial_receive(1:24));

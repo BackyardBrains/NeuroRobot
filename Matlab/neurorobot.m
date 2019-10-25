@@ -1,43 +1,50 @@
 
-
 % NEUROROBOT APP by Backyard Brains
 % Managed by Christopher Harris, christopher@backyardbrains.com
 % This code is licensed under a GNU 2.1 license
 % For the best experience, install the Comic Book font (included)
 % For more information, see https://www.biorxiv.org/content/10.1101/597609v1
 
+% DIY robot, use these settings: rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
+% Backyard Brains' fabricated neurorobot, use these settings: rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
+% Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
+% No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
 rak_only = 1;
-use_webcam = 0;
 camera_present = 1;
+use_webcam = 0;
 bluetooth_present = 0;
+
+%% Advanced settings
 pulse_period = 0.125; % in seconds
-save_data_and_commands = 1; %%%
+save_data_and_commands = 0; %%%
 grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0; 
-
 save_brain_jpg = 0;
 brain_gen = 0;
-use_profile = 1;
+use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 manual_controls = 0;
 
+%% New user settings
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
 
+%% Additional settings
 second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
-
 nsteps_per_loop = 100;
 brain_facts = 0;
+
+%% Mechanics
 max_w = 100;
 large_brain = 0;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
@@ -52,6 +59,7 @@ end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 load('this_f')
 load('these_x')
+
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -74,8 +82,10 @@ if bluetooth_present
     left_cut = [1 500 281 780];
     right_cut = [1 500 501 1000];
 else
-    left_cut = [1 720 1 720];
-    right_cut = [1 720 561 1280];
+%     left_cut = [1 720 1 720];
+%     right_cut = [1 720 561 1280];
+    left_cut = [1 1080 1 1080];
+    right_cut = [1 1080 561 841 1920];
 end
 left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
 right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
@@ -94,10 +104,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057];    
+%     startup_fig_pos = [1 41 1920 1017];   
+%     fig_pos = [1 41 1920 1017];
+    startup_fig_pos = [1921 1 1920 1057];   
+    fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
 %     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
