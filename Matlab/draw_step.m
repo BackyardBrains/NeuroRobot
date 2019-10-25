@@ -2,6 +2,9 @@
 % Draw the activity front
 vplot_front.XData = [nstep nstep] * ms_per_step;
 
+% Draw audio spectrum
+draw_audio.YData = pw(101:500);
+
 % Update second screen analysis
 if second_screen_analysis
     

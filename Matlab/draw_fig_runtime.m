@@ -14,18 +14,28 @@ else
     draw_whole_brain_ax
 end
 
-left_eye_ax = axes('position', [0.02 0.58 0.23 0.36], 'xtick', [], 'ytick', [], 'linewidth', 2); box on
-right_eye_ax = axes('position', [0.75 0.58 0.23 0.36], 'xtick', [], 'ytick', [], 'linewidth', 2); box on
+left_eye_ax = axes('position', [0.02 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
+right_eye_ax = axes('position', [0.75 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
 activity_ax = axes('position', [0.04 0.09 0.94 0.14], 'linewidth', 2);
 
 % Manual controls
 if bg_brain
-    button_1_pos = [0.02 0.27 0.23 0.05];
-    button_1 = uicontrol('Style', 'pushbutton', 'String', 'Network view', 'units', 'normalized', 'position', button_1_pos);
-    set(button_1, 'Callback', 'brain_view_tiled = 1; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    button_2_pos = [0.02 0.34 0.23 0.05];
-    button_2 = uicontrol('Style', 'pushbutton', 'String', 'Whole brain view', 'units', 'normalized', 'position', button_2_pos);
-    set(button_2, 'Callback', 'brain_view_tiled = 0; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])       
+    
+    audio_ax_pos = [0.03 0.3 0.22 0.2];
+    audio_ax = axes('position', audio_ax_pos);
+    draw_audio = plot(1:400, zeros(1, 400), 'linewidth', 2);
+    set(audio_ax, 'ylim', [-2 10])
+    set(audio_ax, 'xtick', round(linspace(1, 400, 9)), 'xticklabel', round(linspace(800, 4000, 9)), 'ytick', [], 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 2)
+    title('Audio', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    xlabel('Hz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    ylabel('Amplitude', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)        
+    
+%     button_1_pos = [0.02 0.27 0.23 0.05];
+%     button_1 = uicontrol('Style', 'pushbutton', 'String', 'Network view', 'units', 'normalized', 'position', button_1_pos);
+%     set(button_1, 'Callback', 'brain_view_tiled = 1; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+%     button_2_pos = [0.02 0.34 0.23 0.05];
+%     button_2 = uicontrol('Style', 'pushbutton', 'String', 'Whole brain view', 'units', 'normalized', 'position', button_2_pos);
+%     set(button_2, 'Callback', 'brain_view_tiled = 0; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])       
     
     drive_bar_pos = [0.75 0.3 0.23 0.2];
     drive_bar_ax = axes('position', drive_bar_pos);
@@ -88,12 +98,14 @@ box on
 axes(left_eye_ax)
 show_left_eye = image(zeros(left_yx(1), left_yx(2), 3, 'uint8'));
 title('Left eye', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-set(left_eye_ax, 'xtick', [], 'ytick', [])
+set(left_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
+box on
 
 axes(right_eye_ax)
 show_right_eye = image(zeros(right_yx(1), right_yx(2), 3, 'uint8'));
 title('Right eye', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-set(right_eye_ax, 'xtick', [], 'ytick', [])
+set(right_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
+box on
 
 % Create runtime buttons
 button_design = uicontrol('Style', 'pushbutton', 'String', 'Design', 'units', 'normalized', 'position', [0.02 0.02 0.176 0.05]);

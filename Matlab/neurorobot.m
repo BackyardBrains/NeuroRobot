@@ -18,7 +18,7 @@ bluetooth_present = 0;
 
 %% Advanced settings
 pulse_period = 0.125; % in seconds
-save_data_and_commands = 0; %%%
+save_data_and_commands = 1; %%%
 grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
@@ -59,6 +59,7 @@ end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 load('this_f')
 load('these_x')
+load('fxs')
 
 
 %% Clear
