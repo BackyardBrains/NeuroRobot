@@ -13,7 +13,8 @@ try
         large_frame = getdata(rak_cam, 1);
     end
 catch
-    large_frame = zeros(720, 1280, 3, 'uint8');
+%     large_frame = zeros(720, 1280, 3, 'uint8');
+    large_frame = zeros(1080, 1920, 3, 'uint8');
     disp('RAK fail')
     rak_fail = 1;
 end

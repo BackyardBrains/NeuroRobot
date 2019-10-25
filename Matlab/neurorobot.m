@@ -85,7 +85,7 @@ else
 %     left_cut = [1 720 1 720];
 %     right_cut = [1 720 561 1280];
     left_cut = [1 1080 1 1080];
-    right_cut = [1 1080 561 841 1920];
+    right_cut = [1 1080 841 1920];
 end
 left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
 right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
