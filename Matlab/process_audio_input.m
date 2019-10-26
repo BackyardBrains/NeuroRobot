@@ -45,7 +45,7 @@ if rak_only
 
         % Get spectrum
         n = length(x);
-        fs = 16000;
+        fs = 8000;
         dt = 1/fs;
         t = (0:n-1)/fs;
         y = fft(x);
@@ -56,8 +56,8 @@ if rak_only
         pw = (pw - mean(pw)) / std(pw);
         
         % Get amp and freq
-        [max_amp, j] = max(pw(101:500));
-        max_freq = fx(j + 100);
+        [max_amp, j] = max(pw(1:250));
+        max_freq = fx(j);
         
         this_clock = clock;
         audio_step = [audio_step; 1 xstep this_clock(6) length(this_audio)];        
@@ -65,7 +65,7 @@ if rak_only
     end
     
     audio_max_freq = max_freq;
-%     disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
+    disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
 
 else % Implement audio toolbox record here 
     

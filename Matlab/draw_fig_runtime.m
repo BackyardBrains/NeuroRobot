@@ -23,12 +23,16 @@ if bg_brain
     
     audio_ax_pos = [0.03 0.3 0.22 0.2];
     audio_ax = axes('position', audio_ax_pos);
-    draw_audio = plot(1:400, zeros(1, 400), 'linewidth', 2);
-    set(audio_ax, 'ylim', [-2 10])
-    set(audio_ax, 'xtick', round(linspace(1, 400, 9)), 'xticklabel', round(linspace(800, 4000, 9)), 'ytick', [], 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 2)
-    title('Audio', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    draw_audio = plot(1:250, zeros(1, 250), 'linewidth', 2);
+    audio_ax.Color = fig_bg_col;
+    set(audio_ax, 'ylim', [-2 20])
+    set(audio_ax, 'xtick', round(linspace(1, 250, 5)), 'xticklabel', fx(round(linspace(1, 250, 5))), 'ytick', [], ...
+        'xcolor', 'k', 'ycolor', fig_bg_col, 'linewidth', 2, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
+        gui_font_weight, 'linewidth', 2)
+    title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Hz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    ylabel('Amplitude', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)        
+%     ylabel('Norm Amp', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
+    box off
     
 %     button_1_pos = [0.02 0.27 0.23 0.05];
 %     button_1 = uicontrol('Style', 'pushbutton', 'String', 'Network view', 'units', 'normalized', 'position', button_1_pos);
@@ -38,17 +42,19 @@ if bg_brain
 %     set(button_2, 'Callback', 'brain_view_tiled = 0; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])       
     
     drive_bar_pos = [0.75 0.3 0.23 0.2];
-    drive_bar_ax = axes('position', drive_bar_pos);
+    drive_bar_ax = axes('position', drive_bar_pos, 'linewidth', 2);
     if ~isempty(network_drive)
-        drive_bar = bar(network_drive(2:end,1));
+        drive_bar = bar(network_drive(2:end,1), 'linewidth', 2);
     else
-        drive_bar = bar(0);
+        drive_bar = bar(0, 'linewidth', 2);
     end
     drive_bar_ax.Color = fig_bg_col;
-    set(drive_bar_ax, 'FontSize', bfsize - 6, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Drive', 'FontSize', bfsize, 'fontname', gui_font_name);
+    set(drive_bar_ax, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'linewidth', 2)
+    title('Motivation', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    xlabel('Network', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
-    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'Box', 'off', 'ycolor', fig_bg_col)
+    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'ycolor', fig_bg_col)
+    box off
 elseif manual_controls
     left_pos = [0.75 0.37 0.07 0.05];
     right_pos = [0.91 0.37 0.07 0.05];
@@ -152,12 +158,6 @@ if second_screen_analysis
 
     % Total input
     axes(analysis_2_ax)
-    draw_analysis_2 = plot(this_f(101:500), zeros(1, 400));
-    set(gca, 'ylim', [0 6])
-    set(gca, 'xlim', [this_f(101) this_f(500)])
-    title('Audio spectrum', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Hz', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight) 
-    ylabel('Power', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight) 
     
     % Motor out and time
     axes(analysis_3_ax)

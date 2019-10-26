@@ -23,7 +23,7 @@ save_data_and_commands = 1; %%%
 grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
-use_rcnn = 1; 
+use_rcnn = 0; 
 save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 0;
@@ -58,9 +58,6 @@ else
     this_workspace_fig = 'workspace.jpg';
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
-load('this_f')
-load('these_x')
-load('fxs')
 
 
 %% Clear
@@ -110,10 +107,10 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057];    
+%     startup_fig_pos = [1 41 1920 1017];   
+%     fig_pos = [1 41 1920 1017];
+    startup_fig_pos = [1921 1 1920 1057];   
+    fig_pos = [1921 1 1920 1057];    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
 %     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
@@ -183,7 +180,7 @@ ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 
-audio_pref_names = {'~1000 Hz', '~1500 Hz', '~2000 Hz'};
+audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
 n_audio_prefs = size(audio_pref_names, 2);
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
@@ -203,8 +200,8 @@ end
 if ~exist('restarts', 'var')
     restarts = 0;
 end
-
-
+fx = (0:1000-1)*8;
+        
 %% Prepare figure
 fig_startup = figure(1);
 clf
