@@ -45,7 +45,7 @@ if rak_only
 
         % Get spectrum
         n = length(x);
-        fs = 8000;
+        fs = 16000;
         dt = 1/fs;
         t = (0:n-1)/fs;
         y = fft(x);
