@@ -25,7 +25,7 @@ if bg_brain
     audio_ax = axes('position', audio_ax_pos);
     draw_audio = plot(1:250, zeros(1, 250), 'linewidth', 2);
     audio_ax.Color = fig_bg_col;
-    set(audio_ax, 'ylim', [-2 20])
+    set(audio_ax, 'ylim', [-2 20], 'xlim', [1 250])
     set(audio_ax, 'xtick', round(linspace(1, 250, 5)), 'xticklabel', fx(round(linspace(1, 250, 5))), 'ytick', [], ...
         'xcolor', 'k', 'ycolor', fig_bg_col, 'linewidth', 2, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
         gui_font_weight, 'linewidth', 2)
