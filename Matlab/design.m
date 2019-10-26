@@ -24,21 +24,28 @@ hold on
 contact_size = 20;
 draw_brain
 
+% b_
+b_y = 0.0472;
+
 % Add neuron
 neuron_or_network = 1;
-button_add_neuron = uicontrol('Style', 'pushbutton', 'String', 'Add one neuron', 'units', 'normalized', 'position', [0.02 0.28 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+button_add_neuron = uicontrol('Style', 'pushbutton', 'String', 'Add one neuron', 'units', 'normalized', 'position', [0.02 0.2928 0.26 b_y], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_add_neuron, 'Callback', 'if fig_design.UserData == 0 button_add_neuron.BackgroundColor = [0.6 0.95 0.6]; button_add_network.BackgroundColor = [0.8 0.8 0.8]; neuron_or_network = 1; end;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     
 % Add network
-button_add_network = uicontrol('Style', 'pushbutton', 'String', 'Add many neurons', 'units', 'normalized', 'position', [0.02 0.2 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+button_add_network = uicontrol('Style', 'pushbutton', 'String', 'Add many neurons', 'units', 'normalized', 'position', [0.02 0.2296 0.26 b_y], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_add_network, 'Callback', 'if fig_design.UserData == 0 button_add_network.BackgroundColor = [0.6 0.95 0.6]; button_add_neuron.BackgroundColor = [0.8 0.8 0.8]; neuron_or_network = 2; end;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
+% Annotate
+button_annotate = uicontrol('Style', 'pushbutton', 'String', 'Annotate', 'units', 'normalized', 'position', [0.02 0.1664 0.26 b_y]);
+set(button_annotate,'Callback', 'make_annotation', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
 % Save brain
-button_save = uicontrol('Style', 'pushbutton', 'String', 'Save brain', 'units', 'normalized', 'position', [0.02 0.12 0.26 0.06]);
+button_save = uicontrol('Style', 'pushbutton', 'String', 'Save brain', 'units', 'normalized', 'position', [0.02 0.1032 0.26 b_y]);
 set(button_save, 'Callback', 'save_brain', 'FontSize', bfsize, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 % Return to runtime
-button_return_to_runtime = uicontrol('Style', 'pushbutton', 'String', 'Return to runtime', 'units', 'normalized', 'position', [0.02 0.04 0.26 0.06]);
+button_return_to_runtime = uicontrol('Style', 'pushbutton', 'String', 'Return to runtime', 'units', 'normalized', 'position', [0.02 0.04 0.26 b_y]);
 set(button_return_to_runtime, 'Callback', 'if fig_design.UserData == 0; fig_design.UserData = 10; exit_design; end', 'FontSize', bfsize, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 % Turn off motors

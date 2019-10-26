@@ -71,3 +71,13 @@ try % This avoids error due to stop code deleting step_timer before it's called 
     step_times(nstep + 1) = toc(step_timer);
 catch
 end
+if run_button == 6
+    
+    %% Make annotation
+    make_annotation
+    
+    %% Return
+    run_button = 0;
+    
+end
+    
