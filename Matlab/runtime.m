@@ -39,8 +39,12 @@ distance_read = 0;
 firing = [];
 manual_control = 0;
 nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
-% large_frame = zeros(720, 1280, 3, 'uint8');
-large_frame = zeros(1080, 1920, 3, 'uint8');
+if hd_camera
+    large_frame = zeros(1080, 1920, 3, 'uint8');
+else
+    large_frame = zeros(720, 1280, 3, 'uint8');
+end
+
 if ext_cam_id
     save_ext_cam = zeros(720, 1280, 3, ext_cam_nsteps, 'uint8');
     save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
