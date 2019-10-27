@@ -27,10 +27,10 @@ rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 
 ## Runtime
-<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Matlab/annotation_2019-10-26-05-13-01-131-Cern-laptop-main.jpg"></p>
+<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Gallery/annotation_runtime.jpg"></p>
 
 ## Design
-<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Matlab/annotation_2019-10-26-05-15-56-1556-Archimedes-laptop-main.jpg"></p>
+<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Gallery/annotation_design.jpg"></p>
 
 ## Neurorobot data
 <p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Matlab/ontimes.jpg"></p>
