@@ -25,5 +25,12 @@ To run the Neurorobot App without a webcamera, use these settings:
 <br>
 rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-## Neurorobot Data
-<p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Matlab/ontimes.jpg"></p>
+
+## Runtime
+<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Gallery/annotation_runtime.jpg"></p>
+
+## Design
+<p align="center"><img width="1000" src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Gallery/annotation_design.jpg"></p>
+
+## Neurorobot data
+<p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/develop-rak5270/Matlab/ontimes.jpg"></p>
