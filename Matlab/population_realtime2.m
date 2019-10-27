@@ -110,6 +110,9 @@ for n_local_data = 1:n_local_datas
     end
 end
 
+if isempty(c)
+    error('no neurorobot data found')
+end
 ylim([0 max(c) + 1])
 xlim([t1 t2])
 box on
