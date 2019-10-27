@@ -5,7 +5,7 @@ clear
 % t1 = datetime(2019,10,8,12,45,00);
 % t2 = datetime(2019,10,8,13,45,00);
 
-t1 = datetime - hours(5);
+t1 = datetime - hours(2);
 t2 = datetime;
 
 n = 0;
@@ -16,7 +16,7 @@ d = [];
 
 fig1 = figure(1);
 clf
-set(fig1, 'color', 'w')
+set(fig1, 'color', 'w', 'position', [100 100 800 580])
 hold on
 
 local_database = dir('.\Command\*.mat');
@@ -39,18 +39,20 @@ for n_local_data = 1:n_local_datas
     ms = str2double(start_time(21:22));
     t_start = datetime(yyyy, MM, DD, hh, mm, ss, ms);    
     
-    stop_time = char(command_log.stop_time);
-    yyyy = str2double(stop_time(1:4));
-    MM = str2double(stop_time(6:7));
-    DD = str2double(stop_time(9:10));
-    hh = str2double(stop_time(12:13));
-    if hh < 12
-        hh = hh + 12;
+    if isfield(command_log, 'stop_time')
+        stop_time = char(command_log.stop_time);
+        yyyy = str2double(stop_time(1:4));
+        MM = str2double(stop_time(6:7));
+        DD = str2double(stop_time(9:10));
+        hh = str2double(stop_time(12:13));
+        if hh < 12
+            hh = hh + 12;
+        end
+        mm = str2double(stop_time(15:16));
+        ss = str2double(stop_time(18:19));
+        ms = str2double(stop_time(21:22));
+        t_stop = datetime(yyyy, MM, DD, hh, mm, ss, ms);
     end
-    mm = str2double(stop_time(15:16));
-    ss = str2double(stop_time(18:19));
-    ms = str2double(stop_time(21:22));
-    t_stop = datetime(yyyy, MM, DD, hh, mm, ss, ms);
     
     if isbetween(t_start,t1,t2)
         disp('During Tuesday testing')
