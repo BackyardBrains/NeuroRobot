@@ -65,7 +65,7 @@ if rak_only
     end
     
     audio_max_freq = max_freq;
-    disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
+%     disp(horzcat('audio max freq = ', num2str(round(max_freq)), ', amp = ', num2str(round(max_amp))))
 
 else % Implement audio toolbox record here 
     
