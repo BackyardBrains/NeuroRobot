@@ -8,6 +8,7 @@ if nneurons
     for nneuron = 1:nneurons % ugly for loop, fix this
         for ncam = 1:2
             these_prefs = logical(vis_prefs(nneuron, :, ncam));
+            %%% GoogleNet/Alexnet missing error here
             vis_I(nneuron) = vis_I(nneuron) + sum(vis_pref_vals(these_prefs, ncam));
         end
     end 
