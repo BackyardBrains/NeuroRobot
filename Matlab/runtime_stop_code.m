@@ -69,6 +69,17 @@ if voluntary_restart
     restarting = 1;
 end
 
+if evodevo
+    
+    % Initialize global optimizer
+    % Use current brain as starting point
+    % Somehow take reward into account such that optimization tends toward
+    % reward
+    % Generate new brain, possibly replacing current brain, possibly as
+    % offspring
+    
+end
+
 
 %% Return to startup
 if restarting && ~voluntary_restart
