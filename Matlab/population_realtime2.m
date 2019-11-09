@@ -20,12 +20,12 @@ clf
 set(fig1, 'color', 'w', 'position', [100 100 800 580])
 hold on
 
-local_database = dir('.\Command\*.mat');
+local_database = dir('./Command/*.mat');
 n_local_datas = size(local_database, 1);
 for n_local_data = 1:n_local_datas
     
     disp(horzcat(num2str(n_local_data), ' of ', num2str(n_local_datas)))
-    load(strcat('.\Command\', local_database(n_local_data).name))
+    load(strcat('./Command/', local_database(n_local_data).name))
     
     start_time = char(command_log.start_time);
     yyyy = str2double(start_time(1:4));

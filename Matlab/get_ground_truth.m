@@ -53,7 +53,7 @@ if ~exist('RAK5206.mexw64', 'file')
     disp('Building mex')
     rak_mex_build
 end
-rak_cam = RAK5206_matlab('192.168.100.1', '80');
+rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
 rak_cam.start();
 disp('rak_cam started')
 ground_truth_pulse = timer('period', pulse_period, 'timerfcn', '[ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir, fig_title, rcnn);', 'stopfcn', 'disp("ground truth pulse stopped"); close(1);', 'executionmode', 'fixedrate');

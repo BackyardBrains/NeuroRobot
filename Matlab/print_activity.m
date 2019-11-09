@@ -15,7 +15,7 @@ xlabel('Time (seconds)')
 set(gcf, 'color', 'w')
 
 this_time = char(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss'));
-export_fig(fig_print, horzcat('.\Data\', this_time, '-', brain_name, '-activity_print'), '-r150', '-jpg', '-nocrop')
+export_fig(fig_print, horzcat('./Data/', this_time, '-', brain_name, '-activity_print'), '-r150', '-jpg', '-nocrop')
 
 
 

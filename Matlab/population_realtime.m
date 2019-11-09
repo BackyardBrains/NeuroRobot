@@ -12,11 +12,11 @@ neurorobot_data(1).nneurons = [];
 neurorobot_data(1).nsteps = [];
 
 %% Load local data and add to shared data if new
-available_data = dir('.\Data\*.mat');
+available_data = dir('./Data/*.mat');
 nnews = 0;
 nexists = 0;
 for ndatafile_local = 1:size(available_data, 1)
-    load(strcat('.\Data\', available_data(ndatafile_local).name))
+    load(strcat('./Data/', available_data(ndatafile_local).name))
     n = size(neurorobot_data, 2);
     this_ind = 0;
     for ndatafile_shared = 1:n

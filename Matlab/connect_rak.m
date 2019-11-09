@@ -17,20 +17,32 @@ drawnow
 try
 
     if rak_only
-        if (~exist('RAK_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('RAK_MatlabBridge.mexmaci64') && ismac)
+        if (~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac)
             disp('Building mex')
             rak_mex_build
         end
-        if exist('rak_pulse', 'var')
-            delete(rak_pulse)
-            clear rak_pulse
+        
+        try
+            rak_pulse_base = evalin('base','rak_pulse');
+            delete(rak_pulse_base)
             disp('Previous rak_pulse deleted')
+        catch
+            disp('No previous rak_pulse')
         end
-        if exist('rak_cam', 'var')
-            clear rak_cam
+        
+        
+        try
+            rak_cam_base = evalin('base','rak_cam');
+            if rak_cam_base.isRunning()
+                rak_cam_base.stop();
+            end
+            clear rak_cam_base
             disp('Previous rak_cam cleared')
-        end        
-        rak_cam = RAK5206_matlab('192.168.100.1', '80');
+        catch
+            disp('No previous rak_cam')
+        end
+        
+        rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
         disp('rak_cam created')
         rak_cam.start();
         if ~rak_cam.isRunning()

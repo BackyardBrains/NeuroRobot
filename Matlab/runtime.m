@@ -78,12 +78,12 @@ audio_empty_flag = 0;
 if save_data_and_commands
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 
-    data_file_name = strcat('.\Data\', this_time, '-', brain_name, '.mat');
+    data_file_name = strcat('./Data/', this_time, '-', brain_name, '.mat');
     data = struct;
     data.computer_name = computer_name;
     data.start_time = this_time;
 
-    command_log_file_name = strcat('.\Command\', this_time, '-', brain_name, '.mat');
+    command_log_file_name = strcat('./Command/', this_time, '-', brain_name, '.mat');
     if exist('command_log', 'var')
         command_log.stop_event = 'other';
         save(command_log_file_name, 'command_log')
