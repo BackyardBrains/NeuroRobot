@@ -197,7 +197,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
         tryingToReconnect = false;
         
         logMessage("init >>> Trying to reconnect >>> reset done");
-        startThreaded();
+        run();
     }
     
     if (stateType_) {
