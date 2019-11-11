@@ -125,8 +125,10 @@ if draw_synapses
                     lw = 2;
                     s = 9;
                     m = 'square';
-                    if da_connectome(p1, p2)
-                        mf = [0.7 0.7 1];
+                    if da_connectome(p1, p2) == 1
+                        mf = [1 0.7 0.4];
+                    elseif da_connectome(p1, p2) == 2
+                        mf = [0.6 0.7 1];
                     else
                         mf = 'w';
                     end

@@ -11,9 +11,9 @@
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 bluetooth_present = 0;
 
 %% Advanced settings
@@ -36,7 +36,7 @@ manual_controls = 0;
 bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
-bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
+bfsize = 30; % You may want to change this to 16 if your screen size is smaller than 1080p
 
 %% Additional settings
 second_screen_analysis = 0;
