@@ -45,8 +45,7 @@ end
 if run_button == 4 || rak_fail
     stop(runtime_pulse)
 end
-enter_design % if run_button = 1
-drawnow
+
 % Record data
 if save_data_and_commands
     if nneurons
@@ -57,6 +56,10 @@ if save_data_and_commands
         data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     end
 end
+
+enter_design % if run_button = 1
+drawnow
+
 % if ~isempty(pit_stop_time)
 %     this_clock = clock;
 %     if this_clock(4) >= pit_stop_time(1) && this_clock(5) >= pit_stop_time(2)

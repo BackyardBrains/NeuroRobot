@@ -2,7 +2,7 @@ if run_button == 1
     design
     stop(runtime_pulse) % Why doesn't this cause an error
     clear data
-    xstep = 0;
+    xstep = 1; % Does this produce a problem? 
     
     % Log command
     if save_data_and_commands

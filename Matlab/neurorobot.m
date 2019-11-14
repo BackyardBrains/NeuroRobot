@@ -11,19 +11,20 @@
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
 
-%% Advanced settings
 hd_camera = 0;
-pulse_period = 0.125; % in seconds
-save_data_and_commands = 1; %%%
-grey_background = 1;
+grey_background = 0;
 draw_synapses = 1;
-use_cnn = 1;
-use_rcnn = 0; 
+use_cnn = 0;
+use_rcnn = 0;
+
+%% Advanced settings
+pulse_period = 0.125; % in seconds
+save_data_and_commands = 1; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 0;
@@ -107,10 +108,13 @@ end
 %% Custom settings for Backyard Brains' classroom events
 computer_name = getComputerName;
 if strcmp(computer_name, 'laptop-main')
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057];    
+    
+%     startup_fig_pos = [1 41 1920 1017];   
+%     fig_pos = [1 41 1920 1017];
+
+    startup_fig_pos = [1921 1 1920 1057];   
+    fig_pos = [1921 1 1920 1057]; 
+    
     bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
 %     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
 %     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
