@@ -8,5 +8,5 @@ annotation.annotation = 'Text input from human user here';
 
 % screenshot
 annotation_jpg_name = strcat('annotation_', this_time, '-', brain_name, '-', computer_name, '.jpg');
-export_fig(gcf, char(annotation_jpg_name), '-r300', '-jpg', '-nocrop')
+export_fig(gcf, char(annotation_jpg_name), '-r150', '-jpg', '-nocrop')
 disp('annotation created')

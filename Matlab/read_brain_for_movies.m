@@ -19,7 +19,7 @@ try
 catch
     neuron_tones = zeros(nneurons, 1);
 end
-nnetworks = length(unique(network_ids)) + 1;
+nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
 try
     network = brain.network;
 catch
