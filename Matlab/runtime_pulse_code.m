@@ -84,3 +84,4 @@ if run_button == 6
     
 end
     
+% disp(num2str(vis_pref_vals'))

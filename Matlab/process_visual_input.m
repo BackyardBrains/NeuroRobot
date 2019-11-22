@@ -18,11 +18,13 @@ for ncam = 1:2
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
-        this_score = sigmoid(npx, 5000, 0.001) * 50;
+        this_score = sigmoid(npx, 1000, 0.01) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
+%             temporal_score = ((227 - mean(x)) / 227) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
+%             temporal_score = (mean(x) / 227) * this_score;
         end        
     else
         this_score = 0;
@@ -40,11 +42,11 @@ for ncam = 1:2
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
-        this_score = sigmoid(npx, 5000, 0.001) * 50;
+        this_score = sigmoid(npx, 1000, 0.01) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
         end         
     else
         this_score = 0;
@@ -62,11 +64,11 @@ for ncam = 1:2
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
-        this_score = sigmoid(npx, 5000, 0.001) * 50;
+        this_score = sigmoid(npx, 1000, 0.01) * 50;
         if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
         elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.7, 5) * this_score;
+            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
         end        
     else
         this_score = 0;
