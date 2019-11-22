@@ -1,10 +1,10 @@
 
 
-% if run_button == 4
-%     axes(brain_axb)
-% else
+if exist('fig_print', 'var') && isvalid(fig_print)
+    axes(brain_axb)
+else
     axes(brain_ax)
-% end
+end
 
 if exist('plot_neuron_synapses', 'var')
     delete(plot_neuron_synapses)

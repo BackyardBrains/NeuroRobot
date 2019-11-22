@@ -21,7 +21,6 @@ end
 %% Save brain figure
 if ~restarting && save_brain_jpg
     print_brain
-%     close(fig_print)
 end
 
 
