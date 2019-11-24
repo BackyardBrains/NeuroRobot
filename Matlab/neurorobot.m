@@ -295,7 +295,7 @@ set(button_system_restart, 'Callback', 'exercises', 'FontSize', bfsize + 8, 'Fon
 % Reboot button
 button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'System Restart', 'units', 'normalized', 'position', [0.05 0.18 0.35 0.06]);
 set(button_system_restart, 'Callback', 'system_restart', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
-    'BackgroundColor', [0.8 0.8 0.8])
+    'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
 
 % Start button
 button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start Neurorobot', 'units', 'normalized', 'position', [0.05 0.08 0.35 0.07]);

@@ -1,4 +1,5 @@
 
+disp('start of pulse code')
 nstep = nstep + 1;
 xstep = xstep + 1;
 step_timer = tic;
@@ -10,19 +11,24 @@ elseif lifetime == 5 * 60 && lifetime < 5 * 60 * 60
 elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
+disp('update_brain')
 update_brain
 draw_step
+disp('update_motors')
 update_motors
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
+disp('update_motors')
 process_visual_input
+disp('update_motors')
 process_audio_input
 if bluetooth_present
     bluetooth_get_distance
 end
 if rak_only
+    disp('update_motors')
     rak_get_serial
 end
 if run_button == 2
@@ -47,6 +53,7 @@ if run_button == 4 || rak_fail
 end
 
 % Record data
+disp('end of pulse code')
 if save_data_and_commands
     if nneurons
         rec_timer = tic;
@@ -85,3 +92,4 @@ if run_button == 6
 end
     
 % disp(num2str(vis_pref_vals'))
+disp('end of pulse code')
