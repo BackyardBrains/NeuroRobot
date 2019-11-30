@@ -13,7 +13,6 @@ set(button_startup_complete, 'enable', 'off')
 set(button_system_restart, 'enable', 'off')
 drawnow
 
-
 try
 
     if rak_only
@@ -50,6 +49,7 @@ try
             error('rak_cam started but not running')
         else
             disp('rak_cam is running')
+            rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
         end
     elseif ~use_webcam
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';

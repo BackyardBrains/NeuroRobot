@@ -1,6 +1,8 @@
 
 
-
+if rak_only
+    rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+end
 if isempty(edit_name.String) && popup_select_brain.Value == 1
     for ii = linspace(0, 0.94, 20)
         edit_name.BackgroundColor = [0.94 ii ii];

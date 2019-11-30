@@ -60,7 +60,11 @@ if bluetooth_present || rak_only
         end        
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         disp('sending serial to rak')
-        rak_cam.writeSerial(send_this)
+        try
+            rak_cam.writeSerial(send_this)
+        catch
+            disp('Cannot send RAK serial')
+        end
         
     elseif ~isequal(motor_command, prev_motor_command)
         bluetooth_send_motor_command

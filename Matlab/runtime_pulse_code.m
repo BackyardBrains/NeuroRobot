@@ -43,10 +43,14 @@ if nstep == nsteps_per_loop
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
-    disp('rak_cam is no longer running, stopping')
-    stop(rak_pulse)
-    pause(0.5)
-    rak_fail = 1;
+    rak_fails = rak_fails + 1;
+    if rak_fails > 30
+        rak_fails = 0;
+        disp('rak_cam is no longer running, stopping')
+        stop(rak_pulse)
+        pause(0.5)
+        rak_fail = 1;
+    end
 end
 if run_button == 4 || rak_fail
     stop(runtime_pulse)
