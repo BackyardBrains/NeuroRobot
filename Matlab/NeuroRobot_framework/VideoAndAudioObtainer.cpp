@@ -13,6 +13,8 @@ static std::chrono::system_clock::time_point beginTime;
 static bool isReadingNextFrame = false;
 static bool initDone = false;
 
+static long long timeOutWhileConnecting = 3000;
+
 static int interruptFunction(void* ctx)
 {
     AVFormatContext* formatCtx = (AVFormatContext*) ctx;
@@ -21,7 +23,7 @@ static int interruptFunction(void* ctx)
     if (!initDone) {
         long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
         std::cout << "init >>> elapsed time [ms]: " << elapsedTime << std::endl;
-        if (elapsedTime > 2000 && formatCtx) {
+        if (elapsedTime > timeOutWhileConnecting && formatCtx) {
             // TODO: Test in Matlab under Windows.
             return 1;
         }
@@ -45,6 +47,7 @@ VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::st
     this->url = createUrl("admin", "admin", ipAddress);
     this->audioBlocked = audioBlocked;
     openLogFile();
+    logMessage("ip: " + ipAddress);
     reset(stateType_);
 }
 
@@ -56,12 +59,17 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     
     sharedMemoryInstance->unblockWritters();
 
+    logMessage("run >>> sharedMemoryInstance->unblockWritters(); >> ok");
     formatCtx = avformat_alloc_context();
+    logMessage("run >>> formatCtx = avformat_alloc_context(); >> ok");
     frame = av_frame_alloc();
+    logMessage("run >>> frame = av_frame_alloc(); >> ok");
     pictureRgb = av_frame_alloc();
+    logMessage("run >>> pictureRgb = av_frame_alloc(); >> ok");
 
     /// Register everything
     avformat_network_init();
+    logMessage("run >>> avformat_network_init(); >> ok");
 
     /// Open RTSP
     AVDictionary* stream_opts = 0;
@@ -76,6 +84,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     
     /// Set flag because 16 is flag indicates to send bye packets while closing stream
     formatCtx->flags = formatCtx->flags | 16;
+    logMessage("run >>> formatCtx->flags >> ok" + std::to_string(formatCtx->flags));
     
     retVal = avformat_open_input(&formatCtx, url.c_str(), NULL, &stream_opts);
     if (retVal != 0) {
@@ -136,6 +145,11 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     logMessage("run >>> video >>> avcodec_open2 >> ok");
     
     frameSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoCodecCtx->width, videoCodecCtx->height, 1);
+    if (frameSize < 0) {
+        logMessage("run >>> width: " + std::to_string(videoCodecCtx->width) + " height: " + std::to_string(videoCodecCtx->height));
+        updateState(stateType_, StreamErrorAvcodecFrameSize, frameSize);
+        frameSize = 6220800; // 1080 * 1920 * 3
+    }
     logMessage("run >>> video >>> frameSize: " + std::to_string(frameSize));
     
     sharedMemoryInstance->frameDataCount = frameSize;
@@ -348,7 +362,7 @@ void VideoAndAudioObtainer::closeStream()
     avcodec_free_context(&audioDecCtx);
     sws_freeContext(imgConvertCtx);
     avformat_close_input(&formatCtx);
-    delete [] frameRawData[0];
+//    delete [] frameRawData[0];
     
     imgConvertCtx = NULL;
 }

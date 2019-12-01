@@ -39,6 +39,7 @@ typedef enum : int {
     StreamErrorAvcodecFindDecoderAudio,
     StreamErrorAvcodecParametersToContextAudio,
     StreamErrorAvcodecOpen2Audio,
+    StreamErrorAvcodecFrameSize,
     
 } StreamStateType;
 typedef void (*StreamErrorOccurredCallback) (StreamStateType error);
@@ -87,7 +88,7 @@ static char* getSocketStateMessage(SocketStateType type)
     return retVal;
 }
 
-static char* getStreamStateMessage(StreamStateType type)
+const static char* getStreamStateMessage(StreamStateType type)
 {
     static char retVal[255];
     switch(type) {

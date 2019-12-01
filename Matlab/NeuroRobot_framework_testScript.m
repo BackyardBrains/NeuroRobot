@@ -17,7 +17,7 @@ elseif ~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac
 end
 
 if ~exist('rak', 'var')
-    rak = NeuroRobot_matlab('192.168.100.1', '80');
+    rak = NeuroRobot_matlab('192.168.1.12', '80');
 end
 rak.start();
 
@@ -94,7 +94,7 @@ while rak.isRunning() && flag_run
 %         y = sin(6.28 * 8 * t);
 %         y = [y y y y]';
 %         rak.sendAudio2(y);
-        rak.sendAudio('NeuroRobot_framework/EXPLOSION.mp3');
+%         rak.sendAudio('NeuroRobot_framework/EXPLOSION.mp3');
     end
     sendAudioTimings = [sendAudioTimings; clock];
     

@@ -46,7 +46,7 @@ public:
             free(ipAddress);
             free(port);
             
-            robotObject = new NeuroRobotManager(ipAddressString, portString, &error, nullptr, nullptr);
+            robotObject = new NeuroRobotManager(ipAddressString, portString, &error, NeuroRobot_Matlab::streamCallback, nullptr);
             return;
         } else if ( !strcmp("start", cmd) ) {
             
@@ -178,6 +178,34 @@ public:
             std::memcpy(yp, &videoHeight, sizeof(int));
             return;
         }
+    }
+    
+    static void streamCallback(StreamStateType error) {
+        return;
+        char *stateString_ = getStreamStateMessage(error);
+        
+        static char stateString[255];
+        std::memcpy(stateString, stateString_, 255);
+        mxArray *array[1], *output[1];
+//         mxArray *output[1];
+        mxArray *input[1];
+        
+//         stateString[25] = '\0';
+        
+        static char foo[] = "dada";
+        array[0] = mxCreateString(foo);
+        output[0] = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+        input[0] = mxCreateNumericMatrix(1, 1000, mxINT64_CLASS, mxREAL);
+        int *yp  = (int *) mxGetData(output[0]);
+        std::memcpy(yp, &error, sizeof(int));
+        
+        mexCallMATLAB(0, input, 1, &array[0], "NeuroRobot_StreamCallback");
+//         mexCallMATLAB(1, input, 1, array, "NeuroRobot_StreamCallback");
+//         mexCallMATLAB(1, input, 1, &array[0], "disp");
+//         delete [] retVal;
+//         mxDestroyArray(array[0]);
+//         mxDestroyArray(output[0]);
+//         mxDestroyArray(input[0]);
     }
 };
 
