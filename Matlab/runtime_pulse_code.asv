@@ -35,6 +35,7 @@ if bluetooth_present
     bluetooth_get_distance
 end
 if rak_only
+    disp('update_motors')
     rak_get_serial
 end
 
@@ -52,7 +53,7 @@ if nstep == nsteps_per_loop
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     rak_fails = rak_fails + 1;
-    disp('rak_cam is not running (pulse code line 56)')
+    disp('
     if rak_fails > 30
         rak_fails = 0;
         disp('rak_cam is no longer running, stopping')
@@ -65,7 +66,8 @@ if run_button == 4 || rak_fail
     stop(runtime_pulse)
 end
 
-%% Record data
+% Record data
+disp('end of pulse code')
 if save_data_and_commands
     if nneurons
         rec_timer = tic;
@@ -76,8 +78,6 @@ if save_data_and_commands
     end
 end
 
-
-%% End of pulse code
 enter_design % if run_button = 1
 drawnow
 
@@ -106,3 +106,4 @@ if run_button == 6
 end
     
 % disp(num2str(vis_pref_vals'))
+disp('end of pulse code')

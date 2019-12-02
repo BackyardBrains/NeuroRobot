@@ -24,10 +24,10 @@ use_rcnn = 0;
 
 %% Advanced settings
 pulse_period = 0.125; % in seconds
-save_data_and_commands = 1; %%% 
+save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
-use_profile = 0;
+use_profile = 1;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
