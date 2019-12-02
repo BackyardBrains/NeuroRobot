@@ -131,6 +131,10 @@ const static char* getStreamStateMessage(StreamStateType type)
         case StreamErrorAvcodecOpen2Audio:
             sprintf(retVal, "Stream error avcodec open2 for audio");
             break;
+        case StreamErrorAvcodecFrameSize:
+            sprintf(retVal, "Stream error not obtained frame size from FFMPEG funciton");
+            break;
+            
     }
     return retVal;
 }
