@@ -59,7 +59,8 @@ if bluetooth_present || rak_only
             l_dir = -1;
         end        
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
-        disp('sending serial to rak')
+        
+        %% Sending serial to RAK
         try
             rak_cam.writeSerial(send_this)
         catch

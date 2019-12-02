@@ -72,6 +72,7 @@ audio_max_freq = 0;
 pw = zeros(1, 1000); 
 audio_I = zeros(nneurons, 1);
 audio_empty_flag = 0;
+rak_fails = 0;
 
 
 %% Create data and command log

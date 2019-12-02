@@ -1,5 +1,5 @@
 
-disp('start of pulse code')
+%% Start of pulse code
 nstep = nstep + 1;
 xstep = xstep + 1;
 step_timer = tic;
@@ -11,26 +11,34 @@ elseif lifetime == 5 * 60 && lifetime < 5 * 60 * 60
 elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
-disp('update_brain')
+
+
+%% Update brain
 update_brain
 draw_step
-disp('update_motors')
+
+%% Update motors
 update_motors
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
-disp('update_motors')
+
+%% Process visual input
 process_visual_input
-disp('update_motors')
+
+%% Process audio input
 process_audio_input
+
+%% Serial
 if bluetooth_present
     bluetooth_get_distance
 end
 if rak_only
-    disp('update_motors')
     rak_get_serial
 end
+
+%% Interface
 if run_button == 2
     save_brain
 end
@@ -44,6 +52,7 @@ if nstep == nsteps_per_loop
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     rak_fails = rak_fails + 1;
+    disp('rak_cam is not running (pulse code line 56)')
     if rak_fails > 30
         rak_fails = 0;
         disp('rak_cam is no longer running, stopping')
@@ -56,8 +65,7 @@ if run_button == 4 || rak_fail
     stop(runtime_pulse)
 end
 
-% Record data
-disp('end of pulse code')
+%% Record data
 if save_data_and_commands
     if nneurons
         rec_timer = tic;
@@ -68,6 +76,8 @@ if save_data_and_commands
     end
 end
 
+
+%% End of pulse code
 enter_design % if run_button = 1
 drawnow
 
@@ -96,4 +106,3 @@ if run_button == 6
 end
     
 % disp(num2str(vis_pref_vals'))
-disp('end of pulse code')
