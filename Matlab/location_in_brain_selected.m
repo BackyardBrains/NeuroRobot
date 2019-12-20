@@ -215,6 +215,8 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             design_action = 0;
             delete(temp_plot)
             
+            %%% MULTI-NEURON ADDITION BEGINS HERE
+            
             % Get number of neurons in the network
             n = str2double(edit_w1.String);
             if n > 10000

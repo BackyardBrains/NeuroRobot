@@ -106,3 +106,6 @@ if run_button == 6
 end
     
 % disp(num2str(vis_pref_vals'))
+
+% if something then note exercise success
+%     for example, a betsy with synapse 1-3>24 % make the 24 42
