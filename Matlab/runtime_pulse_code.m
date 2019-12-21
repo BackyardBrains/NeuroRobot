@@ -107,5 +107,16 @@ end
     
 % disp(num2str(vis_pref_vals'))
 
+%%%% CHECK FOR EXERCISE SUCCESS
+if ~isempty(this_exercise)
+    
+    if srcmp(this_exercise, 'BetsyUp')
+        if connectome(1,3)
+            disp('You successfully completed exercise BetsyUP!')
+            disp('You are the nth person ever to do this')
+            keyboard
+        end
+    end
+    
 % if something then note exercise success
 %     for example, a betsy with synapse 1-3>24 % make the 24 42

@@ -11,20 +11,20 @@
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 bluetooth_present = 0;
 
-hd_camera = 0;
-grey_background = 0;
+hd_camera = 1;
+grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
-use_rcnn = 0;
+use_rcnn = 1;
 
 %% Advanced settings
-pulse_period = 0.065; % in seconds
-% pulse_period = 0.125; % in seconds
+% pulse_period = 0.065; % in seconds
+pulse_period = 0.125; % in seconds
 % pulse_period = 0.2; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
@@ -61,6 +61,7 @@ else
     this_workspace_fig = 'workspace.jpg';
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
+this_exercise = '';
 
 
 %% Clear
@@ -249,7 +250,7 @@ elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && i
 else
     this_col = [0.8 0.8 0.8];
 end
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect WiFi', 'units', 'normalized', 'position', [0.05 0.45 0.35 0.07]);
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect WiFi', 'units', 'normalized', 'position', [0.05 0.38 0.35 0.07]);
 set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_system_restart); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
     'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
@@ -272,14 +273,14 @@ if ~rak_only
     else
         this_col = [0.8 0.8 0.8];
     end
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.36 0.35 0.06]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.28 0.35 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
     if ~bluetooth_present
         set(button_bluetooth, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
     end
 else
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.36 0.35 0.06]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.28 0.35 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     set(button_bluetooth, 'enable', 'off')
@@ -290,7 +291,7 @@ end
 % check_ood = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.3 0.25 0.09 0.05], 'BackgroundColor', 'w');
 
 % Exercises button
-button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.05 0.27 0.35 0.06]);
+button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.05 0.18 0.35 0.07]);
 set(button_system_restart, 'Callback', 'exercises', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 

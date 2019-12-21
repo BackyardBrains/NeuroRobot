@@ -1,61 +1,65 @@
 
-
-% Brain Exercises
-%%%%%%%%%%%%%%%%%
-% Selection interface
+%%% EXERCISES
 
 
 %% Prepare figure
-fig_game = figure(5);
+fig_exercises = figure(5);
 clf
-set(fig_game, 'NumberTitle', 'off', 'Name', 'Brain Game')
-set(fig_game, 'menubar', 'none', 'toolbar', 'none')
-set(fig_game, 'position', fig_pos, 'color', 'w') 
+set(fig_exercises, 'NumberTitle', 'off', 'Name', 'Neurorobot Exercises')
+set(fig_exercises, 'menubar', 'none', 'toolbar', 'none')
+set(fig_exercises, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
+% Title
+text_title = uicontrol('Style', 'text', 'String', 'Neurorobot Exercises', 'units', 'normalized', 'position', [0.05 0.9 0.9 0.05], ...
+    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 10, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
-%% Draw brains
-total_pos = [0.16 0.04 0.78 0.9];
-n = 0;
-while n^2 < nbrains - 1
-    n = n + 1;
+% Select exercise
+text_load = uicontrol('Style', 'text', 'String', 'Select exercise', 'units', 'normalized', 'position', [0.05 0.8 0.35 0.05], ...
+    'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+clear exercise_string
+exercise_string{1} = '-- Create new exercise --';
+exercise_directory = './Exercises/*.mat';
+available_exercises = dir(exercise_directory);
+nexercises = size(available_exercises, 1);
+for nexercise = 1:nexercises
+    exercise_string{nexercise + 1} = available_exercises(nexercise).name(1:end-4);
 end
-% xb = (total_pos(3) / n) - (0.02 * (n - 1));
-xb = total_pos(3) - (0.01 * (n - 1));
-xb = xb / n;
-% yb = (total_pos(4) / n) - (0.02 * (n - 1));
-yb = total_pos(4) - (0.01 * (n - 1));
-yb = yb / n;
-brain_ax_pos = [];
-nbrain = 0;
-for jj = 1:n
-    for ii = 1:n  
-        if nbrain <= nbrains - 1
-            nbrain = nbrain + 1;
-
-            brain_name = popup_select_brain.String{nbrain + 1};
-            load_name = brain_name;
-            brain_selection_val = 2; % Needed
-            load_or_initialize_brain
-
-            brain_ax_pos = [total_pos(1) + ((ii-1) * (xb + 0.01)), total_pos(2) + total_pos(4) - (jj * (yb + 0.01)) + 0.01, xb, yb];
-            brain_multiax(nbrain).ax = axes('position', brain_ax_pos);
-            im3 = flipud(255 - ((255 - imread('workspace.jpg'))));
-            image('CData',im3,'XData',[-3 3],'YData',[-3 3])
-            box on
-            set(brain_multiax(nbrain).ax, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-            hold on
-            draw_brain
-            axis([-3.1 5.4 -3.3 4.2])
-            ax_frame = getframe(brain_multiax(nbrain).ax);
-            delete(brain_multiax(nbrain).ax)
-            
-            brain_ax_pos = [total_pos(1) + ((ii-1) * (xb + 0.01)), total_pos(2) + total_pos(4) - (jj * (yb + 0.01)) + 0.01, xb, yb];
-            brain_multiax(nbrain).ax = axes('position', brain_ax_pos);
-            image(ax_frame.cdata)
-            set(brain_multiax(nbrain).ax, 'xtick', [], 'ytick', [])
-            hold on
-            text(120, 13, brain_name, 'FontName', gui_font_name, 'fontsize', 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');            
-            
-        end
-    end
+popup_select_exercise = uicontrol('Style', 'popup', 'String', exercise_string, 'callback', 'update_exercise_name_edit', 'units', 'normalized', ...
+    'position', [0.05 0.7 0.35 0.1], 'fontsize', bfsize + 8, 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+if ~restarting
+    exercise_name = '';
 end
+text_name = uicontrol('Style', 'text', 'String', 'exercise name', 'units', 'normalized', 'position', [0.05 0.67 0.35 0.05], ....
+    'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+edit_name = uicontrol('Style', 'edit', 'String', exercise_name, 'units', 'normalized', 'position', [0.05 0.57 0.35 0.1], 'fontsize', bfsize + 10, ....
+    'FontName', gui_font_name, 'fontweight', gui_font_weight);
+
+% Select exercise button
+if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
+        && ~(exist('rak_cam', 'var') && ~rak_cam.isRunning)
+    this_col = [0.6 0.95 0.6];
+elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'off'))
+    this_col = [1 0.5 0.5];
+else
+    this_col = [0.8 0.8 0.8];
+end
+button_select = uicontrol('Style', 'pushbutton', 'String', 'Select exercise', 'units', 'normalized', 'position', [0.05 0.38 0.35 0.07]);
+set(button_select, 'Callback', 'close(fig_exercises)', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
+
+% Cancel button
+button_cancel = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.05 0.28 0.35 0.07]);
+set(button_cancel, 'Callback', 'close(fig_exercises); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
+    'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
+
+% Exercise info display
+exercise_info_ax = axes('position', [0.475 0.1 0.45 0.75]);
+set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', 'k', 'ycolor', 'k')
+hold on
+box on
+for nexercise = 1:10
+    text(1, 10 - nexercise, strcat('BetsyUp', num2str(nexercise)))
+    text(5, 10 - nexercise, strcat('Core Concepts', num2str(round(rand * 100))))
+end
+
+axis([-1 10 -1 10])
+

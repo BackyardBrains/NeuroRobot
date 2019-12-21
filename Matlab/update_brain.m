@@ -176,8 +176,10 @@ if nneurons
                         network(this_network).plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w);  
                     end                    
                 else
-                    plot_neuron_synapses(presyn, nneuron, 1).LineWidth = (abs(w) / 12) + 1;
-                    if draw_synapse_strengths
+                    if draw_synapses
+                        plot_neuron_synapses(presyn, nneuron, 1).LineWidth = (abs(w) / 12) + 1;
+                    end
+                    if draw_synapses && draw_synapse_strengths
                         plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w);  
                     end                    
                 end
@@ -220,8 +222,10 @@ if nneurons
                             network(this_network).plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
                         end
                     else
-                        plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
-                        if draw_synapse_strengths
+                        if draw_synapses
+                            plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
+                        end
+                        if draw_synapses && draw_synapse_strengths
                             plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
                         end
                     end
