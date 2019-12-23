@@ -181,15 +181,15 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
 
             % How many neurons
             text_w1 = uicontrol('Style', 'text', 'String', 'Neurons:', 'units', 'normalized', 'position', [0.02 0.86 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_w1 = uicontrol('Style', 'edit', 'String', '10', 'units', 'normalized', 'position', [0.23 0.86 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_w1 = uicontrol('Style', 'edit', 'String', '1000', 'units', 'normalized', 'position', [0.23 0.86 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
             % Probability of interconnection
             text_w2 = uicontrol('Style', 'text', 'String', 'Connectivity (%):', 'units', 'normalized', 'position', [0.02 0.79 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_w2 = uicontrol('Style', 'edit', 'String', '20', 'units', 'normalized', 'position', [0.23 0.79 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_w2 = uicontrol('Style', 'edit', 'String', '25', 'units', 'normalized', 'position', [0.23 0.79 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
             % Fraction excitatory synapses
             text_w3 = uicontrol('Style', 'text', 'String', 'Synapse weights:', 'units', 'normalized', 'position', [0.02 0.72 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_w3 = uicontrol('Style', 'edit', 'String', '20', 'units', 'normalized', 'position', [0.23 0.72 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_w3 = uicontrol('Style', 'edit', 'String', '2', 'units', 'normalized', 'position', [0.23 0.72 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
             % Fraction dopamine-responsive synapses
             text_w4 = uicontrol('Style', 'text', 'String', 'Reward learning (%):', 'units', 'normalized', 'position', [0.02 0.65 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -229,7 +229,10 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 eqdist_const = 0.001;
             else
                 eqdist_const = 0.01;
-            end            
+            end
+            if nma
+                eqdist_const = 0.001;
+            end
             xx = eqdist_const * n + 0.6;
             npoints = round(2*sqrt(n));
             phi = (sqrt(5)+1)/2;
@@ -251,6 +254,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 % Neuron-neuron synapses
                 for postsynaptic_neuron = nneurons + 1:nneurons + n
                     connected = rand <= str2double(edit_w2.String) / 100;
+                    connected = connected * sign(rand-0.3);
 %                     synapse_sign = sign((rand < str2double(edit_w3.String)) - 0.5);
                     weight = str2double(edit_w3.String);
                     connectome(presynaptic_neuron, postsynaptic_neuron) = connected * weight;
@@ -286,7 +290,11 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             % Other variables
             spikes_loop = zeros(nneurons + n, ms_per_step * nsteps_per_loop);
             a(nneurons + 1 : nneurons + n, 1) = a_init;
-            b(nneurons + 1 : nneurons + n, 1) = b_init;
+            if nma
+                b(nneurons + 1 : nneurons + n, 1) = 0.15;
+            else
+                b(nneurons + 1 : nneurons + n, 1) = b_init;
+            end
             c(nneurons + 1 : nneurons + n, 1) = c_init;
             d(nneurons + 1 : nneurons + n, 1) = d_init;
             v(nneurons + 1 : nneurons + n, 1) = c_init + 5 * randn(n,1);

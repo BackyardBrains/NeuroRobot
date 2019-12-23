@@ -1,5 +1,8 @@
 
 bx5 = 0; % brain game hack
+if nma
+    bx5 = 1;
+end
 if exist('fig_print', 'var') && isvalid(fig_print)
     axes(brain_axb)
 elseif exist('fig_game', 'var') && isvalid(fig_game)
@@ -261,6 +264,10 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         edge_size = 500;
         core_size = 300;
     end  
+    if nma
+        edge_size = 42;
+        core_size = 28;
+    end
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  
     

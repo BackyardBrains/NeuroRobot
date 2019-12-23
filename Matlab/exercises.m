@@ -57,8 +57,7 @@ set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', 'k', 'ycolor', 'k')
 hold on
 box on
 for nexercise = 1:10
-    text(1, 10 - nexercise, strcat('BetsyUp', num2str(nexercise)))
-    text(5, 10 - nexercise, strcat('Core Concepts', num2str(round(rand * 100))))
+    ex_text_line(nexercise) = text(-0.5, 10 - nexercise, '');
 end
 
 axis([-1 10 -1 10])

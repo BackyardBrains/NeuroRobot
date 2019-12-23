@@ -118,5 +118,7 @@ if ~isempty(this_exercise)
         end
     end
     
+end
+    
 % if something then note exercise success
 %     for example, a betsy with synapse 1-3>24 % make the 24 42
