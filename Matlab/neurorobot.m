@@ -187,6 +187,7 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
 ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
+load('brain_im_xy')
 
 audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
 n_audio_prefs = size(audio_pref_names, 2);
