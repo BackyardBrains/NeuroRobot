@@ -87,10 +87,10 @@ if nneurons
         x = ms_per_step * nsteps_per_loop + 1; % edited for appearence
         y = 1;
     end
-    vplot = plot(x, y, 'linestyle', 'none', 'marker', '.', 'markersize', 15, 'color', 'k');
+    vplot = plot(x, y, 'linestyle', 'none', 'marker', '.', 'markersize', 1, 'color', 'k');
     this_val = nneurons;
 else
-    vplot = plot(1, ms_per_step * nsteps_per_loop, 'linestyle', 'none', 'marker', '.', 'markersize', 15, 'color', 'k');
+    vplot = plot(1, ms_per_step * nsteps_per_loop, 'linestyle', 'none', 'marker', '.', 'markersize', 1, 'color', 'k');
     this_val = 1;
 end
 vplot_front = plot([0 0], [0 this_val + 1], 'color', 'r', 'linewidth', 2);

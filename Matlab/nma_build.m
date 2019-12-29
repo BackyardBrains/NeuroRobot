@@ -6,14 +6,14 @@
 
 n = 1000; % Neurons (1000)
 imx_con = 25; % Connectivity (25 %)
-weight = 30; % Synapse weights (2)
+weight = 12; % Synapse weights (2)
 plast = 0; % Plastic synapses (0 %)
 imx_sens = 0; % Visual input (0 %)
 imx_moto = 0; % Motor output (0 %)
 imx_net = 1;
 
 this_a = 0.02;
-this_b = 0.12;
+this_b = 0.15;
 this_c = -65;
 this_d = 2;
 
@@ -27,9 +27,10 @@ for presynaptic_neuron = nneurons + 1:nneurons + n
         
         if abs(neuron_xys(presynaptic_neuron, 1) - neuron_xys(postsynaptic_neuron, 1)) < 0.2 && ...
             abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2)) < 0.2
-            connected = rand <= 0.3;
+            connected = rand <= 0.6;
+            connected = connected * sign(rand-0.1);
             connectome(presynaptic_neuron, postsynaptic_neuron) = connected * weight;
-            da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 0;
+            da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = rand <= 0.1;
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = connected * weight;   
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 3) = 0;  
         end
@@ -61,11 +62,11 @@ end
 
 % Other variables
 spikes_loop = zeros(nneurons + n, ms_per_step * nsteps_per_loop);
-a(nneurons + 1 : nneurons + n, 1) = a_init;
-b(nneurons + 1 : nneurons + n, 1) = b_init;
-c(nneurons + 1 : nneurons + n, 1) = c_init;
-d(nneurons + 1 : nneurons + n, 1) = d_init;
-v(nneurons + 1 : nneurons + n, 1) = c_init + 5 * randn(n,1);
+a(nneurons + 1 : nneurons + n, 1) = this_a;
+b(nneurons + 1 : nneurons + n, 1) = this_b;
+c(nneurons + 1 : nneurons + n, 1) = this_c;
+d(nneurons + 1 : nneurons + n, 1) = this_d;
+v(nneurons + 1 : nneurons + n, 1) = this_c + 5 * randn(n,1);
 u = b .* v;
 neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat(col, [n, 1]);  
 network_ids(nneurons + 1 : nneurons + n, 1) = imx_net;

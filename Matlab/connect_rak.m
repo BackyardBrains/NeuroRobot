@@ -1,16 +1,16 @@
-function [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_system_restart)
+function [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises)
 
 tic
 disp('Connecting camera...')
 button_camera.BackgroundColor = [0.94 0.78 0.62];
-text_title.String = 'Connecting camera...';
+text_title.String = 'Connecting...';
 text_load.String = '';
 set(button_bluetooth, 'enable', 'off')
 set(popup_select_brain, 'visible', 'off')
 set(edit_name, 'enable', 'off')
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
-set(button_system_restart, 'enable', 'off')
+set(button_exercises, 'enable', 'off')
 drawnow
 
 try
@@ -92,4 +92,4 @@ if camera_present
     set(button_camera, 'enable', 'on')
 end
 set(button_startup_complete, 'enable', 'on')
-set(button_system_restart, 'enable', 'on')
+set(button_exercises, 'enable', 'on')

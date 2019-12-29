@@ -3,7 +3,7 @@ im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 im = mean(im3, 3);
 im = im > 200;
 
-im = imerode(im, ones(30));
+im = imerode(im, ones(80));
 
 cc = bwconncomp(im);
 numPixels = cellfun(@numel,cc.PixelIdxList);
@@ -21,8 +21,10 @@ plot(x, y, 'marker', '.', 'linestyle', 'none')
 
 x = x / max(x);
 y = y / max(y);
-x = (x * 5) - 3.1;
-y = (y * 5.5) - 3;
+% x = (x * 5) - 3;
+% y = (y * 5.3) - 3;
+x = (x * 4.9) - 3;
+y = (y * 5) - 3;
 
 brain_im_xy = [x y];
 save('brain_im_xy', 'brain_im_xy');
