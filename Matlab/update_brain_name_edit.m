@@ -14,14 +14,16 @@ else
     text_load.String = '';
     set(button_bluetooth, 'enable', 'off')
     set(popup_select_brain, 'visible', 'off')
-    set(edit_name, 'enable', 'off')
+    set(brain_edit_name, 'enable', 'off')
     set(button_camera, 'enable', 'off')
     set(button_startup_complete, 'enable', 'off')
-    set(button_system_restart, 'enable', 'off')
+    set(button_exercises, 'enable', 'off')
     drawnow    
     
+    text_brain_info.String = popup_select_brain.String{popup_select_brain.Value};
+    
     load(strcat('./Brains/', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
-    edit_name.String = popup_select_brain.String{popup_select_brain.Value};
+    brain_edit_name.String = popup_select_brain.String{popup_select_brain.Value};
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;
     connectome = brain.connectome;
@@ -41,12 +43,12 @@ else
         set(button_bluetooth, 'enable', 'on')
     end
     set(popup_select_brain, 'visible', 'on')
-    set(edit_name, 'enable', 'on')
+    set(brain_edit_name, 'enable', 'on')
     if camera_present
         set(button_camera, 'enable', 'on')
     end
     set(button_startup_complete, 'enable', 'on')
-    set(button_system_restart, 'enable', 'on')
+    set(button_exercises, 'enable', 'on')
     text_title.String = 'Neurorobot Startup';
     text_load.String = 'Select brain';
     drawnow    

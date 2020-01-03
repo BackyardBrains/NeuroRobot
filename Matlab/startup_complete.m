@@ -3,9 +3,9 @@
 if rak_only
     rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
 end
-if isempty(edit_name.String) && popup_select_brain.Value == 1
+if isempty(brain_edit_name.String) && popup_select_brain.Value == 1
     for ii = linspace(0, 0.94, 20)
-        edit_name.BackgroundColor = [0.94 ii ii];
+        brain_edit_name.BackgroundColor = [0.94 ii ii];
         pause(0.05)
     end
 else
@@ -13,14 +13,14 @@ else
     drawnow
     brain_selection_val = popup_select_brain.Value;
     if brain_selection_val == 1
-        brain_name = edit_name.String;
+        brain_name = brain_edit_name.String;
         load_name = brain_name;
     else
-        if strcmp(edit_name.String, popup_select_brain.String{brain_selection_val})
+        if strcmp(brain_edit_name.String, popup_select_brain.String{brain_selection_val})
             brain_name = popup_select_brain.String{brain_selection_val};
             load_name = brain_name;
         else
-            brain_name = edit_name.String;
+            brain_name = brain_edit_name.String;
             load_name = popup_select_brain.String{brain_selection_val};
             disp(horzcat(brain_name, ' is a clone of ', load_name))
         end

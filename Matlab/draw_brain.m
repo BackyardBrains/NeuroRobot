@@ -265,8 +265,8 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         core_size = 300;
     end  
     if nma
-        edge_size = 42;
-        core_size = 28;
+        edge_size = 70;
+        core_size = 40;
     end
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  

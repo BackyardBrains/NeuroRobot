@@ -18,10 +18,10 @@ bluetooth_present = 0;
 
 hd_camera = 0;
 grey_background = 1;
-draw_synapses = 0;
+draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0;
-nma = 1;
+nma = 0;
 
 %% Advanced settings
 % pulse_period = 0.065; % in seconds
@@ -62,7 +62,7 @@ else
     this_workspace_fig = 'workspace.jpg';
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
-this_exercise = '';
+adjust2 = 0.29;
 
 
 %% Clear
@@ -107,6 +107,7 @@ speaker_selected = 0;
 if ~exist('voluntary_restart', 'var')
     voluntary_restart = 0;
 end
+this_exercise = '';
 
 
 %% Custom settings for Backyard Brains' classroom events
@@ -223,7 +224,7 @@ text_title = uicontrol('Style', 'text', 'String', 'Neurorobot Startup', 'units',
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 10, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 % Select brain
-text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'normalized', 'position', [0.05 0.8 0.35 0.05], ...
+text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'normalized', 'position', [0.05 0.79 0.35 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 clear brain_string
 brain_string{1} = '-- Create new brain --';
@@ -238,10 +239,35 @@ popup_select_brain = uicontrol('Style', 'popup', 'String', brain_string, 'callba
 if ~restarting
     brain_name = '';
 end
-text_name = uicontrol('Style', 'text', 'String', 'Brain name', 'units', 'normalized', 'position', [0.05 0.67 0.35 0.05], ....
+brain_text_name = uicontrol('Style', 'text', 'String', 'Brain:', 'units', 'normalized', 'position', [0.05 0.68 0.35 0.05], ....
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'normalized', 'position', [0.05 0.57 0.35 0.1], 'fontsize', bfsize + 10, ....
+brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'normalized', 'position', [0.05 0.63 0.35 0.06], 'fontsize', bfsize + 10, ....
     'FontName', gui_font_name, 'fontweight', gui_font_weight);
+
+% % Select exercise
+% exercise_text_load = uicontrol('Style', 'text', 'String', 'Select exercise', 'units', 'normalized', 'position', [0.05 0.5 0.35 0.06], ...
+%     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+% clear exercise_string
+% exercise_string{1} = '-- Create new exercise --';
+% exercise_directory = './Exercises/*.mat';
+% available_exercises = dir(exercise_directory);
+% nexercises = size(available_exercises, 1);
+% for nexercise = 1:nexercises
+%     exercise_string{nexercise + 1} = available_exercises(nexercise).name(1:end-4);
+% end
+% popup_select_exercise = uicontrol('Style', 'popup', 'String', exercise_string, 'callback', 'update_exercise_name_edit', 'units', 'normalized', ...
+%     'position', [0.05 0.42 0.35 0.1], 'fontsize', bfsize + 8, 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+% if ~restarting
+%     exercise_name = '';
+% end
+% exercise_text_name = uicontrol('Style', 'text', 'String', 'Exercise:', 'units', 'normalized', 'position', [0.05 0.4 0.35 0.05], ....
+%     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
+% exercise_edit_name = uicontrol('Style', 'edit', 'String', exercise_name, 'units', 'normalized', 'position', [0.05 0.35 0.35 0.06], 'fontsize', bfsize + 10, ....
+%     'FontName', gui_font_name, 'fontweight', gui_font_weight);
+% % 
+% % Exercise info display
+% exercise_info_ax = axes('position', [0.475 0.1 0.45 0.75]);
+% set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col, 'color', fig_bg_col)
 
 % Camera button
 if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
@@ -252,9 +278,9 @@ elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && i
 else
     this_col = [0.8 0.8 0.8];
 end
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect WiFi', 'units', 'normalized', 'position', [0.05 0.38 0.35 0.07]);
-set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_system_restart); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
-    'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', [0.05 0.19 0.17 0.07]);
+set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
+    'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
 end
@@ -275,41 +301,31 @@ if ~rak_only
     else
         this_col = [0.8 0.8 0.8];
     end
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.28 0.35 0.07]);
-    set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.05 0.1 0.17 0.07]);
+    set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, brain_edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 7, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
     if ~bluetooth_present
         set(button_bluetooth, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
     end
 else
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Connect Bluetooth', 'units', 'normalized', 'position', [0.05 0.28 0.35 0.07]);
-    set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 8, 'FontName', gui_font_name, ...
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.05 0.1 0.17 0.07]);
+    set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, brain_edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 7, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     set(button_bluetooth, 'enable', 'off')
 end
 
-% % Optional object detection
-% text_ood = uicontrol('Style', 'text', 'String', 'Object detection', 'units', 'normalized', 'position', [0.13 0.25 0.17 0.06], 'backgroundcolor', 'w', 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-% check_ood = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.3 0.25 0.09 0.05], 'BackgroundColor', 'w');
-
 % Exercises button
-button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.05 0.18 0.35 0.07]);
-set(button_system_restart, 'Callback', 'exercises', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+button_exercises = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.23 0.19 0.17 0.07]);
+set(button_exercises, 'Callback', 'exercises', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% % Reboot button
-% button_system_restart = uicontrol('Style', 'pushbutton', 'String', 'System Restart', 'units', 'normalized', 'position', [0.05 0.18 0.35 0.06]);
-% set(button_system_restart, 'Callback', 'system_restart', 'FontSize', bfsize + 8, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
-%     'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
-
 % Start button
-button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start Neurorobot', 'units', 'normalized', 'position', [0.05 0.08 0.35 0.07]);
+button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start', 'units', 'normalized', 'position', [0.23 0.1 0.17 0.07]);
 set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-
 % Brain display
-brain_ax = axes('position', [0.475 0.1 0.45 0.75]);
+brain_ax = axes('position', [0.475 0.16 0.45 0.69]);
 image('CData',im2,'XData',[-3 3],'YData',[-3 3])
 set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 axis([-3 3 -3 3])
@@ -317,6 +333,11 @@ hold on
 box off
 ext_ax = brain_ax;
 
+
+
+% Brain info
+info_bar = uicontrol('Style', 'text', 'String', [], 'units', 'normalized', 'position', [0.05 0.04 0.45 0.04], ...
+    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 % New restart code
 if exist('brain_name.mat', 'file')
@@ -329,9 +350,9 @@ if exist('brain_name.mat', 'file')
             popup_select_brain.Value = nbrain + 1;
         end
     end    
-    edit_name.String = brain_name;      
+    brain_edit_name.String = brain_name;      
     try
-        [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
+        [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
         start(rak_pulse)
         disp('RAK reconnected')
         startup_complete
@@ -340,12 +361,12 @@ if exist('brain_name.mat', 'file')
             set(button_bluetooth, 'enable', 'on')
         end
         set(popup_select_brain, 'visible', 'on')
-        set(edit_name, 'enable', 'on')
+        set(brain_edit_name, 'enable', 'on')
         if camera_present
             set(button_camera, 'enable', 'on')
         end
         set(button_startup_complete, 'enable', 'on')
-        set(button_system_restart, 'enable', 'on')
+        set(button_exercises, 'enable', 'on')
         button_camera.BackgroundColor = [1 0.5 0.5];
         disp('Unable to reconnect to RAK')
     end    
@@ -360,7 +381,7 @@ if exist('restarting', 'var') && restarting
             popup_select_brain.Value = nbrain + 1;
         end
     end    
-    edit_name.String = brain_name;
+    brain_edit_name.String = brain_name;
     restarting = 0;
     voluntary_restart = 0;
     startup_complete
