@@ -1,7 +1,9 @@
 
 %% Log lifetime
+disp('Stop time:')
+disp(datetime)
 lifetime = toc(life_timer);
-disp(horzcat('Lifetime = ', num2str(round(lifetime/60)), ' min'))
+disp(horzcat('Life time = ', num2str(round(lifetime/60)), ' min'))
 
 
 %% Stop and reset motors
