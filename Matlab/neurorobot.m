@@ -11,16 +11,16 @@
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
 
 hd_camera = 0;
 grey_background = 1;
-draw_synapses = 0;
+draw_synapses = 1;
 use_cnn = 0;
-use_rcnn = 1;
+use_rcnn = 0;
 nma = 1;
 
 %% Advanced settings
@@ -51,7 +51,7 @@ brain_facts = 0;
 
 %% Mechanics
 max_w = 100;
-large_brain = 0;
+large_brain = 1;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
 if grey_background
