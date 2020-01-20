@@ -47,7 +47,8 @@ if (exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var
                 x2 = neuron_xys(p2,1);
                 y1 = neuron_xys(p1,2);
                 y2 = neuron_xys(p2,2); 
-                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
+%                 plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
+% took this off to avoid 
             end
         end
     end
