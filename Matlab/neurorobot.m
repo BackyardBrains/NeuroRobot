@@ -11,9 +11,9 @@
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
 
 hd_camera = 0;
@@ -21,18 +21,18 @@ grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0;
-nma = 1;
+nma = 0;
 
 %% Advanced settings
-% pulse_period = 0.065; % in seconds
-pulse_period = 0.125; % in seconds
+pulse_period = 0.06; % in seconds
+% pulse_period = 0.125; % in seconds
 % pulse_period = 0.2; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 0;
 bg_brain = 1;
-draw_synapse_strengths = 1;
+draw_synapse_strengths = 0; % if this is on I eventually get an error
 draw_neuron_numbers = 1;
 manual_controls = 0;
 
