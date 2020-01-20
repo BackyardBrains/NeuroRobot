@@ -48,7 +48,6 @@ if (exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var
                 y1 = neuron_xys(p1,2);
                 y2 = neuron_xys(p2,2); 
 %                 plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
-% took this off to avoid 
             end
         end
     end
@@ -259,15 +258,19 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         edge_size = 700;
         core_size = 400;
     elseif nma_flag
-        edge_size = 70;
-        core_size = 45;
+%         edge_size = 70;
+%         core_size = 45; 2020-01-19
+        edge_size = 150;
+        core_size = 100;        
     else
         edge_size = 500;
         core_size = 300;
     end  
     if nma
-        edge_size = 70;
-        core_size = 40;
+%         edge_size = 70;
+%         core_size = 45; 2020-01-19
+        edge_size = 150;
+        core_size = 100;  
     end
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  
@@ -301,8 +304,8 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
         for nneuron = 1:nneurons
             if bg_neurons(nneuron)
-                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.2 0.2], 'marker', 'square', 'markersize', contact_size);  
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+%                 draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.2 0.2], 'marker', 'square', 'markersize', contact_size);  
+%                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end

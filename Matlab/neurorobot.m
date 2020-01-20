@@ -21,7 +21,7 @@ grey_background = 1;
 draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0;
-nma = 0;
+nma = 1;
 
 %% Advanced settings
 pulse_period = 0.06; % in seconds
