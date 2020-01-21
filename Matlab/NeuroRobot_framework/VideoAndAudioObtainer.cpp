@@ -39,10 +39,9 @@ static int interruptFunction(void* ctx)
     return 0;
 }
 
-VideoAndAudioObtainer::VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *stateType_, StreamErrorOccurredCallback callback, bool audioBlocked)
+VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamStateType *stateType_, StreamErrorOccurredCallback callback, bool audioBlocked)
 {
     className = "VideoAndAudioObtainer";
-    sharedMemoryInstance = sharedMemory;
     this->errorCallback = callback;
     this->url = createUrl("admin", "admin", ipAddress);
     this->audioBlocked = audioBlocked;
@@ -57,9 +56,10 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     
     int retVal = -1;
     
-    sharedMemoryInstance->unblockWritters();
+    
+    SharedMemory::getInstance()->unblockWritters();
 
-    logMessage("run >>> sharedMemoryInstance->unblockWritters(); >> ok");
+    logMessage("run >>> SharedMemory::getInstance()->unblockWritters(); >> ok");
     formatCtx = avformat_alloc_context();
     logMessage("run >>> formatCtx = avformat_alloc_context(); >> ok");
     frame = av_frame_alloc();
@@ -84,7 +84,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     
     /// Set flag because 16 is flag indicates to send bye packets while closing stream
     formatCtx->flags = formatCtx->flags | 16;
-    logMessage("run >>> formatCtx->flags >> ok" + std::to_string(formatCtx->flags));
+    logMessage("run >>> formatCtx->flags >> ok " + std::to_string(formatCtx->flags));
     
     retVal = avformat_open_input(&formatCtx, url.c_str(), NULL, &stream_opts);
     if (retVal != 0) {
@@ -152,11 +152,11 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     }
     logMessage("run >>> video >>> frameSize: " + std::to_string(frameSize));
     
-    sharedMemoryInstance->frameDataCount = frameSize;
-    logMessage("run >>> video >>> sharedMemoryInstance->frameDataCount: " + std::to_string(sharedMemoryInstance->frameDataCount));
-    sharedMemoryInstance->videoWidth = videoCodecCtx->width;
+    SharedMemory::getInstance()->frameDataCount = frameSize;
+    logMessage("run >>> video >>> SharedMemory::getInstance()->frameDataCount: " + std::to_string(SharedMemory::getInstance()->frameDataCount));
+    SharedMemory::getInstance()->videoWidth = videoCodecCtx->width;
     logMessage("run >>> video >>> videoCodecCtx->width: " + std::to_string(videoCodecCtx->width));
-    sharedMemoryInstance->videoHeight = videoCodecCtx->height;
+    SharedMemory::getInstance()->videoHeight = videoCodecCtx->height;
     logMessage("run >>> video >>> videoCodecCtx->height: " + std::to_string(videoCodecCtx->height));
     
     uint8_t* frameBufferFoo = (uint8_t*)(av_malloc(frameSize));
@@ -256,7 +256,7 @@ void VideoAndAudioObtainer::run()
         return;
     }
     
-    sharedMemoryInstance->unblockWritters();
+    SharedMemory::getInstance()->unblockWritters();
     isReadingNextFrame = true;
     
     int avReadFrameResponse = av_read_frame(formatCtx, &packet);
@@ -275,7 +275,7 @@ void VideoAndAudioObtainer::run()
                 imgConvertCtx = sws_getCachedContext(imgConvertCtx, videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
                 sws_scale(imgConvertCtx, frame->data, frame->linesize, 0, videoCodecCtx->height, frameRawData, pictureRgb->linesize);
             
-                sharedMemoryInstance->writeFrame(frameRawData[0], frameSize);
+                SharedMemory::getInstance()->writeFrame(frameRawData[0], frameSize);
             } else {
                 logMessage("run >>> video packet >>> Error with decoding video packet");
             }
@@ -288,9 +288,9 @@ void VideoAndAudioObtainer::run()
             
             logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
             logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
-            sharedMemoryInstance->setAudioSampleRate(frame->sample_rate);
+            SharedMemory::getInstance()->setAudioSampleRate(frame->sample_rate);
             if (check != 0) {
-                sharedMemoryInstance->writeAudio(frame->extended_data[0], frame->nb_samples);
+                SharedMemory::getInstance()->writeAudio(frame->extended_data[0], frame->nb_samples);
             } else {
                 logMessage("run >>> audio packet >> Error with decoding audio packet");
             }
@@ -317,6 +317,10 @@ void VideoAndAudioObtainer::run()
         tryingToReconnect = true;
         
         reset(NULL);
+        if (stateType != StreamStateNotStarted) {
+            /// Cannot recover connection
+            stop();
+        }
     } else {
         /// Stop called
         stop();
@@ -351,7 +355,7 @@ int VideoAndAudioObtainer::decode(AVCodecContext* avctx, AVFrame* frame, int* go
 
 void VideoAndAudioObtainer::closeStream()
 {
-    sharedMemoryInstance->blockWritters();
+    SharedMemory::getInstance()->blockWritters();
 
     av_packet_unref(&packet);
     av_frame_free(&frame);
@@ -362,7 +366,6 @@ void VideoAndAudioObtainer::closeStream()
     avcodec_free_context(&audioDecCtx);
     sws_freeContext(imgConvertCtx);
     avformat_close_input(&formatCtx);
-//    delete [] frameRawData[0];
     
     imgConvertCtx = NULL;
 }

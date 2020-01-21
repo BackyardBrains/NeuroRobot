@@ -12,6 +12,16 @@
 #include <iostream>
 
 
+/* Null, because instance will be initialized on demand. */
+SharedMemory* SharedMemory::instance = 0;
+SharedMemory* SharedMemory::getInstance()
+{
+    if (instance == 0) {
+        instance = new SharedMemory();
+    }
+    return instance;
+}
+
 SharedMemory::SharedMemory()
 {
     className = "SharedMemory";
@@ -172,7 +182,7 @@ uint8_t* SharedMemory::readSerialRead(int* size)
     
     static uint8_t *returnSerialBuffer = new uint8_t[lastSerialResult.length() + 1];
     
-    memcpy(returnSerialBuffer, lastSerialResult.c_str(), lastSerialResult.length() + 1);
+    memcpy(returnSerialBuffer, lastSerialResult.c_str(), lastSerialResult.length());
     *size = (int)lastSerialResult.length();
     
     mutexSerialRead.unlock();
