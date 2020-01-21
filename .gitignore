@@ -1,16 +1,8 @@
 .DS_Store
 
-RAK-Matlab/*.mexw64
-RAK-Matlab/*.mexmaci64
-RAK-Matlab/logFile_*.txt
-RAK-Matlab/test.wav
-RAK-Matlab/*.asv
-RAK-Matlab/**.*~
-RAK-Matlab/delays.txt
-
 Matlab/*.mexw64
 Matlab/*.mexmaci64
-Matlab/*logFile_*.txt
+Matlab/Logs
 Matlab/test.wav
 Matlab/*delays.txt
 
