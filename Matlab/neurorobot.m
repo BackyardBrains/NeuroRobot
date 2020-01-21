@@ -32,7 +32,7 @@ save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 0;
 bg_brain = 1;
-draw_synapse_strengths = 1; % if this is on I eventually get an error
+draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 manual_controls = 0;
 
