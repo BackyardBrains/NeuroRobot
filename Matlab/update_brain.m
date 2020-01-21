@@ -1,5 +1,6 @@
 if nneurons
-
+%     disp('1')
+    
     spikes_step = zeros(nneurons, ms_per_step);
     I_step = zeros(nneurons, ms_per_step);
 
@@ -15,9 +16,9 @@ if nneurons
     
     % Calculate distance sensor input current
     dist_I = zeros(nneurons, 1);
-    dist_I(dist_prefs == 1) = sigmoid(this_distance, 20, -0.4) * 50;
-    dist_I(dist_prefs == 2) = sigmoid(this_distance, 40, -0.4) * 50;
-    dist_I(dist_prefs == 3) = sigmoid(this_distance, 60, -0.4) * 50;
+    dist_I(dist_prefs == 1) = sigmoid(this_distance, 10, -0.4) * 50;
+    dist_I(dist_prefs == 2) = sigmoid(this_distance, 20, -0.4) * 50;
+    dist_I(dist_prefs == 3) = sigmoid(this_distance, 30, -0.4) * 50;
 
     % Calculate distance sensor input current
     audio_I = zeros(nneurons, 1);
@@ -65,6 +66,7 @@ if nneurons
     
     
     % BG select
+%     disp('2')
     this_network = 0;
     if bg_brain
         th = 50 + randn * 15;
@@ -114,6 +116,8 @@ if nneurons
 
         this_network = find(network_drive(:, 2)); % find the active network
         
+%         disp('3')
+        
         [~, j] = max(network_drive(1:nnetworks, 1)); % find the network with highest drive
         if this_network ~= j % if the active network is not the network with the highest drive 
             network_drive(:, 1) = network_drive(:, 1) - 30 * rand; % reduce the active network's drive significantly
@@ -134,6 +138,8 @@ if nneurons
     steps_since_last_spike(firing) = 0;
     steps_since_last_spike = steps_since_last_spike + 1; 
 
+%     disp('4')
+    
     % Create xfiring for analog MSN color
     xfiring = double(firing);
 %     msn_vals = network_drive(:,1);
@@ -173,19 +179,28 @@ if nneurons
                     this_network = network_ids(presyn);
                     network(this_network).plot_neuron_synapses(presyn, nneuron, 1).LineWidth = (abs(w) / 12) + 1;
                     if draw_synapse_strengths
-                        network(this_network).plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w);  
+                        try
+                            network(this_network).plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w); 
+                        catch
+                            disp('Failed to edit network(this_network).plot_neuron_synapses String property in update_brain')
+                        end
                     end                    
                 else
                     if draw_synapses
                         plot_neuron_synapses(presyn, nneuron, 1).LineWidth = (abs(w) / 12) + 1;
                     end
                     if draw_synapses && draw_synapse_strengths
-                        plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w);  
+                        try
+                            plot_neuron_synapses(presyn, nneuron, 3).String = num2str(w);
+                        catch
+                            disp('Failed to edit plot_neuron_synapses String property in update_brain')                            
+                        end
                     end                    
                 end
             end
         end
     end
+%     disp('5')
     connectome = min(connectome, max_w); % enforce max weight
     da_connectome(:, :, 3) = da_connectome(:, :, 3) - 0.5;
     xx = da_connectome(:, :, 3);
@@ -219,14 +234,22 @@ if nneurons
                         this_network = network_ids(nneuron); 
                         network(this_network).plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
                         if draw_synapse_strengths
-                            network(this_network).plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
+                            try
+                                network(this_network).plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
+                            catch
+                                disp('No string property error')
+                            end
                         end
                     else
                         if draw_synapses
                             plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
                         end
                         if draw_synapses && draw_synapse_strengths
-                            plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
+                            try
+                                plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);
+                            catch
+                                disp('No string property error')
+                            end                                
                         end
                     end
                 end
@@ -237,6 +260,7 @@ if nneurons
     % Store long activity
     spikes_loop(:, 1 + (nstep - 1) * ms_per_step : nstep * ms_per_step) = spikes_step;
 
+%     disp('6')
     % Plot brain
     if brain_view_tiled
         for nnetwork = 1:nnetworks
@@ -253,12 +277,15 @@ if nneurons
         end
     else
         draw_neuron_core.CData = [1 - xfiring 1 - (xfiring * 0.25) 1 - xfiring] .* neuron_cols;
-        draw_neuron_edge.CData = [zeros(nneurons, 1) xfiring * 0.5 zeros(nneurons, 1)] .* neuron_cols;
+%         draw_neuron_edge.CData = [zeros(nneurons, 1) xfiring * 0.5 zeros(nneurons, 1)] .* neuron_cols;
+        draw_neuron_edge.CData = [zeros(nneurons, 1) zeros(nneurons, 1) zeros(nneurons, 1)] .* neuron_cols;
         if bg_brain
             draw_neuron_core.CData(down_neurons, :) = repmat([0.85 0.85 0.85], [sum(down_neurons), 1]);
             draw_neuron_edge.CData(down_neurons, :) = repmat([0.4 0.4 0.4], [sum(down_neurons), 1]);
         end
     end
+    
+%     disp('7')
     
     % Plot activity
     [y, x] = find(spikes_loop);

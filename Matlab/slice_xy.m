@@ -3,7 +3,8 @@ im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 im = mean(im3, 3);
 im = im > 200;
 
-im = imerode(im, ones(80));
+% im = imerode(im, ones(80));
+im = imerode(im, ones(200));
 
 cc = bwconncomp(im);
 numPixels = cellfun(@numel,cc.PixelIdxList);
@@ -17,7 +18,7 @@ hold on
 
 [y, x] = ind2sub([1283 1283], cc.PixelIdxList{idx});
 
-plot(x, y, 'marker', '.', 'linestyle', 'none')
+plot(x, y, 'marker', '.', 'linestyle', 'none', 'markersize', 5, 'color', 'r')
 
 x = x / max(x);
 y = y / max(y);

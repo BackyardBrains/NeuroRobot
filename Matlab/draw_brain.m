@@ -1,13 +1,13 @@
 
-bx5 = 0; % brain game hack
+nma_flag = 0; % nma design hack
 if nma
-    bx5 = 1;
+    nma_flag = 1;
 end
 if exist('fig_print', 'var') && isvalid(fig_print)
     axes(brain_axb)
 elseif exist('fig_game', 'var') && isvalid(fig_game)
     axes(brain_multiax(nbrain).ax)
-    bx5 = 1;
+    nma_flag = 1;
 else
     axes(brain_ax)
 end
@@ -47,7 +47,7 @@ if (exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var
                 x2 = neuron_xys(p2,1);
                 y1 = neuron_xys(p1,2);
                 y2 = neuron_xys(p2,2); 
-                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (bx5 * 2), 'linestyle', ':', 'color', [0 0 0]);
+                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
             end
         end
     end
@@ -129,7 +129,7 @@ if draw_synapses
                 plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
                 if connectome(p1, p2) > 0
                     lw = 2;
-                    s = 9 - (bx5 * 9);
+                    s = 9 - (nma_flag * 9);
                     m = 'square';
                     if da_connectome(p1, p2) == 1
                         mf = [1 0.7 0.4];
@@ -140,12 +140,12 @@ if draw_synapses
                     end
                 else
                     lw = 2;
-                    s = 30 - (bx5 * 20);                
+                    s = 30 - (nma_flag * 20);                
                     m = '.';
                     mf = 'k';
                 end
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
-                if draw_synapse_strengths && ~bx5
+                if draw_synapse_strengths && ~nma_flag
     %                 w = round(w * 100) / 100;
                     w = round(w);
                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
@@ -196,7 +196,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 lw = 2;
                 s = 7;
                 
-                if bx5
+                if nma_flag
                     fs = 10;
                 else
                     fs = 18;
@@ -229,8 +229,8 @@ drawnow
 % Draw sensor and motor touch points
 if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
     contact_size = 23;
-elseif bx5
-    contact_size = 8;
+% elseif nma_flag
+%     contact_size = 8;
 else
     contact_size = 15;
 end
@@ -257,16 +257,20 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         edge_size = 700;
         core_size = 400;
-    elseif bx5
-        edge_size = 70;
-        core_size = 45;
+    elseif nma_flag
+%         edge_size = 70;
+%         core_size = 45; 2020-01-19
+        edge_size = 150;
+        core_size = 100;        
     else
         edge_size = 500;
         core_size = 300;
     end  
     if nma
-        edge_size = 70;
-        core_size = 40;
+%         edge_size = 70;
+%         core_size = 45; 2020-01-19
+        edge_size = 150;
+        core_size = 100;  
     end
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  
@@ -277,7 +281,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         draw_neuron_edge.ButtonDownFcn = 'neuron_selected';
         draw_neuron_core.ButtonDownFcn = 'neuron_selected';
     end
-    if draw_neuron_numbers && ~bx5
+    if draw_neuron_numbers && ~nma_flag
         for nneuron = 1:nneurons
             neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
@@ -300,8 +304,8 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
         for nneuron = 1:nneurons
             if bg_neurons(nneuron)
-                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.2 0.2], 'marker', 'square', 'markersize', contact_size);  
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+%                 draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.2 0.2], 'marker', 'square', 'markersize', contact_size);  
+%                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end
