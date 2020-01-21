@@ -1,0 +1,2 @@
+ERROR 1
+rak_cam started but not running
