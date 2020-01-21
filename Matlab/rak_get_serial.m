@@ -18,5 +18,7 @@ if ~isempty(serial_receive)
     end
 else
     this_distance = 300;
-    disp('rak_cam readSerial empty')
+    if ~rem(nstep, 40) 
+        disp('rak_cam readSerial empty (displaying 1 of 40 errors)')
+    end
 end
