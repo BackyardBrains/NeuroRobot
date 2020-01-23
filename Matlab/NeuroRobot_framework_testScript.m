@@ -7,7 +7,7 @@ if ~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc
     % Windows
     
     % FFMPEG - Libraries (*.dll) must be in root folder. So copy from libraries/windows/ffmpeg/lib/bin to root.
-    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -llibboost_filesystem-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
 elseif ~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac
     % macOS
     
@@ -17,7 +17,7 @@ elseif ~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac
 end
 
 if ~exist('rak', 'var')
-    rak = NeuroRobot_matlab('192.168.0.19', '80');
+    rak = NeuroRobot_matlab('192.168.100.1', '80');
 end
 rak.start();
 

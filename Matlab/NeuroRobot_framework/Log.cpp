@@ -16,6 +16,7 @@
     #include <string>
     #include <sstream>
     #include <boost/filesystem.hpp>
+    #include <iomanip>
 #endif
 
 
