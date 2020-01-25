@@ -1,3 +1,5 @@
+min_torque = 75;
+
 if bluetooth_present || rak_only
 
     motor_command = zeros(1, 5);
@@ -10,6 +12,7 @@ if bluetooth_present || rak_only
     left_dir = max([1 - sign(left_torque) 1]);
     left_torque = abs(left_torque);
     left_torque(left_torque > 250) = 250;
+    left_torque(left_torque < min_torque) = 0;
     motor_command(1,3) = left_torque;
     motor_command(1,4) = left_dir;    
 
@@ -17,6 +20,7 @@ if bluetooth_present || rak_only
     right_dir = max([1 - sign(right_torque) 1]);
     right_torque = abs(right_torque); 
     right_torque(right_torque > 250) = 250;
+    right_torque(right_torque < min_torque) = 0;    
     motor_command(1,1) = right_torque;
     motor_command(1,2) = right_dir;
     
@@ -31,6 +35,7 @@ if bluetooth_present || rak_only
     else
         speaker_tone = 0;
     end
+    
     motor_command(1,5) = speaker_tone;
     
     if ~sum(motor_command(1, [1 3]))
@@ -47,6 +52,7 @@ if bluetooth_present || rak_only
         end
     end
 
+    
     if rak_only
         r_torque = motor_command(1,1);
         r_dir = motor_command(1,2);
