@@ -69,7 +69,7 @@ if bluetooth_present || rak_only
         %% Sending serial to RAK
         try
             rak_cam.writeSerial(send_this)
-            disp(send_this)
+%             disp(send_this)
         catch
             disp('Cannot send RAK serial')
         end
