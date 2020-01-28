@@ -1,0 +1,12 @@
+Tue Jan 28 12:33:01 2020 : openStreams >> VideoAndAudioObtainer >>> opened
+Tue Jan 28 12:33:01 2020 : ip: 192.168.100.1
+Tue Jan 28 12:33:01 2020 : reset >>> started
+Tue Jan 28 12:33:01 2020 : run >>> sharedMemoryInstance->unblockWritters(); >> ok
+Tue Jan 28 12:33:01 2020 : run >>> formatCtx = avformat_alloc_context(); >> ok
+Tue Jan 28 12:33:01 2020 : run >>> frame = av_frame_alloc(); >> ok
+Tue Jan 28 12:33:01 2020 : run >>> pictureRgb = av_frame_alloc(); >> ok
+Tue Jan 28 12:33:01 2020 : run >>> avformat_network_init(); >> ok
+Tue Jan 28 12:33:01 2020 : run >>> formatCtx->flags >> ok2097168
+Tue Jan 28 12:33:04 2020 : updateState >>> state: 'Stream error: not connected' >>> Immediate exit requested
+Tue Jan 28 12:33:04 2020 : run >>> started
+Tue Jan 28 12:33:04 2020 : updateState >>> state: 'Stream error: not connected' >>> 
