@@ -9,6 +9,8 @@
 #include "NeuroRobotManager.h"
 #include <iostream>
 #include <mex.h>
+#include <boost/thread/thread.hpp>
+
 #include "matrix.h"
 
 /**
@@ -77,6 +79,8 @@ public:
         } else if ( !strcmp("stop", cmd) ) {
             
             robotObject->stop();
+//            boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
+            robotObject = NULL;
             return;
         } else if ( !strcmp("isRunning", cmd) ) {
             
@@ -180,33 +184,32 @@ public:
         }
     }
     
-   static void streamCallback(StreamStateType error) {
-       return;
-       
+    static void streamCallback(StreamStateType error) {
+        
 //        auto stateString_ = getStreamStateMessage(error);
-// 
+//        
 //        static char stateString[255];
 //        std::memcpy(stateString, stateString_, 255);
 //        mxArray *array[1], *output[1];
-// //         mxArray *output[1];
+//        //         mxArray *output[1];
 //        mxArray *input[1];
-// 
-// 
+//        
+//        
 //        static char foo[] = "foo data";
 //        array[0] = mxCreateString(foo);
 //        output[0] = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
 //        input[0] = mxCreateNumericMatrix(1, 1000, mxINT64_CLASS, mxREAL);
 //        int *yp  = (int *) mxGetData(output[0]);
 //        std::memcpy(yp, &error, sizeof(int));
-// 
+//        
 //        mexCallMATLAB(0, input, 0, &array[0], "NeuroRobot_StreamCallback");
-// //         mexCallMATLAB(1, input, 1, array, "NeuroRobot_StreamCallback");
-// //         mexCallMATLAB(1, input, 1, &array[0], "disp");
-// //         delete [] retVal;
-// //         mxDestroyArray(array[0]);
-// //         mxDestroyArray(output[0]);
-// //         mxDestroyArray(input[0]);
-   }
+//        //         mexCallMATLAB(1, input, 1, array, "NeuroRobot_StreamCallback");
+//        //         mexCallMATLAB(1, input, 1, &array[0], "disp");
+//        //         delete [] retVal;
+//        //         mxDestroyArray(array[0]);
+//        //         mxDestroyArray(output[0]);
+//        //         mxDestroyArray(input[0]);
+    }
 };
 
 /**

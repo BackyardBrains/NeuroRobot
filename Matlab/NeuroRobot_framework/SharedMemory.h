@@ -20,6 +20,13 @@
 class SharedMemory : public Log {
     
 private:
+    
+    /* Here will be the instance stored. */
+    static SharedMemory* instance;
+    /* Private constructor to prevent instancing. */
+    SharedMemory();
+    ~SharedMemory();
+    
     std::mutex mutexVideo;
     std::mutex mutexAudio;
     std::mutex mutexSerialRead;
@@ -35,6 +42,9 @@ private:
     int audioSampleRate = 0;
     
 public:
+    /* Static access method. */
+    static SharedMemory* getInstance();
+    
     size_t audioSampleCountPerReading = 0;
     size_t frameDataCount = 0;
     
@@ -42,9 +52,6 @@ public:
     int videoHeight = 0;
     
     static const int serialDataBufferCount = 1000;
-    
-    SharedMemory();
-    ~SharedMemory();
     
     /**
      Blocks writers.

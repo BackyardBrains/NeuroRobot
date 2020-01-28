@@ -58,8 +58,6 @@ private:
     int audioStreamIndex = -1;
     // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
     
-    SharedMemory* sharedMemoryInstance;
-    
     bool tryingToReconnect = false;
     bool audioBlocked = false;
     std::string url = std::string();
@@ -80,7 +78,7 @@ public:
     
     //-----------------------------------
     // Init methods.
-    VideoAndAudioObtainer(SharedMemory* sharedMemory, std::string ipAddress, StreamStateType *state, StreamErrorOccurredCallback callback, bool audioBlocked);
+    VideoAndAudioObtainer(std::string ipAddress, StreamStateType *state, StreamErrorOccurredCallback callback, bool audioBlocked);
     
     /**
     Overloaded method which is running from separate thread.

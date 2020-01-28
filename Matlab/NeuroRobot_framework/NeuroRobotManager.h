@@ -24,10 +24,10 @@
 /**
  Base Neuro Robot API class. It is intended to have only one statically allocated object of this class and all mex calls will be executed through that object.
  */
-class NeuroRobotManager
+class NeuroRobotManager: public Log
 {
 private:
-    SharedMemory *sharedMemory = new SharedMemory();
+//    SharedMemory *sharedMemory = new SharedMemory();
     VideoAndAudioObtainer *videoAndAudioObtainerObject = NULL;
     Socket *socketObject = NULL;
     

@@ -140,14 +140,12 @@ static char* lltoa(long long number)
 
 
 //MARK:- Socket
-Socket::Socket(SharedMemory* sharedMemory, std::string ip_, std::string port_, SocketErrorOccurredCallback callback_)
+Socket::Socket(std::string ip_, std::string port_, SocketErrorOccurredCallback callback_)
 : socket(io_context)
 , audioSocket(io_context)
 {
     className = "Socket";
     openLogFile();
-    
-    sharedMemoryInstance = sharedMemory;
     
     ipAddress = ip_;
     port = port_;
@@ -160,12 +158,11 @@ void Socket::run()
 {
     logMessage("run >> entered ");
     
-    boost::system::error_code ec;
-    
     while (isRunning()) {
         logMessage("run >> while >> entered ");
         
-        std::string readSerialData = receiveSerial(&ec);
+        boost::system::error_code ec;
+        std::string readSerialData = receiveSerial(ec);
         logMessage("run >> while >> received ");
         
         if (ec == boost::asio::error::eof) {
@@ -178,11 +175,11 @@ void Socket::run()
             connectSerialSocket(ipAddress, port);
             mutexReconnecting.unlock();
         }
-        logMessage("run >> while >> no error ");
+        logMessage("run >> while >> no err ");
         
         if (readSerialData.length() > 0) {
             if (isRunning()) {
-                sharedMemoryInstance->writeSerialRead(readSerialData);
+                SharedMemory::getInstance()->writeSerialRead(readSerialData);
                 logMessage("run >> while >> writeSerialRead");
             }
             logMessage(readSerialData);
@@ -254,7 +251,7 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
     
     int sentBytes = 0;
     int packetSize = 1000;
-    int sampleRate = sharedMemoryInstance->getAudioSampleRate();
+    int sampleRate = SharedMemory::getInstance()->getAudioSampleRate();
     short numberOfChannels = 2;
     int packetSizeInMilliseconds = ((float)packetSize / numberOfChannels) / sampleRate * 1000;
     long long elapsedTime = 0;
@@ -336,8 +333,6 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
         updateState(NULL, SocketErrorCannotConnect, ec);
         logMessage("connectSerialSocket >>> error: " + ec.message() + " ipAddress: " + host + " port: " + service);
     } else {
-        updateState(NULL, SocketStateConnected, ec);
-        
         #ifdef _WIN32
             socket.set_option(rcv_timeout_option{ 1000 }, ec);
             if (ec) {
@@ -346,7 +341,17 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
         #endif
         
         uint8_t dataToOpenReceiving[] = { 0x01, 0x55 };
-        send(&socket, dataToOpenReceiving, 2);
+        size_t sentSize = socket.send(boost::asio::buffer(dataToOpenReceiving, 2), 0, ec);
+        
+        logMessage("connectSerialSocket >>> sentSize: " + std::to_string(sentSize));
+        
+        if (!sentSize || ec) {
+            logMessage("connectSerialSocket >>> cannot open socket");
+            logMessage("connectSerialSocket >>> ec: " + ec.message());
+        } else {
+            boost::this_thread::sleep_for(boost::chrono::milliseconds(200));
+            updateState(NULL, SocketStateConnected, ec);
+        }
     }
 }
 
@@ -376,7 +381,7 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
     if (ec) {
         logMessage("send >> error " + ec.message());
         if ((boost::asio::error::eof == ec) || (boost::asio::error::connection_reset == ec)) {
-            //when we loose wifi network completely this error will appear net time we try to send something:
+            //when we lose wifi network completely this error will appear net time we try to send something:
             //Error in Socket::send: An existing connection was forcibly closed by the remote host
             logMessage("We lost WiFi network. Need to reset everything.");
             updateState(NULL, SocketErrorLostConnection, ec);
@@ -384,7 +389,7 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
             updateState(NULL, SocketErrorWhileSending, ec);
         }
     }
-    logMessage("send >> no error ");
+    logMessage("send >> no err ");
     boost::this_thread::sleep_for(boost::chrono::milliseconds(20));
     mutexSendingToSocket.unlock();
     logMessage("send >> mutexSendingToSocket unlocked ");
@@ -392,33 +397,65 @@ size_t Socket::send(tcp::socket* socket, const void* data, size_t length)
     return sentSize;
 }
 
-std::string Socket::receiveSerial(boost::system::error_code* ec)
+std::string Socket::receiveSerial(boost::system::error_code ec)
 {
-    if (stateType != SocketStateConnected) {
+    logMessage("receiveSerial >> entered");
+    if (stateType != SocketStateConnected && !socket.is_open()) {
         return "";
     }
-    boost::asio::streambuf b;
-    boost::asio::read_until(socket, b, "\r\n", *ec);
-    if (*ec == boost::asio::error::eof) {
-        logMessage("Error readUntill");
+    logMessage("receiveSerial >> passed >> stateType != SocketStateConnected");
+    boost::asio::streambuf b(10000);
+    logMessage("receiveSerial >> boost::asio::streambuf b;");
+    boost::system::error_code ec2;
+    logMessage("receiveSerial >> boost::system::errror_code ec2;");
+//    try {
+        
+//        socket.receive(boost::asio::buffer(data, size), 0, *ec);
+//        boost::asio::read(socket, b, boost::asio::transfer_at_least(30));
+        boost::asio::read_until(socket, b, "\r\n", ec);
+//    } catch(const boost::system::error_code& err) {
+//        logMessage("receiveSerial >> catched error while read_until, message: " + err.message());
+//        ec = err;
+//        (*ec).message();
+//        *ec = err;
+//    }
+
+    logMessage("receiveSerial >> boost::asio::read_until(");
+//    *ec = ec2;
+    logMessage("receiveSerial >> *ec = ec2;");
+    if (ec == boost::asio::error::eof) {
+        logMessage("receiveSerial >> if (*ec == boost::asio::error::eof) {");
+        logMessage("receiveSerial >> Error readUntill");
         return "";
     }
+    logMessage("receiveSerial >> ec >> " + ec.message());
     std::istream is(&b);
+    logMessage("receiveSerial >> std::istream is(&b);");
     std::string data;
     std::string dataFoo;
     std::string dataLastLine;
     std::string dataPreLastLine;
     
+    logMessage("receiveSerial >> definitions");
+    
     while (std::getline(is, dataFoo)) {
+        logMessage("receiveSerial >> while (std::getline(is, dataFoo)) {");
         
         dataPreLastLine = dataLastLine;
+        logMessage("receiveSerial >> dataPreLastLine = dataLastLine;");
         dataLastLine = dataFoo;
+        logMessage("receiveSerial >> dataLastLine = dataFoo;");
     }
+    logMessage("receiveSerial >> while passed");
     if (dataPreLastLine == "") {
+        logMessage("receiveSerial >> if (dataPreLastLine == "") {");
         dataPreLastLine = dataLastLine;
+        logMessage("receiveSerial >> dataPreLastLine = dataLastLine;");
     }
+    logMessage("receiveSerial >> if passed");
     
     boost::erase_all(dataPreLastLine, "\x01U");
+    logMessage("receiveSerial >> boost::erase_all(");
     
     return dataPreLastLine;
 }
@@ -426,8 +463,19 @@ std::string Socket::receiveSerial(boost::system::error_code* ec)
 void Socket::closeSocket()
 {
     logMessage("------------- Close socket -----------");
-    socket.close();
-    audioSocket.close();
+    
+    boost::system::error_code ec;
+    socket.close(ec);
+    if (ec) {
+        updateState(NULL, SocketErrorCannotCloseDataSocket, ec);
+    }
+    audioSocket.close(ec);
+    if (ec) {
+        updateState(NULL, SocketErrorCannotCloseAudioSocket, ec);
+    }
+//    socket = NULL;
+//    audioSocket = NULL;
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 }
 
 void Socket::updateState(SocketStateType *stateToReturn, SocketStateType stateType_, boost::system::error_code errorCode)

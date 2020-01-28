@@ -21,6 +21,8 @@ typedef enum : int {
     SocketErrorLostConnection,
     SocketErrorWhileSending,
     SocketErrorExists,
+    SocketErrorCannotCloseDataSocket,
+    SocketErrorCannotCloseAudioSocket
 } SocketStateType;
 typedef void (*SocketErrorOccurredCallback) (SocketStateType error);
 
@@ -56,10 +58,6 @@ static char* getSocketStateMessage(SocketStateType type)
             sprintf(retVal, "Socket state: connected");
             break;
         }
-//        case SocketStateRunning: {
-//            sprintf(retVal, "Socket state: running");
-//            break;
-//        }
         case SocketStateConnecting: {
             sprintf(retVal, "Socket state: connecting");
             break;
@@ -82,6 +80,14 @@ static char* getSocketStateMessage(SocketStateType type)
         }
         case SocketErrorExists: {
             sprintf(retVal, "Socket error: exists");
+            break;
+        }
+        case SocketErrorCannotCloseDataSocket: {
+            sprintf(retVal, "Socket error: cannot close data socket");
+            break;
+        }
+        case SocketErrorCannotCloseAudioSocket: {
+            sprintf(retVal, "Socket error: cannot close audio socket");
             break;
         }
     }

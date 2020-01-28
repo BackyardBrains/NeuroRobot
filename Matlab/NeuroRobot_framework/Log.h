@@ -16,7 +16,6 @@
     #include <fstream>
 #endif
 
-
 class Log
 {
 public:

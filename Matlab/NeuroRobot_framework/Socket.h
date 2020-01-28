@@ -49,8 +49,6 @@ private:
     std::mutex mutexSendingToSocket2;
     std::mutex mutexSendingAudio;
     
-    SharedMemory* sharedMemoryInstance;
-    
     // Data used for mechanism of sending serial data
     bool sendingInProgress = false;
     bool pendingWriting = false;
@@ -91,7 +89,7 @@ private:
      @param ec Error code while receiving the data if any
      @return Received data from socket data
      */
-    std::string receiveSerial(boost::system::error_code* ec);
+    std::string receiveSerial(boost::system::error_code ec);
     
     /**
      Closes audio and serial sockets.
@@ -130,7 +128,7 @@ private:
     
 public:
     
-    Socket(SharedMemory* sharedMemory, std::string ip, std::string port, SocketErrorOccurredCallback callback);
+    Socket(std::string ip, std::string port, SocketErrorOccurredCallback callback);
     
     /**
      Overloaded method which is running from separate thread.

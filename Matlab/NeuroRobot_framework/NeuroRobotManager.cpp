@@ -14,12 +14,15 @@
  */
 NeuroRobotManager::NeuroRobotManager(std::string ipAddress, std::string port, StreamStateType *error, StreamErrorOccurredCallback streamCallback, SocketErrorOccurredCallback socketCallback)
 {
+    className = "NeuroRobotManager";
+    openLogFile();
+    
     if (!videoAndAudioObtainerObject) {
-        videoAndAudioObtainerObject = new VideoAndAudioObtainer(sharedMemory, ipAddress, error, streamCallback, audioBlocked);
+        videoAndAudioObtainerObject = new VideoAndAudioObtainer(ipAddress, error, streamCallback, audioBlocked);
     }
     
     if (videoAndAudioObtainerObject->stateType == StreamStateNotStarted && !socketBlocked && !socketObject) {
-        socketObject = new Socket(sharedMemory, ipAddress, port, socketCallback);
+        socketObject = new Socket(ipAddress, port, socketCallback);
     }
 }
 
@@ -46,10 +49,10 @@ int16_t *NeuroRobotManager::readAudio(int *size)
     *size = 0;
     
     if (!audioBlocked) {
-        int16_t *reply = sharedMemory->readAudio(size);
+        int16_t *reply = SharedMemory::getInstance()->readAudio(size);
         return reply;
     } else {
-        static int16_t *audioDataFoo = new int16_t[sharedMemory->audioSampleCountPerReading * 10];
+        static int16_t *audioDataFoo = new int16_t[SharedMemory::getInstance()->audioSampleCountPerReading * 10];
         return audioDataFoo;
     }
 }
@@ -61,7 +64,7 @@ int16_t *NeuroRobotManager::readAudio(int *size)
  */
 uint8_t *NeuroRobotManager::readVideo()
 {
-    return sharedMemory->readVideoFrame();
+    return SharedMemory::getInstance()->readVideoFrame();
 }
 
 /**
@@ -69,9 +72,12 @@ uint8_t *NeuroRobotManager::readVideo()
  */
 void NeuroRobotManager::stop()
 {
-    videoAndAudioObtainerObject->stop();
-    if (!socketBlocked && socketObject) {
+    if (!socketBlocked && socketObject && socketObject->isRunning()) {
         socketObject->stop();
+    }
+    
+    if (videoAndAudioObtainerObject && videoAndAudioObtainerObject->isRunning()) {
+        videoAndAudioObtainerObject->stop();
     }
 }
 
@@ -83,6 +89,25 @@ void NeuroRobotManager::stop()
 bool NeuroRobotManager::isRunning()
 {
     if (!socketBlocked) {
+        if (!socketObject) {
+            logMessage("isRunning >> socketObject doesn't exist");
+            return false;
+        }
+        
+        if (!videoAndAudioObtainerObject->isRunning()) {
+            logMessage("issue with videoAndAudioObtainerObject->isRunning()");
+        }
+        if (videoAndAudioObtainerObject->stateType != StreamStateRunning) {
+            logMessage("issue with videoAndAudioObtainerObject->stateType");
+            logMessage(getStreamStateMessage(videoAndAudioObtainerObject->stateType));
+        }
+        if (!videoAndAudioObtainerObject->isRunning()) {
+            logMessage("issue with videoAndAudioObtainerObject->isRunning()");
+        }
+        if (socketObject->stateType != SocketStateConnected) {
+            logMessage("socketObject->stateType");
+            logMessage(getSocketStateMessage(socketObject->stateType));
+        }
         return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->stateType == StreamStateRunning && socketObject->isRunning() && socketObject->stateType == SocketStateConnected;
     } else {
         return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->stateType == StreamStateRunning;
@@ -116,7 +141,7 @@ void NeuroRobotManager::writeSerial(char *data)
 uint8_t *NeuroRobotManager::readSerial(int *size)
 {
     if (!socketBlocked) {
-        return sharedMemory->readSerialRead(size);
+        return SharedMemory::getInstance()->readSerialRead(size);
     } else {
         static uint8_t *returnSerialBuffer = new uint8_t[1000 + 1];
         return returnSerialBuffer;
@@ -152,25 +177,25 @@ SocketStateType NeuroRobotManager::readSocketState()
 
 long long NeuroRobotManager::frameDataCount()
 {
-    return sharedMemory->frameDataCount;
+    return SharedMemory::getInstance()->frameDataCount;
 }
 
 long long NeuroRobotManager::audioSampleCount()
 {
-    return sharedMemory->audioSampleCountPerReading;
+    return SharedMemory::getInstance()->audioSampleCountPerReading;
 }
 
 int NeuroRobotManager::audioSampleRate()
 {
-    return sharedMemory->getAudioSampleRate();
+    return SharedMemory::getInstance()->getAudioSampleRate();
 }
 
 int NeuroRobotManager::videoWidth()
 {
-    return sharedMemory->videoWidth;
+    return SharedMemory::getInstance()->videoWidth;
 }
 
 int NeuroRobotManager::videoHeight()
 {
-    return sharedMemory->videoHeight;
+    return SharedMemory::getInstance()->videoHeight;
 }
