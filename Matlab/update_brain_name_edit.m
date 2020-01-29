@@ -36,7 +36,8 @@ else
         bg_neurons = brain.bg_neurons;
     catch
         bg_neurons = zeros(nneurons, 1);
-    end    
+    end 
+
     draw_brain
     
     if bluetooth_present

@@ -18,10 +18,8 @@ bluetooth_present = 0;
 
 hd_camera = 1;
 grey_background = 1;
-draw_synapses = 1;
 use_cnn = 0;
 use_rcnn = 0;
-nma = 0;
 
 %% Advanced settings
 pulse_period = 0.07; % in seconds

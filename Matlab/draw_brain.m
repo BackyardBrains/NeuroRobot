@@ -1,8 +1,19 @@
 
+if nneurons > 75
+    nma = 1; % small neurons setting
+else
+    nma = 0;
+end
 nma_flag = 0; % nma design hack
 if nma
     nma_flag = 1;
 end
+if nneurons > 200
+    draw_synapses = 0;
+else
+    draw_synapses = 1;
+end
+
 if exist('fig_print', 'var') && isvalid(fig_print)
     axes(brain_axb)
 elseif exist('fig_game', 'var') && isvalid(fig_game)
