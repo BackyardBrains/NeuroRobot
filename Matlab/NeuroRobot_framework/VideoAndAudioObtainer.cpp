@@ -87,6 +87,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     logMessage("run >>> formatCtx->flags >> ok " + std::to_string(formatCtx->flags));
     
     retVal = avformat_open_input(&formatCtx, url.c_str(), NULL, &stream_opts);
+    av_dict_free(&stream_opts);
     if (retVal != 0) {
         StreamStateType stateType = StreamErrorAvformatOpenInput;
         if (retVal == AVERROR_EXIT) {
@@ -366,6 +367,7 @@ void VideoAndAudioObtainer::closeStream()
     avcodec_free_context(&audioDecCtx);
     sws_freeContext(imgConvertCtx);
     avformat_close_input(&formatCtx);
+    avformat_network_deinit();
     
     imgConvertCtx = NULL;
 }
