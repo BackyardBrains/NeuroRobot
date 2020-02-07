@@ -17,19 +17,16 @@ static long long timeOutWhileConnecting = 3000;
 
 static int interruptFunction(void* ctx)
 {
-    AVFormatContext* formatCtx = (AVFormatContext*) ctx;
-    std::cout << "init >>> entered interruptFunction" << std::endl;
-
     if (!initDone) {
+        AVFormatContext* formatCtx = (AVFormatContext*) ctx;
         long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
-        std::cout << "init >>> elapsed time [ms]: " << elapsedTime << std::endl;
+//        std::cout << "init >>> elapsed time [ms]: " << elapsedTime << std::endl;
         if (elapsedTime > timeOutWhileConnecting && formatCtx) {
-            // TODO: Test in Matlab under Windows.
             return 1;
         }
     } else if (isReadingNextFrame) {
         long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
-        std::cout << "Reading frame >>> elapsed time [ms]: " << elapsedTime << std::endl;
+//        std::cout << "Reading frame >>> elapsed time [ms]: " << elapsedTime << std::endl;
         if (elapsedTime > 1000) {
             std::cout << "Continue to reconnection" << std::endl;
             isReadingNextFrame = false;
@@ -114,9 +111,6 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
             audioStreamIndex = i;
         }
     }
-
-    packet.data = NULL;
-    packet.size = 0;
 
     av_read_play(formatCtx);
     
@@ -209,7 +203,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     stateType = StreamStateNotStarted;
     
     if (tryingToReconnect) {
-        tryingToReconnect = false;
+        tryingToReconnect = false; 
         
         logMessage("init >>> Trying to reconnect >>> reset done");
         run();
@@ -254,6 +248,7 @@ void VideoAndAudioObtainer::run()
     if (stateType != StreamStateRunning) {
         updateState(NULL, stateType, -1);
         stop();
+        closeStream();
         return;
     }
     
@@ -296,12 +291,17 @@ void VideoAndAudioObtainer::run()
                 logMessage("run >>> audio packet >> Error with decoding audio packet");
             }
         }
+        logMessage("loading finished");
         av_packet_unref(&packet);
-
+        logMessage("av_packet_unref(&packet);");
+        
         /// Start measuring time for reading frame, to take action if it exceeds limit. @See interruptFunction function.
         beginTime = std::chrono::system_clock::now();
+        logMessage("beginTime = std::chrono::system_clock::now();");
         isReadingNextFrame = true;
+        logMessage("isReadingNextFrame = true;");
         avReadFrameResponse = av_read_frame(formatCtx, &packet);
+        logMessage("avReadFrameResponse = av_read_frame(formatCtx, &packet);");
     }
     long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
     
@@ -321,11 +321,11 @@ void VideoAndAudioObtainer::run()
         if (stateType != StreamStateNotStarted) {
             /// Cannot recover connection
             stop();
+            closeStream();
         }
     } else {
         /// Stop called
         stop();
-        closeLogFile();
     }
 }
 
@@ -357,8 +357,7 @@ int VideoAndAudioObtainer::decode(AVCodecContext* avctx, AVFrame* frame, int* go
 void VideoAndAudioObtainer::closeStream()
 {
     SharedMemory::getInstance()->blockWritters();
-
-    av_packet_unref(&packet);
+    
     av_frame_free(&frame);
     av_frame_free(&pictureRgb);
     avcodec_close(videoCodecCtx);

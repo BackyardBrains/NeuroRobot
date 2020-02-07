@@ -43,6 +43,7 @@ private:
     boost::asio::io_context io_context;
     tcp::socket socket;
     tcp::socket audioSocket;
+    tcp::resolver resolver;
     
     std::mutex mutexReconnecting;
     std::mutex mutexSendingToSocket;
@@ -94,7 +95,7 @@ private:
     /**
      Closes audio and serial sockets.
      */
-    void closeSocket();
+    void closeSockets();
     
     /**
      Helper method for initialize sending serial data from other thread.
@@ -121,6 +122,10 @@ private:
      @param numberOfBytes Number of bytes of audio data (Usually it is doubled because of two channels)
      */
     void sendAudioThreaded(int16_t* data, long long numberOfBytes);
+    
+    void closeDataSocket();
+    
+    void closeAudioSocket();
     
     
     void updateState(SocketStateType *stateToReturn, SocketStateType stateType, boost::system::error_code errorCode);

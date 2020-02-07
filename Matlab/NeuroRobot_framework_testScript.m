@@ -17,7 +17,7 @@ elseif ~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac
 end
 
 if ~exist('rak', 'var')
-    rak = NeuroRobot_matlab('192.168.0.19', '80');
+    rak = NeuroRobot_matlab('192.168.100.1', '80');
 end
 rak.start();
 
@@ -142,6 +142,6 @@ fclose(fid);
 
 rak.stop();
 pause(2);
-audiowrite('test.wav', audioMat, 8000);
+audiowrite('test.wav', audioMat, rak.readAudioSampleRate());
 close all;
 serialData;

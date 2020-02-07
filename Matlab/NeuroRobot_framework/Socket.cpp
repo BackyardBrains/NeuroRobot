@@ -138,11 +138,11 @@ static char* lltoa(long long number)
     return p;
 }
 
-
 //MARK:- Socket
 Socket::Socket(std::string ip_, std::string port_, SocketErrorOccurredCallback callback_)
 : socket(io_context)
 , audioSocket(io_context)
+, resolver(io_context)
 {
     className = "Socket";
     openLogFile();
@@ -157,6 +157,7 @@ Socket::Socket(std::string ip_, std::string port_, SocketErrorOccurredCallback c
 void Socket::run()
 {
     logMessage("run >> entered ");
+    return;
     
     while (isRunning()) {
         logMessage("run >> while >> entered ");
@@ -170,7 +171,7 @@ void Socket::run()
             updateState(NULL, SocketErrorEOF, ec);
             
             mutexReconnecting.lock();
-            socket.close();
+            closeDataSocket();
             boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
             connectSerialSocket(ipAddress, port);
             mutexReconnecting.unlock();
@@ -185,7 +186,7 @@ void Socket::run()
             logMessage(readSerialData);
         }
     }
-    closeSocket();
+    closeSockets();
     
     logMessage("Socket -> read serial ended");
 }
@@ -318,14 +319,13 @@ void Socket::sendAudioThreaded(int16_t* data, long long numberOfBytes)
     
     free(repackedData);
     
-    audioSocket.close();
+    closeAudioSocket();
     mutexSendingAudio.unlock();
 }
 
 void Socket::connectSerialSocket(const std::string& host, const std::string& service)
 {
     boost::system::error_code ec;
-    tcp::resolver resolver(io_context);
     updateState(NULL, SocketStateConnecting, ec);
     
     boost::asio::connect(socket, resolver.resolve(host, service), ec);
@@ -338,6 +338,9 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
             if (ec) {
                 logMessage("connectSerialSocket >>> socket.set_option error: " + ec.message());
             }
+        #else
+            boost::asio::ip::tcp::no_delay option(true);
+            socket.set_option(option);
         #endif
         
         uint8_t dataToOpenReceiving[] = { 0x01, 0x55 };
@@ -406,23 +409,9 @@ std::string Socket::receiveSerial(boost::system::error_code ec)
     logMessage("receiveSerial >> passed >> stateType != SocketStateConnected");
     boost::asio::streambuf b(10000);
     logMessage("receiveSerial >> boost::asio::streambuf b;");
-    boost::system::error_code ec2;
-    logMessage("receiveSerial >> boost::system::errror_code ec2;");
-//    try {
-        
-//        socket.receive(boost::asio::buffer(data, size), 0, *ec);
-//        boost::asio::read(socket, b, boost::asio::transfer_at_least(30));
-        boost::asio::read_until(socket, b, "\r\n", ec);
-//    } catch(const boost::system::error_code& err) {
-//        logMessage("receiveSerial >> catched error while read_until, message: " + err.message());
-//        ec = err;
-//        (*ec).message();
-//        *ec = err;
-//    }
+    boost::asio::read_until(socket, b, "\r\n", ec);
 
     logMessage("receiveSerial >> boost::asio::read_until(");
-//    *ec = ec2;
-    logMessage("receiveSerial >> *ec = ec2;");
     if (ec == boost::asio::error::eof) {
         logMessage("receiveSerial >> if (*ec == boost::asio::error::eof) {");
         logMessage("receiveSerial >> Error readUntill");
@@ -460,22 +449,44 @@ std::string Socket::receiveSerial(boost::system::error_code ec)
     return dataPreLastLine;
 }
 
-void Socket::closeSocket()
+void Socket::closeSockets()
 {
-    logMessage("------------- Close socket -----------");
+    logMessage("------------- closeSockets -----------");
     
+    resolver.cancel();
+    
+    closeDataSocket();
+    closeAudioSocket();
+    
+    io_context.reset();
+    io_context.stop();
+}
+
+void Socket::closeDataSocket() {
     boost::system::error_code ec;
+    
+    socket.cancel(ec);
+    if (ec) {
+        updateState(NULL, SocketErrorCannotCancelDataSocket, ec);
+    }
     socket.close(ec);
     if (ec) {
         updateState(NULL, SocketErrorCannotCloseDataSocket, ec);
     }
+}
+
+void Socket::closeAudioSocket() {
+    boost::system::error_code ec;
+    
+    audioSocket.cancel(ec);
+    if (ec) {
+        updateState(NULL, SocketErrorCannotCancelAudioSocket, ec);
+    }
+    
     audioSocket.close(ec);
     if (ec) {
         updateState(NULL, SocketErrorCannotCloseAudioSocket, ec);
     }
-//    socket = NULL;
-//    audioSocket = NULL;
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 }
 
 void Socket::updateState(SocketStateType *stateToReturn, SocketStateType stateType_, boost::system::error_code errorCode)

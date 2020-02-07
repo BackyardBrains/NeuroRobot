@@ -9,7 +9,6 @@
 #include "NeuroRobotManager.h"
 #include <iostream>
 #include <mex.h>
-#include <boost/thread/thread.hpp>
 
 #include "matrix.h"
 
@@ -48,7 +47,7 @@ public:
             free(ipAddress);
             free(port);
             
-            robotObject = new NeuroRobotManager(ipAddressString, portString, &error, NeuroRobot_Matlab::streamCallback, nullptr);
+            robotObject = new NeuroRobotManager(ipAddressString, portString, &error, nullptr, nullptr);
             return;
         } else if ( !strcmp("start", cmd) ) {
             

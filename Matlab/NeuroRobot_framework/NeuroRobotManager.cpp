@@ -79,6 +79,8 @@ void NeuroRobotManager::stop()
     if (videoAndAudioObtainerObject && videoAndAudioObtainerObject->isRunning()) {
         videoAndAudioObtainerObject->stop();
     }
+    
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
 }
 
 /**

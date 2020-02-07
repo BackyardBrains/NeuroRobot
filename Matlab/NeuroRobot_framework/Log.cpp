@@ -51,7 +51,9 @@ void Log::openLogFile() {
 void Log::closeLogFile() {
 #ifdef DEBUG
     logMessage("closeLogFile >> " + className + " >>> closed");
-    logFile.close();
+    if (logFile.is_open()) {
+        logFile.close();
+    }
 #endif
 }
 
@@ -93,6 +95,8 @@ std::string getDate() {
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ss << std::put_time(localtime(&now), "%F_%H-%M-%S");
     return ss.str();
+#else
+    return "";
 #endif
 }
 

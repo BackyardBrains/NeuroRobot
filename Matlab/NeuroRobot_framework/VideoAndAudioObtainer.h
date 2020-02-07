@@ -21,7 +21,7 @@
     #include "Bridge/TypeDefs.h"
 #endif
 
-//// FFMPEG includes
+/// FFMPEG includes
 extern "C" {
     #include <libavcodec/avcodec.h>
     #include <libavformat/avformat.h>

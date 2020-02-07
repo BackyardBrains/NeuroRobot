@@ -32,8 +32,6 @@ SharedMemory::SharedMemory()
 
 SharedMemory::~SharedMemory()
 {
-    closeLogFile();
-    
     delete [] videoData;
     delete [] audioData;
 }
@@ -180,14 +178,11 @@ uint8_t* SharedMemory::readSerialRead(int* size)
 {
     mutexSerialRead.lock();
     
-    static uint8_t *returnSerialBuffer = new uint8_t[lastSerialResult.length() + 1];
-    
-    memcpy(returnSerialBuffer, lastSerialResult.c_str(), lastSerialResult.length());
     *size = (int)lastSerialResult.length();
     
     mutexSerialRead.unlock();
     
-    return returnSerialBuffer;
+    return (uint8_t*)lastSerialResult.c_str();
 }
 
 void SharedMemory::setAudioSampleRate(int sampleRate)

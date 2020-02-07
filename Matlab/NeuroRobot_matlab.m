@@ -47,7 +47,7 @@ classdef NeuroRobot_matlab
             [data, Fs] = audioread(fileName);
             
             % Change sample rate
-            sampleRate = double(NeuroRobot_MatlabBridge( 'readAudioSampleRate' ));
+            sampleRate = double(8000);
             if Fs ~= sampleRate
                 [P,Q] = rat(sampleRate/Fs);
                 data = resample(data, P, Q);
