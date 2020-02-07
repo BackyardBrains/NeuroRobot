@@ -31,8 +31,8 @@ private:
     VideoAndAudioObtainer *videoAndAudioObtainerObject = NULL;
     Socket *socketObject = NULL;
     
-    bool audioBlocked = false;
-    bool socketBlocked = false;
+    bool audioBlocked = true;
+    bool socketBlocked = true;
     
 public:
     NeuroRobotManager(std::string ipAddress, std::string port, StreamStateType *error, StreamErrorOccurredCallback streamCallback, SocketErrorOccurredCallback socketCallback);
