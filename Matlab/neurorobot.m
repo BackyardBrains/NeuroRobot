@@ -10,11 +10,12 @@
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-%% Close and clear
-close all
-clear
-delete(imaqfind)
-delete(timerfind)
+
+
+if exist('runtime_pulse', 'var')
+    delete(runtime_pulse)
+end
+
 
 %% Settings
 rak_only = 1;

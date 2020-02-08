@@ -5,7 +5,7 @@ if rak_only
 %     this_audio = double(rak_cam.readAudio());
 
     if isempty(this_audio)
-        disp('audio data empty')
+%         disp('audio data empty')
         this_clock = clock;
         audio_step = [audio_step; 0 xstep this_clock(6) length(this_audio)];
         max_freq = 0;
