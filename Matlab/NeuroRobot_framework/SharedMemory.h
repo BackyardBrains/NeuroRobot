@@ -38,6 +38,7 @@ private:
     
     uint8_t *videoData = NULL;
     int16_t *audioData = NULL;
+    uint8_t *serialData = NULL;
     std::string lastSerialResult;
     int audioSampleRate = 0;
     

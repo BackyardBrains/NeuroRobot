@@ -157,7 +157,6 @@ Socket::Socket(std::string ip_, std::string port_, SocketErrorOccurredCallback c
 void Socket::run()
 {
     logMessage("run >> entered ");
-    return;
     
     while (isRunning()) {
         logMessage("run >> while >> entered ");
@@ -340,7 +339,10 @@ void Socket::connectSerialSocket(const std::string& host, const std::string& ser
             }
         #else
             boost::asio::ip::tcp::no_delay option(true);
-            socket.set_option(option);
+            socket.set_option(option, ec);
+            if (ec) {
+                logMessage("connectSerialSocket >>> socket.set_option error: " + ec.message());
+            }
         #endif
         
         uint8_t dataToOpenReceiving[] = { 0x01, 0x55 };

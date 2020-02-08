@@ -284,6 +284,10 @@ void VideoAndAudioObtainer::run()
             
             logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
             logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
+            logMessage("run >>> audio >>> frame->linesize[0]: " + std::to_string(frame->linesize[0]));
+            logMessage("run >>> audio >>> frame->pkt_size: " + std::to_string(frame->pkt_size));
+            logMessage("run >>> audio >>> frame->channels: " + std::to_string(frame->channels));
+//            logMessage("run >>> audio >>> frame->channels: " + std::to_string(frame->channels));
             SharedMemory::getInstance()->setAudioSampleRate(frame->sample_rate);
             if (check != 0) {
                 SharedMemory::getInstance()->writeAudio(frame->extended_data[0], frame->nb_samples);

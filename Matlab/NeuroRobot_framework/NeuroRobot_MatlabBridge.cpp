@@ -56,9 +56,9 @@ public:
         } else if ( !strcmp("readAudio", cmd) ) {
             int size = 0;
             int16_t *reply = robotObject->readAudio(&size);
-            plhs[0] = mxCreateNumericMatrix(1, size, mxINT16_CLASS, mxREAL);
-            int16_t *yp;
-            yp  = (int16_t*) mxGetData(plhs[0]);
+            plhs[0] = mxCreateNumericMatrix(1, size / 2, mxINT32_CLASS, mxREAL);
+            int32_t *yp;
+            yp  = (int32_t*) mxGetData(plhs[0]);
             std::memcpy(yp, reply, size * 2);
             
             
@@ -78,7 +78,6 @@ public:
         } else if ( !strcmp("stop", cmd) ) {
             
             robotObject->stop();
-//            boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
             robotObject = NULL;
             return;
         } else if ( !strcmp("isRunning", cmd) ) {

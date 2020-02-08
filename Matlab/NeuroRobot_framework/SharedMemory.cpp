@@ -108,10 +108,10 @@ void SharedMemory::writeAudio(uint8_t* data, size_t audioSampleCount_)
     audioSampleCountPerReading = audioSampleCount_;
     
     if (!audioData) {
-        audioData = new int16_t[audioSampleCountPerReading * 10 + 1];
+        audioData = new int16_t[audioSampleCountPerReading * 20 + 1];
     }
     
-    if (audioStoredReadingCounter == 10) {
+    if (audioStoredReadingCounter == 20) {
         audioStoredReadingCounter--;
         memcpy(audioData, &audioData[audioSampleCountPerReading], audioSampleCountPerReading * 2 * audioStoredReadingCounter);
     }
@@ -131,7 +131,7 @@ void SharedMemory::writeAudio(uint8_t* data, size_t audioSampleCount_)
  */
 int16_t* SharedMemory::readAudio(int* validAudioSampleCount_)
 {
-    static int16_t *audioDataFoo = new int16_t[audioSampleCountPerReading * 10];
+    static int16_t *audioDataFoo = new int16_t[audioSampleCountPerReading * 20];
     *validAudioSampleCount_ = (int)(audioSampleCountPerReading * audioStoredReadingCounter);
     
     if (audioStoredReadingCounter != 0) {
