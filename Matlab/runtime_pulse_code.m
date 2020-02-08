@@ -4,9 +4,9 @@
 nstep = nstep + 1;
 xstep = xstep + 1;
 if ~rem(nstep, 2)
-    rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+    rak_cam.writeSerial('d:620;')
 else
-    rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
+    rak_cam.writeSerial('d:621;')
 end
 step_timer = tic;
 lifetime = toc(life_timer);
@@ -39,7 +39,7 @@ get_visual_input
 process_visual_input
 
 %% Process audio input
-% disp('5')R
+% disp('5')
 process_audio_input
 
 %% Serial
@@ -65,37 +65,9 @@ if nstep == nsteps_per_loop
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
-%     try
-%         disp('Restarting rak_cam...')
-% %         disp('the following code seems to cause a crash...')
-% %         pause
-% %         try
-% %             rak_cam_base = evalin('base','rak_cam');
-% %             if rak_cam_base.isRunning()
-% %                 rak_cam_base.stop();
-% %             end
-% %             clear rak_cam_base
-% %             disp('Previous rak_cam cleared')
-% %         catch
-% %             disp('No previous rak_cam')
-% %         end
-%         clear rak_cam
-%         rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
-%         disp('rak_cam created')
-%         rak_cam.start();
-%     catch
-        rak_fail = 1;
-%         disp('Cannot recreate rak_cam. rak_fail = 1.')
-%     end
-%     rak_fails = rak_fails + 1;
-%     disp('rak_cam is not running (runtime_pulse_code line 64) <<<< TRY RESTARTING OR RECREATING RAK CAM HERE')
-%     if rak_fails > 30
-%         rak_fails = 0;
-%         disp('rak_cam is no longer running, stopping  <<<< TRY RESTARTING OR RECREATING RAK CAM HERE')
-% %         stop(rak_pulse)
-% %         pause(0.5)
-%         rak_fail = 1;
-%     end
+    disp('rak_cam no longer running. rak_fail = 1.')
+    rak_fail = 1;
+    % Try camera restart here? seems to cause crash
 end
 if run_button == 4 || rak_fail
     stop(runtime_pulse)
@@ -114,21 +86,10 @@ if save_data_and_commands
 end
 
 
-%% End of pulse code
-% disp('9')
+% End of pulse code
 enter_design % if run_button = 1
 drawnow
 
-% if ~isempty(pit_stop_time)
-%     this_clock = clock;
-%     if this_clock(4) >= pit_stop_time(1) && this_clock(5) >= pit_stop_time(2)
-%         disp('Pit recording stop time')
-%         disp('Pit recording stopped')
-%         stop(runtime_pulse)
-%     else
-%         pause(0.01)
-%     end
-% end
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
 catch
@@ -142,21 +103,3 @@ if run_button == 6
     run_button = 0;
     
 end
-    
-% disp(num2str(vis_pref_vals'))
-
-%%%% CHECK FOR EXERCISE SUCCESS
-if ~isempty(this_exercise)
-    
-    if srcmp(this_exercise, 'BetsyUp')
-        if connectome(1,3)
-            disp('You successfully completed exercise BetsyUP!')
-            disp('You are the nth person ever to do this')
-            keyboard
-        end
-    end
-    
-end
-    
-% if something then note exercise success
-%     for example, a betsy with synapse 1-3>24 % make the 24 42

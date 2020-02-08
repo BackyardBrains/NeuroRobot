@@ -24,7 +24,7 @@ use_rcnn = 0;
 %% Advanced settings
 % pulse_period = 0.07; % in seconds
 % pulse_period = 0.25; % in seconds
-pulse_period = 0.08; % in seconds
+pulse_period = 0.14; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;

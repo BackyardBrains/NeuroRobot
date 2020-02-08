@@ -76,7 +76,7 @@ if draw_synapses
         adjust2 = 0.29;
     end                                            
     for p1 = 1:nneurons
-        disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
+%         disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
         for p2 = 1:nneurons
             w = connectome(p1, p2);
             if w ~= 0
@@ -300,13 +300,13 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             end
         end
     end
-%     if exist('da_rew_neurons', 'var')
-%         for nneuron = 1:nneurons
-%             if da_rew_neurons(nneuron)
-%                 neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [1 0.3 0.3]);
-%             end
-%         end
-%     end
+    if exist('da_rew_neurons', 'var')
+        for nneuron = 1:nneurons
+            if da_rew_neurons(nneuron)
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [1 0.3 0.3]);
+            end
+        end
+    end
     
     
     
