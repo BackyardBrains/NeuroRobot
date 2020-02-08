@@ -89,9 +89,10 @@ catch
         bluetooth_send_motor_command
     end
     sound(flipud(gong), 8192 * 7)
-    disp('solution 1: try the connect button again')
-    disp('solution 2: restart matlab (be persistent)')
-    disp('solution 3: restart matlab and the robot')
+    disp('solution 1: make sure you are connected to the correct wifi network')
+    disp('solution 2: try the connect button again')
+    disp('solution 3: restart matlab (be persistent)')
+    disp('solution 4: restart matlab and the robot')
     
 end
 
