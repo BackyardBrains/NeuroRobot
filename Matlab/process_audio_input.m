@@ -25,10 +25,12 @@ if rak_only
 %         end
         
     elseif length(this_audio) < 1000
-        error('audio data < 1000 samples')
+        if ~rem(nstep, 40)
+            disp('audio data < 1000 samples (showing 1 of 40 errors)')
+        end
     elseif length(this_audio) >= 1000
-        if nstep == 1
-            disp('audio data > 1000 samples')
+        if ~rem(nstep, 40)
+            disp('audio data > 1000 samples (showing 1 of 40 errors)')
         end
         this_clock = clock;
         audio_step = [audio_step; 2 xstep this_clock(6) length(this_audio)];

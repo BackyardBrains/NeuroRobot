@@ -1,6 +1,6 @@
 if ~exist('rak_cam', 'var')
     [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong);
-elseif exist('rak_cam', 'var') && strcmp(rak_cam.Running, 'off')
+elseif exist('rak_cam', 'var') && ~rak_cam.isRunning()
     disp('rak_cam exists but is not running')
 else
     disp('rak_cam exists and is running')
