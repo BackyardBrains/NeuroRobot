@@ -16,4 +16,13 @@ end
 % Initialize GUI
 draw_fig_runtime
 draw_brain
+
+% % this may be superfluous
+% rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+% disp('rak_cam created')
+% rak_cam.start();
+% disp(horzcat('rak_cam started'))     
+
+stop(rak_pulse)
+% rak_cam.start();
 start(runtime_pulse)

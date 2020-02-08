@@ -5,13 +5,13 @@
 
 %% Close and clear
 close all
-% clear
+clear
 delete(imaqfind)
 delete(timerfind)
 
 
 %% Settings
-pulse_period = 0.2;
+pulse_period = 0.1;
 frame_dir = 'C:\Users\Christopher Harris\Desktop\Pictures\';
 
 %% Prepare
@@ -20,11 +20,11 @@ ii = size(dir_info, 1);
 disp(horzcat('npics in current directory: ', num2str(ii)))
 
 %% RCNN
-if ~exist('rcnn', 'var')
-    disp('loading rcnn...')
-    load('rcnn')
-    disp('done')
-end
+% if ~exist('rcnn', 'var')
+%     disp('loading rcnn...')
+%     load('rcnn')
+%     disp('done')
+% end
 
 % %% Sigmoid figure
 % figure(2)
@@ -49,13 +49,14 @@ set(button_stop, 'Callback', 'stop(ground_truth_pulse);', 'FontSize', 12, 'FontN
 fig_title = title('preparing...');
     
 %% RAK
-if ~exist('RAK5206.mexw64', 'file')
+if ~exist('NeuroRobot_MatlabBridge.mexw64', 'file')
     disp('Building mex')
     rak_mex_build
 end
 rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
 rak_cam.start();
 disp('rak_cam started')
-ground_truth_pulse = timer('period', pulse_period, 'timerfcn', '[ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir, fig_title, rcnn);', 'stopfcn', 'disp("ground truth pulse stopped"); close(1);', 'executionmode', 'fixedrate');
+% ground_truth_pulse = timer('period', pulse_period, 'timerfcn', '[ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir, fig_title, rcnn);', 'stopfcn', 'disp("ground truth pulse stopped"); close(1);', 'executionmode', 'fixedrate');
+ground_truth_pulse = timer('period', pulse_period, 'timerfcn', '[ii, capture_now] = ground_truth_pulse_code(rak_cam, show_frame, capture_now, ii, frame_dir, fig_title);', 'stopfcn', 'disp("ground truth pulse stopped"); close(1);', 'executionmode', 'fixedrate');
 start(ground_truth_pulse)
 

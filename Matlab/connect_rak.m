@@ -1,4 +1,4 @@
-function [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises)
+function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises)
 
 tic
 disp('Connecting camera...')
@@ -20,17 +20,18 @@ try
             disp('Building mex')
             rak_mex_build
         end
+                
         
-        try
-            rak_pulse_base = evalin('base','rak_pulse');
-            delete(rak_pulse_base)
-            disp('Previous rak_pulse deleted')
-        catch
-            disp('No previous rak_pulse')
-        end
+%         try
+%             rak_pulse_base = evalin('base','rak_pulse');
+%             delete(rak_pulse_base)
+%             disp('Previous rak_pulse deleted')
+%         catch
+%             disp('No previous rak_pulse')
+%         end
         
         
-        try
+        try % This cause may cause crash here as well??
             rak_cam_base = evalin('base','rak_cam');
             if rak_cam_base.isRunning()
                 rak_cam_base.stop();
@@ -40,20 +41,26 @@ try
         catch
             disp('No previous rak_cam')
         end
-        
+        clear rak_cam
         rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
         disp('rak_cam created')
         rak_cam.start();
         if ~rak_cam.isRunning()
             disp('rak_cam started but not running')
             error('rak_cam started but not running')
+            rak_cam_h = 1080;
+            rak_cam_w = 1920;
         else
             disp('rak_cam is running')
             rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
+            rak_cam_h = rak_cam.readVideoHeight();
+            rak_cam_w = rak_cam.readVideoWidth();
         end
     elseif ~use_webcam
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';
         rak_cam = HebiCam(url);
+            rak_cam_h = 1280;
+            rak_cam_w = 720;        
     elseif use_webcam
         % Webcam
         rak_cam = videoinput('winvideo', 1);
@@ -62,13 +69,15 @@ try
         rak_cam.FramesPerTrigger = 1;
         rak_cam.ReturnedColorspace = 'rgb';
         start(rak_cam)
+            rak_cam_h = 1280;
+            rak_cam_w = 720;         
     end
 
     % Pulse
-    rak_pulse = timer('period', pulse_period, 'timerfcn', '[large_frame, rak_fail] = get_rak_frame(rak_cam, use_webcam, rak_only);', 'stopfcn', 'disp("RAK pulse stopped")', 'executionmode', 'fixedrate');
+%     rak_pulse = timer('period', pulse_period, 'timerfcn', '[large_frame, rak_fail] = get_rak_frame(rak_cam, use_webcam, rak_only);', 'stopfcn', 'disp("RAK pulse stopped")', 'executionmode', 'fixedrate');
     button_camera.BackgroundColor = [0.6 0.95 0.6];
     drawnow
-    disp(horzcat('RAK module connected in ', num2str(round(toc)), ' seconds'))
+    disp(horzcat('rak_object connected in ', num2str(round(toc)), ' seconds'))
 
 catch
 
@@ -93,3 +102,5 @@ if camera_present
 end
 set(button_startup_complete, 'enable', 'on')
 set(button_exercises, 'enable', 'on')
+
+

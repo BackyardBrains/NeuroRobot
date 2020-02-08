@@ -24,7 +24,7 @@ use_rcnn = 0;
 %% Advanced settings
 % pulse_period = 0.07; % in seconds
 % pulse_period = 0.25; % in seconds
-pulse_period = 0.125; % in seconds
+pulse_period = 0.08; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
@@ -268,17 +268,18 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'nor
 % set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col, 'color', fig_bg_col)
 
 % Camera button
-if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
-        && ~(exist('rak_cam', 'var') && ~rak_cam.isRunning)
+% if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
+%         && ~(exist('rak_cam', 'var') && ~rak_cam.isRunning)
+if exist('rak_cam', 'var') && rak_cam.isRunning() % This will cause an error in neurorobot.m unless rak_cam exists
     this_col = [0.6 0.95 0.6];
-elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'off'))
+% elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'off'))
+elseif exist('rak_cam', 'var') && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
 else
     this_col = [0.8 0.8 0.8];
 end
 button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', [0.05 0.19 0.17 0.07]);
-set(button_camera, 'Callback', '[rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises); ext_cam = connect_ext_cam(button_camera, ext_cam_id); start(rak_pulse)', ...
-    'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
+set(button_camera, 'Callback', 'camera_button_callback', 'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
 end
@@ -350,7 +351,8 @@ if exist('brain_name.mat', 'file')
     end    
     brain_edit_name.String = brain_name;      
     try
-        [rak_cam, rak_pulse] = connect_rak(button_camera, pulse_period, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
+%         rak_cam = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
+        [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises); ext_cam = connect_ext_cam(button_camera, ext_cam_id);
         start(rak_pulse)
         disp('RAK reconnected')
         startup_complete

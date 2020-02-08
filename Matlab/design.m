@@ -51,6 +51,7 @@ set(button_return_to_runtime, 'Callback', 'if fig_design.UserData == 0; fig_desi
 % Turn off motors
 if rak_only
     rak_cam.writeSerial('l:0;r:0;s:0;')
+    rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];

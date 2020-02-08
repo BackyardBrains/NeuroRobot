@@ -111,6 +111,9 @@ end
 %         end
 %     end
 % end
+if exist('rak_pulse', 'var')
+    stop(rak_pulse)
+end
 if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
     disp('Previous runtime pulse deleted')
