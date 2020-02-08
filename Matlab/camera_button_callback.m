@@ -9,6 +9,8 @@ disp('deleting previous rak_pulse')
 if exist('rak_pulse', 'var')
     delete(rak_pulse)
 end
+
+% This could probably be conditional on this: exist('rak_cam', 'var') && ~rak_cam.isRunning()
 disp('creating new rak_pulse')
 rak_pulse_n = 0;
 rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'stopfcn', 'disp("RAK pulse stopped")', 'executionmode', 'fixedrate');    
