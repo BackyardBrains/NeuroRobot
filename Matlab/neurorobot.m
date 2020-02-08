@@ -10,6 +10,12 @@
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
+%% Close and clear
+close all
+clear
+delete(imaqfind)
+delete(timerfind)
+
 %% Settings
 rak_only = 1;
 camera_present = 1;
@@ -24,7 +30,7 @@ use_rcnn = 0;
 %% Advanced settings
 % pulse_period = 0.07; % in seconds
 % pulse_period = 0.25; % in seconds
-pulse_period = 0.12; % in seconds
+pulse_period = 0.1; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;

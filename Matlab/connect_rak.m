@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises)
+function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong)
 
 tic
 disp('Connecting camera...')
@@ -47,9 +47,9 @@ try
         rak_cam.start();
         if ~rak_cam.isRunning()
             disp('rak_cam started but not running')
-            error('rak_cam started but not running')
             rak_cam_h = 1080;
             rak_cam_w = 1920;
+            error
         else
             disp('rak_cam is running')
             rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
@@ -81,13 +81,18 @@ try
 
 catch
 
-    disp('RAK connection failed. Is your computer connected to the correct WiFi?')
+    disp('error: rak_cam created but not running')
     button_camera.BackgroundColor = [1 0.5 0.5];
     if bluetooth_present && exist('life_timer', 'var')
         motor_command = [0 0 0 0 0];
         prev_motor_command = [0 0 0 0 0];
         bluetooth_send_motor_command
     end
+    sound(flipud(gong), 8192 * 7)
+    disp('solution 1: try the connect button again')
+    disp('solution 2: restart matlab (be persistent)')
+    disp('solution 3: restart matlab and the robot')
+    
 end
 
 text_title.String = 'Neurorobot Startup';
