@@ -24,7 +24,7 @@ use_rcnn = 0;
 %% Advanced settings
 % pulse_period = 0.07; % in seconds
 % pulse_period = 0.25; % in seconds
-pulse_period = 0.14; % in seconds
+pulse_period = 0.12; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
@@ -187,6 +187,7 @@ ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
+this_audio = [];
 
 audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
 n_audio_prefs = size(audio_pref_names, 2);
