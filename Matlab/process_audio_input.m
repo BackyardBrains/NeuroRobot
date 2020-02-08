@@ -2,7 +2,7 @@
 if rak_only
     
     % Get audio data from RAK
-%     this_audio = double(rak_cam.readAudio());
+    this_audio = double(rak_cam.readAudio());
 
     if isempty(this_audio)
 %         disp('audio data empty')
