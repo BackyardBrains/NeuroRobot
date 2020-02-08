@@ -8,12 +8,12 @@ disp(horzcat('Life time = ', num2str(round(lifetime/60)), ' min'))
 
 %% Stop and reset motors
 if rak_only
-    try
-        rak_cam.writeSerial('l:0;r:0;s:0;')
-        rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
-    catch
-        disp('Unable to stop and reset motors')
-    end
+%     try
+%         rak_cam.writeSerial('l:0;r:0;s:0;')
+%         rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+%     catch
+%         disp('Unable to stop and reset motors')
+%     end
 elseif bluetooth_present
     motor_command = [0 0 0 0 0];
     prev_motor_command = [0 0 0 0 0];
@@ -63,8 +63,8 @@ end
 if rak_fail
     disp('RAK connection lost')
     sound(gong, Fs * 7)
-    pause(0.5)
-    restarting = 1;
+%     pause(0.5)
+%     restarting = 1;
 end
 
 if voluntary_restart
@@ -86,6 +86,8 @@ end
 if restarting && ~voluntary_restart
 %     system_restart
     save('brain_name', 'brain_name')
+    neurorobot
+elseif restarting && ~voluntary_restart
     neurorobot
 else
     if rak_only
