@@ -3,10 +3,14 @@
 % disp('1')
 nstep = nstep + 1;
 xstep = xstep + 1;
-if ~rem(nstep, 2)
-    rak_cam.writeSerial('d:620;')
-else
-    rak_cam.writeSerial('d:621;')
+if ~rem(nstep, 7)
+    if pulse_led_flag
+        pulse_led_flag = 0;
+        rak_cam.writeSerial('d:620;')
+    else
+        pulse_led_flag = 1;
+        rak_cam.writeSerial('d:621;')
+    end
 end
 step_timer = tic;
 lifetime = toc(life_timer);

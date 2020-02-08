@@ -73,8 +73,6 @@ try
             rak_cam_w = 720;         
     end
 
-    % Pulse
-%     rak_pulse = timer('period', pulse_period, 'timerfcn', '[large_frame, rak_fail] = get_rak_frame(rak_cam, use_webcam, rak_only);', 'stopfcn', 'disp("RAK pulse stopped")', 'executionmode', 'fixedrate');
     button_camera.BackgroundColor = [0.6 0.95 0.6];
     drawnow
     disp(horzcat('rak_object connected in ', num2str(round(toc)), ' seconds'))

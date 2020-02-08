@@ -217,6 +217,8 @@ if ~exist('restarts', 'var')
     restarts = 0;
 end
 fx = (0:1000-1)*8;
+
+pulse_led_flag = 0;
         
 %% Prepare figure
 fig_startup = figure(1);
