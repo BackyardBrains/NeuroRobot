@@ -29,9 +29,9 @@ use_cnn = 0;
 use_rcnn = 0;
 
 %% Advanced settings
-% pulse_period = 0.07; % in seconds
-% pulse_period = 0.25; % in seconds
 pulse_period = 0.1; % in seconds
+% pulse_period = 0.25; % in seconds
+% pulse_period = 0.125; % in seconds
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
@@ -218,7 +218,9 @@ if ~exist('restarts', 'var')
 end
 fx = (0:1000-1)*8;
 
-pulse_led_flag = 0;
+pulse_led_flag_1 = 0;
+pulse_led_flag_2 = 0;
+pulse_led_flag_3 = 0;
         
 %% Prepare figure
 fig_startup = figure(1);

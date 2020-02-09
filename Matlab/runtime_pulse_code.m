@@ -4,12 +4,30 @@
 nstep = nstep + 1;
 xstep = xstep + 1;
 if ~rem(nstep, 7)
-    if pulse_led_flag
-        pulse_led_flag = 0;
-        rak_cam.writeSerial('d:620;')
+    if pulse_led_flag_1
+        pulse_led_flag_1 = 0;
+        rak_cam.writeSerial('d:610;d:521')
     else
-        pulse_led_flag = 1;
-        rak_cam.writeSerial('d:621;')
+        pulse_led_flag_1 = 1;
+        rak_cam.writeSerial('d:611;d:520')
+    end
+end
+if ~rem(nstep, 5)
+    if pulse_led_flag_2
+        pulse_led_flag_2 = 0;
+        rak_cam.writeSerial('d:621;d:530;')
+    else
+        pulse_led_flag_2 = 1;
+        rak_cam.writeSerial('d:620;d:531')
+    end
+end
+if ~rem(nstep, 3)
+    if pulse_led_flag_3
+        pulse_led_flag_3 = 0;
+        rak_cam.writeSerial('d:631;d:520;')
+    else
+        pulse_led_flag_3 = 1;
+        rak_cam.writeSerial('d:630;d:521')
     end
 end
 step_timer = tic;
@@ -69,6 +87,12 @@ if nstep == nsteps_per_loop
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
+    disp('error: rak_cam exists but is not running')
+    sound(flipud(gong), 8192 * 7)
+    disp('solution 1: make sure you are connected to the correct wifi network')
+    disp('solution 2: try the connect button again')
+    disp('solution 3: restart matlab (be persistent)')
+    disp('solution 4: restart matlab and the robot')    
     disp('rak_cam no longer running. rak_fail = 1.')
     rak_fail = 1;
     % Try camera restart here? seems to cause crash
