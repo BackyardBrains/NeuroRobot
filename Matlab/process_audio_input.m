@@ -15,7 +15,7 @@ if rak_only
         % full audio array is not eventally returned the RAK has to be
         % reset (rak_fail = 1);
         audio_empty_flag = audio_empty_flag + 1;
-    elseif length(this_audio) == 1024 || length(this_audio) == 512
+    elseif length(this_audio) == 1024 || length(this_audio) == 512 || length(this_audio) == 1536 || length(this_audio) == 2048
 
         this_clock = clock;
         audio_step = [audio_step; 2 xstep this_clock(6) length(this_audio)];
@@ -25,7 +25,9 @@ if rak_only
         if length(this_audio) == 512
             this_audio = [this_audio this_audio];
         end
-        
+        if length(this_audio) == 1536 || length(this_audio) == 2048
+            this_audio = this_audio(1:1024);
+        end
         if xstep == 1
             this_audio = zeros(1, 1024);
         end

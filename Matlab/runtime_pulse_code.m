@@ -12,7 +12,7 @@ if ~rem(nstep, 7)
         rak_cam.writeSerial('d:611;d:520')
     end
 end
-if ~rem(nstep, 5)
+if ~rem(nstep, 11)
     if pulse_led_flag_2
         pulse_led_flag_2 = 0;
         rak_cam.writeSerial('d:621;d:530;')
@@ -21,7 +21,7 @@ if ~rem(nstep, 5)
         rak_cam.writeSerial('d:620;d:531')
     end
 end
-if ~rem(nstep, 3)
+if ~rem(nstep, 17)
     if pulse_led_flag_3
         pulse_led_flag_3 = 0;
         rak_cam.writeSerial('d:631;d:520;')

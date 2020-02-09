@@ -29,7 +29,7 @@ use_cnn = 0;
 use_rcnn = 0;
 
 %% Advanced settings
-pulse_period = 0.1; % in seconds
+pulse_period = 0.08; % in seconds
 % pulse_period = 0.25; % in seconds
 % pulse_period = 0.125; % in seconds
 save_data_and_commands = 0; %%% 
