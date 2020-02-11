@@ -44,17 +44,15 @@ void NeuroRobotManager::start()
  @param size Size of audio data which is forwarded parallel
  @return Audio data
  */
-int16_t *NeuroRobotManager::readAudio(int *size)
+void *NeuroRobotManager::readAudio(size_t *totalBytes, unsigned short *bytesPerSample)
 {
-    *size = 0;
+    *totalBytes = 0;
+    *bytesPerSample = 0;
     
-    if (!audioBlocked) {
-        int16_t *reply = SharedMemory::getInstance()->readAudio(size);
-        return reply;
-    } else {
-        static int16_t *audioDataFoo = new int16_t[SharedMemory::getInstance()->audioSampleCountPerReading * 10];
-        return audioDataFoo;
-    }
+    if (audioBlocked) { return nullptr; }
+    
+    void *reply = SharedMemory::getInstance()->readAudio(totalBytes, bytesPerSample);
+    return reply;
 }
 
 /**
@@ -140,14 +138,12 @@ void NeuroRobotManager::writeSerial(char *data)
  @param size Size of serial data which is forwarded parallel
  @return Serial data
  */
-uint8_t *NeuroRobotManager::readSerial(int *size)
+char *NeuroRobotManager::readSerial(int *size)
 {
-    if (!socketBlocked) {
-        return SharedMemory::getInstance()->readSerialRead(size);
-    } else {
-        static uint8_t *returnSerialBuffer = new uint8_t[1000 + 1];
-        return returnSerialBuffer;
-    }
+    *size = 0;
+    if (socketBlocked) { return nullptr; }
+    
+    return SharedMemory::getInstance()->readSerialRead(size);
 }
 
 /**
@@ -184,7 +180,7 @@ long long NeuroRobotManager::frameDataCount()
 
 long long NeuroRobotManager::audioSampleCount()
 {
-    return SharedMemory::getInstance()->audioSampleCountPerReading;
+    return SharedMemory::getInstance()->audioNumberOfBytes;
 }
 
 int NeuroRobotManager::audioSampleRate()

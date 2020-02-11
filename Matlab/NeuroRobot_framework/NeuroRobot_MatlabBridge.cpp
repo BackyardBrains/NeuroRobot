@@ -54,18 +54,19 @@ public:
             robotObject->start();
             return;
         } else if ( !strcmp("readAudio", cmd) ) {
-            int size = 0;
-            int16_t *reply = robotObject->readAudio(&size);
-            plhs[0] = mxCreateNumericMatrix(1, size / 2, mxINT32_CLASS, mxREAL);
-            int32_t *yp;
-            yp  = (int32_t*) mxGetData(plhs[0]);
-            std::memcpy(yp, reply, size * 2);
+            size_t totalBytes = 0;
+            unsigned short bytesPerSample = 0;
             
+            void *audioData = robotObject->readAudio(&totalBytes, &bytesPerSample);
             
-//             free(reply);
+            plhs[0] = mxCreateNumericMatrix(1, totalBytes / bytesPerSample, mxSINGLE_CLASS, mxREAL);
+            
+            void *yp;
+            yp  = (void*) mxGetData(plhs[0]);
+            std::memcpy(yp, audioData, totalBytes);
+            
             return;
         } else if ( !strcmp("readVideo", cmd) ) {
-            
             
             uint8_t *videoData = robotObject->readVideo();
             
@@ -126,8 +127,8 @@ public:
             return;
         } else if ( !strcmp("readSerial", cmd) ) {
             int size = 0;
-            uint8_t *serialData = robotObject->readSerial(&size);
-            plhs[0] = mxCreateString((char *)serialData);
+            char *serialData = robotObject->readSerial(&size);
+            plhs[0] = mxCreateString(serialData);
             return;
         } else if ( !strcmp("sendAudio", cmd) ) {
             
@@ -185,21 +186,21 @@ public:
     static void streamCallback(StreamStateType error) {
         
 //        auto stateString_ = getStreamStateMessage(error);
-//        
+//
 //        static char stateString[255];
 //        std::memcpy(stateString, stateString_, 255);
 //        mxArray *array[1], *output[1];
 //        //         mxArray *output[1];
 //        mxArray *input[1];
-//        
-//        
+//
+//
 //        static char foo[] = "foo data";
 //        array[0] = mxCreateString(foo);
 //        output[0] = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
 //        input[0] = mxCreateNumericMatrix(1, 1000, mxINT64_CLASS, mxREAL);
 //        int *yp  = (int *) mxGetData(output[0]);
 //        std::memcpy(yp, &error, sizeof(int));
-//        
+//
 //        mexCallMATLAB(0, input, 0, &array[0], "NeuroRobot_StreamCallback");
 //        //         mexCallMATLAB(1, input, 1, array, "NeuroRobot_StreamCallback");
 //        //         mexCallMATLAB(1, input, 1, &array[0], "disp");

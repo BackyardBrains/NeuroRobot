@@ -37,13 +37,13 @@ private:
 public:
     NeuroRobotManager(std::string ipAddress, std::string port, StreamStateType *error, StreamErrorOccurredCallback streamCallback, SocketErrorOccurredCallback socketCallback);
     void start();
-    int16_t *readAudio(int *size);
+    void *readAudio(size_t *totalBytes, unsigned short *bytesPerSample);
     uint8_t *readVideo();
     void stop();
     bool isRunning();
     void writeSerial(std::string data);
     void writeSerial(char *data);
-    uint8_t *readSerial(int *size);
+    char *readSerial(int *size);
     
     StreamStateType readStreamState();
     SocketStateType readSocketState();

@@ -287,10 +287,13 @@ void VideoAndAudioObtainer::run()
             logMessage("run >>> audio >>> frame->linesize[0]: " + std::to_string(frame->linesize[0]));
             logMessage("run >>> audio >>> frame->pkt_size: " + std::to_string(frame->pkt_size));
             logMessage("run >>> audio >>> frame->channels: " + std::to_string(frame->channels));
-//            logMessage("run >>> audio >>> frame->channels: " + std::to_string(frame->channels));
+            
             SharedMemory::getInstance()->setAudioSampleRate(frame->sample_rate);
             if (check != 0) {
-                SharedMemory::getInstance()->writeAudio(frame->extended_data[0], frame->nb_samples);
+                unsigned short bytesPerSample = (unsigned short)av_get_bytes_per_sample(AVSampleFormat(frame->format));
+                SharedMemory::getInstance()->writeAudio(frame->extended_data[0], (size_t)frame->nb_samples, bytesPerSample);
+                
+                logMessage("run >>> audio >>> bytesPerSample: " + std::to_string(bytesPerSample));
             } else {
                 logMessage("run >>> audio packet >> Error with decoding audio packet");
             }

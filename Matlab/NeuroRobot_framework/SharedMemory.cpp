@@ -34,30 +34,19 @@ SharedMemory::~SharedMemory()
 {
     delete [] videoData;
     delete [] audioData;
+    delete [] serialData;
 }
 
-/**
- Blocks writers.
- */
 void SharedMemory::blockWritters()
 {
     isWritingBlocked = true;
 }
 
-/**
- Unblocks writers.
- */
 void SharedMemory::unblockWritters()
 {
     isWritingBlocked = false;
 }
 
-/**
- Writes one frame of video data to shared memory.
- 
- @param data Video frame data
- @param frameSizeInBytes Data size in bytes
- */
 void SharedMemory::writeFrame(uint8_t* data, size_t frameSizeInBytes)
 {
     if (frameSizeInBytes == 0) { return; }
@@ -78,68 +67,52 @@ void SharedMemory::writeFrame(uint8_t* data, size_t frameSizeInBytes)
     mutexVideo.unlock();
 }
 
-/**
- Reads video frame from shared memory.
- 
- @return Video frame data
- */
 uint8_t* SharedMemory::readVideoFrame()
 {
     return videoData;
 }
 
-/**
- Writes audio data to shared memory.
- 
- @param data Audio data
- @param audioSizeInBytes Data size in bytes
- */
-void SharedMemory::writeAudio(uint8_t* data, size_t audioSampleCount_)
+void SharedMemory::writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_)
 {
-    if (audioSampleCount_ == 0) { return; }
-    
-    if (isWritingBlocked) {
-        logMessage("Blocked audio");
-        return;
-    }
+    if (numberOfSamples_ == 0) { logMessage("numberOfBytes_ == 0"); return; }
+    if (bytesPerSample_ == 0) { logMessage("bytesPerSample_ == 0"); return; }
+    if (isWritingBlocked) { logMessage("Blocked audio"); return; }
     
     mutexAudio.lock();
     
-    audioSampleCountPerReading = audioSampleCount_;
+    audioNumberOfBytes = numberOfSamples_ * bytesPerSample_;
+    bytesPerSample = bytesPerSample_;
     
+    // Alloc
     if (!audioData) {
-        audioData = new int16_t[audioSampleCountPerReading * 20 + 1];
+        audioData = new uint8_t[audioNumberOfBytes * 20 + 1];
     }
     
-    if (audioStoredReadingCounter == 20) {
-        audioStoredReadingCounter--;
-        memcpy(audioData, &audioData[audioSampleCountPerReading], audioSampleCountPerReading * 2 * audioStoredReadingCounter);
+    // If the buffer is full overwrite the first `audioNumberOfBytes` samples
+    if (audioCounter == 20) {
+        audioCounter--;
+        memcpy(audioData, &audioData[audioNumberOfBytes], audioNumberOfBytes * audioCounter);
     }
-    memcpy(&audioData[audioSampleCountPerReading * audioStoredReadingCounter], data, audioSampleCountPerReading * 2);
     
-    audioStoredReadingCounter++;
+    // Write at the end of valid data
+    memcpy(&audioData[audioNumberOfBytes * audioCounter], data, audioNumberOfBytes);
+    audioCounter++;
     
     mutexAudio.unlock();
 }
 
-/**
- Reads audio data from shared memory.
- Reads last ~1sec of audio data.
- 
- @param size Size of audio data which is forwarded parallel
- @return Last ~1sec of audio static data
- */
-int16_t* SharedMemory::readAudio(int* validAudioSampleCount_)
+uint8_t* SharedMemory::readAudio(size_t* totalBytes_, unsigned short* bytesPerSample_)
 {
-    static int16_t *audioDataFoo = new int16_t[audioSampleCountPerReading * 20];
-    *validAudioSampleCount_ = (int)(audioSampleCountPerReading * audioStoredReadingCounter);
+    static uint8_t *audioDataFoo = new uint8_t[audioNumberOfBytes * 20];
+    *totalBytes_ = (size_t)(audioNumberOfBytes * audioCounter);
+    *bytesPerSample_ = bytesPerSample;
     
-    if (audioStoredReadingCounter != 0) {
+    if (audioCounter != 0) {
         
         mutexAudio.lock();
-        audioStoredReadingCounter = 0;
+        audioCounter = 0;
         
-        memcpy(audioDataFoo, audioData, *validAudioSampleCount_ * 2);
+        memcpy(audioDataFoo, audioData, *totalBytes_);
 
         mutexAudio.unlock();
     }
@@ -147,11 +120,6 @@ int16_t* SharedMemory::readAudio(int* validAudioSampleCount_)
     return audioDataFoo;
 }
 
-/**
- Writes serial data to shared memory.
- 
- @param data Data to write
- */
 void SharedMemory::writeSerialRead(std::string data)
 {
     if (isWritingBlocked) {
@@ -168,21 +136,22 @@ void SharedMemory::writeSerialRead(std::string data)
     mutexSerialRead.unlock();
 }
 
-/**
- Reads serial data from shared memory.
- 
- @param size Size of serial data which is forwarded parallel
- @return Serial data
- */
-uint8_t* SharedMemory::readSerialRead(int* size)
+char* SharedMemory::readSerialRead(int* size)
 {
     mutexSerialRead.lock();
     
     *size = (int)lastSerialResult.length();
     
+    if (!serialData) {
+        serialData = new char[1000];
+        logMessage("serialData = new uint8_t[1000];");
+    }
+    
+    strcpy(serialData, lastSerialResult.c_str());
+    
     mutexSerialRead.unlock();
     
-    return (uint8_t*)lastSerialResult.c_str();
+    return serialData;
 }
 
 void SharedMemory::setAudioSampleRate(int sampleRate)

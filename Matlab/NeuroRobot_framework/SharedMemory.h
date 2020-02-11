@@ -31,22 +31,24 @@ private:
     std::mutex mutexAudio;
     std::mutex mutexSerialRead;
     
-    uint8_t audioStoredReadingCounter = 0;
+    unsigned short audioCounter = 0;
     bool isWritingBlocked = false;
     int serialReadWrittenSize = 0;
     int lastSerialSize = 0;
+    unsigned short bytesPerSample = 0;
     
     uint8_t *videoData = NULL;
-    int16_t *audioData = NULL;
-    uint8_t *serialData = NULL;
+    uint8_t *audioData = NULL;
     std::string lastSerialResult;
     int audioSampleRate = 0;
+    
+    char *serialData = NULL;
     
 public:
     /* Static access method. */
     static SharedMemory* getInstance();
     
-    size_t audioSampleCountPerReading = 0;
+    size_t audioNumberOfBytes = 0;
     size_t frameDataCount = 0;
     
     int videoWidth = 0;
@@ -54,63 +56,42 @@ public:
     
     static const int serialDataBufferCount = 1000;
     
-    /**
-     Blocks writers.
-     */
+    /// Blocks writers.
     void blockWritters();
     
-    /**
-     Unblocks writers.
-     */
+    /// Unblocks writers.
     void unblockWritters();
     
-    /**
-     Writes one frame of video data to shared memory.
-     
-     @param data Video frame data
-     @param frameSizeInBytes Data size in bytes
-     */
+    /// Writes one frame of video data to shared memory.
+    /// @param data Video frame data
+    /// @param frameSizeInBytes Data size in bytes
     void writeFrame(uint8_t* data, size_t frameSizeInBytes);
     
-    /**
-     Reads video frame from shared memory.
-     
-     @return Video frame data
-     */
+    
+    /// Reads video frame from shared memory.
+    /// @return Video frame data
     uint8_t* readVideoFrame();
     
-    /**
-     Writes audio data to shared memory.
-     
-     @param data Audio data
-     @param audioSampleCount Data size in bytes
-     */
-    void writeAudio(uint8_t* data, size_t audioSampleCount);
+    /// Writes audio data to store.
+    /// @param data Audio data
+    /// @param numberOfSamples_ Number of samples
+    /// @param bytesPerSample_ Bytes per sample
+    void writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_);
     
-    /**
-     Reads audio data from shared memory.
-     Reads last ~1sec of audio data.
-     
-     @param audioSampleCount Size of audio data which is forwarded parallel
-     @return Last ~1sec of audio static data
-     */
-    int16_t* readAudio(int* audioSampleCount);
+    /// Reads audio data from store.
+    /// @param totalBytes_ Total number of bytes
+    /// @param bytesPerSample_ Number of bytes per sample
+    /// @return Audio data from store
+    uint8_t* readAudio(size_t* totalBytes_, unsigned short* bytesPerSample_);
     
-    /**
-     Writes serial data to shared memory.
-     
-     @param data Data to write
-     */
+    /// Writes serial data to store.
+    /// @param data Data to write
     void writeSerialRead(std::string data);
     
-    /**
-     Reads serial data from shared memory.
-     
-     @param size Size of serial data which is forwarded parallel
-     @return Serial data
-     */
-    uint8_t* readSerialRead(int* size);
-    
+    /// Reads serial data from store.
+    /// @param size Size of serial data which is forwarded parallel
+    /// @return Serial data from store
+    char* readSerialRead(int* size);
     
     /// Set sample rate for audio
     /// @param sampleRate sample rate in Hz
