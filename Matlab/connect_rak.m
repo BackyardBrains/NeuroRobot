@@ -20,16 +20,6 @@ try
             disp('Building mex')
             rak_mex_build
         end
-                
-        
-%         try
-%             rak_pulse_base = evalin('base','rak_pulse');
-%             delete(rak_pulse_base)
-%             disp('Previous rak_pulse deleted')
-%         catch
-%             disp('No previous rak_pulse')
-%         end
-        
         
         try % This cause may cause crash here as well??
             rak_cam_base = evalin('base','rak_cam');
@@ -69,8 +59,8 @@ try
         rak_cam.FramesPerTrigger = 1;
         rak_cam.ReturnedColorspace = 'rgb';
         start(rak_cam)
-            rak_cam_h = 1280;
-            rak_cam_w = 720;         
+        rak_cam_h = 1280;
+        rak_cam_w = 720;         
     end
 
     button_camera.BackgroundColor = [0.6 0.95 0.6];
