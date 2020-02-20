@@ -18,12 +18,12 @@ end
 
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 bluetooth_present = 0;
 
-hd_camera = 0;
+hd_camera = 1;
 grey_background = 1;
 use_cnn = 0;
 use_rcnn = 0;
@@ -280,12 +280,9 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'nor
 % set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col, 'color', fig_bg_col)
 
 % Camera button
-% if (exist('rak_fail', 'var') && ~rak_fail && exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'on')) ...
-%         && ~(exist('rak_cam', 'var') && ~rak_cam.isRunning)
-if ~use_webcam && exist('rak_cam', 'var') && rak_cam.isRunning() % This will cause an error in neurorobot.m unless rak_cam exists
+if ~use_webcam && exist('rak_cam', 'var') && isvalid(rak_cam) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
-% elseif (exist('rak_fail', 'var') && rak_fail) || (exist('rak_pulse', 'var') && isvalid(rak_pulse) && strcmp(rak_pulse.Running, 'off'))
-elseif ~use_webcam && exist('rak_cam', 'var') && ~rak_cam.isRunning() 
+elseif ~use_webcam && exist('rak_cam', 'var') && isvalid(rak_cam) && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
 else
     this_col = [0.8 0.8 0.8];
