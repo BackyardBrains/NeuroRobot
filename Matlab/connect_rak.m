@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong)
+function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong, hd_camera)
 
 tic
 disp('Connecting camera...')
@@ -37,9 +37,13 @@ try
         rak_cam.start();
         if ~rak_cam.isRunning()
             disp('rak_cam started but not running')
-            rak_cam_h = 1080;
-            rak_cam_w = 1920;
-            error
+            if hd_camera
+                rak_cam_h = 1080;
+                rak_cam_w = 1920;
+            else
+                rak_cam_h = 720;
+                rak_cam_w = 1280;                
+            end
         else
             disp('rak_cam is running')
             rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')

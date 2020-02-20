@@ -1,5 +1,5 @@
 if ~exist('rak_cam', 'var') || use_webcam
-    [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong);
+    [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong, hd_camera);
 elseif ~use_webcam && exist('rak_cam', 'var') && ~rak_cam.isRunning()
     disp('rak_cam exists but is not running')
 elseif exist('rak_cam', 'var') && rak_cam.isRunning()
