@@ -11,42 +11,46 @@
 
 #include "Macros.h"
 #include <string>
+#include <mutex>
 
 #ifdef DEBUG
     #include <fstream>
 #endif
 
+/// Derived class for logging system
 class Log
 {
-public:
     
-    std::string className = "No_name";
-    
-    ~Log();
+private:
     
 #ifdef DEBUG
     std::ofstream logFile;
 #endif
     
-    /**
-     Opens log file.
-     Be sure that `className` is defined like you want. If not, the name of log file will be predefined name.
-     */
+    /// Class name relevant for log file name
+    std::string className = "No_name";
+    
+    /// Data for sync mechanism
+    std::mutex loggingMutex;
+    
+    /// Open log file.
+    /// Be sure that `className` is defined like you want. Use provided constructor.
     void openLogFile();
-     
-    /**
-     Closes log file.
-     */
+    
+    /// Create directory for logs.
+    void createLogsDirectory();
+    
+    /// Closes log file.
     void closeLogFile();
     
-    /**
-     Writes forwarded message to log file.
-     Only working if is defined #DEBUG macro in Macros.h
-     
-     @see Macros.h file have to have defiend #DEBUG macro
-     
-     @param message Message to log
-     */
+protected:
+    
+    Log(std::string className);
+    ~Log();
+    
+    /// Write forwarded message to log file.
+    /// @param message Message to log
+    /// @warning Working only if the macro #DEBUG is defined in Macros.h.
     void logMessage(std::string message);
 };
 

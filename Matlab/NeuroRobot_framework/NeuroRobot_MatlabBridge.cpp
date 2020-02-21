@@ -42,12 +42,11 @@ public:
             
             std::string ipAddressString = std::string(ipAddress, mxGetN(prhs[1]));
             std::string portString = std::string(port, mxGetN(prhs[2]));
-            StreamStateType error = StreamStateNotInitialized;
             
             free(ipAddress);
             free(port);
             
-            robotObject = new NeuroRobotManager(ipAddressString, portString, &error, nullptr, nullptr);
+            robotObject = new NeuroRobotManager(ipAddressString, portString, nullptr, nullptr);
             return;
         } else if ( !strcmp("start", cmd) ) {
             
@@ -68,18 +67,19 @@ public:
             return;
         } else if ( !strcmp("readVideo", cmd) ) {
             
-            uint8_t *videoData = robotObject->readVideo();
+            uint8_t *videoData = robotObject->readVideoFrame();
             
-            plhs[0] = mxCreateNumericMatrix(1, robotObject->frameDataCount(), mxUINT8_CLASS, mxREAL);
+            plhs[0] = mxCreateNumericMatrix(1, robotObject->videoFrameBytes(), mxUINT8_CLASS, mxREAL);
             uint8_t *yp;
             yp  = (uint8_t*) mxGetData(plhs[0]);
-            std::memcpy(yp, videoData, robotObject->frameDataCount());
+            std::memcpy(yp, videoData, robotObject->videoFrameBytes());
             
             return;
         } else if ( !strcmp("stop", cmd) ) {
             
             robotObject->stop();
-            robotObject = NULL;
+            
+            delete robotObject;
             return;
         } else if ( !strcmp("isRunning", cmd) ) {
             
@@ -126,7 +126,7 @@ public:
             
             return;
         } else if ( !strcmp("readSerial", cmd) ) {
-            int size = 0;
+            size_t size = 0;
             char *serialData = robotObject->readSerial(&size);
             plhs[0] = mxCreateString(serialData);
             return;

@@ -2,8 +2,8 @@
 //  Socket.h
 //  Neurorobot-Framework
 //
-//  Created by Djordje Jovic on 6/16/19.
-//  Copyright © 2019 Backyard Brains. All rights reserved.
+//  Created by Djordje Jovic on 11/5/18.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #ifndef Socket_h
@@ -22,18 +22,13 @@
 
 #include <chrono>
 
-// Boost includes
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
 
-
-
-/**
- Derived class.
- Intended to communicate with Neuro Robot through socket.
- Used to write and read serial data and send audio data.
- */
+/// Derived class.
+/// Intended to communicate with Neuro Robot through socket.
+/// Used to write and read serial data and send audio data.
 class Socket : public BackgroundThread, public Log {
     
 private:
@@ -44,109 +39,85 @@ private:
     tcp::socket socket;
     tcp::socket audioSocket;
     tcp::resolver resolver;
+    tcp::resolver audioResolver;
     
     std::mutex mutexReconnecting;
     std::mutex mutexSendingToSocket;
     std::mutex mutexSendingToSocket2;
     std::mutex mutexSendingAudio;
     
-    // Data used for mechanism of sending serial data
+    /// Serial communication
     bool sendingInProgress = false;
     bool pendingWriting = false;
     std::string pendingData = "";
     
+    /// Connect to socket for serial data.
+    /// @param ipAddress IP address of robot
+    /// @param port Port for socket communication
+    void connectSerialSocket(const std::string& ipAddress, const std::string& port);
     
+    /// Connect to socket for audio data.
+    /// @param ipAddress IP address of robot
+    /// @param port Port for socket communication
+    void connectAudioSocket(const std::string& ipAddress, const std::string& port);
     
-    /**
-     Connects to socket for serial data.
-     
-     @param host Ip address of socket
-     @param service Port of socket
-     */
-    void connectSerialSocket(const std::string& host, const std::string& service);
+    /// Send the forwarded data to forwarded socket.
+    /// @param socket Socket object which is determined to receive the data
+    /// @param data Data for sending
+    /// @param totalBytes Total number of bytes to send
+    size_t send(tcp::socket* socket, const void* data, size_t totalBytes);
     
-    /**
-     Connects to socket for audio data.
-     
-     @param host Ip address of socket
-     @param service Port of socket
-     */
-    void connectAudioSocket(const std::string& host, const std::string& service);
+    /// Receive serial data.
+    /// It takes only last valid line.
+    /// @param ec Error code used to see which error occurs out of the function
+    /// @return Last valid line of data
+    std::string receiveSerial(boost::system::error_code *ec);
     
-    /**
-     Sends the forwarded data to forwarded socket.
-     
-     @param socket Socket which is determined to receive the data
-     @param data Data for sending
-     @param length Length of data for sending
-     @return Number of sent bytes
-     */
-    size_t send(tcp::socket* socket, const void* data, size_t length);
-    
-    /**
-     Receives the serial data.
-     It takes only last valid line.
-     
-     @param ec Error code while receiving the data if any
-     @return Received data from socket data
-     */
-    std::string receiveSerial(boost::system::error_code ec);
-    
-    /**
-     Closes audio and serial sockets.
-     */
+    /// Close serial and audio sockets.
     void closeSockets();
     
-    /**
-     Helper method for initialize sending serial data from other thread.
-     
-     @param data Data for sending
-     */
-    void writeSerialThreadedString(std::string data);
+    /// Trigger sending data through serial socket.
+    /// @param stringData Data for sending
+    void writeSerialThreadedString(std::string stringData);
     
-    /**
-     Writes serial data.
-     In the end it decides whether to send pending data if any.
-     
-     @param data Data for sending
-     @param length Length of data
-     */
-    void writeSerialThreaded(uint8_t* data, size_t length);
+    /// Write audio data in chunks with delays between them.
+    /// Method is responsible to keep ~1sec of data in robot's buffer.
+    /// @param data Pointer to audio data
+    /// @param numberOfBytes Total number of bytes of audio data
+    void sendAudioThreaded(int16_t* data, size_t numberOfBytes);
     
-    
-    /**
-     Writes audio data in chunks with delays between them.
-     Method is resposible to keep ~1sec of data in robot's buffer.
-     
-     @param data Audio data for sending
-     @param numberOfBytes Number of bytes of audio data (Usually it is doubled because of two channels)
-     */
-    void sendAudioThreaded(int16_t* data, long long numberOfBytes);
-    
+    /// Close serial socker.
     void closeDataSocket();
     
+    /// Close audio socker.
     void closeAudioSocket();
     
+    /// Update the state in which socket object is.
+    /// @param stateType Enum of possible state
+    /// @param errorCode Error code used to parse occured error if any
+    void updateState(SocketStateType stateType, boost::system::error_code errorCode);
     
-    void updateState(SocketStateType *stateToReturn, SocketStateType stateType, boost::system::error_code errorCode);
+    /// Stored callback for Socket state
     SocketErrorOccurredCallback errorCallback;
     
 public:
     
+    /// Init socket and connect to serial socket.
+    /// @param ip IP address of robot
+    /// @param port Port of socket
+    /// @param callback Callback in case if the error occurs
     Socket(std::string ip, std::string port, SocketErrorOccurredCallback callback);
     
-    /**
-     Overloaded method which is running from separate thread.
-     */
+    /// Overloaded method which is triggered with `startThreaded()`.
     void run();
     
     /**
      Prepares serial data for sending. Initializes sending serial data.
      In case where data is already in process of sending, then it saves data locally for later sending.
      
-     @param data Data for sending
+     @param stringData Data for sending
      */
-    void writeSerial(std::string data);
+    void send(std::string stringData);
     
     /**
      Prepares audio data for sending. Initializes sending audio data.
@@ -154,7 +125,7 @@ public:
      @param data Audio data
      @param numberOfBytes Number of bytes to send
      */
-    void sendAudio(int16_t* data, long long numberOfBytes);
+    void sendAudio(int16_t* data, size_t numberOfBytes);
     
     
     SocketStateType stateType = SocketStateNotInitialized;

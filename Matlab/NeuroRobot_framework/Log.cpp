@@ -1,4 +1,7 @@
 //
+//  Log.cpp
+//  Neurorobot-Framework
+//
 //  Created by Djordje Jovic on 5/16/19.
 //  Copyright © 2019 Backyard Brains. All rights reserved.
 //
@@ -7,6 +10,8 @@
 #define _Log_cpp
 
 #include "Log.h"
+#include "Helpers/StringHelper.hpp"
+
 #include <iostream>
 
 #ifdef DEBUG
@@ -14,25 +19,28 @@
     #include <chrono>
     #include <typeinfo>
     #include <string>
-    #include <sstream>
     #include <boost/filesystem.hpp>
-    #include <iomanip>
+    #include <future>
 #endif
-
 
 static std::string path;
 
+const static std::string codeVersion = "v1.0.0";
+const static std::string codeDate = "15/Feb/2020";
 
-void createLogsDirectory();
-std::string getDate();
-
+Log::Log(std::string className)
+{
+    this->className = className;
+    openLogFile();
+}
 
 Log::~Log()
 {
     closeLogFile();
 }
 
-void Log::openLogFile() {
+void Log::openLogFile()
+{
 #ifdef DEBUG
     createLogsDirectory();
     
@@ -45,10 +53,13 @@ void Log::openLogFile() {
     logFile.open(logFileName);
     
     logMessage("openLogFile >> path: >> " + std::string(logFileName) + " >>> opened");
+    logMessage("code version: " + codeVersion);
+    logMessage("code date: " + codeDate);
 #endif
 }
 
-void Log::closeLogFile() {
+void Log::closeLogFile()
+{
 #ifdef DEBUG
     logMessage("closeLogFile >> " + className + " >>> closed");
     if (logFile.is_open()) {
@@ -59,14 +70,17 @@ void Log::closeLogFile() {
 
 void Log::logMessage(std::string message) {
 #ifdef DEBUG
+    loggingMutex.lock();
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::string t(std::ctime(&now));
     logFile << t.substr( 0, t.length() -1) << " : " << message << std::endl;
     std::cout << message << std::endl;
+    loggingMutex.unlock();
 #endif
 }
 
-void createLogsDirectory() {
+void Log::createLogsDirectory()
+{
 #ifdef DEBUG
     int counter = 1;
     boost::filesystem::path dir;
@@ -76,7 +90,7 @@ void createLogsDirectory() {
     }
     
     if (path.empty()) {
-        auto date = getDate();
+        auto date = StringHelper::getDate();
         
         do {
             path = "Logs/" + date + "(" + std::to_string(counter) + ")";
@@ -86,17 +100,6 @@ void createLogsDirectory() {
         } while (boost::filesystem::exists(dir));
         boost::filesystem::create_directory(dir);
     }
-#endif
-}
-
-std::string getDate() {
-#ifdef DEBUG
-    std::stringstream ss;
-    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ss << std::put_time(localtime(&now), "%F_%H-%M-%S");
-    return ss.str();
-#else
-    return "";
 #endif
 }
 

@@ -1,20 +1,35 @@
 //
+//  VideoAndAudioObtainer.cpp
+//  Neurorobot-Framework
+//
 //  Created by Djordje Jovic on 11/5/18.
 //  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #include "VideoAndAudioObtainer.h"
 
+#include "Helpers/StringHelper.hpp"
+
 #include <iostream>
 #include <thread>
 
-static std::string createUrl(std::string userName, std::string password, std::string ipAddress);
+/// Used for `interruptFunction`.
 static std::chrono::system_clock::time_point beginTime;
+
+/// Used to derermine whether is process of reading new packet running.
 static bool isReadingNextFrame = false;
+
+/// Used to deremine if initial setup of streamers is done.
 static bool initDone = false;
 
-static long long timeOutWhileConnecting = 3000;
+/// Used as maxium ms for connecting.
+static long long timeOutWhileConnecting = 5000;
 
+/// Used as maxium ms for obtaining new packet from robot.
+static long long timeOutWhileObtainingPacket = 2000;
+
+/// Interrupt function used for determining if some critical point in code are blocking other parts more then expected.
+/// @param ctx Pointer to `AVFormatContext`
 static int interruptFunction(void* ctx)
 {
     if (!initDone) {
@@ -27,7 +42,7 @@ static int interruptFunction(void* ctx)
     } else if (isReadingNextFrame) {
         long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
 //        std::cout << "Reading frame >>> elapsed time [ms]: " << elapsedTime << std::endl;
-        if (elapsedTime > 1000) {
+        if (elapsedTime > timeOutWhileObtainingPacket) {
             std::cout << "Continue to reconnection" << std::endl;
             isReadingNextFrame = false;
             return 1;
@@ -36,37 +51,40 @@ static int interruptFunction(void* ctx)
     return 0;
 }
 
-VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamStateType *stateType_, StreamErrorOccurredCallback callback, bool audioBlocked)
+VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamErrorOccurredCallback callback, bool audioBlocked)
+: Log("VideoAndAudioObtainer")
 {
-    className = "VideoAndAudioObtainer";
     this->errorCallback = callback;
-    this->url = createUrl("admin", "admin", ipAddress);
+    this->url = StringHelper::createUrl("admin", "admin", ipAddress);
     this->audioBlocked = audioBlocked;
-    openLogFile();
     logMessage("ip: " + ipAddress);
-    reset(stateType_);
+    setupStreamers();
 }
 
-void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
+VideoAndAudioObtainer::~VideoAndAudioObtainer()
+{
+    closeStreams();
+}
+
+bool VideoAndAudioObtainer::setupStreamers()
 {
     logMessage("reset >>> started");
     
     int retVal = -1;
     
-    
     SharedMemory::getInstance()->unblockWritters();
 
-    logMessage("run >>> SharedMemory::getInstance()->unblockWritters(); >> ok");
+    logMessage("setupStreamers >>> SharedMemory::getInstance()->unblockWritters(); >> ok");
     formatCtx = avformat_alloc_context();
-    logMessage("run >>> formatCtx = avformat_alloc_context(); >> ok");
+    logMessage("setupStreamers >>> formatCtx = avformat_alloc_context(); >> ok");
     frame = av_frame_alloc();
-    logMessage("run >>> frame = av_frame_alloc(); >> ok");
+    logMessage("setupStreamers >>> frame = av_frame_alloc(); >> ok");
     pictureRgb = av_frame_alloc();
-    logMessage("run >>> pictureRgb = av_frame_alloc(); >> ok");
+    logMessage("setupStreamers >>> pictureRgb = av_frame_alloc(); >> ok");
 
     /// Register everything
     avformat_network_init();
-    logMessage("run >>> avformat_network_init(); >> ok");
+    logMessage("setupStreamers >>> avformat_network_init(); >> ok");
 
     /// Open RTSP
     AVDictionary* stream_opts = 0;
@@ -81,7 +99,7 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
     
     /// Set flag because 16 is flag indicates to send bye packets while closing stream
     formatCtx->flags = formatCtx->flags | 16;
-    logMessage("run >>> formatCtx->flags >> ok " + std::to_string(formatCtx->flags));
+    logMessage("setupStreamers >>> formatCtx->flags >> ok " + std::to_string(formatCtx->flags));
     
     retVal = avformat_open_input(&formatCtx, url.c_str(), NULL, &stream_opts);
     av_dict_free(&stream_opts);
@@ -91,17 +109,14 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
             /// If it's returned by interrupt
             stateType = StreamErrorNotConnected;
         }
-        updateState(stateType_, stateType, retVal);
-        return;
+        updateState(stateType, retVal);
+        return false;
     }
-    logMessage("run >>> avformat_open_input >> ok");
+    logMessage("setupStreamers >>> avformat_open_input >> ok");
 
     retVal = avformat_find_stream_info(formatCtx, NULL);
-    if (retVal < 0) {
-        updateState(stateType_, StreamErrorAvformatFindStreamInfo, retVal);
-        return;
-    }
-    logMessage("run >>> avformat_find_stream_info >> ok");
+    if (retVal < 0) { updateState(StreamErrorAvformatFindStreamInfo, retVal); return false; }
+    logMessage("setupStreamers >>> avformat_find_stream_info >> ok");
 
     /// Search for video and audio stream index
     for (int i = 0; i < formatCtx->nb_streams; i++) {
@@ -114,129 +129,93 @@ void VideoAndAudioObtainer::reset(StreamStateType *stateType_)
 
     av_read_play(formatCtx);
     
-    // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
-    /// Get the codec
-    videoCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
-    if (!videoCodec) {
-        updateState(stateType_, StreamErrorAvcodecFindDecoderVideo, -1);
-        return;
-    }
-    logMessage("run >>> video >>> avcodec_find_decoder >> ok");
-
-    videoCodecCtx = avcodec_alloc_context3(videoCodec);
-
-    retVal = avcodec_parameters_to_context(videoCodecCtx, formatCtx->streams[videoStreamIndex]->codecpar);
-    if (retVal < 0) {
-        updateState(stateType_, StreamErrorAvcodecParametersToContextVideo, retVal);
-        return;
-    }
-    logMessage("run >>> video >>> avcodec_parameters_to_context >> ok");
-
-    retVal = avcodec_open2(videoCodecCtx, videoCodec, NULL);
-    if (retVal < 0) {
-        updateState(stateType_, StreamErrorAvcodecOpen2Video, retVal);
-        return;
-    }
-    logMessage("run >>> video >>> avcodec_open2 >> ok");
-    
-    frameSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoCodecCtx->width, videoCodecCtx->height, 1);
-    if (frameSize < 0) {
-        logMessage("run >>> width: " + std::to_string(videoCodecCtx->width) + " height: " + std::to_string(videoCodecCtx->height));
-        updateState(stateType_, StreamErrorAvcodecFrameSize, frameSize);
-        frameSize = 6220800; // 1080 * 1920 * 3
-    }
-    logMessage("run >>> video >>> frameSize: " + std::to_string(frameSize));
-    
-    SharedMemory::getInstance()->frameDataCount = frameSize;
-    logMessage("run >>> video >>> SharedMemory::getInstance()->frameDataCount: " + std::to_string(SharedMemory::getInstance()->frameDataCount));
-    SharedMemory::getInstance()->videoWidth = videoCodecCtx->width;
-    logMessage("run >>> video >>> videoCodecCtx->width: " + std::to_string(videoCodecCtx->width));
-    SharedMemory::getInstance()->videoHeight = videoCodecCtx->height;
-    logMessage("run >>> video >>> videoCodecCtx->height: " + std::to_string(videoCodecCtx->height));
-    
-    uint8_t* frameBufferFoo = (uint8_t*)(av_malloc(frameSize));
-    logMessage("run >>> video >>> frameBufferFoo malloc >> ok");
-    
-    av_image_fill_arrays(pictureRgb->data, pictureRgb->linesize,
-        frameBufferFoo, AV_PIX_FMT_RGB24,
-        videoCodecCtx->width, videoCodecCtx->height, 1);
-    logMessage("run >>> video >>> av_image_fill_arrays >> ok");
-    
-    av_free(frameBufferFoo);
-    logMessage("run >>> video >>> free(frameBufferFoo) >> ok");
-    
-    frameRawData[0] = new uint8_t[frameSize];
-    logMessage("run >>> video >>> frameRawData >> ok");
-    // >>>>>>>>>>>>>>>>>> VIDEO <<<<<<<<<<<<<<<<<<
+    if (videoStreamIndex == -1) { logMessage("setupStreamers >>> Cannot find video stream"); }
+    setupVideoStreamer();
     
     if (!audioBlocked && audioStreamIndex != -1) {
-        // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
-        
-        //    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-        //    NeuroRobotManager -> rak id: AV_CODEC_ID_PCM_ALAW
-        //    RAK5270 -> rak id: AV_CODEC_ID_AAC
-        audioCodec = avcodec_find_decoder(formatCtx->streams[audioStreamIndex]->codecpar->codec_id);
-        if (!audioCodec) {
-            updateState(stateType_, StreamErrorAvcodecFindDecoderAudio, -1);
-            return;
-        }
-        logMessage("run >>> audio >>> avcodec_find_decoder >> ok >> codec: " + std::to_string(formatCtx->streams[audioStreamIndex]->codecpar->codec_id));
-        
-        /// Add this to allocate the context by codec
-        audioDecCtx = avcodec_alloc_context3(audioCodec);
-        retVal = avcodec_parameters_to_context(audioDecCtx, formatCtx->streams[audioStreamIndex]->codecpar);
-        if (retVal < 0) {
-            updateState(stateType_, StreamErrorAvcodecParametersToContextAudio, retVal);
-            return;
-        }
-        logMessage("run >>> audio >>> avcodec_alloc_context3 >> ok");
-        
-        retVal = avcodec_open2(audioDecCtx, audioCodec, NULL);
-        if (retVal < 0) {
-            updateState(stateType_, StreamErrorAvcodecOpen2Audio, retVal);
-            return;
-        }
-        logMessage("run >>> audio >>> avcodec_open2 >> ok");
-        // >>>>>>>>>>>>>>>>>> AUDIO <<<<<<<<<<<<<<<<<<
+        setupAudioStreamer();
+    } else {
+        logMessage("setupStreamers >>> Audio blocked or cannot find audio stream");
     }
     
     stateType = StreamStateNotStarted;
     
-    if (tryingToReconnect) {
-        tryingToReconnect = false; 
-        
-        logMessage("init >>> Trying to reconnect >>> reset done");
-        run();
-    }
-    
-    if (stateType_) {
-        *stateType_ = stateType;
-    }
-    
     initDone = true;
-    logMessage("init >>> done");
+    logMessage("setupStreamers >>> done");
+    
+    return true;
 }
 
-void VideoAndAudioObtainer::updateState(StreamStateType *stateToReturn, StreamStateType stateType_, int errorInt)
+bool VideoAndAudioObtainer::setupVideoStreamer()
 {
-    stateType = stateType_;
+    int retVal = -1;
     
-    char buf[256] = "";
-    if (errorInt != -1) {
-        av_strerror(errorInt, buf, sizeof(buf));
-    }
+    /// Get the codec
+    videoCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
+    if (!videoCodec) { updateState(StreamErrorAvcodecFindDecoderVideo, -1); return false; }
+    logMessage("setupVideoStreamer >>> avcodec_find_decoder >> ok");
+
+    videoCodecCtx = avcodec_alloc_context3(videoCodec);
+
+    retVal = avcodec_parameters_to_context(videoCodecCtx, formatCtx->streams[videoStreamIndex]->codecpar);
+    if (retVal < 0) { updateState(StreamErrorAvcodecParametersToContextVideo, retVal); return false; }
+    logMessage("setupVideoStreamer >>> avcodec_parameters_to_context >> ok");
+
+    retVal = avcodec_open2(videoCodecCtx, videoCodec, NULL);
+    if (retVal < 0) { updateState(StreamErrorAvcodecOpen2Video, retVal); return false; }
+    logMessage("setupVideoStreamer >>> avcodec_open2 >> ok");
     
-    logMessage("updateState >>> state: '" + std::string(getStreamStateMessage(stateType)) + "' >>> " + std::string(buf));
-    if (errorCallback && stateType >= 100) {
-        errorCallback(stateType);
+    frameSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, videoCodecCtx->width, videoCodecCtx->height, 1);
+    if (frameSize < 0) {
+        logMessage("run >>> width: " + std::to_string(videoCodecCtx->width) + " height: " + std::to_string(videoCodecCtx->height));
+        updateState(StreamErrorAvcodecFrameSize, frameSize);
+        frameSize = 6220800; // 1080 * 1920 * 3
     }
+    logMessage("setupVideoStreamer >>> frameSize: " + std::to_string(frameSize));
     
-    if (!tryingToReconnect && stateToReturn) {
-        *stateToReturn = stateType;
-    }
+    SharedMemory::getInstance()->frameTotalBytes = frameSize;
+    SharedMemory::getInstance()->videoWidth = videoCodecCtx->width;
+    SharedMemory::getInstance()->videoHeight = videoCodecCtx->height;
+    
+    uint8_t* frameBufferFoo = (uint8_t*)(av_malloc(frameSize));
+    logMessage("setupVideoStreamer >>> frameBufferFoo malloc >> ok");
+    
+    av_image_fill_arrays(pictureRgb->data, pictureRgb->linesize, frameBufferFoo, AV_PIX_FMT_RGB24, videoCodecCtx->width, videoCodecCtx->height, 1);
+    logMessage("setupVideoStreamer >>> av_image_fill_arrays >> ok");
+    
+    av_free(frameBufferFoo);
+    logMessage("setupVideoStreamer >>> free(frameBufferFoo) >> ok");
+    
+    frameRawData[0] = new uint8_t[frameSize];
+    logMessage("setupVideoStreamer >>> frameRawData >> ok");
+    
+    return true;
 }
 
-// MARK:- Overloaded methods
+bool VideoAndAudioObtainer::setupAudioStreamer()
+{
+    int retVal = -1;
+    
+    //    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
+    //    NeuroRobotManager -> rak id: AV_CODEC_ID_PCM_ALAW
+    //    RAK5270 -> rak id: AV_CODEC_ID_AAC
+    audioCodec = avcodec_find_decoder(formatCtx->streams[audioStreamIndex]->codecpar->codec_id);
+    if (!audioCodec) { updateState(StreamErrorAvcodecFindDecoderAudio, -1); return false; }
+    logMessage("setupAudioStreamers >>> avcodec_find_decoder >> ok >> codec: " + std::to_string(formatCtx->streams[audioStreamIndex]->codecpar->codec_id));
+    
+    /// Add this to allocate the context by codec
+    audioDecCtx = avcodec_alloc_context3(audioCodec);
+    retVal = avcodec_parameters_to_context(audioDecCtx, formatCtx->streams[audioStreamIndex]->codecpar);
+    if (retVal < 0) { updateState(StreamErrorAvcodecParametersToContextAudio, retVal); return false; }
+    logMessage("setupAudioStreamers >>> avcodec_alloc_context3 >> ok");
+    
+    retVal = avcodec_open2(audioDecCtx, audioCodec, NULL);
+    if (retVal < 0) { updateState(StreamErrorAvcodecOpen2Audio, retVal); return false; }
+    logMessage("setupAudioStreamers >>> avcodec_open2 >> ok");
+    
+    return true;
+}
+
 void VideoAndAudioObtainer::run()
 {
     logMessage("run >>> started");
@@ -246,15 +225,17 @@ void VideoAndAudioObtainer::run()
     }
     
     if (stateType != StreamStateRunning) {
-        updateState(NULL, stateType, -1);
+        updateState(stateType, -1);
         stop();
-        closeStream();
+        closeStreams();
         return;
     }
     
     SharedMemory::getInstance()->unblockWritters();
     isReadingNextFrame = true;
     
+    /// Load first packet before while loop and every next we are reading at the end of while loop.
+    /// This mechanism is used to take adventage of `interruptFunction` and break reading of frame if it exceeds time limit.
     int avReadFrameResponse = av_read_frame(formatCtx, &packet);
     
     while (avReadFrameResponse >= 0 && isRunning()) {
@@ -263,72 +244,48 @@ void VideoAndAudioObtainer::run()
         if (packet.stream_index == videoStreamIndex) {
             /// decode video packet
             logMessage("run >>> video packet");
-            int check = 0;
-
-            decode(videoCodecCtx, frame, &check, &packet);
-
-            if (check != 0) {
-                imgConvertCtx = sws_getCachedContext(imgConvertCtx, videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
-                sws_scale(imgConvertCtx, frame->data, frame->linesize, 0, videoCodecCtx->height, frameRawData, pictureRgb->linesize);
+            processVideoPacket(packet);
             
-                SharedMemory::getInstance()->writeFrame(frameRawData[0], frameSize);
-            } else {
-                logMessage("run >>> video packet >>> Error with decoding video packet");
-            }
         } else if (packet.stream_index == audioStreamIndex && !audioBlocked) {
-            /// decode audio packet-
+            /// decode audio packet
             logMessage("run >>> audio packet");
-            int check = 0;
-
-            decode(audioDecCtx, frame, &check, &packet);
-            
-            logMessage("run >>> audio >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
-            logMessage("run >>> audio >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
-            logMessage("run >>> audio >>> frame->linesize[0]: " + std::to_string(frame->linesize[0]));
-            logMessage("run >>> audio >>> frame->pkt_size: " + std::to_string(frame->pkt_size));
-            logMessage("run >>> audio >>> frame->channels: " + std::to_string(frame->channels));
-            
-            SharedMemory::getInstance()->setAudioSampleRate(frame->sample_rate);
-            if (check != 0) {
-                unsigned short bytesPerSample = (unsigned short)av_get_bytes_per_sample(AVSampleFormat(frame->format));
-                SharedMemory::getInstance()->writeAudio(frame->extended_data[0], (size_t)frame->nb_samples, bytesPerSample);
-                
-                logMessage("run >>> audio >>> bytesPerSample: " + std::to_string(bytesPerSample));
-            } else {
-                logMessage("run >>> audio packet >> Error with decoding audio packet");
-            }
+            processAudioPacket(packet);
         }
-        logMessage("loading finished");
+        logMessage("run >>> packet processing finished");
+        
         av_packet_unref(&packet);
-        logMessage("av_packet_unref(&packet);");
+        logMessage("run >>> av_packet_unref(&packet);");
         
         /// Start measuring time for reading frame, to take action if it exceeds limit. @See interruptFunction function.
         beginTime = std::chrono::system_clock::now();
-        logMessage("beginTime = std::chrono::system_clock::now();");
         isReadingNextFrame = true;
-        logMessage("isReadingNextFrame = true;");
         avReadFrameResponse = av_read_frame(formatCtx, &packet);
-        logMessage("avReadFrameResponse = av_read_frame(formatCtx, &packet);");
+        logMessage("run >>> avReadFrameResponse = av_read_frame(formatCtx, &packet);");
     }
     long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
     
-    logMessage("End of run()");
+    logMessage("run >>> End of run()");
     
-    closeStream();
+    closeStreams();
     
     if (avReadFrameResponse < 0 && isRunning()) {
         /// Error occurred
-        updateState(NULL, StreamErrorTimeOutWhileReceivingFrame, avReadFrameResponse);
+        updateState(StreamStateTimeOutWhileReceivingFrame, avReadFrameResponse);
         
-        logMessage("End of run error >>> reading time: " + std::to_string(elapsedTime) + " >>> trying to reconnect");
+        logMessage("run >>> End of run error >>> reading time: " + std::to_string(elapsedTime) + " >>> trying to reconnect");
         
-        tryingToReconnect = true;
-        
-        reset(NULL);
-        if (stateType != StreamStateNotStarted) {
+        if (setupStreamers()) {
+            logMessage("run >>> Trying to reconnect >>> reset done");
+            
+            std::thread processThread(&VideoAndAudioObtainer::run, this);
+            processThread.detach();
+            
+//            run();
+        } else {
             /// Cannot recover connection
+            updateState(StreamErrorCannotReconnect, -1);
             stop();
-            closeStream();
+            closeStreams();
         }
     } else {
         /// Stop called
@@ -336,7 +293,45 @@ void VideoAndAudioObtainer::run()
     }
 }
 
-// MARK:- Rest of the methods
+void VideoAndAudioObtainer::processVideoPacket(AVPacket packet_)
+{
+    int check = 0;
+
+    decode(videoCodecCtx, frame, &check, &packet_);
+
+    if (check != 0) {
+        imgConvertCtx = sws_getCachedContext(imgConvertCtx, videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+        sws_scale(imgConvertCtx, frame->data, frame->linesize, 0, videoCodecCtx->height, frameRawData, pictureRgb->linesize);
+    
+        SharedMemory::getInstance()->writeFrame(frameRawData[0], frameSize);
+    } else {
+        logMessage("processVideoPacket >>> Error with decoding video packet");
+    }
+}
+
+void VideoAndAudioObtainer::processAudioPacket(AVPacket packet_)
+{
+    int check = 0;
+
+    decode(audioDecCtx, frame, &check, &packet_);
+    
+    logMessage("processAudioPacket >>> frame->nb_samples: " + std::to_string(frame->nb_samples));
+    logMessage("processAudioPacket >>> frame->sample_rate: " + std::to_string(frame->sample_rate));
+    logMessage("processAudioPacket >>> frame->linesize[0]: " + std::to_string(frame->linesize[0]));
+    logMessage("processAudioPacket >>> frame->pkt_size: " + std::to_string(frame->pkt_size));
+    logMessage("processAudioPacket >>> frame->channels: " + std::to_string(frame->channels));
+    
+    SharedMemory::getInstance()->audioSampleRate = frame->sample_rate;
+    if (check != 0) {
+        unsigned short bytesPerSample = (unsigned short)av_get_bytes_per_sample(AVSampleFormat(frame->format));
+        SharedMemory::getInstance()->writeAudio(frame->extended_data[0], (size_t)frame->nb_samples, bytesPerSample);
+        
+        logMessage("processAudioPacket >>> bytesPerSample: " + std::to_string(bytesPerSample));
+    } else {
+        logMessage("processAudioPacket >>> Error with decoding audio packet");
+    }
+}
+
 int VideoAndAudioObtainer::decode(AVCodecContext* avctx, AVFrame* frame, int* got_frame, AVPacket* pkt)
 {
     int ret;
@@ -361,8 +356,9 @@ int VideoAndAudioObtainer::decode(AVCodecContext* avctx, AVFrame* frame, int* go
     return 0;
 }
 
-void VideoAndAudioObtainer::closeStream()
+void VideoAndAudioObtainer::closeStreams()
 {
+    logMessage("closeStreams >>> entered");
     SharedMemory::getInstance()->blockWritters();
     
     av_frame_free(&frame);
@@ -376,18 +372,20 @@ void VideoAndAudioObtainer::closeStream()
     avformat_network_deinit();
     
     imgConvertCtx = NULL;
+    logMessage("closeStreams >>> finished");
 }
 
-static std::string createUrl(std::string userName, std::string password, std::string ipAddress)
+void VideoAndAudioObtainer::updateState(StreamStateType stateType_, int errorCode)
 {
-    // rtsp://admin:admin@192.168.100.1:554/cam1/h264
-    std::string url = std::string();
-    url.append("rtsp://");
-    url.append(userName);
-    url.append(":");
-    url.append(password);
-    url.append("@");
-    url.append(ipAddress);
-    url.append(":554/cam1/h264");
-    return url;
+    stateType = stateType_;
+    
+    char buf[256] = "";
+    if (errorCode != -1) {
+        av_strerror(errorCode, buf, sizeof(buf));
+    }
+    
+    logMessage("updateState >>> state: '" + std::string(getStreamStateMessage(stateType)) + "' >>> " + std::string(buf));
+    if (errorCallback && stateType >= 100) {
+        errorCallback(stateType);
+    }
 }

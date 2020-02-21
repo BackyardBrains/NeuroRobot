@@ -1,4 +1,7 @@
 //
+//  BackgroundThread.h
+//  Neurorobot-Framework
+//
 //  Created by Djordje Jovic on 11/5/18.
 //  Copyright © 2018 Backyard Brains. All rights reserved.
 //
@@ -8,17 +11,15 @@
 
 #include <thread>
 #include <iostream>
-#include <vector>
 
 /// Defines the base class for threading from MEX files.
 /// Only run() needs to be overloaded.
 class BackgroundThread {
-public:
-
-    /// Overload this. The actual worker thread method
-    virtual void run() = 0;
-
-    /// Runs this->run and sets flags
+    
+private:
+    int _running = false;
+    
+    /// Start `run()` and set flags
     void start()
     {
         if (!isRunning()) {
@@ -26,25 +27,32 @@ public:
             this->run();
         }
     }
+    
+public:
 
-    //! Runs this->start() in a background thread
-    void startThreaded() {
+    /// Overload this. The actual worker thread method
+    virtual void run() = 0;
+
+    /// Run `start()` in a background thread
+    void startThreaded()
+    {
         if (!isRunning()) {
             std::thread processThread(&BackgroundThread::start, this);
             processThread.detach();
         }
     }
-
-    bool isRunning() {
+    
+    /// @return Whether worker is running
+    bool isRunning()
+    {
         return _running;
     }
-
-    void stop() {
+    
+    /// Stop the worker
+    void stop()
+    {
         _running = false;
     }
-
-private:
-    int _running = false;
 };
 
 #endif // ! _BackgroundThread_h

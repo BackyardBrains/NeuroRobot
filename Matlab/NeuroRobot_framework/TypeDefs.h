@@ -15,16 +15,17 @@ typedef enum : int {
     SocketStateNotInitialized = 0,
     SocketStateConnecting,
     SocketStateConnected,
+    SocketStateEOF,
     
     SocketErrorCannotConnect = 100,
-    SocketErrorEOF,
     SocketErrorLostConnection,
     SocketErrorWhileSending,
-    SocketErrorExists,
-    SocketErrorCannotCancelDataSocket,
-    SocketErrorCannotCancelAudioSocket,
-    SocketErrorCannotCloseDataSocket,
-    SocketErrorCannotCloseAudioSocket
+    SocketErrorConnectingAudioSocket,
+    
+    SocketInfoCannotCancelDataSocket = 200,
+    SocketInfoCannotCancelAudioSocket,
+    SocketInfoCannotCloseDataSocket,
+    SocketInfoCannotCloseAudioSocket
 } SocketStateType;
 typedef void (*SocketErrorOccurredCallback) (SocketStateType error);
 
@@ -32,9 +33,9 @@ typedef enum : int {
     StreamStateNotInitialized = 0,
     StreamStateNotStarted,
     StreamStateRunning,
+    StreamStateTimeOutWhileReceivingFrame,
     
     StreamErrorNotConnected = 100,
-    StreamErrorTimeOutWhileReceivingFrame,
     StreamErrorAvformatOpenInput,
     StreamErrorAvformatFindStreamInfo,
     StreamErrorAvcodecFindDecoderVideo,
@@ -44,6 +45,9 @@ typedef enum : int {
     StreamErrorAvcodecParametersToContextAudio,
     StreamErrorAvcodecOpen2Audio,
     StreamErrorAvcodecFrameSize,
+    StreamErrorCannotReconnect,
+    
+    StreamInfoReconnecting = 200,
     
 } StreamStateType;
 typedef void (*StreamErrorOccurredCallback) (StreamStateType error);
@@ -64,12 +68,12 @@ static char* getSocketStateMessage(SocketStateType type)
             sprintf(retVal, "Socket state: connecting");
             break;
         }
-        case SocketErrorCannotConnect: {
-            sprintf(retVal, "Socket error: cannot connect");
+        case SocketStateEOF: {
+            sprintf(retVal, "Socket state: End of file");
             break;
         }
-        case SocketErrorEOF: {
-            sprintf(retVal, "Socket error: End of file");
+        case SocketErrorCannotConnect: {
+            sprintf(retVal, "Socket error: cannot connect");
             break;
         }
         case SocketErrorLostConnection: {
@@ -80,24 +84,24 @@ static char* getSocketStateMessage(SocketStateType type)
             sprintf(retVal, "Socket error: error occurred while sending");
             break;
         }
-        case SocketErrorExists: {
-            sprintf(retVal, "Socket error: exists");
+        case SocketErrorConnectingAudioSocket: {
+            sprintf(retVal, "Socket error: error while connecting to audio socket");
             break;
         }
-        case SocketErrorCannotCancelDataSocket: {
-            sprintf(retVal, "Socket error: cannot cancel data socket");
+        case SocketInfoCannotCancelDataSocket: {
+            sprintf(retVal, "Socket info: cannot cancel data socket");
             break;
         }
-        case SocketErrorCannotCancelAudioSocket: {
-            sprintf(retVal, "Socket error: cannot cancel audio socket");
+        case SocketInfoCannotCancelAudioSocket: {
+            sprintf(retVal, "Socket info: cannot cancel audio socket");
             break;
         }
-        case SocketErrorCannotCloseDataSocket: {
-            sprintf(retVal, "Socket error: cannot close data socket");
+        case SocketInfoCannotCloseDataSocket: {
+            sprintf(retVal, "Socket info: cannot close data socket");
             break;
         }
-        case SocketErrorCannotCloseAudioSocket: {
-            sprintf(retVal, "Socket error: cannot close audio socket");
+        case SocketInfoCannotCloseAudioSocket: {
+            sprintf(retVal, "Socket info: cannot close audio socket");
             break;
         }
     }
@@ -109,19 +113,19 @@ const static char* getStreamStateMessage(StreamStateType type)
     static char retVal[255];
     switch(type) {
         case StreamStateNotInitialized:
-            sprintf(retVal, "Stream not initialized");
+            sprintf(retVal, "Stream state: not initialized");
             break;
         case StreamStateNotStarted:
-            sprintf(retVal, "Stream not started");
+            sprintf(retVal, "Stream state: not started");
             break;
         case StreamStateRunning:
-            sprintf(retVal, "Stream error: none");
+            sprintf(retVal, "Stream state: running");
+            break;
+        case StreamStateTimeOutWhileReceivingFrame:
+            sprintf(retVal, "Stream state: time out while receiving frame");
             break;
         case StreamErrorNotConnected:
             sprintf(retVal, "Stream error: not connected");
-            break;
-        case StreamErrorTimeOutWhileReceivingFrame:
-            sprintf(retVal, "Stream error: time out while receiving frame");
             break;
         case StreamErrorAvformatOpenInput:
             sprintf(retVal, "Stream error: avformat open input");
@@ -142,15 +146,20 @@ const static char* getStreamStateMessage(StreamStateType type)
             sprintf(retVal, "Stream error: avcodec find decoder for audio");
             break;
         case StreamErrorAvcodecParametersToContextAudio:
-            sprintf(retVal, "Stream error avcodec parameters to context for audio");
+            sprintf(retVal, "Stream error: avcodec parameters to context for audio");
             break;
         case StreamErrorAvcodecOpen2Audio:
-            sprintf(retVal, "Stream error avcodec open2 for audio");
+            sprintf(retVal, "Stream error: avcodec open2 for audio");
             break;
         case StreamErrorAvcodecFrameSize:
-            sprintf(retVal, "Stream error not obtained frame size from FFMPEG funciton");
+            sprintf(retVal, "Stream error: Not obtained frame size from FFMPEG funciton");
             break;
-            
+        case StreamErrorCannotReconnect:
+            sprintf(retVal, "Stream error: Cannot reconnect");
+            break;
+        case StreamInfoReconnecting:
+            sprintf(retVal, "Stream info: Reconnecting");
+            break;
     }
     return retVal;
 }

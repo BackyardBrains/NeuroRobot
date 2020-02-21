@@ -2,8 +2,8 @@
 //  SharedMemory.h
 //  Neurorobot-Framework
 //
-//  Created by Djordje Jovic on 6/16/19.
-//  Copyright © 2019 Backyard Brains. All rights reserved.
+//  Created by Djordje Jovic on 11/5/18.
+//  Copyright © 2018 Backyard Brains. All rights reserved.
 //
 
 #ifndef SharedMemory_h
@@ -14,61 +14,69 @@
 
 #include <mutex>
 
-/**
- Intended for data store.
- */
+/// Class for storing the data. Intended for using with `singleton` mechanism.
 class SharedMemory : public Log {
     
 private:
     
-    /* Here will be the instance stored. */
+    /// Instance for used for `singleton` mechanism
     static SharedMemory* instance;
-    /* Private constructor to prevent instancing. */
+    
+    /// Private constructor to prevent instancing
     SharedMemory();
     ~SharedMemory();
     
+    /// Mutex used in blocking access to some data
     std::mutex mutexVideo;
     std::mutex mutexAudio;
     std::mutex mutexSerialRead;
     
-    unsigned short audioCounter = 0;
-    bool isWritingBlocked = false;
-    int serialReadWrittenSize = 0;
-    int lastSerialSize = 0;
-    unsigned short bytesPerSample = 0;
+    /// Video data
+    uint8_t *frameData = NULL;
     
-    uint8_t *videoData = NULL;
+    /// Audio data
     uint8_t *audioData = NULL;
-    std::string lastSerialResult;
-    int audioSampleRate = 0;
+    unsigned short audioCounter = 0;
+    unsigned short bytesPerSample = 0;
+    bool isWritingBlocked = false;
     
+    /// Serial data
+    std::string lastSerialResult;
     char *serialData = NULL;
+    static const unsigned int serialDataBufferCount = 1000;
     
 public:
-    /* Static access method. */
+    
+    /// Static instance.
     static SharedMemory* getInstance();
     
-    size_t audioNumberOfBytes = 0;
-    size_t frameDataCount = 0;
+    /// Total number of audio data bytes.
+    size_t audioTotalBytes = 0;
     
-    int videoWidth = 0;
-    int videoHeight = 0;
+    /// Audio sample rate in Hz
+    unsigned int audioSampleRate = 0;
     
-    static const int serialDataBufferCount = 1000;
+    /// Total number of frame data bytes.
+    size_t frameTotalBytes = 0;
     
-    /// Blocks writers.
+    /// Video width in px
+    unsigned int videoWidth = 0;
+    
+    /// Video height in px
+    unsigned int videoHeight = 0;
+    
+    /// Block writers.
     void blockWritters();
     
-    /// Unblocks writers.
+    /// Unblock writers.
     void unblockWritters();
     
-    /// Writes one frame of video data to shared memory.
+    /// Write one frame of video data to shared memory.
     /// @param data Video frame data
     /// @param frameSizeInBytes Data size in bytes
     void writeFrame(uint8_t* data, size_t frameSizeInBytes);
     
-    
-    /// Reads video frame from shared memory.
+    /// Read video frame from shared memory.
     /// @return Video frame data
     uint8_t* readVideoFrame();
     
@@ -84,21 +92,14 @@ public:
     /// @return Audio data from store
     uint8_t* readAudio(size_t* totalBytes_, unsigned short* bytesPerSample_);
     
-    /// Writes serial data to store.
+    /// Write serial data to store.
     /// @param data Data to write
-    void writeSerialRead(std::string data);
+    void setSerialData(std::string data);
     
-    /// Reads serial data from store.
-    /// @param size Size of serial data which is forwarded parallel
+    /// Read serial data from store.
+    /// @param totalBytes Size of serial data which is forwarded parallel
     /// @return Serial data from store
-    char* readSerialRead(int* size);
-    
-    /// Set sample rate for audio
-    /// @param sampleRate sample rate in Hz
-    void setAudioSampleRate(int sampleRate);
-    
-    /// Get audio sample rate
-    int getAudioSampleRate();
+    char* getSerialData(size_t* totalBytes);
 };
 
 #endif /* SharedMemory_h */

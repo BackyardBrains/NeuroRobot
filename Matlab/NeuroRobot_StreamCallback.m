@@ -1,8 +1,6 @@
 function NeuroRobot_StreamCallback()
 % function NeuroRobot_StreamCallback(streamStateInput)
 
-
-disp('error')
 % disp(getStreamStateMessage(error))
 % disp(streamStateInput);
 % streamStateInput

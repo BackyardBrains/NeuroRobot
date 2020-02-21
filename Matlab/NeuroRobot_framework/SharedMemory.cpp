@@ -1,4 +1,7 @@
 //
+//  SharedMemory.cpp
+//  Neurorobot-Framework
+//
 //  Created by Djordje Jovic on 11/5/18.
 //  Copyright © 2018 Backyard Brains. All rights reserved.
 //
@@ -11,8 +14,9 @@
 
 #include <iostream>
 
+const static unsigned int maxAudioCounter = 20;
 
-/* Null, because instance will be initialized on demand. */
+/// Null, because instance will be initialized on demand.
 SharedMemory* SharedMemory::instance = 0;
 SharedMemory* SharedMemory::getInstance()
 {
@@ -23,16 +27,14 @@ SharedMemory* SharedMemory::getInstance()
 }
 
 SharedMemory::SharedMemory()
+: Log("SharedMemory")
 {
-    className = "SharedMemory";
-    openLogFile();
-    
     logMessage("SharedMemory >>> init");
 }
 
 SharedMemory::~SharedMemory()
 {
-    delete [] videoData;
+    delete [] frameData;
     delete [] audioData;
     delete [] serialData;
 }
@@ -47,29 +49,30 @@ void SharedMemory::unblockWritters()
     isWritingBlocked = false;
 }
 
-void SharedMemory::writeFrame(uint8_t* data, size_t frameSizeInBytes)
+void SharedMemory::writeFrame(uint8_t* data, size_t totalBytes)
 {
-    if (frameSizeInBytes == 0) { return; }
+    if (totalBytes == 0) { return; }
     
     mutexVideo.lock();
     
-    if (frameSizeInBytes != frameDataCount) {
-        if (videoData) {
-            delete [] videoData;
+    if (totalBytes != frameTotalBytes) {
+        if (frameData) {
+            logMessage("writeFrame >>> Rebasing frameData");
+            delete [] frameData;
         }
-        frameDataCount = frameSizeInBytes;
+        frameTotalBytes = totalBytes;
     }
-    if (!videoData) {
-        videoData = new uint8_t[frameDataCount];
+    if (!frameData) {
+        frameData = new uint8_t[frameTotalBytes];
     }
     
-    memcpy(videoData, data, frameDataCount);
+    memcpy(frameData, data, frameTotalBytes);
     mutexVideo.unlock();
 }
 
 uint8_t* SharedMemory::readVideoFrame()
 {
-    return videoData;
+    return frameData;
 }
 
 void SharedMemory::writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_)
@@ -80,22 +83,23 @@ void SharedMemory::writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned s
     
     mutexAudio.lock();
     
-    audioNumberOfBytes = numberOfSamples_ * bytesPerSample_;
+    audioTotalBytes = numberOfSamples_ * bytesPerSample_;
     bytesPerSample = bytesPerSample_;
     
-    // Alloc
+    /// Alloc
     if (!audioData) {
-        audioData = new uint8_t[audioNumberOfBytes * 20 + 1];
+        /// Alloc `audioData` buffer with `audioTotalBytes` number of items multplied with `maxAudioCounter`
+        audioData = new uint8_t[audioTotalBytes * maxAudioCounter + 1];
     }
     
-    // If the buffer is full overwrite the first `audioNumberOfBytes` samples
-    if (audioCounter == 20) {
+    /// If the buffer is full then overwrite the first `audioTotalBytes` samples
+    if (audioCounter == maxAudioCounter) {
         audioCounter--;
-        memcpy(audioData, &audioData[audioNumberOfBytes], audioNumberOfBytes * audioCounter);
+        memcpy(audioData, &audioData[audioTotalBytes], audioTotalBytes * audioCounter);
     }
     
-    // Write at the end of valid data
-    memcpy(&audioData[audioNumberOfBytes * audioCounter], data, audioNumberOfBytes);
+    /// Write at the end of valid data
+    memcpy(&audioData[audioTotalBytes * audioCounter], data, audioTotalBytes);
     audioCounter++;
     
     mutexAudio.unlock();
@@ -103,8 +107,8 @@ void SharedMemory::writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned s
 
 uint8_t* SharedMemory::readAudio(size_t* totalBytes_, unsigned short* bytesPerSample_)
 {
-    static uint8_t *audioDataFoo = new uint8_t[audioNumberOfBytes * 20];
-    *totalBytes_ = (size_t)(audioNumberOfBytes * audioCounter);
+    static uint8_t *audioDataFoo = new uint8_t[audioTotalBytes * maxAudioCounter];
+    *totalBytes_ = (size_t)(audioTotalBytes * audioCounter);
     *bytesPerSample_ = bytesPerSample;
     
     if (audioCounter != 0) {
@@ -120,10 +124,10 @@ uint8_t* SharedMemory::readAudio(size_t* totalBytes_, unsigned short* bytesPerSa
     return audioDataFoo;
 }
 
-void SharedMemory::writeSerialRead(std::string data)
+void SharedMemory::setSerialData(std::string data)
 {
     if (isWritingBlocked) {
-        logMessage("Blocked serial");
+        logMessage("setSerialData >>> Blocked serial writing");
         return;
     }
     mutexSerialRead.lock();
@@ -136,15 +140,15 @@ void SharedMemory::writeSerialRead(std::string data)
     mutexSerialRead.unlock();
 }
 
-char* SharedMemory::readSerialRead(int* size)
+char* SharedMemory::getSerialData(size_t* totalBytes)
 {
     mutexSerialRead.lock();
     
-    *size = (int)lastSerialResult.length();
+    *totalBytes = lastSerialResult.length();
     
     if (!serialData) {
-        serialData = new char[1000];
-        logMessage("serialData = new uint8_t[1000];");
+        serialData = new char[serialDataBufferCount];
+        logMessage("serialData = new uint8_t[serialDataBufferCount];");
     }
     
     strcpy(serialData, lastSerialResult.c_str());
@@ -152,16 +156,6 @@ char* SharedMemory::readSerialRead(int* size)
     mutexSerialRead.unlock();
     
     return serialData;
-}
-
-void SharedMemory::setAudioSampleRate(int sampleRate)
-{
-    audioSampleRate = sampleRate;
-}
-
-int SharedMemory::getAudioSampleRate()
-{
-    return audioSampleRate;
 }
 
 #endif // ! _SharedMemory_cpp

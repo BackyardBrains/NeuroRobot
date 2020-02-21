@@ -1,24 +1,21 @@
 //
+//  NeuroRobotManager.cpp
+//  Neurorobot-Framework
+//
 //  Created by Djordje Jovic on 11/5/18.
 //  Copyright © 2018 Backyard Brains. All rights reserved.
 //
-
 
 #include "NeuroRobotManager.h"
 
 #include <iostream>
 #include <boost/thread/thread.hpp>
 
-/**
- Inits video and audio obtainer object and socket object.
- */
-NeuroRobotManager::NeuroRobotManager(std::string ipAddress, std::string port, StreamStateType *error, StreamErrorOccurredCallback streamCallback, SocketErrorOccurredCallback socketCallback)
+NeuroRobotManager::NeuroRobotManager(std::string ipAddress, std::string port, StreamErrorOccurredCallback streamCallback, SocketErrorOccurredCallback socketCallback)
+: Log("NeuroRobotManager")
 {
-    className = "NeuroRobotManager";
-    openLogFile();
-    
     if (!videoAndAudioObtainerObject) {
-        videoAndAudioObtainerObject = new VideoAndAudioObtainer(ipAddress, error, streamCallback, audioBlocked);
+        videoAndAudioObtainerObject = new VideoAndAudioObtainer(ipAddress, streamCallback, audioBlocked);
     }
     
     if (videoAndAudioObtainerObject->stateType == StreamStateNotStarted && !socketBlocked && !socketObject) {
@@ -26,9 +23,6 @@ NeuroRobotManager::NeuroRobotManager(std::string ipAddress, std::string port, St
     }
 }
 
-/**
- Starts the video, audio and serial data obtainers.
- */
 void NeuroRobotManager::start()
 {
     videoAndAudioObtainerObject->startThreaded();
@@ -38,12 +32,6 @@ void NeuroRobotManager::start()
     boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 }
 
-/**
- Reads audio from shared memory object.
- 
- @param size Size of audio data which is forwarded parallel
- @return Audio data
- */
 void *NeuroRobotManager::readAudio(size_t *totalBytes, unsigned short *bytesPerSample)
 {
     *totalBytes = 0;
@@ -55,19 +43,11 @@ void *NeuroRobotManager::readAudio(size_t *totalBytes, unsigned short *bytesPerS
     return reply;
 }
 
-/**
- Reads video frame from shared memory object.
- 
- @return Video frame data
- */
-uint8_t *NeuroRobotManager::readVideo()
+uint8_t *NeuroRobotManager::readVideoFrame()
 {
     return SharedMemory::getInstance()->readVideoFrame();
 }
 
-/**
- Stops video, audio and serial data obtainers.
- */
 void NeuroRobotManager::stop()
 {
     if (!socketBlocked && socketObject && socketObject->isRunning()) {
@@ -79,84 +59,69 @@ void NeuroRobotManager::stop()
     }
     
     boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
+    
+    delete socketObject;
+    delete videoAndAudioObtainerObject;
 }
 
-/**
- Queries whether the video and audio obtainer is working.
- 
- @return Is video and audio obtainer working
- */
 bool NeuroRobotManager::isRunning()
 {
+    bool videoAndAudioStreamerLegalState = videoAndAudioObtainerObject->isRunning() && !(videoAndAudioObtainerObject->stateType >= 100);
+    
     if (!socketBlocked) {
+        
         if (!socketObject) {
             logMessage("isRunning >> socketObject doesn't exist");
             return false;
         }
         
+        bool socketLegalState = socketObject->isRunning() && !(socketObject->stateType >= 100 && socketObject->stateType < 200);
+        
         if (!videoAndAudioObtainerObject->isRunning()) {
             logMessage("issue with videoAndAudioObtainerObject->isRunning()");
         }
         if (videoAndAudioObtainerObject->stateType != StreamStateRunning) {
-            logMessage("issue with videoAndAudioObtainerObject->stateType");
-            logMessage(getStreamStateMessage(videoAndAudioObtainerObject->stateType));
+            logMessage("issue with videoAndAudioObtainerObject->stateType: " + std::string(getStreamStateMessage(videoAndAudioObtainerObject->stateType)));
         }
-        if (!videoAndAudioObtainerObject->isRunning()) {
-            logMessage("issue with videoAndAudioObtainerObject->isRunning()");
+        if (!socketObject->isRunning()) {
+            logMessage("issue with socketObject->isRunning()");
         }
         if (socketObject->stateType != SocketStateConnected) {
-            logMessage("socketObject->stateType");
-            logMessage(getSocketStateMessage(socketObject->stateType));
+            logMessage("issue with socketObject->stateType: " + std::string(getSocketStateMessage(socketObject->stateType)));
         }
-        return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->stateType == StreamStateRunning && socketObject->isRunning() && socketObject->stateType == SocketStateConnected;
+        return videoAndAudioStreamerLegalState && socketLegalState;
     } else {
-        return videoAndAudioObtainerObject->isRunning() && videoAndAudioObtainerObject->stateType == StreamStateRunning;
+        return videoAndAudioStreamerLegalState;
     }
 }
 
-/**
- Writes forwarded serial data.
- 
- @param data Serial data
- */
 void NeuroRobotManager::writeSerial(std::string data)
 {
-    if (!socketBlocked) {
-        socketObject->writeSerial(data);
-    }
+    if (socketBlocked) { return; }
+    
+    socketObject->send(data);
 }
+
 void NeuroRobotManager::writeSerial(char *data)
 {
-    if (!socketBlocked) {
-        writeSerial(std::string(data));
-    }
+    if (socketBlocked) { return; }
+    
+    writeSerial(std::string(data));
 }
 
-/**
- Reads serial data from shared memory object.
- 
- @param size Size of serial data which is forwarded parallel
- @return Serial data
- */
-char *NeuroRobotManager::readSerial(int *size)
+char *NeuroRobotManager::readSerial(size_t *totalBytes)
 {
-    *size = 0;
+    *totalBytes = 0;
     if (socketBlocked) { return nullptr; }
     
-    return SharedMemory::getInstance()->readSerialRead(size);
+    return SharedMemory::getInstance()->getSerialData(totalBytes);
 }
 
-/**
- Sends audio data through socket object.
- 
- @param data Data to send
- @param numberOfBytes Number of bytes to send
- */
-void NeuroRobotManager::sendAudio(int16_t *data, long long numberOfBytes)
+void NeuroRobotManager::sendAudio(int16_t *data, size_t totalBytes)
 {
-    if (!socketBlocked) {
-        socketObject->sendAudio(data, numberOfBytes);
-    }
+    if (socketBlocked) { return; }
+    
+    socketObject->sendAudio(data, totalBytes);
 }
 
 StreamStateType NeuroRobotManager::readStreamState()
@@ -166,34 +131,32 @@ StreamStateType NeuroRobotManager::readStreamState()
 
 SocketStateType NeuroRobotManager::readSocketState()
 {
-    if (!socketBlocked) {
-        return socketObject->stateType;
-    } else {
-        return SocketStateNotInitialized;
-    }
+    if (socketBlocked) { return SocketStateNotInitialized; }
+    
+    return socketObject->stateType;
 }
 
-long long NeuroRobotManager::frameDataCount()
+size_t NeuroRobotManager::videoFrameBytes()
 {
-    return SharedMemory::getInstance()->frameDataCount;
+    return SharedMemory::getInstance()->frameTotalBytes;
 }
 
-long long NeuroRobotManager::audioSampleCount()
+size_t NeuroRobotManager::audioBytes()
 {
-    return SharedMemory::getInstance()->audioNumberOfBytes;
+    return SharedMemory::getInstance()->audioTotalBytes;
 }
 
-int NeuroRobotManager::audioSampleRate()
+unsigned int NeuroRobotManager::audioSampleRate()
 {
-    return SharedMemory::getInstance()->getAudioSampleRate();
+    return SharedMemory::getInstance()->audioSampleRate;
 }
 
-int NeuroRobotManager::videoWidth()
+unsigned int NeuroRobotManager::videoWidth()
 {
     return SharedMemory::getInstance()->videoWidth;
 }
 
-int NeuroRobotManager::videoHeight()
+unsigned int NeuroRobotManager::videoHeight()
 {
     return SharedMemory::getInstance()->videoHeight;
 }
