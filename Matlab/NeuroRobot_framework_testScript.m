@@ -94,7 +94,7 @@ while rak.isRunning() && flag_run
 %         y = sin(6.28 * 8 * t);
 %         y = [y y y y]';
 %         rak.sendAudio2(y);
-        rak.sendAudio('NeuroRobot_framework/Bekim Demiri Beki - Pjesma Majci (Jedna je majka).mp3');
+%         rak.sendAudio('NeuroRobot_framework/EXPLOSION.mp3');
     end
     sendAudioTimings = [sendAudioTimings; clock];
     
