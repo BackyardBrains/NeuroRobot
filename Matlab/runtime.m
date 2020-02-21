@@ -33,7 +33,7 @@ nstep = 0;
 vis_pref_vals = zeros(n_vis_prefs, 2);
 motor_command = zeros(1, 5);
 prev_motor_command = zeros(1, 5);
-this_distance = 300;
+this_distance = 4000;
 reward = 0;
 distance_read = 0;
 firing = [];
@@ -111,7 +111,7 @@ end
 %         end
 %     end
 % end
-if exist('rak_pulse', 'var')
+if exist('rak_pulse', 'var') && isvalid(rak_pulse)
     stop(rak_pulse)
     delete(rak_pulse)
     disp('Previos rak_pulse deleted')

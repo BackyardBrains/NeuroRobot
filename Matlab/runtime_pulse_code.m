@@ -3,7 +3,7 @@
 % disp('1')
 nstep = nstep + 1;
 xstep = xstep + 1;
-if ~rem(nstep, 7)
+if rak_only && ~rem(nstep, 7)
     if pulse_led_flag_1
         pulse_led_flag_1 = 0;
         rak_cam.writeSerial('d:610;d:521')
@@ -12,7 +12,7 @@ if ~rem(nstep, 7)
         rak_cam.writeSerial('d:611;d:520')
     end
 end
-if ~rem(nstep, 11)
+if rak_only && ~rem(nstep, 11)
     if pulse_led_flag_2
         pulse_led_flag_2 = 0;
         rak_cam.writeSerial('d:621;d:530;')
@@ -21,7 +21,7 @@ if ~rem(nstep, 11)
         rak_cam.writeSerial('d:620;d:531')
     end
 end
-if ~rem(nstep, 17)
+if rak_only && ~rem(nstep, 17)
     if pulse_led_flag_3
         pulse_led_flag_3 = 0;
         rak_cam.writeSerial('d:631;d:520;')
@@ -66,11 +66,10 @@ process_audio_input
 
 %% Serial
 % disp('6')
-if bluetooth_present
-    bluetooth_get_distance
-end
 if rak_only
     rak_get_serial
+elseif bluetooth_present
+    bluetooth_get_distance
 end
 
 %% Interface
