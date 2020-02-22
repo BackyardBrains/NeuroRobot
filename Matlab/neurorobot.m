@@ -280,9 +280,11 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'nor
 % set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col, 'color', fig_bg_col)
 
 % Camera button
-if ~use_webcam && exist('rak_cam', 'var') && isvalid(rak_cam) && rak_cam.isRunning()
+dis_cam_button = 0;
+if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
-elseif ~use_webcam && exist('rak_cam', 'var') && isvalid(rak_cam) && ~rak_cam.isRunning() 
+    dis_cam_button = 1;
+elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
 else
     this_col = [0.8 0.8 0.8];
@@ -291,6 +293,8 @@ button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', '
 set(button_camera, 'Callback', 'camera_button_callback', 'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
+% elseif ~dis_cam_button
+%     set(button_camera, 'BackgroundColor', [0.6 0.95 0.6], 'enable', 'off')
 end
 
 % Bluetooth button
@@ -326,6 +330,7 @@ end
 button_exercises = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.23 0.19 0.17 0.07]);
 set(button_exercises, 'Callback', 'exercises', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+set(button_exercises, 'enable', 'off')
 
 % Start button
 button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start', 'units', 'normalized', 'position', [0.23 0.1 0.17 0.07]);

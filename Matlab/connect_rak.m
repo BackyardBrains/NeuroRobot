@@ -10,7 +10,7 @@ set(popup_select_brain, 'visible', 'off')
 set(edit_name, 'enable', 'off')
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
-set(button_exercises, 'enable', 'off')
+% set(button_exercises, 'enable', 'off')
 drawnow
 
 try
@@ -22,10 +22,13 @@ try
         end
         
         try % This cause may cause crash here as well??
+            disp('check 1')
             rak_cam_base = evalin('base','rak_cam');
+            disp('check 2')
             if rak_cam_base.isRunning()
                 rak_cam_base.stop();
             end
+            disp('check 3')
             clear rak_cam_base
             disp('Previous rak_cam cleared')
         catch
@@ -57,6 +60,7 @@ try
             rak_cam_w = 720;        
     elseif use_webcam
         % Webcam
+        delete(imaqfind)
         rak_cam = videoinput('winvideo', 1);
         triggerconfig(rak_cam, 'manual');
         rak_cam.TriggerRepeat = Inf;
@@ -64,7 +68,7 @@ try
         rak_cam.ReturnedColorspace = 'rgb';
         start(rak_cam)
         rak_cam_h = 1280;
-        rak_cam_w = 720;         
+        rak_cam_w = 720;  
     end
 
     button_camera.BackgroundColor = [0.6 0.95 0.6];
@@ -99,6 +103,6 @@ if camera_present
     set(button_camera, 'enable', 'on')
 end
 set(button_startup_complete, 'enable', 'on')
-set(button_exercises, 'enable', 'on')
+% set(button_exercises, 'enable', 'on')
 
 

@@ -45,11 +45,11 @@ else
     end
     set(popup_select_brain, 'visible', 'on')
     set(brain_edit_name, 'enable', 'on')
-    if camera_present
+    if camera_present && ~dis_cam_button
         set(button_camera, 'enable', 'on')
     end
     set(button_startup_complete, 'enable', 'on')
-    set(button_exercises, 'enable', 'on')
+%     set(button_exercises, 'enable', 'on')
     text_title.String = 'Neurorobot Startup';
     text_load.String = 'Select brain';
     drawnow    

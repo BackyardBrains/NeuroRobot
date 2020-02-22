@@ -4,7 +4,7 @@ if run_button == 1
     stop(runtime_pulse) % Why doesn't this cause an error
     
     if rak_only
-        if exist('rak_pulse', 'var')
+        if exist('rak_pulse', 'var') && isvalid(rak_pulse)
             stop(rak_pulse)
             delete(rak_pulse)
         end
