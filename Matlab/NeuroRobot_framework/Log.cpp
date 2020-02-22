@@ -25,8 +25,8 @@
 
 static std::string path;
 
-const static std::string codeVersion = "v1.0.0";
-const static std::string codeDate = "15/Feb/2020";
+const static std::string codeVersion = "v1.0.1";
+const static std::string codeDate = "21/Feb/2020";
 
 Log::Log(std::string className)
 {
