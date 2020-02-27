@@ -1,4 +1,6 @@
 
+% I2 = illumgray(large_frame, 5);
+
 for ncam = 1:2
 
     if ncam == 1
@@ -8,6 +10,11 @@ for ncam = 1:2
     end
     
     frame = imresize(frame, net_input_size);
+
+%     if sum(I2)
+%         frame = chromadapt(frame, I2, 'ColorSpace', 'linear-rgb');
+%         frame = lin2rgb(frame);    
+%     end
 
     % Red
     red = frame(:,:,1) > frame(:,:,2) * 2 & frame(:,:,1) > frame(:,:,3) * 2;
@@ -34,7 +41,7 @@ for ncam = 1:2
     vis_pref_vals(2, ncam) = temporal_score;
     
     % Green
-    green = frame(:,:,2) > frame(:,:,1) * 1.5 & frame(:,:,2) > frame(:,:,3) * 1.5;
+    green = frame(:,:,2) > frame(:,:,1) * 1.2 & frame(:,:,2) > frame(:,:,3) * 1.2;
     green(frame(:,:,2) < 50) = 0;
     
     blob = bwconncomp(green);
@@ -120,5 +127,4 @@ for ncam = 1:2
         end
     end
 end
-
 

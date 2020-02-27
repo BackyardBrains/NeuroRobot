@@ -245,7 +245,7 @@ if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 
 else
     contact_size = 15;
 end
-for ncontact = [1 2 3 4 5:13] % Skipping microphone
+for ncontact = 1:13
     contact_h(ncontact) = plot(contact_xys(ncontact,1), contact_xys(ncontact,2), 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.6 0.3], 'marker', 'square', 'markersize', contact_size);
     if exist('fig_design', 'var') && isvalid(fig_design) && (fig_design.UserData == 0 || fig_design.UserData == 4)
         if sum(ncontact == [1 2 3 5])
