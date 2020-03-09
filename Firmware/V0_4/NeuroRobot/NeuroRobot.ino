@@ -371,10 +371,10 @@ void executeRightMotor()
 void sendSerialFrame()
 {
   Serial.print(L_counter, DEC );
-  R_counter = 0;
+  L_counter = 0;
   Serial.print(",");
   Serial.print(R_counter, DEC);
-  L_counter = 0;
+  R_counter = 0;
   Serial.print(",");
   Serial.print(ultrasonicDistance, DEC );
 
@@ -742,6 +742,9 @@ ISR (PCINT2_vect) // handle pin change interrupt for D0 to D7 here
 
    if(currentLeftEncoder== HIGH && lastLeftEncoder==LOW)
    {
+
+       
+
         if(motorSpeedLeft>0)
          {
             L_counter ++;
@@ -754,15 +757,19 @@ ISR (PCINT2_vect) // handle pin change interrupt for D0 to D7 here
 
    if(currentRightEncoder == HIGH && lastRightEncoder==LOW)
    {
+        
         if(motorSpeedRight>0)
          {
+          
             R_counter ++;
          }
          if(motorSpeedRight<0)
          {
+
             R_counter --;
          }
    }
+   
    lastRightEncoder = currentRightEncoder;
    lastLeftEncoder = currentLeftEncoder;
 }  
