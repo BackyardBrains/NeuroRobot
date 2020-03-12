@@ -1,7 +1,11 @@
 // Neuro Robot Board V0.4
 // Backyard Brains
-// 20. May 2019
+// 12. March 2020
 // Written by Stanislav Mircic
+//
+// Log:
+// - Death time added to motor control when changing direction
+//
 //
 // Code is made for ATMEGA328 (Arduino UNO)
 // Code will periodicaly (100 times per second): 
@@ -103,6 +107,9 @@ char commandBuffer[SIZE_OF_COMMAND_BUFFER];//receiving command buffer
 
 int motorSpeedLeft = 0;
 int motorSpeedRight = 0;
+int lastMotorSpeedLeft = 0;
+int lastMotorSpeedRight = 0;
+
 
 byte executeOneLoop = 0;
 
@@ -246,10 +253,14 @@ void loop()
       executeOneLoop = 0;
       
       readNewSerialData();
-      
+
+      //first time execution of motor commands
+      //if speed changes direction it will just set it to zero
+      //made so that we have some death time
       executeLeftMotor();
       executeRightMotor();
       refreshShiftRegisters();
+      
       executeUltrasonicSensor();
       //executeGyro();
       sampleRateCounter++;
@@ -258,6 +269,13 @@ void loop()
         sampleRateCounter = 0;
         sendSerialFrame();
       }
+
+      //second time execution of motor command
+      //if speed changes direction here it will be set to it's value
+      executeLeftMotor();
+      executeRightMotor();
+      refreshShiftRegisters();
+      
       PORTB &=B11011111;
   }
 }
@@ -322,13 +340,14 @@ void executeUltrasonicSensor()
 }
 void executeLeftMotor()
 {
-  if(motorSpeedLeft>0)
+
+  if(motorSpeedLeft>0 && lastMotorSpeedLeft>=0)
   {
       shiftReg1 |= bitMask<<L_F_E;
       shiftReg1 &= ~(bitMask<<L_R_E);
       analogWrite(L_PWM, motorSpeedLeft);
   }
-  else if(motorSpeedLeft<0)
+  else if(motorSpeedLeft<0 && lastMotorSpeedLeft<=0)
   {
       shiftReg1 |= bitMask<<L_R_E;
       shiftReg1 &= ~(bitMask<<L_F_E);
@@ -340,19 +359,22 @@ void executeLeftMotor()
       shiftReg1 &= ~(bitMask<<L_R_E);
       analogWrite(L_PWM, 0);
   }
+  lastMotorSpeedLeft = motorSpeedLeft;
+  
 }
 
 
 
 void executeRightMotor()
 {
-  if(motorSpeedRight>0)
+
+  if(motorSpeedRight>0 && lastMotorSpeedRight>=0)
   {
       shiftReg1 |= bitMask<<R_F_E;
       shiftReg1 &= ~(bitMask<<R_R_E);
       analogWrite(R_PWM, motorSpeedRight);
   }
-  else if(motorSpeedRight<0)
+  else if(motorSpeedRight<0 && lastMotorSpeedRight<=0)
   {
       shiftReg1 |= bitMask<<R_R_E;
       shiftReg1 &= ~(bitMask<<R_F_E);
@@ -364,6 +386,7 @@ void executeRightMotor()
       shiftReg1 &= ~(bitMask<<R_R_E);
       analogWrite(R_PWM, 0);
   } 
+  lastMotorSpeedRight = motorSpeedRight;
 }
 
 
