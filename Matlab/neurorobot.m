@@ -1,35 +1,31 @@
 
-% NEUROROBOT APP by Backyard Brains
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NEUROROBOT APP by Backyard Brains %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Managed by Christopher Harris, christopher@backyardbrains.com
 % This code is licensed under a GNU 2.1 license
-% For the best experience, install the Comic Book font (included)
-% For more information, see https://www.biorxiv.org/content/10.1101/597609v1
+% For the best experience, install the Comic Book font available at https://github.com/BackyardBrains/NeuroRobot
+% For more information, see https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006
 
+%% Settings
 % DIY robot, use these settings: rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
 % Backyard Brains' fabricated neurorobot, use these settings: rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-
-
-if exist('runtime_pulse', 'var')
-    delete(runtime_pulse)
-end
-
-
-%% Settings
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
 bluetooth_present = 0;
-
 hd_camera = 0;
-grey_background = 1;
 use_cnn = 0;
 use_rcnn = 0;
+grey_background = 1;
+
 
 %% Advanced settings
-pulse_period = 0.1; % in seconds
+pulse_period = 0.125; % in seconds
 % pulse_period = 0.25; % in seconds
 % pulse_period = 0.125; % in seconds
 save_data_and_commands = 0; %%% 
@@ -68,6 +64,9 @@ else
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 adjust2 = 0.29;
+if exist('runtime_pulse', 'var')
+    delete(runtime_pulse)
+end
 
 
 %% Clear
