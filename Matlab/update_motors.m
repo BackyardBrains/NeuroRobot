@@ -9,6 +9,7 @@ left_torque = left_forward - left_backward;
 left_dir = max([1 - sign(left_torque) 1]);
 left_torque = abs(left_torque);
 left_torque(left_torque > 250) = 250;
+% left_torque(left_torque < 40) = 0;
 motor_command(1,3) = left_torque;
 motor_command(1,4) = left_dir;    
 
@@ -16,6 +17,7 @@ right_torque = right_forward - right_backward;
 right_dir = max([1 - sign(right_torque) 1]);
 right_torque = abs(right_torque); 
 right_torque(right_torque > 250) = 250;   
+% right_torque(right_torque < 40) = 0;
 motor_command(1,1) = right_torque;
 motor_command(1,2) = right_dir;
 
