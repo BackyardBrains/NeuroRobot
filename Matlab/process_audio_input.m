@@ -15,21 +15,21 @@ if rak_only
         % full audio array is not eventally returned the RAK has to be
         % reset (rak_fail = 1);
         audio_empty_flag = audio_empty_flag + 1;
-    elseif length(this_audio) >= 1000
+    elseif length(this_audio) >= 500
 
         this_clock = clock;
         audio_step = [audio_step; 2 xstep this_clock(6) length(this_audio)];
         max_freq = 0;
         max_amp = 0;   
         
-        if length(this_audio) == 512
+        if length(this_audio) < 1000
             this_audio = [this_audio this_audio];
         end
-        if length(this_audio) > 1000
-            this_audio = this_audio(1:1024);
+        if length(this_audio) >= 1000
+            this_audio = this_audio(1:1000); % ***
         end
         if xstep == 1
-            this_audio = zeros(1, 1024);
+            this_audio = zeros(1, 1000);
         end
         audio_empty_flag = 0;
         
@@ -37,9 +37,12 @@ if rak_only
         x = this_audio;
 
         % Get spectrum
-        n = length(x);
-%         fs = 8000;
-        fs = 32000;
+        n = length(x); %%%% THIS IS NOT RIGHT 2020-03-14, I'm aware, e.g. this ***
+        if hd_camera
+            fs = 16000;
+        else
+            fs = 8000;
+        end
         dt = 1/fs;
         t = (0:n-1)/fs;
         y = fft(x);

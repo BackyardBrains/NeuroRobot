@@ -1,6 +1,5 @@
 
 %% Start of pulse code
-% disp('1')
 nstep = nstep + 1;
 xstep = xstep + 1;
 if rak_only && ~rem(nstep, 7)
@@ -41,7 +40,6 @@ elseif lifetime >= 5 * 60 * 60
 end
 
 %% Update brain
-% disp('2')
 update_brain
 draw_step
 
