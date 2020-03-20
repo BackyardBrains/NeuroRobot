@@ -44,6 +44,10 @@ if hd_camera
 else
     large_frame = zeros(720, 1280, 3, 'uint8');
 end
+if save_for_ai
+    save_for_ai_nframes = ceil(save_for_ai_hz * (pulse_period * 1000));    
+    save_for_ai_frames = zeros(net_input_size(1), net_input_size(2), 3, 2, save_for_ai_nframes, 'single');
+end
 
 if ext_cam_id
     save_ext_cam = zeros(720, 1280, 3, ext_cam_nsteps, 'uint8');
