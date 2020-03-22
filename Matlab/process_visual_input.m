@@ -126,5 +126,11 @@ for ncam = 1:2
             disp('process visual input break')
         end
     end
+    
+    if save_for_ai
+        save_for_ai_frames(:,:,:,ncam,save_for_ai) = frame;
+        save_for_ai = save_for_ai + 1;
+    end    
+    
 end
 

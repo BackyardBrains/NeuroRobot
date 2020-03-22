@@ -81,7 +81,7 @@ update_ext_cam
 if nstep == nsteps_per_loop
     nstep = 0;
     step_duration_in_ms = round(nanmedian(step_times * 1000));
-    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms)'))
+    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
 end
 if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     disp('error: rak_cam exists but is not running')
