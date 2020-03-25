@@ -36,7 +36,7 @@ bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 manual_controls = 1;
-save_for_ai = 1;
+save_for_ai = 0;
 save_for_ai_hz = 0.1;
 save_for_ai_dur = 1000; % in seconds
 
