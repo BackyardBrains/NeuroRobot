@@ -14,11 +14,11 @@
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
-hd_camera = 1;
+hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
