@@ -57,7 +57,7 @@ get_visual_input
 %% Process visual input
 % disp('4')
 process_visual_input
-
+    
 %% Process audio input
 % disp('5')
 process_audio_input
@@ -80,6 +80,11 @@ enter_reward % if run_button == 5
 update_ext_cam
 if nstep == nsteps_per_loop
     nstep = 0;
+    if save_for_ai
+        imwrite(large_frame, strcat('.\Images\large_frame_', num2str(save_for_ai), '.png'))
+        save_for_ai = save_for_ai + 1;
+        disp('Frame saved')
+    end
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
 end
