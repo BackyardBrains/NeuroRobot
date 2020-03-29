@@ -83,7 +83,7 @@ if nstep == nsteps_per_loop
     if save_for_ai
         imwrite(large_frame, strcat('.\Images\large_frame_', num2str(save_for_ai), '.png'))
         save_for_ai = save_for_ai + 1;
-        disp('frames saved for ai: ', num2str(save_for_ai))
+        disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
