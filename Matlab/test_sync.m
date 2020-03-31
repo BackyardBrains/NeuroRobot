@@ -4,6 +4,7 @@
 audio = data.audio;
 audio_hz = 8000;
 audio_dur_in_sec = length(audio) / audio_hz;
+
 disp(horzcat('Audio duration = ', num2str(audio_dur_in_sec), ' s'))
 firing = data.firing;
 firing_hz = 8;

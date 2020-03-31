@@ -108,8 +108,8 @@ end
 if save_data_and_commands
     if nneurons
         rec_timer = tic;
-        data.firing(:,xstep) = firing;
-        data.connectome(:,:,xstep) = connectome;
+%         data.firing(:,xstep) = firing;
+%         data.connectome(:,:,xstep) = connectome;
         data.rec_time(xstep) = toc(rec_timer);
         data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     end
