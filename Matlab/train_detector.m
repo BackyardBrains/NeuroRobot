@@ -1,6 +1,6 @@
  
 
-frame_dir = 'C:\Users\Christopher Harris\Desktop\Pictures\';
+frame_dir = '.\Images\Selected\';
 
 %% Resize if needed
 dir_info = dir(frame_dir);
