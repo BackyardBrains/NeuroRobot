@@ -25,18 +25,19 @@ grey_background = 1;
 vocal = 1;
 
 %% Advanced settings
-pulse_period = 0.1; % in seconds
+% pulse_period = 0.1; % in seconds
 % pulse_period = 0.25; % in seconds
-% pulse_period = 0.125; % in seconds
-save_data_and_commands = 1; %%% 
+pulse_period = 0.125; % in seconds
+
+save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;
 brain_gen = 0;
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
-manual_controls = 1;
-save_for_ai = 1;
+manual_controls = 0;
+save_for_ai = 0;
 
 
 %% New user settings
