@@ -22,7 +22,7 @@ hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
-
+vocal = 1;
 
 %% Advanced settings
 pulse_period = 0.1; % in seconds
@@ -197,8 +197,21 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
 this_audio = [];
 
-audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
-n_audio_prefs = size(audio_pref_names, 2);
+
+if ~vocal
+    audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
+    n_audio_prefs = size(audio_pref_names, 2);
+else
+    clear audio_pref_names
+    audio_directory = './Sounds/*.mp3';
+    available_sounds = dir(audio_directory);
+    n_audio_prefs = size(available_sounds, 1);
+    for nsound = 1:n_audio_prefs
+        audio_pref_names{nsound} = available_sounds(nsound).name(1:end-4);
+    end    
+end   
+
+
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn

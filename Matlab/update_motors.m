@@ -23,11 +23,20 @@ motor_command(1,2) = right_dir;
 
 these_speaker_neurons = neuron_contacts(:, 4) & firing;
 if sum(these_speaker_neurons)
-    these_tones = neuron_tones(these_speaker_neurons, 1);
-    these_tones(these_tones == 0) = [];
-    speaker_tone = mean(these_tones);
-    if ~rak_only
-        speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+    if ~vocal
+        these_tones = neuron_tones(these_speaker_neurons, 1);
+        these_tones(these_tones == 0) = [];
+        speaker_tone = mean(these_tones);
+        if ~rak_only
+            speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+        end
+    else
+        if sum(these_speaker_neurons) >= 2
+            disp('Cannot play more than one sound at once. Cannot select one either.')
+        else
+            nsound = neuron_tones(these_speaker_neurons, 1);
+            rak_cam.sendAudio(strcat('.\Sounds\', num2str(audio_pref_names{nsound}), '.mp3'));
+        end
     end
 else
     speaker_tone = 0;
