@@ -3,6 +3,9 @@
 Matlab/*.mexw64
 Matlab/*.mexmaci64
 Matlab/Logs
+Matlab/Images
+Matlab/Annotation
+Matlab/Exercises
 Matlab/test.wav
 Matlab/*delays.txt
 
