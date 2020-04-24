@@ -216,9 +216,9 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             delete(temp_plot)
            
             if nma
-%                 nma_build % skipping NMA build for now, just using its
+                nma_build % skipping NMA build for now, just using its
 %                 neuron sizes
-%             else
+            else
                 
                 % Get number of neurons in the network
                 n = str2double(edit_w1.String);

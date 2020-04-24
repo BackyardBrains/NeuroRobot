@@ -2,10 +2,10 @@
 
 %% Load brain parameters and connectome
 % load bursting_brain
-load saved_brain_2 % I think this is a quiet 100 neuron brain
+load .\BrainGen\saved_brain_2 % I think this is a quiet 100 neuron brain %%%% NEEDED? FIGURE IT OUT %%% BUILD FROM HERE %% equivalent of two neuron simulator but for 1000 neurons
 saved_brain = saved_brain_2;
 nneurons = 100;
-saved_brain = reshape(saved_brain, [nneurons + 4, nneurons]);
+saved_brain = reshape(saved_brain, [nneurons + 4, nneurons]); %??????
 % Reshape to brain
 a = saved_brain(1,:)';
 b = saved_brain(2,:)';

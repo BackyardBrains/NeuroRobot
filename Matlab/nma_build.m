@@ -4,18 +4,18 @@
 % User builds neuronal and synaptic properties algorithmically 
 
 
-n = 1000; % Neurons (1000)
-imx_con = 25; % Connectivity (25 %)
-weight = 12; % Synapse weights (2)
+n = 700; % Neurons (1000)
+imx_con = 20; % Connectivity (25 %)
+weight = 15; % Synapse weights (2)
 plast = 0; % Plastic synapses (0 %)
-imx_sens = 0; % Visual input (0 %)
+imx_sens = 2; % Visual input (0 %)
 imx_moto = 0; % Motor output (0 %)
 imx_net = 1;
 
 this_a = 0.02;
 this_b = 0.15;
 this_c = -65;
-this_d = 2;
+this_d = 8;
 
 % space evenly
 imx_rands = randsample(length(brain_im_xy), n); 
@@ -25,15 +25,36 @@ neuron_xys = brain_im_xy(imx_rands, :);
 for presynaptic_neuron = nneurons + 1:nneurons + n
     for postsynaptic_neuron = nneurons + 1:nneurons + n
         
-        if abs(neuron_xys(presynaptic_neuron, 1) - neuron_xys(postsynaptic_neuron, 1)) < 0.2 && ...
-            abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2)) < 0.2
-            connected = rand <= 0.6;
-            connected = connected * sign(rand-0.1);
-            connectome(presynaptic_neuron, postsynaptic_neuron) = connected * weight;
+        %%% Architecture 1
+%         if abs(neuron_xys(presynaptic_neuron, 1) - neuron_xys(postsynaptic_neuron, 1)) < 0.3 && ...
+%             abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2)) < 0.3
+%             if rand <= (imx_con / 100)
+%                 this_weight = weight + weight * 0.1 * randn;
+%                 connectome(presynaptic_neuron, postsynaptic_neuron) = this_weight * sign(rand-0.2);
+%                 da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = rand <= 0.1;
+%                 da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = this_weight * sign(rand-0.2);   
+%                 da_connectome(presynaptic_neuron, postsynaptic_neuron, 3) = 0;  
+%             end
+%         end
+
+        %%% Architectue 2
+        if rand <= (imx_con / 100)
+            xe = abs(neuron_xys(presynaptic_neuron, 1) - neuron_xys(postsynaptic_neuron, 1));
+            ye = abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2));
+            ce = sqrt(xe^2 + ye^2);
+
+            if ce <= 0.6
+                this_weight = 30 - ce * 100;
+                this_weight = this_weight + this_weight * sign(this_weight) * 0.2 * randn;
+            elseif ce < 1.2
+                this_weight = -30 - 30 * 0.2 * randn;
+            end
+            connectome(presynaptic_neuron, postsynaptic_neuron) = this_weight;
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = rand <= 0.1;
-            da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = connected * weight;   
+            da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = this_weight;   
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 3) = 0;  
         end
+
     end            
 
     % Sensory input
@@ -62,13 +83,13 @@ end
 
 % Other variables
 spikes_loop = zeros(nneurons + n, ms_per_step * nsteps_per_loop);
-a(nneurons + 1 : nneurons + n, 1) = this_a;
-b(nneurons + 1 : nneurons + n, 1) = this_b;
-c(nneurons + 1 : nneurons + n, 1) = this_c;
-d(nneurons + 1 : nneurons + n, 1) = this_d;
-v(nneurons + 1 : nneurons + n, 1) = this_c + 5 * randn(n,1);
+a(nneurons + 1 : nneurons + n, 1) = this_a + this_a * 2 * 0.1 * randn(n,1);
+b(nneurons + 1 : nneurons + n, 1) = this_b + this_b * 2 * 0.01 * randn(n,1);
+c(nneurons + 1 : nneurons + n, 1) = this_c + this_c * 2 * 0.01 * randn(n,1);
+d(nneurons + 1 : nneurons + n, 1) = this_d + this_d * 2 * 0.1 * randn(n,1);
+v(nneurons + 1 : nneurons + n, 1) = this_c + this_c * 2 * 0.01 * randn(n,1);
 u = b .* v;
-neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat(col, [n, 1]);  
+neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat([1 0.9 0.8], [n, 1]);  
 network_ids(nneurons + 1 : nneurons + n, 1) = imx_net;
 da_rew_neurons(nneurons + 1 : nneurons + n, 1) = 0;
 steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;
