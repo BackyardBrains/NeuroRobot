@@ -37,7 +37,7 @@ connectome = connectome2;
 
 %% Suit
 plast = 0; % Plastic synapses (%)
-imx_sens = 0; % Visual input (%)
+imx_sens = 10; % Visual input (%)
 imx_moto = 0; % Motor output (%)
 imx_net = 1;
 
