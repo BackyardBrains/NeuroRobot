@@ -23,13 +23,13 @@ use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % Custom sound output
-brain_gen = 0; % Algorithmic brain build
+brain_gen = 1; % Algorithmic brain build
 
 
 %% Advanced settings
-% pulse_period = 0.1; % in seconds
+pulse_period = 0.3; % in seconds
 % pulse_period = 0.25; % in seconds
-pulse_period = 0.125; % in seconds
+% pulse_period = 0.125; % in seconds
 
 save_data_and_commands = 0; %%% 
 save_brain_jpg = 0;

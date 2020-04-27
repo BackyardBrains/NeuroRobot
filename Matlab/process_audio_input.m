@@ -33,6 +33,8 @@ if rak_only
         end
         audio_empty_flag = 0;
         
+        this_audio(1:100) = 0; %% <<
+        
         % Get first 1000 samples
         x = this_audio;
 
