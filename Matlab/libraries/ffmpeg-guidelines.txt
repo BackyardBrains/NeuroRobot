@@ -1,13 +1,10 @@
 
 Guidelines for building ffmpeg library
 
-Clone ffmpeg:
-`clone https://github.com/FFmpeg/FFmpeg.git`
-
-
 
 ~~ Windows ~~
 
+`clone https://github.com/FFmpeg/FFmpeg.git`
 get msys2 - https://www.msys2.org/
 
 launch msvc "developer command prompt".
@@ -38,12 +35,14 @@ run `./configure --disable-static --enable-shared --disable-doc --arch=x86_64 --
 
 ~~ macOS ~~
 
-Commands need to run in terminal from ffmpeg folder.
-If you don't set `--prefix`, librart will be in `/usr/lib`
-`./configure --enable-shared --disable-static --prefix=./install`
-`make`
-`make install`
+run `git clone https://github.com/FFmpeg/FFmpeg.git`  
+Edit the file `libavformat/rtpdec.c`. Line number 323: `rtcp_bytes /= 50;`, it should be: `rtcp_bytes /= 5;`. This is because of sending receive report more frequent.    
+Commands need to run in terminal from ffmpeg folder.  
+If you don't set `--prefix`, library will be in `/usr/lib`  
+`./configure --enable-shared --prefix=./install`      
+`make`  
+`make install`    
 
-notes:
-- Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.
-- Followed https://trac.ffmpeg.org/wiki/CompilationGuide/macOS
+notes:  
+- Libraries (*.dylib) must be in /usr/lib. So copy *.dylib files from FFmpeg-macOS/dylib to /usr/lib. (doesn't work, cannot copy, should rebuild whole library without `--prefix`)  
+- Followed https://trac.ffmpeg.org/wiki/CompilationGuide/macOS  
