@@ -12,7 +12,7 @@
 #ifdef XCODE
     #undef DEBUG
 #else
-    #define DEBUG
+//     #define DEBUG
     #define MATLAB
 #endif
 
