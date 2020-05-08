@@ -13,6 +13,7 @@
 #include "Macros.h"
 #include "SharedMemory.h"
 #include "Log.h"
+#include "Core/Semaphore.h"
 
 #ifdef MATLAB
     #include "TypeDefs.h"
@@ -32,6 +33,7 @@ using boost::asio::ip::tcp;
 class Socket : public BackgroundThread, public Log {
     
 private:
+    
     std::string ipAddress;
     std::string port;
     
@@ -41,10 +43,13 @@ private:
     tcp::resolver resolver;
     tcp::resolver audioResolver;
     
+    /// Sync mechanisms
     std::mutex mutexReconnecting;
     std::mutex mutexSendingToSocket;
     std::mutex mutexSendingToSocket2;
     std::mutex mutexSendingAudio;
+    Semaphore semaphore;
+    bool whileLoopIsRunning = false;
     
     /// Serial communication
     bool sendingInProgress = false;
@@ -107,6 +112,8 @@ public:
     /// @param port Port of socket
     /// @param callback Callback in case if the error occurs
     Socket(std::string ip, std::string port, SocketErrorOccurredCallback callback);
+    
+    ~Socket();
     
     /// Overloaded method which is triggered with `startThreaded()`.
     void run();

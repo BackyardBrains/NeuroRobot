@@ -7,13 +7,13 @@ if ~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc
     % Windows
     
     % FFMPEG - Libraries (*.dll) must be in root folder. So copy from libraries/windows/ffmpeg/lib/bin to root.
-    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -llibboost_filesystem-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
+    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp NeuroRobot_framework/Core/Semaphore.cpp -IC:\boost_1_69_0 -LC:\boost_1_69_0\stage\lib -Llibraries\windows\ffmpeg\bin -Ilibraries\windows\ffmpeg\include -lavcodec -lavformat -lavutil -lswscale -llibboost_system-vc141-mt-x64-1_69 -llibboost_chrono-vc141-mt-x64-1_69 -llibboost_filesystem-vc141-mt-x64-1_69 -D_WIN32_WINNT=0x0A00
 elseif ~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac
     % macOS
     
     % FFMPEG - Libraries (*.dylib) must be in /usr/lib. So copy libraries from libraries/mac/ffmpeg/lib to /usr/lib.
 %     mex NeuroRobot5206.cpp -I/usr/local/Cellar/boost/1.69.0_2/include -L/usr/local/Cellar/boost/1.69.0_2/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread-mt -lavcodec -lavformat -lavutil -lswscale
-    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp -Ilibraries/mac/boost/1.70.0/include -Llibraries/mac/boost/1.70.0/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread -lboost_filesystem -lavcodec -lavformat -lavutil -lswscale
+    mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp NeuroRobot_framework/Core/Semaphore.cpp -Ilibraries/mac/boost/1.70.0/include -Llibraries/mac/boost/1.70.0/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread -lboost_filesystem -lavcodec -lavformat -lavutil -lswscale
 end
 
 if ~exist('rak', 'var')

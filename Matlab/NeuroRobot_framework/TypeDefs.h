@@ -16,6 +16,7 @@ typedef enum : int {
     SocketStateConnecting,
     SocketStateConnected,
     SocketStateEOF,
+    SocketStateStopped,
     
     SocketErrorCannotConnect = 100,
     SocketErrorLostConnection,
@@ -25,7 +26,8 @@ typedef enum : int {
     SocketInfoCannotCancelDataSocket = 200,
     SocketInfoCannotCancelAudioSocket,
     SocketInfoCannotCloseDataSocket,
-    SocketInfoCannotCloseAudioSocket
+    SocketInfoCannotCloseAudioSocket,
+    
 } SocketStateType;
 typedef void (*SocketErrorOccurredCallback) (SocketStateType error);
 
@@ -34,6 +36,7 @@ typedef enum : int {
     StreamStateNotStarted,
     StreamStateRunning,
     StreamStateTimeOutWhileReceivingFrame,
+    StreamStateStopped,
     
     StreamErrorNotConnected = 100,
     StreamErrorAvformatOpenInput,
@@ -104,6 +107,10 @@ static char* getSocketStateMessage(SocketStateType type)
             sprintf(retVal, "Socket info: cannot close audio socket");
             break;
         }
+        case SocketStateStopped: {
+            sprintf(retVal, "Socket info: Stopped");
+            break;
+        }
     }
     return retVal;
 }
@@ -159,6 +166,9 @@ const static char* getStreamStateMessage(StreamStateType type)
             break;
         case StreamInfoReconnecting:
             sprintf(retVal, "Stream info: Reconnecting");
+            break;
+        case StreamStateStopped:
+            sprintf(retVal, "Stream info: Stopped");
             break;
     }
     return retVal;

@@ -14,6 +14,7 @@
 #include "Macros.h"
 #include "SharedMemory.h"
 #include "Log.h"
+#include "Core/Semaphore.h"
 
 #ifdef MATLAB
     #include "TypeDefs.h"
@@ -58,8 +59,12 @@ private:
     
     bool tryingToReconnect = false;
     bool audioBlocked = false;
+    bool whileLoopIsRunning = false;
     std::string url = std::string();
     int frameSize = 0;
+    
+    /// Sync mechanism
+    Semaphore semaphore;
     
     /// Close video and audio stream.
     void closeStreams();

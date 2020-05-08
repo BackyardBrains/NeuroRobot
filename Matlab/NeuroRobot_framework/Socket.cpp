@@ -11,7 +11,11 @@
 #include <iostream>
 #include <chrono>
 
-#include "Helpers/AudioHelper.hpp"
+#ifdef XCODE
+    #include "Bridge/Helpers/AudioHelper.hpp"
+#else
+    #include "Helpers/AudioHelper.hpp"
+#endif
 
 // Boost includes
 #include <boost/thread/thread.hpp>
@@ -54,10 +58,19 @@ Socket::Socket(std::string ip_, std::string port_, SocketErrorOccurredCallback c
     connectSerialSocket(ipAddress, port);
 }
 
+Socket::~Socket()
+{
+    if (whileLoopIsRunning) {
+        semaphore.wait();
+    }
+    closeSockets();
+}
+
 void Socket::run()
 {
     logMessage("run >> entered ");
     
+    whileLoopIsRunning = true;
     while (isRunning()) {
         logMessage("run >> while >> entered ");
         
@@ -86,7 +99,9 @@ void Socket::run()
             logMessage(readSerialData);
         }
     }
+    whileLoopIsRunning = false;
     closeSockets();
+    semaphore.signal();
     
     logMessage("Socket -> read serial ended");
 }
@@ -332,6 +347,10 @@ std::string Socket::receiveSerial(boost::system::error_code* ec)
 
 void Socket::closeSockets()
 {
+    if (stateType == SocketStateStopped) { return; }
+    boost::system::error_code ec;
+    updateState(SocketStateStopped, ec);
+    
     logMessage("------------- closeSockets -----------");
     
     closeDataSocket();

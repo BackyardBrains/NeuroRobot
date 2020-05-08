@@ -8,7 +8,11 @@
 
 #include "VideoAndAudioObtainer.h"
 
-#include "Helpers/StringHelper.hpp"
+#ifdef XCODE
+    #include "Bridge/Helpers/StringHelper.hpp"
+#else
+    #include "Helpers/StringHelper.hpp"
+#endif
 
 #include <iostream>
 #include <thread>
@@ -63,6 +67,9 @@ VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamErrorO
 
 VideoAndAudioObtainer::~VideoAndAudioObtainer()
 {
+    if (whileLoopIsRunning) {
+        semaphore.wait();
+    }
     closeStreams();
 }
 
@@ -197,8 +204,8 @@ bool VideoAndAudioObtainer::setupAudioStreamer()
     int retVal = -1;
     
     //    audioCodec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
-    //    NeuroRobotManager -> rak id: AV_CODEC_ID_PCM_ALAW
-    //    RAK5270 -> rak id: AV_CODEC_ID_AAC
+    //    RAK5206 -> audio id: AV_CODEC_ID_PCM_ALAW
+    //    RAK5270 -> audio id: AV_CODEC_ID_AAC
     audioCodec = avcodec_find_decoder(formatCtx->streams[audioStreamIndex]->codecpar->codec_id);
     if (!audioCodec) { updateState(StreamErrorAvcodecFindDecoderAudio, -1); return false; }
     logMessage("setupAudioStreamers >>> avcodec_find_decoder >> ok >> codec: " + std::to_string(formatCtx->streams[audioStreamIndex]->codecpar->codec_id));
@@ -238,6 +245,7 @@ void VideoAndAudioObtainer::run()
     /// This mechanism is used to take adventage of `interruptFunction` and break reading of frame if it exceeds time limit.
     int avReadFrameResponse = av_read_frame(formatCtx, &packet);
     
+    whileLoopIsRunning = true;
     while (avReadFrameResponse >= 0 && isRunning()) {
         isReadingNextFrame = false;
         
@@ -262,6 +270,7 @@ void VideoAndAudioObtainer::run()
         avReadFrameResponse = av_read_frame(formatCtx, &packet);
         logMessage("run >>> avReadFrameResponse = av_read_frame(formatCtx, &packet);");
     }
+    whileLoopIsRunning = false;
     long long elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - beginTime).count();
     
     logMessage("run >>> End of run()");
@@ -290,6 +299,7 @@ void VideoAndAudioObtainer::run()
     } else {
         /// Stop called
         stop();
+        semaphore.signal();
     }
 }
 
@@ -358,6 +368,9 @@ int VideoAndAudioObtainer::decode(AVCodecContext* avctx, AVFrame* frame, int* go
 
 void VideoAndAudioObtainer::closeStreams()
 {
+    if (stateType == StreamStateStopped) { return; }
+    updateState(StreamStateStopped, -1);
+    
     logMessage("closeStreams >>> entered");
     SharedMemory::getInstance()->blockWritters();
     
@@ -372,6 +385,7 @@ void VideoAndAudioObtainer::closeStreams()
     avformat_network_deinit();
     
     imgConvertCtx = NULL;
+    
     logMessage("closeStreams >>> finished");
 }
 

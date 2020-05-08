@@ -13,6 +13,7 @@
 #include "Macros.h"
 
 #include <iostream>
+#include <thread>
 
 const static unsigned int maxAudioCounter = 20;
 
@@ -77,7 +78,13 @@ uint8_t* SharedMemory::readVideoFrame()
 
 void SharedMemory::writeAudio(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_)
 {
-    if (numberOfSamples_ == 0) { logMessage("numberOfBytes_ == 0"); return; }
+    std::thread processThread(&SharedMemory::writeAudioThreaded, this, data, numberOfSamples_, bytesPerSample_);
+    processThread.detach();
+}
+
+void SharedMemory::writeAudioThreaded(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_)
+{
+    if (numberOfSamples_ == 0) { logMessage("numberOfSamples_ == 0"); return; }
     if (bytesPerSample_ == 0) { logMessage("bytesPerSample_ == 0"); return; }
     if (isWritingBlocked) { logMessage("Blocked audio"); return; }
     

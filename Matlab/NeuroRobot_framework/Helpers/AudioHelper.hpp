@@ -78,18 +78,18 @@ public:
     static uint8_t* repack(int16_t* data, size_t totalBytes)
     {
         unsigned short numberOfChannels = 2;
-        size_t numberOfSamples_16bit = totalBytes * 0.5;
+        size_t numberOfSamples_16bit = totalBytes / 2;
         
         // Creating two channels signal. LRLR patern
         int16_t* twoChannelsData = (int16_t*)malloc((size_t)(numberOfChannels * totalBytes));
-        for (long long i = 0; i < numberOfSamples_16bit; i++) {
+        for (size_t i = 0; i < numberOfSamples_16bit; i++) {
             memcpy(&twoChannelsData[i * 2], &data[i], 2);
             memcpy(&twoChannelsData[i * 2 + 1], &data[i], 2);
         }
         
         // Repacking signed 16bit linear signal to unsigned 8bit ulaw signal
         uint8_t* PCM_Data = (uint8_t*)malloc((size_t)(numberOfChannels * numberOfSamples_16bit));
-        for (long long i = 0; i < numberOfSamples_16bit * numberOfChannels; i++) {
+        for (size_t i = 0; i < numberOfSamples_16bit * numberOfChannels; i++) {
             PCM_Data[i] = linear2ulaw(twoChannelsData[i]);
         }
         free(twoChannelsData);

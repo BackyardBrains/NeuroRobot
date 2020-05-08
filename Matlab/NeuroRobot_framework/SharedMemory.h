@@ -45,6 +45,12 @@ private:
     char *serialData = NULL;
     static const unsigned int serialDataBufferCount = 1000;
     
+    /// Writes audio data to store.
+    /// @param data Audio data
+    /// @param numberOfSamples_ Number of samples
+    /// @param bytesPerSample_ Bytes per sample
+    void writeAudioThreaded(uint8_t* data, size_t numberOfSamples_, unsigned short bytesPerSample_);
+    
 public:
     
     /// Static instance.
@@ -80,7 +86,7 @@ public:
     /// @return Video frame data
     uint8_t* readVideoFrame();
     
-    /// Writes audio data to store.
+    /// Delegates other thread to write audio data to store.
     /// @param data Audio data
     /// @param numberOfSamples_ Number of samples
     /// @param bytesPerSample_ Bytes per sample

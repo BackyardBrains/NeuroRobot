@@ -29,7 +29,7 @@ void NeuroRobotManager::start()
     if (socketObject && !socketBlocked) {
         socketObject->startThreaded();
     }
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+//    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
 }
 
 void *NeuroRobotManager::readAudio(size_t *totalBytes, unsigned short *bytesPerSample)
@@ -57,8 +57,6 @@ void NeuroRobotManager::stop()
     if (videoAndAudioObtainerObject && videoAndAudioObtainerObject->isRunning()) {
         videoAndAudioObtainerObject->stop();
     }
-    
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
     
     delete socketObject;
     delete videoAndAudioObtainerObject;
