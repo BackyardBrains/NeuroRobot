@@ -22,8 +22,8 @@ hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
-vocal = 1; % Custom sound output
-brain_gen = 0; % Algorithmic brain build
+vocal = 0; % Custom sound output
+brain_gen = 1; % Algorithmic brain build
 
 
 %% Advanced settings
@@ -35,7 +35,7 @@ save_data_and_commands = 0; %%%
 save_brain_jpg = 0;
 use_profile = 0;
 bg_brain = 1;
-draw_synapse_strengths = 1;
+draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
