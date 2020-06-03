@@ -52,7 +52,7 @@ if rak_only
         [max_amp, j] = max(pw(1:audx));
         fx = linspace(0, 2000, audx);
         max_freq = fx(j);
-        disp(num2str(max_freq))
+%         disp(num2str(max_freq))
         
     else
         
