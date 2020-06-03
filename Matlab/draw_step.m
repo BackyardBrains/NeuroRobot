@@ -3,7 +3,11 @@
 vplot_front.XData = [nstep nstep] * ms_per_step;
 
 % Draw audio spectrum
-draw_audio.YData = pw(1:250);
+if hd_camera
+    draw_audio.YData = pw(1:125);
+else
+    draw_audio.YData = pw(1:500);
+end
 
 % Update second screen analysis
 if second_screen_analysis

@@ -63,8 +63,6 @@ if use_profile
     profile clear
     profile on    
 end
-% audioMat = [];
-audio_step = [];
 audio_max_freq = 0;
 max_amp = 0;
 max_freq = 0;

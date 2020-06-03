@@ -23,7 +23,7 @@ use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % Custom sound output
-brain_gen = 1; % Algorithmic brain build
+brain_gen = 0; % Algorithmic brain build
 
 
 %% Advanced settings
