@@ -1,4 +1,4 @@
-amp=0.1;
+amp=0.2;
 fs=8000;
 duration=2;
 freq=1500;

@@ -3,7 +3,7 @@ if rak_only
     
     % Get audio data from RAK
     this_audio = double(rak_cam.readAudio());
-    disp(num2str(length(this_audio)))
+%     disp(num2str(length(this_audio)))
 
     if isempty(this_audio)
         max_freq = 0;
@@ -40,36 +40,26 @@ if rak_only
             t = (0:n-1)/fs;
             y = fft(x);
             pw = (abs(y).^2)/fs;
-            fx = (0:n-1)*(fs/fs);            
         else
             fs = 8000;
             dt = 1/fs;
             t = (0:n-1)/fs;
             y = fft(x);
-            pw = (abs(y).^2)/n;
-            fx = (0:n-1)*(fs/n);            
+            pw = (abs(y).^2)/n;          
         end
-
-    
-        % Convert to Z scores
-        pw = (pw - mean(pw)) / std(pw);
-        
-        % High pass
+        pw = (pw - mean(pw)) / std(pw);   
         pw(1:10) = 0;
-        
-        % Get amp and freq
-        [max_amp, j] = max(pw);
+        [max_amp, j] = max(pw(1:audx));
+        fx = linspace(0, 2000, audx);
         max_freq = fx(j);
+        disp(num2str(max_freq))
         
-        this_clock = clock;
-
     else
         
         if ~rem(nstep, 40)
             disp(horzcat('this_audio has unexpected length (showing 1 of 40 errors)'))
             disp(horzcat('= ', num2str(length(this_audio))))
         end        
-        this_clock = clock;
         max_freq = 0;
         max_amp = 0;
     end
