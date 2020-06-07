@@ -71,6 +71,10 @@ pw = zeros(1, 1000);
 audio_I = zeros(nneurons, 1);
 audio_empty_flag = 0;
 rak_fails = 0;
+if ~exist('rak_cam_h')
+    rak_cam_h = 720;
+    rak_cam_w = 1280; 
+end
 
 
 %% Create data and command log
