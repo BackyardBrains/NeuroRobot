@@ -88,7 +88,7 @@ if nstep == nsteps_per_loop
     step_duration_in_ms = round(nanmedian(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
 end
-if ~use_webcam && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
+if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     disp('error: rak_cam exists but is not running')
     sound(flipud(gong), 8192 * 7)
     disp('solution 1: make sure you are connected to the correct wifi network')
