@@ -349,8 +349,8 @@ void executeUltrasonicSensor()
   digitalWrite(ultrasonicTrigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(ultrasonicTrigPin, LOW);
-  tempUltrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH);
-  ultrasonicDistance = (tempUltrasonicDistance/2) / 2.91;
+  tempUltrasonicDistance = pulseIn(ultrasonicEchoPin, HIGH, 20000);
+  ultrasonicDistance = (tempUltrasonicDistance * 0.5) * 0.34;
 
 
   /*if(ultrasonicDistance ==0)
