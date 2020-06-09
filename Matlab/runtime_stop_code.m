@@ -50,7 +50,7 @@ end
 %% End runtime
 close(fig_design)
 button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
-step_duration_in_ms = round(nanmedian(step_times * 1000));
+step_duration_in_ms = round(median(step_times * 1000));
 disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms'))
 disp('Run complete')
 

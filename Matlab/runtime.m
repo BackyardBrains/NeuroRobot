@@ -52,7 +52,7 @@ if ext_cam_id
     save_right_cam = zeros(right_yx(1), right_yx(2), 3, ext_cam_nsteps, 'uint8');
     save_time = zeros(1, ext_cam_nsteps);
 end
-step_times = nan(nsteps_per_loop, 1);
+step_times = zeros(nsteps_per_loop, 1) + 100;
 steps_since_last_spike = nan(nneurons, 1);
 if bluetooth_present
     bluetooth_flush

@@ -85,7 +85,7 @@ if nstep == nsteps_per_loop
         save_for_ai = save_for_ai + 1;
         disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end
-    step_duration_in_ms = round(nanmedian(step_times * 1000));
+    step_duration_in_ms = round(median(step_times * 1000));
     disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
 end
 if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
