@@ -59,27 +59,6 @@ else
     if ~exist('bluetooth_modem', 'var')
         bluetooth_present = 0;
     end
-    
-    if second_screen_analysis
-
-        delete(brain_ax)
-        
-        % Analysis 1
-        analysis_1_ax = axes('position', [0.525 0.65 0.4 0.15]);
-        set(analysis_1_ax, 'xtick', [], 'ytick', [])
-        box on
-
-        % Analysis 2
-        analysis_2_ax = axes('position', [0.525 0.375 0.4 0.15]);
-        set(analysis_2_ax, 'xtick', [], 'ytick', [])
-        box on
-
-        % Analysis 3
-        analysis_3_ax = axes('position', [0.525 0.1 0.4 0.15]);
-        set(analysis_3_ax, 'xtick', [], 'ytick', [])
-        box on
-
-    end
 
     drawnow
     pause(1)

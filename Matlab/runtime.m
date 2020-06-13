@@ -116,8 +116,9 @@ end
 if exist('rak_pulse', 'var') && isvalid(rak_pulse)
     stop(rak_pulse)
     delete(rak_pulse)
-    disp('Previos rak_pulse deleted')
+    disp('rak_pulse deleted')
 end
+pause(1)
 disp('Creating runtime_pulse')
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)

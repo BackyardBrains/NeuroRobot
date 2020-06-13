@@ -22,11 +22,11 @@ if nneurons
 
     % Calculate distance sensor input current
     audio_I = zeros(nneurons, 1);
-    if isempty(audio_max_freq)
+    if isempty(audio_max_freq) || max_amp < 8
         audio_max_freq = 0;
     end
     audio_I(audio_prefs == 1) = (audio_max_freq > 200 && audio_max_freq < 400) * 50;
-    audio_I(audio_prefs == 2) = (audio_max_freq > 500 && audio_max_freq < 700) * 50;
+    audio_I(audio_prefs == 2) = (audio_max_freq > 600 && audio_max_freq < 800) * 50;
     audio_I(audio_prefs == 3) = (audio_max_freq > 1100 && audio_max_freq < 1300) * 50;
     
     % Run brain simulation

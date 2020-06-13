@@ -34,6 +34,8 @@ if bg_brain
     set(audio_ax, 'xtick', round(linspace(1, audx, 5)), 'xticklabel', [0 500 1000 1500 2000], 'ytick', [], ...
         'xcolor', 'k', 'ycolor', fig_bg_col, 'linewidth', 2, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
         gui_font_weight, 'linewidth', 2)
+    hold on
+    plot([1 audx], [8 8], 'color', [0.7 0.7 0.7], 'linewidth', 2)
     title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Hz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 %     ylabel('Norm Amp', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
@@ -120,60 +122,3 @@ box on
 
 set_1
 
-
-if second_screen_analysis
-% 
-%     % Vis pref vals
-%     axes(analysis_1_ax) 
-%     draw_analysis_1 = bar(rand(n_vis_prefs, 2), 'facecolor', [0.2 0.4 0.8]);
-%     set(gca, 'ylim', [-150 150])
-%     title('Sensor inputs', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     xlabel('Sensor', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     ylabel('Input', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)        
-
-    % Vis pref vals (edited)
-    axes(analysis_1_ax) 
-    draw_analysis_1 = bar(zeros(3,1), 'facecolor', [0.2 0.4 0.8]);
-    set(gca, 'ylim', [0 100])
-    title('Audio input', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Neuron', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    ylabel('Input (mV)', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    
-%     % Total input
-%     axes(analysis_2_ax)
-%     draw_analysis_2 = bar(rand(1, nneurons), 'facecolor', [0.2 0.4 0.8]);
-%     set(gca, 'ylim', [-300 300])
-%     title('Total input (sensors + synapses) to neurons', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     xlabel('Neuron', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     ylabel('Input', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight) 
-
-    % Total input
-    axes(analysis_2_ax)
-    
-    % Motor out and time
-    axes(analysis_3_ax)
-    draw_analysis_3 = bar([0 0], 'facecolor', [0.2 0.4 0.8]);
-    set(gca, 'ylim', [-400 400])
-    title('Motor outputs', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    set(gca, 'xticklabel', {'Left motor', 'Right motor', 'Time / step'}, 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    ylabel('Output', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)    
-  
-%     % Motor out and time
-%     axes(analysis_3_ax)
-% %     draw_analysis_3 = imagesc(px2, [-10 10]);
-%     draw_analysis_3 = plot(this_f, zeros(1, length(this_f)));
-%     set(gca, 'ylim', [-5 5])
-%     title('Audio spectrum (1 sec (10 samples) Z scores)', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     xlabel('Hz', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight) 
-%     ylabel('Z', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight)     
-    
-elseif ext_cam_id
-    
-    % Video ax
-    axes(ext_ax)
-    cla
-    axis([1 720 1 720])
-    set(gca, 'ydir', 'reverse')
-    ext_im = image(zeros(720, 720, 3, 'uint8'));
-    
-end

@@ -14,8 +14,8 @@
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-rak_only = 1;
-camera_present = 1;
+rak_only = 0;
+camera_present = 0;
 use_webcam = 0;
 bluetooth_present = 0;
 hd_camera = 0;
@@ -48,7 +48,6 @@ fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
 
 %% Additional settings
-second_screen_analysis = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 nsteps_per_loop = 100;
