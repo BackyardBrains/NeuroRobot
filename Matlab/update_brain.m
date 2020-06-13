@@ -28,7 +28,7 @@ if nneurons
     audio_I(audio_prefs == 1) = (audio_max_freq > 200 && audio_max_freq < 400) * 50;
     audio_I(audio_prefs == 2) = (audio_max_freq > 600 && audio_max_freq < 800) * 50;
     audio_I(audio_prefs == 3) = (audio_max_freq > 1100 && audio_max_freq < 1300) * 50;
-    
+
     % Run brain simulation
     for t = 1:ms_per_step
 
