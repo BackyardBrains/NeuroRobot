@@ -26,7 +26,7 @@ if sum(these_speaker_neurons)
     if ~vocal
         these_tones = neuron_tones(these_speaker_neurons, 1);
         these_tones(these_tones == 0) = [];
-        speaker_tone = mean(these_tones);
+        speaker_tone = round(mean(these_tones)) / 2;
         if ~rak_only
             speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
         end

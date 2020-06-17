@@ -1,5 +1,5 @@
 
-if nneurons > 75
+if nneurons > 100
     nma = 1; % small neurons setting
 else
     nma = 0;
@@ -8,7 +8,7 @@ nma_flag = 0; % nma design hack
 if nma
     nma_flag = 1;
 end
-if nneurons > 200
+if nneurons > 100
     draw_synapses = 0;
 else
     draw_synapses = 1;

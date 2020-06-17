@@ -1,8 +1,8 @@
 
 %% Core
 
-Ne = 40;
-Ni = 10;
+Ne = 8*50;
+Ni = 2*50;
 
 re = rand(Ne,1);
 ri = rand(Ni,1);

@@ -25,9 +25,16 @@ if nneurons
     if isempty(audio_max_freq) || max_amp < 8
         audio_max_freq = 0;
     end
-    audio_I(audio_prefs == 1) = (audio_max_freq > 200 && audio_max_freq < 400) * 50;
-    audio_I(audio_prefs == 2) = (audio_max_freq > 600 && audio_max_freq < 800) * 50;
-    audio_I(audio_prefs == 3) = (audio_max_freq > 1100 && audio_max_freq < 1300) * 50;
+    audio_I(audio_prefs == 1) = (audio_max_freq > 250 && audio_max_freq < 350) * 50;
+    audio_I(audio_prefs == 2) = (audio_max_freq > 350 && audio_max_freq < 450) * 50;
+    audio_I(audio_prefs == 3) = (audio_max_freq > 450 && audio_max_freq < 550) * 50;
+    audio_I(audio_prefs == 4) = (audio_max_freq > 550 && audio_max_freq < 650) * 50;
+    audio_I(audio_prefs == 5) = (audio_max_freq > 650 && audio_max_freq < 750) * 50;
+    audio_I(audio_prefs == 6) = (audio_max_freq > 750 && audio_max_freq < 850) * 50;
+    audio_I(audio_prefs == 7) = (audio_max_freq > 850 && audio_max_freq < 950) * 50;
+    audio_I(audio_prefs == 8) = (audio_max_freq > 950 && audio_max_freq < 1050) * 50;
+    audio_I(audio_prefs == 9) = (audio_max_freq > 1050 && audio_max_freq < 1150) * 50;
+    audio_I(audio_prefs == 10) = (audio_max_freq > 1150 && audio_max_freq < 1250) * 50;
 
     % Run brain simulation
     for t = 1:ms_per_step

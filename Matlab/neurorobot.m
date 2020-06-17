@@ -27,7 +27,7 @@ brain_gen = 0; % Algorithmic brain build
 
 
 %% Advanced settings
-pulse_period = 0.06; % in seconds
+pulse_period = 0.1; % in seconds
 % pulse_period = 0.25; % in seconds
 % pulse_period = 0.125; % in seconds
 
@@ -200,7 +200,8 @@ this_audio = [];
 
 
 if ~vocal
-    audio_pref_names = {'300 Hz', '700 Hz', '1200 Hz'};
+    audio_pref_names = {'300 Hz', '400 Hz', '500 Hz', '600 Hz', ...
+        '700 Hz', '800 Hz', '900 Hz', '1000 Hz', '1100 Hz', '1200 Hz'};
     n_audio_prefs = size(audio_pref_names, 2);
 else
     clear audio_pref_names
