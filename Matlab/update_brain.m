@@ -1,5 +1,4 @@
 if nneurons
-%     disp('1')
     
     spikes_step = zeros(nneurons, ms_per_step);
     I_step = zeros(nneurons, ms_per_step);
@@ -22,7 +21,7 @@ if nneurons
 
     % Calculate distance sensor input current
     audio_I = zeros(nneurons, 1);
-    if isempty(audio_max_freq) || max_amp < 8
+    if isempty(audio_max_freq) || max_amp < 6
         audio_max_freq = 0;
     end
     audio_I(audio_prefs == 1) = (audio_max_freq > 250 && audio_max_freq < 350) * 50;
