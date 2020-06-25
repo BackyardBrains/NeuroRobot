@@ -1,6 +1,5 @@
 .DS_Store
 
-Matlab/*.mexw64
 Matlab/*.mexmaci64
 Matlab/Logs
 Matlab/Images
