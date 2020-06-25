@@ -1,5 +1,5 @@
-*.pdf -crlf -diff -merge filter=lfs diff=lfs merge=lfs -text
-*.mat -crlf -diff -merge filter=lfs diff=lfs merge=lfs -text
+*.pdf -crlf -diff -merge
+*.mat -crlf -diff -merge
 *.mdlp -crlf -diff -merge
 *.slxp -crlf -diff -merge
 *.sldd -crlf -diff -merge
