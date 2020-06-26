@@ -1,4 +1,0 @@
-Note: when updating FFMPEG library, remember to also copy all updated DLLs from NeuroRobot\RAK-Matlab\libraries\windows\ffmpeg\bin to NeuroRobot\Matlab
-
-6/14/2019
-Able to run the app (new robots and code) on all laptops WITHOUT installing boost or ffmpeg. Mex already built. Maybe libraries are only needed on one mex-building laptop, not all laptops.
