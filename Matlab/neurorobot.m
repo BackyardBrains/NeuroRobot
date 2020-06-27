@@ -41,11 +41,16 @@ manual_controls = 0;
 save_for_ai = 0;
 
 
-%% New user settings
-bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
+%% Make space
+% startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% bfsize = round(startup_fig_pos(3) / 107);
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
+computer_name = 'n/a';
+% bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
+
 
 %% Additional settings
 ext_cam_id = 0;
@@ -81,7 +86,9 @@ end
 clear step_timer
 clear life_timer
 disp('---------')
-HebiCam.loadLibs();
+if camera_present && ~use_webcam && ~rak_only
+    HebiCam.loadLibs();
+end
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
@@ -115,75 +122,6 @@ if ~exist('voluntary_restart', 'var')
     voluntary_restart = 0;
 end
 this_exercise = '';
-
-
-%% Custom settings for Backyard Brains' classroom events
-computer_name = getComputerName;
-if strcmp(computer_name, 'laptop-main')
-    
-%     startup_fig_pos = [1921 1 1920 1057];   
-%     fig_pos = [1921 1 1920 1057]; 
-    
-    startup_fig_pos = [1 41 1920 1017];   
-    fig_pos = [1 41 1920 1017];
-    
-    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
-%     bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
-%     bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
-%     bluetooth_name = 'RNBT-A9BE'; % blue, wifi = LTH_CFFAC8
-    bfsize = 18;
-elseif strcmp(computer_name, 'laptop-green')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];  
-    bluetooth_name = 'RNBT-09FE'; % green, wifi = LTH_CFD698
-    bfsize = 16;    
-elseif strcmp(computer_name, 'laptop-red')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];  
-    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
-    bfsize = 16;   
-elseif strcmp(computer_name, 'laptop-pink')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];  
-    bluetooth_name = 'RNBT-9930'; % pink, wifi = LTH_CFFAB3
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-yellow')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-0C56'; % yellow, wifi = LTH_CFFABA
-    bfsize = 16;  
-elseif strcmp(computer_name, 'laptop-white')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-1FE5'; % white, wifi = LTH_CFD6F5
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-blue')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-A9BE'; % blue, wifi = LTH_CFFAC8
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-orange')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-ACFF'; % , wifi = LTH_CFFB27
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-black')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-9AA5'; % black, wifi = LTH_D07086
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-purple')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-96F3'; % purple, wifi = LTH_D070D6
-    bfsize = 16;
-elseif strcmp(computer_name, 'laptop-checkers')
-    startup_fig_pos = [1 41 1536 800.8000];   
-    fig_pos = [1 41 1536 800.8000];
-    bluetooth_name = 'RNBT-855E'; % red, wifi = LTH_CFFCFD
-    bfsize = 16;    
-end
-disp(horzcat('Computer name: ', computer_name))
 
 
 %% Prepare
