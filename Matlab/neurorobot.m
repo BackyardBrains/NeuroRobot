@@ -14,9 +14,9 @@
 % Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
 % No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
 
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 bluetooth_present = 0;
 hd_camera = 0;
 use_cnn = 0;
@@ -47,7 +47,7 @@ save_for_ai = 0;
 % bfsize = round(startup_fig_pos(3) / 107);
 startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
-bfsize = 18; % You may want to change this to 16 if your screen size is smaller than 1080p
+bfsize = 16; % You may want to change this to 16 if your screen size is smaller than 1080p
 computer_name = 'n/a';
 % bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 
