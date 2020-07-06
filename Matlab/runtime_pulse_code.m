@@ -78,7 +78,14 @@ end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
 update_ext_cam
-if nstep == nsteps_per_loop
+
+% Memory leak fix (2020-Jul-06)
+if xstep == 1
+    mem = memory;
+    mem_baseline = mem.MemUsedMATLAB;
+end
+    
+if nstep == nsteps_per_loop %% Happens again below
     nstep = 0;
     if save_for_ai
         imwrite(large_frame, strcat('.\Images\large_frame_', num2str(save_for_ai), '.png'))
@@ -86,7 +93,21 @@ if nstep == nsteps_per_loop
         disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end
     step_duration_in_ms = round(median(step_times * 1000));
-    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep)))
+    
+    % Memory leak fix (2020-Jul-06)
+    mem = memory;
+    mem_current = mem.MemUsedMATLAB;    
+    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep), ', fig_design *** ', num2str(round((mem_current / mem_baseline)*100)/100)))    
+    if mem_current / mem_baseline > 3
+        disp('fig_design is more than 3 times its original size')
+        disp('memory leak. closing and recreating fig_design')
+        disp(horzcat('mem_baseline: ', num2str(mem_baseline)))
+        disp(horzcat('mem_current: ', num2str(mem_current)))
+        close(fig_design)
+        draw_fig_runtime
+        draw_brain    
+    end
+    
 end
 if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
     disp('error: rak_cam exists but is not running')
@@ -118,7 +139,9 @@ end
 
 % End of pulse code
 enter_design % if run_button = 1
-drawnow
+if nstep
+    drawnow
+end
 
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
