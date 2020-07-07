@@ -97,15 +97,15 @@ if nstep == nsteps_per_loop %% Happens again below
     % Memory leak fix (2020-Jul-06)
     mem = memory;
     mem_current = mem.MemUsedMATLAB;    
-    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep), ', fig_design *** ', num2str(round((mem_current / mem_baseline)*100)/100)))    
-    if mem_current / mem_baseline > 2
-        disp('fig_design is more than twice its original size')
-        disp('memory leak. closing and recreating fig_design')
-        disp(horzcat('mem_baseline: ', num2str(mem_baseline)))
-        disp(horzcat('mem_current : ', num2str(mem_current)))
+    disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms (pulse period = ', num2str(pulse_period * 1000), ' ms), xstep = ', num2str(xstep), ', fig_design size (current/baseline): ', num2str(round((mem_current / mem_baseline)*100)/100)))    
+    if (mem_current / mem_baseline) > 3
+        disp('memory leak: fig_design is more than 3 times its original size')
+        disp('closing and recreating fig_design...')
         close(fig_design)
         draw_fig_runtime
-        draw_brain    
+        draw_brain        
+        disp(horzcat('mem_baseline: ', num2str(mem_baseline)))
+        disp(horzcat('mem_current : ', num2str(mem_current)))
     end
     
 end
