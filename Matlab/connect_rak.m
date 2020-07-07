@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, gong, hd_camera)
+function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera)
 
 tic
 disp('Connecting camera...')
@@ -10,7 +10,6 @@ set(popup_select_brain, 'visible', 'off')
 set(edit_name, 'enable', 'off')
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
-% set(button_exercises, 'enable', 'off')
 drawnow
 
 try
@@ -103,6 +102,5 @@ if camera_present
     set(button_camera, 'enable', 'on')
 end
 set(button_startup_complete, 'enable', 'on')
-% set(button_exercises, 'enable', 'on')
 
 

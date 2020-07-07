@@ -1,37 +1,27 @@
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% NEUROROBOT APP by Backyard Brains %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%  NeuroRobot Toolbox by Backyard Brains  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code is licensed under a GNU 2.1 license %
+% https://github.com/BackyardBrains/NeuroRobot  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Managed by Christopher Harris, christopher@backyardbrains.com
-% This code is licensed under a GNU 2.1 license
-% For the best experience, install the Comic Book font available at https://github.com/BackyardBrains/NeuroRobot
-% For more information, see https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006
 
 %% Settings
-% DIY robot, use these settings: rak_only = 0, camera_present = 1, use_webcam = 0, bluetooth_present = 1
-% Backyard Brains' fabricated neurorobot, use these settings: rak_only = 1, camera_present = 1, use_webcam = 0 and bluetooth_present = 0
-% Webcamera, use these settings: rak_only = 0, camera_present = 1, use_webcam = 1, bluetooth_present = 0
-% No webcamera, use these settings: rak_only = 0, camera_present = 0, use_webcam = 0 and bluetooth_present = 0
-
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-bluetooth_present = 0;
 hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
-vocal = 0; % Custom sound output
-brain_gen = 0; % Algorithmic brain build
+vocal = 0; % custom sound output
+brain_gen = 0; % algorithmic brain build
+pulse_period = 0.1; % in seconds
 
 
 %% Advanced settings
-pulse_period = 0.1; % in seconds
-% pulse_period = 0.25; % in seconds
-% pulse_period = 0.125; % in seconds
-
-save_data_and_commands = 0; %%% 
+save_data_and_commands = 0;
 save_brain_jpg = 0;
 use_profile = 0;
 bg_brain = 1;
@@ -39,9 +29,10 @@ draw_synapse_strengths = 0;
 draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
+bluetooth_present = 0;
 
 
-%% Make space
+%% Local configuration
 % startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
 % startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
 % bfsize = round(startup_fig_pos(3) / 107);
@@ -52,13 +43,11 @@ computer_name = 'n/a';
 % bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 
 
-%% Additional settings
+%% Prepare 1
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 nsteps_per_loop = 100;
 brain_facts = 0;
-
-%% Mechanics
 max_w = 100;
 large_brain = 1;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
@@ -94,7 +83,7 @@ if ~exist('voluntary_restart', 'var')
 end
 
 
-%% Constants
+%% Prepare 2
 base_weight = max_w;
 if bluetooth_present
     left_cut = [1 500 281 780];
@@ -124,7 +113,7 @@ end
 this_exercise = '';
 
 
-%% Prepare
+%% Prepare 3
 im = flipud(255 - ((255 - imread(this_workspace_fig))));
 im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
@@ -209,31 +198,6 @@ brain_text_name = uicontrol('Style', 'text', 'String', 'Brain:', 'units', 'norma
 brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'normalized', 'position', [0.05 0.63 0.35 0.06], 'fontsize', bfsize + 10, ....
     'FontName', gui_font_name, 'fontweight', gui_font_weight);
 
-% % Select exercise
-% exercise_text_load = uicontrol('Style', 'text', 'String', 'Select exercise', 'units', 'normalized', 'position', [0.05 0.5 0.35 0.06], ...
-%     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-% clear exercise_string
-% exercise_string{1} = '-- Create new exercise --';
-% exercise_directory = './Exercises/*.mat';
-% available_exercises = dir(exercise_directory);
-% nexercises = size(available_exercises, 1);
-% for nexercise = 1:nexercises
-%     exercise_string{nexercise + 1} = available_exercises(nexercise).name(1:end-4);
-% end
-% popup_select_exercise = uicontrol('Style', 'popup', 'String', exercise_string, 'callback', 'update_exercise_name_edit', 'units', 'normalized', ...
-%     'position', [0.05 0.42 0.35 0.1], 'fontsize', bfsize + 8, 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-% if ~restarting
-%     exercise_name = '';
-% end
-% exercise_text_name = uicontrol('Style', 'text', 'String', 'Exercise:', 'units', 'normalized', 'position', [0.05 0.4 0.35 0.05], ....
-%     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-% exercise_edit_name = uicontrol('Style', 'edit', 'String', exercise_name, 'units', 'normalized', 'position', [0.05 0.35 0.35 0.06], 'fontsize', bfsize + 10, ....
-%     'FontName', gui_font_name, 'fontweight', gui_font_weight);
-% % 
-% % Exercise info display
-% exercise_info_ax = axes('position', [0.475 0.1 0.45 0.75]);
-% set(exercise_info_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col, 'color', fig_bg_col)
-
 % Camera button
 dis_cam_button = 0;
 if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
@@ -244,7 +208,7 @@ elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matla
 else
     this_col = [0.8 0.8 0.8];
 end
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', [0.05 0.19 0.17 0.07]);
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', [0.075 0.39 0.25 0.07]);
 set(button_camera, 'Callback', 'camera_button_callback', 'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
@@ -268,27 +232,21 @@ if ~rak_only
     else
         this_col = [0.8 0.8 0.8];
     end
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.05 0.1 0.17 0.07]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.075 0.3 0.25 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, brain_edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 7, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
     if ~bluetooth_present
         set(button_bluetooth, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
     end
 else
-    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.05 0.1 0.17 0.07]);
+    button_bluetooth = uicontrol('Style', 'pushbutton', 'String', 'Bluetooth', 'units', 'normalized', 'position', [0.075 0.3 0.25 0.07]);
     set(button_bluetooth, 'Callback', 'bluetooth_modem = connect_bluetooth(bluetooth_name, button_bluetooth, text_title, text_load, popup_select_brain, brain_edit_name, button_camera, button_startup_complete, camera_present, bluetooth_present); ', 'FontSize', bfsize + 7, 'FontName', gui_font_name, ...
         'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     set(button_bluetooth, 'enable', 'off')
 end
 
-% Exercises button
-button_exercises = uicontrol('Style', 'pushbutton', 'String', 'Exercises', 'units', 'normalized', 'position', [0.23 0.19 0.17 0.07]);
-set(button_exercises, 'Callback', 'exercises', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
-    'BackgroundColor', [0.8 0.8 0.8])
-set(button_exercises, 'enable', 'off')
-
 % Start button
-button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start', 'units', 'normalized', 'position', [0.23 0.1 0.17 0.07]);
+button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start', 'units', 'normalized', 'position', [0.075 0.21 0.25 0.07]);
 set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize + 10, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
@@ -321,7 +279,7 @@ if exist('brain_name.mat', 'file')
     brain_edit_name.String = brain_name;      
     try
 %         rak_cam = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
-        [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, button_exercises, hd_camera);
+        [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera);
         start(rak_pulse)
         disp('RAK reconnected')
         startup_complete
@@ -335,7 +293,6 @@ if exist('brain_name.mat', 'file')
             set(button_camera, 'enable', 'on')
         end
         set(button_startup_complete, 'enable', 'on')
-        set(button_exercises, 'enable', 'on')
         button_camera.BackgroundColor = [1 0.5 0.5];
         disp('Unable to reconnect to RAK')
     end    
