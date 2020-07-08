@@ -77,7 +77,6 @@ if run_button == 2
 end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
-update_ext_cam
 
 % Memory leak fix (2020-Jul-06)
 if xstep == 1
