@@ -1,4 +1,0 @@
-COLLECT IMAGES
-If save_for_ai = 1 robots will save HD frame to .\Images\ every 10 seconds
-Manually curate these, add useful ones to .\Images\Selected\
-Use train_detector.m to manually label objects in your selected images and train your R-CNN
