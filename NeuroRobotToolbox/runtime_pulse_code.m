@@ -79,7 +79,7 @@ enter_pause % if run_button == 3
 enter_reward % if run_button == 5
 
 % Memory leak fix (2020-Jul-06)
-if xstep == 1
+if xstep == nsteps_per_loop
     mem = memory;
     mem_baseline = mem.MemUsedMATLAB;
 end
