@@ -6,8 +6,8 @@
     <param.company>Backyard Brains</param.company>
     <param.summary>A neurorobot is a robot controlled by a computer simulation of a biological brain. The NeuroRobot Toolbox makes neurorobotics accessible.</param.summary>
     <param.description>A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use brain-shaped neurorobots with camera, microphone, speaker, distance sensor, wheels and WiFi to teach computational neuroscience in high schools. The NeuroRobot Toolbox visualizes our neurorobots’ visual and auditory input, and brain activity, and allows you to design and simulate new brains, and deliver dopamine-like reward signals. Explore neurorobotics, share your brain designs and earn a Backyard Brains NeuroRobotics Certificate for your CV!</param.description>
-    <param.screenshot>C:\Users\Christopher Harris\Downloads\Neurobot_small_noborders.jpg</param.screenshot>
-    <param.version>1.02</param.version>
+    <param.screenshot>${PROJECT_ROOT}\Gallery\neurorobot_logo.jpg</param.screenshot>
+    <param.version>1.03</param.version>
     <param.output>${PROJECT_ROOT}\NeuroRobot Toolbox.mltbx</param.output>
     <param.products.name>
       <item>MATLAB</item>
@@ -161,7 +161,6 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_framework</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_framework_testScript.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_matlab.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_MatlabBridge.mexw64</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_StreamCallback.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\nma_build.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\object_ns.mat</file>
