@@ -60,7 +60,12 @@ try
     elseif use_webcam
         % Webcam
         delete(imaqfind)
-        rak_cam = videoinput('winvideo', 1);
+        try
+            rak_cam = videoinput('winvideo', 1);
+        catch
+            disp('error: unable to connect webcam')
+            disp('solution: open Add-On Explorer and install Image Acquisition Support Package for Generic OS Interface')
+        end
         triggerconfig(rak_cam, 'manual');
         rak_cam.TriggerRepeat = Inf;
         rak_cam.FramesPerTrigger = 1;
