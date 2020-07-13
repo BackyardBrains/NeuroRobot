@@ -5,7 +5,6 @@
 %
 % This code generates a brain at a random point in the space of all possible brains.
 % Aim: Apply Matlab ML and generative ANNs to existing brains and new brains that receive significant reward from users
-% This code is licensed under a GNU 2.1 license
 % See brain_generation_full for extended parameter search
 
 
