@@ -7,7 +7,7 @@
     <param.summary>The NeuroRobot Toolbox makes it fun and easy to design brain models and work with NeuroRobots</param.summary>
     <param.description>A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use brain-shaped neurorobots with camera, microphone, speaker, distance sensor, wheels and WiFi to teach computational neuroscience in high schools. The NeuroRobot Toolbox visualizes our neurorobots’ visual and auditory input, and brain activity, and allows you to design and simulate new brains, and deliver dopamine-like reward signals. Explore neurorobotics, share your brain designs and earn a Backyard Brains NeuroRobotics Certificate for your CV.</param.description>
     <param.screenshot>${PROJECT_ROOT}\Gallery\neurorobot_logo.jpg</param.screenshot>
-    <param.version>1.04</param.version>
+    <param.version>1.05</param.version>
     <param.output>${PROJECT_ROOT}\NeuroRobot Toolbox.mltbx</param.output>
     <param.products.name>
       <item>MATLAB</item>
@@ -99,7 +99,6 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\alg_1.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\algorithmic_build.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\alllables.txt</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\Annotation</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bg_test.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bluetooth_flush.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bluetooth_get_distance.m</file>
@@ -107,7 +106,6 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_generation.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_im_xy.mat</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_im_xy.txt</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\BrainGen</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Brains</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bursting_brain.mat</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\camera_button_callback.m</file>
