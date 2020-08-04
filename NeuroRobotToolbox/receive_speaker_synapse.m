@@ -15,7 +15,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Activate speaker contact
     contact_h(4).MarkerFaceColor = sel_col_core;  
     speaker_selected = 1;
-    this_val = 1000;
+%     this_val = 1000; % 2020-07-30 rem
     
     % Text
     text_heading = uicontrol('Style', 'text', 'String', 'Set or delete sound output', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -52,13 +52,21 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     delete(button_confirm)    
     
     % Update variables
+    this_input = str2double(edit_w.String);
+    if ~vocal && (~isa(this_input, 'double') || this_input < 0 || this_input > 4978)
+        this_input = 0;
+        disp('Speaker input out of range. Automatically set to zero.')
+    end
     speaker_selected = 0;
     if ~vocal
-        neuron_tones(presynaptic_neuron, 1) = str2double(edit_w.String);
+        neuron_tones(presynaptic_neuron, 1) = this_input;
     else
         neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
     end
     neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon weight
+    if this_input == 0
+        neuron_contacts(presynaptic_neuron, 4) = 0;
+    end
 
     % Design action complete
     design_action = 0; % not read at the end, ugly hack
@@ -85,5 +93,10 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Clear neurons
     clear presynaptic_neuron
     clear postsynaptic_contact    
+    
+    % Disable unavailable buttons
+    set(button_add_neuron, 'enable', 'on')
+    set(button_add_network, 'enable', 'on')
+    set(button_return_to_runtime, 'enable', 'on')       
     
 end

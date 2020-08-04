@@ -1,5 +1,11 @@
 
 % If no design action is in progress
+
+% Disable unavailable buttons
+set(button_add_neuron, 'enable', 'off')
+set(button_add_network, 'enable', 'off')
+set(button_return_to_runtime, 'enable', 'off')
+
 if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     
     % If adding a single neuron
@@ -375,6 +381,11 @@ elseif fig_design.UserData == 4
     end
     
 end
+
+% Disable unavailable buttons
+set(button_add_neuron, 'enable', 'on')
+set(button_add_network, 'enable', 'on')
+set(button_return_to_runtime, 'enable', 'on')
 
 neuron_or_network = 1; % Default to adding single neuron if click brain directly
 

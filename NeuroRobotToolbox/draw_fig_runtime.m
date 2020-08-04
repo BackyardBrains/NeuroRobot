@@ -6,6 +6,7 @@ set(fig_design, 'NumberTitle', 'off', 'Name', horzcat('Neurorobot Runtime (resta
 set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 10; % This indicates runtime mode
+% set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Prepare axes
 if brain_view_tiled

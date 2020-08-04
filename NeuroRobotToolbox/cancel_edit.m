@@ -21,3 +21,8 @@ draw_neuron_core.CData(presynaptic_neuron, :) = neuron_cols(presynaptic_neuron, 
 
 % Clear neuron selection
 clear presynaptic_neuron
+
+% Disable unavailable buttons
+set(button_add_neuron, 'enable', 'on')
+set(button_add_network, 'enable', 'on')
+set(button_return_to_runtime, 'enable', 'on')

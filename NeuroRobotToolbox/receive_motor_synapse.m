@@ -44,7 +44,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     if current_weight == 0
         current_weight = 250;
     end
-    text_w = uicontrol('Style', 'text', 'String', 'Weight (80 to 250):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    text_w = uicontrol('Style', 'text', 'String', 'Weight (1-100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     edit_w = uicontrol('Style', 'edit', 'String', num2str(current_weight), 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
 
     % Wait for OK        
@@ -54,26 +54,28 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     delete(button_confirm)    
     
     % Update variables
-    this_val = str2double(edit_w.String);
-    this_val(this_val > 250) = 250;
-    this_val(this_val < 0) = 0;
-    neuron_contacts(presynaptic_neuron, postsynaptic_contact) = this_val;
+    this_input = str2double(edit_w.String);
+    if ~isa(this_input, 'double') || this_input < 0 || this_input > 100
+        this_input = 0;
+        disp('Motor input out of range. Automatically set to zero.')
+    end     
+    neuron_contacts(presynaptic_neuron, postsynaptic_contact) = this_input;
     if  postsynaptic_contact == 6
-        neuron_contacts(presynaptic_neuron, 8) = this_val;
+        neuron_contacts(presynaptic_neuron, 8) = this_input;
     elseif  postsynaptic_contact == 7
-        neuron_contacts(presynaptic_neuron, 9) = this_val;
+        neuron_contacts(presynaptic_neuron, 9) = this_input;
     elseif  postsynaptic_contact == 8
-        neuron_contacts(presynaptic_neuron, 6) = this_val;
+        neuron_contacts(presynaptic_neuron, 6) = this_input;
     elseif  postsynaptic_contact == 9
-        neuron_contacts(presynaptic_neuron, 7) = this_val;
+        neuron_contacts(presynaptic_neuron, 7) = this_input;
     elseif  postsynaptic_contact == 10
-        neuron_contacts(presynaptic_neuron, 12) = this_val;
+        neuron_contacts(presynaptic_neuron, 12) = this_input;
     elseif  postsynaptic_contact == 11
-        neuron_contacts(presynaptic_neuron, 13) = this_val;
+        neuron_contacts(presynaptic_neuron, 13) = this_input;
     elseif  postsynaptic_contact == 12
-        neuron_contacts(presynaptic_neuron, 10) = this_val;
+        neuron_contacts(presynaptic_neuron, 10) = this_input;
     elseif  postsynaptic_contact == 13
-        neuron_contacts(presynaptic_neuron, 11) = this_val;
+        neuron_contacts(presynaptic_neuron, 11) = this_input;
     end
 
     % Design action complete
@@ -96,6 +98,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
 
     % Clear neurons
     clear presynaptic_neuron
-    clear postsynaptic_contact    
+    clear postsynaptic_contact  
+    
+    % Disable unavailable buttons
+    set(button_add_neuron, 'enable', 'on')
+    set(button_add_network, 'enable', 'on')
+    set(button_return_to_runtime, 'enable', 'on')    
     
 end

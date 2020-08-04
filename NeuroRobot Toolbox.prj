@@ -1,31 +1,25 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="121295524" file="C:\Users\Christopher Harris\NeuroRobot\NeuroRobot Toolbox.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="NeuroRobot Toolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="77177247" file="C:\Users\Christopher Harris\NeuroRobot\NeuroRobot Toolbox.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="NeuroRobot Toolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>NeuroRobot Toolbox</param.appname>
     <param.authnamewatermark>Christopher Harris</param.authnamewatermark>
     <param.email>christopher@backyardbrains.com</param.email>
     <param.company>Backyard Brains</param.company>
-    <param.summary>The NeuroRobot Toolbox makes it fun and easy to design brain models and work with NeuroRobots</param.summary>
-    <param.description>A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use brain-shaped neurorobots with camera, microphone, speaker, distance sensor, wheels and WiFi to teach computational neuroscience in high schools. The NeuroRobot Toolbox visualizes our neurorobots’ visual and auditory input, and brain activity, and allows you to design and simulate new brains, and deliver dopamine-like reward signals. Explore neurorobotics, share your brain designs and earn a Backyard Brains NeuroRobotics Certificate for your CV.</param.description>
+    <param.summary>NeuroRobots for Education!</param.summary>
+    <param.description>A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use brain-shaped neurorobots with camera, microphone, speaker, distance sensor, wheels and WiFi to teach computational neuroscience in high schools. The NeuroRobot Toolbox visualizes our neurorobots’ visual and auditory input, and brain activity, and allows you to design and simulate new brains, and deliver dopamine-like reward signals.</param.description>
     <param.screenshot>${PROJECT_ROOT}\Gallery\neurorobot_logo.jpg</param.screenshot>
-    <param.version>1.05</param.version>
+    <param.version>1.06</param.version>
     <param.output>${PROJECT_ROOT}\NeuroRobot Toolbox.mltbx</param.output>
     <param.products.name>
       <item>MATLAB</item>
-      <item>Deep Learning Toolbox</item>
       <item>Image Processing Toolbox</item>
-      <item>Parallel Computing Toolbox</item>
     </param.products.name>
     <param.products.id>
       <item>1</item>
-      <item>12</item>
       <item>17</item>
-      <item>80</item>
     </param.products.id>
     <param.products.version>
       <item>9.8</item>
-      <item>14.0</item>
       <item>11.1</item>
-      <item>7.2</item>
     </param.products.version>
     <param.platforms />
     <param.guid>442592e6-2a50-4b3e-9721-5d80729db9d8</param.guid>
@@ -96,16 +90,14 @@
     </fileset.rootdir>
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\+NeuroRobotToolbox</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\alg_1.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\algorithmic_build.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\alllables.txt</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bg_test.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bluetooth_flush.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bluetooth_get_distance.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bluetooth_send_motor_command.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_generation.m</file>
+      <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_gen_build_1.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_im_xy.mat</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\brain_im_xy.txt</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Brains</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\bursting_brain.mat</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\camera_button_callback.m</file>
@@ -115,7 +107,6 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Command</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\connect_bluetooth.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\connect_rak.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\copyfig.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\create_sensory_synapse.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Data</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\delete_neuron.m</file>
@@ -135,13 +126,11 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\enter_reward.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\exit_design.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\exit_pause.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\export_fig.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\extend_axon.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\get_distance.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\get_ground_truth.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\get_rak_frame.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\get_visual_input.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\getComputerName.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\ground_truth_pulse_code.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\HebiCam.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Images</file>
@@ -153,6 +142,7 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\make_annotation.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\make_video_new.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\merge_brains.m</file>
+      <file>${PROJECT_ROOT}\NeuroRobotToolbox\modify_all_brains.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\move_neuron.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\neuron_selected.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\neurorobot.m</file>
@@ -160,12 +150,10 @@
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_framework_testScript.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_matlab.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_StreamCallback.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\nma_build.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\object_ns.mat</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\object_space.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\object_strs.mat</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\pause_button_press.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\print2array.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\print_activity.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\print_brain.m</file>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\process_audio_input.m</file>

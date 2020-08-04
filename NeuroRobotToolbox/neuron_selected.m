@@ -17,6 +17,12 @@ button_add_neuron.BackgroundColor = [0.8 0.8 0.8];
 button_add_network.BackgroundColor = [0.8 0.8 0.8];
 
 % If no other design action is in progress
+
+% Disable unavailable buttons
+set(button_add_neuron, 'enable', 'off')
+set(button_add_network, 'enable', 'off')
+set(button_return_to_runtime, 'enable', 'off')
+
 design_action = 0;
 if fig_design.UserData == 0
 
@@ -34,7 +40,7 @@ if fig_design.UserData == 0
     [~, presynaptic_neuron] = min(dists);
     draw_neuron_edge.CData(presynaptic_neuron, :) = sel_col_edge;
     draw_neuron_core.CData(presynaptic_neuron, :) = sel_col_core;
-        
+    
     % Open selection menu
     text_heading = uicontrol('Style', 'text', 'String', 'What do you want to do with this neuron?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
@@ -133,19 +139,20 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
 
         % Manual weight
         current_weight = num2str(connectome(presynaptic_neuron, postsynaptic_neuron));
-        if current_weight == 0 % What is this??
-            current_weight = 30;
+        if current_weight == 0 % What is this?
+            current_weight = 30; % What???
+            disp('Weirdness at ln 143 neuron_selected.m') % Probably never happens
         end
-        text_w = uicontrol('Style', 'text', 'String', 'Weight (-30 to 30):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_w = uicontrol('Style', 'text', 'String', 'Weight (-100 to 100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
         % Plastic
 %         current_da_mod = num2str(da_connectome(presynaptic_neuron, postsynaptic_neuron, 1));
-        text_mod = uicontrol('Style', 'text', 'String', 'STDP/LTP:', 'units', 'normalized', 'position', [0.02 0.62 0.08 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        check_mod = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.11 0.63 0.02 0.05], 'BackgroundColor', fig_bg_col);        
+        text_mod = uicontrol('Style', 'text', 'String', 'Plastic', 'units', 'normalized', 'position', [0.02 0.62 0.06 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        check_mod = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.08 0.63 0.02 0.05], 'BackgroundColor', fig_bg_col);        
          
         % Dopamine-modulated
-        text_dmod = uicontrol('Style', 'text', 'String', 'Needs DA:', 'units', 'normalized', 'position', [0.15 0.62 0.08 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_dmod = uicontrol('Style', 'text', 'String', 'Needs dopamine', 'units', 'normalized', 'position', [0.14 0.62 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         check_dmod = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.24 0.63 0.02 0.05], 'BackgroundColor', fig_bg_col);           
         
         % There should be a cancel button here
@@ -159,7 +166,13 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
         delete(growth_cone)
 
         % Update variables
-        connectome(presynaptic_neuron, postsynaptic_neuron) = str2double(edit_w.String);
+        this_input = str2double(edit_w.String);
+        if ~isa(this_input, 'double') || this_input < -100 || this_input > 100
+            this_input = 0;
+            disp('Synapse weight out of range. Automatically set to zero.')
+        end        
+        
+        connectome(presynaptic_neuron, postsynaptic_neuron) = this_input;
         if check_mod.Value && ~check_dmod.Value
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 1;
         elseif check_mod.Value && check_dmod.Value
@@ -167,7 +180,7 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
         else
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 0;
         end
-        da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = str2double(edit_w.String);
+        da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = this_input;
 
         % Remove menus
         delete(text_heading)
@@ -421,6 +434,12 @@ elseif fig_design.UserData == 6
     clear presynaptic_contact
     clear postsynaptic_neuron
     
+end
+
+if ~exist('presynaptic_neuron', 'var')
+    set(button_add_neuron, 'enable', 'on')
+    set(button_add_network, 'enable', 'on')
+    set(button_return_to_runtime, 'enable', 'on')
 end
 
 % Design action: add neuron-neuron or neuron-motor synapse

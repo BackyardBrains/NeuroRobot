@@ -14,6 +14,7 @@ set(fig_design, 'NumberTitle', 'off', 'Name', 'Neurorobot Design')
 set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 0; % This indicates design mode
+fig_design.CloseRequestFcn
 
 % Brain axes
 brain_ax = axes('position', [0.31 0.02 0.67 0.96], 'xtick', [], 'ytick', []);
@@ -23,8 +24,6 @@ brain_im.ButtonDownFcn = 'location_in_brain_selected';
 hold on
 contact_size = 20;
 draw_brain
-
-% b_
 b_y = 0.0472;
 
 % Add neuron

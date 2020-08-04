@@ -5,6 +5,11 @@ right_forward = sum([sum(neuron_contacts(firing,10)) sum(neuron_contacts(firing,
 left_backward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9))]) / 2;
 right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;
 
+left_forward = left_forward * 2.5;
+right_forward = right_forward * 2.5;
+left_backward = left_backward * 2.5;
+right_backward = right_backward * 2.5;
+
 left_torque = left_forward - left_backward;
 left_dir = max([1 - sign(left_torque) 1]);
 left_torque = abs(left_torque);
