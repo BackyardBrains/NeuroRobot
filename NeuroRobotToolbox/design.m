@@ -14,7 +14,6 @@ set(fig_design, 'NumberTitle', 'off', 'Name', 'Neurorobot Design')
 set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 0; % This indicates design mode
-fig_design.CloseRequestFcn
 
 % Brain axes
 brain_ax = axes('position', [0.31 0.02 0.67 0.96], 'xtick', [], 'ytick', []);
