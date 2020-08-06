@@ -1,7 +1,7 @@
 
 
 %% Settings
-nneurons = 100;
+nneurons = 25;
 
 
 %% Prepare
@@ -41,5 +41,12 @@ for nx = 1:sqrt(nneurons)
         counter = counter + 1;
         neuron_xys(counter, :) = [xg(nx, ny), yg(nx, ny)];
     end
+end
+for nneuron = 1:nneurons - 1
+    this_weight = 25;
+    connectome(nneuron, nneuron + 1) = this_weight;
+    da_connectome(nneuron, nneuron + 1, 1) = 1;
+    da_connectome(nneuron, nneuron + 1, 2) = this_weight;   
+    da_connectome(nneuron, nneuron + 1, 3) = 0;      
 end
 
