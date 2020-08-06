@@ -8,8 +8,8 @@
 
 %% Settings
 rak_only = 0;
-camera_present = 0;
-use_webcam = 0;
+camera_present = 1;
+use_webcam = 1;
 hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
