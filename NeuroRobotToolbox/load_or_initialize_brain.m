@@ -94,6 +94,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     bg_neurons = [];
 
     if brain_gen
-        brain_gen_build_1
+%         brain_gen_build_1
+        brain_gen_build_4
     end
 end
