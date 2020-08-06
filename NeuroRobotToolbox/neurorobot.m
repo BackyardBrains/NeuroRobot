@@ -15,7 +15,7 @@ use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
-brain_gen = 1; % algorithmic brain build
+brain_gen = 0; % algorithmic brain build
 pulse_period = 0.1; % in seconds
 
 
