@@ -219,15 +219,16 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
 
                 % Indicate synapse filter (add rich neuron symbols here)
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
-                    if find(vis_prefs(nneuron, :, ncontact)) == 1 || find(vis_prefs(nneuron, :, ncontact)) == 2
+                    this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
+                    if this_vis_pref == 1 || this_vis_pref == 2
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'r', 'markeredgecolor', 'k', 'markersize', fs);
-                    elseif find(vis_prefs(nneuron, :, ncontact)) == 3 || find(vis_prefs(nneuron, :, ncontact)) == 4
+                    elseif this_vis_pref == 3 || this_vis_pref == 4
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0 0.8 0], 'markeredgecolor', 'k', 'markersize', fs);
-                    elseif find(vis_prefs(nneuron, :, ncontact)) == 5 || find(vis_prefs(nneuron, :, ncontact)) == 6
+                    elseif this_vis_pref == 5 || this_vis_pref == 6
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'b', 'markeredgecolor', 'k', 'markersize', fs);
                     else
-                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'w', 'markeredgecolor', 'k', 'markersize', fs);
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2, y2, '?', 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2, y2, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     end
                 end
             end

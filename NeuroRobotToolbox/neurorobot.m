@@ -7,11 +7,11 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 hd_camera = 0;
-use_cnn = 0;
+use_cnn = 1;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
@@ -34,14 +34,13 @@ bluetooth_present = 0;
 %% Local configuration
 startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
 fig_pos = get(0, 'screensize') + [0 40 0 -63];
-% bfsize = round(startup_fig_pos(3) / 107);
+
 % startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 % fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
-
 % startup_fig_pos = [1956 3 1854 1043];
 % fig_pos = [1956 3 1854 1043];
-
-bfsize = 16; % You may want to change this to 16 if your screen size is smaller than 1080p
+% bfsize = round(startup_fig_pos(3) / 107);
+bfsize = 16; % You may want to change this to 14 if your screen is small
 computer_name = 'n/a';
 % bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 
