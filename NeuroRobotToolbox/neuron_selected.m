@@ -56,8 +56,11 @@ if fig_design.UserData == 0
     % Type 4 button
     button4 = uicontrol('Style', 'pushbutton', 'String', 'Delete it', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     set(button4, 'Callback', 'delete_neuron', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
+    % Type 5 button
+    button5 = uicontrol('Style', 'pushbutton', 'String', 'Attach script', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button5, 'Callback', 'attach_script', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
     % Cancel button
-    button_cancel = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    button_cancel = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.45 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     set(button_cancel, 'Callback', 'cancel_edit', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])  
 
 % If a presynaptic neuron has already been selected and an axon is being extended
@@ -307,7 +310,7 @@ elseif fig_design.UserData == 6
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         else
             button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')            
+            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         end
         
         % Wait for OK        

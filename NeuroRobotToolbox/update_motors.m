@@ -1,31 +1,16 @@
 
+% This script takes the current brain state, extracts motor and speaker
+% commands, and sends them (as motor_command) to RAK
+
 motor_command = zeros(1, 5);
+
+% Extract motor out from spiking neurons
 left_forward = sum([sum(neuron_contacts(firing,6)) sum(neuron_contacts(firing,8))]) / 2;
 right_forward = sum([sum(neuron_contacts(firing,10)) sum(neuron_contacts(firing,12))]) / 2;
 left_backward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9))]) / 2;
 right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;
 
-left_forward = left_forward * 2.5;
-right_forward = right_forward * 2.5;
-left_backward = left_backward * 2.5;
-right_backward = right_backward * 2.5;
-
-left_torque = left_forward - left_backward;
-left_dir = max([1 - sign(left_torque) 1]);
-left_torque = abs(left_torque);
-left_torque(left_torque > 250) = 250;
-% left_torque(left_torque < 40) = 0;
-motor_command(1,3) = left_torque;
-motor_command(1,4) = left_dir;    
-
-right_torque = right_forward - right_backward;
-right_dir = max([1 - sign(right_torque) 1]);
-right_torque = abs(right_torque); 
-right_torque(right_torque > 250) = 250;   
-% right_torque(right_torque < 40) = 0;
-motor_command(1,1) = right_torque;
-motor_command(1,2) = right_dir;
-
+% Extract speaker out from spiking neurons
 these_speaker_neurons = neuron_contacts(:, 4) & firing;
 if sum(these_speaker_neurons)
     if ~vocal
@@ -47,8 +32,56 @@ else
     speaker_tone = 0;
 end
 
+% Extract motor out from coded behaviors
+this_script = find(neuron_scripts & firing);
+if length(this_script) > 1
+    this_script = this_script(1);
+    disp('Too many scripts')
+end
+
+if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
+    % Start new script
+    script_step_count = 0;
+    script_running = this_script;
+end
+
+if script_running == 1
+    script_step_count = script_step_count + 1;
+    if script_step_count <= 10
+        left_forward = left_forward + (script_step_count * 5);
+        right_backward = right_backward + (script_step_count * 5);
+    elseif script_step_count > 10
+        left_forward = left_forward + (20 - script_step_count) * 5;
+        right_backward = right_backward + (20 - script_step_count) * 5; 
+    end
+    if script_step_count > 20
+        script_running = 0;
+        script_step_count = 0;
+    end
+end
+
+left_forward = left_forward * 2.5;
+right_forward = right_forward * 2.5;
+left_backward = left_backward * 2.5;
+right_backward = right_backward * 2.5;
+
+left_torque = left_forward - left_backward;
+left_dir = max([1 - sign(left_torque) 1]);
+left_torque = abs(left_torque);
+left_torque(left_torque > 250) = 250;
+motor_command(1,3) = left_torque;
+motor_command(1,4) = left_dir;    
+
+right_torque = right_forward - right_backward;
+right_dir = max([1 - sign(right_torque) 1]);
+right_torque = abs(right_torque); 
+right_torque(right_torque > 250) = 250;   
+motor_command(1,1) = right_torque;
+motor_command(1,2) = right_dir;
+
 motor_command(1,5) = speaker_tone;
 
+% Manual control exceptions
 if ~sum(motor_command(1, [1 3]))
     if manual_control == 1
         motor_command = [90 1 90 2 speaker_tone];
@@ -113,6 +146,14 @@ else
     contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
     contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
 end    
+
+
+
+
+
+
+
+
 
 %% Sending serial to RAK
 if rak_only      

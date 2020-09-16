@@ -31,6 +31,7 @@ brain.neuron_cols = neuron_cols;
 brain.network_ids = network_ids;
 brain.da_rew_neurons = da_rew_neurons;
 brain.neuron_tones = neuron_tones;
+brain.neuron_scripts = neuron_scripts;
 brain.network_drive = network_drive;
 brain.network = network;
 brain.bg_neurons = bg_neurons;

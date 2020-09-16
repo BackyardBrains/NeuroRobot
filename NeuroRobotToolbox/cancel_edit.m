@@ -13,6 +13,7 @@ delete(button1)
 delete(button2)
 delete(button3)
 delete(button4)
+delete(button5)
 delete(button_cancel)
 
 % Restore color

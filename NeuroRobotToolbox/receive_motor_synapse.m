@@ -42,7 +42,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Manual weight
     current_weight = neuron_contacts(presynaptic_neuron, postsynaptic_contact);
     if current_weight == 0
-        current_weight = 250;
+        current_weight = 100;
     end
     text_w = uicontrol('Style', 'text', 'String', 'Weight (1-100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     edit_w = uicontrol('Style', 'edit', 'String', num2str(current_weight), 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    

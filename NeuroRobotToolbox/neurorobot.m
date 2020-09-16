@@ -7,16 +7,16 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.2; % in seconds
+pulse_period = 0.1; % in seconds
 
 
 %% Advanced settings
@@ -37,8 +37,10 @@ fig_pos = get(0, 'screensize') + [0 40 0 -63];
 
 % startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 % fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
+
 % startup_fig_pos = [1956 3 1854 1043];
 % fig_pos = [1956 3 1854 1043];
+
 % bfsize = round(startup_fig_pos(3) / 107);
 bfsize = 16; % You may want to change this to 14 if your screen is small
 computer_name = 'n/a';
@@ -167,7 +169,15 @@ fx = (0:1000-1)*8;
 pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
 pulse_led_flag_3 = 0;
+
+
+% Prepare scripts
+script_names = {'Doc', 'Happy', 'Sneezy', 'Sleepy', 'Bashful', 'Grumpy'};
+nscripts = size(script_names, 2);
+script_running = 0;
+script_step_count = 0;
         
+
 %% Prepare figure
 fig_startup = figure(1);
 clf

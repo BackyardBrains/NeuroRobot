@@ -7,11 +7,13 @@ for nbrain = 1:nbrains
     brain_name = available_brains(nbrain).name(1:end-4);
     load(strcat('./Brains/', brain_name, '.mat'))
     
-    for ncontact = 6:13
-        if brain.neuron_contacts(ncontact)
-            brain.neuron_contacts(ncontact) = brain.neuron_contacts(ncontact) / 2.5;
-        end
-    end
+%     for nneuron = 1:brain.nneurons
+%         for ncontact = 6:13
+%             brain.neuron_contacts(nneuron, ncontact) = round(brain.neuron_contacts(nneuron, ncontact) / 2.5);
+%         end
+%     end
+    
+    brain.neuron_scripts = zeros(brain.nneurons, 1);
     
     save(strcat('./Brains/', brain_name, '.mat'), 'brain')    
     disp(num2str(nbrain / nbrains))

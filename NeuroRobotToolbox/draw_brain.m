@@ -227,8 +227,12 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     elseif this_vis_pref == 5 || this_vis_pref == 6
                         plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'b', 'markeredgecolor', 'k', 'markersize', fs);
                     else
-                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2, y2, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        if use_cnn || use_rcnn
+                            plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+                            plot_contact_synapses(nneuron, ncontact, 4) = text(x2, y2, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        else
+                            disp('Unknown synapse type')
+                        end
                     end
                 end
             end

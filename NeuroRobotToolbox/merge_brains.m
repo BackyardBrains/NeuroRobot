@@ -45,6 +45,7 @@ try
 catch
     neuron_tones_1 = zeros(nneurons_1, 1);
 end
+neuron_scripts_1 = brain.neuron_scripts;
 nnetworks_1 = length(unique(network_ids_1)); % There used to be a +1 hack here, removing, testing..
 try
     network_1 = brain.network;
@@ -103,6 +104,7 @@ try
 catch
     neuron_tones_2 = zeros(nneurons_2, 1);
 end
+neuron_scripts_2 = brain.neuron_scripts;
 nnetworks_2 = length(unique(network_ids_2)); % There used to be a +1 hack here, removing, testing..
 try
     network_2 = brain.network;
@@ -161,6 +163,7 @@ brain.neuron_cols = [neuron_cols_1; neuron_cols_2];
 brain.network_ids = [network_ids_1; network_ids_2];
 brain.da_rew_neurons = [da_rew_neurons_1; da_rew_neurons_2];
 brain.neuron_tones = [neuron_tones_1; neuron_tones_2];
+brain.neuron_scripts = [neuron_scripts_1; neuron_scripts_2];
 brain.network_drive = [network_drive_1; network_drive_2];
 brain.network = [network_1; network_2]; % Not sure if this works
 brain.bg_neurons = [bg_neurons_1; bg_neurons_2];

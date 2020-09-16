@@ -39,6 +39,7 @@ if brain_selection_val > 1
     catch
         neuron_tones = zeros(nneurons, 1);
     end
+    neuron_scripts = brain.neuron_scripts;
     nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
     try
         network = brain.network;
