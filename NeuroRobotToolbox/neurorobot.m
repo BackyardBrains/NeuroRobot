@@ -11,12 +11,12 @@ rak_only = 0;
 camera_present = 1;
 use_webcam = 1;
 hd_camera = 0;
-use_cnn = 0;
+use_cnn = 1;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.1; % in seconds
+pulse_period = 0.2; % in seconds
 
 
 %% Advanced settings
@@ -152,6 +152,7 @@ if use_cnn
     load object_strs
     load object_ns
     vis_pref_names = [vis_pref_names, object_strs];
+    score = zeros(1, 1000);
 elseif use_rcnn
     vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots', 'close-up neurorobots'];
 end
@@ -172,7 +173,10 @@ pulse_led_flag_3 = 0;
 
 
 % Prepare scripts
-script_names = {'Doc', 'Happy', 'Sneezy', 'Sleepy', 'Bashful', 'Grumpy'};
+script_names(1).name = 'Spin right';
+script_names(2).name = 'Spin left';
+script_names_cell = {script_names(1).name, script_names(2).name};
+
 nscripts = size(script_names, 2);
 script_running = 0;
 script_step_count = 0;

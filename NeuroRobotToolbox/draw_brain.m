@@ -58,7 +58,7 @@ if (exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var
                 x2 = neuron_xys(p2,1);
                 y1 = neuron_xys(p1,2);
                 y2 = neuron_xys(p2,2); 
-                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 4 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
+                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 6 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
             end
         end
     end
@@ -194,15 +194,23 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 if x1 < x2 && y1 < y2
                     x2 = x2 - 0.25 * rx;
                     y2 = y2 - 0.25 * ry;
+                    x2b = x2 - 0.35 * rx;
+                    y2b = y2 - 0.35 * ry;
                 elseif x1 > x2 && y1 < y2
                     x2 = x2 + 0.25 * rx;
-                    y2 = y2 - 0.25 * ry;      
+                    y2 = y2 - 0.25 * ry;
+                    x2b = x2 + 0.35 * rx;
+                    y2b = y2 - 0.35 * ry;                    
                 elseif x1 > x2 && y1 > y2
                     x2 = x2 + 0.25 * rx;
                     y2 = y2 + 0.25 * ry; 
+                    x2b = x2 + 0.35 * rx;
+                    y2b = y2 + 0.35 * ry;                     
                 elseif x1 < x2 && y1 > y2
                     x2 = x2 - 0.25 * rx;
-                    y2 = y2 + 0.25 * ry;                 
+                    y2 = y2 + 0.25 * ry;
+                    x2b = x2 - 0.35 * rx;
+                    y2b = y2 + 0.35 * ry;                    
                 end
                 lw = 2;
                 s = 7;
@@ -221,15 +229,15 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
                     this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
                     if this_vis_pref == 1 || this_vis_pref == 2
-                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'r', 'markeredgecolor', 'k', 'markersize', fs);
+                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', 'r', 'markeredgecolor', 'k', 'markersize', fs);
                     elseif this_vis_pref == 3 || this_vis_pref == 4
-                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0 0.8 0], 'markeredgecolor', 'k', 'markersize', fs);
+                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0 0.8 0], 'markeredgecolor', 'k', 'markersize', fs);
                     elseif this_vis_pref == 5 || this_vis_pref == 6
-                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', 'b', 'markeredgecolor', 'k', 'markersize', fs);
+                        plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', 'b', 'markeredgecolor', 'k', 'markersize', fs);
                     else
                         if use_cnn || use_rcnn
-                            plot_contact_synapses(nneuron, ncontact, 3) = plot(x2, y2, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                            plot_contact_synapses(nneuron, ncontact, 4) = text(x2, y2, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                            plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+                            plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                         else
                             disp('Unknown synapse type')
                         end
@@ -312,8 +320,13 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             end
         end
     end
-    
-    
+    if exist('neuron_scripts', 'var')
+        for nneuron = 1:nneurons
+            if neuron_scripts(nneuron)
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_names(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8], 'color', [0 0 0]);
+            end
+        end
+    end
     
     
     

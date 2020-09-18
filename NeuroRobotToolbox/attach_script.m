@@ -21,7 +21,7 @@ fig_design.UserData = 3;
 
 text_heading = uicontrol('Style', 'text', 'String', 'Select script', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
-popup_select_script = uicontrol('Style', 'popup', 'String', script_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+popup_select_script = uicontrol('Style', 'popup', 'String', script_names_cell, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % if existing_pref
 %     popup_select_preference.Value = find(vis_prefs(postsynaptic_neuron, :, presynaptic_contact));
 % end

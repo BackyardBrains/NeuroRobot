@@ -33,10 +33,13 @@ else
 end
 
 % Extract motor out from coded behaviors
-this_script = find(neuron_scripts & firing);
-if length(this_script) > 1
-    this_script = this_script(1);
-    disp('Too many scripts')
+this_script = [];
+if exist('neuron_scripts', 'var')    
+    this_script = find(neuron_scripts & firing);
+    if length(this_script) > 1
+        this_script = this_script(1);
+        disp('Too many scripts')
+    end
 end
 
 if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
@@ -46,18 +49,9 @@ if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no 
 end
 
 if script_running == 1
-    script_step_count = script_step_count + 1;
-    if script_step_count <= 10
-        left_forward = left_forward + (script_step_count * 5);
-        right_backward = right_backward + (script_step_count * 5);
-    elseif script_step_count > 10
-        left_forward = left_forward + (20 - script_step_count) * 5;
-        right_backward = right_backward + (20 - script_step_count) * 5; 
-    end
-    if script_step_count > 20
-        script_running = 0;
-        script_step_count = 0;
-    end
+    behavior_script_1
+elseif script_running == 2
+    behavior_script_2
 end
 
 left_forward = left_forward * 2.5;

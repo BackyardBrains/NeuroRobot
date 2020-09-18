@@ -54,6 +54,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             dist_prefs(nneurons, 1) = 0;
             audio_prefs(nneurons, 1) = 0;
             network_ids(nneurons, 1) = 0;
+            neuron_scripts(nneurons, 1) = 0;
             
             da_rew_neurons(nneurons, 1) = 0;
             bg_neurons(nneurons, 1) = 0;
@@ -313,6 +314,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 da_rew_neurons(nneurons + 1 : nneurons + n, 1) = 0;
                 steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;
                 neuron_tones(nneurons + 1 : nneurons + n, 1) = 0;
+                neuron_scripts(nneurons + 1 : nneurons + n, 1) = 0;
                 nneurons = nneurons + n;
                 if ext_cam_id
                     save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');

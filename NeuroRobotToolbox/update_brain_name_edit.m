@@ -36,6 +36,7 @@ else
     catch
         bg_neurons = zeros(nneurons, 1);
     end 
+    neuron_scripts = brain.neuron_scripts;
 
     draw_brain
     

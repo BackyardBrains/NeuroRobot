@@ -39,6 +39,8 @@ network_ids(presynaptic_neuron, :) = [];
 steps_since_last_spike(presynaptic_neuron) = [];
 da_rew_neurons(presynaptic_neuron, :) = [];
 bg_neurons(presynaptic_neuron, :) = [];
+neuron_scripts(presynaptic_neuron, :) = [];
+neuron_tones(presynaptic_neuron, :) = [];
 
 % Clear neurons
 clear presynaptic_neuron

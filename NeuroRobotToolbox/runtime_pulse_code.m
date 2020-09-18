@@ -155,3 +155,7 @@ if run_button == 6
     run_button = 0;
     
 end
+
+if exist('lrrr', 'var')
+    lrrr.YData = score(object_ns);
+end
