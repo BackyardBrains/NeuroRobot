@@ -35,7 +35,7 @@ end
 % Extract motor out from coded behaviors
 this_script = [];
 if exist('neuron_scripts', 'var')    
-    this_script = find(neuron_scripts & firing);
+    this_script = neuron_scripts(find(neuron_scripts & firing), 1);
     if length(this_script) > 1
         this_script = this_script(1);
         disp('Too many scripts')
