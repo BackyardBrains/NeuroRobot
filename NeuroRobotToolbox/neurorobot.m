@@ -7,9 +7,9 @@
 
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 hd_camera = 0;
 use_cnn = 1;
 use_rcnn = 0;

@@ -48,8 +48,9 @@ end
 
 
 % Draw BG drives
-if ((exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var') && isvalid(fig_game)) ...
-        || (exist('fig_print', 'var') && isvalid(fig_print))
+% if ((exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var') && isvalid(fig_game)) ...
+%         || (exist('fig_print', 'var') && isvalid(fig_print)) ...
+%         || (exist('fig_startup', 'var') && isvalid(fig_print))
     for p1 = 1:nneurons
         for p2 = 1:nneurons
             if bg_neurons(p1) && (network_ids(p1) == network_ids(p2))
@@ -63,7 +64,7 @@ if ((exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'va
             end
         end
     end
-end
+% end
 
 
 % % Draw synapses

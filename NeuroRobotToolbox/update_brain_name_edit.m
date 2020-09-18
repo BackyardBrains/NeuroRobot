@@ -37,6 +37,7 @@ else
         bg_neurons = zeros(nneurons, 1);
     end 
     neuron_scripts = brain.neuron_scripts;
+    network_ids = brain.network_ids;
 
     draw_brain
     
