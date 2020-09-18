@@ -1,6 +1,5 @@
 
 
-
 im3 = flipud(255 - ((255 - imread('workspace.jpg'))));
 
 fig_print = figure(3);

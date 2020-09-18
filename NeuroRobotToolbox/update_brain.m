@@ -70,7 +70,7 @@ if nneurons
 
     end
     
-    
+    try
     % BG select
 %     disp('2')
     this_network = 0;
@@ -263,6 +263,9 @@ if nneurons
         end
     end
 
+    catch
+        error('plasticity bug here')
+    end
     % Store long activity
     spikes_loop(:, 1 + (nstep - 1) * ms_per_step : nstep * ms_per_step) = spikes_step;
 
