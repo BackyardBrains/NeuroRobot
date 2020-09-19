@@ -196,23 +196,23 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 if x1 < x2 && y1 < y2
                     x2 = x2 - 0.25 * rx;
                     y2 = y2 - 0.25 * ry;
-                    x2b = x2 - 0.35 * rx;
-                    y2b = y2 - 0.35 * ry;
+                    x2b = x2 - 0.3 * rx;
+                    y2b = y2 - 0.3 * ry;
                 elseif x1 > x2 && y1 < y2
                     x2 = x2 + 0.25 * rx;
                     y2 = y2 - 0.25 * ry;
-                    x2b = x2 + 0.35 * rx;
-                    y2b = y2 - 0.35 * ry;                    
+                    x2b = x2 + 0.3 * rx;
+                    y2b = y2 - 0.3 * ry;                    
                 elseif x1 > x2 && y1 > y2
                     x2 = x2 + 0.25 * rx;
                     y2 = y2 + 0.25 * ry; 
-                    x2b = x2 + 0.35 * rx;
-                    y2b = y2 + 0.35 * ry;                     
+                    x2b = x2 + 0.3 * rx;
+                    y2b = y2 + 0.3 * ry;                     
                 elseif x1 < x2 && y1 > y2
                     x2 = x2 - 0.25 * rx;
                     y2 = y2 + 0.25 * ry;
-                    x2b = x2 - 0.35 * rx;
-                    y2b = y2 + 0.35 * ry;                    
+                    x2b = x2 - 0.3 * rx;
+                    y2b = y2 + 0.3 * ry;                    
                 end
                 lw = 2;
                 s = 7;

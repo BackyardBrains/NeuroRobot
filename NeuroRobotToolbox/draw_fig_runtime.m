@@ -1,6 +1,6 @@
 
 %% Prepare figure
-fig_design = figure(2);
+fig_design = figure;
 clf
 set(fig_design, 'NumberTitle', 'off', 'Name', horzcat('Neurorobot Runtime (restarts = ', num2str(restarts), ')'))
 set(fig_design, 'menubar', 'none', 'toolbar', 'none')

@@ -36,7 +36,9 @@ prev_motor_command = zeros(1, 5);
 this_distance = 4000;
 reward = 0;
 distance_read = 0;
-firing = [];
+if ~exist('firing', 'var')
+    firing = [];
+end
 manual_control = 0;
 nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
 if hd_camera
