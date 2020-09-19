@@ -70,7 +70,7 @@ if exist('runtime_pulse', 'var')
 end
 
 load('handel.mat')
-player = audioplayer(y,Fs)
+player = audioplayer(y,Fs);
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -87,7 +87,7 @@ end
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
-spinled = 0;
+spinled = 1;
 
 
 %% Prepare 2

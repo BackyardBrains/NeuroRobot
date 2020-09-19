@@ -34,7 +34,8 @@ try
             disp('No previous rak_cam')
         end
         clear rak_cam
-        rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+%         rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+        rak_cam = NeuroRobot_matlab('10.0.0.1', '80');        
         disp('rak_cam created')
         rak_cam.start();
         if ~rak_cam.isRunning()

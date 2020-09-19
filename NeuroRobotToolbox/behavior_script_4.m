@@ -5,6 +5,8 @@
 
 % This will be executed once per step (step time usually 100 ms)
 
+script_step_count = script_step_count + 1;
+
 if rak_only && ~rem(nstep, 7)
     if pulse_led_flag_1
         pulse_led_flag_1 = 0;
@@ -33,3 +35,13 @@ if rak_only && ~rem(nstep, 17)
     end
 end
 
+if script_step_count > 50
+    script_running = 0;
+    script_step_count = 0;
+    rak_cam.writeSerial('d:120;')
+    rak_cam.writeSerial('d:220;')
+    rak_cam.writeSerial('d:320;')
+    rak_cam.writeSerial('d:420;')
+    rak_cam.writeSerial('d:520;')
+    rak_cam.writeSerial('d:620;')    
+end

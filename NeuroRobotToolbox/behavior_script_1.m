@@ -15,6 +15,7 @@ elseif script_step_count > 20
     right_backward = right_backward + (40 - script_step_count) * 2.5; 
     speaker_tone = (40 - script_step_count) * 200;
 end
+
 if script_step_count > 40
     script_running = 0;
     script_step_count = 0;
