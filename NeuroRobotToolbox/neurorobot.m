@@ -7,9 +7,9 @@
 
 
 %% Settings
-rak_only = 0;
+rak_only = 1;
 camera_present = 1;
-use_webcam = 1;
+use_webcam = 0;
 hd_camera = 0;
 use_cnn = 1;
 use_rcnn = 0;
@@ -69,6 +69,8 @@ if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
 
+load('handel.mat')
+player = audioplayer(y,Fs)
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -85,6 +87,7 @@ end
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
+spinled = 0;
 
 
 %% Prepare 2
@@ -171,11 +174,13 @@ pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
 pulse_led_flag_3 = 0;
 
-
 % Prepare scripts
-script_names(1).name = 'Spin right';
-script_names(2).name = 'Spin left';
-script_names_cell = {script_names(1).name, script_names(2).name};
+script_names(1).name = 'Spin with tune';
+script_names(2).name = 'Random walk';
+script_names(3).name = 'Blink';
+script_names(4).name = 'Blink 2';
+script_names(5).name = 'Sing';
+script_names_cell = {script_names(1).name, script_names(2).name, script_names(3).name, script_names(4).name, script_names(5).name};
 
 nscripts = size(script_names, 2);
 script_running = 0;

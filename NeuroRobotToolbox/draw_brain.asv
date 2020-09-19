@@ -140,12 +140,10 @@ if draw_synapses
 
 
                 if isnan(w)
-                    w = 2;
-                    connectome(p1, p2) = 2;
-                    da_connectome(p1, p2, :) = [2 2 2];
-                else
-                    plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
-                end
+                    connectome(p1, p2) = 
+                    da_connectome(p1, p2, :) = 2
+                    
+                plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
                 if connectome(p1, p2) > 0
                     lw = 2;
                     s = 9 - (nma_flag * 9);

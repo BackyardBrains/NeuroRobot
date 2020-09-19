@@ -1,3 +1,6 @@
+%%%% 'Spin with tune'
+
+%%%% SCRIPT 1 %%%%
 
 % This will be executed once per step (step time usually 100 ms)
 

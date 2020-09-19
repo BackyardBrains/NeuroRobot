@@ -48,11 +48,20 @@ if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no 
     script_running = this_script;
 end
 
+
+%%% SCRIPTS SCRIPTS SCRIPTS %%%%%%%%%%%%%%%%%%%%%
 if script_running == 1
     behavior_script_1
 elseif script_running == 2
     behavior_script_2
+elseif script_running == 3
+    behavior_script_3
+elseif script_running == 4
+    behavior_script_4
+elseif script_running == 5
+    behavior_script_5    
 end
+%%% SCRIPTS SCRIPTS SCRIPTS %%%%%%%%%%%%%%%%%%%%%
 
 left_forward = left_forward * 2.5;
 right_forward = right_forward * 2.5;
