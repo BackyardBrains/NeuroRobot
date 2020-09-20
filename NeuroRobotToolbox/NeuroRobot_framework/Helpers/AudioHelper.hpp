@@ -37,6 +37,9 @@ private:
     
     static uint8_t linear2ulaw(int pcmChunk)
     {
+        
+        return (uint8_t)((pcmChunk + 8158)/(2.0*8158)*255);
+        
         int BIAS = 0x84;
         int seg_end[] = { 0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF };
         
