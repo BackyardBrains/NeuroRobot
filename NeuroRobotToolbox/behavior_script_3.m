@@ -44,5 +44,6 @@ if script_step_count > 50
     rak_cam.writeSerial('d:420;')
     rak_cam.writeSerial('d:520;')
     rak_cam.writeSerial('d:620;')
+    spinled = 0;
 end
 

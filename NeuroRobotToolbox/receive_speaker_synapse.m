@@ -52,8 +52,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     delete(button_confirm)    
     
     % Update variables
-    this_input = str2double(edit_w.String);
+    if ~vocal
+        this_input = str2double(edit_w.String);
+    end
     if ~vocal && (~isa(this_input, 'double') || this_input < 0 || this_input > 4978)
+        
         this_input = 0;
         disp('Speaker input out of range. Automatically set to zero.')
     end
@@ -64,7 +67,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
     end
     neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon weight
-    if this_input == 0
+    if ~vocal && this_input == 0
         neuron_contacts(presynaptic_neuron, 4) = 0;
     end
 
