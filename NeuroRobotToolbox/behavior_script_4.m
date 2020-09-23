@@ -1,9 +1,5 @@
 
-%%%% 'Prime blink'
-
-%%%% SCRIPT 4 %%%%
-
-% This will be executed once per step (step time usually 100 ms)
+% Blink 2
 
 script_step_count = script_step_count + 1;
 

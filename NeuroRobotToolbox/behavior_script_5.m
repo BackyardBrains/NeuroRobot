@@ -1,12 +1,7 @@
 
 
-%%%% 'Approach / Consume / Escape'
+% Scared
 
-%%%% SCRIPT 5 %%%%
-
-% This will be executed once per step (step time usually 100 ms)
-
-% play(player);
 script_step_count = script_step_count + 1;
 
 if script_step_count == 1
@@ -16,7 +11,9 @@ if script_step_count == 1
     rak_cam.writeSerial('d:431;')
     rak_cam.writeSerial('d:531;')
     rak_cam.writeSerial('d:631;')
-    rak_cam.sendAudio(strcat('.\Sounds\', num2str(audio_pref_names{11}), '.mp3'));
+    if vocal
+        rak_cam.sendAudio(strcat('.\Sounds\', num2str(audio_out_names{randsample(n_out_sounds, 1)}), '.mp3'));
+    end
 end
 if (script_step_count * pulse_period) > 3
     rak_cam.writeSerial('d:130;')

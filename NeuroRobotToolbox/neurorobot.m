@@ -10,11 +10,11 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 0;
+hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
-vocal = 0; % custom sound output
+vocal = 1; % custom sound output
 brain_gen = 0; % algorithmic brain build
 pulse_period = 0.1; % in seconds
 
@@ -29,6 +29,8 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
+
+script_names = {'Spin with tune', 'Random walk', 'Blink', 'Blink 2', 'Scared'};
 
 
 %% Local configuration
@@ -69,8 +71,6 @@ if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
 
-load('handel.mat')
-player = audioplayer(y,Fs);
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -88,6 +88,9 @@ if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
 spinled = 1;
+vis_prefs = [];
+neuron_scripts = [];
+neuron_tones = 0;
 
 
 %% Prepare 2
@@ -133,22 +136,18 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
 this_audio = [];
 
+audio_pref_names = {'300 Hz', '400 Hz', '500 Hz', '600 Hz', ...
+    '700 Hz', '800 Hz', '900 Hz', '1000 Hz', '1100 Hz', '1200 Hz'};
+n_audio_prefs = size(audio_pref_names, 2);
 
-if ~vocal
-    audio_pref_names = {'300 Hz', '400 Hz', '500 Hz', '600 Hz', ...
-        '700 Hz', '800 Hz', '900 Hz', '1000 Hz', '1100 Hz', '1200 Hz'};
-    n_audio_prefs = size(audio_pref_names, 2);
-else
-    clear audio_pref_names
-    audio_directory = './Sounds/*.mp3';
-    available_sounds = dir(audio_directory);
-    n_audio_prefs = size(available_sounds, 1);
-    for nsound = 1:n_audio_prefs
-        audio_pref_names{nsound} = available_sounds(nsound).name(1:end-4);
+audio_out_names = [];
+if vocal
+    available_sounds = dir('./Sounds/*.mp3');
+    n_out_sounds = size(available_sounds, 1);
+    for nsound = 1:n_out_sounds
+        audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
     end    
 end   
-
-
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn
@@ -174,17 +173,12 @@ pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
 pulse_led_flag_3 = 0;
 
-% Prepare scripts
-script_names(1).name = 'Spin with tune';
-script_names(2).name = 'Random walk';
-script_names(3).name = 'Blink';
-script_names(4).name = 'Blink 2';
-script_names(5).name = 'Sing';
-script_names_cell = {script_names(1).name, script_names(2).name, script_names(3).name, script_names(4).name, script_names(5).name};
-
-nscripts = size(script_names, 2);
 script_running = 0;
 script_step_count = 0;
+
+for nscript = 1:size(script_names, 2)
+    script_strs(nscript).name = script_names{nscript};
+end
         
 
 %% Prepare figure

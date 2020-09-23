@@ -11,8 +11,8 @@ left_backward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9
 right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;
 
 % Extract speaker out from spiking neurons
-these_speaker_neurons = neuron_contacts(:, 4) & firing;
-if sum(these_speaker_neurons)
+these_speaker_neurons = find(neuron_contacts(:, 4) & firing);
+if these_speaker_neurons
     if ~vocal
         these_tones = neuron_tones(these_speaker_neurons, 1);
         these_tones(these_tones == 0) = [];
@@ -21,47 +21,30 @@ if sum(these_speaker_neurons)
             speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
         end
     else
-        if sum(these_speaker_neurons) >= 2
-            disp('Cannot play more than one sound at once. Cannot select one either.')
-        else
-            nsound = neuron_tones(these_speaker_neurons, 1);
-            rak_cam.sendAudio(strcat('.\Sounds\', num2str(audio_pref_names{nsound}), '.mp3'));
+        if length(these_speaker_neurons) > 1
+            these_speaker_neurons = these_speaker_neurons(1);
+            disp('Playing first of multiple sound outputs')
         end
+        nsound = neuron_tones(these_speaker_neurons, 1);
+        rak_cam.sendAudio(strcat('.\Sounds\', audio_out_names{nsound}, '.mp3')); % buffer will be overwhelmed by bursting sound output neuron without delay
     end
 else
     speaker_tone = 0;
 end
 
-% Extract motor out from coded behaviors
-this_script = [];
-if exist('neuron_scripts', 'var')    
-    this_script = neuron_scripts(find(neuron_scripts & firing), 1);
-    if length(this_script) > 1
-        this_script = this_script(1);
-        disp('Too many scripts')
-    end
-end
-
+% Behavior scripts
+this_script = find(neuron_scripts & firing, 1);
 if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
-    % Start new script
     script_step_count = 0;
     script_running = this_script;
 end
 
-
-%%% SCRIPTS SCRIPTS SCRIPTS %%%%%%%%%%%%%%%%%%%%%
-if script_running == 1
-    behavior_script_1
-elseif script_running == 2
-    behavior_script_2
-elseif script_running == 3
-    behavior_script_3
-elseif script_running == 4
-    behavior_script_4
-elseif script_running == 5
-    behavior_script_5    
+if script_running
+    eval(strcat('behavior_script_', num2str(script_running)))
 end
-%%% SCRIPTS SCRIPTS SCRIPTS %%%%%%%%%%%%%%%%%%%%%
+
+
+% Prepare to send
 
 left_forward = left_forward * 2.5;
 right_forward = right_forward * 2.5;

@@ -39,7 +39,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     else
         % Sound effects
         current_sound = neuron_tones(presynaptic_neuron, 1);  
-        popup_select_sound = uicontrol('Style', 'popup', 'String', audio_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        popup_select_sound = uicontrol('Style', 'popup', 'String', audio_out_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         if current_sound
             popup_select_sound.Value = current_sound;
         end
@@ -57,8 +57,8 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     end
     if ~vocal && (~isa(this_input, 'double') || this_input < 0 || this_input > 4978)
         
-        this_input = 0;
-        disp('Speaker input out of range. Automatically set to zero.')
+        this_input = 1000;
+        disp('Speaker input out of range. Automatically set to 1000.')
     end
     speaker_selected = 0;
     if ~vocal
@@ -66,10 +66,10 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     else
         neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
     end
-    neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon weight
-    if ~vocal && this_input == 0
-        neuron_contacts(presynaptic_neuron, 4) = 0;
-    end
+    neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display
+%     if ~vocal && this_input == 0
+%         neuron_contacts(presynaptic_neuron, 4) = 0;
+%     end
 
     % Design action complete
     design_action = 0; % not read at the end, ugly hack

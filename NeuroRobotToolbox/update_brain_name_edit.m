@@ -6,7 +6,9 @@ if popup_select_brain.Value == 1
     da_connectome = [];
     neuron_contacts = [];
     vis_prefs = [];
-    neuron_cols = [];       
+    neuron_cols = [];    
+    neuron_tones = 0;
+    neuron_scripts = [];
     draw_brain
 else
     
@@ -38,6 +40,7 @@ else
     end 
     neuron_scripts = brain.neuron_scripts;
     network_ids = brain.network_ids;
+    neuron_tones = brain.neuron_tones;
 
     draw_brain
     

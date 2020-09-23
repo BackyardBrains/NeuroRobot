@@ -331,7 +331,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_names(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8], 'color', [0 0 0]);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8], 'color', [0 0 0]);
             end
         end
     end

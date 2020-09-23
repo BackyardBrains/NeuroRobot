@@ -1,9 +1,5 @@
 
-%%%% 'Ring blink'
-
-%%%% SCRIPT 3 %%%%
-
-% This will be executed once per step (step time usually 100 ms)
+% Blink
 
 script_step_count = script_step_count + 1;
 
