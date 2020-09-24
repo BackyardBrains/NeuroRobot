@@ -1,7 +1,7 @@
 
 % Keep RAK alive
 
-rak_cam.writeSerial('l:0;r:0;s:0;')
+% rak_cam.writeSerial('l:0;r:0;s:0;')
 % rak_cam.writeSerial('l:50;r:50;s:0;')
 % rak_cam.writeSerial('l:-50;r:-50;s:0;')
 % rak_cam.writeSerial('l:30;r:30;s:0;')

@@ -49,7 +49,12 @@ end
 
 %% End runtime
 close(fig_design)
-button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
+try
+    button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
+catch
+    % I think this happens when main figure is still startup fig
+    error('Invalid or deleted object. Hard bug in runtime stop code may be here on line 55. Occasionally but persistently prevents runtime window from closing on stop button click. Error while evaluating StopFcn for timer timer-1 so opaque.')
+end
 step_duration_in_ms = round(median(step_times * 1000));
 disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms'))
 disp('Run complete')

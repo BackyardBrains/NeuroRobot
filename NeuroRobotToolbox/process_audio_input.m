@@ -52,6 +52,10 @@ if rak_only
         [max_amp, j] = max(pw(1:audx));
         fx = linspace(0, 2000, audx);
         max_freq = fx(j);
+        if max_amp < 8
+            max_amp = 0;
+            max_freq = 0;
+        end
         
 %         disp(horzcat('max_amp: ', num2str(max_amp), ', max_freq: ', num2str(max_freq)))
         

@@ -36,7 +36,7 @@ if bg_brain
         'xcolor', 'k', 'ycolor', fig_bg_col, 'linewidth', 2, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
         gui_font_weight, 'linewidth', 2)
     hold on
-    plot([1 audx], [6 6], 'color', [0.7 0.7 0.7], 'linewidth', 1)
+    plot([1 audx], [8 8], 'color', [0.7 0.7 0.7], 'linewidth', 1)
     title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Hz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 %     ylabel('Norm Amp', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
