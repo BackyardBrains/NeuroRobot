@@ -19,3 +19,7 @@ hold on
 plot(x(:,2))
 
 disp(horzcat('Encoder clicks to full rotation: x1: ', num2str(sum(x(:,1))), ', x2: ', num2str(sum(x(:,2)))))
+
+% rak_cam.writeSerial('l:100;r:-100;s:0;')
+% pause(1)
+% rak_cam.writeSerial('l:0;r:0;s:0;')

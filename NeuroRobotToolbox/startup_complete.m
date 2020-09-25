@@ -1,7 +1,9 @@
 
 
 if size(vis_prefs, 2) > 6 && ~(use_cnn || use_rcnn)
-    error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
+    if sum(sum(sum(vis_prefs(:, 7:end, :))))
+        error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
+    end
 end
 if max(neuron_tones) > 8 && vocal
     error('Brain needs tones. Set vocal to 0.')

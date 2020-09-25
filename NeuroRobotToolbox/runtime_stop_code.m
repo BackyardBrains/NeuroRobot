@@ -10,8 +10,11 @@ if rak_only
 %     try % I think this is to avoid hard crash if runtime pulse detects
 %     rak_cam is no longer running and quits. But rak_pulse is created
 %     below which writes seria so...
-%         rak_cam.writeSerial('l:0;r:0;s:0;')
-%         rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+        pause(0.05)
+        rak_cam.writeSerial('l:0;r:0;s:0;')
+        pause(0.05)
+        rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+        pause(0.05)
 %     catch
 %         disp('Unable to stop and reset motors')
 %     end

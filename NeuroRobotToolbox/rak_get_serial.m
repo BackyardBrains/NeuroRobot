@@ -1,6 +1,6 @@
 
 serial_receive = rak_cam.readSerial();
-disp(serial_receive)
+% disp(serial_receive)
 % serial_receive
 serial_data = strsplit(serial_receive, ',');
 if ~isempty(serial_receive)

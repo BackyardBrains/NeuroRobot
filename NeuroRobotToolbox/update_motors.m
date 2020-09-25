@@ -36,11 +36,13 @@ end
 this_script = find(neuron_scripts & firing, 1);
 if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
     script_step_count = 0;
-    script_running = this_script;
+    script_running = neuron_scripts(this_script);
+    disp(horzcat('Script running', num2str(script_running)))
 end
 
 if script_running
     eval(strcat('behavior_script_', num2str(script_running)))
+%     disp(horzcat('Script running', num2str(script_running)))
 end
 
 
