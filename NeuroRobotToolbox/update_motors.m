@@ -40,7 +40,7 @@ if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no 
     disp(horzcat('Script running', num2str(script_running)))
 end
 
-if script_running
+if script_running && rak_only
     eval(strcat('behavior_script_', num2str(script_running)))
 %     disp(horzcat('Script running', num2str(script_running)))
 end
