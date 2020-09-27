@@ -29,7 +29,7 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Spin with tune', 'Random walk', 'Blink', 'Blink 2', 'Scared', 'Find'};
+script_names = {'Spin with tune', 'Random walk', 'Blink', 'Blink 2', 'Scared', 'Find', 'Find', 'Find', 'Find', 'Find'};
 
 
 %% Local configuration
