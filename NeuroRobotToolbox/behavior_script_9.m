@@ -1,6 +1,6 @@
 
 
-% Search
+% Find D
 
 script_step_count = script_step_count + 1;
 
@@ -85,4 +85,7 @@ if (script_step_count * pulse_period) > 5
     script_running = 0;
     script_step_count = 0;  
     isfound = 0;
+end
+if isfound
+    reward = 1;
 end

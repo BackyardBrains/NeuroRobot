@@ -1,6 +1,6 @@
 
 
-% Search
+% Find A
 
 script_step_count = script_step_count + 1;
 
@@ -120,4 +120,7 @@ if (script_step_count * pulse_period) > 10
     isfound = 0;
     
     disp('Giving up')
+end
+if isfound
+    reward = 1;
 end
