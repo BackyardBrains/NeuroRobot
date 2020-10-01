@@ -324,7 +324,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('da_rew_neurons', 'var')
         for nneuron = 1:nneurons
             if da_rew_neurons(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 12, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [1 0.3 0.3]);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 11, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 0.3 0]);
             end
         end
     end
