@@ -50,7 +50,7 @@ set(button_n5, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname
 button_n6 = uicontrol('Style', 'pushbutton', 'String', 'Dopaminergic', 'units', 'normalized', 'position', [0.02 0.6 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_n6, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 % Type 7 button
-button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Basal ganglia', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Striatal', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
