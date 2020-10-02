@@ -10,7 +10,7 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 1;
+hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;

@@ -1,0 +1,8958 @@
+video: 25.000000
+video: 7.000000
+video: 7.000000
+video: 11.000000
+video: 8.000000
+video: 14.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 6.000000
+video: 9.000000
+video: 6.000000
+video: 6.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 11.000000
+video: 7.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 14.000000
+video: 9.000000
+video: 8.000000
+video: 10.000000
+video: 11.000000
+video: 23.000000
+video: 10.000000
+video: 11.000000
+video: 10.000000
+video: 12.000000
+video: 134.000000
+video: 19.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 7.000000
+video: 10.000000
+video: 10.000000
+video: 11.000000
+video: 10.000000
+video: 20.000000
+video: 8.000000
+video: 11.000000
+video: 8.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 6.000000
+video: 9.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 16.000000
+video: 10.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 15.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 15.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 16.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 9.000000
+video: 15.000000
+video: 11.000000
+video: 9.000000
+video: 6.000000
+video: 6.000000
+video: 8.000000
+video: 7.000000
+video: 15.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 11.000000
+video: 9.000000
+video: 6.000000
+video: 9.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 18.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 10.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 18.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 16.000000
+video: 11.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 21.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 19.000000
+video: 9.000000
+video: 10.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 20.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 15.000000
+video: 8.000000
+video: 10.000000
+video: 7.000000
+video: 6.000000
+video: 6.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 17.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 19.000000
+video: 8.000000
+video: 11.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 19.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 20.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 22.000000
+video: 11.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 19.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 8.000000
+video: 11.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 16.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 8.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 16.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 6.000000
+video: 16.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 12.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 15.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 18.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 15.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 19.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 15.000000
+video: 9.000000
+video: 11.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 20.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 20.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 19.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 19.000000
+video: 11.000000
+video: 11.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 18.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 6.000000
+video: 10.000000
+video: 20.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 9.000000
+video: 18.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 11.000000
+video: 9.000000
+video: 19.000000
+video: 10.000000
+video: 11.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 15.000000
+video: 8.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 15.000000
+video: 10.000000
+video: 11.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 18.000000
+video: 11.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 15.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 9.000000
+video: 8.000000
+video: 15.000000
+video: 9.000000
+video: 12.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 13.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 18.000000
+video: 10.000000
+video: 11.000000
+video: 9.000000
+video: 6.000000
+video: 10.000000
+video: 18.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 22.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 18.000000
+video: 9.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 13.000000
+video: 12.000000
+video: 10.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 41.000000
+video: 12.000000
+video: 11.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 11.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 18.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 19.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 21.000000
+video: 11.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 9.000000
+video: 24.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 20.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 18.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 9.000000
+video: 15.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 19.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 18.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 19.000000
+video: 8.000000
+video: 11.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 20.000000
+video: 8.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 18.000000
+video: 11.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 18.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 8.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 21.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 6.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 16.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 11.000000
+video: 17.000000
+video: 8.000000
+video: 11.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 15.000000
+video: 10.000000
+video: 11.000000
+video: 9.000000
+video: 8.000000
+video: 10.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 15.000000
+video: 8.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 6.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 9.000000
+video: 6.000000
+video: 15.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 12.000000
+video: 6.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 6.000000
+video: 6.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 15.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 15.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 15.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 6.000000
+video: 7.000000
+video: 9.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 22.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 19.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 19.000000
+video: 11.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 20.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 10.000000
+video: 18.000000
+video: 11.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 19.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 6.000000
+video: 8.000000
+video: 20.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 9.000000
+video: 19.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 21.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 11.000000
+video: 7.000000
+video: 16.000000
+video: 12.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 17.000000
+video: 12.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 6.000000
+video: 9.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 18.000000
+video: 10.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 14.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 8.000000
+video: 16.000000
+video: 8.000000
+video: 12.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 9.000000
+video: 6.000000
+video: 9.000000
+video: 17.000000
+video: 8.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 6.000000
+video: 19.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 6.000000
+video: 7.000000
+video: 7.000000
+video: 15.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 6.000000
+video: 16.000000
+video: 9.000000
+video: 11.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 11.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 15.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 15.000000
+video: 9.000000
+video: 10.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 11.000000
+video: 12.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 18.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 15.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 19.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 6.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 11.000000
+video: 8.000000
+video: 6.000000
+video: 15.000000
+video: 10.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 15.000000
+video: 11.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 16.000000
+video: 11.000000
+video: 11.000000
+video: 6.000000
+video: 7.000000
+video: 9.000000
+video: 17.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 12.000000
+video: 6.000000
+video: 17.000000
+video: 9.000000
+video: 12.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 11.000000
+video: 15.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 9.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 11.000000
+video: 12.000000
+video: 12.000000
+video: 11.000000
+video: 12.000000
+video: 12.000000
+video: 21.000000
+video: 10.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 10.000000
+video: 15.000000
+video: 10.000000
+video: 10.000000
+video: 7.000000
+video: 6.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 19.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 11.000000
+video: 8.000000
+video: 8.000000
+video: 19.000000
+video: 10.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 18.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 15.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 12.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 9.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 7.000000
+video: 18.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 8.000000
+video: 9.000000
+video: 7.000000
+video: 9.000000
+video: 15.000000
+video: 8.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 16.000000
+video: 10.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 15.000000
+video: 10.000000
+video: 10.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 9.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 6.000000
+video: 16.000000
+video: 9.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 6.000000
+video: 17.000000
+video: 8.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 15.000000
+video: 9.000000
+video: 7.000000
+video: 6.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 17.000000
+video: 9.000000
+video: 8.000000
+video: 8.000000
+video: 7.000000
+video: 8.000000
+video: 16.000000
+video: 9.000000
+video: 9.000000
+video: 8.000000
+video: 6.000000
+video: 8.000000
+video: 17.000000
+video: 8.000000
+video: 10.000000
+video: 8.000000
+video: 8.000000
+video: 8.000000
+video: 17.000000
+video: 9.000000
+video: 10.000000
+video: 7.000000
+video: 8.000000
+video: 7.000000
+video: 7.000000
+video: 16.000000
+video: 8.000000
+video: 11.000000
+video: 10.000000
+video: 7.000000
+video: 9.000000
+video: 18.000000
+video: 9.000000
+video: 11.000000
+video: 7.000000
+video: 7.000000
+video: 7.000000
+video: 18.000000
+video: 9.000000
+video: 9.000000
+video: 9.000000
+video: 7.000000
+video: 7.000000
+
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+audio: 0.000000
+audio: 0.000000
+audio: 0.000000
+audio: 1.000000
+
+write serial: 3.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 2.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 1.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+write serial: 0.000000
+
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 85.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 127.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 1.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+send audio: 0.000000
+
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 1.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+receive serial: 0.000000
+
+average video: 9.713248
+average audio: 0.123533
+average write serial: 0.148127
+average send audio: 0.135830
+average receive serial: 0.039687
+
+total average: 10.160425
+

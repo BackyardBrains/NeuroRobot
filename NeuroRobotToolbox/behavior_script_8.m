@@ -31,7 +31,7 @@ elseif script_step_count <= 20
 else
     % If none of the strong visual stimuli are currently present
     if ~sum(sensory_in_trig(vis_pref_vals > 20)) && ~isfound
-        if ~rem(script_step_count/20)
+        if ~rem(script_step_count, 20)
             spinled = round(rand * 100);
         end
 
