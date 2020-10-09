@@ -19,6 +19,7 @@ if script_step_count == 1
     isfound = 0;
 end
 
+if script_running
 % Turn around
 if script_step_count <= 10
     left_forward = left_forward + 50;
@@ -59,6 +60,7 @@ if (script_step_count * pulse_period) > 10
     isfound = 0;
     
     disp('Giving up')
+end
 end
 if isfound
     reward = 1;

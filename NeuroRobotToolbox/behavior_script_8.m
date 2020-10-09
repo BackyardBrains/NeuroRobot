@@ -5,6 +5,7 @@
 script_step_count = script_step_count + 1;
 
 % At the start
+if script_running
 if script_step_count == 1
     % Get strong current visual inputs
     sensory_in_trig = vis_pref_vals > 20;
@@ -63,6 +64,7 @@ if (script_step_count * pulse_period) > 10
     isfound = 0;
     
     disp('Giving up')
+end
 end
 if isfound
     reward = 1;

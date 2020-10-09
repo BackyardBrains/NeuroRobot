@@ -6,9 +6,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
 %% Settings
-rak_only = 1;
-camera_present = 1;
+rak_only = 0;
+camera_present = 0;
 use_webcam = 0;
 hd_camera = 0;
 use_cnn = 0;
