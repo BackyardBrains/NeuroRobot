@@ -55,28 +55,28 @@ static int interruptFunction(void* ctx)
     return 0;
 }
 
-// 1111 ////
+// // // 1111 ////
+// // VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamErrorOccurredCallback callback, bool audioBlocked)
+// // : Log("VideoAndAudioObtainer")
+// // {
+// //     this->errorCallback = callback;
+// //     this->url = StringHelper::createUrl("admin", "admin", ipAddress);
+// //     this->audioBlocked = audioBlocked;
+// //     logMessage("ip: " + ipAddress);
+// //     setupStreamers();
+// // }
+//// 2222 ////
 VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamErrorOccurredCallback callback, bool audioBlocked)
 : Log("VideoAndAudioObtainer")
 {
     this->errorCallback = callback;
-    this->url = StringHelper::createUrl("admin", "admin", ipAddress);
+    //this->url = StringHelper::createUrl("admin", "admin", ipAddress);
+    this->url = "rtsp://10.0.0.1:8554/test";
     this->audioBlocked = audioBlocked;
     logMessage("ip: " + ipAddress);
     setupStreamers();
 }
-// //// 2222 ////
-// VideoAndAudioObtainer::VideoAndAudioObtainer(std::string ipAddress, StreamErrorOccurredCallback callback, bool audioBlocked)
-// : Log("VideoAndAudioObtainer")
-// {
-//     this->errorCallback = callback;
-//     //this->url = StringHelper::createUrl("admin", "admin", ipAddress);
-//     this->url = "rtsp://10.0.0.1:8554/test";
-//     this->audioBlocked = audioBlocked;
-//     logMessage("ip: " + ipAddress);
-//     setupStreamers();
-// }
-// //// ////
+//// ////
 
 VideoAndAudioObtainer::~VideoAndAudioObtainer()
 {
