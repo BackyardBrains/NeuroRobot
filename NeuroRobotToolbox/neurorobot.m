@@ -11,11 +11,11 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 1 ;
+hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
-vocal = 1; % custom sound output
+vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
 pulse_period = 0.15; % in seconds
 
@@ -331,7 +331,7 @@ end
 
 
 %% Get DLLs
-if ~isfile('avcodec-58.dll')
+if ispc && ~isfile('avcodec-58.dll')
     
     disp('DLLs not found in main directory')
     
@@ -372,4 +372,19 @@ if ~isfile('avcodec-58.dll')
         
     end        
         
+end
+
+if ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
+    disp('dylibs not found in usr/local/lib')
+    try
+        copyfile ./Dylib/libavcodec.58.dylib /usr/local/lib f
+        copyfile ./Dylib/libavfilter.7.dylib /usr/local/lib f
+        copyfile ./Dylib/libavformat.58.dylib /usr/local/lib f
+        copyfile ./Dylib/libavutil.56.dylib /usr/local/lib f
+        copyfile ./Dylib/libswresample.3.dylib /usr/local/lib f
+        copyfile ./Dylib/libswscale.5.dylib /usr/local/lib f
+        disp('dylibs copied to usr/local/lib')
+    catch
+        disp('dylibs could not be copied to usr/local/lib')
+    end
 end
