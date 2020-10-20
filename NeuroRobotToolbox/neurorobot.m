@@ -330,7 +330,7 @@ end
     
 
 
-%% Get DLLs
+%% Get dynamic libraries
 if ispc && ~isfile('avcodec-58.dll')
     
     disp('DLLs not found in main directory')
@@ -372,16 +372,17 @@ if ispc && ~isfile('avcodec-58.dll')
         
     end        
         
-end
-
-if ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
+elseif ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
+    
     disp('Dylibs not found in usr/local/lib')
-    disp('Attempting to copy dylibs...')
-    disp('Please enter computer password to proceed')
+    disp('Attempting to copy dylibs')
+    disp('Please enter password to proceed')
+    
     try
-        system(['sudo cp -r ./Dylibs/* /usr/local/lib'])
+        system(['sudo cp ./Dylibs/* /usr/local/lib'])
         disp('Dylibs copied to usr/local/lib')
     catch
         disp('Dylibs could not be copied to usr/local/lib')
     end
+    
 end
