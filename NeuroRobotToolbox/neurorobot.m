@@ -379,7 +379,7 @@ elseif ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
     disp('Please enter password to proceed')
     
     try
-        system(['sudo cp ./Dylibs/* /usr/local/lib'])
+        system(['sudo cp ./Dylibs/* /usr/local/lib']);
         disp('Dylibs copied to usr/local/lib')
     catch
         disp('Dylibs could not be copied to usr/local/lib')
