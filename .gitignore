@@ -1,6 +1,5 @@
 .DS_Store
 
-Matlab/*.mexmaci64
 Matlab/Logs
 Matlab/Images
 Matlab/Annotation
