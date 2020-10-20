@@ -375,16 +375,13 @@ if ispc && ~isfile('avcodec-58.dll')
 end
 
 if ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
-    disp('dylibs not found in usr/local/lib')
+    disp('Dylibs not found in usr/local/lib')
+    disp('Attempting to copy dylibs...')
+    disp('Please enter computer password to proceed')
     try
-        copyfile ./Dylib/libavcodec.58.dylib /usr/local/lib f
-        copyfile ./Dylib/libavfilter.7.dylib /usr/local/lib f
-        copyfile ./Dylib/libavformat.58.dylib /usr/local/lib f
-        copyfile ./Dylib/libavutil.56.dylib /usr/local/lib f
-        copyfile ./Dylib/libswresample.3.dylib /usr/local/lib f
-        copyfile ./Dylib/libswscale.5.dylib /usr/local/lib f
-        disp('dylibs copied to usr/local/lib')
+        system(['sudo cp -r ./Dylibs/* /usr/local/lib'])
+        disp('Dylibs copied to usr/local/lib')
     catch
-        disp('dylibs could not be copied to usr/local/lib')
+        disp('Dylibs could not be copied to usr/local/lib')
     end
 end
