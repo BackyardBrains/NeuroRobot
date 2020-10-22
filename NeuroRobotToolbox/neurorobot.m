@@ -11,7 +11,7 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 1;
+hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
@@ -330,7 +330,7 @@ end
     
 
 
-%% Get dynamic libraries
+%% Get DLLs
 if ispc && ~isfile('avcodec-58.dll')
     
     disp('DLLs not found in main directory')
@@ -372,17 +372,5 @@ if ispc && ~isfile('avcodec-58.dll')
         
     end        
         
-elseif ismac && ~isfile('/usr/local/lib/libavcodec.58.dylib')
-    
-    disp('Dylibs not found in usr/local/lib')
-    disp('Attempting to copy dylibs')
-    disp('Please enter password to proceed')
-    
-    try
-        system(['sudo cp ./Dylibs/* /usr/local/lib']);
-        disp('Dylibs copied to usr/local/lib')
-    catch
-        disp('Dylibs could not be copied to usr/local/lib')
-    end
-    
 end
+
