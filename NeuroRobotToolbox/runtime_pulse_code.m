@@ -80,8 +80,10 @@ enter_reward % if run_button == 5
 
 % Memory leak fix (2020-Jul-06)
 if xstep == nsteps_per_loop
-    mem = memory;
-    mem_baseline = mem.MemUsedMATLAB;
+    if ispc
+        mem = memory;
+        mem_baseline = mem.MemUsedMATLAB;
+    end
 end
     
 if nstep == nsteps_per_loop %% Happens again below
