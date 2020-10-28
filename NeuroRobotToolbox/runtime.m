@@ -18,7 +18,7 @@ life_timer = tic;
 
 
 %% Get FOV
-if ~exist('rak_cam_h', 2)
+if ~exist('rak_cam_h', 'var')
     rak_cam_h = 720;
     rak_cam_w = 1280;
 end
