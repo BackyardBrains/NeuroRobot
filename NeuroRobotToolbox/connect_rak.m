@@ -60,9 +60,16 @@ try
             rak_cam_w = 720;        
     elseif use_webcam
         % Webcam
+        disp('Attempting webcam connect...')
         delete(imaqfind)
         try
-            rak_cam = videoinput('winvideo', 1);
+            if ispc
+                rak_cam = videoinput('winvideo', 1);
+            elseif ismac
+                rak_cam = videoinput('macvideo', 1);
+            else
+                disp('Unknown OS. Webcam not found.')
+            end
         catch
             disp('error: unable to connect webcam')
             disp('solution: open Add-On Explorer and install Image Acquisition Support Package for Generic OS Interface')
@@ -72,8 +79,9 @@ try
         rak_cam.FramesPerTrigger = 1;
         rak_cam.ReturnedColorspace = 'rgb';
         start(rak_cam)
-        rak_cam_h = 1280;
-        rak_cam_w = 720;  
+        trigger(rak_cam)
+        large_frame = getdata(rak_cam, 1);        
+        [rak_cam_h, rak_cam_w] = size(large_frame);
     end
 
     button_camera.BackgroundColor = [0.6 0.95 0.6];
