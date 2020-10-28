@@ -81,7 +81,7 @@ try
         start(rak_cam)
         trigger(rak_cam)
         large_frame = getdata(rak_cam, 1);        
-        [rak_cam_h, rak_cam_w] = size(large_frame);
+        [rak_cam_h, rak_cam_w, ~] = size(large_frame);
     end
 
     button_camera.BackgroundColor = [0.6 0.95 0.6];

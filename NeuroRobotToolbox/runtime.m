@@ -17,6 +17,19 @@ end
 life_timer = tic;
 
 
+%% Get FOV
+if bluetooth_present
+    left_cut = [1 500 281 780];
+    right_cut = [1 500 501 1000];
+else
+    left_cut = [1 rak_cam_h 1 rak_cam_h]; 
+    right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];
+end
+left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
+right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
+large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
+
+
 %% Initialize brain and runtime GUI
 load_or_initialize_brain
 draw_fig_runtime
@@ -28,16 +41,6 @@ end
 
 
 %% Prepare
-if bluetooth_present
-    left_cut = [1 500 281 780];
-    right_cut = [1 500 501 1000];
-else
-    left_cut = [1 rak_cam_h 1 rak_cam_h]; 
-    right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];
-end
-left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
-right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
-large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
 run_button = 0;
 nstep = 0;
 vis_pref_vals = zeros(n_vis_prefs, 2);
