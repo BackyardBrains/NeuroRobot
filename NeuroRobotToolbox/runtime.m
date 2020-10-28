@@ -28,6 +28,16 @@ end
 
 
 %% Prepare
+if bluetooth_present
+    left_cut = [1 500 281 780];
+    right_cut = [1 500 501 1000];
+else
+    left_cut = [1 rak_cam_h 1 rak_cam_h]; 
+    right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];
+end
+left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
+right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
+large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
 run_button = 0;
 nstep = 0;
 vis_pref_vals = zeros(n_vis_prefs, 2);
@@ -39,11 +49,6 @@ distance_read = 0;
 firing = [];
 manual_control = 0;
 nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
-if hd_camera
-    large_frame = zeros(1080, 1920, 3, 'uint8');
-else
-    large_frame = zeros(720, 1280, 3, 'uint8');
-end
 
 if ext_cam_id
     save_ext_cam = zeros(720, 1280, 3, ext_cam_nsteps, 'uint8');

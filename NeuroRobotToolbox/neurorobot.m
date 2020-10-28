@@ -95,21 +95,6 @@ neuron_tones = 0;
 
 %% Prepare 2
 base_weight = max_w;
-if bluetooth_present
-    left_cut = [1 500 281 780];
-    right_cut = [1 500 501 1000];
-else
-    if hd_camera    
-        left_cut = [1 1080 1 1080]; 
-        right_cut = [1 1080 841 1920];
-    else
-        left_cut = [1 720 1 720];
-        right_cut = [1 720 561 1280];
-    end
-end
-
-left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
-right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 load gong.mat
