@@ -17,7 +17,7 @@ for ncam = 1:2
 %     end
 
     % Red
-    red = frame(:,:,1) > frame(:,:,2) * 2 & frame(:,:,1) > frame(:,:,3) * 2;
+    red = frame(:,:,1) > frame(:,:,2) * 1.8 & frame(:,:,1) > frame(:,:,3) * 1.8;
     red(frame(:,:,1) < 50) = 0;
     
     blob = bwconncomp(red);
