@@ -18,6 +18,10 @@ life_timer = tic;
 
 
 %% Get FOV
+if ~exist('rak_cam_h', 2)
+    rak_cam_h = 720;
+    rak_cam_w = 1280;
+end
 if bluetooth_present
     left_cut = [1 500 281 780];
     right_cut = [1 500 501 1000];
