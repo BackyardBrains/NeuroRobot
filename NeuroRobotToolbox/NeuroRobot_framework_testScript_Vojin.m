@@ -152,4 +152,4 @@ rak_cam.stop();
 pause(2);
 % audiowrite('test.wav', audioMat, rak_cam.readAudioSampleRate());
 close all;
-serialData;
+serialData
