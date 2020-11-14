@@ -1,2 +1,2 @@
 
-rak_cam.writeSerial('r:100;l:100;')
+rak_cam.writeSerial('r:-50;l:50;')

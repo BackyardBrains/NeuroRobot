@@ -1,14 +1,16 @@
 
 
-this_offset = [5 6 1 2 3 4];
+a = [4 3 1 6 5 2];
+b = [5 2 4 3 1 6];
 
 just_off
 
-for ii = 1:10
+for nloop = 1:10
     for nled = 1:6
-        rak_cam.writeSerial(sprintf('d:%d11;', nled));
+        rak_cam.writeSerial(sprintf('d:%d11;', a(nled)));
         pause(0.1)
-        rak_cam.writeSerial(sprintf('d:%d11;', this_offset(nled)));
+        rak_cam.writeSerial(sprintf('d:%d10;', b(nled)));
+        pause(0.1)
     end
 end
 
