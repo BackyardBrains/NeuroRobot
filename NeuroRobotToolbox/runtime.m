@@ -32,6 +32,8 @@ end
 left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
 right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
 large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
+left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
+right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
 
 %% Initialize brain and runtime GUI
@@ -86,6 +88,12 @@ rak_fails = 0;
 if ~exist('rak_cam_h')
     rak_cam_h = 720;
     rak_cam_w = 1280; 
+end
+
+if save_for_ai
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    sound_in_file_name = strcat('./Training/Sound input/', this_time, '-', brain_name, '.xlsx');    
+    writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 end
 
 

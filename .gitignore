@@ -1,9 +1,7 @@
 .DS_Store
 
 Matlab/Logs
-Matlab/Images
-Matlab/Annotation
-Matlab/Exercises
+Matlab/Training
 Matlab/test.wav
 Matlab/*delays.txt
 

@@ -2,33 +2,6 @@
 %% Start of pulse code
 nstep = nstep + 1;
 xstep = xstep + 1;
-% if rak_only && ~rem(nstep, 7)
-%     if pulse_led_flag_1
-%         pulse_led_flag_1 = 0;
-%         rak_cam.writeSerial('d:610;d:521')
-%     else
-%         pulse_led_flag_1 = 1;
-%         rak_cam.writeSerial('d:611;d:520')
-%     end
-% end
-% if rak_only && ~rem(nstep, 11)
-%     if pulse_led_flag_2
-%         pulse_led_flag_2 = 0;
-%         rak_cam.writeSerial('d:621;d:530;')
-%     else
-%         pulse_led_flag_2 = 1;
-%         rak_cam.writeSerial('d:620;d:531')
-%     end
-% end
-% if rak_only && ~rem(nstep, 17)
-%     if pulse_led_flag_3
-%         pulse_led_flag_3 = 0;
-%         rak_cam.writeSerial('d:631;d:520;')
-%     else
-%         pulse_led_flag_3 = 1;
-%         rak_cam.writeSerial('d:630;d:521')
-%     end
-% end
 step_timer = tic;
 lifetime = toc(life_timer);
 if lifetime == 5 * 60
@@ -89,7 +62,11 @@ end
 if nstep == nsteps_per_loop %% Happens again below
     nstep = 0;
     if save_for_ai
-        imwrite(large_frame, strcat('.\Images\large_frame_', num2str(save_for_ai), '.png'))
+        % Save frame
+        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+        imwrite(large_frame, strcat('.\Training\Visual input\', this_time, '-', brain_name, '_large_frame_', num2str(save_for_ai), '.png'))
+        this_spectrum = pw(1:audx);
+        writematrix(this_spectrum, sound_in_file_name, 'WriteMode', 'append')
         save_for_ai = save_for_ai + 1;
         disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end
