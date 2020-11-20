@@ -47,8 +47,11 @@ if rak_only
             y = fft(x);
             pw = (abs(y).^2)/n;          
         end
-        pw = (pw - mean(pw)) / std(pw);   
+%         monkey_base = mean(pw(1:10)) * sum(abs(this_audio));
+        monkey_base = mean(pw(1:10));   
         pw(1:10) = 0;
+        pw = (pw - mean(pw)) / std(pw);
+%         pw(1:10) = 0;
         [max_amp, j] = max(pw(1:audx));
         fx = linspace(0, 2000, audx);
         max_freq = fx(j);
@@ -76,3 +79,4 @@ else % Implement audio toolbox record here
     this_audio = zeros(1, 1000);
     
 end
+

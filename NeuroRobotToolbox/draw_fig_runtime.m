@@ -24,11 +24,6 @@ if bg_brain
     
     audio_ax_pos = [0.03 0.3 0.22 0.2];
     audio_ax = axes('position', audio_ax_pos);
-    if hd_camera
-        audx = 125;
-    else
-        audx = 500;
-    end
     draw_audio = plot(1:audx, zeros(1, audx), 'linewidth', 2);
     audio_ax.Color = fig_bg_col;
     set(audio_ax, 'ylim', [-2 20], 'xlim', [1 audx])

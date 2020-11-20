@@ -11,13 +11,13 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 0;
+hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.15; % in seconds
+pulse_period = 0.2; % in seconds
 
 
 %% Advanced settings
@@ -30,7 +30,7 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Spin with tune', 'Random walk', 'Blink', 'Blink 2', 'Scared', 'Find it (A)', 'Find it (B)', 'Find it (C)', 'Find it (D)', 'Find it (E)'};
+script_names = {'Dance to rhythm', 'Random walk', 'Blink', 'Blink 2', 'Scared', 'Find it (A)', 'Find it (B)', 'Find it (C)', 'Find it (D)', 'Find it (E)'};
 
 
 %% Local configuration
@@ -133,6 +133,7 @@ if vocal
         audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
     end    
 end   
+clear monkey_shake
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn

@@ -35,6 +35,18 @@ process_visual_input
 % disp('5')
 process_audio_input
 
+% %% AUDIO LOG %%%%%%
+try
+%     temp436(:, xstep) = pw(1:audx);
+% %     temp412(:, xstep) = this_audio;
+%     temp332(:, xstep) = sum(abs(this_audio));
+    temp332(:, xstep) = monkey_base;
+catch
+end
+if xstep == size(temp332, 2)
+    run_button = 4;
+end
+
 %% Serial
 % disp('6')
 if rak_only
