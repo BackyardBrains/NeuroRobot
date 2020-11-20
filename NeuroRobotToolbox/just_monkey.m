@@ -1,11 +1,12 @@
 
-rhythmx = 10^-5;
+rhythmx = (10^-5);
+% rhythmx = 1;
 
 disp(horzcat('monkey_base = ', num2str(monkey_base), ', monkey_superflag = ', num2str(monkey_superflag), ', monkey_flag = ', num2str(monkey_flag)))
 
-if monkey_base > rhythmx
+if monkey_base > rhythmx * 0.7
     if ~monkey_superflag
-        monkey_superflag = 5;
+        monkey_superflag = 6;
         monkey_done = 0;
     end
 end
@@ -14,13 +15,13 @@ if monkey_superflag > 1
     monkey_superflag = monkey_superflag - 1;
 end
 
-if monkey_superflag == 1 && monkey_base < rhythmx
+if monkey_superflag == 1 && monkey_base < rhythmx * 2
     monkey_superflag = 0;
     monkey_flag = 0;
     monkey_done = 0;
     disp('Ready')
     just_off
-elseif monkey_superflag == 1 && monkey_base > rhythmx
+elseif monkey_superflag == 1 && monkey_base > rhythmx * 2
     disp('Waiting')
     just_off
 end
@@ -30,11 +31,11 @@ if monkey_superflag > 1 && ~monkey_done
         monkey_shake = 'left';
     end
     if ~monkey_flag
-        monkey_flag = 3;
+        monkey_flag = 4;
     end
     monkey_flag = monkey_flag - 1;
     disp(horzcat('Go ', monkey_shake))
-    pause(0.1)
+%     pause(0.1)
     if strcmp(monkey_shake, 'left')
         left_backward = 100;
         right_forward = 100;
@@ -54,32 +55,32 @@ if monkey_superflag > 1 && ~monkey_done
     end    
     if monkey_flag == 1
         if strcmp(monkey_shake, 'left')
-            if rand < 0.9
+            if rand < 0.85
                 monkey_shake = 'right';
             else
                 monkey_shake = 'forward';
             end
         elseif strcmp(monkey_shake, 'right')
-            if rand < 0.9
+            if rand < 0.85
                 monkey_shake = 'left';
             else
                 monkey_shake = 'backward';
             end
         elseif strcmp(monkey_shake, 'forward')
-            if rand < 0.9
+            if rand < 0.65
                 monkey_shake = 'backward';
             else
                 monkey_shake = 'left';
             end
         elseif strcmp(monkey_shake, 'backward')
-            if rand < 0.9
+            if rand < 0.65
                 monkey_shake = 'forward';
             else
                 monkey_shake = 'right';
             end
         end          
         monkey_done = 1;
-        just_off            
+%         just_off            
     end
 end
 if monkey_superflag == 0

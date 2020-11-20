@@ -47,10 +47,18 @@ if rak_only
             y = fft(x);
             pw = (abs(y).^2)/n;          
         end
+        
+%         %%% new audio stuff
         monkey_base = mean(pw(1:10));   
-        pw(1:10) = 0;
+%         temp436(:,xstep) = pw(1:audx);
+%         temp332(:, xstep) = monkey_base;
+%         if xstep == size(temp332, 2)
+%             run_button = 4;
+%         end
+%         %%%
+        
         pw = (pw - mean(pw)) / std(pw);
-%         pw(1:10) = 0;
+        pw(1:10) = 0;
         [max_amp, j] = max(pw(1:audx));
         fx = linspace(0, 2000, audx);
         max_freq = fx(j);

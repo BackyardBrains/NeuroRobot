@@ -34,6 +34,9 @@ if nneurons
     audio_I(audio_prefs == 8) = (audio_max_freq > 950 && audio_max_freq < 1050) * 50;
     audio_I(audio_prefs == 9) = (audio_max_freq > 1050 && audio_max_freq < 1150) * 50;
     audio_I(audio_prefs == 10) = (audio_max_freq > 1150 && audio_max_freq < 1250) * 50;
+    audio_I(audio_prefs == 11) = (monkey_base > ((10^-5)*1.5)) * 50;
+    audio_I(audio_prefs == 12) = (monkey_base > 10^-5) * 50;
+    audio_I(audio_prefs == 13) = (monkey_base > ((10^-5)*0.5)) * 50;
 
     % Run brain simulation
     for t = 1:ms_per_step
