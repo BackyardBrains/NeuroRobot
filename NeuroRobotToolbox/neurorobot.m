@@ -17,7 +17,7 @@ use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.15; % in seconds
+pulse_period = 0.2; % in seconds
 
 
 %% Advanced settings
@@ -132,8 +132,7 @@ if vocal
     for nsound = 1:n_out_sounds
         audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
     end    
-end   
-clear monkey_shake
+end
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn

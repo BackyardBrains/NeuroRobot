@@ -47,7 +47,6 @@ if rak_only
             y = fft(x);
             pw = (abs(y).^2)/n;          
         end
-%         monkey_base = mean(pw(1:10)) * sum(abs(this_audio));
         monkey_base = mean(pw(1:10));   
         pw(1:10) = 0;
         pw = (pw - mean(pw)) / std(pw);

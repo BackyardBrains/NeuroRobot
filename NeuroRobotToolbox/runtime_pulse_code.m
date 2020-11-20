@@ -38,7 +38,7 @@ process_audio_input
 % %% AUDIO LOG %%%%%%
 try
 %     temp436(:, xstep) = pw(1:audx);
-% %     temp412(:, xstep) = this_audio;
+%     temp412(:, xstep) = this_audio;
 %     temp332(:, xstep) = sum(abs(this_audio));
     temp332(:, xstep) = monkey_base;
 catch

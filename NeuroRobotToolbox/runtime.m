@@ -111,6 +111,7 @@ monkey_base = 0;
 monkey_flag = 0;
 monkey_done = 0;
 monkey_superflag = 0;
+clear monkey_shake
 
 
 %% Create data and command log
