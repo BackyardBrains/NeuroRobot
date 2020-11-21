@@ -1,12 +1,12 @@
 
-rhythmx = (10^-5);
+rhythmx = (10^-5) * 0.7;
 % rhythmx = 1;
 
 disp(horzcat('monkey_base = ', num2str(monkey_base), ', monkey_superflag = ', num2str(monkey_superflag), ', monkey_flag = ', num2str(monkey_flag)))
 
-if monkey_base > rhythmx * 0.7
+if monkey_base > rhythmx 
     if ~monkey_superflag
-        monkey_superflag = 6;
+        monkey_superflag = 5;
         monkey_done = 0;
     end
 end
@@ -15,14 +15,16 @@ if monkey_superflag > 1
     monkey_superflag = monkey_superflag - 1;
 end
 
-if monkey_superflag == 1 && monkey_base < rhythmx * 2
+if monkey_superflag == 1 && monkey_base < rhythmx
     monkey_superflag = 0;
     monkey_flag = 0;
     monkey_done = 0;
     disp('Ready')
+    rak_cam.writeSerial('r:0;l:0;d:110;d:210;d:310;d:410;d:510;d:610;d:120;d:220;d:320;d:420;d:520;d:620;d:130;d:230;d:330;d:430;d:530;d:630;')
     just_off
-elseif monkey_superflag == 1 && monkey_base > rhythmx * 2
+elseif monkey_superflag == 1 && monkey_base > rhythmx
     disp('Waiting')
+    rak_cam.writeSerial('r:0;l:0;d:110;d:210;d:310;d:410;d:510;d:610;d:120;d:220;d:320;d:420;d:520;d:620;d:130;d:230;d:330;d:430;d:530;d:630;')
     just_off
 end
 

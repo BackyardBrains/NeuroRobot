@@ -49,12 +49,14 @@ if rak_only
         end
         
 %         %%% new audio stuff
-        monkey_base = mean(pw(1:10));   
-%         temp436(:,xstep) = pw(1:audx);
-%         temp332(:, xstep) = monkey_base;
-%         if xstep == size(temp332, 2)
-%             run_button = 4;
-%         end
+        monkey_base = mean(pw);   
+        temp436(:,nstep) = pw(1:audx);
+        temp332(:, nstep) = monkey_base;
+        if nstep == nsteps_per_loop
+            figure(10); clf; set(gcf, 'position', [100 100 1720 880]); plot(temp332); ylim([0 (10^-4)])
+%             figure(10); clf; set(gcf, 'position', [100 100 1720 880]); imagesc(temp436(:, :), [0 (10^-5) * 0.7]);
+            disp(horzcat('Infrasonic 5th percentile: ', num2str(prctile(temp332, 5))))
+        end
 %         %%%
         
         pw = (pw - mean(pw)) / std(pw);

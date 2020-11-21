@@ -103,8 +103,8 @@ if save_for_ai
 end
 
 %% AUDIO LOG %%%%%%
-temp436 = zeros(audx, 600);
-temp332 = zeros(1, 600);
+temp436 = zeros(audx, nsteps_per_loop);
+temp332 = zeros(1, nsteps_per_loop);
 monkey_base = 0;
 monkey_flag = 0;
 monkey_done = 0;
