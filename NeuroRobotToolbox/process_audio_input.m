@@ -20,49 +20,71 @@ if rak_only
         max_amp = 0;   
         
         if length(this_audio) < 1000
-            this_audio = [this_audio this_audio];
-        end
-        if length(this_audio) >= 1000
+            while length(this_audio) < 1000
+                this_audio = [this_audio this_audio];
+            end
             this_audio = this_audio(1:1000);
         end
         if xstep == 1
             this_audio = zeros(1, 1000);
+        end        
+        audx_flips = 0;
+        if length(this_audio) >= 1000
+            audx_flips = floor(length(this_audio)/1000);
+            audx_pws = zeros(audx, audx_flips);
+            for audx_flip = 1:audx_flips
+                x = this_audio((1:1000) + ((audx_flip - 1) * 1000));
+                
+                % Get spectrum
+                x(isnan(x)) = 0;        
+                n = length(x);
+                if hd_camera
+                    fs = 32000;
+                    dt = 1/fs;
+                    t = (0:n-1)/fs;
+                    y = fft(x);
+                    pw = (abs(y).^2)/fs;
+                else
+                    fs = 8000;
+                    dt = 1/fs;
+                    t = (0:n-1)/fs;
+                    y = fft(x);
+                    pw = (abs(y).^2)/fs;          
+                end
+                if ~isempty(pw)
+                    audx_pws(:,audx_flip) = pw(1:audx);
+                end
+                
+            end
+        
+        end
+
+        if audx_flips > 1
+            pw = max(audx_pws, [], 2);
+        else
+            pw = audx_pws;
         end
         audio_empty_flag = 0;
 
-        % Get spectrum
-        x = this_audio;
-        x(isnan(x)) = 0;        
-        n = length(x);
-        if hd_camera
-            fs = 32000;
-            dt = 1/fs;
-            t = (0:n-1)/fs;
-            y = fft(x);
-            pw = (abs(y).^2)/fs;
-        else
-            fs = 8000;
-            dt = 1/fs;
-            t = (0:n-1)/fs;
-            y = fft(x);
-            pw = (abs(y).^2)/n;          
-        end
+
         
 %         %%% new audio stuff
-        monkey_base = mean(pw);   
+        monkey_base = mean(pw(1:20));   
         temp436(:,nstep) = pw(1:audx);
-        temp332(:, nstep) = monkey_base;
+        temp332(1, nstep) = mean(temp436(5:10, nstep));
+        temp332(2, nstep) = mean(temp436(62:64, nstep));
+        temp332(3, nstep) = mean(temp436(:, nstep));
         if nstep == nsteps_per_loop
-            figure(10); clf; set(gcf, 'position', [100 100 1720 880]); plot(temp332); ylim([0 (10^-4)])
+%             figure(10); clf; set(gcf, 'position', [100 100 1720 880]); plot(temp332(1,:), 'r'); hold on; plot(temp332(2,:), 'k'); plot(temp332(3,:), 'b'); set(gca, 'ylim', [0 10^-4]);
 %             figure(10); clf; set(gcf, 'position', [100 100 1720 880]); imagesc(temp436(:, :), [0 (10^-5) * 0.7]);
-            disp(horzcat('Infrasonic 5th percentile: ', num2str(prctile(temp332, 5))))
+%             disp(horzcat('Infrasonic 5th percentile: ', num2str(prctile(temp332, 5))))
         end
 %         %%%
         
         pw = (pw - mean(pw)) / std(pw);
         pw(1:10) = 0;
         [max_amp, j] = max(pw(1:audx));
-        fx = linspace(0, 2000, audx);
+        fx = linspace(0, 5000, audx);
         max_freq = fx(j);
         if max_amp < 8
             max_amp = 0;

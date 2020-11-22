@@ -17,7 +17,7 @@ use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.15; % in seconds
+pulse_period = 0.1; % in seconds
 
 
 %% Advanced settings
@@ -30,7 +30,7 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Dance to rhythm', 'Random walk', 'Blink', 'Blink 2', 'Scared', 'Find it (A)', 'Find it (B)', 'Find it (C)', 'Find it (D)', 'Find it (E)'};
+script_names = {'Monkey', 'Kitten'};
 
 
 %% Local configuration
@@ -70,6 +70,23 @@ adjust2 = 0.29;
 if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
+
+%% MUSIC MONKEY %%%%%%
+if hd_camera
+    audx = 312;
+else
+    audx = 500;
+end
+temp436 = zeros(audx, nsteps_per_loop);
+temp332 = zeros(3, nsteps_per_loop);
+monkey_base = 0;
+monkey_flag = 0;
+monkey_done = 0;
+monkey_superflag = 0;
+clear monkey_shake
+%% MC KITTEN %%%%%
+kitten_flag = 0;
+kitten_counter = 0;
 
 
 %% Clear
@@ -121,9 +138,9 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
 this_audio = [];
 
-audio_pref_names = {'300 Hz', '400 Hz', '500 Hz', '600 Hz', ...
-    '700 Hz', '800 Hz', '900 Hz', '1000 Hz', '1100 Hz', '1200 Hz', ...
-    'Base 1', 'Base 2', 'Base 3'};
+audio_pref_names = {'65-145 Hz (quiet)', '65-145 Hz (intermediate)', '65-145 Hz (loud)', ...
+    '980-1012 Hz (quiet)', '980-1012 Hz (intermediate)', '980-1012 Hz (loud)', ...
+    '0-5000 Hz (quiet)', '0-5000 Hz (intermediate)', '0-5000 Hz (loud)'};
 n_audio_prefs = size(audio_pref_names, 2);
 
 audio_out_names = [];

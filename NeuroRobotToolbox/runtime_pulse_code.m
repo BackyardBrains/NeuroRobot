@@ -12,18 +12,6 @@ elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
 
-%% Update brain
-update_brain
-draw_step
-
-%% Update motors
-% disp('3')
-update_motors
-left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
-right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
-show_left_eye.CData = left_eye_frame;
-show_right_eye.CData = right_eye_frame;
-
 %% Get visual input
 get_visual_input
 
@@ -35,6 +23,17 @@ process_visual_input
 % disp('5')
 process_audio_input
 
+%% Update brain
+update_brain
+draw_step
+
+%% Update motors
+% disp('3')
+update_motors
+left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
+right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
+show_left_eye.CData = left_eye_frame;
+show_right_eye.CData = right_eye_frame;
 
 %% Serial
 % disp('6')

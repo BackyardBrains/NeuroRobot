@@ -35,11 +35,7 @@ large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
-if hd_camera
-    audx = 125;
-else
-    audx = 500;
-end
+
 
 
 %% Initialize brain and runtime GUI
@@ -101,15 +97,6 @@ if save_for_ai
     sound_in_file_name = strcat('./Training/Sound input/', this_time, '-', brain_name, '.xlsx');    
     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 end
-
-%% AUDIO LOG %%%%%%
-temp436 = zeros(audx, nsteps_per_loop);
-temp332 = zeros(1, nsteps_per_loop);
-monkey_base = 0;
-monkey_flag = 0;
-monkey_done = 0;
-monkey_superflag = 0;
-clear monkey_shake
 
 
 %% Create data and command log
