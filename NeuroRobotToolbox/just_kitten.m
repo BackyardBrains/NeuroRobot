@@ -1,5 +1,6 @@
 
 % rak_cam.sendAudio('Sounds/kitten.mp3');
+disp('kitten')
 
 if ~kitten_counter
     kitten_counter = 15;
@@ -7,13 +8,13 @@ end
 kitten_counter = kitten_counter - 1;
 if kitten_counter > 10
     if ~kitten_flag
-        left_backward = 50;
-        right_forward = 50;        
+%         left_backward = 50;
+%         right_forward = 50;        
         rak_cam.writeSerial('d:131;d:231;d:331;d:431;d:531;d:631;') % red
         disp('red')
     else
-        left_forward = 50;
-        right_backward = 50;        
+%         left_forward = 50;
+%         right_backward = 50;        
         rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;') % green
         disp('green')
     end
