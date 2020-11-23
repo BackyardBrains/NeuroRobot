@@ -11,19 +11,19 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 1;
+hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.1; % in seconds
+pulse_period = 0.15; % in seconds
 
 
 %% Advanced settings
 save_data_and_commands = 0;
 save_brain_jpg = 0; % main only
-use_profile = 1;
+use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
