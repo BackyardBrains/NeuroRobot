@@ -21,15 +21,23 @@ if these_speaker_neurons
             speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
         end
     else
-        if length(these_speaker_neurons) > 1
-            these_speaker_neurons = these_speaker_neurons(1);
-            disp('Playing first of multiple sound outputs')
+        if ~vocal_buffer
+            if length(these_speaker_neurons) > 1
+                these_speaker_neurons = these_speaker_neurons(1);
+                disp('Playing first of multiple sound outputs')
+            end
+            nsound = neuron_tones(these_speaker_neurons, 1);
+            rak_cam.sendAudio(strcat('.\Sounds\', audio_out_names{nsound}, '.mp3'));
+            vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 10);
+        else
+            disp('Cannot vocalize. Vocal buffer.')
         end
-        nsound = neuron_tones(these_speaker_neurons, 1);
-        rak_cam.sendAudio(strcat('.\Sounds\', audio_out_names{nsound}, '.mp3')); % buffer will be overwhelmed by bursting sound output neuron without delay
     end
 else
     speaker_tone = 0;
+end
+if vocal_buffer
+    vocal_buffer = vocal_buffer - 1;
 end
 
 % Behavior scripts

@@ -340,24 +340,32 @@ elseif fig_design.UserData == 6
             command_log.n = command_log.n + 1;        
         end
         
-        text_heading = uicontrol('Style', 'text', 'String', 'Select auditory preference', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);        
+        text_heading = uicontrol('Style', 'text', 'String', 'Select auditory preference (Pitch, Hz)', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);        
+
         
-        popup_select_preference = uicontrol('Style', 'popup', 'String', audio_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
-        if existing_pref
-            popup_select_preference.Value = audio_prefs(postsynaptic_neuron);
-        end    
+%         %%%
+%         popup_select_preference = uicontrol('Style', 'popup', 'String', audio_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
+%         if existing_pref
+%             popup_select_preference.Value = audio_prefs(postsynaptic_neuron);
+%         end    
+            
+        %%%
+        % Manual weight
+        current_weight = num2str(audio_prefs(postsynaptic_neuron));
+        text_w = uicontrol('Style', 'text', 'String', 'Hz (0 - 5000):', 'units', 'normalized', 'position', [0.02 0.78 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
    
-        % Option to delete existing sensory synapse
-        delete_synapse = 0;
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+%         % Option to delete existing sensory synapse
+%         delete_synapse = 0;
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.78 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;')         
-        if existing_pref
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
-        else
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')            
-        end      
+%         if existing_pref
+%             button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+%             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
+%         else
+%             button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+%             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')            
+%         end      
         
         % Wait for OK        
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
@@ -366,17 +374,28 @@ elseif fig_design.UserData == 6
         delete(growth_cone)
         delete(button_stop)
         
+%         % Update variables
+%         if delete_synapse
+%             neuron_contacts(postsynaptic_neuron, presynaptic_contact) = 0;
+%             audio_prefs(postsynaptic_neuron) = 0;
+%         else
+%             audio_prefs(postsynaptic_neuron) = popup_select_preference.Value;
+%         end
+
         % Update variables
-        if delete_synapse
-            neuron_contacts(postsynaptic_neuron, presynaptic_contact) = 0;
-            audio_prefs(postsynaptic_neuron) = 0;
-        else
-            audio_prefs(postsynaptic_neuron) = popup_select_preference.Value;
-        end
+        this_input = str2double(edit_w.String);
+        if ~isa(this_input, 'double') || this_input < 0 || this_input > 5000
+            this_input = 0;
+            disp('Hz out of range. Automatically set to zero.')
+        end        
+        
+        audio_prefs(postsynaptic_neuron) = this_input;
 
         % Remove menu
         delete(text_heading)
-        delete(popup_select_preference)
+%         delete(popup_select_preference)
+        delete(text_w)
+        delete(edit_w)
         
 %         design_action = 0;
 

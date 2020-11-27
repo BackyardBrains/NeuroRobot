@@ -11,13 +11,14 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 0;
+hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
 pulse_period = 0.1; % in seconds
+audio_test = 1;
 
 
 %% Advanced settings
@@ -87,6 +88,8 @@ clear monkey_shake
 %% MC KITTEN %%%%%
 kitten_flag = 0;
 kitten_counter = 0;
+vocal_buffer = 0;
+vocal_durations = [];
 
 
 %% Clear
@@ -144,12 +147,15 @@ audio_pref_names = {'65-145 Hz (quiet)', '65-145 Hz (intermediate)', '65-145 Hz 
 n_audio_prefs = size(audio_pref_names, 2);
 
 audio_out_names = [];
+audio_out_durations = [];
 if vocal
     available_sounds = dir('./Sounds/*.mp3');
     n_out_sounds = size(available_sounds, 1);
     for nsound = 1:n_out_sounds
         audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
-    end    
+        [audio_y,audio_fs] = audioread(horzcat('./Sounds/', available_sounds(nsound).name));
+        audio_out_durations = [audio_out_durations length(audio_y)/audio_fs];
+    end
 end
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
