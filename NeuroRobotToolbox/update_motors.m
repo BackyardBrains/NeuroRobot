@@ -18,7 +18,7 @@ if these_speaker_neurons
         these_tones(these_tones == 0) = [];
         speaker_tone = round(mean(these_tones)) / 2;
         if ~rak_only
-            speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+            speaker_tone;
         else
             speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
         end
@@ -167,21 +167,13 @@ elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
     prev_motor_command = motor_command;
 end
 if use_webcam && speaker_tone
-    
-amp=0.5;
-fs=8000;
-duration=5;
-freq=1000;
-values=0:1/fs:duration;
-a=amp*sin(2*pi* freq*values);
-sound(a)    
-    
-    axxamp=1;
-    axxfs=32000;
-    axxduration=4;
-    axxfreq=speaker_tone;
-    axxvalues=0:1/axxfs:axxduration;
-    axxa=axxamp*sin(2*pi* axxfreq*axxvalues);
-    soundsc(axxa)
-    disp('Check3')
+
+    dxamp=1;
+    dxfs=32000;
+    dxduration=0.5;
+    dxfreq=round(speaker_tone);
+    dxvalues=0:1/dxfs:dxduration;
+    dxa=dxamp*sin(2*pi*dxfreq*dxvalues);
+    soundsc(dxa, dxfs)    
+
 end
