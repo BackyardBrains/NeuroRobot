@@ -107,7 +107,31 @@ if rak_only
 
 else % Implement audio toolbox record here 
     
-    this_audio = zeros(1, 1000);
+    if audio_test
+        
+    %     this_audio = zeros(1, 1000);
+%         disp('Check')
+        recordblocking(audio_recObj,0.0125)
+        this_audio = getaudiodata(audio_recObj);
+        if length(this_audio) < 1000
+            while length(this_audio) < 1000
+                this_audio = [this_audio this_audio];
+            end
+            this_audio = this_audio(1:1000);
+        end
+
+        n = length(this_audio);
+        fs = 32000;
+        dt = 1/fs;
+        t = (0:n-1)/fs;
+        y = fft(this_audio);
+        pw = (abs(y).^2)/fs; 
+%         figure(3)
+%         plot(this_audio)
+        temp436(:,nstep) = pw(1:audx);
+        
     
+    end
+
 end
 

@@ -8,16 +8,16 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
-hd_camera = 1;
+use_webcam = 1;
+hd_camera = 0;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
-pulse_period = 0.1; % in seconds
+pulse_period = 0.25; % in seconds
 audio_test = 1;
 
 

@@ -35,6 +35,9 @@ large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
+if audio_test
+    audio_recObj = audiorecorder(32000, 16, 1);
+end
 
 
 

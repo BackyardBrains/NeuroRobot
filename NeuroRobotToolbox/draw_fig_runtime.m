@@ -38,7 +38,12 @@ if bg_brain
 %     box off
 
 
-draw_audio = imagesc(temp436, [0 10^-4]);
+% disp('Check2')
+if use_webcam
+    draw_audio = imagesc(temp436, [0 10^-5]);
+else
+    draw_audio = imagesc(temp436, [0 10^-4]);
+end
 set(audio_ax, 'ytick', round(linspace(1, audx, 6)), 'yticklabel', [0 1 2 3 4 5], ...
     'xtick', [], 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
     gui_font_weight, 'linewidth', 2)
