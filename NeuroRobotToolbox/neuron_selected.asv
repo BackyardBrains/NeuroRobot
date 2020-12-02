@@ -344,38 +344,46 @@ elseif fig_design.UserData == 6
         text_heading = uicontrol('Style', 'text', 'String', 'Select auditory preference (Pitch, Hz)', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);        
 
         current_weight = num2str(audio_prefs(postsynaptic_neuron));
-        text_w = uicontrol('Style', 'text', 'String', 'Hz (0 - 5000):', 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.85 0.09 0.06], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_w = uicontrol('Style', 'text', 'String', 'Hz (0 - 5000):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
+        % Connect
+        button_w1 = uicontrol('Style', 'pushbutton', 'String', 'Create sound output synapse', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        set(button_w1, 'Callback', 'set_synapse_type', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.6 0.95 0.6])
+
+        % Remove
+        button_w2 = uicontrol('Style', 'pushbutton', 'String', 'Delete sound output synapse', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        set(button_w2, 'Callback', 'set_synapse_type', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+        
         delete_synapse = 0;
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-        set(button_confirm, 'Callback', 'fig_design.UserData = 0;')         
-        if existing_pref
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
-        else
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
-            set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
-        end
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+        set(button_confirm, 'Callback', 'fig_design.UserData = 0;')
+                % Wait for OK        
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
+        waitfor(fig_design, 'UserData', 0)
+        delete(button_confirm)  
         
         % Wait for OK        
+        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
         waitfor(fig_design, 'UserData', 0)
         delete(button_confirm)
         delete(growth_cone)
         delete(button_stop)
         
         % Update variables
-        this_input = round(str2double(edit_w.String));
+        this_input = str2double(edit_w.String);
         if ~isa(this_input, 'double') || this_input < 0 || this_input > 5000
             this_input = 0;
             disp('Hz out of range. Automatically set to zero.')
-        end
+        end 
+        
         if delete_synapse
             neuron_contacts(postsynaptic_neuron, presynaptic_contact) = 0;
             audio_prefs(postsynaptic_neuron) = 0;
         else
             audio_prefs(postsynaptic_neuron) = this_input;
-        end   
+        end        
 
         % Remove menu
         delete(text_heading)

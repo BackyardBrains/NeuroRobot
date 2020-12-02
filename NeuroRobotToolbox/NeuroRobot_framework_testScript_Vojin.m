@@ -15,11 +15,11 @@
 %     mex NeuroRobot_framework/NeuroRobot_MatlabBridge.cpp NeuroRobot_framework/NeuroRobotManager.cpp NeuroRobot_framework/SharedMemory.cpp NeuroRobot_framework/Log.cpp NeuroRobot_framework/VideoAndAudioObtainer.cpp NeuroRobot_framework/Socket.cpp NeuroRobot_framework/Core/Semaphore.cpp -Ilibraries/mac/boost/1.70.0/include -Llibraries/mac/boost/1.70.0/lib -Ilibraries/mac/ffmpeg/include -lboost_system -lboost_chrono -lboost_thread -lboost_filesystem -lavcodec -lavformat -lavutil -lswscale
 % end
 
-% if ~exist('rak_cam', 'var')
-%     %rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
-%     rak_cam = NeuroRobot_matlab('10.0.0.1', '80');
-% end
-% rak_cam.start();
+if ~exist('rak_cam', 'var')
+    %rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+    rak_cam = NeuroRobot_matlab('10.0.0.1', '80');
+end
+rak_cam.start();
 
 % Init UI
 fig1 = figure(1);
