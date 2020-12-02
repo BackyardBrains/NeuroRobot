@@ -8,17 +8,17 @@
 
 
 %% Settings
-rak_only = 0;
-camera_present = 0;
+rak_only = 1;
+camera_present = 1;
 use_webcam = 0;
-hd_camera = 0;
+hd_camera = 1;
 use_cnn = 0;
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
 pulse_period = 0.1; % in seconds
-audio_test = 0;
+audio_test = 1;
 
 
 %% Advanced settings
@@ -85,6 +85,7 @@ monkey_flag = 0;
 monkey_done = 0;
 monkey_superflag = 0;
 clear monkey_shake
+
 %% MC KITTEN %%%%%
 kitten_flag = 0;
 kitten_counter = 0;
@@ -140,11 +141,6 @@ n_dist_prefs = size(dist_pref_names, 2);
 % load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
 this_audio = [];
-
-audio_pref_names = {'65-145 Hz (quiet)', '65-145 Hz (intermediate)', '65-145 Hz (loud)', ...
-    '980-1012 Hz (quiet)', '980-1012 Hz (intermediate)', '980-1012 Hz (loud)', ...
-    '0-5000 Hz (quiet)', '0-5000 Hz (intermediate)', '0-5000 Hz (loud)'};
-n_audio_prefs = size(audio_pref_names, 2);
 
 audio_out_names = [];
 audio_out_durations = [];

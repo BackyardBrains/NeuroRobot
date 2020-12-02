@@ -77,7 +77,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     if neuron_tones(presynaptic_neuron, 1)
         neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display
     end
-%     if ~vocal && this_input == 0 % this still needs to be implemented
+%     if ~vocal && this_input == 0 % can this just be implemented as is?
 %         neuron_contacts(presynaptic_neuron, 4) = 0;
 %     end
 
