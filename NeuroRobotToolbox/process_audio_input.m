@@ -109,6 +109,8 @@ else % Implement audio toolbox record here
     
     if audio_test
         
+        tim1 = tic;
+        
         recordblocking(audio_recObj,0.1)
         this_audio = getaudiodata(audio_recObj);       
         audx_flips = 0;
@@ -143,6 +145,8 @@ else % Implement audio toolbox record here
         end
         
         temp436(:,nstep) = pw(1:audx);
+        
+%         disp(horzcat('Webcam sound aquired and processed in ', num2str(toc(tim1)), ' seconds'))
         
     end
 end
