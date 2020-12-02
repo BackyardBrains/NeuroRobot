@@ -368,7 +368,7 @@ elseif fig_design.UserData == 6
         this_input = round(str2double(edit_w.String));
         if ~isa(this_input, 'double') || this_input < 0 || this_input > 5000
             this_input = 0;
-            disp('Hz out of range. Automatically set to zero.')
+            disp('Hz out of range.')
         end
         if delete_synapse
             neuron_contacts(postsynaptic_neuron, presynaptic_contact) = 0;

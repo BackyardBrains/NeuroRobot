@@ -64,10 +64,9 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     if ~vocal
         this_input = str2double(edit_w.String);
     end
-    if ~vocal && (~isa(this_input, 'double') || this_input < 0 || this_input > 4978)
-        
-        this_input = 1000;
-        disp('Speaker input out of range. Automatically set to 1000.')
+    if ~vocal && (isnan(this_input) || this_input < 0 || this_input > 4978)
+        this_input = 0;
+        disp('Speaker input out of range.')
     end
     speaker_selected = 0;
     if ~vocal
@@ -75,8 +74,10 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     else
         neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
     end
-    neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display
-%     if ~vocal && this_input == 0
+    if neuron_tones(presynaptic_neuron, 1)
+        neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display
+    end
+%     if ~vocal && this_input == 0 % this still needs to be implemented
 %         neuron_contacts(presynaptic_neuron, 4) = 0;
 %     end
 
