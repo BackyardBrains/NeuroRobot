@@ -16,13 +16,11 @@ if these_speaker_neurons
     if ~vocal
         these_tones = neuron_tones(these_speaker_neurons, 1);
         these_tones(these_tones == 0) = [];
-        speaker_tone = round(mean(these_tones)) / 2;
-        if ~rak_only
-            speaker_tone;
+        if length(these_speaker_neurons) > 1
+            speaker_tone = round(mean(these_tones) / length(these_speaker_neurons));
         else
-            speaker_tone = round(speaker_tone * 0.0039); % the arduino currently needs an 8-bit number and will multiply by 256
+            speaker_tone = these_tones;
         end
-        
     else
         if ~vocal_buffer
             if length(these_speaker_neurons) > 1
@@ -42,6 +40,7 @@ end
 if vocal_buffer
     vocal_buffer = vocal_buffer - 1;
 end
+
 
 % Behavior scripts
 this_script = find(neuron_scripts & firing, 1);
@@ -79,6 +78,7 @@ motor_command(1,1) = right_torque;
 motor_command(1,2) = right_dir;
 
 motor_command(1,5) = speaker_tone;
+speaker_tone;
 
 % Manual control exceptions
 if ~sum(motor_command(1, [1 3]))
