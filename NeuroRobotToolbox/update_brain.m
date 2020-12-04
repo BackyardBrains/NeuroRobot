@@ -35,7 +35,7 @@ if nneurons
             try
                 preffx1 = round(audio_prefs(nneuron));
                 [~, preffx2] = min(abs(fx-preffx1));
-                preffx3 = mean(temp436(preffx2-1:preffx2+1, nstep));
+                preffx3 = mean(temp436(preffx2, nstep));
                 preffx3;
                 audio_I(nneuron) = (preffx3 > 10^-5) * 50; 
             catch

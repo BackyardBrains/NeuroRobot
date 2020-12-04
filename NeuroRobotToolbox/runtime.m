@@ -37,6 +37,7 @@ right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(
 
 if audio_test
     audio_recObj = audiorecorder(16000, 16, 1);
+    set(audio_recObj,'TimerPeriod',0.01)
 end
 
 
