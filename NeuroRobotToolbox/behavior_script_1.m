@@ -18,4 +18,5 @@
 %     script_step_count = 0;
 % end
 
-just_monkey
+% just_monkey
+just_red
