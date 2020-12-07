@@ -46,7 +46,7 @@ else
 end
 set(audio_ax, 'ytick', round(linspace(1, audx, 6)), 'yticklabel', [0 1 2 3 4 5], ...
     'xtick', [], 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
-    gui_font_weight, 'linewidth', 2)
+    gui_font_weight, 'linewidth', 2, 'ydir', 'normal')
 hold on
 cplot_front = plot([0 0], [0 audx], 'color', 'r', 'linewidth', 2);
 title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
