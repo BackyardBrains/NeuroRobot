@@ -78,7 +78,6 @@ motor_command(1,1) = right_torque;
 motor_command(1,2) = right_dir;
 
 motor_command(1,5) = speaker_tone;
-speaker_tone;
 
 % Manual control exceptions
 if ~sum(motor_command(1, [1 3]))

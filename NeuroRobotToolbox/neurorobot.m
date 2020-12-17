@@ -186,6 +186,8 @@ script_step_count = 0;
 for nscript = 1:size(script_names, 2)
     script_strs(nscript).name = script_names{nscript};
 end
+
+efferent_copy = 0;
         
 
 %% Prepare figure

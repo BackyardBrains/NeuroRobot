@@ -69,8 +69,16 @@ if rak_only
 
         
 %         %%% new audio stuff
-        monkey_base = mean(pw(1:20));   
-        temp436(:,nstep) = pw(1:audx);
+        monkey_base = mean(pw(1:20)); 
+        if r_torque || l_torque
+            efferent_copy = 8;
+        else
+            if efferent_copy
+                efferent_copy = efferent_copy - 1;
+            else
+                temp436(:,nstep) = pw(1:audx);
+            end
+        end
         temp332(1, nstep) = mean(temp436(5:10, nstep));
         temp332(2, nstep) = mean(temp436(62:64, nstep));
         temp332(3, nstep) = mean(temp436(:, nstep));
