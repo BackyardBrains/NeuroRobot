@@ -18,7 +18,10 @@ if brain_selection_val > 1
     c = brain.c;
     d = brain.d;
     v = c + 5 * randn(nneurons, 1);
-    u = b .* v;
+    
+%     u = b' .* v; % HACK 2020-12-20 (')
+    u = b .* v; % original (')    
+    
     spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
     if isfield(brain, 'spikes_loop')
         brain = rmfield(brain, 'spikes_loop');

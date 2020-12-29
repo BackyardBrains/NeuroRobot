@@ -11,7 +11,7 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 1;
+hd_camera = 0;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
@@ -22,7 +22,7 @@ audio_test = 1;
 
 
 %% Advanced settings
-save_data_and_commands = 1;
+save_data_and_commands = 0;
 save_brain_jpg = 0; % main only
 use_profile = 0;
 bg_brain = 1;
@@ -31,9 +31,9 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Fixed Action Pattern 1', 'Fixed Action Pattern 2', 'Fixed Action Pattern 3', ...
-    'Fixed Action Pattern 4', 'Fixed Action Pattern 5', 'Fixed Action Pattern 6', ...
-    'Fixed Action Pattern 7', 'Fixed Action Pattern 8', 'Fixed Action Pattern 9'};
+script_names = {'Action 1', 'Action 2', 'Action 3', ...
+    'Action 4', 'Action 5', 'Action 6', ...
+    'Action 7', 'Action 8', 'Action 9'};
 
 
 %% Local configuration
