@@ -35,7 +35,7 @@ large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
-if audio_test
+if matlab_audio_rec
     audio_recObj = audiorecorder(16000, 16, 1);
     set(audio_recObj,'TimerPeriod',0.01)
 end
@@ -83,11 +83,12 @@ if use_profile
     profile clear
     profile on    
 end
-audio_max_freq = 0;
-max_amp = 0;
-max_freq = 0;
-audio_max_freq = 0;
-pw = zeros(1, 1000); 
+if hd_camera
+    fs = 32000;
+else
+    fs = 8000;
+end
+
 audio_I = zeros(nneurons, 1);
 audio_empty_flag = 0;
 rak_fails = 0;

@@ -21,54 +21,19 @@ if nneurons
 
     % Calculate distance sensor input current
     audio_I = zeros(nneurons, 1);
-    if isempty(audio_max_freq) || max_amp < 6
-        audio_max_freq = 0;
-    end
     
     for nneuron = 1:nneurons
         
         if audio_prefs(nneuron)
-%             preffx1 = round(audio_prefs(nneuron));
-%             [~, preffx2] = min(abs(a-n));
-%             preffx3 = temp436(preffx2, nstep) > 10^-5) * 50
-
             try
-                preffx1 = round(audio_prefs(nneuron));
-                [~, preffx2] = min(abs(fx-preffx1));
-                preffx3 = mean(temp436(preffx2, nstep));
-                preffx3;
-                audio_I(nneuron) = (preffx3 > 10^-5) * 50; 
+                soundvar_1 = round(audio_prefs(nneuron)); % Stated audio pref
+                [~, soundvar_2] = min(abs(fx-soundvar_1)); % Closest spectrogram ind
+                soundvar_3 = sound_spectrum(soundvar_2, nstep); % Amplitude at 
+                audio_I(nneuron) = (soundvar_3 > 2) * 50; 
             catch
                 disp('Cannot get audio_I')
             end
-            
-%     audio_I(audio_prefs == 1) = (audio_max_freq > 250 && audio_max_freq < 350) * 50;
-%     audio_I(audio_prefs == 2) = (audio_max_freq > 350 && audio_max_freq < 450) * 50;
-%     audio_I(audio_prefs == 3) = (audio_max_freq > 450 && audio_max_freq < 550) * 50;
-%     audio_I(audio_prefs == 4) = (audio_max_freq > 550 && audio_max_freq < 650) * 50;
-%     audio_I(audio_prefs == 5) = (audio_max_freq > 650 && audio_max_freq < 750) * 50;
-%     audio_I(audio_prefs == 6) = (audio_max_freq > 750 && audio_max_freq < 850) * 50;
-%     audio_I(audio_prefs == 7) = (audio_max_freq > 850 && audio_max_freq < 950) * 50;
-%     audio_I(audio_prefs == 8) = (audio_max_freq > 950 && audio_max_freq < 1050) * 50;
-%     audio_I(audio_prefs == 9) = (audio_max_freq > 1050 && audio_max_freq < 1150) * 50;
-%     audio_I(audio_prefs == 10) = (audio_max_freq > 1150 && audio_max_freq < 1250) * 50;
-%     audio_I(audio_prefs == 11) = (monkey_base > ((10^-5)*0.7)) * 50;
-%     audio_I(audio_prefs == 12) = (monkey_base > 10^-5) * 50;
-%     audio_I(audio_prefs == 13) = (monkey_base > ((10^-5)*1.3)) * 50;
 
-%     audio_I(audio_prefs == 1) = (mean(temp436(5:10, nstep)) > 10^-5) * 50;
-%     audio_I(audio_prefs == 2) = (mean(temp436(5:10, nstep)) > 10^-4) * 50;
-%     audio_I(audio_prefs == 2) = (mean(temp436(5:10, nstep)) > 10^-3) * 50;    
-%     audio_I(audio_prefs == 4) = (mean(temp436(62:64, nstep)) > 10^-5) * 50;
-%     audio_I(audio_prefs == 5) = (mean(temp436(62:64, nstep)) > 10^-4) * 50;
-%     audio_I(audio_prefs == 6) = (mean(temp436(62:64, nstep)) > 10^-3) * 50;
-%     audio_I(audio_prefs == 7) = (mean(temp436(:, nstep)) > 10^-5) * 50;
-%     audio_I(audio_prefs == 8) = (mean(temp436(:, nstep)) > 10^-4) * 50;
-%     audio_I(audio_prefs == 9) = (mean(temp436(:, nstep)) > 10^-3) * 50;
-    
-%     disp(horzcat('low hz: ', num2str(mean(temp436(5:10, nstep)))))
-%     disp(horzcat('1000 hz: ', num2str(mean(temp436(62:64, nstep)))))
-%     disp(horzcat('broad hz: ', num2str(mean(temp436(:, nstep)))))
         end
     end
 

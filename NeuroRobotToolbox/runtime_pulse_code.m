@@ -65,8 +65,7 @@ if nstep == nsteps_per_loop %% Happens again below
         % Save frame
         this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
         imwrite(large_frame, strcat('.\Training\Visual input\', this_time, '-', brain_name, '_large_frame_', num2str(save_for_ai), '.png'))
-        this_spectrum = pw(1:audx);
-        writematrix(this_spectrum, sound_in_file_name, 'WriteMode', 'append')
+        writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
         save_for_ai = save_for_ai + 1;
         disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end

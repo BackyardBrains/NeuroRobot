@@ -19,32 +19,11 @@ left_eye_ax = axes('position', [0.02 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
 right_eye_ax = axes('position', [0.75 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
 activity_ax = axes('position', [0.04 0.09 0.94 0.14], 'linewidth', 2);
 
-% Manual controls
-if bg_brain
-    
-    audio_ax_pos = [0.04 0.3 0.21 0.2];
-    audio_ax = axes('position', audio_ax_pos);
-%     draw_audio = plot(1:audx, zeros(1, audx), 'linewidth', 2);
-%     audio_ax.Color = fig_bg_col;
-%     set(audio_ax, 'ylim', [-2 20], 'xlim', [1 audx])
-%     set(audio_ax, 'xtick', round(linspace(1, audx, 5)), 'xticklabel', [0 500 1000 1500 2000], 'ytick', [], ...
-%         'xcolor', 'k', 'ycolor', fig_bg_col, 'linewidth', 2, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
-%         gui_font_weight, 'linewidth', 2)
-%     hold on
-%     plot([1 audx], [8 8], 'color', [0.7 0.7 0.7], 'linewidth', 1)
-%     title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-%     xlabel('Hz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-% %     ylabel('Norm Amp', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
-%     box off
-
-
-% disp('Check2')
-if use_webcam
-    draw_audio = imagesc(temp436, [0 10^-4]);
-else
-    draw_audio = imagesc(temp436, [0 10^-4]);
-end
-set(audio_ax, 'ytick', round(linspace(1, audx, 6)), 'yticklabel', [0 1 2 3 4 5], ...
+% Microphone data plot
+audio_ax_pos = [0.04 0.3 0.21 0.2];
+audio_ax = axes('position', audio_ax_pos);
+draw_audio = imagesc(sound_spectrum, [0 2]);
+set(audio_ax, 'ytick', round(linspace(1, audx, 5)), 'yticklabel', round(linspace(0, 4, 5)), ...
     'xtick', [], 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
     gui_font_weight, 'linewidth', 2, 'ydir', 'normal')
 cmap = flipud(gray);
@@ -54,15 +33,7 @@ cplot_front = plot([0 0], [0 audx], 'color', 'r', 'linewidth', 2);
 title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 ylabel('kHz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
 
-
-
-
-%     button_1_pos = [0.02 0.27 0.23 0.05];
-%     button_1 = uicontrol('Style', 'pushbutton', 'String', 'Network view', 'units', 'normalized', 'position', button_1_pos);
-%     set(button_1, 'Callback', 'brain_view_tiled = 1; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-%     button_2_pos = [0.02 0.34 0.23 0.05];
-%     button_2 = uicontrol('Style', 'pushbutton', 'String', 'Whole brain view', 'units', 'normalized', 'position', button_2_pos);
-%     set(button_2, 'Callback', 'brain_view_tiled = 0; stop(runtime_pulse); voluntary_restart = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])       
+if bg_brain
     
     drive_bar_pos = [0.75 0.3 0.23 0.2];
     drive_bar_ax = axes('position', drive_bar_pos, 'linewidth', 2);

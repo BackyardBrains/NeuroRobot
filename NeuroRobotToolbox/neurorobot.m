@@ -11,14 +11,14 @@
 rak_only = 1;
 camera_present = 1;
 use_webcam = 0;
-hd_camera = 0;
+hd_camera = 1;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 0; % algorithmic brain build
 pulse_period = 0.1; % in seconds
-audio_test = 1;
+matlab_audio_rec = 0;
 
 
 %% Advanced settings
@@ -74,26 +74,11 @@ if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
 
-%% MUSIC MONKEY %%%%%%
-% if hd_camera
-    audx = 626;
-% else
-%     audx = 500;
-% end
-temp436 = zeros(audx, nsteps_per_loop);
-temp332 = zeros(3, nsteps_per_loop);
-monkey_base = 0;
-monkey_flag = 0;
-monkey_done = 0;
-monkey_superflag = 0;
-clear monkey_shake
-
-%% MC KITTEN %%%%%
-kitten_flag = 0;
-kitten_counter = 0;
-vocal_buffer = 0;
-vocal_durations = [];
-
+%% Sound
+audx = 250;
+sound_spectrum = zeros(audx, nsteps_per_loop);
+fx = (0:audx-1)*16;
+this_audio = [];
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -129,6 +114,7 @@ if ~exist('voluntary_restart', 'var')
     voluntary_restart = 0;
 end
 this_exercise = '';
+vocal_buffer = 0;
 
 
 %% Prepare 3
@@ -142,7 +128,6 @@ dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 % load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
-this_audio = [];
 
 audio_out_names = [];
 audio_out_durations = [];
@@ -174,7 +159,6 @@ end
 if ~exist('restarts', 'var')
     restarts = 0;
 end
-fx = (0:1000-1)*8;
 
 pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
