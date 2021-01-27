@@ -29,6 +29,7 @@ if these_speaker_neurons
             end
             nsound = neuron_tones(these_speaker_neurons, 1);
             rak_cam.sendAudio(strcat('.\Sounds\', audio_out_names{nsound}, '.mp3'));
+            disp(horzcat('Playing ', audio_out_names{nsound}, '.mp3'))
             vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 10);
         else
             disp('Cannot vocalize. Vocal buffer.')
