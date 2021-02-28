@@ -13,6 +13,7 @@ if nneurons > 100
 else
     draw_synapses = 1;
 end
+% draw_synapses = 1;
 
 if exist('fig_print', 'var') && isvalid(fig_print)
     axes(brain_axb)
@@ -304,20 +305,20 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         edge_size = 700;
         core_size = 400;
-    elseif nma_flag
+%     elseif nma_flag
 %         edge_size = 70;
-%         core_size = 45; 2020-01-19
-        edge_size = 150;
-        core_size = 100;        
+%         core_size = 45;
+% %         edge_size = 150;
+% %         core_size = 100;        
     else
         edge_size = 500;
         core_size = 300;
     end  
     if nma
-%         edge_size = 70;
-%         core_size = 45; 2020-01-19
-        edge_size = 150;
-        core_size = 100;  
+        edge_size = 70;
+        core_size = 45;
+%         edge_size = 150;
+%         core_size = 100;  
     end
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  

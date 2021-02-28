@@ -81,10 +81,13 @@ for presynaptic_neuron = 1:nneurons
     end
     
     % Visual input
-    if rand < 0.05
+    if abs(0 - neuron_xys(presynaptic_neuron, 1)) < 0.3 && ...
+            abs(-0.2 - neuron_xys(presynaptic_neuron, 2)) < 0.3
         this_contact = randsample(2,1);
         neuron_contacts(presynaptic_neuron, this_contact) = 1;
         vis_prefs(presynaptic_neuron, randsample(3,1), this_contact) = 1;
+        neuron_contacts(presynaptic_neuron, 3) = 1;
+        audio_prefs(presynaptic_neuron) = round(rand * 2000);
     end
     
 %     % Auditory input
