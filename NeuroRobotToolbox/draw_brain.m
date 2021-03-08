@@ -9,7 +9,7 @@ if nma
     nma_flag = 1;
 end
 if nneurons > 100
-    draw_synapses = 1;
+    draw_synapses = 0;
 else
     draw_synapses = 1;
 end
@@ -317,8 +317,8 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if nma
 %         edge_size = 70;
 %         core_size = 45;
-        edge_size = 45;
-        core_size = 30;        
+        edge_size = 35;
+        core_size = 25;        
 %         edge_size = 150;
 %         core_size = 100;  
     end

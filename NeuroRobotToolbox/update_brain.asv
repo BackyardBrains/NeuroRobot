@@ -271,8 +271,8 @@ if nneurons
     end
     % Store long activity
     spikes_loop(:, 1 + (nstep - 1) * ms_per_step : nstep * ms_per_step) = spikes_step;
-% 
-%     disp('6')
+
+    disp('6')
     % Plot brain
     if brain_view_tiled
         for nnetwork = 1:nnetworks
