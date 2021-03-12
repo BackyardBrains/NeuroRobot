@@ -6,7 +6,7 @@ nneurons = 1000;
 
 %% Prepare
 a = 0.02 * ones(nneurons,1);
-b = 0.13 * ones(nneurons,1);
+b = 0.14 * ones(nneurons,1);
 c = -65 + 5 * rand(nneurons,1) .^ 2;
 d = 8 - 6 * rand(nneurons,1) .^ 2;
 connectome = zeros(nneurons);
