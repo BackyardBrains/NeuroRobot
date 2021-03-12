@@ -76,7 +76,7 @@ for presynaptic_neuron = 1:nneurons
             
     end
     
-    if presynaptic_neuron == 1000
+    if sum(presynaptic_neuron == [500 1000])
         da_rew_neurons(presynaptic_neuron, 1) = 1;
     end
     
