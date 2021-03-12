@@ -1,7 +1,7 @@
 
 
 %% Settings
-nneurons = 1500;
+nneurons = 1000;
 
 
 %% Prepare
@@ -59,10 +59,10 @@ for presynaptic_neuron = 1:nneurons
             ye = abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2));
             ce = sqrt(xe^2 + ye^2);
                    
-            if ce <= 0.15 && rand < 0.8
-                this_weight = 40 * rand;
-            elseif ce < 0.3 && rand < 0.2
-                this_weight = -40 * rand;
+            if ce <= 0.15 && rand < 0.15
+                this_weight = 100 * rand;
+            elseif ce < 0.3 && rand < 0.3
+                this_weight = -100 * rand;
             end
             connectome(presynaptic_neuron, postsynaptic_neuron) = this_weight;
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 2;
