@@ -9,16 +9,17 @@
 
 %% Settings
 rak_only = 0;
-camera_present = 0;
-use_webcam = 0;
+camera_present = 1;
+use_webcam = 1;
 hd_camera = 0;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
 vocal = 0; % custom sound output
 brain_gen = 1; % algorithmic brain build
-pulse_period = 0.1; % in seconds
+pulse_period = 0.125; % in seconds
 matlab_audio_rec = 0;
+microcircuit = 1;
 
 
 %% Advanced settings
@@ -47,7 +48,7 @@ fig_pos = get(0, 'screensize') + [0 40 0 -63];
 % fig_pos = [1956 3 1854 1043];
 
 % bfsize = round(startup_fig_pos(3) / 107);
-bfsize = 16; % You may want to change this to 14 if your screen is small
+bfsize = 14; % You may want to change this to 14 if your screen is small
 computer_name = 'n/a';
 % bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 
@@ -82,7 +83,7 @@ this_audio = [];
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
-    delete(imaqfind)
+%     delete(imaqfind)
     delete(timerfind)
     brain_view_tiled = 0;
 end
@@ -128,6 +129,7 @@ dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 % load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
+design_action = 0;
 
 audio_out_names = [];
 audio_out_durations = [];
@@ -210,11 +212,14 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'nor
 
 % Camera button
 dis_cam_button = 0;
+imaqfind_out = imaqfind;
 if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
     dis_cam_button = 1;
 elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
+elseif use_webcam && ~isempty(imaqfind_out)
+    this_col = [0.6 0.95 0.6];
 else
     this_col = [0.8 0.8 0.8];
 end

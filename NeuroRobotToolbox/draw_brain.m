@@ -1,5 +1,5 @@
 
-if nneurons > 100
+if nneurons > 100 || microcircuit
     nma = 1; % small neurons setting
 else
     nma = 0;
@@ -8,7 +8,7 @@ nma_flag = 0; % nma design hack
 if nma
     nma_flag = 1;
 end
-if nneurons > 100
+if nneurons > 100 && ~microcircuit
     draw_synapses = 0;
 else
     draw_synapses = 1;
@@ -74,9 +74,17 @@ if draw_synapses
     adjust1 = 0.05;
     if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         % If in runtime (not sure why this conditional is so complex)
-        adjust2 = 0.22;
+        if microcircuit
+            adjust2 = 0.09;
+        else
+            adjust2 = 0.22;
+        end
     else
-        adjust2 = 0.29;
+        if microcircuit
+            adjust2 = 0.12;
+        else
+            adjust2 = 0.29;
+        end
     end                                            
     for p1 = 1:nneurons
 %         disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
@@ -145,10 +153,10 @@ if draw_synapses
                     connectome(p1, p2) = 2;
                     da_connectome(p1, p2, :) = [2 2 2];
                 else
-                    plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 12) + 1, 'color', [0 0 0]);
+                    plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', ((abs(w) / 12) + 1) / (1 + microcircuit * 2), 'color', [0 0 0]);
                 end
                 if connectome(p1, p2) > 0
-                    lw = 2;
+                    lw = 2 - microcircuit;
                     s = 9 - (nma_flag * 9);
                     m = 'square';
                     if da_connectome(p1, p2) == 1
@@ -159,10 +167,10 @@ if draw_synapses
                         mf = 'w';
                     end
                 else
-                    lw = 2;
-                    s = 30 - (nma_flag * 20);                
+                    lw = 2 - microcircuit;
+                    s = 30 - (nma_flag * 9);                
                     m = '.';
-                    mf = 'k';
+                    mf = 'w';
                 end
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
                 if draw_synapse_strengths && ~nma_flag
@@ -221,7 +229,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     x2b = x2 - 0.3 * rx;
                     y2b = y2 + 0.3 * ry;                    
                 end
-                lw = 2;
+                lw = 2 - microcircuit;
                 s = 7;
                 
                 if nma_flag
@@ -315,8 +323,13 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         core_size = 300;
     end  
     if nma
-        edge_size = 70;
-        core_size = 45;
+        if microcircuit
+            edge_size = 160;
+            core_size = 110;
+        else
+            edge_size = 70;
+            core_size = 45;
+        end
 %         edge_size = 35;
 %         core_size = 25;        
 %         edge_size = 150;

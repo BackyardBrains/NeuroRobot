@@ -101,6 +101,6 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
 %         brain_gen_build_1
 %         brain_gen_build_5
 %         brain_gen_build_7
-        brain_gen_build_9
+        brain_gen_build_11
     end
 end
