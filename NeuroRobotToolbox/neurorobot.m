@@ -19,7 +19,7 @@ vocal = 0; % custom sound output
 brain_gen = 1; % algorithmic brain build
 pulse_period = 0.125; % in seconds
 matlab_audio_rec = 0;
-microcircuit = 0;
+microcircuit = 1;
 
 
 %% Advanced settings

@@ -1,7 +1,7 @@
 
 
 %% Settings
-nneurons = 100;
+nneurons = 200;
 
 
 %% Prepare
