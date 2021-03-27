@@ -32,9 +32,7 @@ if these_speaker_neurons
             if rak_only
                 rak_cam.sendAudio(audio_file_name);
             else
-                [y_custom_audio, Fs_custom_audio] = audioread(audio_file_name); % Do on startup!
-                sound(y_custom_audio, Fs_custom_audio, 16);
-            end
+                [y, Fs] = audioread(audio_file_name); sound(y, Fs, 16);
             disp(horzcat('Playing ', audio_out_names{nsound}, '.mp3'))
             vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 10);
         else
