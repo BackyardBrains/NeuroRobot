@@ -172,14 +172,17 @@ elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
     bluetooth_send_motor_command
     prev_motor_command = motor_command;
 end
-if use_webcam && speaker_tone
+if use_webcam && speaker_tone && ~vocal
+    
+    disp('Playing tone in webcam mode')
 
-    dxamp=1;
-    dxfs=32000;
-    dxduration=0.5;
-    dxfreq=round(speaker_tone);
-    dxvalues=0:1/dxfs:dxduration;
-    dxa=dxamp*sin(2*pi*dxfreq*dxvalues);
-    soundsc(dxa, dxfs)    
+    for dxii = 1:length(these_tones)
+        dxfs=8000;
+        dxduration=pulse_period*2;
+        dxfreq=round(these_tones(dxii));
+        dxvalues=0:1/dxfs:dxduration;
+        dxa=sin(2*pi*dxfreq*dxvalues);
+        soundsc(dxa, dxfs)
+    end
 
 end
