@@ -50,7 +50,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             da_connectome(nneurons, nneurons, 3) = 0; % learning intensity variable
             neuron_contacts(nneurons, ncontacts) = 0;
             spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
-            vis_prefs(nneurons, :, :) = false;
+            vis_prefs(nneurons, :, :) = 0;
             dist_prefs(nneurons, 1) = 0;
             audio_prefs(nneurons, 1) = 0;
             network_ids(nneurons, 1) = 0;

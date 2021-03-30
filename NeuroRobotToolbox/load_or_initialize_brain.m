@@ -85,7 +85,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     u = [];
     spikes_loop = [];
     neuron_contacts = zeros(nneurons, ncontacts);
-    vis_prefs = false([1, n_vis_prefs, 2]);
+    vis_prefs = zeros([1, n_vis_prefs, 2]);
     dist_prefs = zeros(1, 1);
     audio_prefs = zeros(1, 1);
     neuron_cols = [];
