@@ -32,9 +32,7 @@ if these_speaker_neurons
             if rak_only
                 rak_cam.sendAudio(audio_file_name);
             else
-                [y_custom_audio, Fs_custom_audio] = audioread(audio_file_name); % Do on startup!
-                sound(y_custom_audio, Fs_custom_audio, 16);
-            end
+                [y, Fs] = audioread(audio_file_name); sound(y, Fs, 16);
             disp(horzcat('Playing ', audio_out_names{nsound}, '.mp3'))
             vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 10);
         else
@@ -172,17 +170,14 @@ elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
     bluetooth_send_motor_command
     prev_motor_command = motor_command;
 end
-if use_webcam && speaker_tone && ~vocal
-    
-    disp('Playing tone in webcam mode')
+if use_webcam && speaker_tone
 
-    for dxii = 1:length(these_tones)
-        dxfs=8000;
-        dxduration=pulse_period*2;
-        dxfreq=round(these_tones(dxii));
-        dxvalues=0:1/dxfs:dxduration;
-        dxa=sin(2*pi*dxfreq*dxvalues);
-        soundsc(dxa, dxfs)
-    end
+    dxamp=1;
+    dxfs=32000;
+    dxduration=0.5;
+    dxfreq=round(speaker_tone);
+    dxvalues=0:1/dxfs:dxduration;
+    dxa=dxamp*sin(2*pi*dxfreq*dxvalues);
+    soundsc(dxa, dxfs)    
 
 end

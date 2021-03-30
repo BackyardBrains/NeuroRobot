@@ -15,11 +15,11 @@ hd_camera = 0;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
-vocal = 0; % custom sound output
-brain_gen = 1; % algorithmic brain build
-pulse_period = 0.125; % in seconds
+vocal = 0 ; % custom sound output
+brain_gen = 1; % brain build
+pulse_period = 0.1; % in seconds
 matlab_audio_rec = 0;
-microcircuit = 0;
+microcircuit = 1;
 
 
 %% Advanced settings
@@ -32,7 +32,7 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Action 1', 'Action 2', 'Action 3', ...
+script_names = {'Red lights on', 'Action 2', 'Action 3', ...
     'Action 4', 'Action 5', 'Action 6', ...
     'Action 7', 'Action 8', 'Action 9'};
 

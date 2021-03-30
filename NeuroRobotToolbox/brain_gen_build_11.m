@@ -1,12 +1,12 @@
 
 
 %% Settings
-nneurons = 100;
+nneurons = 50;
 
 
 %% Prepare
 a = 0.02 * ones(nneurons,1);
-b = 0.14 * ones(nneurons,1);
+b = 0.12 * ones(nneurons,1);
 c = -65 + 5 * rand(nneurons,1) .^ 2;
 d = 8 - 6 * rand(nneurons,1) .^ 2;
 connectome = zeros(nneurons);
@@ -60,8 +60,8 @@ for presynaptic_neuron = 1:nneurons
             ce = sqrt(xe^2 + ye^2);
                    
 %             if abs(neuron_xys(presynaptic_neuron, 1)) > 0.5 && abs(neuron_xys(presynaptic_neuron, 2)) > 0.5 
-                if ce > 0.6 && ce <= 0.7 && rand < 0.7
-                    this_weight = 30 * rand;
+                if ce > 0.4 && ce <= 0.5 && rand < 0.5
+                    this_weight = 20 * rand;
     %             elseif ce < 0.2 && rand < 0.66
     %                 this_weight = 50 * rand;
                 end
