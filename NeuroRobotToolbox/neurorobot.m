@@ -12,14 +12,14 @@ rak_only = 0;
 camera_present = 1;
 use_webcam = 1;
 hd_camera = 0;
-use_cnn = 0; % requires gpu
+use_cnn = 1; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
 vocal = 1; % custom sound output
 brain_gen = 0; % brain build
 pulse_period = 0.1; % in seconds
-matlab_audio_rec = 0;
-microcircuit = 1;
+matlab_audio_rec = 1;
+microcircuit = 0;
 
 
 %% Advanced settings

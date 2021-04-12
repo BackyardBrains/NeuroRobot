@@ -36,8 +36,10 @@ left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
 if matlab_audio_rec
-    audio_recObj = audiorecorder(16000, 16, 1);
-    set(audio_recObj,'TimerPeriod',0.01)
+    mic_fs = 16000;
+    clear mic_obj
+    mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',mic_fs/10);
+    setup(mic_obj)
 end
 
 
@@ -102,6 +104,8 @@ if save_for_ai
     sound_in_file_name = strcat('./Training/Sound input/', this_time, '-', brain_name, '.xlsx');    
     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 end
+
+
 
 
 %% Create data and command log

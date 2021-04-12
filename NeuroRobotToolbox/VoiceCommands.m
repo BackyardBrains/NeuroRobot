@@ -1,3 +1,5 @@
+
+clear
 %%must have commandNet.mat in the Neurorobot Toolbox
 load('commandNet.mat')
 fs=16000;

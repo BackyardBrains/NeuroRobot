@@ -21,9 +21,7 @@ if nneurons
 
     % Calculate distance sensor input current
     audio_I = zeros(nneurons, 1);
-    
     for nneuron = 1:nneurons
-        
         if audio_prefs(nneuron)
             try
                 soundvar_1 = round(audio_prefs(nneuron)); % Stated audio pref
@@ -33,7 +31,6 @@ if nneurons
             catch
                 disp('Cannot get audio_I')
             end
-
         end
     end
 
