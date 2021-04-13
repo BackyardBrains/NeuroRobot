@@ -37,7 +37,9 @@ right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(
 
 if matlab_audio_rec
     mic_fs = 16000;
-    clear mic_obj
+    if exist('mic_obj', 'var')
+        clear mic_obj
+    end
     mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',mic_fs/10);
     setup(mic_obj)
 end
