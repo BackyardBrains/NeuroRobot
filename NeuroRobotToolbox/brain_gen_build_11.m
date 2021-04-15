@@ -1,7 +1,7 @@
 
 
 %% Settings
-nneurons = 50;
+nneurons = 250;
 
 
 %% Prepare
@@ -46,6 +46,7 @@ neuron_scripts = zeros(nneurons, 1);
 
 imx_rands = randsample(length(brain_im_xy), nneurons); 
 neuron_xys = brain_im_xy(imx_rands, :);
+neuron_xys = neuron_xys * 0.8;
 for presynaptic_neuron = 1:nneurons
     
     % Connectome
@@ -58,14 +59,15 @@ for presynaptic_neuron = 1:nneurons
             xe = abs(neuron_xys(presynaptic_neuron, 1) - neuron_xys(postsynaptic_neuron, 1));
             ye = abs(neuron_xys(presynaptic_neuron, 2) - neuron_xys(postsynaptic_neuron, 2));
             ce = sqrt(xe^2 + ye^2);
+            
+            
                    
-%             if abs(neuron_xys(presynaptic_neuron, 1)) > 0.5 && abs(neuron_xys(presynaptic_neuron, 2)) > 0.5 
-                if ce > 0.1 && ce <= 0.5 && rand < 0.2
-                    this_weight = 10 * rand;
-    %             elseif ce < 0.2 && rand < 0.66
-    %                 this_weight = 50 * rand;
-                end
-%             end
+            if ce > 0.1 && ce <= 0.4 && rand < 0.2
+                this_weight = 10 * rand;
+%             elseif ce < 0.2 && rand < 0.66
+%                 this_weight = 50 * rand;
+            end
+            
             connectome(presynaptic_neuron, postsynaptic_neuron) = this_weight;
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 2;
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 2) = this_weight;   
@@ -80,10 +82,11 @@ for presynaptic_neuron = 1:nneurons
             
     end
     
-    if sum(presynaptic_neuron == 1)
-        neuron_contacts(presynaptic_neuron, 1) = 1;
-        vis_prefs(presynaptic_neuron, 1, 1) = 1;
-        
+    
+    if rand < 0.2
+        neuron_contacts(presynaptic_neuron, 4) = 1;
+%         vis_prefs(presynaptic_neuron, 1, 1) = 1;
+        neuron_tones(presynaptic_neuron, 1) = 500 + round(rand * 500);
 %         da_rew_neurons(presynaptic_neuron, 1) = 1;
     end
     
