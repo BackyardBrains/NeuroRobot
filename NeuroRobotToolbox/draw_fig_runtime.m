@@ -22,7 +22,7 @@ activity_ax = axes('position', [0.04 0.09 0.94 0.14], 'linewidth', 2);
 % Microphone data plot
 audio_ax_pos = [0.04 0.3 0.21 0.2];
 audio_ax = axes('position', audio_ax_pos);
-draw_audio = imagesc(sound_spectrum, [0 2]);
+draw_audio = imagesc(sound_spectrum, [0 audio_th]);
 set(audio_ax, 'ytick', round(linspace(1, audx, 5)), 'yticklabel', round(linspace(0, 4, 5)), ...
     'xtick', [], 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
     gui_font_weight, 'linewidth', 2, 'ydir', 'normal')

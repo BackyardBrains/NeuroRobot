@@ -27,7 +27,7 @@ if nneurons
                 soundvar_1 = round(audio_prefs(nneuron)); % Stated audio pref
                 [~, soundvar_2] = min(abs(fx-soundvar_1)); % Closest spectrogram ind
                 soundvar_3 = sound_spectrum(soundvar_2, nstep); % Amplitude at 
-                audio_I(nneuron) = (soundvar_3 > 2) * 50; 
+                audio_I(nneuron) = (soundvar_3 > audio_th) * 50; 
             catch
                 disp('Cannot get audio_I')
             end
