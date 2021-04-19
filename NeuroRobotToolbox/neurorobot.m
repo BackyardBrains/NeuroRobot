@@ -15,11 +15,12 @@ hd_camera = 0;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
-vocal = 0; % custom sound output
+vocal = 1; % custom sound output
+supervocal = 1;
 brain_gen = 0; % brain build
 pulse_period = 0.1; % in seconds
 matlab_audio_rec = 1;
-audio_th = 1000;
+audio_th = 20;
 microcircuit = 1;
 
 
@@ -81,6 +82,7 @@ audx = 250;
 sound_spectrum = zeros(audx, nsteps_per_loop);
 fx = (0:audx-1)*16;
 this_audio = [];
+audio_out_fs = 0;
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -100,7 +102,9 @@ end
 spinled = 1;
 vis_prefs = [];
 neuron_scripts = [];
-neuron_tones = 0;
+if ~exist('neuron_tones', 'var')
+    neuron_tones = 0;
+end
 
 
 %% Prepare 2
@@ -131,18 +135,6 @@ n_dist_prefs = size(dist_pref_names, 2);
 % load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
 design_action = 0;
-
-audio_out_names = [];
-audio_out_durations = [];
-if vocal
-    available_sounds = dir('./Sounds/*.mp3');
-    n_out_sounds = size(available_sounds, 1);
-    for nsound = 1:n_out_sounds
-        audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
-        [audio_y,audio_fs] = audioread(horzcat('./Sounds/', available_sounds(nsound).name));
-        audio_out_durations = [audio_out_durations length(audio_y)/audio_fs];
-    end
-end
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn
@@ -177,6 +169,42 @@ end
 efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
+
+
+
+%% Custom audio out
+
+if vocal
+    available_sounds = dir('./Sounds/*.mp3');
+    n_out_sounds = size(available_sounds, 1);
+    
+    audio_out_names = [];
+    audio_out_durations = [];
+    audio_out_wavs = struct;  %% Need ability to save these for brains and add 
+    audio_out_fs = zeros(n_out_sounds, 1);    
+    
+    for nsound = 1:n_out_sounds
+        audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
+        [audio_y,audio_fs] = audioread(horzcat('./Sounds/', available_sounds(nsound).name));
+        audio_out_durations = [audio_out_durations length(audio_y)/audio_fs];
+        audio_out_wavs(nsound).y = audio_y;
+        audio_out_fs(nsound) = audio_fs;
+    end
+    for nsound = 1:n_vis_prefs
+        this_word = vis_pref_names{nsound};
+        audio_out_names{n_out_sounds + nsound} = this_word;
+        this_wav = tts(this_word,[],[],16000);
+        this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
+        audio_out_durations = [audio_out_durations length(this_wav)/16000];
+        audio_out_wavs(n_out_sounds + nsound).y = this_wav;
+        audio_out_fs(n_out_sounds + nsound) = 16000;        
+    end
+
+else
+    n_out_sounds = 0;
+    audio_out_fs = 0;
+end
+
 
 
 %% Prepare figure

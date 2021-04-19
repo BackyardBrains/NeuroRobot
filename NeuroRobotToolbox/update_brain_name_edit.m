@@ -1,4 +1,5 @@
 
+   
 if popup_select_brain.Value == 1
     nneurons = [];
     neuron_xys = [];
@@ -9,6 +10,7 @@ if popup_select_brain.Value == 1
     neuron_cols = [];    
     neuron_tones = 0;
     neuron_scripts = [];
+
     draw_brain
 else
     
@@ -42,7 +44,18 @@ else
     network_ids = brain.network_ids;
     neuron_tones = brain.neuron_tones;
     audio_prefs = brain.audio_prefs;
-
+    
+    if supervocal && isfield(brain, 'audio_out_wavs')
+        n_also_these = size(brain.audio_out_wavs, 2);
+        if n_also_these > (n_out_sounds + n_vis_prefs)
+            for n_also_this = n_out_sounds + n_vis_prefs +1:n_also_these
+                audio_out_wavs(n_also_this).y = brain.audio_out_wavs(n_also_this).y;
+                audio_out_fs(n_also_this, 1) = 16000;
+                audio_out_names{n_also_this} = brain.audio_out_names{n_also_this};
+            end
+        end
+    end    
+    
     draw_brain
     
     if bluetooth_present

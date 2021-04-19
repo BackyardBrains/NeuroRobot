@@ -108,7 +108,17 @@ if save_for_ai
 end
 
 
-
+if supervocal && isfield(brain, 'audio_out_wavs')
+    n_also_these = size(brain.audio_out_wavs, 2);
+    if n_also_these > (n_out_sounds + n_vis_prefs)
+        for n_also_this = n_out_sounds + n_vis_prefs +1:n_also_these
+            audio_out_wavs(n_also_this).y = brain.audio_out_wavs(n_also_this).y;
+            audio_out_fs(n_also_this, 1) = 16000;
+            audio_out_names{n_also_this} = brain.audio_out_names{n_also_this};
+            audio_out_durations = [audio_out_durations length(audio_out_wavs(n_also_this).y)/audio_out_fs(n_also_this)];
+        end
+    end
+end
 
 %% Create data and command log
 if save_data_and_commands

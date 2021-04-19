@@ -64,7 +64,29 @@ if brain_selection_val > 1
     catch
         bg_neurons = zeros(nneurons, 1);
     end
-    
+    try
+            % Ability to add custom words here. NOW
+    if isfield('brain', 'audio_out_wavs')
+        
+    end
+%         this_word = vis_pref_names{nsound};
+%         this_wav = tts(this_word,[],[],16000);
+%         this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
+%         audio_out_durations = [audio_out_durations length(this_wav)/16000];
+%         audio_out_wavs(n_out_sounds + nsound).y = this_wav;
+%         audio_out_fs(n_out_sounds + nsound) = 16000;     
+        
+    catch
+    end    
+%     for nsound = 1:n_vis_prefs
+%         this_word = vis_pref_names{nsound};
+%         this_wav = tts(this_word,[],[],16000);
+%         this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
+%         audio_out_durations = [audio_out_durations length(this_wav)/16000];
+%         audio_out_wavs(n_out_sounds + nsound).y = this_wav;
+%         audio_out_fs(n_out_sounds + nsound) = 16000;        
+%     end
+%     
 elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
   
     brain = struct;

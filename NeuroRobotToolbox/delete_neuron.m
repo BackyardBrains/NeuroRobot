@@ -40,7 +40,22 @@ steps_since_last_spike(presynaptic_neuron) = [];
 da_rew_neurons(presynaptic_neuron, :) = [];
 bg_neurons(presynaptic_neuron, :) = [];
 neuron_scripts(presynaptic_neuron, :) = [];
+
+if supervocal && isfield(brain, 'audio_out_wavs')
+    this_tone = neuron_tones(presynaptic_neuron, :);
+    if this_tone  > (n_out_sounds + n_vis_prefs) && this_tone <= size(audio_out_wavs, 2)
+        these_tones = neuron_tones > this_tone & neuron_tones <= size(audio_out_wavs, 2);
+        neuron_tones(these_tones, 1) = neuron_tones(these_tones, 1) - 1;        
+        audio_out_wavs(this_tone) = [];
+        audio_out_fs(this_tone) = [];
+        audio_out_names(this_tone) = [];
+        audio_out_durations(this_tone) = [];
+    end
+end
+
 neuron_tones(presynaptic_neuron, :) = [];
+brain.audio_out_wavs = audio_out_wavs; % This should be done with the others
+brain.audio_out_names = audio_out_names; % This should be done with the others
 
 % Clear neurons
 clear presynaptic_neuron

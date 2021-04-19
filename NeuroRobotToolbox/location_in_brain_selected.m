@@ -222,10 +222,10 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             design_action = 0;
             delete(temp_plot)
            
-            if nma
-                nma_build % skipping NMA build for now, just using its
+%             if nma
+%                 nma_build % skipping NMA build for now, just using its
 %                 neuron sizes
-            else
+%             else
                 
                 % Get number of neurons in the network
                 n = str2double(edit_w1.String);
@@ -321,7 +321,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 end
                 nnetworks = length(unique(network_ids));
                 network_drive = zeros(nnetworks, 3);
-            end
+%             end
             disp('Large network created')
                        
             % Remove menus

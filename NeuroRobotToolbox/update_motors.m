@@ -2,6 +2,7 @@
 % This script takes the current brain state, extracts motor and speaker
 % commands, and sends them (as motor_command) to RAK
 
+% disp('1')
 motor_command = zeros(1, 5);
 
 % Extract motor out from spiking neurons
@@ -12,38 +13,48 @@ right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing
 
 % Extract speaker out from spiking neurons
 these_speaker_neurons = find(neuron_contacts(:, 4) & firing);
+if ~isempty(these_speaker_neurons)
+    these_tones = neuron_tones(these_speaker_neurons, 1);
+else
+    these_tones = [];
+end
+% disp('2')
 if these_speaker_neurons
-    if ~vocal
-        these_tones = neuron_tones(these_speaker_neurons, 1);
-        these_tones(these_tones == 0) = [];
+    if ~vocal_buffer && max(these_tones) <= length(audio_out_fs)
+%             disp('1')
         if length(these_speaker_neurons) > 1
-            speaker_tone = round(mean(these_tones) / length(these_speaker_neurons));
-        else
-            speaker_tone = these_tones;
+            these_speaker_neurons = these_speaker_neurons(1);
+            disp('Too many custom sound neurons: playing first sound only')
         end
-    else
-        if ~vocal_buffer
-            if length(these_speaker_neurons) > 1
-                these_speaker_neurons = these_speaker_neurons(1);
-                disp('Too many custom sound neurons: playing first sound only')
-            end
-            nsound = neuron_tones(these_speaker_neurons, 1);
+        nsound = neuron_tones(these_speaker_neurons, 1);
+        if rak_only && nsound <= length(audio_out_names)
             audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
-            if rak_only
-                rak_cam.sendAudio(audio_file_name);
-            else
-                [y_custom_audio, Fs_custom_audio] = audioread(audio_file_name); % Do on startup!
-                sound(y_custom_audio, Fs_custom_audio, 16);
-            end
-            disp(horzcat('Playing ', audio_out_names{nsound}, '.mp3'))
-            vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 10);
-        else
-            disp('Cannot vocalize. Vocal buffer.')
+            rak_cam.sendAudio(audio_file_name);
+        elseif rak_only
+            disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
+        elseif use_webcam && audio_out_fs(nsound)
+            sound(audio_out_wavs(nsound).y, audio_out_fs(nsound));
         end
+%         disp('3')
+        vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
+    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs)
+
+        dxfs=16000;
+        dxduration=pulse_period*3;
+        dxvalues=0:1/dxfs:dxduration;
+
+        dxa = zeros(size(dxvalues));
+        for dxii = 1:length(these_tones)
+            dxfreq = round(these_tones(dxii));
+            dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+        end
+        soundsc(dxa, dxfs)
+        
     end
 else
     speaker_tone = 0;
 end
+% disp('4')
 if vocal_buffer
     vocal_buffer = vocal_buffer - 1;
 end
@@ -61,7 +72,7 @@ if script_running && rak_only
     eval(strcat('behavior_script_', num2str(script_running)))
 %     disp(horzcat('Script running', num2str(script_running)))
 end
-
+% disp('5')
 
 % Prepare to send
 
@@ -152,13 +163,7 @@ else
     contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
 end    
 
-
-
-
-
-
-
-
+% disp('6')
 
 %% Sending serial to RAK
 if rak_only      
@@ -172,18 +177,4 @@ elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
     bluetooth_send_motor_command
     prev_motor_command = motor_command;
 end
-if use_webcam && speaker_tone && ~vocal
 
-    dxfs=16000;
-    dxduration=pulse_period*3;
-    dxvalues=0:1/dxfs:dxduration;
-            
-    dxa = zeros(size(dxvalues));
-    for dxii = 1:length(these_tones)
-        dxfreq = round(these_tones(dxii));
-        dxa = dxa + sin(2*pi*dxfreq*dxvalues);
-    end
-    disp(horzcat('Playing ', num2str(length(these_tones)), ' tone(s) in webcam mode'))
-    soundsc(dxa, dxfs)
-    
-end
