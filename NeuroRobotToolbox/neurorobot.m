@@ -193,7 +193,8 @@ if vocal
     for nsound = 1:n_vis_prefs
         this_word = vis_pref_names{nsound};
         audio_out_names{n_out_sounds + nsound} = this_word;
-        this_wav = tts(this_word,[],[],16000);
+        this_wav = tts(this_word,'Microsoft David Desktop - English (United States)',[],16000);
+%         this_wav = tts(this_word,'Microsoft Zira Desktop - English (United States)',[],16000);
         this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
         audio_out_durations = [audio_out_durations length(this_wav)/16000];
         audio_out_wavs(n_out_sounds + nsound).y = this_wav;

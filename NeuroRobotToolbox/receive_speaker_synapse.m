@@ -64,7 +64,16 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             word_text_name = uicontrol('Style', 'text', 'String', 'Current word:', 'units', 'normalized', 'position', [0.02 0.68 0.26 0.05], ....
                 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
             word_edit_name = uicontrol('Style', 'edit', 'String', current_word, 'units', 'normalized', 'position', [0.02 0.61 0.26 0.05], 'fontsize', bfsize, ....
-                'FontName', gui_font_name, 'fontweight', gui_font_weight);              
+                'FontName', gui_font_name, 'fontweight', gui_font_weight);   
+            
+            % Plastic
+            text_m = uicontrol('Style', 'text', 'String', 'Male voice', 'units', 'normalized', 'position', [0.02 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            check_m = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.12 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);        
+
+            % Dopamine-modulated
+            text_f = uicontrol('Style', 'text', 'String', 'Female voice', 'units', 'normalized', 'position', [0.14 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            check_f = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.24 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);           
+
      
         else
             
@@ -79,7 +88,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         
 
         % Wait for OK        
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.48 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
         waitfor(fig_design, 'UserData', 0)
         delete(button_confirm)          
@@ -112,9 +121,23 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     
     if supervocal
         if popup_select_word.Value == 1
-            neuron_tones(presynaptic_neuron, 1) = length(audio_out_fs) + 1;        
-%             this_wav = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
-            this_wav = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
+            neuron_tones(presynaptic_neuron, 1) = length(audio_out_fs) + 1;  
+            
+            if check_m.Value && ~check_f.Value
+                this_wav = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
+            elseif check_m.Value && check_f.Value
+                this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
+                this_wav_f = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
+                if length(this_wav_m) > length(this_wav_f)
+                    this_wav_m = this_wav_m(1:length(this_wav_f));
+                else
+                    this_wav_f = this_wav_f(1:length(this_wav_m));
+                end
+                this_wav = this_wav_f + this_wav_m;
+            else
+                this_wav = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
+            end
+
             this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
             audio_out_durations = [audio_out_durations length(this_wav)/16000];
             audio_out_wavs(length(audio_out_fs) + 1).y = this_wav;
@@ -132,6 +155,10 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(text_load)
         delete(word_text_name)
         delete(word_edit_name)
+        delete(check_m)
+        delete(text_m)
+        delete(check_f)
+        delete(text_f)
     else
         neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
     end

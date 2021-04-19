@@ -33,7 +33,7 @@ if these_speaker_neurons
         elseif rak_only
             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
         elseif use_webcam && audio_out_fs(nsound)
-            sound(audio_out_wavs(nsound).y, audio_out_fs(nsound));
+            soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
         end
 %         disp('3')
         vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
