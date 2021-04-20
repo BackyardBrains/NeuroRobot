@@ -45,7 +45,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         % Words
         if supervocal
             current_tone = neuron_tones(presynaptic_neuron, 1);
-            if current_tone
+            if current_tone && current_tone <= length(audio_out_names)
                 current_word = audio_out_names{current_tone};
             else
                 current_word = [];
@@ -95,16 +95,18 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         
     end       
     
-    if isempty(word_edit_name.String) && popup_select_word.Value == 1
-        word_edit_name.String = 'What should I say?';
+    if supervocal 
+        if isempty(word_edit_name.String) && popup_select_word.Value == 1
+            word_edit_name.String = 'What should I say?';
+        end
+        if popup_select_word.Value == 1
+            word_name = word_edit_name.String;
+        else
+            word_name = popup_select_word.String{popup_select_word.Value};
+        end        
     end
         
-    word_selection_val = popup_select_word.Value;
-    if word_selection_val == 1
-        word_name = word_edit_name.String;
-    else
-        word_name = popup_select_word.String{word_selection_val};
-    end    
+   
     
     % Update variables
     if ~vocal
@@ -159,8 +161,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(text_m)
         delete(check_f)
         delete(text_f)
-    else
-        neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value;
+
     end
     if neuron_tones(presynaptic_neuron, 1)
         neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display

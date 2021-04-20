@@ -61,7 +61,7 @@ end
                 x2 = neuron_xys(p2,1);
                 y1 = neuron_xys(p1,2);
                 y2 = neuron_xys(p2,2); 
-                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 6 - (nma_flag * 2), 'linestyle', ':', 'color', [0 0 0]);
+                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 6 - (nma_flag * 4), 'linestyle', ':', 'color', [0.25 0.25 0.25]);
             end
         end
     end
@@ -268,16 +268,10 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 
                 if ncontact == 4 && neuron_tones(nneuron)
                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    if ~vocal && ~supervocal
+                    if neuron_tones(nneuron) > length(audio_out_names)
                         plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
-                    elseif supervocal
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');                        
                     else
-                        if max(neuron_tones) <= length(audio_out_names)
-                            plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
-                        else
-                            plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
-                        end
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');                        
                     end
                 end                
                 
