@@ -353,11 +353,11 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         end
     end
     if exist('da_rew_neurons', 'var')
-        for nneuron = 1:nneurons
-            if da_rew_neurons(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 11, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 0.3 0]);
-            end
-        end
+%         for nneuron = 1:nneurons
+%             if da_rew_neurons(nneuron)
+%                 neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), '*', 'fontsize', bfsize + 11, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 0.3 0]);
+%             end
+%         end
     end
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
@@ -370,8 +370,8 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
         for nneuron = 1:nneurons
             if bg_neurons(nneuron)
-                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.2 0.2], 'marker', 'square', 'markersize', contact_size);  
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)-0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.8 0.95 0.8], 'marker', '>', 'markersize', 20);  
+                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end
