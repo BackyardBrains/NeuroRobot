@@ -27,7 +27,7 @@ if these_speaker_neurons
             disp('Too many custom sound neurons: playing first sound only')
         end
         nsound = neuron_tones(these_speaker_neurons, 1);
-        if rak_only && nsound <= length(audio_out_names)
+        if rak_only && nsound <= length(n_out_sounds)
             audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
             rak_cam.sendAudio(audio_file_name);
         elseif rak_only
