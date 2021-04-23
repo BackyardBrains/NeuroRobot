@@ -61,7 +61,9 @@ end
 
 
 % Behavior scripts
-this_script = find(neuron_scripts & firing, 1);
+if ~isempty(neuron_scripts)
+    this_script = find(neuron_scripts & firing, 1);
+end
 if ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
     script_step_count = 0;
     script_running = neuron_scripts(this_script);
