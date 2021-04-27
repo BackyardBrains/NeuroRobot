@@ -20,7 +20,7 @@ supervocal = 1;
 brain_gen = 0; % brain build
 pulse_period = 0.15; % in seconds
 matlab_audio_rec = 1;
-audio_th = 20;
+audio_th = 5;
 microcircuit = 1;
 
 
