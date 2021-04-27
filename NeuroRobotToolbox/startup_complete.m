@@ -5,8 +5,10 @@ if size(vis_prefs, 2) > 6 && ~(use_cnn || use_rcnn)
         error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
     end
 end
-if max(neuron_tones) > length(audio_out_fs) && vocal && ~supervocal % This is a mess
-    error('Brain needs tones. Set vocal to 0.')
+if ~isempty(neuron_tones)
+    if max(neuron_tones) > length(audio_out_fs) && vocal && ~supervocal % This is a mess
+        error('Brain needs tones. Set vocal to 0.')
+    end
 end
     
 if rak_only
