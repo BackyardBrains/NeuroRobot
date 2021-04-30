@@ -72,9 +72,24 @@ if exist('this_script', 'var') && ~isempty(this_script) && ~script_running % If 
     disp(horzcat('Script running', num2str(script_running)))
 end
 
-if script_running && rak_only
-    eval(strcat('behavior_script_', num2str(script_running)))
-%     disp(horzcat('Script running', num2str(script_running)))
+if script_running
+    disp(horzcat('Script running', num2str(script_running)))
+%     eval(strcat('behavior_script_', num2str(script_running))) % eval is evil apparently
+    if script_running == 1
+        if rak_only
+            behavior_script_1
+        elseif use_webcam
+            disp('webcam mode cannot call behavior scripts yet, try it')
+        end
+    elseif script_running == 2
+        if rak_only
+            behavior_script_2
+        elseif use_webcam
+            disp('webcam mode cannot call behavior scripts yet, try it')
+        end        
+    else
+        disp('Unknown behavior')
+    end
 end
 % disp('5')
 

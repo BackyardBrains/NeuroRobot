@@ -19,6 +19,3 @@ if script_step_count > 40
     script_running = 0;
     script_step_count = 0;
 end
-
-% just_monkey
-% just_red
