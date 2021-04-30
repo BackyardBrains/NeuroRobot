@@ -30,9 +30,11 @@ if these_speaker_neurons
         if rak_only && nsound <= length(n_out_sounds)
             audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
             rak_cam.sendAudio(audio_file_name);
-        elseif rak_only
-            disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
-        elseif use_webcam && audio_out_fs(nsound)
+%         elseif rak_only
+%             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
+%             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
+%             rak_cam.sendAudio(audio_file_name);            
+        elseif audio_out_fs(nsound) % so for now...
             soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
         end
 %         disp('3')
