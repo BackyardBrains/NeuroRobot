@@ -1,0 +1,2 @@
+delete speaker synapse breaks gui
+connecting to bad/open wifi breaks matlab
