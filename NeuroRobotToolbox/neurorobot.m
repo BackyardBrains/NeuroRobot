@@ -19,7 +19,7 @@ vocal = 1; % custom sound output
 supervocal = 1;
 brain_gen = 0; % brain build
 pulse_period = 0.1; % in seconds
-matlab_audio_rec = 0;
+matlab_audio_rec = 1;
 audio_th = 2;
 microcircuit = 0;
 
@@ -34,7 +34,7 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Red lights on', 'Action 2', 'Action 3', ...
+script_names = {'Red lights on', 'Green lights on', 'Action 3', ...
     'Action 4', 'Action 5', 'Action 6', ...
     'Action 7', 'Action 8', 'Action 9'};
 
