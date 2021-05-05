@@ -273,7 +273,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     elseif iscell(audio_out_names)
                         plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     else
-                        disp('Unable to draw synapse label')
+                        disp('Unable to draw synapse label. Is the brain combining pure tones with custom audio output?')
                     end
                 end                
                 
