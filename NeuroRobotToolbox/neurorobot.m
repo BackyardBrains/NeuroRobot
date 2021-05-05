@@ -8,15 +8,15 @@
 
 
 %% Settings
-rak_only = 1;
+rak_only = 0;
 camera_present = 1;
-use_webcam = 0;
+use_webcam = 1;
 hd_camera = 1;
 use_cnn = 0; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
-vocal = 1; % custom sound output
-supervocal = 1;
+vocal = 0; % custom sound output
+supervocal = 0;
 brain_gen = 0; % brain build
 pulse_period = 0.1; % in seconds
 matlab_audio_rec = 1;
@@ -174,7 +174,7 @@ l_torque = 0;
 
 %% Custom audio out
 
-if vocal
+if vocal && hd_camera
     available_sounds = dir('./Sounds/*.mp3');
     n_out_sounds = size(available_sounds, 1);
     
@@ -190,15 +190,18 @@ if vocal
         audio_out_wavs(nsound).y = audio_y;
         audio_out_fs(nsound) = audio_fs;
     end
-    for nsound = 1:n_vis_prefs
-        this_word = vis_pref_names{nsound};
-        audio_out_names{n_out_sounds + nsound} = this_word;
-        this_wav = tts(this_word,'Microsoft David Desktop - English (United States)',[],16000);
-%         this_wav = tts(this_word,'Microsoft Zira Desktop - English (United States)',[],16000);
-        this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
-        audio_out_durations = [audio_out_durations length(this_wav)/16000];
-        audio_out_wavs(n_out_sounds + nsound).y = this_wav;
-        audio_out_fs(n_out_sounds + nsound) = 16000;        
+    
+    if supervocal
+        for nsound = 1:n_vis_prefs
+            this_word = vis_pref_names{nsound};
+            audio_out_names{n_out_sounds + nsound} = this_word;
+            this_wav = tts(this_word,'Microsoft David Desktop - English (United States)',[],16000);
+    %         this_wav = tts(this_word,'Microsoft Zira Desktop - English (United States)',[],16000);
+            this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
+            audio_out_durations = [audio_out_durations length(this_wav)/16000];
+            audio_out_wavs(n_out_sounds + nsound).y = this_wav;
+            audio_out_fs(n_out_sounds + nsound) = 16000;        
+        end
     end
 
 else
