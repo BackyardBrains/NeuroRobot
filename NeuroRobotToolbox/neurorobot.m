@@ -174,7 +174,7 @@ l_torque = 0;
 
 %% Custom audio out
 
-if vocal && hd_camera
+if vocal
     available_sounds = dir('./Sounds/*.mp3');
     n_out_sounds = size(available_sounds, 1);
     
