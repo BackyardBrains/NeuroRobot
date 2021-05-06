@@ -15,13 +15,13 @@ hd_camera = 0;
 use_cnn = 1; % requires gpu
 use_rcnn = 0;
 grey_background = 1;
-vocal = 0; % custom sound output
-supervocal = 0;
+vocal = 1; % custom sound output
+supervocal = 1;
 brain_gen = 0; % brain build
-pulse_period = 0.1; % in seconds
+pulse_period = 0.15; % in seconds
 matlab_audio_rec = 1;
-audio_th = 2;
-microcircuit = 0;
+audio_th = 1;
+microcircuit = 1;
 
 
 %% Advanced settings

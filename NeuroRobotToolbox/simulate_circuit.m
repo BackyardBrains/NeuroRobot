@@ -2,9 +2,11 @@
 % This script allows you to quickly get the spiking statistics of different
 % circuits
 
-% close all
+close all
 clear
 
+for xx = 1:100
+    
 % Circuit settings
 nneurons = 1;
 nsteps = 10000;
@@ -22,6 +24,7 @@ v(:, 1) = -65 + 5 * randn(nneurons,1);
 u = b .* v;
 
 % Build brain
+
 counter = 0;
 for bx = b_range
     counter = counter + 1
@@ -67,13 +70,24 @@ for bx = b_range
 end
 
 figure(1)
-clf
+
 subplot(1,3,1)
-plot(b_range, results(:,1))
+plot(b_range, results(:,1), 'color', [0.2 0.4 0.8])
+axis tight
 title('Spikes per 10 s')
+hold on
+
 subplot(1,3,2)
-plot(b_range, results(:,2))
+plot(b_range, results(:,2), 'color', [0.2 0.4 0.8])
+axis tight
+title('Mean ISI (ms)')
+hold on
+
 subplot(1,3,3)
-plot(b_range, results(:,3))
+plot(b_range, results(:,3), 'color', [0.2 0.4 0.8])
+axis tight
+title('SD ISI (ms)')
+hold on
 
-
+clear
+end
