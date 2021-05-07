@@ -54,8 +54,12 @@ if supervocal && isfield(brain, 'audio_out_wavs')
 end
 
 neuron_tones(presynaptic_neuron, :) = [];
-brain.audio_out_wavs = audio_out_wavs; % This should be done with the others
-brain.audio_out_names = audio_out_names; % This should be done with the others
+if exist('audio_out_wavs', 'var')
+    brain.audio_out_wavs = audio_out_wavs; % This should be done with the others
+end
+if exist('audio_out_names', 'var')
+    brain.audio_out_names = audio_out_names; % This should be done with the others
+end
 
 % Clear neurons
 clear presynaptic_neuron
