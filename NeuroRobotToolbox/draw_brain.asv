@@ -47,18 +47,25 @@ if exist('draw_msn_skylt', 'var')
 end
 
 
+
 % Draw BG drives
-for p1 = 1:nneurons
-    for p2 = 1:nneurons
-        if bg_neurons(p1) && (network_ids(p1) == network_ids(p2))                
-            x1 = neuron_xys(p1,1);
-            x2 = neuron_xys(p2,1);
-            y1 = neuron_xys(p1,2);
-            y2 = neuron_xys(p2,2); 
-            plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 3 - (nma_flag * 2), 'linestyle', ':', 'color', lineStyles(network_ids(p1), :)); %% [0.25 0.25 0.25]
+% if ((exist('fig_design', 'var') && isvalid(fig_design)) || exist('fig_game', 'var') && isvalid(fig_game)) ...
+%         || (exist('fig_print', 'var') && isvalid(fig_print)) ...
+%         || (exist('fig_startup', 'var') && isvalid(fig_print))
+    for p1 = 1:nneurons
+        for p2 = 1:nneurons
+            if bg_neurons(p1) && (network_ids(p1) == network_ids(p2))
+                
+                
+                x1 = neuron_xys(p1,1);
+                x2 = neuron_xys(p2,1);
+                y1 = neuron_xys(p1,2);
+                y2 = neuron_xys(p2,2); 
+                plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 6 - (nma_flag * 4), 'linestyle', ':', 'color', [0.25 0.25 0.25]);
+            end
         end
     end
-end
+% end
 
 
 % % Draw synapses

@@ -53,6 +53,7 @@ fig_pos = get(0, 'screensize') + [0 40 0 -63];
 bfsize = 14; % You may want to change this to 14 if your screen is small
 computer_name = 'n/a';
 % bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
+load('lineStyles')
 
 
 %% Prepare 1

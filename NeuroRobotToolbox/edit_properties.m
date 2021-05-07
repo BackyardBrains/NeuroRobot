@@ -54,22 +54,22 @@ button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Striatal', 'units', 'nor
 set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
-% Indicate neuron type
-if isequal(col, [1 0.9 0.8]) % If quiet
-    set(button_n1, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [1 0.8 0.6])
-    set(button_n2, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [1 0.8 0.8])
-    set(button_n3, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [1 0.6 0.6])
-    set(button_n4, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [0.9 0.7 1])
-    set(button_n5, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [0.8 0.8 1])
-    set(button_n6, 'BackgroundColor', [0.6 0.95 0.6])
-elseif isequal(col, [0.95 0.95 1])
-    set(button_n7, 'BackgroundColor', [0.6 0.95 0.6])    
-end
+% % Indicate neuron type
+% if isequal(col, [1 0.9 0.8]) % If quiet
+%     set(button_n1, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [1 0.8 0.6])
+%     set(button_n2, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [1 0.8 0.8])
+%     set(button_n3, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [1 0.6 0.6])
+%     set(button_n4, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [0.9 0.7 1])
+%     set(button_n5, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [0.8 0.8 1])
+%     set(button_n6, 'BackgroundColor', [0.6 0.95 0.6])
+% elseif isequal(col, [0.95 0.95 1])
+%     set(button_n7, 'BackgroundColor', [0.6 0.95 0.6])    
+% end
     
 % A
 text_a = uicontrol('Style', 'text', 'String', 'a', 'units', 'normalized', 'position', [0.02 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);

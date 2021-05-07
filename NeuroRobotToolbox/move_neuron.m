@@ -24,7 +24,7 @@ fig_design.UserData = 4;
 x = neuron_xys(presynaptic_neuron, 1);
 y = neuron_xys(presynaptic_neuron, 2);
 
-col = neuron_cols(presynaptic_neuron, :);
+% col = neuron_cols(presynaptic_neuron, :);
 
 % Open selection props
 % Heading 

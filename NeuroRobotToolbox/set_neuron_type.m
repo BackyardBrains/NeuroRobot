@@ -23,7 +23,7 @@ elseif button_n2.Value == 1 % Occasionally active
     edit_b.String = '0.15';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = [1 0.8 0.6];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.6 0.95 0.6];
     button_n3.BackgroundColor = [0.8 0.8 0.8];
@@ -38,7 +38,7 @@ elseif button_n3.Value == 1 % Highly active
     edit_b.String = '0.5';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = [1 0.8 0.8];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.6 0.95 0.6];
@@ -53,7 +53,7 @@ elseif button_n4.Value == 1 % Generates bursts
     edit_b.String = '0.16';
     edit_c.String = '-8';
     edit_d.String = '2';
-    col = [1 0.6 0.6];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];
@@ -68,7 +68,7 @@ elseif button_n5.Value == 1 % Bursts when activated
     edit_b.String = '0.1';
     edit_c.String = '-13';
     edit_d.String = '2';
-    col = [0.9 0.7 1];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];
@@ -83,7 +83,7 @@ elseif button_n6.Value == 1 % Dopaminergic
     edit_b.String = '0.1';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = [0.8 0.8 1];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];
@@ -98,7 +98,7 @@ elseif button_n7.Value == 1 % Medium spiny
     edit_b.String = '0.1';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = [0.95 0.95 1];
+    col = [1 0.9 0.8];
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];

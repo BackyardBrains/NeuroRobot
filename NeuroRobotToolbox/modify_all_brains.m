@@ -13,8 +13,14 @@ for nbrain = 1:nbrains
 %         end
 %     end
     
-    brain.neuron_scripts = zeros(brain.nneurons, 1);
+%     brain.neuron_scripts = zeros(brain.nneurons, 1);
     
+    neuron_cols = brain.neuron_cols;
+    nneurons = length(neuron_cols, 1);
+    for nneuron = 1:nneurons
+        neuron_cols(nneuron, :) = lineStyles(nneuron, :);
+    end
+
     save(strcat('./Brains/', brain_name, '.mat'), 'brain')    
     disp(num2str(nbrain / nbrains))
 end
