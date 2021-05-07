@@ -42,6 +42,9 @@ else
     end 
     neuron_scripts = brain.neuron_scripts;
     network_ids = brain.network_ids;
+    
+    network_colors = linspecer(length(unique(network_ids)));
+    
     neuron_tones = brain.neuron_tones;
     audio_prefs = brain.audio_prefs;
     

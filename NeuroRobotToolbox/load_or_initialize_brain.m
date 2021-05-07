@@ -36,6 +36,9 @@ if brain_selection_val > 1
     end
     neuron_cols = brain.neuron_cols;
     network_ids = brain.network_ids;
+    
+    network_colors = linspecer(length(unique(network_ids)));
+    
     da_rew_neurons = brain.da_rew_neurons;
     try
         neuron_tones = brain.neuron_tones;

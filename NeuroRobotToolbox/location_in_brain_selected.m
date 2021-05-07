@@ -123,7 +123,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             neuron_tones(nneurons, 1) = 0;
             nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
             network_drive = zeros(nnetworks, 3);
-            neuron_cols(nneurons, :) = lineStyles(network_ids(nneurons), :);
+            neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);
             
             % Remove menu
             delete(text_heading)
@@ -311,7 +311,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 v(nneurons + 1 : nneurons + n, 1) = c_init + 5 * randn(n,1);
                 u = b .* v;
                 network_ids(nneurons + 1 : nneurons + n, 1) = str2double(edit_id.String);
-                col = lineStyles(network_ids(nneurons), :);
+                col = network_colors(network_ids(nneurons), :);
                 neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat(col, [n, 1]);  
                 da_rew_neurons(nneurons + 1 : nneurons + n, 1) = 0;
                 steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;

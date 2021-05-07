@@ -55,7 +55,7 @@ for p1 = 1:nneurons
             x2 = neuron_xys(p2,1);
             y1 = neuron_xys(p1,2);
             y2 = neuron_xys(p2,2); 
-            plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 3 - (nma_flag * 2), 'linestyle', ':', 'color', lineStyles(network_ids(p1), :)); %% [0.25 0.25 0.25]
+            plot_bg_lines(p1, p2) = plot([x1 x2], [y1 y2], 'linewidth', 3 - (nma_flag * 2), 'linestyle', ':', 'color', network_colors(network_ids(p1), :)); %% [0.25 0.25 0.25]
         end
     end
 end
