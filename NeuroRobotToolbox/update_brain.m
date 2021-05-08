@@ -285,9 +285,9 @@ if nneurons
             end
         end
     else
-        draw_neuron_core.CData = [1 - xfiring 1 - (xfiring * 0.25) 1 - xfiring] .* neuron_cols;
-%         draw_neuron_edge.CData = [zeros(nneurons, 1) xfiring * 0.5 zeros(nneurons, 1)] .* neuron_cols;
-        draw_neuron_edge.CData = [zeros(nneurons, 1) zeros(nneurons, 1) zeros(nneurons, 1)] .* neuron_cols;
+        draw_neuron_core.CData = neuron_cols;
+        draw_neuron_edge.CData(firing, :) = repmat([1 0 0], [sum(firing), 1]);
+        draw_neuron_edge.CData(~firing, :) = repmat([0 0 0], [sum(~firing), 1]);
         if bg_brain
             draw_neuron_core.CData(down_neurons, :) = repmat([0.85 0.85 0.85], [sum(down_neurons), 1]);
             draw_neuron_edge.CData(down_neurons, :) = repmat([0.4 0.4 0.4], [sum(down_neurons), 1]);

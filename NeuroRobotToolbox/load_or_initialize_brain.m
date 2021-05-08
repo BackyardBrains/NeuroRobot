@@ -38,6 +38,7 @@ if brain_selection_val > 1
     network_ids = brain.network_ids;
     
     network_colors = linspecer(length(unique(network_ids)));
+    network_colors(1, :) = [1 0.9 0.8];
     
     da_rew_neurons = brain.da_rew_neurons;
     try

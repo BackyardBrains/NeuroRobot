@@ -316,7 +316,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  
     
-	draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
+	draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size * 1.5, zeros(size(neuron_xys,1), 3), 'filled');
     draw_neuron_core = scatter(neuron_xys(:,1), neuron_xys(:,2), core_size, neuron_cols, 'filled');
     if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         draw_neuron_edge.ButtonDownFcn = 'neuron_selected';
