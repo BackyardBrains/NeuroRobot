@@ -312,7 +312,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 u = b .* v;
                 network_ids(nneurons + 1 : nneurons + n, 1) = str2double(edit_id.String);
                 col = network_colors(network_ids(nneurons), :);
-                neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat(col, [n, 1]);  
+                neuron_cols(nneurons + 1 : nneurons + n, 1:3) = network_colors(network_ids(nneurons + 1 : nneurons + n), :);
                 da_rew_neurons(nneurons + 1 : nneurons + n, 1) = 0;
                 steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;
                 neuron_tones(nneurons + 1 : nneurons + n, 1) = 0;
