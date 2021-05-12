@@ -1,7 +1,7 @@
 
    
 if popup_select_brain.Value == 1
-    nneurons = [];
+    nneurons = 0;
     neuron_xys = [];
     connectome = [];
     da_connectome = [];
@@ -10,6 +10,8 @@ if popup_select_brain.Value == 1
     neuron_cols = [];    
     neuron_tones = 0;
     neuron_scripts = [];
+    clear network_colors
+    network_colors(1, :) = [1 0.9 0.8];
 
     draw_brain
 else

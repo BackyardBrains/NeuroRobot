@@ -22,7 +22,7 @@ pulse_period = 0.15;    % Step time in seconds
 matlab_audio_rec = 1;   % Use computer microphone to listen
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
-bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
+bg_colors = 0;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 
 
 %% Advanced settings
@@ -136,6 +136,7 @@ n_dist_prefs = size(dist_pref_names, 2);
 % load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
 design_action = 0;
+network_colors(1, :) = [1 0.9 0.8];
 
 vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
 if use_cnn

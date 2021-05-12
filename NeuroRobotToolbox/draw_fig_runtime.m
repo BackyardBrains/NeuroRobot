@@ -39,13 +39,19 @@ if bg_brain
     drive_bar_ax = axes('position', drive_bar_pos, 'linewidth', 2);
     if ~isempty(network_drive)
         drive_bar = bar(network_drive(2:end,1), 'linewidth', 2);
+        if bg_colors
+            drive_bar.FaceColor = 'flat';
+            for nnetwork = 2:nnetworks
+                drive_bar.CData(nnetwork - 1, :) = network_colors(nnetwork, :);
+            end
+        end
     else
         drive_bar = bar(0, 'linewidth', 2);
     end
     drive_bar_ax.Color = fig_bg_col;
     set(drive_bar_ax, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'linewidth', 2)
-    title('Selection', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Action |>', 'FontSize', bfsize, 'fontname', gui_font_name);
+    title('Motivation', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    xlabel('Basal Ganglia Channel', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
     set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'ycolor', fig_bg_col)
     box off

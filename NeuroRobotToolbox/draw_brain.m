@@ -354,13 +354,11 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             end
         end
     end
-    if bg_colors
-        if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
-            for nneuron = 1:nneurons
-                if bg_neurons(nneuron)
-                    draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.8 0.95 0.8], 'marker', '>', 'markersize', 20);  
-                    draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                end
+    if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
+        for nneuron = 1:nneurons
+            if bg_neurons(nneuron)
+                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.8 0.95 0.8], 'marker', '>', 'markersize', 20);  
+                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end

@@ -127,7 +127,6 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             if bg_colors
                 if nnetworks > size(network_colors, 1)
                     network_colors = linspecer(length(unique(network_ids)));
-                    neuron_cols(nneurons, :) = [1 0.9 0.8];
                 end
                 neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);
             else

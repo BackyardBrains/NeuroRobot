@@ -287,7 +287,11 @@ if nneurons
     else
         if bg_colors
             draw_neuron_core.CData = neuron_cols;
-            draw_neuron_edge.CData(firing, :) = repmat([0 0.75 0], [sum(firing), 1]);
+            if rem(nstep, 2)
+                draw_neuron_edge.CData(firing, :) = repmat([0 0.75 0], [sum(firing), 1]);
+            else
+                draw_neuron_edge.CData(firing, :) = repmat([0.75 0 0], [sum(firing), 1]);
+            end
             draw_neuron_edge.CData(~firing, :) = repmat([0 0 0], [sum(~firing), 1]);
         else
             draw_neuron_core.CData = [1 - xfiring 1 - (xfiring * 0.25) 1 - xfiring] .* neuron_cols;
