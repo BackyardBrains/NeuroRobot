@@ -34,11 +34,13 @@ if brain_selection_val > 1
     catch
         audio_prefs = zeros(nneurons, 1);
     end
-    neuron_cols = brain.neuron_cols;
+%     neuron_cols = brain.neuron_cols;
     network_ids = brain.network_ids;
     
-    network_colors = linspecer(length(unique(network_ids)));
-    network_colors(1, :) = [1 0.9 0.8];
+    if bg_colors
+        network_colors = linspecer(length(unique(network_ids)));
+        network_colors(1, :) = [1 0.9 0.8];
+    end
     
     da_rew_neurons = brain.da_rew_neurons;
     try
@@ -73,6 +75,7 @@ if brain_selection_val > 1
     if isfield('brain', 'audio_out_wavs')
         
     end
+    
 %         this_word = vis_pref_names{nsound};
 %         this_wav = tts(this_word,[],[],16000);
 %         this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));

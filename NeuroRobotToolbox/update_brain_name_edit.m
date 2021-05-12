@@ -33,7 +33,7 @@ else
     da_connectome = brain.da_connectome;
     neuron_contacts = brain.neuron_contacts;
     vis_prefs = brain.vis_prefs;
-    neuron_cols = brain.neuron_cols;
+%     neuron_cols = brain.neuron_cols;
     da_rew_neurons = brain.da_rew_neurons;
     try
         bg_neurons = brain.bg_neurons;
@@ -43,7 +43,14 @@ else
     neuron_scripts = brain.neuron_scripts;
     network_ids = brain.network_ids;
     
-    network_colors = linspecer(length(unique(network_ids)));
+    % Neuron colors
+    if bg_colors
+        network_colors = linspecer(length(unique(network_ids)));
+        network_colors(1, :) = [1 0.9 0.8];
+        neuron_cols = network_colors(network_ids(1:nneurons), :);
+    else
+        neuron_cols = repmat([1 0.9 0.8], [nneurons 1]);
+    end
     
     neuron_tones = brain.neuron_tones;
     audio_prefs = brain.audio_prefs;

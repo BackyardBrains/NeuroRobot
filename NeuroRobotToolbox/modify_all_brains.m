@@ -15,19 +15,21 @@ for nbrain = 1:nbrains
     
 %     brain.neuron_scripts = zeros(brain.nneurons, 1);
     
-    neuron_cols = brain.neuron_cols;
-    network_ids = brain.network_ids;
-    network_colors = linspecer(length(unique(network_ids)));
-    nneurons = size(neuron_cols);
-    for nneuron = 1:nneurons
-        if network_ids(nneuron) == 1
-            neuron_cols(nneuron, :) = [1 0.9 0.8];
-        else
-            neuron_cols(nneuron, :) = network_colors(network_ids(nneuron), :);
-        end
-    end
+%     neuron_cols = brain.neuron_cols;
+%     network_ids = brain.network_ids;
+%     network_colors = linspecer(length(unique(network_ids)));
+%     nneurons = size(neuron_cols);
+%     for nneuron = 1:nneurons
+%         if network_ids(nneuron) == 1
+%             neuron_cols(nneuron, :) = [1 0.9 0.8];
+%         else
+%             neuron_cols(nneuron, :) = network_colors(network_ids(nneuron), :);
+%         end
+%     end
+% 
+%     brain.neuron_cols = neuron_cols;
 
-    brain.neuron_cols = neuron_cols;
+    brain = rmfield(brain, 'neuron_cols');
     
     save(strcat('./Brains/', brain_name, '.mat'), 'brain')    
     disp(num2str(nbrain / nbrains))
