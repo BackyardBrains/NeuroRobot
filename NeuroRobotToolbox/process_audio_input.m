@@ -1,5 +1,5 @@
 
-if rak_only
+if rak_only && hd_camera
     this_audio = double(rak_cam.readAudio());
 elseif matlab_audio_rec
     this_audio = mic_obj();
