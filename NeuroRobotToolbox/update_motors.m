@@ -39,7 +39,9 @@ if these_speaker_neurons
         end
 %         disp('3')
         vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
-    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs)
+    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && rak_only
+        speaker_tone = these_tones(1);
+    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~rak_only        
 
         dxfs=16000;
         dxduration=pulse_period*3;
