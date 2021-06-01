@@ -300,7 +300,7 @@ if nneurons
         end
         if bg_brain
             try
-                disp(num2str(down_neurons'))
+%                 disp(num2str(down_neurons'))
             for nneuron = 1:nneurons % Risky
                 if down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
                     draw_msn_skylt(nneuron,3).Color = network_colors(network_ids(nneuron), :);
@@ -317,7 +317,7 @@ if nneurons
                 end
             end
             catch
-                disp('error 1')
+                disp('error in update brain')
             end
         end
     end
