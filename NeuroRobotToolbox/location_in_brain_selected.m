@@ -127,9 +127,13 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             if bg_colors
                 if nnetworks > size(network_colors, 1)
                     network_colors = linspecer(length(unique(network_ids)));
+%                     neuron_cols(nneurons, :) = [1 0.9 0.8];
+                end
+                if bg_neurons(nneurons)
+                    neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);
+                else
                     neuron_cols(nneurons, :) = [1 0.9 0.8];
                 end
-                neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);
             else
                 neuron_cols(nneurons, :) = [1 0.9 0.8];
             end
@@ -323,7 +327,8 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 
                 % Neuron colors
                 if bg_colors
-                    neuron_cols(nneurons + 1 : nneurons + n, 1:3) = network_colors(network_ids(nneurons + 1 : nneurons + n), :);
+%                     neuron_cols(nneurons + 1 : nneurons + n, 1:3) = network_colors(network_ids(nneurons + 1 : nneurons + n), :);
+                    neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat([1 0.9 0.8], [n, 1]);
                 else
                     neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat([1 0.9 0.8], [n, 1]);
                 end

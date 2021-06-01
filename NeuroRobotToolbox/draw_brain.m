@@ -40,10 +40,12 @@ if exist('neuron_annotation', 'var')
     delete(neuron_annotation)
 end
 if exist('plot_bg_lines', 'var')
-    delete(plot_bg_lines)
+%     delete(plot_bg_lines)
+    clear plot_bg_lines
 end
 if exist('draw_msn_skylt', 'var')
-    delete(draw_msn_skylt)
+%     delete(draw_msn_skylt)
+    clear draw_msn_skylt
 end
 
 
@@ -321,11 +323,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     core_size = (bg_neurons + 1) * core_size;  
     
     % Neuron colors
-    if bg_colors
-        draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size * 1.5, zeros(size(neuron_xys,1), 3), 'filled');
-    else
-        draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
-    end
+    draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
     draw_neuron_core = scatter(neuron_xys(:,1), neuron_xys(:,2), core_size, neuron_cols, 'filled');
     
     if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
@@ -354,11 +352,12 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             end
         end
     end
-    if exist('fig_design', 'var') && isvalid(fig_design) && sum(bg_neurons)
+    if exist('fig_design', 'var') && isvalid(fig_design)
         for nneuron = 1:nneurons
-            if bg_neurons(nneuron)
-                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', 'k', 'markerfacecolor', [0.8 0.95 0.8], 'marker', '>', 'markersize', 20);  
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
+                draw_msn_skylt(nneuron, 3) = plot([neuron_xys(nneuron,1) neuron_xys(nneuron,1)], [neuron_xys(nneuron,2)+0.13 neuron_xys(nneuron,2)+0.33], 'color', network_colors(network_ids(nneuron), :), 'linewidth', 5);  
+                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', network_colors(network_ids(nneuron), :), 'markerfacecolor', network_colors(network_ids(nneuron), :), 'marker', 'o', 'markersize', 10, 'linewidth', 2);  
+                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, num2str(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end

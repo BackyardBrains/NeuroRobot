@@ -286,11 +286,11 @@ if nneurons
         end
     else
         if bg_colors
-            draw_neuron_core.CData = neuron_cols;
+            draw_neuron_core.CData(~firing, :) = neuron_cols(~firing, :);
             if rem(nstep, 2)
-                draw_neuron_edge.CData(firing, :) = repmat([0 0.75 0], [sum(firing), 1]);
+                draw_neuron_core.CData(firing, :) = neuron_cols(firing, :) * 0.4;
             else
-                draw_neuron_edge.CData(firing, :) = repmat([0.75 0 0], [sum(firing), 1]);
+                draw_neuron_core.CData(firing, :) = neuron_cols(firing, :) * 0.8;
             end
             draw_neuron_edge.CData(~firing, :) = repmat([0 0 0], [sum(~firing), 1]);
         else
@@ -299,8 +299,26 @@ if nneurons
             draw_neuron_edge.CData = [zeros(nneurons, 1) zeros(nneurons, 1) zeros(nneurons, 1)] .* neuron_cols;
         end
         if bg_brain
-            draw_neuron_core.CData(down_neurons, :) = repmat([0.85 0.85 0.85], [sum(down_neurons), 1]);
-            draw_neuron_edge.CData(down_neurons, :) = repmat([0.4 0.4 0.4], [sum(down_neurons), 1]);
+            try
+                disp(num2str(down_neurons'))
+            for nneuron = 1:nneurons % Risky
+                if down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
+                    draw_msn_skylt(nneuron,3).Color = network_colors(network_ids(nneuron), :);
+                    draw_msn_skylt(nneuron,1).MarkerFaceColor = network_colors(network_ids(nneuron), :);
+                    draw_msn_skylt(nneuron,1).MarkerEdgeColor = network_colors(network_ids(nneuron), :);
+                    p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
+                    plot_bg_lines(p1, nneuron).Color = network_colors(network_ids(nneuron), :);
+                elseif ~down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
+                    draw_msn_skylt(nneuron,3).Color = network_colors(network_ids(nneuron), :) + ((1 - network_colors(network_ids(nneuron), :)) * 0.8);
+                    draw_msn_skylt(nneuron,1).MarkerFaceColor = network_colors(network_ids(nneuron), :) + ((1 - network_colors(network_ids(nneuron), :)) * 0.8);
+                    draw_msn_skylt(nneuron,1).MarkerEdgeColor = network_colors(network_ids(nneuron), :) + ((1 - network_colors(network_ids(nneuron), :)) * 0.8);
+                    p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
+                    plot_bg_lines(p1, nneuron).Color = network_colors(network_ids(nneuron), :) + ((1 - network_colors(network_ids(nneuron), :)) * 0.8);
+                end
+            end
+            catch
+                disp('error 1')
+            end
         end
     end
     

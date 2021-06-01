@@ -49,7 +49,14 @@ else
     if bg_colors
         network_colors = linspecer(length(unique(network_ids)));
         network_colors(1, :) = [1 0.9 0.8];
-        neuron_cols = network_colors(network_ids(1:nneurons), :);
+        clear neuron_cols
+        for nneuron = 1:nneurons
+            if bg_neurons(nneuron)
+                neuron_cols(nneuron, :) = network_colors(network_ids(nneuron), :);
+            else
+                neuron_cols(nneuron, :) = [1 0.9 0.8];
+            end
+        end
     else
         neuron_cols = repmat([1 0.9 0.8], [nneurons 1]);
     end

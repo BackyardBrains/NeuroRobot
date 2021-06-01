@@ -32,6 +32,7 @@ adr = audioDeviceReader('SampleRate',fs,'SamplesPerFrame',floor(fs/classificatio
 %% 
 audioBuffer = dsp.AsyncBuffer(fs);
 
+% labels = trainedNet.Layers(end).Classes;
 labels = trainedNet.Layers(end).Classes; %%do some visualization of this
 YBuffer(1:classificationRate/2) = categorical("background");
 
@@ -44,7 +45,7 @@ VC_on=0;
 if VC_on==1
 h = figure('Units','normalized','Position',[0.2 0.1 0.6 0.8]);
 
-timeLimit = 10; % To run the loop indefinitely, set |timeLimit| to |Inf|
+timeLimit = Inf; % To run the loop indefinitely, set |timeLimit| to |Inf|
 
 tic;
 
@@ -60,7 +61,7 @@ while ishandle(h) && toc < timeLimit
     
     % Classify the current spectrogram, save the label to the label buffer,
     % and save the predicted probabilities to the probability buffer.
-    [YPredicted,probs] = classify(trainedNet,spec,'ExecutionEnvironment','cpu');
+    [YPredicted,probs] = classify(trainedNet,spec,'ExecutionEnvironment','gpu');
     YBuffer = [YBuffer(2:end),YPredicted];
     probBuffer = [probBuffer(:,2:end),probs(:)];
     
@@ -105,7 +106,7 @@ end
 %%
 h = figure('Units','normalized','Position',[0.2 0.1 0.6 0.8]);
 
-timeLimit = 10; % To run the loop indefinitely, set |timeLimit| to |Inf|
+timeLimit = Inf; % To run the loop indefinitely, set |timeLimit| to |Inf|
 
 tic;
 while ishandle(h) && toc < timeLimit
