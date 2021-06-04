@@ -104,6 +104,19 @@ network_ids(presynaptic_neuron) = str2double(edit_id.String);
 nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
 network_drive = zeros(nnetworks, 3);
 
+if bg_colors
+    if nnetworks > size(network_colors, 1)
+        network_colors = linspecer(length(unique(network_ids)));
+    end
+    if bg_neurons(presynaptic_neuron)
+        neuron_cols(presynaptic_neuron, :) = network_colors(network_ids(nneurons), :);
+    else
+        neuron_cols(presynaptic_neuron, :) = [1 0.9 0.8];
+    end
+else
+    neuron_cols(presynaptic_neuron, :) = [1 0.9 0.8];
+end
+
 % Remove menu
 delete(text_heading)
 delete(text_a)

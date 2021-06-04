@@ -53,7 +53,7 @@ if bg_brain
     title('Motivation', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
     xlabel('Basal Ganglia Channel', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
-    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', 2:nnetworks, 'ytick', [], 'ycolor', fig_bg_col)
+    set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', letters(2:nnetworks), 'ytick', [], 'ycolor', fig_bg_col)
     box off
 elseif manual_controls
     left_pos = [0.75 0.37 0.07 0.05];

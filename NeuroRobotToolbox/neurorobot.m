@@ -31,7 +31,7 @@ save_brain_jpg = 0; % main only
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
-draw_neuron_numbers = 1;
+draw_neuron_numbers = 0;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
@@ -77,6 +77,10 @@ adjust2 = 0.29;
 if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
+letters = {'A', 'B', 'C', 'D', 'E',...
+    'F', 'G', 'H', 'I', 'J',...
+    'K', 'L', 'M', 'N', 'O', ...
+    'P', 'Q'};
 
 %% Sound
 audx = 250;
