@@ -11,31 +11,31 @@ load('trainedDetector')
 
 
 %% Settings
-fps = 10;
-input_video_name = 'fish1_small.avi';
+% fps = 10;
+input_video_name = 'hero52_small.MP4';
 
 %% Create video reader
-v = VideoReader(input_video_name);
+vidReader = VideoReader(input_video_name);
 
 %% Create video writer object3
-vidWriter = VideoWriter('newfile1.mp4','MPEG-4');
-vidWriter.FrameRate = fps;
+vidWriter = VideoWriter('hero52.mp4','MPEG-4');
+% vidWriter.FrameRate = fps;
 open(vidWriter)
 
 %% Create UI
 fig1 = figure(1);
 clf
-frame = read(v, 1);
+frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
-ti1 = title(horzcat('nframe = 0 of ', num2str(v.NumFrames)));
+ti1 = title(horzcat('nframe = 0 of ', num2str(vidReader.NumFrames)));
 tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
 new_data_log = 0;
 
 %% Record video
-qi = 0.7;
-for nstep = 1:v.NumFrames
-    frame = read(v, nstep);
+qi = 0.3;
+for nstep = 1:vidReader.NumFrames
+    frame = read(vidReader, nstep);
     [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
@@ -56,7 +56,7 @@ for nstep = 1:v.NumFrames
         tx1.Position = [mx + 10 my - 3 0];
         
     end
-    ti1.String = horzcat('Fish Detector by Backyard Brains >>> nframe = ', num2str(nstep), ' of ', num2str(v.NumFrames));
+    ti1.String = horzcat('Fish Detector by Backyard Brains >>> nframe = ', num2str(nstep), ' of ', num2str(vidReader.NumFrames));
                 
     drawnow
     imx = getframe(fig1);

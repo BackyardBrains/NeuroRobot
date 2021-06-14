@@ -2,13 +2,13 @@
 %% Settings
 nframes = 8000;
 this_size = [288 512];
-input_video_name = 'C:\Users\Christopher Harris\Videos\hero51.MP4';
+input_video_name = 'C:\Users\Christopher Harris\Videos\hero52.MP4';
 
 %% Create video reader
 vidRead = VideoReader(input_video_name);
 
 %% Create video writer object
-vidWrite = VideoWriter('hero51_small.mp4','MPEG-4');
+vidWrite = VideoWriter('hero52_small.mp4','MPEG-4');
 open(vidWrite)
 
 %% Record video

@@ -32,7 +32,7 @@ data = combine(frames, boxes);
 
 %% Train AI
 net = alexnet;
-options = trainingOptions('sgdm', 'MaxEpochs', 30, 'MiniBatchSize', 16, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu');
+options = trainingOptions('sgdm', 'MaxEpochs', 10, 'MiniBatchSize', 16, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu');
 tic; trainedDetector = trainFastRCNNObjectDetector(data, net, options); toc
 save('trainedDetector', 'trainedDetector')
 
