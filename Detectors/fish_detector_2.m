@@ -5,7 +5,7 @@ clear
 % shrink_video
 % videoLabeler
 % combine_gtruths
-load hero_truth
+load hero_truth_51
 data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
 % data = combine(frames, boxes);
 % count = 0; for ii = 1:size(boxes.LabelData) count = count + size(boxes.LabelData{263}, 1); end count
