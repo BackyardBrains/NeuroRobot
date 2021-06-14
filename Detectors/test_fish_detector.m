@@ -15,7 +15,7 @@ ti1 = title(horzcat('nframe = 0 of ', num2str(vidReader.NumFrames)));
 tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
 
 qi = 0.5;
-yi = zeros(2000, 1);
+yi = zeros(vidReader.NumFrames, 1);
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
     [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
