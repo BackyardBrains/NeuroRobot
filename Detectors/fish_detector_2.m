@@ -9,7 +9,7 @@ data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
 % data = combine(frames, boxes);
 % count = 0; for ii = 1:size(boxes.LabelData) count = count + size(boxes.LabelData{263}, 1); end count
 net = alexnet;
-options = trainingOptions('sgdm', 'MaxEpochs', 30, 'MiniBatchSize', 64, 'InitialLearnRate', 0.0001, 'executionenvironment', 'gpu', 'Plots', 'training-progress');
-trainedDetector = trainRCNNObjectDetector(data, net, options);
+options = trainingOptions('adam', 'Shuffle', 'every-epoch', 'MaxEpochs', 50, 'MiniBatchSize', 128, 'InitialLearnRate', 0.0001, 'executionenvironment', 'gpu', 'Plots', 'training-progress');
+trainedDetector = trainFastRCNNObjectDetector(data, net, options);
 save('trainedDetector', 'trainedDetector')
 % test_fish_detector
