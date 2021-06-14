@@ -4,10 +4,10 @@
 % By Backyard Brains
 
 
-delete(imaqfind)
-close all
-clear
-load('trainedDetector')
+% delete(imaqfind)
+% close all
+% clear
+% load('trainedDetector')
 
 
 %% Settings
@@ -18,13 +18,13 @@ input_video_name = 'hero52_small.MP4';
 vidReader = VideoReader(input_video_name);
 
 %% Create video writer object3
-vidWriter = VideoWriter('hero52.mp4','MPEG-4');
+vidWriter = VideoWriter('hero52_x.mp4','MPEG-4');
 % vidWriter.FrameRate = fps;
-open(vidWriter)
 
 %% Create UI
 fig1 = figure(1);
 clf
+set(fig1, 'position', [1 41 1536 748])
 frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
@@ -33,10 +33,11 @@ tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fo
 new_data_log = 0;
 
 %% Record video
-qi = 0.3;
+open(vidWriter)
+qi = 0.5;
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
-    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 2000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
     im1.CData = frame;
