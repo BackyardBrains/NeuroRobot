@@ -12,13 +12,13 @@
 
 %% Settings
 % fps = 10;
-input_video_name = 'hero52_small.MP4';
+input_video_name = 'hero53_small.MP4';
 
 %% Create video reader
 vidReader = VideoReader(input_video_name);
 
 %% Create video writer object3
-vidWriter = VideoWriter('hero52_x.mp4','MPEG-4');
+vidWriter = VideoWriter('hero53_x.mp4','MPEG-4');
 % vidWriter.FrameRate = fps;
 
 %% Create UI
