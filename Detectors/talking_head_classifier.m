@@ -20,18 +20,21 @@ shrink_video
 %? load('.\gtruths\gtruth1.mat')
 
 %% Weird preprocessing
-load fish_truth3
+load hero_truth
 [frames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
 data = combine(frames, boxes);
+
+% count = 0;
+% for ii = 1:size(boxes.LabelData)
+%     count = count + size(boxes.LabelData{263}, 1);
+% end
+% count
 
 %% Train AI
 net = alexnet;
 options = trainingOptions('sgdm', 'MaxEpochs', 30, 'MiniBatchSize', 16, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu');
 tic; trainedDetector = trainFastRCNNObjectDetector(data, net, options); toc
 save('trainedDetector', 'trainedDetector')
-
-
-
 
 %% Test AI
 delete(imaqfind)
