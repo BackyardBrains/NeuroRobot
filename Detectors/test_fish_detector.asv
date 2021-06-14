@@ -1,0 +1,67 @@
+
+
+% FISH DETECTOR
+% By Backyard Brains
+
+
+delete(imaqfind)
+close all
+clear
+load('trainedDetector')
+
+
+%% Settings
+fps = 10;
+input_video_name = 'fish1_small.avi';
+
+%% Create video reader
+v = VideoReader(input_video_name);
+
+%% Create video writer object3
+vidWriter = VideoWriter('newfile1.mp4','MPEG-4');
+vidWriter.FrameRate = fps;
+open(vidWriter)
+
+%% Create UI
+fig1 = figure(1);
+clf
+frame = read(v, 1);
+im1 = image(frame);
+hold on
+ti1 = title(horzcat('nframe = 0 of ', num2str(v.NumFrames)));
+tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
+new_data_log = 0;
+
+%% Record video
+qi = 0.63;
+for nstep = 1:v.NumFrames
+    frame = read(v, nstep);
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 1000, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [mscore, midx] = max(score);
+    mbbox = bbox(midx, :);
+    im1.CData = frame;
+    if mscore > qi
+        new_data_log = new_data_log + 1;
+        
+        x = bbox(score > qi,1) + bbox(score > qi,3)/2;
+        y = bbox(score > qi,2) + bbox(score > qi,4)/2;        
+        
+        mx = mbbox(:,1) + mbbox(:,3)/2;
+        my = mbbox(:,2) + mbbox(:,4)/2;        
+        
+        plot(x, y, 'linestyle', 'none', 'color', [0.94 0.2 0.07], 'marker', '.', 'markersize', 16);
+        
+        plot(mx, my, 'linestyle', 'none', 'color', [0.94 0.2 0.0], 'marker', '.', 'markersize', 20);
+        tx1.String = horzcat('fish: ', num2str(round(mscore * 100)/100));
+        tx1.Position = [mx + 10 my - 3 0];
+        
+    end
+    ti1.String = horzcat('Fish Detector by Backyard Brains >>> nframe = ', num2str(nstep), ' of ', num2str(v.NumFrames));
+                
+    drawnow
+    imx = getframe(fig1);
+    writeVideo(vidWriter, imx.cdata);
+
+end
+close(vidWriter)
+
