@@ -13,8 +13,8 @@ data = trainingData;
 
 dag_to_rcnn
 
-options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 5, ...
-    'MiniBatchSize', 4, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu', 'L2Regularization', 0.001);
+options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 10, ...
+    'MiniBatchSize', 4, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu');
 trainedDetector = trainFastRCNNObjectDetector(data, lgraph, options);
 save('trainedDetector', 'trainedDetector')
 
