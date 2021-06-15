@@ -7,5 +7,7 @@ Matlab/*delays.txt
 Detectors/*png
 Detectors/trainedDetector.mat
 Detectors/frames/*png
+Detectors/videos/*MP4
+Detectors/videos/*avi
 
 OGLdpf.log

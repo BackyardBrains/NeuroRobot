@@ -2,7 +2,7 @@
 
 % available_gtruths = dir('hero_truth*.mat');
 % ntruths = size(available_gtruths, 1);
-ntruths = 2;
+ntruths = 3;
 disp(horzcat('There are ', num2str(ntruths), ' gtruths'));
 all_filenames = [];
 clear all_labels
@@ -11,13 +11,15 @@ all_ns = [];
 n_unique_labels = 0;
 for ntruth = 1:ntruths
     if ntruth == 1
+        load hero_truth_5
+    elseif ntruth == 2
         load hero_truth_51
-    else
+    elseif ntruth == 3
         load hero_truth_52
     end
 %     load(horzcat('.\gtruths\gtruth', num2str(ntruth), '.mat'))
     disp(gTruth.DataSource.Source)
-    [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
+    [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
     save(horzcat('filenames_', num2str(ntruth), '.mat'), 'filenames')
     save(horzcat('boxes_', num2str(ntruth), '.mat'), 'boxes')
 %     load(horzcat('filenames_', num2str(ntruth), '.mat'))
