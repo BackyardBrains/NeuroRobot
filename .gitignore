@@ -6,5 +6,6 @@ Matlab/test.wav
 Matlab/*delays.txt
 Detectors/*png
 Detectors/trainedDetector.mat
+Detectors/frames/*png
 
 OGLdpf.log

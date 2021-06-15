@@ -7,7 +7,7 @@
 % combine_gtruths
 
 % load hero_truth_51
-% data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
+% data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames')' ;
 
 net = alexnet;
 options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 1000, ...
