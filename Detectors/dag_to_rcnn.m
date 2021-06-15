@@ -1,3 +1,5 @@
+
+
 % Load pretrained ResNet-50.
 net = resnet50;
 lgraph = layerGraph(net);
@@ -72,7 +74,3 @@ lgraph = addLayers(lgraph, roiInput);
 % Connect ROI input layer to the 'roi' input of the ROI max pooling layer.
 lgraph = connectLayers(lgraph, 'roiInput','roiPool/roi');
 
-% Show the resulting faster adding and connecting the ROI input layer.
-figure
-plot(lgraph)
-% ylim([30 42])

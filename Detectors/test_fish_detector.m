@@ -1,5 +1,6 @@
 
 input_video_name = '.\videos\hero53_small.MP4';
+% input_video_name = 'C:\Users\Christopher Harris\Videos\hero54.MP4';
 
 vidReader = VideoReader(input_video_name);
 % vidWriter = VideoWriter('hero53_x.mp4','MPEG-4');
