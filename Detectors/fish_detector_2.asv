@@ -5,25 +5,14 @@ clear
 % shrink_video
 % videoLabeler
 % combine_gtruths
-load hero_truth
-data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
-% data = combine(frames, boxes);
-% count = 0; for ii = 1:size(boxes.LabelData) count = count + size(boxes.LabelData{263}, 1); end count
 
-%% Train AI
 net = alexnet;
-options = trainingOptions('sgdm', 'MaxEpochs', 30, 'MiniBatchSize', 64, 'InitialLearnRate', 0.0001, 'executionenvironment', 'gpu', 'Plots', 'training-progress');
-tic; trainedDetector = trainRCNNObjectDetector(data, net, options); toc
+
+load hero_truth_51
+data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1);
+
+options = trainingOptions('adam', 'Shuffle', 'every-epoch', 'MaxEpochs', 50, 'MiniBatchSize', 16, 'InitialLearnRate', 0.00001, 'executionenvironment', 'gpu');
+trainedDetector = trainFastRCNNObjectDetector(data, net, options);
 save('trainedDetector', 'trainedDetector')
-% 
-% %% Test AI
-% delete(imaqfind)
-% close all
-% clear
-% load('trainedDetector')
-% nsteps = 1000;
-% fps = 10;
-% this_size = [288 512];
-% % video_name = 'training_video2.avi';
-% test_ai
-% 
+
+test_fish_detector

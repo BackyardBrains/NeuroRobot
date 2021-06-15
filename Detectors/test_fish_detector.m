@@ -1,5 +1,5 @@
 
-input_video_name = 'hero52_small.MP4';
+input_video_name = 'hero53_small.MP4';
 
 vidReader = VideoReader(input_video_name);
 % vidWriter = VideoWriter('hero53_x.mp4','MPEG-4');
@@ -26,8 +26,10 @@ for nstep = 1:vidReader.NumFrames
     end
     disp(num2str(nstep))
     
+    
     if mscore > qi        
         im1.CData = frame;
+        
         x = bbox(score > qi,1) + bbox(score > qi,3)/2;
         y = bbox(score > qi,2) + bbox(score > qi,4)/2;                
         mx = mbbox(:,1) + mbbox(:,3)/2;
@@ -37,10 +39,13 @@ for nstep = 1:vidReader.NumFrames
         tx1.String = horzcat('fish: ', num2str(round(mscore * 100)/100));
         tx1.Position = [mx + 10 my - 3 0];
     end
-    ti1.String = horzcat('Fish Detector by Backyard Brains >>> nframe = ', num2str(nstep), ' of ', num2str(vidReader.NumFrames), ' mscore = ', num2str(round(mscore * 100)/100));
+    ti1.String = horzcat('Fish Detector by Backyard Brains >>> nframe = ', num2str(nstep), ' of ', num2str(vidReader.NumFrames), ' mscore = ', num2str(mscore));
     drawnow
+    
 %     imx = getframe(fig1);
 %     writeVideo(vidWriter, imx.cdata);
+
 end
+
 % close(vidWriter)
 
