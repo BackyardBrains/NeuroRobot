@@ -9,7 +9,9 @@ clear all_labels
 all_labels{1} = 'filenames';
 all_ns = [];
 n_unique_labels = 0;
+
 for ntruth = 1:ntruths
+    
     if ntruth == 1
         load hero_truth_5
     elseif ntruth == 2
@@ -17,13 +19,12 @@ for ntruth = 1:ntruths
     elseif ntruth == 3
         load hero_truth_52
     end
+    
 %     load(horzcat('.\gtruths\gtruth', num2str(ntruth), '.mat'))
-    disp(gTruth.DataSource.Source)
+
     [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
     save(horzcat('filenames_', num2str(ntruth), '.mat'), 'filenames')
     save(horzcat('boxes_', num2str(ntruth), '.mat'), 'boxes')
-%     load(horzcat('filenames_', num2str(ntruth), '.mat'))
-%     load(horzcat('boxes_', num2str(ntruth), '.mat'))    
     all_filenames = [all_filenames; filenames.Files];
     label = char(boxes.LabelData{1,2}(1)); % Assumes one label per truth
     disp(horzcat('Current label = ', label))
@@ -48,7 +49,8 @@ truth_counter = 1;
 label_counter = 2;
 frame_counter = 0;
 biggest = 2;
-nframe = 1;
+nframe = 0;
+
 while nframe < n_all
     nframe = nframe + 1;
     frame_counter = frame_counter + 1;
