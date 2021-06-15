@@ -70,3 +70,5 @@ while nframe < n_all
         nframe = nframe - 1;
     end
 end
+save('trainingData', 'trainingData')
+
