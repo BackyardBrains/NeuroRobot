@@ -1,5 +1,5 @@
 
-input_video_name = 'hero53_small.MP4';
+input_video_name = '.\videos\hero53_small.MP4';
 
 vidReader = VideoReader(input_video_name);
 % vidWriter = VideoWriter('hero53_x.mp4','MPEG-4');
@@ -7,7 +7,7 @@ vidReader = VideoReader(input_video_name);
 
 fig1 = figure(1);
 clf
-set(fig1, 'position', [1 41 1536 748])
+set(fig1, 'position', [1 41 1920 963])
 frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
@@ -18,7 +18,7 @@ qi = 0.5;
 yi = zeros(vidReader.NumFrames, 1);
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
-    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
     if ~isempty(mscore)

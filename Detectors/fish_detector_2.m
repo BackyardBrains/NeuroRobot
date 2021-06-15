@@ -10,11 +10,12 @@
 % data = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames')' ;
 load('trainingData')
 data = trainingData;
-net = alexnet;
-options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 100, ...
-    'MiniBatchSize', 32, 'InitialLearnRate', 0.0001, 'executionenvironment', 'gpu', ...
-    'Plots', 'training-progress');
-trainedDetector = trainFastRCNNObjectDetector(data, net, options);
+
+dag_to_rcnn
+
+options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 20, ...
+    'MiniBatchSize', 24, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu');
+trainedDetector = trainFastRCNNObjectDetector(data, lgraph, options);
 save('trainedDetector', 'trainedDetector')
 
 % test_fish_detector
