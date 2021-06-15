@@ -25,10 +25,10 @@ for nstep = 1:vidReader.NumFrames
         yi(nstep) = mscore;
     end
     disp(num2str(nstep))
-    
+    im1.CData = frame;
     
     if mscore > qi        
-        im1.CData = frame;
+%         im1.CData = frame;
         
         x = bbox(score > qi,1) + bbox(score > qi,3)/2;
         y = bbox(score > qi,2) + bbox(score > qi,4)/2;                
