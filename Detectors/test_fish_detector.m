@@ -24,7 +24,7 @@ clear pl
 
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
-    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
     if ~isempty(mscore)
@@ -60,11 +60,11 @@ for nstep = 1:vidReader.NumFrames
         end
     end    
     
-    ti1.String = horzcat(input_video_name, ', nframe = ', num2str(nstep), ' of ', num2str(vidReader.NumFrames), ', mscore = ', num2str(round(mscore * 100)/100));
+    ti1.String = horzcat(filename, ', nframe = ', num2str(nstep), ' of ', num2str(vidReader.NumFrames), ', mscore = ', num2str(round(mscore * 100)/100));
     drawnow
     
-%     imx = getframe(fig1);
-%     writeVideo(vidWriter, imx.cdata);
+    imx = getframe(fig1);
+    writeVideo(vidWriter, imx.cdata);
 
 end
 
