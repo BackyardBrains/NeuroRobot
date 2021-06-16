@@ -1,13 +1,13 @@
 
 %% Settings
 this_size = [227 227];
-input_video_name = '.\videos\hero54.MP4';
+input_video_name = '.\videos\hero52.MP4';
 
 %% Create video reader
 vidRead = VideoReader(input_video_name);
 
 %% Create video writer object
-vidWrite = VideoWriter('hero54_small.mp4','MPEG-4');
+vidWrite = VideoWriter('hero52_small.mp4','MPEG-4');
 open(vidWrite)
 
 %% Record video
