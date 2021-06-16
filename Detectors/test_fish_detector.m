@@ -1,25 +1,28 @@
 
-input_video_name = 'hero53_small.MP4';
-% input_video_name = 'C:\Users\Christopher Harris\Videos\hero54.MP4';
+input_video_name = 'hero55_small.MP4';
+filename = input_video_name;
+filename(strfind(input_video_name, '_')) = [];
 
 vidReader = VideoReader(input_video_name);
-% vidWriter = VideoWriter('hero53_x.mp4','MPEG-4');
-% open(vidWriter)
+vidWriter = VideoWriter('hero55_small_ai.mp4','MPEG-4');
+open(vidWriter)
 
 fig1 = figure(1);
 clf
-set(fig1, 'position', [2092 134 720 560])
+set(fig1, 'position', [2092 134 720 560], 'color', 'w')
+% set(fig1, 'position', [200 134 720 560], 'color', 'w')
 frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
 ti1 = title(horzcat('nframe = 0 of ', num2str(vidReader.NumFrames)));
 % tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
 
-qi = 0.5;
+qi = 0.3;
 yi = zeros(vidReader.NumFrames, 1);
 zi = [];
 clear pl
-for nstep = 570:vidReader.NumFrames
+
+for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
     [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
@@ -31,7 +34,6 @@ for nstep = 570:vidReader.NumFrames
     im1.CData = frame;
     
     if mscore > qi        
-%         im1.CData = frame;
         
         x = bbox(score > qi,1) + bbox(score > qi,3)/2;
         y = bbox(score > qi,2) + bbox(score > qi,4)/2;                

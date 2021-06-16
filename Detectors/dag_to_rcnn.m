@@ -73,4 +73,4 @@ lgraph = addLayers(lgraph, roiInput);
 
 % Connect ROI input layer to the 'roi' input of the ROI max pooling layer.
 lgraph = connectLayers(lgraph, 'roiInput','roiPool/roi');
-
+net = lgraph;

@@ -2,6 +2,7 @@
 
 % available_gtruths = dir('hero_truth*.mat');
 % ntruths = size(available_gtruths, 1);
+
 ntruths = 2;
 disp(horzcat('There are ', num2str(ntruths), ' gtruths'));
 all_filenames = [];
@@ -21,8 +22,7 @@ for ntruth = 1:ntruths
 %     load(horzcat('.\gtruths\gtruth', num2str(ntruth), '.mat'))
 
     [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
-%     save(horzcat('filenames_', num2str(ntruth), '.mat'), 'filenames')
-%     save(horzcat('boxes_', num2str(ntruth), '.mat'), 'boxes')
+
     all_filenames = [all_filenames; filenames.Files];
     label = char(boxes.LabelData{1,2}(1)); % Assumes one label per truth
     disp(horzcat('Current label = ', label))
@@ -35,6 +35,7 @@ for ntruth = 1:ntruths
         disp('Seen it')
     end
     all_ns = [all_ns; size(filenames.Files, 1)];
+    
 end
 
 n_all = size(all_filenames, 1);
@@ -50,6 +51,7 @@ biggest = 2;
 nframe = 0;
 
 while nframe < n_all
+    
     nframe = nframe + 1;
     frame_counter = frame_counter + 1;
     if nframe <= sum(all_ns(1:truth_counter))
@@ -69,6 +71,8 @@ while nframe < n_all
         frame_counter = 0;
         nframe = nframe - 1;
     end
+    
 end
+
 save('trainingData', 'trainingData')
 
