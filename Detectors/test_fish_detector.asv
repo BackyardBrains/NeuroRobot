@@ -13,7 +13,7 @@ frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
 ti1 = title(horzcat('nframe = 0 of ', num2str(vidReader.NumFrames)));
-% tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
+tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
 
 qi = 0.5;
 yi = zeros(vidReader.NumFrames, 1);
@@ -40,14 +40,14 @@ for nstep = 570:vidReader.NumFrames
         
         nboxes = length(x);
         prev_length = length(zi);
-        zi(1 + prev_length : prev_length + nboxes) = 10;
+        zi(1 + prev_length : 1 + prev_length + nboxes) = 5;
         for nbox = 1:nboxes
-            pl(prev_length + nbox).plt = plot(x, y, 'linestyle', 'none', 'color', [0.94 0.2 0.07], 'marker', 'o', 'markersize', 5);        
+            pl(prev_length + nbox).plt = plot(x, y, 'linestyle', 'none', 'color', [0.94 0.2 0.07], 'marker', 'o', 'markersize', 10);        
         end
                         
 %         plot(mx, my, 'linestyle', 'none', 'color', [0.94 0.2 0.07], 'marker', '.', 'markersize', 20);
-%         tx1.String = horzcat('fish: ', num2str(round(mscore * 100)/100));
-%         tx1.Position = [mx + 10 my - 3 0];
+        tx1.String = horzcat('fish: ', num2str(round(mscore * 100)/100));
+        tx1.Position = [mx + 10 my - 3 0];
         
     end
     
