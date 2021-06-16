@@ -1,16 +1,16 @@
 
-input_video_name = 'hero55_small.MP4';
+input_video_name = 'hero52_small.MP4';
 filename = input_video_name;
 filename(strfind(input_video_name, '_')) = [];
 
 vidReader = VideoReader(input_video_name);
-vidWriter = VideoWriter('hero55_small_ai.mp4','MPEG-4');
+vidWriter = VideoWriter('hero52_small_ai.mp4','MPEG-4');
 open(vidWriter)
 
 fig1 = figure(1);
 clf
-set(fig1, 'position', [2092 134 720 560], 'color', 'w')
-% set(fig1, 'position', [200 134 720 560], 'color', 'w')
+% set(fig1, 'position', [2092 134 720 560], 'color', 'w')
+set(fig1, 'position', [200 134 720 560], 'color', 'w')
 frame = read(vidReader, 1);
 im1 = image(frame);
 hold on
@@ -68,5 +68,5 @@ for nstep = 1:vidReader.NumFrames
 
 end
 
-% close(vidWriter)
+close(vidWriter)
 
