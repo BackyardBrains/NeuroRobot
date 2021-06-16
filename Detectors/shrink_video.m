@@ -11,7 +11,7 @@ vidWrite = VideoWriter('hero5_small.mp4','MPEG-4');
 open(vidWrite)
 
 %% Record video
-for nstep = 1:nframes
+for nstep = 1:vidRead.NumFrames
     disp(horzcat('nframe = ', num2str(nstep), ' of ', num2str(vidRead.NumFrames)))
     frame = read(vidRead, nstep);
     frame = frame(701:1200, 1101:1600, :);
