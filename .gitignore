@@ -1,8 +1,7 @@
 .DS_Store
 
-Detectors/trainedDetector.mat
-
 Detectors/videos/*MP4
-Detectors/videos/*avi
+Detectors/frames/*png
+Detectors/trainedDetector.mat
 
 OGLdpf.log
