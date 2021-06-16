@@ -15,5 +15,5 @@ options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 100, ..
     'Plots', 'training-progress');
 trainedDetector = trainFastRCNNObjectDetector(trainingData, net, options);
 save('trainedDetector', 'trainedDetector')
-
+load('trainedDetector')
 % test_fish_detector
