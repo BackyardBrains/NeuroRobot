@@ -15,11 +15,11 @@ hold on
 ti1 = title(horzcat('nframe = 0 of ', num2str(vidReader.NumFrames)));
 tx1 = text(100, 100, '', 'color', [0.94 0.2 0.07], 'FontName', 'Comic Book', 'fontsize', 20);
 
-qi = 0.5;
+qi = 0.6;
 yi = zeros(vidReader.NumFrames, 1);
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
-    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 20, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
     if ~isempty(mscore)

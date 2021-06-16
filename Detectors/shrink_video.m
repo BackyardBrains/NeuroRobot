@@ -1,21 +1,20 @@
 
 %% Settings
-nframes = 4000;
-this_size = [288 512];
-input_video_name = 'C:\Users\Christopher Harris\Videos\hero53.MP4';
+this_size = [227 227];
+input_video_name = '.\videos\hero5.MP4';
 
 %% Create video reader
 vidRead = VideoReader(input_video_name);
 
 %% Create video writer object
-vidWrite = VideoWriter('hero53_small.mp4','MPEG-4');
+vidWrite = VideoWriter('hero5_small.mp4','MPEG-4');
 open(vidWrite)
 
 %% Record video
 for nstep = 1:nframes
     disp(horzcat('nframe = ', num2str(nstep), ' of ', num2str(vidRead.NumFrames)))
     frame = read(vidRead, nstep);
-    frame = frame(501:(288*3+500), 501:(512*3+501), :);
+    frame = frame(701:1200, 1101:1600, :);
     frame = imresize(frame, this_size);
     writeVideo(vidWrite, frame);
 end
