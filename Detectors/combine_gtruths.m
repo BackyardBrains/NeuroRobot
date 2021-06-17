@@ -14,9 +14,9 @@ n_unique_labels = 0;
 for ntruth = 1:ntruths
     
     if ntruth == 1
-        load x5_truth
+        load office1_truth
     elseif ntruth == 2
-        load x51_truth
+        load office2_truth
     end
     
 %     load(horzcat('.\gtruths\gtruth', num2str(ntruth), '.mat'))
@@ -75,5 +75,5 @@ while nframe < n_all
     
 end
 
-save('trainingData', 'trainingData')
+% save('trainingData', 'trainingData')
 

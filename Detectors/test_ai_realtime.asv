@@ -32,14 +32,16 @@ button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'norma
 set(button_stop, 'Callback', 'flag = 0;', 'FontSize', 12, 'FontName', 'Comic Book', 'FontWeight', 'bold', 'BackgroundColor', [0.8 0.8 0.8])
 ti1 = title('Preparing...');
 hold on
+tx1 = text(0, 0, '', 'FontSize', 12, 'FontName', 'Comic Book', 'color', 'r');
 
-%% Record video
-qi = 0.3;
+%% Get video
+qi = 0.5;
 zi = [];
 clear pl
+
+%% Record video
 nframe = 0;
 while flag
-    
     tic
     nframe = nframe + 1;
     trigger(cam)
@@ -70,10 +72,11 @@ while flag
         end
     end
 
-%     if ~isempty(mx)
-%         loc1 = plot(mx, my, 'markersize', 20, 'color', [0.8 0.4 0.2], 'marker', '.', 'linestyle', 'none');
-%         tx1 = text(mx, my, horzcat('head: ', num2str(round(mscore * 100)/100)), 'FontSize', 11, 'FontName', 'Comic Book', 'color', 'r');
-%     end
+    if ~isempty(mx)
+        loc1 = plot(mx, my, 'markersize', 20, 'color', [0.8 0.4 0.2], 'marker', '.', 'linestyle', 'none');
+        tx1.Position = [mx +10 my 0];
+        tx1.String = horzcat('head: ', num2str(round(mscore * 100)/100));
+    else
     
     for ii = 1:length(zi)
         zi(ii) = zi(ii) - 1;
