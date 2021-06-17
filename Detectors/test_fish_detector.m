@@ -2,8 +2,8 @@
 input_video_name = 'hero52_small.MP4';
 filename = input_video_name;
 filename(strfind(input_video_name, '_')) = [];
-
 vidReader = VideoReader(input_video_name);
+
 vidWriter = VideoWriter('hero52_small_ai.mp4','MPEG-4');
 open(vidWriter)
 
