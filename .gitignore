@@ -3,6 +3,6 @@
 Detectors/videos/*MP4
 Detectors/frames/*png
 Detectors/trainingData.mat
-Detectors/trainedDetector.mat
+Detectors/trainedDetector*
 
 OGLdpf.log

@@ -24,7 +24,8 @@ clear pl
 
 for nstep = 1:vidReader.NumFrames
     frame = read(vidReader, nstep);
-    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+    [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
+        'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
     if ~isempty(mscore)
