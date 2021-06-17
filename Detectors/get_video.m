@@ -2,7 +2,7 @@
 delete(imaqfind)
 
 %% Create camera object
-cam = videoinput('winvideo', 1);
+cam = videoinput('winvideo', 2);
 triggerconfig(cam, 'manual');
 cam.TriggerRepeat = Inf;
 cam.FramesPerTrigger = 1;
