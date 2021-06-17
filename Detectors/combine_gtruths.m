@@ -23,6 +23,7 @@ for ntruth = 1:ntruths
 
     [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
 
+    save(horzcat('boxes_', num2str(ntruth)), 'boxes')
     all_filenames = [all_filenames; filenames.Files];
     label = char(boxes.LabelData{1,2}(1)); % Assumes one label per truth
     disp(horzcat('Current label = ', label))
