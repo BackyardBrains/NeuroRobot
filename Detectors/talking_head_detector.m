@@ -12,6 +12,7 @@ ai_video_filename = 'ai-office1.mp4';
 
 %% Record video
 get_video
+keyboard
 
 %% Label video
 % videoLabeler
