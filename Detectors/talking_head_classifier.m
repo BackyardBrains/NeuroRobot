@@ -1,5 +1,5 @@
 
-%%%% Talking Head Detector %%%%
+%%%% Talking Head Classifier %%%%
 
 close all
 clear
@@ -8,7 +8,7 @@ clear
 net_input_size = [227 227];
 fps = 10;
 raw_video_filename = 'office1.mp4';
-ai_video_filename = 'ai-office1.mp4';
+ai_video_filename = 'ai-office2.mp4';
 
 %% Record video
 get_video
