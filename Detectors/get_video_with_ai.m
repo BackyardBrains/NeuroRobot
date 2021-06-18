@@ -87,12 +87,12 @@ while flag
     
     if ~isempty(mscore)
         if mscore > 0.8 && ~superflag
-            superflag = 70;
+            superflag = 40;
             try
                 gpt3_play
             catch
                 disp('Failed to run gpt3_play')
-                soundsc(this_wav, 16000);
+                soundsc(hello_wav, 16000);
             end
         end
     end

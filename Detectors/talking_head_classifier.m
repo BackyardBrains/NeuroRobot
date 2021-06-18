@@ -7,11 +7,11 @@ clear
 %% Settings
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'office13.mp4';
-ai_video_filename = 'ai-office13.mp4';
+raw_video_filename = 'office15.mp4';
+ai_video_filename = 'ai-office15.mp4';
 
 %% Record video
-cam_id = 1;
+cam_id = 2;
 % get_video
 get_video_with_ai
 keyboard
