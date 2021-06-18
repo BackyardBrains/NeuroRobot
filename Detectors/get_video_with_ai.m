@@ -1,5 +1,4 @@
 
-cam_id = 2;
 delete(imaqfind)
 cmap = cool;
 if ~exist('trainedDetector', 'var')
