@@ -12,7 +12,8 @@ ai_video_filename = 'ai-office7.mp4';
 
 %% Record video
 cam_id = 1;
-get_video
+% get_video
+get_video_with_ai
 keyboard
 
 %% Label video
