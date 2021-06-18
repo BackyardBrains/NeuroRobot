@@ -10,14 +10,9 @@
 
 prompt = "You are GPT-3, an AI that can talk. You are greeting students at a neuroscience summer course. The following is a conversation between you and a student. AI:";
 
-tic
 py_str = py.ai.gpt3(prompt);
-toc
-
-tic
 this_phrase = strtrim(char(py_str));
 disp(this_phrase)
-
 this_wav_m = tts(this_phrase,'Microsoft David Desktop - English (United States)',[],16000);
 this_wav_f = tts(this_phrase,'Microsoft Zira Desktop - English (United States)',[],16000);
 if length(this_wav_m) > length(this_wav_f)
@@ -27,8 +22,4 @@ else
 end
 this_wav = this_wav_f + this_wav_m;
 this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
-toc
-
-tic
 soundsc(this_wav, 16000);
-toc
