@@ -1,6 +1,6 @@
 
 import openai
-openai.api_key = "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"
+openai.api_key = "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"
 
 def gpt3(prompt):
     response = openai.Completion.create(
