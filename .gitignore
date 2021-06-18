@@ -5,6 +5,9 @@ Detectors/frames/*png
 Detectors/trainingData.mat
 Detectors/trainedDetector*
 Detectors/ai.py
+rcnn*
+Detectors/rcnn*
+Detectors/__pycache__
 
 OGLdpf.log
 
