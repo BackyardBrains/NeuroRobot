@@ -1,5 +1,8 @@
 
+cam_id = 2;
 delete(imaqfind)
+cmap = cool;
+load('rcnn2')
 
 %% Create camera object
 cam = videoinput('winvideo', cam_id);
@@ -34,12 +37,14 @@ flag = 1;
 button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'normalized', 'position', [0.02 0.02 0.96 0.06]);
 set(button_stop, 'Callback', 'flag = 0;', 'FontSize', 12, 'FontName', 'Comic Book', 'FontWeight', 'bold', 'BackgroundColor', [0.8 0.8 0.8])
 ti1 = title('Preparing...');
+hold on
 
 %% Record video
 qi = 0.3;
 zi = [];
 clear pl
 nframe = 0;
+superflag = 0;
 while flag
     tic
     nframe = nframe + 1;
@@ -77,14 +82,20 @@ while flag
         end
     end    
     
-    ti1.String = horzcat('nframe = ', num2str(nframe), ', mscore = ', num2str(round(mscore * 100)/100));
+    ti1.String = horzcat('nframe = ', num2str(nframe), ', mscore = ', num2str(round(mscore * 100)/100), ', superflag = ', num2str(superflag));
     drawnow
     
-    if mscore > qi * 2
-        gpt3_play
+    if ~isempty(mscore)
+        if mscore > qi * 3 && ~superflag
+            superflag = 40;
+            gpt3_play            
+        end
+    end
+    if superflag
+        superflag = superflag - 1;
     end
     
-    writeVideo(vidWriter, frame);
+    writeVideo(vidWrite, frame);
     
 end
 

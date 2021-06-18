@@ -11,7 +11,7 @@ raw_video_filename = 'office7.mp4';
 ai_video_filename = 'ai-office7.mp4';
 
 %% Record video
-cam_id = 1;
+cam_id = 2;
 % get_video
 get_video_with_ai
 keyboard
