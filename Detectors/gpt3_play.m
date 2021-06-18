@@ -4,9 +4,7 @@
 %     insert(py.sys.path, int32(0), pathToAI)
 % end
 % 
-% clear classes
-% m = py.importlib.import_module('ai');
-% py.importlib.reload(m);
+% clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
 
 prompt = "You are GPT-3, an AI that can talk. You are greeting students at a neuroscience summer course. The following is a conversation between you and a student. AI:";
 
