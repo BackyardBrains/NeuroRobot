@@ -88,7 +88,8 @@ while flag
     if ~isempty(mscore)
         if mscore > qi * 3 && ~superflag
             superflag = 100;
-            gpt3_play            
+%             gpt3_play
+            just_speak
         end
     end
     if superflag
