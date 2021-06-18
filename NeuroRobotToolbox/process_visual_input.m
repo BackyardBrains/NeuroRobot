@@ -4,12 +4,12 @@
 for ncam = 1:2
 
     if ncam == 1
-        frame = single(left_eye_frame);
+        uframe = imresize(left_eye_frame, net_input_size);
+        frame = single(uframe);
     else
-        frame = single(right_eye_frame);
+        uframe = imresize(right_eye_frame, net_input_size);
+        frame = single(uframe);
     end
-    
-    frame = imresize(frame, net_input_size);
 
 %     if sum(I2)
 %         frame = chromadapt(frame, I2, 'ColorSpace', 'linear-rgb');
@@ -95,7 +95,7 @@ for ncam = 1:2
         try
             aitic = tic;
 %             [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'MiniBatchSize', 32, 'ExecutionEnvironment', 'gpu');
-            [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'threshold', 0, 'ExecutionEnvironment', 'gpu');
+            [bbox, score] = detect(trainedDetector, uframe, 'NumStrongestRegions', 100, 'threshold', 0.3, 'ExecutionEnvironment', 'gpu');
             if isempty(bbox)
                 score = 0;
             end
@@ -103,25 +103,26 @@ for ncam = 1:2
                 [score, idx] = max(score);
                 bbox = bbox(idx, :);
             end
-            cnn_out = sigmoid(score, 0.55, 40) * 50;
+            cnn_out = sigmoid(score, 0.4, 40) * 50;
             vis_pref_vals(7, ncam) = cnn_out;
             
-            if ~isempty(bbox)
-                if ncam == 1
-                    this_val = ((227 - (bbox(1) + (bbox(3) / 2))) / 227);
-                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
-                elseif ncam == 2
-                    this_val = ((bbox(1) + (bbox(3) / 2)) / 227);
-                    temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
-                end
-            else
-                temporal_cnn_out = 0;
-                bbox = [0 0 0 0];
-            end
-            vis_pref_vals(8, ncam) = temporal_cnn_out;
-            
-            vis_pref_vals(9, ncam) = cnn_out * ((bbox(3) * bbox(4)) > 11000);
-            this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', temporal = ', num2str(round(temporal_cnn_out)), ', step time = ', num2str(round(toc(aitic) * 1000)), ' ms');
+%             if ~isempty(bbox)
+%                 if ncam == 1
+%                     this_val = ((227 - (bbox(1) + (bbox(3) / 2))) / 227);
+%                     temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
+%                 elseif ncam == 2
+%                     this_val = ((bbox(1) + (bbox(3) / 2)) / 227);
+%                     temporal_cnn_out = cnn_out * sigmoid(this_val, 0.7, 5);
+%                 end
+%             else
+%                 temporal_cnn_out = 0;
+%                 bbox = [0 0 0 0];
+%             end
+%             vis_pref_vals(8, ncam) = temporal_cnn_out;
+%             
+%             vis_pref_vals(9, ncam) = cnn_out * ((bbox(3) * bbox(4)) > 11000);
+            this_text = horzcat('score = ', num2str(round(score * 100)/100), ', cnn out = ', num2str(round(cnn_out)), ', step time = ', num2str(round(toc(aitic) * 1000)), ' ms');
+            disp(this_text)
         catch
             disp('process visual input break')
         end
