@@ -94,7 +94,7 @@ while flag
             try
                 gpt3_play
             catch
-                disp('GTP fail')
+                disp('Failed to run gpt3_play')
                 soundsc(this_wav, 16000);
             end
         end
