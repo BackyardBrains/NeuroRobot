@@ -7,7 +7,7 @@ Detectors/trainedDetector*
 Detectors/ai.py
 rcnn*
 Detectors/rcnn*
-Detectors/__pycache__
+Detectors/__pycache__/*
 
 OGLdpf.log
 
