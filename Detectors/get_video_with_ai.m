@@ -43,7 +43,7 @@ ti1 = title('Preparing...');
 hold on
 
 %% Record video
-qi = 0.4;
+qi = 0.3;
 zi = [];
 clear pl
 nframe = 0;
@@ -61,8 +61,6 @@ while flag
         'threshold', qi, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
     [mscore, midx] = max(score);
     mbbox = bbox(midx, :);
-
-    disp(num2str(nframe))
 
     x = bbox(score > qi,1) + bbox(score > qi,3)/2;
     y = bbox(score > qi,2) + bbox(score > qi,4)/2;                
