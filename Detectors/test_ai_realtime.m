@@ -85,6 +85,10 @@ while flag
     ti1.String = horzcat('nframe = ', num2str(nframe), ', mscore = ', num2str(round(mscore * 100)/100));
     drawnow
     
+    if mscore > qi * 2
+        gpt3_play
+    end
+    
 %     imx = getframe(fig1);
 %     writeVideo(vidWriter, imx.cdata);
 
