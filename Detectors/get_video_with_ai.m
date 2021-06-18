@@ -2,7 +2,10 @@
 cam_id = 2;
 delete(imaqfind)
 cmap = cool;
-load('rcnn2')
+if ~exist('trainedDetector', 'var')
+    load('rcnn2')
+end
+prepare_word
 
 %% Create camera object
 cam = videoinput('winvideo', cam_id);
@@ -40,7 +43,7 @@ ti1 = title('Preparing...');
 hold on
 
 %% Record video
-qi = 0.3;
+qi = 0.4;
 zi = [];
 clear pl
 nframe = 0;
@@ -86,10 +89,14 @@ while flag
     drawnow
     
     if ~isempty(mscore)
-        if mscore > qi * 3 && ~superflag
+        if mscore > 0.8 && ~superflag
             superflag = 100;
-%             gpt3_play
-            just_speak
+            try
+                gpt3_play
+            catch
+                disp('GTP fail')
+                soundsc(this_wav, 16000);
+            end
         end
     end
     if superflag

@@ -9,4 +9,3 @@ else
 end
 this_wav = this_wav_f + this_wav_m;
 this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
-soundsc(this_wav, 16000);
