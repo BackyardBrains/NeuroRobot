@@ -87,7 +87,7 @@ while flag
     
     if ~isempty(mscore)
         if mscore > 0.8 && ~superflag
-            superflag = 100;
+            superflag = 70;
             try
                 gpt3_play
             catch
