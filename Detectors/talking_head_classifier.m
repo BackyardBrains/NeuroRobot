@@ -18,6 +18,7 @@ keyboard
 
 %% Label video
 % videoLabeler
+combine_gtruths
 
 %% Prepare pre-trained net
 net = alexnet;
