@@ -87,7 +87,7 @@ while flag
     
     if ~isempty(mscore)
         if mscore > qi * 3 && ~superflag
-            superflag = 40;
+            superflag = 100;
             gpt3_play            
         end
     end

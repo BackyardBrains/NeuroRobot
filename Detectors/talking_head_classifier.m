@@ -7,8 +7,8 @@ clear
 %% Settings
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'office7.mp4';
-ai_video_filename = 'ai-office7.mp4';
+raw_video_filename = 'office9.mp4';
+ai_video_filename = 'ai-office9.mp4';
 
 %% Record video
 cam_id = 2;
