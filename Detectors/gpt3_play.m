@@ -6,7 +6,7 @@
 % 
 % clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
 
-prompt = "You are GPT-3, an AI that can talk. You are greeting students at a neuroscience summer course. The following is a conversation between you and a student. AI:";
+prompt = "You are GPT-3, an AI that can talk. You are greeting students at a neuroscience summer course. The following is how you introduce yourself. AI:";
 
 py_str = py.ai.gpt3(prompt);
 this_phrase = strtrim(char(py_str));

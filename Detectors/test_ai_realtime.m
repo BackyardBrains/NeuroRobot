@@ -7,7 +7,7 @@ cmap = cool;
 % open(vidWriter)
 
 %% Create camera object
-cam = videoinput('winvideo', 2);
+cam = videoinput('winvideo', cam_id);
 triggerconfig(cam, 'manual');
 cam.TriggerRepeat = Inf;
 cam.FramesPerTrigger = 1;

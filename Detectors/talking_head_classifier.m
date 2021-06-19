@@ -11,7 +11,7 @@ raw_video_filename = 'office15.mp4';
 ai_video_filename = 'ai-office15.mp4';
 
 %% Record video
-cam_id = 2;
+cam_id = 1;
 % get_video
 get_video_with_ai
 keyboard
@@ -23,10 +23,12 @@ combine_gtruths
 %% Prepare pre-trained net
 net = alexnet;
 % dag_to_rcnn
+trainingData = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
+
 
 %% Train net
 options = trainingOptions('sgdm', 'Shuffle', 'every-epoch', 'MaxEpochs', 100, ...
-    'MiniBatchSize', 128, 'InitialLearnRate', 0.001, 'executionenvironment', 'gpu', ...
+    'MiniBatchSize', 128, 'InitialLearnRate', 0.00001, 'executionenvironment', 'gpu', ...
     'Plots', 'training-progress');
 trainedDetector = trainFastRCNNObjectDetector(trainingData, net, options);
 detector_name = horzcat('trainedData_basenet_', num2str(size(net.Layers), 1), ...
