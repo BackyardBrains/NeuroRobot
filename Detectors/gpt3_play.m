@@ -6,7 +6,10 @@
 % 
 % clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
 
-prompt = "You are GPT-3, an AI that can talk. You are greeting students at a neuroscience summer course. The following is how you introduce yourself. AI:";
+prompt = horzcat('You are GPT-3, an AI that can talk. ', ...
+    'You are greeting students at a neuroscience summer course. ', ...
+    'This is how you introduce yourself to Dr. Chris Harris, who works with ', ...
+    'neurorobots and is a mentor at the course. You say:');
 
 py_str = py.ai.gpt3(prompt);
 this_phrase = strtrim(char(py_str));

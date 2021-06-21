@@ -8,6 +8,12 @@ Detectors/ai.py
 rcnn*
 Detectors/rcnn*
 Detectors/__pycache__/*
+NeuroRobotToolbox/ai.py
+NeuroRobotToolbox/bybai.py
 
 OGLdpf.log
+
+
+
+
 

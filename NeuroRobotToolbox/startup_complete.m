@@ -49,7 +49,8 @@ else
         net_input_size = net.Layers(1).InputSize(1:2);
         disp(horzcat('alexnet loaded in ', num2str(round(toc)), ' s'))
         tic
-        load('rcnn2')
+%         load('rcnn2')
+        load('rcnn3')
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
     elseif use_cnn
         net_input_size = [224 224];

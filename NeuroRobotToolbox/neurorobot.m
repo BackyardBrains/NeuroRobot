@@ -8,12 +8,12 @@
 
 
 %% Settings
-rak_only = 1;           % Use a robot with a RAK WiFi camera module
+rak_only = 0;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 0;         % Use webcamera
+use_webcam = 1;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
+use_rcnn = 1;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
 vocal = 1;              % Custom sound output
 supervocal = 1;         % Custom word output (text-to-speech)
@@ -36,8 +36,8 @@ manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
 script_names = {'Red lights on', 'Green lights on', 'Blue lights on', ...
-    'Action 4', 'Action 5', 'Action 6', ...
-    'Action 7', 'Action 8', 'Action 9'};
+    'Talk to Nour', 'Talk to Ari', 'Talk to Sarah', ...
+    'Talk to Wenbo', 'Talk to Chris'};
 
 
 %% Local configuration
@@ -126,6 +126,7 @@ if ~exist('voluntary_restart', 'var')
 end
 this_exercise = '';
 vocal_buffer = 0;
+object_scores = zeros(n_vis_prefs-6,1);
 
 
 %% Prepare 3
@@ -150,7 +151,8 @@ if use_cnn
     score = zeros(1, 1000);
 elseif use_rcnn
 %     vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots', 'close-up neurorobots'];
-    vis_pref_names = [vis_pref_names, 'head'];
+    vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
+    object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
 end
 n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];

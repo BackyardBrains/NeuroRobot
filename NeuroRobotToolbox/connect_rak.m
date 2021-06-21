@@ -64,7 +64,7 @@ try
         delete(imaqfind)
         try
             if ispc
-                rak_cam = videoinput('winvideo', 2);
+                rak_cam = videoinput('winvideo', 1);
             elseif ismac
                 rak_cam = videoinput('macvideo', 1);
             else

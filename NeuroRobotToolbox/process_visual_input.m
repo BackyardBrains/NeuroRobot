@@ -95,16 +95,39 @@ for ncam = 1:2
         try
             aitic = tic;
 %             [bbox, score] = detect(rcnn, frame, 'NumStrongestRegions', 100, 'MiniBatchSize', 32, 'ExecutionEnvironment', 'gpu');
-            [bbox, score] = detect(trainedDetector, uframe, 'NumStrongestRegions', 100, 'threshold', 0.3, 'ExecutionEnvironment', 'gpu');
-            if isempty(bbox)
-                score = 0;
+%             [bbox, score] = detect(trainedDetector, uframe, 'NumStrongestRegions', 100, 'threshold', 0.3, 'ExecutionEnvironment', 'gpu');
+            
+            [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
+            [mscore, midx] = max(score);
+            mbbox = bbox(midx, :);
+
+            for nobject = 1:n_vis_prefs-6
+                if ~isempty(max(score(label == object_strs{nobject})))
+                    object_scores(nobject) = max(score(label == object_strs{nobject}));
+                end
             end
-            if length(score) > 1
-                [score, idx] = max(score);
-                bbox = bbox(idx, :);
+            
+            for nobject = 1:n_vis_prefs-6
+                cnn_out = sigmoid(object_scores(nobject), 0.4, 40) * 50;
+                vis_pref_vals(nobject + 6, ncam) = cnn_out;
             end
-            cnn_out = sigmoid(score, 0.4, 40) * 50;
-            vis_pref_vals(7, ncam) = cnn_out;
+            
+            
+            
+            
+            
+%             if isempty(bbox)
+%                 score = 0;
+%             end
+%             if length(score) > 1
+%                 [score, idx] = max(score);
+%                 bbox = bbox(idx, :);
+%             end
+
+%             object_scores
+                
+            
+            
             
 %             if ~isempty(bbox)
 %                 if ncam == 1

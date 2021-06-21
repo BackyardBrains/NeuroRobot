@@ -1,9 +1,8 @@
 
 
-% available_gtruths = dir('hero_truth*.mat');
-% ntruths = size(available_gtruths, 1);
+available_gtruths = dir('office14_labels*.mat');
+ntruths = size(available_gtruths, 1);
 
-ntruths = 2;
 disp(horzcat('There are ', num2str(ntruths), ' gtruths'));
 all_filenames = [];
 clear all_labels
@@ -13,13 +12,8 @@ n_unique_labels = 0;
 
 for ntruth = 1:ntruths
     
-    if ntruth == 1
-        load office1_truth
-    elseif ntruth == 2
-        load office2_truth
-    end
-    
-%     load(horzcat('.\gtruths\gtruth', num2str(ntruth), '.mat'))
+    this_filename = available_gtruths(ntruth).name;
+    load(this_filename)
 
     [filenames, boxes] = objectDetectorTrainingData(gTruth, 'SamplingFactor', 1, 'WriteLocation', '.\frames');
 
@@ -75,5 +69,5 @@ while nframe < n_all
     
 end
 
-% save('trainingData', 'trainingData')
+save('trainingData', 'trainingData')
 

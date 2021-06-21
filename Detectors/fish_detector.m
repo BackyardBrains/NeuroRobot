@@ -1,4 +1,9 @@
 
+%%% Find the Fish! %%%
+
+%% Import video
+shrink_video
+
 % shrink_video
 % videoLabeler
 % combine_gtruths
