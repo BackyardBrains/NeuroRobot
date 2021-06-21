@@ -7,7 +7,8 @@ Detectors/trainedDetector*
 Detectors/ai.py
 rcnn*
 Detectors/rcnn*
-Detectors/__pycache__/ai*
+Detectors/__pycache__/*
+NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai*
 NeuroRobotToolbox/bybai.m
 
