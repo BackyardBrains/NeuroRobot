@@ -42,7 +42,11 @@ elseif strcmp(label, 'head')
     summer_project = '';
 end
 
-prompt_c = ' Please describe how you would introduce yourself, starting now:';
+% prompt_c = horzcat(' (The Summer Project description ends here.) The following is a conversation between you and the person who ', ...
+%     'just walked into view. AI: Hello ', label, '. Person: Hello AI. AI:');
+
+prompt_c = horzcat(' (The Summer Project description ends here.) The following is what you would say to assist the person with ', ...
+    'their Summer Project:');
 
 prompt = horzcat(prompt_a, prompt_b, summer_project, prompt_c);
 
