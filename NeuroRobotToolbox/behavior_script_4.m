@@ -6,6 +6,3 @@
 % end
 % 
 % clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
-
-if 
-bybai(

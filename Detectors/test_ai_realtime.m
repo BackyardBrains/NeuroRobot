@@ -1,7 +1,6 @@
 
 delete(imaqfind)
 cmap = cool;
-qi = 0.3;
 
 % %% Create video writer
 % vidWriter = VideoWriter(ai_video_filename,'MPEG-4');
