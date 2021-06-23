@@ -10,7 +10,9 @@ Detectors/rcnn*
 Detectors/__pycache__/*
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai*
-NeuroRobotToolbox/bybai.m
+NeuroRobotToolbox/bybai*
+Detectors/Google_Credentials_Speech2text.json
+NeuroRobotToolbox/Google_Credentials_Speech2text.json
 
 OGLdpf.log
 
