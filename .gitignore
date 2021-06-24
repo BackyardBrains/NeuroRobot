@@ -1,9 +1,9 @@
 .DS_Store
 
 Detectors/videos/*MP4
+Detectors/*MP4
+Detectors/*mat
 Detectors/frames/*png
-Detectors/trainingData.mat
-Detectors/trainedDetector*
 Detectors/ai.py
 rcnn*
 Detectors/rcnn*
