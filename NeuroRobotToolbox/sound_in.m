@@ -1,7 +1,10 @@
 
 
-recObj = audiorecorder(32000, 16, 1);
-recordblocking(recObj,0.5)
+% recObj = audiorecorder(16000, 16, 1);
 
-doubleArray = getaudiodata(recObj);
-plot(doubleArray)
+recordblocking(recObj, 2)
+data = getaudiodata(recObj);
+sound(data, 16000)
+figure(1)
+clf
+plot(data)

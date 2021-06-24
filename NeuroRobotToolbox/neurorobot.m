@@ -23,7 +23,7 @@ matlab_audio_rec = 1;   % Use computer microphone to listen
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
-
+use_extra = 1;
 
 %% Advanced settings
 save_data_and_commands = 0;
@@ -126,7 +126,6 @@ if ~exist('voluntary_restart', 'var')
 end
 this_exercise = '';
 vocal_buffer = 0;
-object_scores = zeros(n_vis_prefs-6,1);
 
 
 %% Prepare 3
@@ -179,6 +178,7 @@ efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
 
+object_scores = zeros(n_vis_prefs-6,1);
 
 
 %% Custom audio out

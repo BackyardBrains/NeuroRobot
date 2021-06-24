@@ -3,6 +3,9 @@ if rak_only && hd_camera
     this_audio = double(rak_cam.readAudio());
 elseif matlab_audio_rec
     this_audio = mic_obj();
+    if extra
+        tableOut = speech2text(speechObject, this_audio, mic_fs);
+    end
 end
 
 if ~isempty(this_audio) && length(this_audio) >= 1000

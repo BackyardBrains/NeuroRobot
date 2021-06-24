@@ -44,6 +44,10 @@ if matlab_audio_rec
     setup(mic_obj)
 end
 
+if extra
+    mic_fs = 16000;
+    speechObject = speechClient('Google','languageCode','en-US');
+end
 
 
 %% Initialize brain and runtime GUI
