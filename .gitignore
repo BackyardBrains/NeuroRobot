@@ -1,17 +1,16 @@
 .DS_Store
 
-Detectors/videos/*MP4
 Detectors/*MP4
 Detectors/*mat
 Detectors/frames/*png
 Detectors/ai.py
-rcnn*
 Detectors/rcnn*
 Detectors/__pycache__/*
+Detectors/Google_Credentials_Speech2text.json
+
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai*
-NeuroRobotToolbox/bybai*
-Detectors/Google_Credentials_Speech2text.json
+NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 
 OGLdpf.log

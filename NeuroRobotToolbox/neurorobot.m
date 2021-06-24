@@ -8,12 +8,12 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
-hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
+use_webcam = 0;         % Use webcamera
+hd_camera = 1;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 1;           % Use a convolutional neural network (Alexnet) for custom abilities
+use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
 vocal = 1;              % Custom sound output
 supervocal = 1;         % Custom word output (text-to-speech)
@@ -23,7 +23,7 @@ matlab_audio_rec = 1;   % Use computer microphone to listen
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
-use_extra = 1;
+use_extra = 0;
 
 %% Advanced settings
 save_data_and_commands = 0;
