@@ -1,10 +1,19 @@
 
+%% Settings
+net_input_size = [227 227];
+fps = 10;
+raw_video_filename = 'office17.mp4';
+cam_id = 1;
+qi = 0.4;
+
+%% Prepare
 delete(imaqfind)
 cmap = cool;
 if ~exist('trainedDetector', 'var')
     load('rcnn5heads')
 end
 prepare_word
+prompt = [];
 
 %% Create camera object
 cam = videoinput('winvideo', cam_id);
@@ -19,15 +28,10 @@ prompt_a = horzcat('You are a helpful artificial intelligence, specifically a te
     'engine similar to GPT-3. You are assisting at Summer Fellowship exploring how embedded ', ...
     'neural networks can be used in research and education. The following is a conversation ', ...
     'between you and ');
-
-prompt_b = 'Dr. Harris, your AI maintenance guy. This is a short description of his Summer Project: ';
-                summer_project = 'Cook meat. Summer Fellowship. Grants. Stop aging. Treat the missus.';
                 
-prompt_c = horzcat('(The description of the Summer Project ends here.)\n\nThe conversation 6begins here.\n', ...
-    'Human: Hello, who are you?\nAI:');
-
-prompt = horzcat(prompt_a, prompt_b, prompt_c);
-dialog = [];
+prompt_c = horzcat('(The description of the Summer Project ends here.)\n\nThe conversation begins here.', ...
+    '\nHuman: Hello, who are you?\nAI: I am an artificial intelligence created by OpenAI and Backyard Brains. ', ...
+    'How can I help you today?');
 
 
 %% Prep
@@ -82,6 +86,7 @@ button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'norma
 set(button_stop, 'Callback', 'stop_flag = 1;', 'FontSize', 12, 'FontName', 'Comic Book', 'FontWeight', 'bold', 'BackgroundColor', [0.8 0.8 0.8])
 
 %% Record video
+this_person = 0;
 zi = [];
 clear pl
 nframe = 0;
@@ -135,73 +140,52 @@ while ~stop_flag
     
     if talk_flag
         talk_flag = 0;
-        recordblocking(recObj, 5)
+        recordblocking(recObj, 4)
         data = getaudiodata(recObj);
         tableOut = speech2text(speechObject, data, 16000);
         cellOut = table2cell(tableOut(:,1));
-        disp(cellOut)
         human_says = cellOut{1};
+        human_says = char(human_says);
         if ~strcmp(human_says, 'NoResult')
-            prompt = append(prompt, 'AI: I am an AI created by OpenAI. How can I help you today?', ...
-                '\nHuman: ', human_says);
+            disp(horzcat('Human says: ', human_says))
+            vocalize_this(horzcat('I heard you say: ', human_says))
+            pause(4)
+            prompt = append(prompt, '\nHuman: ', human_says);
         end
-    end
-    
-    if ~isempty(mscore) && ~superflag
-        if object_scores(1) > qi * 2
-            superflag = 40;
-            prompt_b = horzcat('Ariyana, a Fellow at the Summer Course. This is a short description ', ...
-                'of her Summer Project: ');
-            summer_project = 'Humans blink an average of 28,800 times a day. That means that a person who lives to 80 blinks around 840,960,000 times in their lifetime. The average blink lasts around 0.1 - 0.15 seconds, meaning that humans spend 126,144,000 seconds of their awake time on Earth with their eyes closed; that’s 973 - 1,460 days; 2.7 - 4 years! What’s happening in all that time? Are we simply doomed to miss out on those years of our life? Worry no more, FOMO glasses are (hopefully) here to help! These high tech and stylish glasses made to be wearable by the public will use Electrooculography (EOG) signals to detect blinks from the wearer and take photos in real time of all the life being missed out on. Say goodbye to the FOMO from that concert you had to blink through, and worry no more about missing frames from your favorite movie you claim to have seen the entirety of. Now with FOMO glasses, you can live your life to the fullest, and be present for every moment of it.';
-            
-        elseif object_scores(2) > qi * 2
-            superflag = 40;
-            xx = rand;
-            if xx <= 0.5 % if object_scores(6) > qi * 2
-                prompt_b = 'Dr. Harris, your AI maintenance guy. This is a short description of his Summer Project: ';
-                summer_project = 'Cook meat. Summer Fellowship. Grants. Stop aging. Treat the missus.';
-            elseif xx > 0.5 % elseif object_scores(7) > qi * 2
-                prompt_b = 'Dr. Gage, who runs the Summer Fellowship. This is a short description of his Summer Project: ';
-                summer_project = horzcat('Cookouts. Baseball. Summer Fellowship. Grants. Treat the missus.');
+        if ~this_person
+            [i, this_person] = max(object_scores);
+            if this_person == 1
+                prompt_b = horzcat('Ariyana, a Fellow at the Summer Course. This is a short description of her Summer Project: ');
+                summer_project = 'Humans blink an average of 28,800 times a day. That means that a person who lives to 80 blinks around 840,960,000 times in their lifetime. The average blink lasts around 0.1 - 0.15 seconds, meaning that humans spend 126,144,000 seconds of their awake time on Earth with their eyes closed; that’s 973 - 1,460 days; 2.7 - 4 years! What’s happening in all that time? Are we simply doomed to miss out on those years of our life? Worry no more, FOMO glasses are (hopefully) here to help! These high tech and stylish glasses made to be wearable by the public will use Electrooculography (EOG) signals to detect blinks from the wearer and take photos in real time of all the life being missed out on. Say goodbye to the FOMO from that concert you had to blink through, and worry no more about missing frames from your favorite movie you claim to have seen the entirety of. Now with FOMO glasses, you can live your life to the fullest, and be present for every moment of it.';
+            elseif this_person == 2
+                    prompt_b = 'Dr. Harris, your AI maintenance guy. This is a short description of his Summer Project: ';
+                    summer_project = 'Cook meat. Summer Fellowship. Grants. Stop aging. Treat the missus.';            
+            elseif this_person == 3
+                prompt_b = horzcat('Nour, a Fellow at the Summer Course. This is a short description of her Summer Project: ');
+                summer_project = 'In my project, I will develop a small touch screen to show a series of playing cards while measuring EEGs. The subject chooses a card and AI determines which one it was. I will be training a machine learning algorithm to recognize the steady state visual evoked potentials (SSVEP) and/or the P300 surprise signal to give a guess on the run.';
+            elseif this_person == 4
+                prompt_b = horzcat('Sarah, a Fellow at the Summer Course. This is a short description of her Summer Project: ');
+                summer_project = 'Hi everyone! I am working on a lie detection device using TinyML that will hopefully be multimodal. I am currently working on assembling a base model using skin galvanic response before I move forward into considering EEG and other modalities.';            
+            elseif this_person == 5
+                prompt_b = 'Wenbo, an Engineer at Backyard Brains. This is a short description of his Summer Project: ';
+                summer_project = horzcat('Engineering. Engineering. Engineering. Car. Treat the missus.');
             end
-            
-        elseif object_scores(3) > qi * 2
-            superflag = 40;
-            prompt_b = horzcat('Nour, a Fellow at the Summer Course. This is a short ', ...
-                'description of her Summer Project: ');
-            summer_project = 'In my project, I will develop a small touch screen to show a series of playing cards while measuring EEGs. The subject chooses a card and AI determines which one it was. I will be training a machine learning algorithm to recognize the steady state visual evoked potentials (SSVEP) and/or the P300 surprise signal to give a guess on the run.';
-            
-        elseif object_scores(4) > qi * 2
-            superflag = 40;
-            prompt_b = horzcat('Sarah, a Fellow at the Summer Course. This is a short ', ...
-                'description of her Summer Project: ');
-            summer_project = 'Hi everyone! I am working on a lie detection device using TinyML that will hopefully be multimodal. I am currently working on assembling a base model using skin galvanic response before I move forward into considering EEG and other modalities.';
-            
-        elseif object_scores(5) > qi * 2
-            superflag = 40;
-            prompt_b = 'Wenbo, an Engineer at Backyard Brains. This is a short description of his Summer Project: ';
-            summer_project = horzcat('Engineering. Engineering. Engineering. Car. Treat the missus.');
-            %                elseif object_scores(6) > qi * 2
-            %                     prompt_b = 'It is Dr. Harris, your AI maintenance guy. This is a short description of his Summer Project: ';
-            %                     summer_project = 'Cook meat. Summer Fellowship. Grants. Stop aging. Treat the missus.';
-            %                elseif object_scores(7) > qi * 2
-            %                     prompt_b = 'It is Dr. Gage, who runs the Summer Fellowship. This is a short description of his Summer Project: ';
-            %                     summer_project = horzcat('Cookouts. Baseball. Summer Fellowship. Grants. Treat the missus.');
+
+            prompt = horzcat(prompt_a, prompt_b, summer_project, prompt_c);
+
         end
-        
-        prompt = horzcat(prompt_a, prompt_b, summer_project, prompt_c, dialog); % prompt needs to go in here...
-        % switching between people complicates
-        
-    end
     
-    
-    
-    try
-        answer = bybai2(prompt); % When should answer be integrated?
-        keyboard
-    catch
-        disp('Failed to run gpt3_play')
-        soundsc(hello_wav, 16000);
+%         clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
+        prompt = append(prompt, '\nAI:');
+        py_str = py.ai.gpt3(prompt);
+        ai_says = strtrim(char(py_str));
+        linebreaks = strfind(ai_says, '\n');
+        if ~isempty(linebreaks)
+            ai_says(linebreaks(1):end) = [];
+        end
+        disp(horzcat('AI says: ', ai_says))
+        vocalize_this(ai_says)
+        prompt = append(prompt, ai_says);
     end
 
     if superflag
@@ -211,6 +195,7 @@ while ~stop_flag
     writeVideo(vidWrite, frame);
 
 end
+
 stop_flag = 1;
 close(vidWrite)
 close(fig1)

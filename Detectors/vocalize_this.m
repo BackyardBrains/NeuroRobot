@@ -1,9 +1,5 @@
 function vocalize_this(this_phrase)
 
-tic
-
-disp(this_phrase)
-
 this_wav_m = tts(this_phrase,'Microsoft David Desktop - English (United States)',[],16000);
 this_wav_f = tts(this_phrase,'Microsoft Zira Desktop - English (United States)',[],16000);
 
@@ -21,5 +17,3 @@ else
 end
 
 soundsc(this_wav, 16000);
-
-disp(horzcat('Time to vocalize: ', num2str(round(toc)), ' sec'))

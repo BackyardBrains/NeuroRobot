@@ -11,7 +11,7 @@ raw_video_filename = 'office17.mp4';
 ai_video_filename = 'ai-office17.mp4';
 
 %% Record video
-cam_id = 2;
+cam_id = 1;
 qi = 0.4;
 % get_video
 get_video_with_ai
