@@ -3,7 +3,7 @@ if rak_only && hd_camera
     this_audio = double(rak_cam.readAudio());
 elseif matlab_audio_rec
     this_audio = mic_obj();
-    if extra
+    if use_extra
         tableOut = speech2text(speechObject, this_audio, mic_fs);
     end
 end

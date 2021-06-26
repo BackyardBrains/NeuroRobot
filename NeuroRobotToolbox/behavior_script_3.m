@@ -1,5 +1,5 @@
 
-% Blink
+% What does this do?
 
 script_step_count = script_step_count + 1;
 

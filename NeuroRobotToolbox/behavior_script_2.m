@@ -1,17 +1,11 @@
 
-% Spin with tune
+% Green
 
 script_step_count = script_step_count + 1;
 
 if script_step_count <= 20
-%     left_forward = left_forward + (script_step_count * 2.5);
-%     right_backward = right_backward + (script_step_count * 2.5);
-%     speaker_tone = script_step_count * 200;
     just_green
 elseif script_step_count > 20
-%     left_forward = left_forward + (40 - script_step_count) * 2.5;
-%     right_backward = right_backward + (40 - script_step_count) * 2.5; 
-%     speaker_tone = (40 - script_step_count) * 200;
     just_off
 end
 

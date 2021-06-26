@@ -94,7 +94,7 @@ if script_running
             behavior_script_4
         elseif use_webcam
             behavior_script_4
-            disp('webcam mode cannot call behavior scripts yet, try it')
+%             disp('webcam mode cannot call behavior scripts yet, try it')
         end
     else
         disp('Unknown behavior')
