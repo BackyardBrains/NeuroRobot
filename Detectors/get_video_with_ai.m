@@ -17,6 +17,7 @@ elseif ~exist('cam', 'var')
     cam.TriggerRepeat = Inf;
     cam.FramesPerTrigger = 1;
     cam.ReturnedColorspace = 'rgb';
+    start(cam)
 end
 nappends = 0;
 cmap = cool;
@@ -189,7 +190,10 @@ while ~stop_flag
             tic
             disp(horzcat('Human says: ', human_says))
             vocalize_this(horzcat('I heard you say: ', human_says))
+            pause(1)
             disp(horzcat('Time to echo = ', num2str(toc)))
+            ti1.String = 'Generating dialog...';
+            drawnow
 
             if strcmp(this_person, '')
                 [i, this_person] = max(object_scores);
@@ -221,7 +225,7 @@ while ~stop_flag
             nappends = nappends + 1;
 
             tic
-            ti1.String = 'Generating dialog...';
+            
     %         clear classes; m = py.importlib.import_module('ai'); py.importlib.reload(m);
             prompt = append(prompt, '\nAI:');
             py_str = py.ai.gpt3(prompt);
