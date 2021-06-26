@@ -44,7 +44,7 @@ if matlab_audio_rec
     setup(mic_obj)
 end
 
-if extra
+if use_extra
     mic_fs = 16000;
     speechObject = speechClient('Google','languageCode','en-US');
 end
