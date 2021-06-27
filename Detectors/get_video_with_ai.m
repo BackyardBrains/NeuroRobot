@@ -1,6 +1,6 @@
 
 %%%% TALK TO A ROBOT %%%%
-
+% 6/27/2021 test : 
 
 %% Settings
 net_input_size = [227 227];
