@@ -4,9 +4,10 @@ Detectors/*MP4
 Detectors/videos/*MP4
 Detectors/frames/*png
 Detectors/labels/*mat
+
+Detectors/__pycache__/*
 Detectors/ai.py
 Detectors/rcnn*
-Detectors/__pycache__/*
 Detectors/Google_Credentials_Speech2text.json
 
 NeuroRobotToolbox/__pycache__/*
