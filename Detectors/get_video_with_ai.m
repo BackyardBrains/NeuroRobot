@@ -5,9 +5,9 @@
 %% Settings
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'classroom1.mp4';
+raw_video_filename = 'classroom3.mp4';
 cam_id = 1;
-qi = 0.4;
+qi = 0.5;
 
 %% Prompt
 prompt_a = horzcat('You are a helpful artificial intelligence, specifically a text completion ', ...
