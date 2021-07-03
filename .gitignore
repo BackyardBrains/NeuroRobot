@@ -1,9 +1,6 @@
 .DS_Store
 
-Detectors/*MP4
-Detectors/videos/*MP4
 Detectors/frames/*png
-Detectors/labels/*mat
 
 Detectors/__pycache__/*
 Detectors/ai.py
