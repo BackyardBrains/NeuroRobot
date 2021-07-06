@@ -3,13 +3,13 @@ close all
 clear
 
 %% Settings
-input_video_name = 'C:\Users\chris\Downloads\fish1x.mp4';
+input_video_name = 'C:\Users\Christopher Harris\NeuroRobot\Detectors\classroom3.mp4';
 
 %% Create video reader
 vidRead = VideoReader(input_video_name);
 
 %% Create video writer object
-vidWrite = VideoWriter('C:\Users\chris\Downloads\fish1_small.mp4','MPEG-4');
+vidWrite = VideoWriter('C:\Users\Christopher Harris\NeuroRobot\Detectors\classroom3_small.mp4','MPEG-4');
 open(vidWrite)
 
 %% Record video
