@@ -65,7 +65,7 @@ set(fig1, 'NumberTitle', 'off', 'Name', 'Talking Head Classifier')
 set(fig1, 'menubar', 'none', 'toolbar', 'none')
 set(fig1, 'position', fig_pos)
 
-ax_frame = axes('position', [0.02 0.2 0.47 0.76]);
+ax_frame = axes('position', [0.02 0.17 0.47 0.76]);
 im = image(frame);
 set(gca, 'xtick', [], 'ytick', [])
 ti1 = title('Preparing...');
@@ -73,14 +73,14 @@ hold on
 pl(1).plt = plot(-1, -1, 'linestyle', 'none', 'color', cmap(1, :), 'marker', 'o', 'markersize', 8, 'linewidth', 2);
 
 
-dialog_box = uicontrol('Style', 'text', 'String', '', 'units', 'normalized', 'position', [0.02 0.1 0.47 0.08], ...
+dialog_box = uicontrol('Style', 'text', 'String', '', 'units', 'normalized', 'position', [0.02 0.1 0.47 0.05], ...
     'FontName', 'Arial', 'fontsize', 11, 'horizontalalignment', 'left');
 
 object_strs = {'Ariyana', 'Human (prob. Chris)', 'Nour', 'Sarah', 'Wenbo'};
 
 nobjects = size(object_strs, 2);
 object_scores = zeros(nobjects,1);
-ax_bar = axes('position', [0.55 0.25 0.4 0.68]);
+ax_bar = axes('position', [0.55 0.22 0.4 0.68]);
 object_bars = bar(object_scores);
 hold on
 ylabel('Confidence')
