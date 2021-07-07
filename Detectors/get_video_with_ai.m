@@ -6,12 +6,12 @@
 smalltalk = 1;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'office21.mp4';
+raw_video_filename = 'office25.mp4';
 cam_id = 1;
 qi = 0.5;
 
 %% Prompt
-prompt_a = horzcat('You are a friendly, helpful, insightful artificial intelligence. You are assisting at a ', ...
+prompt_a = horzcat('You are a friendly, insightful artificial intelligence. You are assisting at a ', ...
     'Summer Fellowship in neuroscience and AI.\n\nThe following is a conversation between you and ');
 
 prompt_c = '\n(The description of the Summer Project ends here.)\n\n--- The dialog begins here ---';
@@ -76,7 +76,7 @@ pl(1).plt = plot(-1, -1, 'linestyle', 'none', 'color', cmap(1, :), 'marker', 'o'
 dialog_box = uicontrol('Style', 'text', 'String', '', 'units', 'normalized', 'position', [0.02 0.1 0.47 0.05], ...
     'FontName', 'Arial', 'fontsize', 11, 'horizontalalignment', 'left');
 
-object_strs = {'Ariyana', 'Human (prob. Chris)', 'Nour', 'Sarah', 'Wenbo'};
+object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
 
 nobjects = size(object_strs, 2);
 object_scores = zeros(nobjects,1);
