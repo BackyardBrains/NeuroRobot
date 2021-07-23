@@ -6,7 +6,7 @@
 smalltalk = 0;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'tent1.mp4';
+raw_video_filename = 'office100.mp4';
 cam_id = 1;
 qi = 0.5;
 
