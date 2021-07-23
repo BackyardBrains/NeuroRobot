@@ -51,7 +51,7 @@ if bg_brain
     drive_bar_ax.Color = fig_bg_col;
     set(drive_bar_ax, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'linewidth', 2)
     title('Motivation', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Basal Ganglia Channel', 'FontSize', bfsize, 'fontname', gui_font_name);
+    xlabel('Basal Ganglia Circuit', 'FontSize', bfsize, 'fontname', gui_font_name);
     ylim([0 255])
     set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', letters(2:nnetworks), 'ytick', [], 'ycolor', fig_bg_col)
     box off

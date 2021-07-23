@@ -334,7 +334,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
                 x2 = neuron_xys(nneuron,1);
                 y1 = neuron_xys(this_neuron,2);
                 y2 = neuron_xys(nneuron,2);                  
-                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2+0.13], 'color', network_colors(network_ids(nneuron), :), 'linewidth', 4, 'linestyle', '--');  
+                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2+0.13], 'color', network_colors(network_ids(nneuron), :), 'linewidth', 2 - microcircuit, 'linestyle', '--');  
             end
         end
     end  
