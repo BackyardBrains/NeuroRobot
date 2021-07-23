@@ -3,10 +3,10 @@
 
 
 %% Settings
-smalltalk = 1;
+smalltalk = 0;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'office25.mp4';
+raw_video_filename = 'tent1.mp4';
 cam_id = 1;
 qi = 0.5;
 
@@ -261,7 +261,7 @@ while ~stop_flag
             elseif this_person == 2
                 this_person = 'Chris';
                 prompt_b = ', your AI maintenance guy.\nThis is a short description of his Summer Project:\n';
-                summer_project = 'Cook meat. Help with the Summer Fellowship. Get grants. Stop aging. Treat the missus.';
+                summer_project = 'Cook meat. Get grants. Treat the missus. Help with the Summer Fellowship. Stop the aging process.';
             elseif this_person == 3
                 this_person = 'Nour';
                 prompt_b = ', a Fellow at the Summer Course.\nThis is a short description of her Summer Project:\n';
@@ -283,9 +283,9 @@ while ~stop_flag
         prompt = append(prompt, '\nHuman: ', human_says);
         nappends = nappends + 1;
         
-        %             clear classes;
-        %             m = py.importlib.import_module('ai');
-        %             py.importlib.reload(m);
+%                     clear classes;
+%                     m = py.importlib.import_module('ai');
+%                     py.importlib.reload(m);
         
         %% Text completion / AI response
         tic
