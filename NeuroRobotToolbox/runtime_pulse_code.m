@@ -18,7 +18,9 @@ get_visual_input
 
 %% Process visual input
 % disp('4')
-process_visual_input
+if camera_present
+    process_visual_input
+end
     
 %% Process audio input
 % disp('5')

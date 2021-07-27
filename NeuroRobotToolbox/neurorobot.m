@@ -9,8 +9,8 @@
 
 %% Settings
 rak_only = 0;           % Use a robot with a RAK WiFi camera module
-camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
+camera_present = 0;     % Use robot camera OR webcamera
+use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
@@ -19,7 +19,7 @@ vocal = 0;              % Custom sound output
 supervocal = 0;         % Custom word output (text-to-speech)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;    % Step time in seconds
-matlab_audio_rec = 1;   % Use computer microphone to listen
+matlab_audio_rec = 0;   % Use computer microphone to listen
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 0;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
@@ -255,7 +255,11 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', brain_name, 'units', 'nor
 
 % Camera button
 dis_cam_button = 0;
-imaqfind_out = imaqfind;
+if use_webcam
+    imaqfind_out = imaqfind;
+else
+    imaqfind_out = 0;
+end
 if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
     dis_cam_button = 1;
