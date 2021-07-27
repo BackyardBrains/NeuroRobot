@@ -8,8 +8,8 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
-camera_present = 0;     % Use robot camera OR webcamera
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
+camera_present = 1;     % Use robot camera OR webcamera
 use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
