@@ -179,7 +179,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(button_w2)
         delete(text_w)
         delete(edit_w)
-    else
+    elseif exist('popup_select_word', 'var')
         delete(popup_select_word)
     end
         
