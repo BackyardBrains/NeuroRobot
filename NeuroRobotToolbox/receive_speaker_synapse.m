@@ -79,7 +79,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             
             % Sound effects
             current_sound = neuron_tones(presynaptic_neuron, 1);  
-            popup_select_sound = uicontrol('Style', 'popup', 'String', [audio_out_names vis_pref_names], 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            popup_select_sound = uicontrol('Style', 'popup', 'String', [audio_out_names], 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if current_sound
                 popup_select_sound.Value = current_sound;
             end        
@@ -111,15 +111,15 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Update variables
     if ~vocal
         this_input = str2double(edit_w.String);
+    else
+        this_input = popup_select_sound.Value;
     end
     if ~vocal && (isnan(this_input) || this_input < 0 || this_input > 4978)
         this_input = 0;
         disp('Speaker input out of range.')
     end
     speaker_selected = 0;
-    if ~vocal
-        neuron_tones(presynaptic_neuron, 1) = this_input;
-    end
+    neuron_tones(presynaptic_neuron, 1) = this_input;
     
     if supervocal
         if popup_select_word.Value == 1
@@ -163,6 +163,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(text_f)
 
     end
+    
+    if exist('popup_select_sound', 'var')
+        delete(popup_select_sound)        
+    end
+    
     if neuron_tones(presynaptic_neuron, 1)
         neuron_contacts(presynaptic_neuron, 4) = 100; % this is just to get a good axon display
     end
