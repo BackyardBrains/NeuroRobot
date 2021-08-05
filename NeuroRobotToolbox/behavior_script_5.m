@@ -11,9 +11,7 @@ if script_step_count == 1
     rak_cam.writeSerial('d:431;')
     rak_cam.writeSerial('d:531;')
     rak_cam.writeSerial('d:631;')
-    if vocal
-        rak_cam.sendAudio(strcat('.\Sounds\', num2str(audio_out_names{randsample(n_out_sounds, 1)}), '.mp3'));
-    end
+
 end
 if (script_step_count * pulse_period) > 3
     rak_cam.writeSerial('d:130;')

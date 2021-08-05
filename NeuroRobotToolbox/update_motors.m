@@ -81,21 +81,40 @@ if script_running
         if rak_only
             behavior_script_1
         elseif use_webcam
-            disp('webcam mode cannot call behavior scripts yet, try it')
+            disp('this behavior needs a robot')
         end
     elseif script_running == 2
         if rak_only
             behavior_script_2
         elseif use_webcam
-            disp('webcam mode cannot call behavior scripts yet, try it')
+            disp('this behavior needs a robot')
         end
+    elseif script_running == 3
+        if rak_only
+            behavior_script_3
+        elseif use_webcam
+            disp('this behavior needs a robot')
+        end        
     elseif script_running == 4
         if rak_only
             behavior_script_4
         elseif use_webcam
             behavior_script_4
-%             disp('webcam mode cannot call behavior scripts yet, try it')
         end
+    elseif script_running == 5
+        if rak_only
+            behavior_script_5
+        elseif use_webcam
+%             behavior_script_5
+            disp('this behavior needs a robot')
+        end
+    elseif script_running == 6
+        if rak_only
+            behavior_script_6
+        elseif use_webcam
+%             behavior_script_6
+            disp('this behavior needs a robot')
+        end        
     else
         disp('Unknown behavior')
     end

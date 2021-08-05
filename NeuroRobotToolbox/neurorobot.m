@@ -8,14 +8,14 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
+use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
-vocal = 1;              % Custom sound output
+vocal = 0;              % Custom sound output
 supervocal = 0;         % Custom word output (text-to-speech)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;    % Step time in seconds
@@ -35,9 +35,9 @@ draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Red lights on', 'Green lights on', 'Blue lights on', ...
-    'Talk to Nour', 'Talk to Ari', 'Talk to Sarah', ...
-    'Talk to Wenbo', 'Talk to Chris'};
+script_names = {'Red', 'Green', 'Blue', ...
+    'GPT-3', 'Custom LEDs', 'Whatever this is', ...
+    '-', '-'};
 
 
 %% Local configuration

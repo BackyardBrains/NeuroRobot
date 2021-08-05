@@ -1,69 +1,45 @@
 
-
-% Find A
+% What does this do?
 
 script_step_count = script_step_count + 1;
 
-% At the start
-if script_step_count == 1
-    % Get strong current visual inputs
-    sensory_in_trig = vis_pref_vals > 20;
-    % If this fails, quit
-    if ~sum(sensory_in_trig(:))
-        script_running = 0;
-        script_step_count = 0;
-        disp('Failed to start')
-    else
-        lights_out    
-    end
-    isfound = 0;
-end
-
-if script_running
-% Turn around1
-if script_step_count <= 10
-    left_forward = left_forward + 50;
-    right_backward = right_backward + 50;      
-% Then
-elseif script_step_count <= 20
-    left_forward = left_forward + 20;
-    right_forward = right_forward + 20;    
-else
-    % If none of the strong visual stimuli are currently present
-    if ~sum(sensory_in_trig(vis_pref_vals > 20)) && ~isfound
-        % Move randomly forward
-        left_forward = left_forward + rand * 100;
-        right_forward = right_forward + rand * 100;   
-        left_backward = left_backward + rand * 30;
-        right_backward = right_backward + rand * 30;           
-    else
-    % Otherwise, quit (target found)
-        disp('Found')
-        if size(sensory_in_trig(vis_pref_vals > 20), 2) > 1
-            error('Array needs to be (:)d before ln 25')
-        end
-        
-        if ~isfound
-            rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
-        end
-        isfound = 1;
+if rak_only
+    if spinled == 1
+        rak_cam.writeSerial('d:121;')
+        rak_cam.writeSerial('d:420;')        
+        spinled = 2;
+    elseif spinled == 2
+        rak_cam.writeSerial('d:321;')
+        rak_cam.writeSerial('d:120;')
+        spinled = 3;
+    elseif spinled == 3
+        rak_cam.writeSerial('d:521;')
+        rak_cam.writeSerial('d:320;')
+        spinled = 4;
+    elseif spinled == 4
+        rak_cam.writeSerial('d:621;')
+        rak_cam.writeSerial('d:520;')
+        spinled = 5;
+    elseif spinled == 5
+        rak_cam.writeSerial('d:221;')
+        rak_cam.writeSerial('d:620;')
+        spinled = 6;
+    elseif spinled == 6
+        rak_cam.writeSerial('d:421;')
+        rak_cam.writeSerial('d:220;')
+        spinled = 1;        
     end
 end
-% Give up the search after 10 seconds
-if (script_step_count * pulse_period) > 10
 
-    lights_out
-    
-    if ~isfound
-        rak_cam.writeSerial('d:131;d:231;d:331;d:431;d:531;d:631;')
-    end
+if script_step_count > 50
     script_running = 0;
-    script_step_count = 0;  
-    isfound = 0;
-    
-    disp('Giving up')
+    script_step_count = 0;
+    rak_cam.writeSerial('d:120;')
+    rak_cam.writeSerial('d:220;')
+    rak_cam.writeSerial('d:320;')
+    rak_cam.writeSerial('d:420;')
+    rak_cam.writeSerial('d:520;')
+    rak_cam.writeSerial('d:620;')
+    spinled = 0;
 end
-end
-if isfound
-    reward = 1;
-end
+
