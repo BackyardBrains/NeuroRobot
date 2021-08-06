@@ -1,5 +1,5 @@
-if popup_select_word.Value > 1
-    word_edit_name.String = popup_select_word.String{popup_select_word.Value};
+if popup_select_sound.Value > 1
+    word_edit_name.String = popup_select_sound.String{popup_select_sound.Value};
 else
     word_edit_name.String = [];
 end

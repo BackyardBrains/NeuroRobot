@@ -59,7 +59,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             for nword = 1:(n_out_sounds + n_vis_prefs)
                 word_string{nword + 1} = audio_out_names{nword};
             end
-            popup_select_word = uicontrol('Style', 'popup', 'String', word_string, 'callback', 'update_popup_select_word', 'units', 'normalized', ...
+            popup_select_sound = uicontrol('Style', 'popup', 'String', word_string, 'callback', 'update_popup_select_word', 'units', 'normalized', ...
                 'position', [0.02 0.75 0.26 0.1], 'fontsize', bfsize, 'fontweight', gui_font_weight, 'FontName', gui_font_name);
             word_text_name = uicontrol('Style', 'text', 'String', 'Current word:', 'units', 'normalized', 'position', [0.02 0.68 0.26 0.05], ....
                 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
@@ -96,13 +96,13 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     end       
     
     if supervocal 
-        if isempty(word_edit_name.String) && popup_select_word.Value == 1
+        if isempty(word_edit_name.String) && popup_select_sound.Value == 1
             word_edit_name.String = 'What should I say?';
         end
-        if popup_select_word.Value == 1
+        if popup_select_sound.Value == 1
             word_name = word_edit_name.String;
         else
-            word_name = popup_select_word.String{popup_select_word.Value};
+            word_name = popup_select_sound.String{popup_select_sound.Value};
         end        
     end
         
@@ -122,7 +122,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     neuron_tones(presynaptic_neuron, 1) = this_input;
     
     if supervocal
-        if popup_select_word.Value == 1
+        if popup_select_sound.Value == 1
             neuron_tones(presynaptic_neuron, 1) = length(audio_out_fs) + 1;  
             
             if check_m.Value && ~check_f.Value
@@ -150,8 +150,8 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             brain.audio_out_wavs = audio_out_wavs;
             brain.audio_out_names = audio_out_names;
             
-        elseif popup_select_word.Value > 1
-            neuron_tones(presynaptic_neuron, 1) = popup_select_word.Value - 1;
+        elseif popup_select_sound.Value > 1
+            neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value - 1;
         end
             
         delete(text_load)
@@ -184,8 +184,8 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(button_w2)
         delete(text_w)
         delete(edit_w)
-    elseif exist('popup_select_word', 'var')
-        delete(popup_select_word)
+    elseif exist('popup_select_sound', 'var')
+        delete(popup_select_sound)
     end
         
     % Delete growth cone
