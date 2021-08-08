@@ -3,10 +3,10 @@
 
 
 %% Settings
-smalltalk = 0;
+smalltalk = 1;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'office100.mp4';
+raw_video_filename = 'kitchen11.mp4';
 cam_id = 1;
 qi = 0.5;
 
