@@ -46,7 +46,7 @@ neuron_scripts = zeros(nneurons, 1);
 
 imx_rands = randsample(length(brain_im_xy), nneurons); 
 neuron_xys = brain_im_xy(imx_rands, :);
-neuron_xys = neuron_xys * 0.3;
+neuron_xys = neuron_xys * 0.9;
 for presynaptic_neuron = 1:nneurons
     
     % Connectome
@@ -62,7 +62,7 @@ for presynaptic_neuron = 1:nneurons
             
             
                    
-            if ce > 0.1 && ce <= 0.4 && rand < 0.2
+            if ce > 0.2 && ce <= 0.7 && rand < 0.5
                 this_weight = 10 * rand;
 %             elseif ce < 0.2 && rand < 0.66
 %                 this_weight = 50 * rand;
