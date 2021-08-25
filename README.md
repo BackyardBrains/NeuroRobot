@@ -16,7 +16,7 @@ The following setup is recommended:
 
 To start the NeuroRobot app, open the file NeuroRobotToolbox/neurorobot.m in Matlab, adjust <a href="https://docs.google.com/document/d/1_fkM_ccYyojDcovjW_f6EnSZTBed_XkrHJNA_dRZvvg/edit#bookmark=kix.lcvfd1hyq9l0">settings</a>, then run the file. This launches the app’s Startup menu.
 
-Please see the <a href='https://docs.google.com/document/d/1_fkM_ccYyojDcovjW_f6EnSZTBed_XkrHJNA_dRZvvg/edit?usp=sharing'>User Guide</a> for more information about getting started with the NeuroRobot app in Matlab.
+Please refer to the <a href='https://docs.google.com/document/d/1_fkM_ccYyojDcovjW_f6EnSZTBed_XkrHJNA_dRZvvg/edit?usp=sharing'>User Guide</a> for more information about getting started with the NeuroRobot app in Matlab.
 
 # Design Brains
 
