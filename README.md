@@ -6,7 +6,7 @@ A neurorobot is a robot controlled by a computer simulation of a biological brai
 
 The following setup is recommended:
 
-- Matlab 2020a or later (iOS beta <a href="testflight.apple.com/join/N41wWHyJ">here</a>)
+- Matlab 2020a or later (iOS beta <a href="https://testflight.apple.com/join/N41wWHyJ">here</a>)
 - Image Processing Toolbox (for vision)
 - Digital Signal Processing Toolbox (for hearing)
 - Image Acquisition Toolbox (for webcam-vision, <a href="https://www.mathworks.com/matlabcentral/fileexchange/45183-image-acquisition-toolbox-support-package-for-os-generic-video-interface">this support package</a> is also needed)
