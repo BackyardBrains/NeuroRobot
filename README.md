@@ -28,6 +28,8 @@ The NeuroRobot app collects camera and microphone data continuously. Within this
 
 The basal ganglia allows vertebrate organisms to select particular actions in particular situations. Specifically, the basal ganglia disinhibits (i.e. activates) one group of neurons, associated with one specific behavior, at a time. Dopamine rewards make the currently selected basal ganglia neuron group and its associated behavior stay selected longer (higher "motivation") and increases their likelihood of being selected in similar situations in the future. Inputs to basal ganglia neurons strongly influence how long the currently selected neuronal group stays selected. Neurons belonging to a particular basal ganglia group are identified by the “ID” variable, by dashed lines emanating from "Striatal" neurons, and (optionally) by color.
 
+Please refer to the <a href='https://docs.google.com/document/d/12S6izB7_oZGWIqypyMhO19rSjw4mqDFAkoiaXdZETu0/edit'>Labs and Lesson Plans</a> for more information about getting started with the NeuroRobot app in Matlab.
+
 # Troubleshooting
 
 In the Startup menu, click Connect. The Connect button should turn green in 5-20 s. If the button turns red or Matlab crashes, you have a problem. Try restarting Matlab. If you have a robot, make sure the WiFi connection is intact. If you are using a computer with a webcamera, use the ‘ver’ command to confirm that you have the Image Acquisition Toolbox installed, use the Matlab Add-on Explorer to check that the Support Package for OS Generic Video Interface is installed, and confirm that the ‘rak_cam = videoinput('winvideo', 1); preview(rak_cam)’ command is able to display video from your webcamera.
