@@ -1,6 +1,6 @@
 # NeuroRobot app by Backyard Brains
 
-A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use neurorobots to teach computational neuroscience in high schools. This repo contains all the Matlab and C/C++ code needed to run the NeuroRobot app, with or without a robot. The app allows you to design and simulate biologically-based neural networks connected to sensors and effectors.
+A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use neurorobots to teach computational neuroscience in high schools. This repo contains all the Matlab and C/C++ code needed to run the NeuroRobot app, with or without a robot. The app allows you to design and simulate biologically-based neural networks connected to sensors (camera, microphone, distance sensor) and effectors (speaker, motors).
 
 # Get Started
 
@@ -24,7 +24,7 @@ Many neurons in the NeuroRobot app are Izhikevich neurons designed to simulate t
 
 Synaptic connections can be plastic. This means that if a sending and a receiving neuron are active at the same time, a synapse connecting them will grow stronger. In other words, neurons that fire together, wire together. Some synapses are plastic only in the presence of a dopamine reward.
 
-The NeuroRobot app collects camera and microphone data continuously. Within this data, it can detect simple features such as color and pitch, and complex data such as objects and words. To make a neuron respond to a sensory feature, select the orange square next to the relevant sensor, then select the target neuron. To make a neuron produce movement or sound, select the neuron first, then the relevant target.
+The NeuroRobot app collects camera and microphone data continuously. Within this data, it can detect simple features such as color and pitch, and complex data such as objects and words. To make a neuron respond to a sensory feature, select the orange square next to the relevant sensor, then select the target neuron. To make a neuron produce movement or sound, select the neuron first, then the orange square of the desired speaker or motor.
 
 The basal ganglia allows vertebrate organisms to select particular actions in particular situations. Specifically, the basal ganglia disinhibits (i.e. activates) one group of neurons, associated with one specific behavior, at a time. Dopamine rewards make the currently selected group stay selected longer (higher "motivation"), and increases its likelihood of being selected in similar situations in the future. Inputs to “Striatal” neurons strongly influence how long the current basal ganglia group stays selected (higher "motivation"). Neurons belonging to a particular basal ganglia group are identified by the “ID” variable, by dashed lines emanating from Striatal neurons, and (optionally) by color.
 
