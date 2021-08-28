@@ -6,13 +6,13 @@
 smalltalk = 1;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'kitchen11.mp4';
+raw_video_filename = 'obat.mp4';
 cam_id = 1;
 qi = 0.5;
 
 %% Prompt
-prompt_a = horzcat('You are a friendly, insightful artificial intelligence. You are assisting at a ', ...
-    'Summer Fellowship in neuroscience and AI.\n\nThe following is a conversation between you and ');
+prompt_a = horzcat('You are a friendly, insightful artificial intelligence. ', ...
+    '\n\nThe following is a conversation between you and ');
 
 prompt_c = '\n(The description of the Summer Project ends here.)\n\n--- The dialog begins here ---';
 
