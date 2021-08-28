@@ -28,7 +28,7 @@ The NeuroRobot app collects camera and microphone data continuously. Within this
 
 The basal ganglia allows vertebrate organisms to select particular actions in particular situations. Specifically, the basal ganglia disinhibits (i.e. activates) one group of neurons, associated with one specific behavior, at a time. Dopamine rewards make the currently selected basal ganglia neuron group and its associated behavior stay selected longer (higher "motivation") and increases their likelihood of being selected in similar situations in the future. Inputs to basal ganglia neurons strongly influence how long the currently selected neuronal group stays selected. Neurons belonging to a particular basal ganglia group are identified by the “ID” variable, by dashed lines emanating from "Striatal" neurons, and (optionally) by color.
 
-Please refer to the <a href='https://docs.google.com/document/d/12S6izB7_oZGWIqypyMhO19rSjw4mqDFAkoiaXdZETu0/edit'>Labs and Lesson Plans</a> for more information about getting started with the NeuroRobot app in Matlab.
+Please refer to the <a href='https://docs.google.com/document/d/12S6izB7_oZGWIqypyMhO19rSjw4mqDFAkoiaXdZETu0/edit'>Labs and lesson plans</a> for more information about getting started with brain design in the NeuroRobot app.
 
 # Troubleshooting
 
