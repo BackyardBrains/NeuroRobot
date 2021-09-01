@@ -15,6 +15,7 @@ The following setup is recommended:
 - Audio Toolbox (for webcam-hearing)
 - Deep Learning Toolbox and Paralell Computing Toolbox (for object detection, <a href="https://www.mathworks.com/help/deeplearning/ref/alexnet.html">AlexNet</a> and <a href="https://www.mathworks.com/help/deeplearning/ref/googlenet.html">GoogLeNet</a> add-ons are also needed)
 - Comic Book font (find Comic_Book.ttf in the NeuroRobotToolbox folder; in Windows, right-click the file and choose ‘Install for All Users’; on Mac, double-click the file and select ‘Install Font’; restart Matlab)
+- Work with colorful objects in brightly lit rooms for optimal colorvision
 
 To start the NeuroRobot app, open the file NeuroRobotToolbox/neurorobot.m in Matlab, adjust <a href="https://docs.google.com/document/d/1_fkM_ccYyojDcovjW_f6EnSZTBed_XkrHJNA_dRZvvg/edit#bookmark=kix.lcvfd1hyq9l0">settings</a>, then run the file. This launches the app’s Startup menu.
 
