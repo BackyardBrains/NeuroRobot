@@ -45,4 +45,4 @@ In the Startup menu, click Connect. The Connect button should turn green in 5-20
 <a href='https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006/full'>2020 paper</a><br>
 <a href='https://www.biorxiv.org/content/10.1101/2021.04.01.438071v2'>2021 preprint</a><br>
 
-<img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/logo.jpg" width="500">
+<img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/logo.jpg" width="700">
