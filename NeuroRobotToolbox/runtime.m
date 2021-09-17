@@ -36,6 +36,7 @@ left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 
 if matlab_audio_rec
+    disp('Initiating Matlab audio recorder...')
     mic_fs = 16000;
     if exist('mic_obj', 'var')
         clear mic_obj
@@ -45,6 +46,7 @@ if matlab_audio_rec
 end
 
 if use_speech2text
+    disp('Initiating Google speech-to-text engine...')
     mic_fs = 16000;
     speechObject = speechClient('Google','languageCode','en-US');
 end

@@ -4,7 +4,12 @@ if rak_only && hd_camera
 elseif matlab_audio_rec
     this_audio = mic_obj();
     if use_speech2text
-        tableOut = speech2text(speechObject, this_audio, mic_fs);
+        if ~isempty(this_audio)
+            tableOut = speech2text(speechObject, this_audio, mic_fs);
+            
+        else
+            disp('Warning: this_audio is empty, cannot complete speech2text')
+        end
     end
 end
 
