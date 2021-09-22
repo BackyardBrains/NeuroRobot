@@ -40,22 +40,18 @@ else
     disp(horzcat('Brain name = ', brain_name))
     if ~exist('net', 'var') && use_cnn
         tic
-        net = googlenet;
-        net_input_size = net.Layers(1).InputSize(1:2);
+        g_net = googlenet;
+        net_input_size = g_net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
     elseif ~exist('net', 'var') && use_rcnn
         tic
-        net = alexnet;
-        net_input_size = net.Layers(1).InputSize(1:2);
-        disp(horzcat('alexnet loaded in ', num2str(round(toc)), ' s'))
-        tic
-%         load('rcnn2')
+        net_input_size = [227 227];
         load('rcnn5heads')
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
     elseif use_cnn
-        net_input_size = [224 224];
-    else
         net_input_size = [227 227];
+    elseif use_rcnn
+        net_input_size = [224 224];
     end
 %     if ~exist('rcnn', 'var') && use_rcnn
 %         tic

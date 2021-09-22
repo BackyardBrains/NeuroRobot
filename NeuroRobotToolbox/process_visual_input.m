@@ -86,7 +86,7 @@ for ncam = 1:2
 
     % Get object classification scores
     if use_cnn
-        [label, score] = classify(net, frame);  
+        [label, score] = classify(g_net, frame);  
         cnn_out = sigmoid(score(object_ns), 0.04, 50);
         cnn_out = cnn_out - 0.15;
         cnn_out(cnn_out < 0) = 0;

@@ -1,6 +1,6 @@
 
-nnetworks = 3;
-nsteps = 1000;
+nnetworks = 2;
+nsteps = 10000;
 
 network_drive = zeros(nnetworks, 3);
 data1 = zeros(1, nsteps);
@@ -43,7 +43,8 @@ end
 figure(1)
 clf
 % set(1, 'color', 'w', 'position', [560 260 600/3 560/3])
-set(1, 'color', 'w', 'position', [1921 1 1920 1003])
+set(1, 'color', 'w', 'position', [11 113 1176 857])
+% set(1, 'color', 'w', 'position', [1921 1 1920 1003])
 plot(0.1:0.1:nsteps/10, data2)
 hold on
 % plot([50 90], [155 155], 'color', 'k', 'linewidth', 1)
