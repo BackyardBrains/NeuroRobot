@@ -6,7 +6,7 @@
 smalltalk = 1;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = 'obat.mp4';
+raw_video_filename = '2021sep18.mp4';
 cam_id = 1;
 qi = 0.5;
 
@@ -14,7 +14,7 @@ qi = 0.5;
 prompt_a = horzcat('You are a friendly, insightful artificial intelligence. ', ...
     '\n\nThe following is a conversation between you and ');
 
-prompt_c = '\n(The description of the Summer Project ends here.)\n\n--- The dialog begins here ---';
+prompt_c = '\n(The description ends here.)\n\n--- The dialog begins here ---';
 
 prompt = '';
 
@@ -260,8 +260,8 @@ while ~stop_flag
                 summer_project = 'Humans blink an average of 28,800 times a day. That means that a person who lives to 80 blinks around 840,960,000 times in their lifetime. The average blink lasts around 0.1 - 0.15 seconds, meaning that humans spend 126,144,000 seconds of their awake time on Earth with their eyes closed; that’s 973 - 1,460 days; 2.7 - 4 years! What’s happening in all that time? Are we simply doomed to miss out on those years of our life? Worry no more, FOMO glasses are (hopefully) here to help! These high tech and stylish glasses made to be wearable by the public will use Electrooculography (EOG) signals to detect blinks from the wearer and take photos in real time of all the life being missed out on. Say goodbye to the FOMO from that concert you had to blink through, and worry no more about missing frames from your favorite movie you claim to have seen the entirety of. Now with FOMO glasses, you can live your life to the fullest, and be present for every moment of it.';
             elseif this_person == 2
                 this_person = 'Chris';
-                prompt_b = ', your AI maintenance guy.\nThis is a short description of his Summer Project:\n';
-                summer_project = 'Cook meat. Get grants. Treat the missus. Help with the Summer Fellowship. Stop the aging process.';
+                prompt_b = ', your AI maintenance guy.\nThis is a short description of his likes and dislikes:\n';
+                summer_project = 'Chris likes to teach neuroscience and build brains for robots. He dislikes stress.';
             elseif this_person == 3
                 this_person = 'Nour';
                 prompt_b = ', a Fellow at the Summer Course.\nThis is a short description of her Summer Project:\n';
