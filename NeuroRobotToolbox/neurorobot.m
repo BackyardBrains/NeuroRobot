@@ -8,9 +8,9 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
+use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
@@ -81,6 +81,7 @@ letters = {'A', 'B', 'C', 'D', 'E',...
     'F', 'G', 'H', 'I', 'J',...
     'K', 'L', 'M', 'N', 'O', ...
     'P', 'Q'};
+net_input_size = [227 227];
 
 %% Sound
 audx = 250;

@@ -6,7 +6,7 @@
 smalltalk = 1;
 net_input_size = [227 227];
 fps = 10;
-raw_video_filename = '2021sep18.mp4';
+raw_video_filename = '01_oct_2021.mp4';
 cam_id = 1;
 qi = 0.5;
 
