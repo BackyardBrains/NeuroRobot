@@ -42,8 +42,10 @@ end
 
 figure(1)
 clf
+startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
+fig_pos = get(0, 'screensize') + [0 40 0 -63];
 % set(1, 'color', 'w', 'position', [560 260 600/3 560/3])
-set(1, 'color', 'w', 'position', [11 113 1176 857])
+set(1, 'color', 'w', 'position', [1 41 1536 749])
 % set(1, 'color', 'w', 'position', [1921 1 1920 1003])
 plot(0.1:0.1:nsteps/10, data2)
 hold on
