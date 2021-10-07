@@ -24,6 +24,7 @@ audio_th = 1;           % Audio threshold (increase if sound spectrum looks too 
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 0;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 use_speech2text = 0;    % Testing, requires Google key
+dev_mode = 0;           % Skip rak_pulse code, run dev_mode_code instead to calibrate
 
 %% Advanced settings
 save_data_and_commands = 0;
