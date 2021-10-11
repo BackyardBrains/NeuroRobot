@@ -328,7 +328,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     
     if exist('fig_design', 'var') && isvalid(fig_design)
         for nneuron = 1:nneurons
-            if bg_colors
+            if bg_colors && bg_neurons(nneuron)
                 this_col = network_colors(network_ids(nneuron), :);
             else
                 this_col = [1 0.9 0.8];
@@ -363,7 +363,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     
     if exist('fig_design', 'var') && isvalid(fig_design)
         for nneuron = 1:nneurons
-            if bg_colors
+            if bg_colors && bg_neurons(nneuron)
                 this_col = network_colors(network_ids(nneuron), :);
             else
                 this_col = [1 0.9 0.8];

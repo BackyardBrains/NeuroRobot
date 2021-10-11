@@ -299,9 +299,8 @@ if nneurons
             draw_neuron_edge.CData = [zeros(nneurons, 1) zeros(nneurons, 1) zeros(nneurons, 1)] .* neuron_cols;
         end
         if bg_brain
-            try
-%                 disp(num2str(down_neurons'))
             for nneuron = 1:nneurons % Risky
+                try
                 if bg_colors
                     this_col = network_colors(network_ids(nneuron), :);
                 else
@@ -313,17 +312,21 @@ if nneurons
                     draw_msn_skylt(nneuron,1).MarkerFaceColor = this_col;
                     draw_msn_skylt(nneuron,1).MarkerEdgeColor = this_col;
                     p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
-                    plot_bg_lines(p1, nneuron).Color = this_col;
+                    if ~isempty(p1)
+                        plot_bg_lines(p1, nneuron).Color = this_col;
+                    end
                 elseif ~down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
                     draw_msn_skylt(nneuron,3).Color = this_col + ((1 - this_col) * 0.8);
                     draw_msn_skylt(nneuron,1).MarkerFaceColor = this_col + ((1 - this_col) * 0.8);
                     draw_msn_skylt(nneuron,1).MarkerEdgeColor = this_col + ((1 - this_col) * 0.8);
                     p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
-                    plot_bg_lines(p1, nneuron).Color = this_col + ((1 - this_col) * 0.8);
+                    if ~isempty(p1)
+                        plot_bg_lines(p1, nneuron).Color = this_col + ((1 - this_col) * 0.8);
+                    end
                 end
-            end
-            catch
-                disp('error in update brain')
+                catch
+                    disp('error in update brain')
+                end
             end
         end
     end
