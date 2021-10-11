@@ -25,6 +25,7 @@ microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 use_speech2text = 0;    % Testing, requires Google key
 dev_mode = 0;           % Skip rak_pulse code, run dev_mode_code instead to calibrate
+cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = brain integration)
 
 %% Advanced settings
 save_data_and_commands = 0;

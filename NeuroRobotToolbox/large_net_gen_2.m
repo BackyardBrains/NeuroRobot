@@ -1,7 +1,7 @@
 
 
 %% Brain to append as CPG / BG net
-brain_name_2 = 'Critter';
+brain_name_2 = popup_select_brain.String{popup_select_brain.Value};
     
 %% Load brain 2
 load(strcat('./Brains/', brain_name_2, '.mat'))
@@ -64,7 +64,7 @@ end
 
 %% Get new XYs
 n = nneurons_2;
-xx = 0.001 * n + 0.3;
+xx = 0.001 * n + 0.25;
 npoints = round(2*sqrt(n));
 phi = (sqrt(5)+1)/2;
 for nneuron = 1:n
@@ -97,11 +97,14 @@ da_connectome = zeros(nneurons, nneurons, 3);
 %     da_connectome(:,:,ii) = [da_connectome(:,:,ii) zeros(size(da_connectome(:,:,ii), 1)); zeros(size(da_connectome_2(:,:,ii), 1)) da_connectome_2(:,:,ii)];
 % end
 
+spikes_loop = zeros(nneurons, ms_per_step * nsteps_per_loop);
+
 % a_init = a_init_1;
 % b_init = b_init_1;
 % c_init = c_init_1;
 % d_init = d_init_1;
 % w_init = w_init_1;
+
 a = [a; a_2];
 b = [b; b_2];
 c = [c; c_2];
@@ -126,5 +129,7 @@ neuron_tones = [neuron_tones; neuron_tones_2];
 neuron_scripts = [neuron_scripts; neuron_scripts_2];
 network = [network; network_2]; % Not sure if this works
 bg_neurons = [bg_neurons; bg_neurons_2];
+
+steps_since_last_spike = nan(nneurons, 1); % this resets
 
 disp('Large network created')
