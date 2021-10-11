@@ -19,7 +19,7 @@ delete(button_cancel)
 
 drawnow
 
-if ~da_rew_neurons(presynaptic_neuron) && ~bg_neurons(presynaptic_neuron)
+if ~da_rew_neurons(presynaptic_neuron)
     
     % Design action: extend axon
     fig_design.UserData = 2;
