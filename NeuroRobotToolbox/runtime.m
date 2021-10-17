@@ -41,13 +41,19 @@ if matlab_audio_rec
     if exist('mic_obj', 'var')
         clear mic_obj
     end
-    mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',mic_fs/10);
+    mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
     setup(mic_obj)
+end
+
+if matlab_speaker_ctrl
+    disp('Initiating Matlab sound card control...')
+    speaker_fs = 16000;
+    speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
 end
 
 if use_speech2text
     disp('Initiating Google speech-to-text engine...')
-    mic_fs = 16000;
+    mic_fs = 16000; % rem
     speechObject = speechClient('Google','languageCode','en-US');
 end
 

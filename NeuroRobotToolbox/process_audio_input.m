@@ -13,8 +13,16 @@ elseif matlab_audio_rec
     end
 end
 
+% if ~isempty(this_audio) && length(this_audio) < 1000
+%     while length(this_audio) < 1000
+%         this_audio = [this_audio this_audio];
+%     end
+% end
+    
+% if ~isempty(this_audio) && length(this_audio) >= 500
 if ~isempty(this_audio) && length(this_audio) >= 1000
 
+%     x = this_audio(1:500);
     x = this_audio(1:1000);
     x(isnan(x)) = 0;        
     y = fft(x);

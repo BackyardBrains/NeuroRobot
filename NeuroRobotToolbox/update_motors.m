@@ -43,17 +43,32 @@ if these_speaker_neurons
         speaker_tone = these_tones(1);
     elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~rak_only        
 
-        dxfs=16000;
-        dxduration=pulse_period*3;
-        dxvalues=0:1/dxfs:dxduration;
+        if matlab_speaker_ctrl
+            dxfs=16000;
+            dxduration=pulse_period;
+            dxvalues=1/dxfs:1/dxfs:dxduration;
 
-        dxa = zeros(size(dxvalues));
-        for dxii = 1:length(these_tones)
-            dxfreq = round(these_tones(dxii));
-            dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+            dxa = zeros(size(dxvalues));
+            for dxii = 1:length(these_tones)
+                dxfreq = these_tones(dxii);
+                dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+            end
+            dxa = dxa / length(these_tones);
+            speaker_obj(dxa');
+            speaker_tone = 0;
+        else            
+            dxfs=16000;
+            dxduration=pulse_period*3;
+            dxvalues=1/dxfs:1/dxfs:dxduration;
+
+            dxa = zeros(size(dxvalues));
+            for dxii = 1:length(these_tones)
+                dxfreq = these_tones(dxii);
+                dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+            end
+            soundsc(dxa, dxfs)
+            speaker_tone = 0;
         end
-        soundsc(dxa, dxfs)
-        
     end
 else
     speaker_tone = 0;
