@@ -1,4 +1,5 @@
 
+
 %% Start of pulse code
 nstep = nstep + 1;
 xstep = xstep + 1;
@@ -11,6 +12,7 @@ elseif lifetime == 5 * 60 && lifetime < 5 * 60 * 60
 elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
+
 %% Get visual input
 get_visual_input
 
@@ -19,6 +21,7 @@ get_visual_input
 if camera_present
     process_visual_input
 end
+    
 %% Process audio input
 % disp('5')
 process_audio_input
@@ -26,6 +29,7 @@ process_audio_input
 %% Update brain
 update_brain
 draw_step
+
 %% Update motors
 % disp('6')
 try
@@ -38,12 +42,12 @@ left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);    
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
+
 %% Serial
 % disp('7')
 if rak_only
     rak_get_serial
 elseif use_esp32
-    esp_get_serial
 elseif bluetooth_present
     bluetooth_get_distance
 end
@@ -55,6 +59,7 @@ if run_button == 2
 end
 enter_pause % if run_button == 3
 enter_reward % if run_button == 5
+
 % Memory leak fix (2020-Jul-06)
 if xstep == nsteps_per_loop
     if ispc
@@ -121,11 +126,13 @@ if save_data_and_commands
     end
 end
 
+
 % End of pulse code
 enter_design % if run_button = 1
 if nstep
     drawnow
 end
+
 try % This avoids error due to stop code deleting step_timer before it's called here
     step_times(nstep + 1) = toc(step_timer);
 catch

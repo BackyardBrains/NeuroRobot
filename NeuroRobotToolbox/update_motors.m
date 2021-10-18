@@ -221,6 +221,14 @@ if rak_only
     catch
         disp('Cannot send RAK serial')
     end
+elseif use_esp32
+    send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
+    try
+        esp32WebsocketClient.send(send_this);
+%         disp(send_this)
+    catch
+        disp('Cannot send ESP32 serial')
+    end
 elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
     bluetooth_send_motor_command
     prev_motor_command = motor_command;

@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera, use_esp32, esp32WebsocketClient)
 
 tic
 disp('Connecting camera...')
@@ -53,6 +53,14 @@ try
             rak_cam_h = rak_cam.readVideoHeight();
             rak_cam_w = rak_cam.readVideoWidth();
         end
+    elseif use_esp32
+        disp('Attempting ESP32 connect...')
+        url = 'http://192.168.0.14:81/stream';
+        rak_cam = ipcam(url);
+        rak_cam_h = 240;
+        rak_cam_w = 320;     
+        esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');
+        esp32WebsocketClient.send('d:121;d:221;d:321;d:421;d:521;d:621;');
     elseif ~use_webcam
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';
         rak_cam = HebiCam(url);
