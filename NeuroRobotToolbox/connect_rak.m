@@ -55,11 +55,13 @@ try
         end
     elseif use_esp32
         disp('Attempting ESP32 connect...')
-        url = 'http://192.168.0.14:81/stream';
+        url = 'http://192.168.4.1:81/stream';%robot is AP
+        %url = 'http://192.168.0.14:81/stream';%use local AP
         rak_cam = ipcam(url);
         rak_cam_h = 240;
-        rak_cam_w = 320;     
-        esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');
+        rak_cam_w = 320;   
+        esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');%robot is AP
+        %esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');%use local AP
         esp32WebsocketClient.send('d:121;d:221;d:321;d:421;d:521;d:621;');
     elseif ~use_webcam
         url = 'rtsp://admin:admin@192.168.100.1/cam1/h264';
