@@ -113,7 +113,9 @@ neuron_scripts = [];
 if ~exist('neuron_tones', 'var')
     neuron_tones = 0;
 end
-
+if ~exist('esp32WebsocketClient', 'var')
+    esp32WebsocketClient = 0;
+end
 
 %% Prepare 2
 base_weight = max_w;
@@ -183,7 +185,7 @@ l_torque = 0;
 
 object_scores = zeros(n_vis_prefs-6,1);
 
-esp32WebsocketClient = 0;
+
 
 %% Custom audio out
 

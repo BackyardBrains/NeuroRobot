@@ -1,4 +1,9 @@
-serial_receive = esp32WebsocketClient.getIncomingBuffer();
+
+try
+    serial_receive = esp32WebsocketClient.getIncomingBuffer();
+catch
+     disp('Cannot receive ESP32 serial')
+end
 size(serial_receive)
 if ~isempty(serial_receive)
     
@@ -9,7 +14,7 @@ if ~isempty(serial_receive)
         this_distance(this_distance == 0) = 4000;
        
     catch
-        disp('serial_receive is not empty but rak_get_serial.m does not recognize the content')
+        disp('serial_receive is not empty but ESP_get_serial.m does not recognize the content')
         this_distance = 4000;
     end
 else
