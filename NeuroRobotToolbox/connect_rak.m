@@ -54,12 +54,32 @@ try
             rak_cam_w = rak_cam.readVideoWidth();
         end
     elseif use_esp32
+        try
+            rak_cam = evalin('base','rak_cam');
+        catch
+            rak_cam = 0;
+        end
+        if(isa(rak_cam,'ipcam'))
+            evalin('base','clear rak_cam');
+            disp('delete rak cam')
+        end
+        
+        clear rak_cam
         disp('Attempting ESP32 connect...')
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
         rak_cam = ipcam(url);
         rak_cam_h = 240;
         rak_cam_w = 320;   
+        
+        if(isa(esp32WebsocketClient,'ESP32SocketClient'))
+            if esp32WebsocketClient.Status
+                esp32WebsocketClient.close();
+            end
+            esp32WebsocketClient.delete();
+            evalin('base','clear esp32WebsocketClient');
+        end
+        
         esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');%robot is AP
         %esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');%use local AP
         esp32WebsocketClient.send('d:121;d:221;d:321;d:421;d:521;d:621;');

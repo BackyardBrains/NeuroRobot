@@ -266,15 +266,16 @@ if use_webcam
 else
     imaqfind_out = 0;
 end
-if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
+if ~use_webcam && ~use_esp32 && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
     dis_cam_button = 1;
 elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
 elseif use_webcam && ~isempty(imaqfind_out)
     this_col = [0.6 0.95 0.6];
-elseif use_esp32
+elseif use_esp32 && exist('rak_cam', 'var') && isa(rak_cam,'ipcam') && exist('esp32WebsocketClient', 'var') && isa(esp32WebsocketClient, 'ESP32SocketClient') && esp32WebsocketClient.Status()
     this_col = [0.6 0.95 0.6];
+    dis_cam_button = 1;
 else
     this_col = [0.8 0.8 0.8];
 end
