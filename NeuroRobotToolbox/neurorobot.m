@@ -19,7 +19,7 @@ vocal = 0;              % Custom sound output
 supervocal = 0;         % Custom word output (text-to-speech)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;     % Step time in seconds
-matlab_audio_rec = 1;   % Use computer microphone to listen
+matlab_audio_rec = 0;   % Use computer microphone to listen
 matlab_speaker_ctrl = 0;
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
@@ -44,14 +44,14 @@ script_names = {'Red', 'Green', 'Blue', ...
 
 
 %% Local configuration
-% startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
-% fig_pos = get(0, 'screensize') + [0 40 0 -63];
+startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
+fig_pos = get(0, 'screensize') + [0 40 0 -63];
 
 % startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 % fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 
-startup_fig_pos = [-2559 -546.2 2560 1377];
-fig_pos = [-2559 -546.2 2560 1377];
+% startup_fig_pos = [-2559 -546.2 2560 1377];
+% fig_pos = [-2559 -546.2 2560 1377];
 
 % bfsize = round(startup_fig_pos(3) / 107);
 bfsize = 14; % You may want to change this to 14 if your screen is small
