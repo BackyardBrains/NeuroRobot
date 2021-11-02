@@ -25,7 +25,7 @@ audio_th = 1;           % Audio threshold (increase if sound spectrum looks too 
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 use_speech2text = 0;    % Testing, requires Google key
-dev_mode = 1;           % Custom rak_pulse_code
+dev_mode = 0;           % Custom rak_pulse_code
 cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 
 %% Advanced settings
