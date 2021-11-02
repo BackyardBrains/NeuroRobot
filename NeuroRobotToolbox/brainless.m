@@ -1,5 +1,6 @@
 
 
+
 %% Frame
 this_frame = imresize(large_frame, 0.315);
 this_frame = single(this_frame);
@@ -25,8 +26,8 @@ end
 
 
 %% Green
-green = frame(:,:,2) > frame(:,:,1) * 1.2 & frame(:,:,2) > frame(:,:,3) * 1.2;
-green(frame(:,:,2) < 50) = 0;
+green = this_frame(:,:,2) > this_frame(:,:,1) * 1.2 & this_frame(:,:,2) > this_frame(:,:,3) * 1.2;
+green(this_frame(:,:,2) < 50) = 0;
 blob = bwconncomp(green);
 if blob.NumObjects
     [i, j] = max(cellfun(@numel,blob.PixelIdxList));
@@ -44,8 +45,8 @@ else
 end
 
 %% Blue
-blue = frame(:,:,3) > frame(:,:,2) * 1.5 & frame(:,:,3) > frame(:,:,1) * 1.5;
-blue(frame(:,:,3) < 50) = 0;
+blue = this_frame(:,:,3) > this_frame(:,:,2) * 1.5 & this_frame(:,:,3) > this_frame(:,:,1) * 1.5;
+blue(this_frame(:,:,3) < 50) = 0;
 blob = bwconncomp(blue);
 if blob.NumObjects
     [i, j] = max(cellfun(@numel,blob.PixelIdxList));
@@ -63,4 +64,18 @@ else
 end
 
 
-%%
+%% Sensorimotor transform
+
+left_motor = ((sigmoid(green_loc, 404 * 0.5, 0.025)) * 2 - 1) * green_max;
+right_motor = -((sigmoid(green_loc, 404 * 0.5, 0.025)) * 2 - 1) * green_max;
+
+% left_motor = (green_loc * 0.5 - 100) * green_max * 0.018;
+% right_motor = (green_loc * -0.5 + 100) * green_max * 0.018;
+
+disp(horzcat('green_loc = ', num2str(green_loc), ...
+    ', green_max = ', num2str(green_max), ...
+    ', left_motor = ', num2str(left_motor), ...
+    ', right_motor = ', num2str(right_motor)))
+
+send_this = horzcat('l:', num2str(left_motor), ';', 'r:', num2str(right_motor),';', 's:', num2str(0), ';');
+rak_cam.writeSerial(send_this)
