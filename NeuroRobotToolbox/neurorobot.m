@@ -8,15 +8,15 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
+use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
-vocal = 1;              % Custom sound output
-supervocal = 1;         % Custom word output (text-to-speech)
+vocal = 0;              % Custom sound output
+supervocal = 0;         % Custom word output (text-to-speech)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;     % Step time in seconds
 matlab_audio_rec = 1;   % Use computer microphone to listen
@@ -26,7 +26,7 @@ microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 use_speech2text = 0;    % Testing, requires Google key
 dev_mode = 0;           % Skip rak_pulse code, run dev_mode_code instead to calibrate
-cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = brain integration)
+cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 
 %% Advanced settings
 save_data_and_commands = 0;
@@ -44,14 +44,14 @@ script_names = {'Red', 'Green', 'Blue', ...
 
 
 %% Local configuration
-startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
-fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% fig_pos = get(0, 'screensize') + [0 40 0 -63];
 
 % startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
 % fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
 
-% startup_fig_pos = [1956 3 1854 1043];
-% fig_pos = [1956 3 1854 1043];
+startup_fig_pos = [-2559 -546.2 2560 1377];
+fig_pos = [-2559 -546.2 2560 1377];
 
 % bfsize = round(startup_fig_pos(3) / 107);
 bfsize = 14; % You may want to change this to 14 if your screen is small
