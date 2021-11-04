@@ -12,11 +12,7 @@ rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
 use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
-<<<<<<< Updated upstream
-use_esp32 = 1;
-=======
-use_esp32 = 1;          % Use a robot with a ESP32-CAM camera module   
->>>>>>> Stashed changes
+use_esp32 = 0;          % Use a robot with a ESP32-CAM camera module   
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)

@@ -38,7 +38,7 @@ if ~isempty(this_audio) && length(this_audio) >= 1000
             sound_spectrum(:,nstep) = z;
         end
     end        
-else
+elseif ~use_esp32
     disp('this_audio is empty or short')
 end
 

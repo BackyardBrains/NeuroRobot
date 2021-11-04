@@ -69,8 +69,8 @@ try
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
         rak_cam = ipcam(url);
-        rak_cam_h = 240;
-        rak_cam_w = 320;   
+        rak_cam_h = 320;
+        rak_cam_w = 240;   
         
         if(isa(esp32WebsocketClient,'ESP32SocketClient'))
             if esp32WebsocketClient.Status

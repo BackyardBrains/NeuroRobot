@@ -39,9 +39,9 @@ if these_speaker_neurons
         end
 %         disp('3')
         vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
-    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && rak_only
+    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)
         speaker_tone = these_tones(1);
-    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~rak_only        
+    elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~(rak_only || use_esp32)        
 
         if matlab_speaker_ctrl
             dxfs=16000;

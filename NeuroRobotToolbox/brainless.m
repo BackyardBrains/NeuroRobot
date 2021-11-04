@@ -72,10 +72,16 @@ right_motor = -((sigmoid(green_loc, 404 * 0.5, 0.015)) * 2 - 1) * green_max;
 % left_motor = (green_loc * 0.5 - 100) * green_max * 0.018;
 % right_motor = (green_loc * -0.5 + 100) * green_max * 0.018;
 
-% disp(horzcat('green_loc = ', num2str(green_loc), ...
-%     ', green_max = ', num2str(green_max), ...
-%     ', left_motor = ', num2str(left_motor), ...
-%     ', right_motor = ', num2str(right_motor)))
+disp(horzcat('green_loc = ', num2str(green_loc), ...
+    ', green_max = ', num2str(green_max), ...
+    ', left_motor = ', num2str(left_motor), ...
+    ', right_motor = ', num2str(right_motor)))
 
 send_this = horzcat('l:', num2str(left_motor), ';', 'r:', num2str(right_motor),';', 's:', num2str(0), ';');
-rak_cam.writeSerial(send_this)
+
+if rak_only
+    rak_cam.writeSerial(send_this)
+elseif use_esp32
+    esp32WebsocketClient.send(send_this)
+end
+
