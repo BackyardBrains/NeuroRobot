@@ -1,4 +1,4 @@
-[rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera);
+[rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera, use_esp32, esp32WebsocketClient);
 
 if rak_only
     if exist('rak_pulse', 'var') && isvalid(rak_pulse)

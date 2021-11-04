@@ -12,6 +12,7 @@ rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
 use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
+use_esp32 = 1;
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
@@ -92,6 +93,7 @@ sound_spectrum = zeros(audx, nsteps_per_loop);
 fx = (0:audx-1)*16;
 this_audio = [];
 audio_out_fs = 0;
+speaker_tone = 0;
 
 %% Clear
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
@@ -269,6 +271,9 @@ if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab'))
     dis_cam_button = 1;
 elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
     this_col = [1 0.5 0.5];
+elseif use_esp32 && exist('rak_cam', 'var') && isa(rak_cam,'ipcam') && exist('esp32WebsocketClient', 'var') && isa(esp32WebsocketClient, 'ESP32SocketClient') && esp32WebsocketClient.Status()
+    this_col = [0.6 0.95 0.6];
+    dis_cam_button = 1;    
 elseif use_webcam && ~isempty(imaqfind_out)
     this_col = [0.6 0.95 0.6];
 else
@@ -345,7 +350,8 @@ if exist('brain_name.mat', 'file')
     brain_edit_name.String = brain_name;      
     try
 %         rak_cam = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
-        [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera);
+%         [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera);
+        [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera, use_esp32, esp32WebsocketClient);
         start(rak_pulse)
         disp('RAK reconnected')
         startup_complete

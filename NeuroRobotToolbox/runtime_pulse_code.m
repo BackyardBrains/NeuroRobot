@@ -47,6 +47,8 @@ show_right_eye.CData = right_eye_frame;
 % disp('7')
 if rak_only
     rak_get_serial
+elseif use_esp32
+    esp_get_serial    
 elseif bluetooth_present
     bluetooth_get_distance
 end
