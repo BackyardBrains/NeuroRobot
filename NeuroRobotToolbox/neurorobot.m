@@ -12,7 +12,11 @@ rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
 use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
+<<<<<<< Updated upstream
 use_esp32 = 1;
+=======
+use_esp32 = 1;          % Use a robot with a ESP32-CAM camera module   
+>>>>>>> Stashed changes
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
@@ -104,11 +108,14 @@ end
 clear step_timer
 clear life_timer
 disp('---------')
-if camera_present && ~use_webcam && ~rak_only
+if camera_present && ~use_webcam && ~rak_only && ~use_esp32
     HebiCam.loadLibs();
 end
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
+end
+if ~exist('esp32WebsocketClient', 'var')
+	esp32WebsocketClient = 0;
 end
 spinled = 1;
 vis_prefs = [];
@@ -266,7 +273,7 @@ if use_webcam
 else
     imaqfind_out = 0;
 end
-if ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
+if ~use_webcam && ~use_esp32 && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
     this_col = [0.6 0.95 0.6];
     dis_cam_button = 1;
 elseif ~use_webcam && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
