@@ -34,7 +34,7 @@ if these_speaker_neurons
 %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
 %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
 %             rak_cam.sendAudio(audio_file_name);            
-        elseif audio_out_fs(nsound) % so for now...
+        elseif nsound && audio_out_fs(nsound) % so for now...
             soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
         end
 %         disp('3')
