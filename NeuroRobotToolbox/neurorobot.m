@@ -16,8 +16,8 @@ use_esp32 = 0;          % Use a robot with a ESP32-CAM camera module
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
 grey_background = 1;    % Grey background (1) or white background (0)
-vocal = 0;              % Custom sound output
-supervocal = 0;         % Custom word output (text-to-speech)
+vocal = 1;              % Custom sound output
+supervocal = 1;         % Custom word output (text-to-speech)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;     % Step time in seconds
 matlab_audio_rec = 0;   % Use computer microphone to listen
@@ -151,7 +151,7 @@ load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
 
-vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
+vis_pref_names = {'red', 'green', 'blue', 'left-max', 'right-max', 'middle-max'};
 if use_cnn
     load object_strs
     load object_ns
@@ -187,7 +187,7 @@ efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
 
-object_scores = zeros(n_vis_prefs-6,1);
+object_scores = zeros(n_vis_prefs-6,1); % should not be hard-coded
 
 
 %% Custom audio out

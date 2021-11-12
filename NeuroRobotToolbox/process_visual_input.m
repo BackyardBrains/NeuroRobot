@@ -19,18 +19,19 @@ for ncam = 1:2
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.01) * 50;
-        if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
-        elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
-        end        
+%         if ncam == 1
+%             temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
+%         elseif ncam == 2
+%             temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
+%         end        
     else
         this_score = 0;
-        temporal_score = 0;
+%         temporal_score = 0;
     end
     vis_pref_vals(1, ncam) = this_score;
-    vis_pref_vals(2, ncam) = temporal_score;
+%     vis_pref_vals(2, ncam) = temporal_score;
     
+  
     % Green
     green = frame(:,:,2) > frame(:,:,1) * 1.2 & frame(:,:,2) > frame(:,:,3) * 1.2;
     green(frame(:,:,2) < 50) = 0;
@@ -41,18 +42,19 @@ for ncam = 1:2
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.01) * 50;
-        if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
-        elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
-        end         
+%         if ncam == 1
+%             temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
+%         elseif ncam == 2
+%             temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
+%         end         
     else
         this_score = 0;
-        temporal_score = 0;
+%         temporal_score = 0;
     end
-    vis_pref_vals(3, ncam) = this_score;
-    vis_pref_vals(4, ncam) = temporal_score;
+    vis_pref_vals(2, ncam) = this_score;
+%     vis_pref_vals(4, ncam) = temporal_score;
     
+
     % Blue
     blue = frame(:,:,3) > frame(:,:,2) * 1.5 & frame(:,:,3) > frame(:,:,1) * 1.5;
     blue(frame(:,:,3) < 50) = 0;
@@ -63,18 +65,38 @@ for ncam = 1:2
         npx = i;
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.01) * 50;
-        if ncam == 1
-            temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
-        elseif ncam == 2
-            temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
-        end        
+%         if ncam == 1
+%             temporal_score = sigmoid(((227 - mean(x)) / 227), 0.95, 5) * this_score;
+%         elseif ncam == 2
+%             temporal_score = sigmoid((mean(x) / 227), 0.95, 5) * this_score;
+%         end        
     else
         this_score = 0;
-        temporal_score = 0;
+%         temporal_score = 0;
     end
-    vis_pref_vals(5, ncam) = this_score;
-    vis_pref_vals(6, ncam) = temporal_score;
+    vis_pref_vals(3, ncam) = this_score;
+%     vis_pref_vals(6, ncam) = temporal_score;
 
+
+    %% SVF
+    this_array = sum(mean(uframe), 3);
+    [~, this_score] = max(this_array);
+
+    %% Left-max
+    left_max = ((228 - this_score) / 227) * 50;
+    left_max = (left_max^2)/50;
+    vis_pref_vals(4, ncam) = left_max;
+    %% Right-max
+    right_max = (this_score / 227) * 50;
+    right_max = (right_max^2)/50;
+    vis_pref_vals(5, ncam) = right_max;
+    %% Middle-max
+    middle_max = abs(((114 - this_score) / 227) * 50);
+    middle_max = (middle_max^2)/50;
+    vis_pref_vals(6, ncam) = abs(((114 - this_score) / 227) * 50);
+
+%     vis_pref_vals
+    
     % Get object classification scores
     if use_cnn
         [label, score] = classify(g_net, frame);  

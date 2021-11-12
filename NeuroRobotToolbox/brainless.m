@@ -1,5 +1,15 @@
 
+%%%% Brainless %%%%
 
+svf = 1;
+% figure(5)
+% clf
+% this_frame = zeros(227, 404, 3, 'uint8');
+% bl_ax1 = subplot(1,2,1);
+% bl_frame1 = image(this_frame);
+% bl_ax2 = subplot(1,2,2);
+% bl_plot1 = plot(sum(mean(this_frame), 3));
+% xlim([1 404])
 
 %% Frame
 this_frame = imresize(large_frame, 0.315);
@@ -72,16 +82,26 @@ right_motor = -((sigmoid(green_loc, 404 * 0.5, 0.015)) * 2 - 1) * green_max;
 % left_motor = (green_loc * 0.5 - 100) * green_max * 0.018;
 % right_motor = (green_loc * -0.5 + 100) * green_max * 0.018;
 
-disp(horzcat('green_loc = ', num2str(green_loc), ...
-    ', green_max = ', num2str(green_max), ...
-    ', left_motor = ', num2str(left_motor), ...
-    ', right_motor = ', num2str(right_motor)))
 
-send_this = horzcat('l:', num2str(left_motor), ';', 'r:', num2str(right_motor),';', 's:', num2str(0), ';');
 
-if rak_only
-    rak_cam.writeSerial(send_this)
-elseif use_esp32
-    esp32WebsocketClient.send(send_this)
+
+% disp(horzcat('green_loc = ', num2str(green_loc), ...
+%     ', green_max = ', num2str(green_max), ...
+%     ', left_motor = ', num2str(left_motor), ...
+%     ', right_motor = ', num2str(right_motor)))
+% 
+% send_this = horzcat('l:', num2str(left_motor), ';', 'r:', num2str(right_motor),';', 's:', num2str(0), ';');
+% 
+% if rak_only
+%     rak_cam.writeSerial(send_this)
+% elseif use_esp32
+%     esp32WebsocketClient.send(send_this)
+% end
+
+
+
+if svf
+    this_frame = imresize(large_frame, 0.315);
+    bl_frame1.CData = this_frame;
+    bl_plot1.YData = sum(mean(this_frame), 3);
 end
-
