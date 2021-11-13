@@ -5,9 +5,9 @@ svf = 1;
 % figure(5)
 % clf
 % this_frame = zeros(227, 404, 3, 'uint8');
-% bl_ax1 = subplot(1,2,1);
+% bl_ax1 = subplot(2,1,1);
 % bl_frame1 = image(this_frame);
-% bl_ax2 = subplot(1,2,2);
+% bl_ax2 = subplot(2,1,2);
 % bl_plot1 = plot(sum(mean(this_frame), 3));
 % xlim([1 404])
 
