@@ -15,6 +15,6 @@ elseif rak_only
     % length(this_audio)
 end
 
-if dev_mode
+if exist('dev_mode', 'var') && dev_mode
     brainless
 end

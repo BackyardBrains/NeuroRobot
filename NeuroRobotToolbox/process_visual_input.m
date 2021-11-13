@@ -80,7 +80,7 @@ for ncam = 1:2
 
     %% SVF
     this_array = sum(mean(uframe), 3);
-    [~, this_score] = max(this_array);
+    [max_val, this_score] = max(this_array);
 
     %% Left-max
     left_max = ((228 - this_score) / 227) * 50;
@@ -91,9 +91,7 @@ for ncam = 1:2
     right_max = (right_max^2)/50;
     vis_pref_vals(5, ncam) = right_max;
     %% Middle-max
-    middle_max = abs(((114 - this_score) / 227) * 50);
-    middle_max = (middle_max^2)/50;
-    vis_pref_vals(6, ncam) = abs(((114 - this_score) / 227) * 50);
+    vis_pref_vals(6, ncam) = max_val * 0.05;
 
 %     vis_pref_vals
     

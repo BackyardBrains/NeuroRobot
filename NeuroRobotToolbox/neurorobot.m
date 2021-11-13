@@ -8,9 +8,9 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
+rak_only = 1;           % Use a robot with a RAK WiFi camera module
 camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
+use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
 use_esp32 = 0;          % Use a robot with a ESP32-CAM camera module   
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
@@ -24,7 +24,7 @@ matlab_audio_rec = 1;   % Use computer microphone to listen
 matlab_speaker_ctrl = 0;
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
-bg_colors = 0;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
+bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
 use_speech2text = 0;    % Testing, requires Google key
 dev_mode = 0;           % Custom rak_pulse_code
 cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
@@ -151,7 +151,7 @@ load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
 
-vis_pref_names = {'red', 'green', 'blue', 'left-max', 'right-max', 'middle-max'};
+vis_pref_names = {'red', 'green', 'blue', 'left-max', 'right-max', 'max-val'};
 if use_cnn
     load object_strs
     load object_ns
