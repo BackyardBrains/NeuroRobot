@@ -82,9 +82,6 @@ right_motor = -((sigmoid(green_loc, 404 * 0.5, 0.015)) * 2 - 1) * green_max;
 % left_motor = (green_loc * 0.5 - 100) * green_max * 0.018;
 % right_motor = (green_loc * -0.5 + 100) * green_max * 0.018;
 
-
-
-
 % disp(horzcat('green_loc = ', num2str(green_loc), ...
 %     ', green_max = ', num2str(green_max), ...
 %     ', left_motor = ', num2str(left_motor), ...
@@ -97,8 +94,6 @@ right_motor = -((sigmoid(green_loc, 404 * 0.5, 0.015)) * 2 - 1) * green_max;
 % elseif use_esp32
 %     esp32WebsocketClient.send(send_this)
 % end
-
-
 
 if svf
     this_frame = imresize(large_frame, 0.315);

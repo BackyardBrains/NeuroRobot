@@ -1,7 +1,7 @@
 
 
-if size(vis_prefs, 2) > 6 && ~(use_cnn || use_rcnn)
-    if sum(sum(sum(vis_prefs(:, 7:end, :))))
+if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
+    if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))
         error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
     end
 end
