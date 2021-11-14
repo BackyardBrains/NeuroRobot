@@ -91,9 +91,9 @@ for ncam = 1:2
     right_max = (right_max^2)/50;
     vis_pref_vals(5, ncam) = right_max;
     %% Middle-max
-    vis_pref_vals(6, ncam) = max_val * 0.05;
+    vis_pref_vals(6, ncam) = max_val * 0.01;
 
-%     vis_pref_vals
+    vis_pref_vals;
     
     % Get object classification scores
     if use_cnn
