@@ -18,22 +18,22 @@ rak_get_serial
 disp(num2str(this_distance))
             
 if this_distance > 50 && this_distance < 2000
-    disp(horzcat('distance = ', num2str(this_distance)))
+
     if matlab_speaker_ctrl && exist('speaker_obj', 'var')
-        dxvalues=1/16000:1/16000:pulse_period;
+        dxfs=16000;
+        dxduration=pulse_period;
+        dxvalues=1/dxfs:1/dxfs:dxduration;
         dxa = sin(2*pi*this_distance*dxvalues);
         dxa2 = ones(size(dxvalues));
         dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
         dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
         dxa = dxa .* dxa2;
         speaker_obj(dxa');
-    elseif rak_only
+    else
         send_this = horzcat('l:', num2str(0), ';', 'r:', num2str(0),';', 's:', num2str(this_distance), ';');
     end
-elseif rak_only
+else
     send_this = horzcat('l:', num2str(0), ';', 'r:', num2str(0),';', 's:', num2str(0), ';');
 end
-if rak_only
-    rak_cam.writeSerial(send_this)
-end
+rak_cam.writeSerial(send_this)
 

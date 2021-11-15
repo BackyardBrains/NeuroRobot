@@ -11,14 +11,14 @@ for ncam = 1:2
 
     for ncol = 1:3
         if ncol == 1
-            colframe = frame(:,:,1) > frame(:,:,2) * 1.8 & frame(:,:,1) > frame(:,:,3) * 1.8;
-            colframe(frame(:,:,1) < 50) = 0;
+            colframe = uframe(:,:,1) > uframe(:,:,2) * 1.8 & uframe(:,:,1) > uframe(:,:,3) * 1.8;
+            colframe(uframe(:,:,1) < 50) = 0;
         elseif ncol == 2
-            colframe = frame(:,:,2) > frame(:,:,1) * 1.2 & frame(:,:,2) > frame(:,:,3) * 1.2;
-            colframe(frame(:,:,2) < 50) = 0;
+            colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
+            colframe(uframe(:,:,2) < 50) = 0;
         elseif ncol == 3
-            colframe = frame(:,:,3) > frame(:,:,2) * 1.5 & frame(:,:,3) > frame(:,:,1) * 1.5;
-            colframe(frame(:,:,3) < 50) = 0;            
+            colframe = uframe(:,:,3) > uframe(:,:,2) * 1.5 & uframe(:,:,3) > uframe(:,:,1) * 1.5;
+            colframe(uframe(:,:,3) < 50) = 0;            
         end
     
         blob = bwconncomp(colframe);
@@ -27,8 +27,8 @@ for ncam = 1:2
             npx = i;
             [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
             this_score = sigmoid(npx, 1000, 0.01) * 50;
-            this_left_score = ((((228 - mean(x)) / 227) * 50)^2) / 50;
-            this_right_score = ((((mean(x)) / 227) * 50)^2) / 50;
+            this_left_score = (((((228 - mean(x)) / 227) * 50)^2) / 50) * this_score;
+            this_right_score = ((((((mean(x)) / 227) * 50)^2) / 50) / 50) * this_score;
         else
             this_score = 0;
             this_left_score = 0;
@@ -39,21 +39,6 @@ for ncam = 1:2
         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
 
     end
-    
-%     %% SVF
-%     this_array = sum(mean(uframe), 3);
-%     [max_val, this_score] = max(this_array);
-% 
-%     %% Left-max
-%     left_max = ((228 - this_score) / 227) * 50;
-%     left_max = (left_max^2)/50;
-%     vis_pref_vals(4, ncam) = left_max;
-%     %% Right-max
-%     right_max = (this_score / 227) * 50;
-%     right_max = (right_max^2)/50;
-%     vis_pref_vals(5, ncam) = right_max;
-%     %% Middle-max
-%     vis_pref_vals(6, ncam) = max_val * 0.01;
     
     % Get object classification scores
     if use_cnn
