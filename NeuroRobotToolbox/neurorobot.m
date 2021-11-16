@@ -1,6 +1,6 @@
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- %%%  NeuroRobot Toolbox by Backyard Brains  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%  NeuroRobot App by Backyard Brains  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % https://github.com/BackyardBrains/NeuroRobot  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -8,24 +8,24 @@
 
 
 %% Settings
-rak_only = 0;           % Use a robot with a RAK WiFi camera module
-camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 1;         % Use webcamera
-hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
-use_esp32 = 0;          % Use a robot with a ESP32-CAM camera module   
+rak_only = 1;           % Use robot with RAK5206 or RAK5270
+camera_present = 1;     % Use robot camera or webcamera
+use_webcam = 0;         % Use webcamera
+hd_camera = 0;          % Use robot with RAK5270
+use_esp32 = 0;          % Use robot with ESP32-CAM
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
+use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 grey_background = 1;    % Grey background (1) or white background (0)
 vocal = 0;              % Custom sound output
-supervocal = 0;         % Custom word output (text-to-speech)
+supervocal = 0;         % Custom word output (text-to-speech - REQUIRES WINDOWS)
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
 pulse_period = 0.1;     % Step time in seconds
 matlab_audio_rec = 1;   % Use computer microphone to listen
-matlab_speaker_ctrl = 0;
+matlab_speaker_ctrl = 0;% Multi tone output
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
-bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
-use_speech2text = 0;    % Testing, requires Google key
+bg_colors = 1;          % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
+use_speech2text = 0;    % In progress, requires key
 dev_mode = 0;           % Custom rak_pulse_code
 cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 
