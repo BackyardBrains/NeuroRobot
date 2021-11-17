@@ -13,23 +13,27 @@ camera_present = 1;     % Use robot camera or webcamera
 use_webcam = 0;         % Use webcamera
 hd_camera = 0;          % Use robot with RAK5270
 use_esp32 = 0;          % Use robot with ESP32-CAM
+
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
-grey_background = 1;    % Grey background (1) or white background (0)
+
 vocal = 0;              % Custom sound output
 supervocal = 0;         % Custom word output (text-to-speech - REQUIRES WINDOWS)
-brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
-pulse_period = 0.1;     % Step time in seconds
 matlab_audio_rec = 1;   % Use computer microphone to listen
 matlab_speaker_ctrl = 0;% Multi tone output
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
-microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
-bg_colors = 1;          % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 use_speech2text = 0;    % In progress, requires key
-dev_mode = 0;           % Custom rak_pulse_code
+
+pulse_period = 0.1;     % Step time in seconds
+dev_mode = 1;           % Custom rak_pulse_code
+bg_colors = 1;          % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
+brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
+microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
 cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 
+
 %% Advanced settings
+grey_background = 1;    % Grey background (1) or white background (0)
 save_data_and_commands = 0;
 save_brain_jpg = 0; % main only
 use_profile = 0;

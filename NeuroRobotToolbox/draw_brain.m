@@ -242,7 +242,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
                     this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
                 end
                 
                 if ncontact == 3 && audio_prefs(nneuron)
