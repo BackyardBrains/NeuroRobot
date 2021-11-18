@@ -1,8 +1,7 @@
 
 if use_esp32
     large_frame = snapshot(rak_cam);
-    large_frame = imrotate(large_frame, 270);        
-    get_esp_serial
+    esp_get_serial
 elseif use_webcam
     trigger(rak_cam)
     large_frame = getdata(rak_cam, 1);
