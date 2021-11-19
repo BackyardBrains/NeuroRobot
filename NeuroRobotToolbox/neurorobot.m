@@ -10,9 +10,9 @@
 %% Settings
 rak_only = 0;           % Use robot with RAK5206 or RAK5270
 camera_present = 1;     % Use robot camera or webcamera
-use_webcam = 0;         % Use webcamera
+use_webcam = 1;         % Use webcamera
 hd_camera = 0;          % Use robot with RAK5270
-use_esp32 = 1;          % Use robot with ESP32-CAM
+use_esp32 = 0;          % Use robot with ESP32-CAM
 
 use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
@@ -20,7 +20,7 @@ use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custo
 vocal = 0;              % Custom sound output
 supervocal = 0;         % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;   % Use computer microphone to listen
-matlab_speaker_ctrl = 0;% Multi tone output
+matlab_speaker_ctrl = 1;% Multi tone output
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 use_speech2text = 0;    % In progress, requires key
 
