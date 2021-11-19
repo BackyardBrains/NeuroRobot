@@ -24,7 +24,7 @@ matlab_speaker_ctrl = 1;% Multi tone output
 audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
 use_speech2text = 0;    % In progress, requires key
 
-pulse_period = 0.1;     % Step time in seconds
+pulse_period = 0.15;    % Step time in seconds
 dev_mode = 1;           % Custom rak_pulse_code
 bg_colors = 1;          % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
@@ -49,11 +49,13 @@ script_names = {'Red', 'Green', 'Blue', ...
 
 
 %% Local configuration
-startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
-fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% startup_fig_pos = get(0, 'screensize') + [0 41 0 -63];
+startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
+% fig_pos = get(0, 'screensize') + [0 41 0 -63];
+fig_pos = get(0, 'screensize') + [0 49 0 -71];
 
-% startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
-% fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
+% startup_fig_pos = [1 49 1536 793]; % Change this if your screen size is different 
+% fig_pos = [1 49 1536 793]; % Change this if your screen size is different
 
 % startup_fig_pos = [-2559 -546.2 2560 1377];
 % fig_pos = [-2559 -546.2 2560 1377];
