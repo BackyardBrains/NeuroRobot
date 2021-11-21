@@ -22,16 +22,9 @@ if ~exist('rak_cam_h', 'var')
     rak_cam_h = 720;
     rak_cam_w = 1280;
 end
-if bluetooth_present
-    left_cut = [1 500 281 780];
-    right_cut = [1 500 501 1000];
-elseif use_esp32
-    left_cut = [1 140 1 140]; 
-    right_cut = [1 140 101 240];
-else
-    left_cut = [1 rak_cam_h 1 rak_cam_h]; 
-    right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];    
-end
+left_cut = [1 rak_cam_h 1 rak_cam_h]; 
+right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];    
+
 left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
 right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];
 large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');

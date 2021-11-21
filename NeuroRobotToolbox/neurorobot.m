@@ -1,35 +1,30 @@
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- %%%  NeuroRobot Toolbox by Backyard Brains  %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% https://github.com/BackyardBrains/NeuroRobot  %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+ %%%  NeuroRobot App by Backyard Brains  %%%
 
 %% Settings
-rak_only = 1;           % Use a robot with a RAK WiFi camera module
-camera_present = 1;     % Use robot camera OR webcamera
-use_webcam = 0;         % Use webcamera
-hd_camera = 0;          % Use a robot with a RAK5270 module (1080p)
-use_esp32 = 0;          % Use a robot with a ESP32-CAM camera module   
-use_cnn = 0;            % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 0;           % Use a convolutional neural network (Alexnet) for custom abilities
-grey_background = 1;    % Grey background (1) or white background (0)
-vocal = 0;              % Custom sound output
-supervocal = 0;         % Custom word output (text-to-speech)
-brain_gen = 0;          % Use "Create New Brain" to algorithmically generate new brains
-pulse_period = 0.1;     % Step time in seconds
-matlab_audio_rec = 0;   % Use computer microphone to listen
-matlab_speaker_ctrl = 0;
-audio_th = 1;           % Audio threshold (increase if sound spectrum looks too crowded)
-microcircuit = 0;       % Use smaller neurons and synapses, no neuron numbers
-bg_colors = 1;          % Use basal ganglia network indices to color neurons, spikes instead indicated by green edge
-use_speech2text = 0;    % Testing, requires Google key
-dev_mode = 0;           % Custom rak_pulse_code
-cpg_integration = 1;    % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+rak_only = 1;             % Use robot with RAK5206 or RAK5270
+camera_present = 1;       % Use robot camera or webcamera
+use_webcam = 0;           % Use webcamera
+hd_camera = 0;            % Use robot with RAK5270
+use_esp32 = 0;            % Use robot with ESP32-CAM
+use_cnn = 0;              % Use a convolutional neural network (Googlenet) for object recognition
+use_rcnn = 0;             % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
+vocal = 0;                % Custom sound output
+supervocal = 0;           % Custom word output (text-to-speech - REQUIRES WINDOWS)
+matlab_audio_rec = 0;     % Use computer microphone to listen
+matlab_speaker_ctrl = 0;  % Multi tone output
+audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
+pulse_period = 0.1;       % Step time in seconds
+dev_mode = 0;             % Custom rak_pulse_code
+bg_colors = 0;            % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
+microcircuit = 0;         % Use smaller neurons and synapses, no neuron numbers
+cpg_integration = 1;      % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+
 
 %% Advanced settings
+use_speech2text = 0;      % In progress, requires key
+brain_gen = 0;            % Use "Create New Brain" to algorithmically generate new brains
+grey_background = 1;      % Grey background (1) or white background (0)
 save_data_and_commands = 0;
 save_brain_jpg = 0; % main only
 use_profile = 0;
@@ -45,11 +40,13 @@ script_names = {'Red', 'Green', 'Blue', ...
 
 
 %% Local configuration
-startup_fig_pos = get(0, 'screensize') + [0 40 0 -63];
-fig_pos = get(0, 'screensize') + [0 40 0 -63];
+% startup_fig_pos = get(0, 'screensize') + [0 41 0 -63];
+startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
+% fig_pos = get(0, 'screensize') + [0 41 0 -63];
+fig_pos = get(0, 'screensize') + [0 49 0 -71];
 
-% startup_fig_pos = [1 41 1920 1017]; % Change this if your screen size is different 
-% fig_pos = [1 41 1920 1017]; % Change this if your screen size is different
+% startup_fig_pos = [1 49 1536 793]; % Change this if your screen size is different 
+% fig_pos = [1 49 1536 793]; % Change this if your screen size is different
 
 % startup_fig_pos = [-2559 -546.2 2560 1377];
 % fig_pos = [-2559 -546.2 2560 1377];
@@ -151,7 +148,10 @@ load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
 
-vis_pref_names = {'red', 'off-center red', 'green', 'off-center green', 'blue', 'off-center blue'};
+vis_pref_names = {'red', 'red-left', 'red-right', ...
+    'green', 'green-left', 'green-right', ...
+    'blue', 'blue-left', 'blue-right'};
+n_basic_vis_features = length(vis_pref_names);
 if use_cnn
     load object_strs
     load object_ns
@@ -187,7 +187,7 @@ efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
 
-object_scores = zeros(n_vis_prefs-6,1);
+object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
 
 
 %% Custom audio out

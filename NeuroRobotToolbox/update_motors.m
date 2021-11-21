@@ -48,17 +48,23 @@ if these_speaker_neurons
             dxduration=pulse_period;
             dxvalues=1/dxfs:1/dxfs:dxduration;
 
-            dxa = zeros(size(dxvalues));
+            dxa = zeros(size(dxvalues));           
             for dxii = 1:length(these_tones)
                 dxfreq = these_tones(dxii);
                 dxa = dxa + sin(2*pi*dxfreq*dxvalues);
             end
             dxa = dxa / length(these_tones);
+            
+            dxa2 = ones(size(dxvalues));
+            dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+            dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+            dxa = dxa .* dxa2;
+            
             speaker_obj(dxa');
             speaker_tone = 0;
         else            
             dxfs=16000;
-            dxduration=pulse_period*3;
+            dxduration=pulse_period*2;
             dxvalues=1/dxfs:1/dxfs:dxduration;
 
             dxa = zeros(size(dxvalues));
@@ -66,6 +72,12 @@ if these_speaker_neurons
                 dxfreq = these_tones(dxii);
                 dxa = dxa + sin(2*pi*dxfreq*dxvalues);
             end
+
+            dxa2 = ones(size(dxvalues));
+            dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+            dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+            dxa = dxa .* dxa2;            
+            
             soundsc(dxa, dxfs)
             speaker_tone = 0;
         end
