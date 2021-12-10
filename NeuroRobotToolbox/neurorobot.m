@@ -34,10 +34,7 @@ draw_neuron_numbers = 0;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Red', 'Green', 'Blue', ...
-    'GPT-3', 'Custom LEDs', 'Whatever this is', ...
-    '-', '-'};
-
+script_names = {'Red', 'Green', 'Blue', 'Off'};
 
 %% Local configuration
 % startup_fig_pos = get(0, 'screensize') + [0 41 0 -63];

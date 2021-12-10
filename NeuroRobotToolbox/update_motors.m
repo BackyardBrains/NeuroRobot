@@ -105,46 +105,39 @@ if script_running
     disp(horzcat('Script running', num2str(script_running)))
 %     eval(strcat('behavior_script_', num2str(script_running))) % eval is evil apparently
     if script_running == 1
-        if rak_only
+        if rak_only || use_esp32
             behavior_script_1
-        elseif use_webcam
+            disp('LEDs >>> red')
+        else
             disp('this behavior needs a robot')
         end
     elseif script_running == 2
-        if rak_only
+        if rak_only || use_esp32
             behavior_script_2
-        elseif use_webcam
+            disp('LEDs >>> green')
+        else
             disp('this behavior needs a robot')
         end
     elseif script_running == 3
-        if rak_only
+        if rak_only || use_esp32
             behavior_script_3
-        elseif use_webcam
+            disp('LEDs >>> blue')
+        else
             disp('this behavior needs a robot')
         end        
     elseif script_running == 4
-        if rak_only
+        if rak_only || use_esp32
             behavior_script_4
-        elseif use_webcam
-            behavior_script_4
-        end
-    elseif script_running == 5
-        if rak_only
-            behavior_script_5
-        elseif use_webcam
-%             behavior_script_5
+            disp('LEDs >>> off')
+        else
             disp('this behavior needs a robot')
         end
-    elseif script_running == 6
-        if rak_only
-            behavior_script_6
-        elseif use_webcam
-%             behavior_script_6
-            disp('this behavior needs a robot')
-        end        
     else
         disp('Unknown behavior')
     end
+    script_running = 0;iribvhvbvy8ddhdidpd;od.dod9del,c, IUGP/[D.F9EIYI9X'
+        sE09J5Y7=2
+        OB0DTK[
 end
 % disp('5')
 
