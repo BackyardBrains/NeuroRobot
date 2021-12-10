@@ -42,6 +42,7 @@ In the Startup menu, click Connect. The Connect button should turn green in 5-20
 
 # Further Reading
 
+<a href='https://docs.google.com/document/d/1b5HgD9d82KC8z9hfcgQHWrUDYCCN7OzVl709PtECsSI/edit'>Getting Started</a><br>
 <a href='https://docs.google.com/document/d/1_fkM_ccYyojDcovjW_f6EnSZTBed_XkrHJNA_dRZvvg/edit?usp=sharing'>User Guide</a><br>
 <a href='https://docs.google.com/document/d/12S6izB7_oZGWIqypyMhO19rSjw4mqDFAkoiaXdZETu0/edit?usp=sharing'>Lesson Plans</a><br>
 <a href='https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006/full'>2020 paper</a><br>
