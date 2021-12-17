@@ -12,16 +12,16 @@ bl_frame1.CData = this_frame;
 
 for ncol = 1:3
     if ncol == 1
-        colframe = this_frame(:,:,1) > this_frame(:,:,2) * 1.85 & this_frame(:,:,1) > this_frame(:,:,3) * 1.85;
-        colframe(this_frame(:,:,1) < 125) = 0;
+        colframe = this_frame(:,:,1) > this_frame(:,:,2) * 1.5 & this_frame(:,:,1) > this_frame(:,:,3) * 1.5;
+        colframe(this_frame(:,:,1) < 100) = 0;
         this_col = 'r';
     elseif ncol == 2
-        colframe = this_frame(:,:,2) > this_frame(:,:,1) * 1.2 & this_frame(:,:,2) > this_frame(:,:,3) * 1.2;
-        colframe(this_frame(:,:,2) < 125) = 0;
+        colframe = this_frame(:,:,2) > this_frame(:,:,1) * 1.1 & this_frame(:,:,2) > this_frame(:,:,3) * 1.1;
+        colframe(this_frame(:,:,2) < 150) = 0;
         this_col = 'g';
     elseif ncol == 3
-        colframe = this_frame(:,:,3) > this_frame(:,:,2) * 1.4 & this_frame(:,:,3) > this_frame(:,:,1) * 1.4;
-        colframe(this_frame(:,:,3) < 125) = 0;
+        colframe = this_frame(:,:,3) > this_frame(:,:,2) * 1.5 & this_frame(:,:,3) > this_frame(:,:,1) * 1.5;
+        colframe(this_frame(:,:,3) < 150) = 0;
         this_col = 'b';
     end
 

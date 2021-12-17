@@ -11,14 +11,20 @@ for ncam = 1:2
 
     for ncol = 1:3
         if ncol == 1
-            colframe = uframe(:,:,1) > uframe(:,:,2) * 1.8 & uframe(:,:,1) > uframe(:,:,3) * 1.8;
-            colframe(uframe(:,:,1) < 150) = 0;
+%             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.8 & uframe(:,:,1) > uframe(:,:,3) * 1.8;
+%             colframe(uframe(:,:,1) < 150) = 0;
+            colframe = uframe(:,:,1) > uframe(:,:,2) * 1.85 & uframe(:,:,1) > uframe(:,:,3) * 1.85;
+            colframe(uframe(:,:,1) < 125) = 0;
         elseif ncol == 2
+%             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
+%             colframe(uframe(:,:,2) < 150) = 0;
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
-            colframe(uframe(:,:,2) < 150) = 0;
+            colframe(uframe(:,:,2) < 125) = 0;
         elseif ncol == 3
-            colframe = uframe(:,:,3) > uframe(:,:,2) * 1.5 & uframe(:,:,3) > uframe(:,:,1) * 1.5;
-            colframe(uframe(:,:,3) < 150) = 0;            
+%             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.5 & uframe(:,:,3) > uframe(:,:,1) * 1.5;
+%             colframe(uframe(:,:,3) < 150) = 0;       
+            colframe = uframe(:,:,3) > uframe(:,:,2) * 1.4 & uframe(:,:,3) > uframe(:,:,1) * 1.4;
+            colframe(uframe(:,:,3) < 125) = 0;
         end
     
         blob = bwconncomp(colframe);
