@@ -12,19 +12,20 @@ for ncam = 1:2
     for ncol = 1:3
         if ncol == 1
             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.8 & uframe(:,:,1) > uframe(:,:,3) * 1.8;
-            colframe(uframe(:,:,1) < 50) = 0;
+            colframe(uframe(:,:,1) < 150) = 0;
         elseif ncol == 2
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
-            colframe(uframe(:,:,2) < 50) = 0;
+            colframe(uframe(:,:,2) < 150) = 0;
         elseif ncol == 3
             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.5 & uframe(:,:,3) > uframe(:,:,1) * 1.5;
-            colframe(uframe(:,:,3) < 50) = 0;            
+            colframe(uframe(:,:,3) < 150) = 0;            
         end
     
         blob = bwconncomp(colframe);
         if blob.NumObjects
             [i, j] = max(cellfun(@numel,blob.PixelIdxList));
             npx = i;
+            disp(horzcat('ncam = ', num2str(ncam), ', ncol = ', num2str(ncol), ', epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
             [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
             this_score = sigmoid(npx, 1000, 0.0075) * 50;
             this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
