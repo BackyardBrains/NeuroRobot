@@ -11,18 +11,12 @@ for ncam = 1:2
 
     for ncol = 1:3
         if ncol == 1
-%             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.8 & uframe(:,:,1) > uframe(:,:,3) * 1.8;
-%             colframe(uframe(:,:,1) < 150) = 0;
             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.85 & uframe(:,:,1) > uframe(:,:,3) * 1.85;
             colframe(uframe(:,:,1) < 125) = 0;
         elseif ncol == 2
-%             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
-%             colframe(uframe(:,:,2) < 150) = 0;
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
             colframe(uframe(:,:,2) < 125) = 0;
-        elseif ncol == 3
-%             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.5 & uframe(:,:,3) > uframe(:,:,1) * 1.5;
-%             colframe(uframe(:,:,3) < 150) = 0;       
+        elseif ncol == 3     
             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.4 & uframe(:,:,3) > uframe(:,:,1) * 1.4;
             colframe(uframe(:,:,3) < 125) = 0;
         end
@@ -31,7 +25,7 @@ for ncam = 1:2
         if blob.NumObjects
             [i, j] = max(cellfun(@numel,blob.PixelIdxList));
             npx = i;
-            disp(horzcat('ncam = ', num2str(ncam), ', ncol = ', num2str(ncol), ', epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+%             disp(horzcat('ncam = ', num2str(ncam), ', ncol = ', num2str(ncol), ', epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
             [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
             this_score = sigmoid(npx, 1000, 0.0075) * 50;
             this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
@@ -46,6 +40,30 @@ for ncam = 1:2
         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
 
     end
+
+    bwframe = rgb2gray(uframe);
+    bwframe(bwframe < 125) = 0;
+    
+    blob = bwconncomp(bwframe);
+    if blob.NumObjects
+        [i, j] = max(cellfun(@numel,blob.PixelIdxList));
+        npx = i;
+    %     disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+        [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
+        this_score = sigmoid(npx, 1000, 0.0075) * 50;
+        this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
+        this_right_score = sigmoid(((mean(x)) / 403), 0.85, 10) * this_score;
+    else
+        this_score = 0;
+        this_left_score = 0;
+        this_right_score = 0;
+        x = [0 0 0];
+        y = [0 0 0];
+    end
+
+    vis_pref_vals(10, ncam) = this_score;
+    vis_pref_vals(11, ncam) = this_left_score;
+    vis_pref_vals(12, ncam) = this_right_score;
     
     % Get object classification scores
     if use_cnn

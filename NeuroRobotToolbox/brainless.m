@@ -3,12 +3,9 @@
 
 %% Visual line - before first run only
 % first_visual_line
-% trigger(rak_cam)
-% large_frame = getdata(rak_cam, 1);
 
 %% Visual line - every run
 this_frame = imresize(large_frame, [227 404]);
-% this_frame = imresize(large_frame, 0.315);
 bl_frame1.CData = this_frame;
 
 for ncol = 1:3
@@ -35,8 +32,6 @@ for ncol = 1:3
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
         this_right_score = sigmoid(((mean(x)) / 403), 0.85, 10) * this_score;
-%         scatter(x, y, 5, this_col)
-        
     else
         this_score = 0;
         this_left_score = 0;
@@ -66,15 +61,33 @@ for ncol = 1:3
         bl1_scb.XData = x;
         bl1_scb.YData = y;        
     end
-    
-
-%     tf = this_frame(:,:,ncol);
-%     tf(colframe) = 255;
-    
 
 end
 
+bwframe = rgb2gray(this_frame);
+bwframe(bwframe < 125) = 0;
 
+tic
+blob = bwconncomp(bwframe);
+disp(num2str(toc))
+if blob.NumObjects
+    [i, j] = max(cellfun(@numel,blob.PixelIdxList));
+    npx = i;
+%     disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+    [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
+    this_score = sigmoid(npx, 1000, 0.0075) * 50;
+    this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
+    this_right_score = sigmoid(((mean(x)) / 403), 0.85, 10) * this_score;
+else
+    this_score = 0;
+    this_left_score = 0;
+    this_right_score = 0;
+    x = [0 0 0];
+    y = [0 0 0];
+end
+
+bl1_scbri.XData = x;
+bl1_scbri.YData = y;
 
 % %% Distance as number and sound
 % rak_get_serial
