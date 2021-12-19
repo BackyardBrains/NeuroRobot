@@ -15,7 +15,7 @@ matlab_audio_rec = 0;     % Use computer microphone to listen
 matlab_speaker_ctrl = 0;  % Multi tone output
 audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.1;       % Step time in seconds
-dev_mode = 1;             % Custom rak_pulse_code
+dev_mode = 0;             % Custom rak_pulse_code
 bg_colors = 0;            % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;         % Use smaller neurons and synapses, no neuron numbers
 cpg_integration = 1;      % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
