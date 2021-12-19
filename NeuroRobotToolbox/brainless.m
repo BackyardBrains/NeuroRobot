@@ -7,13 +7,14 @@
 % large_frame = getdata(rak_cam, 1);
 
 %% Visual line - every run
-this_frame = imresize(large_frame, 0.315);
+this_frame = imresize(large_frame, [227 404]);
+% this_frame = imresize(large_frame, 0.315);
 bl_frame1.CData = this_frame;
 
 for ncol = 1:3
     if ncol == 1
         colframe = this_frame(:,:,1) > this_frame(:,:,2) * 1.85 & this_frame(:,:,1) > this_frame(:,:,3) * 1.85;
-        colframe(this_frame(:,:,1) < 125) = 0;
+        colframe(this_frame(:,:,1) < 50) = 0;
         this_col = 'r';
     elseif ncol == 2
         colframe = this_frame(:,:,2) > this_frame(:,:,1) * 1.2 & this_frame(:,:,2) > this_frame(:,:,3) * 1.2;
@@ -29,7 +30,7 @@ for ncol = 1:3
     if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
-        disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+%         disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
