@@ -11,10 +11,10 @@ for ncam = 1:2
 
     for ncol = 1:3
         if ncol == 1
-            colframe = uframe(:,:,1) > uframe(:,:,2) * 1.85 & uframe(:,:,1) > uframe(:,:,3) * 1.85;
+            colframe = uframe(:,:,1) > uframe(:,:,2) * 1.5 & uframe(:,:,1) > uframe(:,:,3) * 1.5;
             colframe(uframe(:,:,1) < 125) = 0;
         elseif ncol == 2
-            colframe = uframe(:,:,2) > uframe(:,:,1) * 1.2 & uframe(:,:,2) > uframe(:,:,3) * 1.2;
+            colframe = uframe(:,:,2) > uframe(:,:,1) * 1.3 & uframe(:,:,2) > uframe(:,:,3) * 1.3;
             colframe(uframe(:,:,2) < 125) = 0;
         elseif ncol == 3     
             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.4 & uframe(:,:,3) > uframe(:,:,1) * 1.4;
@@ -36,6 +36,9 @@ for ncam = 1:2
             this_right_score = 0;
         end
         vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
+        if ncol == 1
+            disp(num2str(this_score))
+        end
         vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
 
