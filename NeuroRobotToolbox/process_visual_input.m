@@ -36,9 +36,6 @@ for ncam = 1:2
             this_right_score = 0;
         end
         vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
-        if ncol == 1
-            disp(num2str(this_score))
-        end
         vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
 
