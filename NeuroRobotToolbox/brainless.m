@@ -6,6 +6,7 @@
 
 %% Visual line - every run
 this_frame = imresize(large_frame, [227 404]);
+xframe = imsubtract(rgb2gray(this_frame), rgb2gray(prev_frame));
 bl_frame1.CData = this_frame;
 
 for ncol = 1:3
@@ -27,7 +28,7 @@ for ncol = 1:3
     if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
-        disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+%         disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
@@ -64,14 +65,16 @@ for ncol = 1:3
 
 end
 
-bwframe = rgb2gray(this_frame);
-bwframe(bwframe < 125) = 0;
+% bwframe = rgb2gray(this_frame);
+% bwframe(bwframe < 125) = 0;
+
+bwframe = xframe > 20;
 
 blob = bwconncomp(bwframe);
 if blob.NumObjects
     [i, j] = max(cellfun(@numel,blob.PixelIdxList));
     npx = i;
-%     disp(horzcat('bright', ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+    disp(horzcat('bright', ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
     [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
     this_score = sigmoid(npx, 1000, 0.0075) * 50;
     this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
@@ -86,6 +89,9 @@ end
 
 bl1_scbri.XData = x;
 bl1_scbri.YData = y;
+
+prev_frame = this_frame; 
+
 
 % %% Distance as number and sound
 % if rak_only

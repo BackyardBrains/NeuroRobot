@@ -34,7 +34,7 @@ draw_neuron_numbers = 0;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
-script_names = {'Red', 'Green', 'Blue', 'Off'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 
 %% Local configuration
 % startup_fig_pos = get(0, 'screensize') + [0 41 0 -63];
@@ -148,7 +148,7 @@ network_colors(1, :) = [1 0.9 0.8];
 vis_pref_names = {'red', 'red-left', 'red-right', ...
     'green', 'green-left', 'green-right', ...
     'blue', 'blue-left', 'blue-right', ...
-    'bright', 'bight-left', 'bright-right'};
+    'movement', 'movement-left', 'movement-right'};
 n_basic_vis_features = length(vis_pref_names);
 if use_cnn
     load object_strs

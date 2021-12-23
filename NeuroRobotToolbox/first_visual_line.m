@@ -1,6 +1,7 @@
 figure(5)
 clf
 this_frame = zeros(227, 404, 3, 'uint8');
+prev_frame = zeros(227, 404, 3, 'uint8');
 bl_ax1 = axes('position', [0 0 1 1]);
 bl_frame1 = image(this_frame);
 hold on

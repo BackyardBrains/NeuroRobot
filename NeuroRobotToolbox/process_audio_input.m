@@ -29,14 +29,8 @@ if ~isempty(this_audio) && length(this_audio) >= 1000
     z = abs(y).^2;
     z = z(1:audx)';
 
-    if r_torque || l_torque
-        robot_moving = 8;
-    else
-        if exist('robot_moving', 'var') && robot_moving
-            robot_moving = robot_moving - 1;
-        else
-            sound_spectrum(:,nstep) = z;
-        end
+    if ~robot_moving
+        sound_spectrum(:,nstep) = z;
     end
 end
 

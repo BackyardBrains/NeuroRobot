@@ -38,6 +38,14 @@ catch
     error('update_motors error')
 end
 
+if r_torque || l_torque
+    robot_moving = 10;
+else
+    if exist('robot_moving', 'var') && robot_moving
+        robot_moving = robot_moving - 1;
+    end
+end
+
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 show_left_eye.CData = left_eye_frame;

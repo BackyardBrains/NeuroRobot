@@ -4,9 +4,11 @@ for ncam = 1:2
     if ncam == 1
         uframe = imresize(left_eye_frame, net_input_size);
         frame = single(uframe);
+        xframe = imsubtract(prev_left_eye_frame, uframe);
     else
         uframe = imresize(right_eye_frame, net_input_size);
         frame = single(uframe);
+        xframe = imsubtract(prev_right_eye_frame, uframe);
     end
 
     for ncol = 1:3
@@ -41,11 +43,13 @@ for ncam = 1:2
 
     end
 
-    bwframe = rgb2gray(uframe);
-    bwframe(bwframe < 125) = 0;
+%     bwframe = rgb2gray(uframe);
+%     bwframe(bwframe < 125) = 0;
+
+    bwframe = xframe > 20;
     
     blob = bwconncomp(bwframe);
-    if blob.NumObjects
+    if blob.NumObjects && ~robot_moving
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
     %     disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
@@ -96,5 +100,11 @@ for ncam = 1:2
         end
     end
     
+    if ncam == 1
+        prev_left_eye_frame = uframe;
+    elseif ncam == 2
+        prev_right_eye_frame = uframe;
+    end
+
 end
 
