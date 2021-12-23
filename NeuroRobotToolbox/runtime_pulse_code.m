@@ -41,7 +41,7 @@ end
 if r_torque || l_torque
     robot_moving = 10;
 else
-    if exist('robot_moving', 'var') && robot_moving
+    if robot_moving
         robot_moving = robot_moving - 1;
     end
 end

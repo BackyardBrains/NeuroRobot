@@ -68,7 +68,7 @@ end
 % bwframe = rgb2gray(this_frame);
 % bwframe(bwframe < 125) = 0;
 
-bwframe = xframe > 20;
+bwframe = xframe > 40;
 
 blob = bwconncomp(bwframe);
 if blob.NumObjects

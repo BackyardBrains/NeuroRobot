@@ -113,6 +113,7 @@ neuron_scripts = [];
 if ~exist('neuron_tones', 'var')
     neuron_tones = 0;
 end
+robot_moving = 0;
 
 
 %% Prepare 2
