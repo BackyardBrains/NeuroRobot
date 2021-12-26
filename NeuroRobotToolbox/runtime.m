@@ -43,12 +43,6 @@ if matlab_audio_rec
     setup(mic_obj)
 end
 
-if matlab_speaker_ctrl
-    disp('Initiating Matlab sound card control...')
-    speaker_fs = 16000;
-    speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
-end
-
 if use_speech2text
     disp('Initiating Google speech-to-text engine...')
     mic_fs = 16000; % rem

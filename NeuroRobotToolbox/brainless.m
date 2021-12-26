@@ -29,7 +29,7 @@ for ncol = 1:3
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
 %         disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
-        [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
+        [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
         this_right_score = sigmoid(((mean(x)) / 403), 0.85, 10) * this_score;
@@ -38,7 +38,6 @@ for ncol = 1:3
         this_left_score = 0;
         this_right_score = 0;
         x = [0 0 0];
-        y = [0 0 0];
     end
 
 %     if ncol == 1
@@ -52,16 +51,16 @@ for ncol = 1:3
 %         bl_plot3.YData = this_score;
 %     end
 
-    if ncol == 1
-        bl1_scr.XData = x;
-        bl1_scr.YData = y;
-    elseif ncol == 2
-        bl1_scg.XData = x;
-        bl1_scg.YData = y;
-    elseif ncol == 3
-        bl1_scb.XData = x;
-        bl1_scb.YData = y;        
-    end
+%     if ncol == 1
+%         bl1_scr.XData = x;
+%         bl1_scr.YData = y;
+%     elseif ncol == 2
+%         bl1_scg.XData = x;
+%         bl1_scg.YData = y;
+%     elseif ncol == 3
+%         bl1_scb.XData = x;
+%         bl1_scb.YData = y;        
+%     end
 
 end
 
@@ -87,11 +86,21 @@ else
     y = [0 0 0];
 end
 
-bl1_scbri.XData = x;
-bl1_scbri.YData = y;
+% bl1_scbri.XData = x;
+% bl1_scbri.YData = y;
 
 prev_frame = this_frame; 
 
+if mean(x) > 0
+    dxvalues=1/16000:1/16000:pulse_period;
+    dxa = sin(2*pi*(100 + mean(x) * 3)*dxvalues);
+    dxa2 = ones(size(dxvalues));
+    dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+    dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+    dxa = dxa .* dxa2;
+    dxa = dxa * (this_score/50);
+    speaker_obj(dxa');
+end
 
 % %% Distance as number and sound
 % if rak_only
