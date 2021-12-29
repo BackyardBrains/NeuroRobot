@@ -43,11 +43,7 @@ for ncam = 1:2
 
     end
 
-%     bwframe = rgb2gray(uframe);
-%     bwframe(bwframe < 125) = 0;
-
-    xframe = rgb2gray(xframe);
-    bwframe = xframe > 40;
+    bwframe = xframe > 30;
     
     blob = bwconncomp(bwframe);
     if blob.NumObjects && ~robot_moving

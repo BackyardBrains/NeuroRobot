@@ -12,15 +12,15 @@ bl_frame1.CData = this_frame;
 for ncol = 1:3
     if ncol == 1
         colframe = this_frame(:,:,1) > this_frame(:,:,2) * 1.5 & this_frame(:,:,1) > this_frame(:,:,3) * 1.5;
-        colframe(this_frame(:,:,1) < 100) = 0;
+        colframe(this_frame(:,:,1) < 125) = 0;
         this_col = 'red';
     elseif ncol == 2
         colframe = this_frame(:,:,2) > this_frame(:,:,1) * 1.3 & this_frame(:,:,2) > this_frame(:,:,3) * 1.3;
-        colframe(this_frame(:,:,2) < 100) = 0;
+        colframe(this_frame(:,:,2) < 125) = 0;
         this_col = 'green';
     elseif ncol == 3
         colframe = this_frame(:,:,3) > this_frame(:,:,2) * 1.4 & this_frame(:,:,3) > this_frame(:,:,1) * 1.4;
-        colframe(this_frame(:,:,3) < 100) = 0;
+        colframe(this_frame(:,:,3) < 125) = 0;
         this_col = 'blue';
     end
 
@@ -28,8 +28,8 @@ for ncol = 1:3
     if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
-%         disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
-        [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
+        disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+        [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
         this_right_score = sigmoid(((mean(x)) / 403), 0.85, 10) * this_score;
@@ -38,6 +38,7 @@ for ncol = 1:3
         this_left_score = 0;
         this_right_score = 0;
         x = [0 0 0];
+        y = [0 0 0];
     end
 
 %     if ncol == 1
@@ -51,23 +52,20 @@ for ncol = 1:3
 %         bl_plot3.YData = this_score;
 %     end
 
-%     if ncol == 1
-%         bl1_scr.XData = x;
-%         bl1_scr.YData = y;
-%     elseif ncol == 2
-%         bl1_scg.XData = x;
-%         bl1_scg.YData = y;
-%     elseif ncol == 3
-%         bl1_scb.XData = x;
-%         bl1_scb.YData = y;        
-%     end
+    if ncol == 1
+        bl1_scr.XData = x;
+        bl1_scr.YData = y;
+    elseif ncol == 2
+        bl1_scg.XData = x;
+        bl1_scg.YData = y;
+    elseif ncol == 3
+        bl1_scb.XData = x;
+        bl1_scb.YData = y;        
+    end
 
 end
 
-% bwframe = rgb2gray(this_frame);
-% bwframe(bwframe < 125) = 0;
-
-bwframe = xframe > 40;
+bwframe = xframe > 30;
 
 blob = bwconncomp(bwframe);
 if blob.NumObjects
@@ -86,21 +84,21 @@ else
     y = [0 0 0];
 end
 
-% bl1_scbri.XData = x;
-% bl1_scbri.YData = y;
+bl1_scbri.XData = x;
+bl1_scbri.YData = y;
 
 prev_frame = this_frame; 
 
-if mean(x) > 0
-    dxvalues=1/16000:1/16000:pulse_period;
-    dxa = sin(2*pi*(100 + mean(x) * 3)*dxvalues);
-    dxa2 = ones(size(dxvalues));
-    dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
-    dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
-    dxa = dxa .* dxa2;
-    dxa = dxa * (this_score/50);
-    speaker_obj(dxa');
-end
+% if mean(x) > 0
+%     dxvalues=1/16000:1/16000:pulse_period;
+%     dxa = sin(2*pi*(100 + mean(x) * 3)*dxvalues);
+%     dxa2 = ones(size(dxvalues));
+%     dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+%     dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+%     dxa = dxa .* dxa2;
+%     dxa = dxa * (this_score/50);
+%     speaker_obj(dxa');
+% end
 
 % %% Distance as number and sound
 % if rak_only
