@@ -13,6 +13,7 @@ elseif rak_only
     % disp(serial_receive)
     % length(this_audio)
 end
+% large_frame = histeq(large_frame, 64*4);
 
 if exist('dev_mode', 'var') && dev_mode
     brainless
