@@ -4,11 +4,11 @@ for ncam = 1:2
     if ncam == 1
         uframe = imresize(left_eye_frame, net_input_size);
         frame = single(uframe);
-        xframe = imsubtract(prev_left_eye_frame, uframe);
+        xframe = imsubtract(rgb2gray(prev_left_eye_frame), rgb2gray(uframe));
     else
         uframe = imresize(right_eye_frame, net_input_size);
         frame = single(uframe);
-        xframe = imsubtract(prev_right_eye_frame, uframe);
+        xframe = imsubtract(rgb2gray(prev_right_eye_frame), rgb2gray(uframe));
     end
 
     for ncol = 1:3
