@@ -6,7 +6,7 @@
 
 %% Visual line - every run
 this_frame = imresize(large_frame, [227 404]);
-xframe = imsubtract(rgb2gray(this_frame), rgb2gray(prev_frame));
+xframe = imsubtract(rgb2gray(prev_frame), rgb2gray(this_frame));
 bl_frame1.CData = this_frame;
 
 for ncol = 1:3
@@ -65,7 +65,7 @@ for ncol = 1:3
 
 end
 
-bwframe = xframe > 30;
+bwframe = xframe > 20;
 
 blob = bwconncomp(bwframe);
 if blob.NumObjects
@@ -101,10 +101,11 @@ prev_frame = this_frame;
 % end
 
 % %% Distance as number and sound
-% if rak_only
-%   rak_get_serial
-% end
-% disp(num2str(this_distance))
+if rak_only
+  rak_get_serial
+  disp(num2str(this_distance))
+end
+
 % 
 % if this_distance > 50 && this_distance < 5000
 %     disp(horzcat('distance = ', num2str(this_distance)))
