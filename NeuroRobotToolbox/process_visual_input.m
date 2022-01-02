@@ -4,11 +4,11 @@ for ncam = 1:2
     if ncam == 1
         uframe = imresize(left_eye_frame, net_input_size);
         frame = single(uframe);
-        xframe = imsubtract(rgb2gray(prev_left_eye_frame), rgb2gray(uframe));
+        xframe = imsubtract(rgb2gray(uframe), rgb2gray(prev_left_eye_frame));
     else
         uframe = imresize(right_eye_frame, net_input_size);
         frame = single(uframe);
-        xframe = imsubtract(rgb2gray(prev_right_eye_frame), rgb2gray(uframe));
+        xframe = imsubtract(rgb2gray(uframe), rgb2gray(prev_right_eye_frame));
     end
 
     for ncol = 1:3
@@ -43,7 +43,7 @@ for ncam = 1:2
 
     end
 
-    bwframe = xframe > 30;
+    bwframe = xframe > 20;
     
     blob = bwconncomp(bwframe);
     if blob.NumObjects && ~robot_moving
