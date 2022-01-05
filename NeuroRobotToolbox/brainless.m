@@ -7,6 +7,7 @@
 %% Visual line - every run
 this_frame = imresize(large_frame, [227 404]);
 xframe = imsubtract(rgb2gray(this_frame), rgb2gray(prev_frame));
+% xframe = imsubtract(rgb2gray(prev_frame), rgb2gray(this_frame));
 bl_frame1.CData = this_frame;
 
 for ncol = 1:3
