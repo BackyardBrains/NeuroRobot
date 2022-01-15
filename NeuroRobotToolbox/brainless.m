@@ -29,7 +29,7 @@ for ncol = 1:3
     if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
-        disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+%         disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
         [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
@@ -72,7 +72,7 @@ blob = bwconncomp(bwframe);
 if blob.NumObjects
     [i, j] = max(cellfun(@numel,blob.PixelIdxList));
     npx = i;
-    disp(horzcat('bright', ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
+%     disp(horzcat('bright', ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
     [y, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
     this_score = sigmoid(npx, 1000, 0.0075) * 50;
     this_left_score = sigmoid(((404 - mean(x)) / 403), 0.85, 10) * this_score;
