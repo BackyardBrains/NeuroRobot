@@ -37,21 +37,16 @@ bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 
 %% Local configuration
-% startup_fig_pos = get(0, 'screensize') + [0 41 0 -63];
-startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
-% fig_pos = get(0, 'screensize') + [0 41 0 -63];
-fig_pos = get(0, 'screensize') + [0 49 0 -71];
+if ismac
+    startup_fig_pos = get(0, 'screensize') + [0 149 0 -171];
+    fig_pos = get(0, 'screensize') + [0 149 0 -171];
+else
+    startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
+    fig_pos = get(0, 'screensize') + [0 49 0 -71];
+end
 
-% startup_fig_pos = [1 49 1536 793]; % Change this if your screen size is different 
-% fig_pos = [1 49 1536 793]; % Change this if your screen size is different
-
-% startup_fig_pos = [-2559 -546.2 2560 1377];
-% fig_pos = [-2559 -546.2 2560 1377];
-
-% bfsize = round(startup_fig_pos(3) / 107);
 bfsize = 14; % You may want to change this to 14 if your screen is small
 computer_name = 'n/a';
-% bluetooth_name = 'RNBT-0C56'; % Change this to match your bluetooth name
 
 
 %% Prepare 1
