@@ -2,7 +2,7 @@
 
 %% Brain to append as CPG / BG net
 brain_name_2 = popup_select_brain.String{popup_select_brain.Value};
-    
+
 %% Load brain 2
 load(strcat('./Brains/', brain_name_2, '.mat'))
 nneurons_2 = brain.nneurons;
@@ -112,6 +112,15 @@ d = [d; d_2];
 v = [v; v_2];
 u = [u; u_2];
 neuron_contacts = [neuron_contacts; neuron_contacts_2];
+
+% Fix to correct for changing # of visual features
+% Note: Older brains will get visual miswiring
+vis_diff = diff([size(vis_prefs, 2) size(vis_prefs_2, 2)]);
+if vis_diff < 0
+    vis_prefs_2(:,end+1:end-vis_diff, :) = 0;
+elseif vis_diff > 0
+    vis_prefs(:,end+1:end+vis_diff, :) = 0;
+end
 
 vis_prefs = [vis_prefs; vis_prefs_2];
 audio_prefs = [audio_prefs; audio_prefs_2];

@@ -316,9 +316,9 @@ if nneurons
                         plot_bg_lines(p1, nneuron).Color = this_col;
                     end
                 elseif ~down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                    draw_msn_skylt(nneuron,3).Color = this_col + ((1 - this_col) * 0.8);
-                    draw_msn_skylt(nneuron,1).MarkerFaceColor = this_col + ((1 - this_col) * 0.8);
-                    draw_msn_skylt(nneuron,1).MarkerEdgeColor = this_col + ((1 - this_col) * 0.8);
+                    draw_msn_skylt(nneuron,3).Color = [0.2 0.7 0.2];
+                    draw_msn_skylt(nneuron,1).MarkerFaceColor = [0.6 1 0.6];
+                    draw_msn_skylt(nneuron,1).MarkerEdgeColor = [0 0 0];
                     p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
                     if ~isempty(p1)
                         plot_bg_lines(p1, nneuron).Color = this_col + ((1 - this_col) * 0.8);

@@ -64,6 +64,10 @@ for ncol = 1:3
         bl1_scb.YData = y;        
     end
 
+%     if ncol == 1
+%         disp(horzcat('mean x = ', num2str(mean(x)), ', out = ', num2str(mean(x))))
+%     end
+
 end
 
 bwframe = xframe > 20;

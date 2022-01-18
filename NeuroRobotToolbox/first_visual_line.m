@@ -1,5 +1,6 @@
 figure(5)
 clf
+set(gcf, 'position', [220 250 830 520])
 this_frame = zeros(227, 404, 3, 'uint8');
 prev_frame = zeros(227, 404, 3, 'uint8');
 bl_ax1 = axes('position', [0 0 1 1]);

@@ -316,7 +316,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             if bg_colors && bg_neurons(nneuron)
                 this_col = network_colors(network_ids(nneuron), :);
             else
-                this_col = [1 0.9 0.8];
+                this_col = [0.5 0.9 0.5];
             end
             if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
                 this_neuron = find(bg_neurons & network_ids == network_ids(nneuron), 1);
@@ -324,7 +324,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
                 x2 = neuron_xys(nneuron,1);
                 y1 = neuron_xys(this_neuron,2);
                 y2 = neuron_xys(nneuron,2);
-                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2+0.13], 'color', this_col, 'linewidth', 2 - microcircuit, 'linestyle', '--');
+                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2+0.13], 'color', this_col, 'linewidth', 1, 'linestyle', '--');
             end
         end
     end  
@@ -354,7 +354,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
                 this_col = [1 0.9 0.8];
             end            
             if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', this_col, 'markerfacecolor', this_col, 'marker', 'o', 'markersize', 10, 'linewidth', 2);  
+                draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', this_col, 'markerfacecolor', this_col, 'marker', 'o', 'markersize', 10, 'linewidth', 1);  
                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, letters(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             elseif bg_neurons(nneuron) && network_ids(nneuron) > 1
                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), letters(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
