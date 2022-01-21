@@ -11,7 +11,9 @@ try
         trigger(rak_cam)
         large_frame = getdata(rak_cam, 1);
     end
-%     large_frame = histeq(large_frame, 64*4);
+    if night_vision
+        large_frame = histeq(large_frame, 64*4);
+    end
 catch
     large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
     disp('RAK fail')

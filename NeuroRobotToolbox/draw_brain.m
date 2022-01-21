@@ -173,7 +173,8 @@ if draw_synapses
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
                 if draw_synapse_strengths && ~nma_flag
                     w = round(w);
-                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
+%                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
+                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 .8 0]);                    
                 end
             end
         end
@@ -372,7 +373,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8], 'color', [0 0 0]);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.5 0.5 0.5], 'EdgeColor', [0.8 0.8 0.8]);
             end
         end
     end

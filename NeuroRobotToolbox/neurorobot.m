@@ -19,6 +19,7 @@ dev_mode = 0;             % Custom rak_pulse_code
 bg_colors = 0;            % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;         % Use smaller neurons and synapses, no neuron numbers
 cpg_integration = 1;      % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+night_vision = 1;
 
 
 %% Advanced settings
@@ -29,8 +30,8 @@ save_data_and_commands = 0;
 save_brain_jpg = 0; % main only
 use_profile = 0;
 bg_brain = 1;
-draw_synapse_strengths = 0;
-draw_neuron_numbers = 0;
+draw_synapse_strengths = 1;
+draw_neuron_numbers = 1;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
