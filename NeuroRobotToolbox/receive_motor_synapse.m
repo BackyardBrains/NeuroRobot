@@ -20,7 +20,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         xdist = contact_xys(ncontact, 1) - x;
         ydist = contact_xys(ncontact, 2) - y;  
         sdist = sqrt(xdist^2 + ydist^2);        
-        if sdist < 0.2        
+        if sdist < 0.3    
             postsynaptic_contact = ncontact;
             contact_h(ncontact).MarkerFaceColor = sel_col_core;
         end

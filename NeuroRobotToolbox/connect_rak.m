@@ -129,7 +129,7 @@ if connect_success
 
     button_camera.BackgroundColor = [0.6 0.95 0.6];
     drawnow
-    disp(horzcat('rak_object connected in ', num2str(round(toc)), ' seconds'))
+    disp(horzcat('Camera connected in ', num2str(round(toc)), ' s'))
 
 else
 

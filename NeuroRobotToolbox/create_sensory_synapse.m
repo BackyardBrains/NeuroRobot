@@ -23,7 +23,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var') && nneurons
         xdist = contact_xys(ncontact, 1) - x;
         ydist = contact_xys(ncontact, 2) - y;  
         sdist = sqrt(xdist^2 + ydist^2);        
-        if sdist < 0.5
+        if sdist < 0.4
             presynaptic_contact = ncontact;
             contact_h(ncontact).MarkerFaceColor = sel_col_core;
             disp(horzcat('x = ', num2str(x), ', y = ', num2str(y), ...
