@@ -173,8 +173,8 @@ if draw_synapses
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
                 if draw_synapse_strengths && ~nma_flag
                     w = round(w);
-%                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.5 0.2 0]);
-                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 .8 0]);                    
+                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.15, num2str(w), 'fontsize', bfsize - 5, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.4 0.2 0]);
+%                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 .8 0]);                    
                 end
             end
         end
@@ -275,11 +275,15 @@ if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 
 else
     contact_size = 15;
 end
+
 for ncontact = 1:13
     contact_h(ncontact) = plot(contact_xys(ncontact,1), contact_xys(ncontact,2), 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.6 0.3], 'marker', 'square', 'markersize', contact_size);
     if exist('fig_design', 'var') && isvalid(fig_design) && (fig_design.UserData == 0 || fig_design.UserData == 4)
         if sum(ncontact == [1 2 3 5])
             contact_h(ncontact).ButtonDownFcn = 'create_sensory_synapse';
+            if ncontact == 1
+                disp('(left eye contact drawn)')
+            end
         elseif sum(ncontact == 4)
             contact_h(ncontact).ButtonDownFcn = 'receive_speaker_synapse';
         elseif sum(ncontact == [6:13])
@@ -287,8 +291,6 @@ for ncontact = 1:13
         end
     end
 end
-
-drawnow
 
 % Draw cell bodies
 if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
@@ -383,3 +385,5 @@ drawnow
 
 % Adjust brain axes
 axis([-3 3 -3 3])
+
+hold on

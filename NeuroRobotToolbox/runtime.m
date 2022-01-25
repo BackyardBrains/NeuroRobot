@@ -34,13 +34,17 @@ prev_left_eye_frame = imresize(left_eye_frame, net_input_size);
 prev_right_eye_frame = imresize(right_eye_frame, net_input_size);
 
 if matlab_audio_rec
-    disp('Initiating Matlab audio recorder...')
     mic_fs = 16000;
     if exist('mic_obj', 'var')
         clear mic_obj
     end
-    mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
-    setup(mic_obj)
+    try
+        mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
+        setup(mic_obj)
+    catch
+        disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')
+        matlab_audio_rec = 0;
+    end
 end
 
 if use_speech2text
@@ -163,10 +167,9 @@ end
 if exist('rak_pulse', 'var') && isvalid(rak_pulse)
     stop(rak_pulse)
     delete(rak_pulse)
-    disp('rak_pulse deleted')
 end
 pause(1)
-disp('Creating runtime_pulse')
+
 runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
 start(runtime_pulse)
 
