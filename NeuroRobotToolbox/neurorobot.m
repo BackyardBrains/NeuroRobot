@@ -1,5 +1,5 @@
 
- %%%  NeuroRobot App by Backyard Brains  %%%
+%%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings
 rak_only = 1;             % Use robot with RAK5206 or RAK5270
