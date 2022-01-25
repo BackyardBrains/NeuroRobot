@@ -94,9 +94,7 @@ end
 clear step_timer
 clear life_timer
 disp('---------')
-if camera_present && ~use_webcam && ~rak_only && ~use_esp32
-    HebiCam.loadLibs();
-end
+
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end

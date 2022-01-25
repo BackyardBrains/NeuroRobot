@@ -280,14 +280,11 @@ for ncontact = 1:13
     contact_h(ncontact) = plot(contact_xys(ncontact,1), contact_xys(ncontact,2), 'markeredgecolor', 'k', 'markerfacecolor', [0.9 0.6 0.3], 'marker', 'square', 'markersize', contact_size);
     if exist('fig_design', 'var') && isvalid(fig_design) && (fig_design.UserData == 0 || fig_design.UserData == 4)
         if sum(ncontact == [1 2 3 5])
-            contact_h(ncontact).ButtonDownFcn = 'create_sensory_synapse';
-            if ncontact == 1
-                disp('(left eye contact drawn)')
-            end
+            contact_h(ncontact).ButtonDownFcn = horzcat('selected_contact = ', num2str(ncontact), '; create_sensory_synapse');
         elseif sum(ncontact == 4)
             contact_h(ncontact).ButtonDownFcn = 'receive_speaker_synapse';
         elseif sum(ncontact == [6:13])
-            contact_h(ncontact).ButtonDownFcn = 'receive_motor_synapse';
+            contact_h(ncontact).ButtonDownFcn = horzcat('selected_contact = ', num2str(ncontact), '; receive_motor_synapse');
         end
     end
 end
@@ -386,4 +383,3 @@ drawnow
 % Adjust brain axes
 axis([-3 3 -3 3])
 
-hold on

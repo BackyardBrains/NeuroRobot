@@ -1,6 +1,4 @@
 
-synapse_found = 0;
-
 if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var'))
 
     % Log command
@@ -14,24 +12,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Delete previous heading
     delete(text_heading)
     
-    % Find the current motor contact
-    mouse_location = get(gca, 'CurrentPoint');
-    x = mouse_location(1,1);
-    y = mouse_location(1,2);
-    for ncontact = 6:13
-        xdist = contact_xys(ncontact, 1) - x;
-        ydist = contact_xys(ncontact, 2) - y;  
-        sdist = sqrt(xdist^2 + ydist^2);        
-        if sdist < 0.4
-            postsynaptic_contact = ncontact;
-            contact_h(ncontact).MarkerFaceColor = sel_col_core;
-            disp(horzcat('x = ', num2str(x), ', y = ', num2str(y), ...
-                ', sdist = ', num2str(sdist), ', ncontact = ', num2str(ncontact)))            
-            synapse_found = synapse_found + 1;
-        end
-    end
+    % Adjust postsynaptic contact
+    postsynaptic_contact = selected_contact;
+    contact_h(ncontact).MarkerFaceColor = sel_col_core;
     
-    if synapse_found
+    if synapse_found == 1
 
         this_val = 1;
         
@@ -96,6 +81,16 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
 
         % Delete previous heading
         delete(text_heading)  
+
+    elseif synapse_found > 1
+
+        error('Too many motor contacts found. Reduce sdist.')
+
+    elseif ~synapse_found
+
+        disp('no motor contact found')
+
+    end
 
     % Delete growth cone
     delete(growth_cone)
