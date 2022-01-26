@@ -56,10 +56,6 @@ elseif manual_controls
     button_hold = uicontrol('Style', 'pushbutton', 'String', 'Hold', 'units', 'normalized', 'position', hold_pos);
     set(button_hold, 'Callback', 'manual_control = 5;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     manual_control_title = uicontrol('style', 'text', 'string', 'Manual control', 'units', 'normalized', 'position', [0.75 0.5 0.23 0.05], 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'horizontalalignment', 'center', 'backgroundcolor', fig_bg_col);
-elseif brain_facts
-    brain_fact_ax = axes('position', [0.75 0.25 0.23 0.31]);
-    image(imread('brain_fact_1.png'))
-    set(brain_fact_ax, 'xtick', [], 'ytick', [], 'xcolor', 'k', 'ycolor', 'k', 'linewidth', 4)
 end
 
 

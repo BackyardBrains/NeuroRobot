@@ -6,14 +6,6 @@ if n > 10000
 end
 
 % Get equally distributed points
-%                 if large_brain
-%                     eqdist_const = 0.001;
-%                 else
-%                     eqdist_const = 0.001;
-%                 end
-%                 if nma
-%                     eqdist_const = 0.001;
-%                 end
 xx = 0.001 * n + 0.3;
 npoints = round(2*sqrt(n));
 phi = (sqrt(5)+1)/2;

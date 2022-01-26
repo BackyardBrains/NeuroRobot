@@ -2,32 +2,32 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings
-rak_only = 1;             % Use robot with RAK5206 or RAK5270
-camera_present = 1;       % Use robot camera or webcamera
-use_webcam = 0;           % Use webcamera
-hd_camera = 0;            % Use robot with RAK5270
-use_esp32 = 0;            % Use robot with ESP32-CAM
-use_cnn = 0;              % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 0;             % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
-vocal = 0;                % Custom sound output
-supervocal = 0;           % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 1;     % Use computer microphone to listen
-matlab_speaker_ctrl = 0;  % Multi tone output
-audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.1;       % Step time in seconds
-dev_mode = 0;             % Custom rak_pulse_code
-bg_colors = 0;            % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
-microcircuit = 0;         % Use smaller neurons and synapses, no neuron numbers
-cpg_integration = 1;      % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
-night_vision = 1;
+rak_only = 1;               % Use robot with RAK5206 or RAK5270
+camera_present = 1;         % Use robot camera or webcamera
+use_webcam = 0;             % Use webcamera
+hd_camera = 0;              % Use robot with RAK5270
+use_esp32 = 0;              % Use robot with ESP32-CAM
+use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
+use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
+vocal = 0;                  % Custom sound output
+supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
+matlab_audio_rec = 1;       % Use computer microphone to listen
+matlab_speaker_ctrl = 0;    % Multi tone output
+audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
+pulse_period = 0.1;         % Step time in seconds
+dev_mode = 0;               % Custom rak_pulse_code
+bg_colors = 0;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
+microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
+cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+night_vision = 1;           % Use histeq to enhance image contrast
 
 
 %% Advanced settings
-use_speech2text = 0;      % In progress, requires key
-brain_gen = 0;            % Use "Create New Brain" to algorithmically generate new brains
-grey_background = 1;      % Grey background (1) or white background (0)
+use_speech2text = 0;        % In progress, requires key
+brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
+grey_background = 1;        % Grey background (1) or white background (0)
+save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;
-save_brain_jpg = 0; % main only
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
@@ -37,6 +37,22 @@ save_for_ai = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 
+
+%% Clear timers - Is this needed/used?
+if exist('runtime_pulse', 'var')
+    delete(runtime_pulse)
+    keyboard
+end
+if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
+    delete(timerfind)
+    keyboard
+    brain_view_tiled = 0;
+end
+clear step_timer
+clear life_timer
+disp('---------')
+
+
 %% Local configuration
 if ismac
     startup_fig_pos = get(0, 'screensize') + [0 149 0 -171];
@@ -45,18 +61,15 @@ else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
 end
-
 bfsize = 14; % You may want to change this to 14 if your screen is small
-computer_name = 'n/a';
+computer_name = 'laptop1';
 
 
-%% Prepare 1
+%% Prepare
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 nsteps_per_loop = 100;
-brain_facts = 0;
 max_w = 100;
-large_brain = 1;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
 if grey_background
@@ -68,33 +81,11 @@ else
 end
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 adjust2 = 0.29;
-if exist('runtime_pulse', 'var')
-    delete(runtime_pulse)
-end
 letters = {'A', 'B', 'C', 'D', 'E',...
     'F', 'G', 'H', 'I', 'J',...
     'K', 'L', 'M', 'N', 'O', ...
     'P', 'Q'};
 net_input_size = [227 227];
-
-%% Sound
-audx = 250;
-sound_spectrum = zeros(audx, nsteps_per_loop);
-fx = (0:audx-1)*16;
-this_audio = [];
-audio_out_fs = 0;
-speaker_tone = 0;
-
-%% Clear
-if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
-%     delete(imaqfind)
-    delete(timerfind)
-    brain_view_tiled = 0;
-end
-clear step_timer
-clear life_timer
-disp('---------')
-
 if ~exist('voluntary_restart', 'var')
     brain_view_tiled = 0;
 end
@@ -109,12 +100,14 @@ if ~exist('neuron_tones', 'var')
 end
 robot_moving = 0;
 if matlab_speaker_ctrl
-    disp('Initiating Matlab sound card control...')
-    speaker_fs = 16000;
-    speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
+    try
+        speaker_fs = 16000;
+        speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
+    catch
+        disp('Failed to initiate audioDeviceWriter. Setting matlab_speaker_ctrl to 0.')
+        matlab_speaker_ctrl = 0;
+    end
 end
-
-%% Prepare 2
 base_weight = max_w;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -126,11 +119,7 @@ speaker_selected = 0;
 if ~exist('voluntary_restart', 'var')
     voluntary_restart = 0;
 end
-this_exercise = '';
 vocal_buffer = 0;
-
-
-%% Prepare 3
 im = flipud(255 - ((255 - imread(this_workspace_fig))));
 im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
@@ -139,11 +128,9 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
 ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
-% load('brain_im_xy.txt', '-ascii')
 load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
-
 vis_pref_names = {'red', 'red-left', 'red-right', ...
     'green', 'green-left', 'green-right', ...
     'blue', 'blue-left', 'blue-right', ...
@@ -155,7 +142,6 @@ if use_cnn
     vis_pref_names = [vis_pref_names, object_strs];
     score = zeros(1, 1000);
 elseif use_rcnn
-%     vis_pref_names = [vis_pref_names, 'neurorobots', 'off-center neurorobots', 'close-up neurorobots'];
     vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
     object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
 end
@@ -168,31 +154,24 @@ end
 if ~exist('restarts', 'var')
     restarts = 0;
 end
-
 pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
 pulse_led_flag_3 = 0;
-
 script_running = 0;
 script_step_count = 0;
-
 for nscript = 1:size(script_names, 2)
     script_strs(nscript).name = script_names{nscript};
 end
-
 efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
-
 object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
 
 
 %% Custom audio out
-
 if vocal
     available_sounds = dir('./Sounds/*.mp3');
     n_out_sounds = size(available_sounds, 1);
-    
     audio_out_names = [];
     audio_out_durations = [];
     audio_out_wavs = struct;  %% Need ability to save these for brains and add 
@@ -330,8 +309,6 @@ hold on
 box off
 ext_ax = brain_ax;
 
-
-
 % Brain info
 info_bar = uicontrol('Style', 'text', 'String', [], 'units', 'normalized', 'position', [0.05 0.04 0.45 0.04], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
@@ -349,8 +326,6 @@ if exist('brain_name.mat', 'file')
     end    
     brain_edit_name.String = brain_name;      
     try
-%         rak_cam = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only);
-%         [rak_cam, rak_cam_h, rak_cam_w] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera);
         [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, brain_edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, hd_camera, use_esp32, esp32WebsocketClient);
         start(rak_pulse)
         disp('RAK reconnected')
@@ -370,7 +345,6 @@ if exist('brain_name.mat', 'file')
     end    
 end
 
-
 % Manual restart code
 if exist('restarting', 'var') && restarting
     for nbrain = 1:nbrains
@@ -384,7 +358,6 @@ if exist('restarting', 'var') && restarting
     voluntary_restart = 0;
     startup_complete
 end
-    
 
 
 %% Get DLLs
