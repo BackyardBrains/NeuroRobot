@@ -1,0 +1,46 @@
+from neurorobot.m:
+
+%% Get DLLs
+if ispc && ~isfile('avcodec-58.dll')
+    
+    disp('DLLs not found in main directory')
+    
+    try
+        dll_dir = NeuroRobotToolbox.getInstallationLocation('boost-and-ffmpeg-libraries');
+        dll_dir(end-3:end) = [];
+        
+        this_file = horzcat(dll_dir, '\avcodec-58.dll');
+        movefile(this_file, '.\', 'f')
+
+        this_file = horzcat(dll_dir, '\avdevice-58.dll');
+        movefile(this_file, '.\', 'f')
+
+        this_file = horzcat(dll_dir, '\avfilter-7.dll');
+        movefile(this_file, '.\', 'f')
+        
+        this_file = horzcat(dll_dir, '\avformat-58.dll');
+        movefile(this_file, '.\', 'f')
+        
+        this_file = horzcat(dll_dir, '\avutil-56.dll');
+        movefile(this_file, '.\', 'f')
+        
+        this_file = horzcat(dll_dir, '\swresample-3.dll');
+        movefile(this_file, '.\', 'f')
+        
+        this_file = horzcat(dll_dir, '\swscale-5.dll');
+        movefile(this_file, '.\', 'f')        
+        
+        this_file = horzcat(dll_dir, '\NeuroRobot_MatlabBridge.mexw64');
+        movefile(this_file, '.\', 'f')
+        
+        disp('DLLs moved in from additional software location')
+        
+    catch
+        
+        disp('Unable to find or move DLLs')
+        disp('WiFi communication with RAK will not work')
+        
+    end        
+        
+end
+

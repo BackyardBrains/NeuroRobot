@@ -38,14 +38,14 @@ bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 
 
-%% Clear timers - Is this needed/used?
+%% Clear timers - why is this used?
 if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
-    keyboard
+%     keyboard
 end
 if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
     delete(timerfind)
-    keyboard
+%     keyboard
     brain_view_tiled = 0;
 end
 clear step_timer
@@ -99,15 +99,6 @@ if ~exist('neuron_tones', 'var')
     neuron_tones = 0;
 end
 robot_moving = 0;
-if matlab_speaker_ctrl
-    try
-        speaker_fs = 16000;
-        speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
-    catch
-        disp('Failed to initiate audioDeviceWriter. Setting matlab_speaker_ctrl to 0.')
-        matlab_speaker_ctrl = 0;
-    end
-end
 base_weight = max_w;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -168,7 +159,24 @@ l_torque = 0;
 object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
 
 
-%% Custom audio out
+%% Audio
+audx = 250;
+sound_spectrum = zeros(audx, nsteps_per_loop);
+fx = (0:audx-1)*16;
+this_audio = [];
+audio_out_fs = 0;
+speaker_tone = 0;
+
+if matlab_speaker_ctrl
+    try
+        speaker_fs = 16000;
+        speaker_obj = audioDeviceWriter('SampleRate', speaker_fs, 'SupportVariableSizeInput', 1);   
+    catch
+        disp('Failed to initiate audioDeviceWriter. Setting matlab_speaker_ctrl to 0.')
+        matlab_speaker_ctrl = 0;
+    end
+end
+
 if vocal
     available_sounds = dir('./Sounds/*.mp3');
     n_out_sounds = size(available_sounds, 1);
@@ -203,7 +211,6 @@ else
     audio_out_fs = 0;
     audio_out_names = 0;
 end
-
 
 
 %% Prepare figure
@@ -262,8 +269,6 @@ button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', '
 set(button_camera, 'Callback', 'camera_button_callback', 'FontSize', bfsize + 7, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', this_col)
 if ~camera_present
     set(button_camera, 'BackgroundColor', [0.8 0.8 0.8], 'enable', 'off')
-% elseif ~dis_cam_button
-%     set(button_camera, 'BackgroundColor', [0.6 0.95 0.6], 'enable', 'off')
 end
 
 % Bluetooth button
@@ -309,10 +314,6 @@ hold on
 box off
 ext_ax = brain_ax;
 
-% Brain info
-info_bar = uicontrol('Style', 'text', 'String', [], 'units', 'normalized', 'position', [0.05 0.04 0.45 0.04], ...
-    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
-
 % New restart code
 if exist('brain_name.mat', 'file')
     disp('Restarting...')
@@ -357,50 +358,5 @@ if exist('restarting', 'var') && restarting
     restarting = 0;
     voluntary_restart = 0;
     startup_complete
-end
-
-
-%% Get DLLs
-if ispc && ~isfile('avcodec-58.dll')
-    
-    disp('DLLs not found in main directory')
-    
-    try
-        dll_dir = NeuroRobotToolbox.getInstallationLocation('boost-and-ffmpeg-libraries');
-        dll_dir(end-3:end) = [];
-        
-        this_file = horzcat(dll_dir, '\avcodec-58.dll');
-        movefile(this_file, '.\', 'f')
-
-        this_file = horzcat(dll_dir, '\avdevice-58.dll');
-        movefile(this_file, '.\', 'f')
-
-        this_file = horzcat(dll_dir, '\avfilter-7.dll');
-        movefile(this_file, '.\', 'f')
-        
-        this_file = horzcat(dll_dir, '\avformat-58.dll');
-        movefile(this_file, '.\', 'f')
-        
-        this_file = horzcat(dll_dir, '\avutil-56.dll');
-        movefile(this_file, '.\', 'f')
-        
-        this_file = horzcat(dll_dir, '\swresample-3.dll');
-        movefile(this_file, '.\', 'f')
-        
-        this_file = horzcat(dll_dir, '\swscale-5.dll');
-        movefile(this_file, '.\', 'f')        
-        
-        this_file = horzcat(dll_dir, '\NeuroRobot_MatlabBridge.mexw64');
-        movefile(this_file, '.\', 'f')
-        
-        disp('DLLs moved in from additional software location')
-        
-    catch
-        
-        disp('Unable to find or move DLLs')
-        disp('WiFi communication with RAK will not work')
-        
-    end        
-        
 end
 

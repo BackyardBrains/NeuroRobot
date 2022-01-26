@@ -13,7 +13,6 @@ if nneurons > 100 && ~microcircuit
 else
     draw_synapses = 1;
 end
-% draw_synapses = 1;
 
 if exist('fig_print', 'var') && isvalid(fig_print)
     axes(brain_axb)
@@ -40,11 +39,9 @@ if exist('neuron_annotation', 'var')
     delete(neuron_annotation)
 end
 if exist('plot_bg_lines', 'var')
-%     delete(plot_bg_lines)
     clear plot_bg_lines
 end
 if exist('draw_msn_skylt', 'var')
-%     delete(draw_msn_skylt)
     clear draw_msn_skylt
 end
 

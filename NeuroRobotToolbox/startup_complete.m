@@ -1,5 +1,4 @@
 
-
 if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
     if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))
         error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
@@ -14,6 +13,7 @@ end
 if rak_only
     rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
 end
+
 if isempty(brain_edit_name.String) && popup_select_brain.Value == 1
     for ii = linspace(0, 0.94, 20)
         brain_edit_name.BackgroundColor = [0.94 ii ii];
@@ -53,11 +53,7 @@ else
     elseif use_rcnn
         net_input_size = [224 224];
     end
-%     if ~exist('rcnn', 'var') && use_rcnn
-%         tic
-%         load('rcnn')
-%         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
-%     end
+
     button_startup_complete.BackgroundColor = [0.6 0.95 0.6];
     
     if ~camera_present || ~exist('rak_cam', 'var')

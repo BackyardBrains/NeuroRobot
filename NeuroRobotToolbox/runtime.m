@@ -1,14 +1,14 @@
 
 
-%% NEUROROBOT RUNTIME
-
-
+%% Clear
 clear presynaptic_neuron
 clear postsynaptic_neuron
 clear postsynaptic_contact
 clear neuron_xys
 clear spikes_step
 
+
+%% Prepare
 if use_profile
     profile clear
     profile on
@@ -16,8 +16,6 @@ end
 
 life_timer = tic;
 
-
-%% Get FOV
 if ~exist('rak_cam_h', 'var')
     rak_cam_h = 720;
     rak_cam_w = 1280;
@@ -54,7 +52,7 @@ if use_speech2text
 end
 
 
-%% Initialize brain and runtime GUI
+%% Initialize brain and Runtime figure
 load_or_initialize_brain
 draw_fig_runtime
 if brain_view_tiled
@@ -64,7 +62,7 @@ else
 end
 
 
-%% Prepare
+%% Prepare 2
 run_button = 0;
 nstep = 0;
 vis_pref_vals = zeros(n_vis_prefs, 2);
@@ -115,7 +113,6 @@ if save_for_ai
     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 end
 
-
 if supervocal && isfield(brain, 'audio_out_wavs')
     n_also_these = size(brain.audio_out_wavs, 2);
     if n_also_these > (n_out_sounds + n_vis_prefs)
@@ -127,6 +124,7 @@ if supervocal && isfield(brain, 'audio_out_wavs')
         end
     end
 end
+
 
 %% Create data and command log
 if save_data_and_commands
@@ -150,26 +148,16 @@ if save_data_and_commands
 end
 
 
-%% Run
-% if ~isempty(pit_start_time)
-%     this_flag = 0;
-%     disp('Waiting for pit recording start time')
-%     while ~this_flag
-%         this_clock = clock;
-%         if this_clock(4) >= pit_start_time(1) && this_clock(5) >= pit_start_time(2)
-%             this_flag = 1;
-%             disp('Pit recording started')
-%         else
-%             pause(0.01)
-%         end
-%     end
-% end
+%% Create and launch Runtime timer
 if exist('rak_pulse', 'var') && isvalid(rak_pulse)
     stop(rak_pulse)
     delete(rak_pulse)
 end
 pause(1)
 
-runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', 'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', 'executionmode', 'fixedrate');
+runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;', ...
+    'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', ...
+    'executionmode', 'fixedrate');
+
 start(runtime_pulse)
 
