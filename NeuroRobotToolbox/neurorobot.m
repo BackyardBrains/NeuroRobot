@@ -2,9 +2,9 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings
-rak_only = 1;               % Use robot with RAK5206 or RAK5270
+rak_only = 0;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 0;             % Use webcamera
+use_webcam = 1;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
@@ -31,7 +31,7 @@ save_data_and_commands = 0;
 use_profile = 0;
 bg_brain = 1;
 draw_synapse_strengths = 1;
-draw_neuron_numbers = 1;
+draw_neuron_numbers = 0;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
@@ -98,6 +98,7 @@ neuron_scripts = [];
 if ~exist('neuron_tones', 'var')
     neuron_tones = 0;
 end
+
 robot_moving = 0;
 base_weight = max_w;
 gui_font_name = 'Comic Book';
@@ -157,6 +158,7 @@ efferent_copy = 0;
 r_torque = 0;
 l_torque = 0;
 object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
+inhibition_col = [0.85 0.85 0.85];
 
 
 %% Audio

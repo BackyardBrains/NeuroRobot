@@ -63,6 +63,24 @@ end
 %     end
 % end
 
+    if exist('fig_design', 'var') && isvalid(fig_design)
+        for nneuron = 1:nneurons
+%             if bg_colors && bg_neurons(nneuron)
+%                 this_col = network_colors(network_ids(nneuron), :);
+%             else
+%                 this_col = inhibition_col;
+%             end
+            if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
+                this_neuron = find(bg_neurons & network_ids == network_ids(nneuron), 1);
+                x1 = neuron_xys(this_neuron,1);
+                x2 = neuron_xys(nneuron,1);
+                y1 = neuron_xys(this_neuron,2);
+                y2 = neuron_xys(nneuron,2);
+                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2], 'color', inhibition_col, 'linewidth', 20, 'linestyle', '-');
+            end
+        end
+    end 
+
 
 % % Draw synapses
 if draw_synapses
@@ -239,17 +257,17 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 % Indicate synapse filter (add rich neuron symbols here)
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
                     this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
-                    plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+%                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
                 end
                 
                 if ncontact == 3 && audio_prefs(nneuron)
-                    plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+%                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                 end
                 
                 if ncontact == 4 && neuron_tones(nneuron)
-                    plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
+%                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     if neuron_tones(nneuron) > length(audio_out_names)
                         plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     elseif iscell(audio_out_names)
@@ -308,23 +326,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     edge_size = (bg_neurons + 1) * edge_size;
     core_size = (bg_neurons + 1) * core_size;  
     
-    if exist('fig_design', 'var') && isvalid(fig_design)
-        for nneuron = 1:nneurons
-            if bg_colors && bg_neurons(nneuron)
-                this_col = network_colors(network_ids(nneuron), :);
-            else
-                this_col = [0.5 0.9 0.5];
-            end
-            if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                this_neuron = find(bg_neurons & network_ids == network_ids(nneuron), 1);
-                x1 = neuron_xys(this_neuron,1);
-                x2 = neuron_xys(nneuron,1);
-                y1 = neuron_xys(this_neuron,2);
-                y2 = neuron_xys(nneuron,2);
-                draw_msn_skylt(nneuron, 3) = plot([x1 x2], [y1 y2+0.13], 'color', this_col, 'linewidth', 1, 'linestyle', '--');
-            end
-        end
-    end  
+ 
     
     % Neuron colors
     draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
@@ -369,7 +371,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.5 0.5 0.5], 'EdgeColor', [0.8 0.8 0.8]);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end

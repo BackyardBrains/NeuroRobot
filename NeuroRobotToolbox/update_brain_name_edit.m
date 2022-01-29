@@ -42,7 +42,12 @@ else
     catch
         bg_neurons = zeros(nneurons, 1);
     end 
-    neuron_scripts = brain.neuron_scripts;
+    try
+        neuron_scripts = brain.neuron_scripts;
+    catch
+        neuron_scripts = zeros(nneurons, 1);
+    end    
+    
     network_ids = brain.network_ids;
     
     % Neuron colors
