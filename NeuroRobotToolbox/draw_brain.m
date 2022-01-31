@@ -71,7 +71,7 @@ end
 %                 this_col = inhibition_col;
 %             end
             if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                this_neuron = find(bg_neurons & network_ids == network_ids(nneuron), 1);
+                this_neuron = find(bg_neurons & network_ids == network_ids(nneuron), 1); % Fix to take more than one striatal neuron
                 x1 = neuron_xys(this_neuron,1);
                 x2 = neuron_xys(nneuron,1);
                 y1 = neuron_xys(this_neuron,2);
@@ -186,7 +186,7 @@ if draw_synapses
                     mf = 'w';
                 end
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
-                if draw_synapse_strengths && ~nma_flag
+                if draw_synapse_strengths && ~nma_flag && ~bg_neurons(p2)
                     w = round(w);
                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.15, num2str(w), 'fontsize', bfsize - 5, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.4 0.2 0]);
 %                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 .8 0]);                    

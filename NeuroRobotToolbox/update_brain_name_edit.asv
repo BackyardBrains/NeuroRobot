@@ -83,8 +83,7 @@ else
     try
         draw_brain
     catch
-        disp('Cannot load brain, may need use_cnn (object recognition) active')
-    end
+        disp('Cannot ')
     
     if bluetooth_present
         set(button_bluetooth, 'enable', 'on')
