@@ -19,7 +19,7 @@ if nneurons
     dist_I(dist_prefs == 2) = sigmoid(this_distance, 1000, -0.8) * 50;
     dist_I(dist_prefs == 3) = sigmoid(this_distance, 1500, -0.8) * 50;
 
-    % Calculate distance sensor input current
+    % Calculate microphone input current
     audio_I = zeros(nneurons, 1);
     for nneuron = 1:nneurons
         if audio_prefs(nneuron)
@@ -35,7 +35,7 @@ if nneurons
     end
 
 
-% Run brain simulation
+    % Run brain simulation
     for t = 1:ms_per_step
 
         % Add noise
@@ -71,8 +71,8 @@ if nneurons
     end
     
     try
+
     % BG select
-%     disp('2')
     this_network = 0;
     if bg_brain
         th = 50 + randn * 15;
@@ -122,8 +122,6 @@ if nneurons
 
         this_network = find(network_drive(:, 2)); % find the active network
         
-%         disp('3')
-        
         [~, j] = max(network_drive(1:nnetworks, 1)); % find the network with highest drive
         if this_network ~= j % if the active network is not the network with the highest drive 
             network_drive(:, 1) = network_drive(:, 1) - 30 * rand; % reduce the active network's drive significantly
@@ -142,9 +140,7 @@ if nneurons
     % Step data
     firing = sum(spikes_step, 2) > 0;
     steps_since_last_spike(firing) = 0;
-    steps_since_last_spike = steps_since_last_spike + 1; 
-
-%     disp('4')
+    steps_since_last_spike = steps_since_last_spike + 1;
     
     % Create xfiring for analog MSN color
     xfiring = double(firing);
@@ -206,66 +202,72 @@ if nneurons
             end
         end
     end
-%     disp('5')
-%     connectome = min(connectome, max_w); % enforce max weight
-%     da_connectome(:, :, 3) = da_connectome(:, :, 3) - 0.5;
-%     xx = da_connectome(:, :, 3);
-%     xx(xx < 0) = 0;
-%     da_connectome(:, :, 3) = xx;
-% 
-%     % Forgetting
-%     for nneuron = 1:nneurons % for each neuron
-%         plastic_synapses = find(da_connectome(nneuron, :, 1)); % find its plastic synapses
-%         for postsyn = plastic_synapses % for each plastic synapse
-%             current_w = connectome(nneuron, postsyn);
-%             original_w = da_connectome(nneuron, postsyn, 2);
-%             reinforcement = current_w - original_w;
-%             if reinforcement
-%                 
-% %                 % until I develop a way for highly active neurons to forget
-% %                 if nneuron == 25
-% %                     loss_delay = 50 - da_connectome(nneuron, postsyn, 3) * 2;
-% %                 else
-%                     loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
-%                     loss_delay(loss_delay < 0) = 0;
-% %                 end
-%                 
-%                 this_loss = floor(permanent_memory_th / reinforcement) * pulse_period * 0.1 * min(loss_delay/((1/pulse_period)*10), 1);
-%                 this_loss = min(this_loss, reinforcement);
-%                 connectome(nneuron, postsyn) = current_w - this_loss;
-%                 if this_loss
-%                     w = connectome(nneuron, postsyn);
-%                     w = round(w);
-%                     if brain_view_tiled
-%                         this_network = network_ids(nneuron); 
-%                         network(this_network).plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
-%                         if draw_synapse_strengths
-%                             try
-%                                 network(this_network).plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
-%                             catch
-%                                 disp('No string property error')
-%                             end
-%                         end
-%                     else
-%                         if draw_synapses
-%                             plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
-%                         end
-%                         if draw_synapses && draw_synapse_strengths
-%                             try
-%                                 plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);
-%                             catch
-%                                 disp('No string property error')
-%                             end                                
-%                         end
-%                     end
+    catch
+        disp('Error A in update_brain')
+    end
+    try
+
+    connectome = min(connectome, max_w); % enforce max weight
+    da_connectome(:, :, 3) = da_connectome(:, :, 3) - 0.5;
+    xx = da_connectome(:, :, 3);
+    xx(xx < 0) = 0;
+    da_connectome(:, :, 3) = xx;
+
+    % Forgetting
+    for nneuron = 1:nneurons % for each neuron
+        plastic_synapses = find(da_connectome(nneuron, :, 1)); % find its plastic synapses
+        for postsyn = plastic_synapses % for each plastic synapse
+            current_w = connectome(nneuron, postsyn);
+            original_w = da_connectome(nneuron, postsyn, 2);
+            reinforcement = current_w - original_w;
+            if reinforcement
+                
+%                 % until we develop a way for highly active neurons to forget
+%                 if nneuron == 25
+%                     loss_delay = 50 - da_connectome(nneuron, postsyn, 3) * 2;
+%                 else
+                    loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
+                    loss_delay(loss_delay < 0) = 0;
 %                 end
-%             end
-%         end
-%     end
+                
+                this_loss = floor(permanent_memory_th / reinforcement) * pulse_period * 0.5 * min(loss_delay/((1/pulse_period)*10), 1);
+                this_loss = min(this_loss, reinforcement);
+                connectome(nneuron, postsyn) = current_w - this_loss;
+                if this_loss
+                    w = connectome(nneuron, postsyn);
+                    w = round(w);
+                    if brain_view_tiled
+                        this_network = network_ids(nneuron); 
+                        network(this_network).plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
+                        if draw_synapse_strengths
+                            try
+                                network(this_network).plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);    
+                            catch
+                                disp('No string property error')
+                            end
+                        end
+                    else
+                        if draw_synapses
+%                             plot_neuron_synapses(nneuron,postsyn,1).LineWidth = (abs(w) / 15) + 1;
+                            plot_neuron_synapses(nneuron,postsyn,1).LineWidth = ((abs(w) / 12) + 1) / (1 + microcircuit * 2);
+                        end
+                        if draw_synapses && draw_synapse_strengths
+                            try
+                                plot_neuron_synapses(nneuron, postsyn, 3).String = num2str(w);
+                            catch
+                                disp('No string property error')
+                            end                                
+                        end
+                    end
+                end
+            end
+        end
+    end
 
     catch
-        error('plasticity bug here')
+        error('Error B in update_brain')
     end
+
     % Store long activity
     spikes_loop(:, 1 + (nstep - 1) * ms_per_step : nstep * ms_per_step) = spikes_step;
 % 
