@@ -1,3 +1,8 @@
+
+
+% This is part of the hippocampus/SLAM simulation. Not currently active.
+
+
 %% script for compiling memory bank of images to then use to navigate
 close all
 

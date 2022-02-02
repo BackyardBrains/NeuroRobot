@@ -107,26 +107,18 @@ if nneurons % This prevents error caused by running script after deleting all ne
         if script_running == 1
             if rak_only || use_esp32
                 behavior_script_1
-            else
-                disp('this behavior needs a robot')
             end
         elseif script_running == 2
             if rak_only || use_esp32
                 behavior_script_2
-            else
-                disp('this behavior needs a robot')
             end
         elseif script_running == 3
             if rak_only || use_esp32
                 behavior_script_3
-            else
-                disp('this behavior needs a robot')
             end        
         elseif script_running == 4
             if rak_only || use_esp32
                 behavior_script_4
-            else
-                disp('this behavior needs a robot')
             end
         else
             disp('Unknown behavior')

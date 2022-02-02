@@ -9,11 +9,12 @@ fig_design.UserData = 10; % This indicates runtime mode
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Prepare axes
-if brain_view_tiled
-    draw_network_view_ax
-else
-    draw_whole_brain_ax
-end
+brain_ax_pos = [0.27 0.25 0.46 0.73];
+brain_ax = axes('position', brain_ax_pos);
+image('CData',im,'XData',[-3 3],'YData',[-3 3])
+set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+axis([-3 3 -3 3])
+hold on 
 
 left_eye_ax = axes('position', [0.02 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
 right_eye_ax = axes('position', [0.75 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
@@ -113,5 +114,20 @@ title('Right eye', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', 
 set(right_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
 box on
 
-set_1
+% Create runtime buttons
+button_design = uicontrol('Style', 'pushbutton', 'String', 'Design', 'units', 'normalized', 'position', [0.02 0.02 0.176 0.05]);
+set(button_design,'Callback', 'run_button = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+button_save = uicontrol('Style', 'pushbutton', 'String', 'Save', 'units', 'normalized', 'position', [0.216 0.02 0.176 0.05]);
+set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+button_pause = uicontrol('Style', 'pushbutton', 'String', 'Restart', 'units', 'normalized', 'position', [0.412 0.02 0.176 0.05]);
+set(button_pause,'Callback', 'run_button = 3;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+button_stop = uicontrol('Style', 'pushbutton', 'String', 'Stop', 'units', 'normalized', 'position', [0.608 0.02 0.176 0.05]);
+set(button_stop,'Callback', 'run_button = 4;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine', 'units', 'normalized', 'position', [0.804 0.02 0.176 0.05]);
+set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
 

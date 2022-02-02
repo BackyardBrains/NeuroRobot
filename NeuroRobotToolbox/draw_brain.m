@@ -355,7 +355,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
                 draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', [0 0 0], 'markerfacecolor', this_col, 'marker', 'o', 'markersize', 10, 'linewidth', 1);  
                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, letters(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            elseif bg_neurons(nneuron) && network_ids(nneuron) > 1
+            elseif bg_neurons(nneuron) && network_ids(nneuron) > 1 && ~draw_neuron_numbers
                 draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), letters(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end                
         end

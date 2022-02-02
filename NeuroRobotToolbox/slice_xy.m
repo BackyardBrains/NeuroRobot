@@ -40,4 +40,4 @@ hold on
 % y = (y * 5.3) - 3;
 
 brain_im_xy = [x y];
-save('brain_im_xy', 'brain_im_xy');
+% save('brain_im_xy', 'brain_im_xy');

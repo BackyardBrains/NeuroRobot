@@ -1,3 +1,8 @@
+
+
+% This is part of the hippocampus/SLAM simulation. Not currently active.
+
+
 %% where is the robot in space?
 %% Probably need to tell Chris that the computer vision toolbox needs to be added to this
 close all

@@ -2,9 +2,9 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings
-rak_only = 1;               % Use robot with RAK5206 or RAK5270
+rak_only = 0;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 0;             % Use webcamera
+use_webcam = 1;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
@@ -19,6 +19,8 @@ dev_mode = 0;               % Custom rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
 cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+draw_synapse_strengths = 1;
+draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 
 
@@ -30,8 +32,6 @@ save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;
 use_profile = 0;
 bg_brain = 1;
-draw_synapse_strengths = 1;
-draw_neuron_numbers = 0;
 manual_controls = 0;
 save_for_ai = 0;
 bluetooth_present = 0;
@@ -42,10 +42,9 @@ script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 if exist('runtime_pulse', 'var')
     delete(runtime_pulse)
 end
-if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only
-    delete(timerfind)
-    brain_view_tiled = 0;
-end
+% if exist('voluntary_restart', 'var') && ~voluntary_restart && ~rak_only && ~use_esp32
+%     delete(timerfind)
+% end
 clear step_timer
 clear life_timer
 disp('---------')
@@ -84,9 +83,7 @@ letters = {'A', 'B', 'C', 'D', 'E',...
     'K', 'L', 'M', 'N', 'O', ...
     'P', 'Q'};
 net_input_size = [227 227];
-if ~exist('voluntary_restart', 'var')
-    brain_view_tiled = 0;
-end
+brain_view_tiled = 0;
 if ~exist('esp32WebsocketClient', 'var')
 	esp32WebsocketClient = 0;
 end

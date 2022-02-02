@@ -1,6 +1,6 @@
 figure(1)
 clf
-set(gcf, 'position', [420 420 640 420], 'color', 'w')
+set(gcf, 'position', [420 120 640 420], 'color', 'w')
 h1 = plot(sigmoid(0:4000, 1000, -0.8) * 50, 'linewidth', 2);
 hold on
 h2 = plot(sigmoid(0:4000, 2000, -0.8) * 50, 'linewidth', 2);

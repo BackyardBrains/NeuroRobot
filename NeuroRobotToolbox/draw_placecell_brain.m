@@ -1,4 +1,8 @@
 
+
+% This is part of the hippocampus/SLAM simulation. Not currently active.
+
+
 %%set visual input to line up with mem Images
 
 %%How to draw this on the runtime setup?
@@ -12,11 +16,12 @@ set(fig_design, 'position', fig_pos, 'color', fig_bg_col)
 fig_design.UserData = 10; % This indicates runtime mode
 
 % Prepare axes
-if brain_view_tiled
-    draw_network_view_ax
-else
-    draw_whole_brain_ax
-end
+brain_ax_pos = [0.27 0.25 0.46 0.73];
+brain_ax = axes('position', brain_ax_pos);
+image('CData',im,'XData',[-3 3],'YData',[-3 3])
+set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+axis([-3 3 -3 3])
+hold on 
 
 left_eye_ax = axes('position', [0.02 0.58 0.23 0.36], 'xtick', [], 'ytick', []);
 right_eye_ax = axes('position', [0.75 0.58 0.23 0.36], 'xtick', [], 'ytick', []);

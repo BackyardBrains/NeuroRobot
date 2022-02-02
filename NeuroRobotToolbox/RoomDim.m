@@ -1,3 +1,7 @@
+
+% This is part of the hippocampus/SLAM simulation. Not currently active.
+
+
 stop(rak_pulse)
 
 clearvars  total_dist rak_readout

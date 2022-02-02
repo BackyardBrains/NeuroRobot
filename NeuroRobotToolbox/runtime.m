@@ -55,11 +55,7 @@ end
 %% Initialize brain and Runtime figure
 load_or_initialize_brain
 draw_fig_runtime
-if brain_view_tiled
-    draw_brain_multiview
-else
-    draw_brain
-end
+draw_brain
 
 
 %% Prepare 2
