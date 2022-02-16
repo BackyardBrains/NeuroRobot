@@ -190,7 +190,7 @@ if nneurons
                 loss_delay = steps_since_last_spike(nneuron) - ltp_recency_th_in_steps;
                 loss_delay(loss_delay < 0) = 0;
                 this_loss = floor(permanent_memory_th / reinforcement) * pulse_period * 1 * min(loss_delay/((1/pulse_period)*10), 1);
-                this_loss = min(this_loss, reinforcement)
+                this_loss = min(this_loss, reinforcement);
                 connectome(nneuron, postsyn) = current_w - this_loss;
                 if this_loss
                     w = connectome(nneuron, postsyn);

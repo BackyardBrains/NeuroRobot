@@ -2,9 +2,9 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings
-rak_only = 0;               % Use robot with RAK5206 or RAK5270
+rak_only = 1;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 1;             % Use webcamera
+use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
@@ -12,7 +12,7 @@ use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for c
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
-matlab_speaker_ctrl = 1;    % Multi tone output
+matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.1;         % Step time in seconds
 dev_mode = 0;               % Custom rak_pulse_code
@@ -22,11 +22,11 @@ cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previous
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
+brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 
 
 %% Advanced settings
 use_speech2text = 0;        % In progress, requires key
-brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 grey_background = 1;        % Grey background (1) or white background (0)
 save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;

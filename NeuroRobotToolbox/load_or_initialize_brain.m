@@ -73,6 +73,7 @@ elseif brain_selection_val == 1 || ~exist('nneurons', 'var')
     bg_neurons = [];
 
     if brain_gen
-        brain_gen_build_15
+        brain_gen_build_7
+        neuron_scripts = zeros(nneurons, 1);
     end
 end
