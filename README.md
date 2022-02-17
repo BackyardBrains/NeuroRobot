@@ -1,6 +1,6 @@
 # NeuroRobot app by Backyard Brains
 
-A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use neurorobots to teach computational neuroscience in high schools. This repo contains all the Matlab and C/C++ code needed to run the NeuroRobot app, <i>with or without a robot</i>. The app allows you to design and simulate biologically-based neural networks connected to sensors (camera, microphone, distance sensor) and effectors (speaker, motors).
+A neurorobot is a robot controlled by a computer simulation of a biological brain. At Backyard Brains we use neurorobots to teach computational neuroscience in high schools. This repo contains all the Matlab and C/C++ code needed to run the NeuroRobot app, <i>with or without a robot</i>. The app allows you to design and simulate biologically-based neural networks connected to sensors (camera, microphone, distance sensor) and effectors (speaker, motors, lights).
 
 <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/robots.jpg">
 
