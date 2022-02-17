@@ -23,6 +23,7 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
+save_for_hippocampus = 0;
 
 
 %% Advanced settings
@@ -33,7 +34,6 @@ save_data_and_commands = 0;
 use_profile = 0;
 bg_brain = 1;
 manual_controls = 0;
-save_for_ai = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
 
