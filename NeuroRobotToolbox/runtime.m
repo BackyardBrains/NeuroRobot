@@ -103,9 +103,9 @@ if ~exist('rak_cam_h', 'var')
     rak_cam_w = 1280; 
 end
 
-if save_for_ai
+if save_for_hippocampus
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-    sound_in_file_name = strcat('./Training/Sound input/', this_time, '-', brain_name, '.xlsx');    
+    sound_in_file_name = strcat('./Hippocampus/Sound input/', brain_name, '-', this_time, '.xlsx');    
     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 end
 

@@ -13,6 +13,7 @@ elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
 
+
 %% Get visual input
 get_visual_input
 
@@ -79,13 +80,10 @@ end
     
 if nstep == nsteps_per_loop %% Happens again below
     nstep = 0;
-    if save_for_ai
-        % Save frame
+    if save_for_hippocampus
         this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        imwrite(large_frame, strcat('.\Training\Visual input\', this_time, '-', brain_name, '_large_frame_', num2str(save_for_ai), '.png'))
+        imwrite(uframe, strcat('.\Hippocampus\Visual input\', brain_name, '-', this_time, '.png'))
         writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
-        save_for_ai = save_for_ai + 1;
-        disp(horzcat('frames saved for ai: ', num2str(save_for_ai)))
     end
     step_duration_in_ms = round(median(step_times * 1000));
     
