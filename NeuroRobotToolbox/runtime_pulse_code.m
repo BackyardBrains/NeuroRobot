@@ -77,14 +77,15 @@ if xstep == nsteps_per_loop
         mem_baseline = mem.MemUsedMATLAB;
     end
 end
-    
+
+if save_for_hippocampus && ~rem(nstep, round(nsteps_per_loop/5))
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    imwrite(uframe, strcat('.\Hippocampus\Visual input\', brain_name, '-', this_time, '.png'))
+%     writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
+end
+
 if nstep == nsteps_per_loop %% Happens again below
     nstep = 0;
-    if save_for_hippocampus
-        this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-        imwrite(uframe, strcat('.\Hippocampus\Visual input\', brain_name, '-', this_time, '.png'))
-        writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
-    end
     step_duration_in_ms = round(median(step_times * 1000));
     
     % Memory leak fix (2020-Jul-06)

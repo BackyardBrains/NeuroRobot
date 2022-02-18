@@ -103,11 +103,11 @@ if ~exist('rak_cam_h', 'var')
     rak_cam_w = 1280; 
 end
 
-if save_for_hippocampus
-    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-    sound_in_file_name = strcat('./Hippocampus/Sound input/', brain_name, '-', this_time, '.xlsx');    
-    writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
-end
+% if save_for_hippocampus
+%     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+%     sound_in_file_name = strcat('./Hippocampus/Sound input/', brain_name, '-', this_time, '.xlsx');    
+%     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
+% end
 
 if supervocal && isfield(brain, 'audio_out_wavs')
     n_also_these = size(brain.audio_out_wavs, 2);
