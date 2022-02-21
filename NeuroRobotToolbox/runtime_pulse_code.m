@@ -78,9 +78,9 @@ if xstep == nsteps_per_loop
     end
 end
 
-if save_for_hippocampus && ~rem(nstep, round(nsteps_per_loop/5))
+if save_for_hippocampus && ~rem(nstep, round(nsteps_per_loop/10)) && ~robot_moving
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-    imwrite(uframe, strcat('.\Hippocampus\Visual input\', brain_name, '-', this_time, '.png'))
+    imwrite(uframe, strcat('.\Hippocampus\', brain_name, '-', this_time, '.png'))
 %     writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
 end
 

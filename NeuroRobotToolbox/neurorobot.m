@@ -1,7 +1,7 @@
 
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
-%% Settings
+%% Settings 
 rak_only = 1;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 0;             % Use webcamera

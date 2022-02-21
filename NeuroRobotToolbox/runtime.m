@@ -105,7 +105,7 @@ end
 
 % if save_for_hippocampus
 %     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-%     sound_in_file_name = strcat('./Hippocampus/Sound input/', brain_name, '-', this_time, '.xlsx');    
+%     sound_in_file_name = strcat('./Hippocampus/', brain_name, '-', this_time, '.xlsx');    
 %     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 % end
 
