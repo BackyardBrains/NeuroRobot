@@ -1,14 +1,15 @@
 
 %% Get data
+% fs = 1/step_time_in_s;
+[data, fs] = audioread('SpikeRecorder_data.wav');
 nsteps = length(data(:,1));
-fs = 1/step_time_in_s;
-% [data, fs] = audioread('BYB_Recording_2022-02-24_13.19.02.wav');
+spike_threshold = prctile(data(:,1), 95);
 
 %% Find R waves
-ismax = find(islocalmax(data(:,1), 'MinProminence', 0.75));
-ismax(data(ismax, 1) < 4) = [];
-isnotmax = find(isoutlier(data(ismax, 1)));
-ismax(isnotmax) = [];
+ismax = find(islocalmax(data(:,1), 'MinProminence', 0.5));
+ismax(data(ismax, 1) < spike_threshold) = [];
+% isnotmax = find(isoutlier(data(ismax, 1)));
+% ismax(isnotmax) = [];
 l_edge = 0.2 * fs;
 r_edge = 0.4 * fs;
 ismax(ismax < l_edge | ismax > nsteps-r_edge) = [];
