@@ -30,6 +30,8 @@ left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
 prev_left_eye_frame = imresize(left_eye_frame, net_input_size);
 prev_right_eye_frame = imresize(right_eye_frame, net_input_size);
+left_uframe = prev_left_eye_frame;
+right_uframe = prev_right_eye_frame;
 
 if matlab_audio_rec
     mic_fs = 16000;

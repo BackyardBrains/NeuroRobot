@@ -3,10 +3,12 @@ for ncam = 1:2
 
     if ncam == 1
         uframe = imresize(left_eye_frame, net_input_size);
+        left_uframe = uframe;
         frame = single(uframe);
         xframe = imsubtract(rgb2gray(uframe), rgb2gray(prev_left_eye_frame));
     else
         uframe = imresize(right_eye_frame, net_input_size);
+        right_uframe = uframe;
         frame = single(uframe);
         xframe = imsubtract(rgb2gray(uframe), rgb2gray(prev_right_eye_frame));
     end

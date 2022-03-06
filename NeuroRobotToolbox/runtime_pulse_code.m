@@ -78,12 +78,34 @@ if xstep == nsteps_per_loop
     end
 end
 
+%% Hippocampus
 if save_for_hippocampus && ~rem(nstep, round(nsteps_per_loop/10)) && ~robot_moving
-    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-    imwrite(uframe, strcat('.\Hippocampus\', brain_name, '-', this_time, '.png'))
-%     writematrix(this_audio, sound_in_file_name, 'WriteMode', 'append')
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));  
+    fname = strcat('.\Hippocampus\', brain_name, '-', num2str(xstep), '-left_uframe.png');
+    imwrite(left_uframe, fname);
+    fname = strcat('.\Hippocampus\', brain_name, '-', num2str(xstep), '-right_uframe.png');
+    imwrite(right_uframe, fname);    
+    fname = strcat('.\Hippocampus\', brain_name, '-', num2str(xstep), '-this_audio.mat');
+    save(fname, 'this_audio', '-mat');    
+    fname = strcat('.\Hippocampus\', brain_name, '-', num2str(xstep), '-serial_data.mat');
+    save(fname, 'serial_data', '-mat');
 end
 
+%% Basal ganglia
+if save_for_basal_ganglia    
+    rl_next_state = vis_pref_vals(:); % this will need binarization later in BG, 
+    % actually what we need are 24 bag of features
+    % or 5 features by 5 retinotopic positions
+    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
+    file_name = strcat('.\Basal ganglia\', brain_name, '-', num2str(xstep), '-tuple.mat');
+    rl_tuple = {rl_state, rl_action, rl_reward, rl_next_state};
+    save(file_name, 'rl_tuple', '-mat')
+    rl_state = vis_pref_vals(:);
+    rl_action = [(left_torque * left_dir) (right_torque * right_dir)]; % this_network? % this will need binarization later
+    rl_reward = reward;
+end
+
+%%
 if nstep == nsteps_per_loop %% Happens again below
     nstep = 0;
     step_duration_in_ms = round(median(step_times * 1000));
@@ -107,7 +129,7 @@ if nstep == nsteps_per_loop %% Happens again below
     end
     
 end
-if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no?
+if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no? %% What is this?
     disp('error: rak_cam exists but is not running')
     sound(flipud(gong), 8192 * 7)
     disp('solution 1: make sure you are connected to the correct wifi network')
@@ -158,3 +180,4 @@ end
 if exist('lrrr', 'var')
     lrrr.YData = score(object_ns);
 end
+
