@@ -96,6 +96,7 @@ if save_for_basal_ganglia
     rl_next_state = vis_pref_vals(:); % this will need binarization later in BG, 
     % actually what we need are bag of features
     % or 5 features + retinotopic positions
+    % first grab initial dataset to create initial bag of features, the
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     file_name = strcat('.\Basal ganglia\', brain_name, '-', num2str(xstep), '-tuple.mat');
     rl_tuple = {rl_state, rl_action, rl_reward, rl_next_state};
