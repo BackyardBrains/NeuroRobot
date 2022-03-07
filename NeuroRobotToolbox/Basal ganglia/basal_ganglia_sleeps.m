@@ -27,45 +27,52 @@ mdp = createMDP(nstates, nactions); % initialize MDP
 
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
-this_val = 0;
 
-for ii = 1:10^6
-    if ~rem(ii, 100)
-        disp(horzcat('ii: ', num2str(ii/10^6)))
-    end
-    n = round(nstates/this_frac);
-    rl_state = randsample(nstates, n);
-    rl_action = randsample(nactions, n);
-    rl_next_state = randsample(nstates, n);
-    rl_reward = rand < 0.01;
-%     if rl_state > (nstates * 0.9)
-%         rl_reward = 10;
+% for ii = 1:10^6
+%     if ~rem(ii, 100)
+%         disp(horzcat('ii: ', num2str(ii/10^6)))
 %     end
-    transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
-    reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
-end
+%     n = round(nstates/this_frac);
+%     rl_state = randsample(nstates, n);
+%     rl_action = randsample(nactions, n);
+%     rl_next_state = randsample(nstates, n);
+%     rl_reward = rand < 0.01;
+% %     if rl_state > (nstates * 0.9)
+% %         rl_reward = 10;
+% %     end
+%     transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
+%     reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
+% end
 
+files = dir('.\Tuples\*.mat');
+nfiles = size(files, 1);
+for nfile = 2:nfiles % this will need to be randomized then prioritized
+    load(horzcat('.\Tuples\', files(nfile).name))
+    if ~rem(nfile, 10)
+        disp(horzcat('nfile: ', num2str(nfile/nfiles)))
+    end    
+    rl_state = rl_tuple{1}; % vis_pref_vals(:), needs to be thresholded around 25 and binarized, can have 1 of 24 states
+    this_state = 1 + round(sum(rl_state));
+    this_state(this_state > 24) = 24;
+    rl_action = rl_tuple{2}; % L&R motor commands (-250 to 250), plot and convert to 1 of 10 states (5 speeds per motor)
+    this_action = 1 + round(9 * sum(abs(rl_action)) / 500);
+    rl_reward = rl_tuple{3}; % should be clear
+    rl_next_state = rl_tuple{4}; % as above
+    this_next_state = 1 + round(sum(rl_next_state));
+    this_next_state(this_next_state > 24) = 24;    
+    transition_counter(this_state, this_next_state, this_action) = ...
+        transition_counter(this_state, this_next_state, this_action) + 1;
+    reward_counter(this_state, this_next_state, this_action) = ...
+        reward_counter(this_state, this_next_state, this_action) + rl_reward;
+end
 transition_counter = transition_counter ./ sum(transition_counter, 2);
+sum(transition_counter(:,:,3), 2)
+
 this_val = sum(isnan(sum(transition_counter, 2)));
 this_val = squeeze(this_val);
 max(this_val)
-% sum(transition_counter(:,:,3), 2)
 
-mdp.TerminalStates = ["s2";"s14"];
-
-% % files = dir('*.mat');
-% % nfiles = size(files, 1);
-% % for nfile = 2:nfiles % this will need to be randomized then prioritized
-% %     load(files(nfile).name)
-% %     rl_state = rl_data{1}; % vis_pref_vals(:), needs to be thresholded around 25 and binarized, can have 1 of 24 states
-% %     rl_action = rl_data{2}; % L&R motor commands (-250 to 250), plot and convert to 1 of 10 states (5 speeds per motor)
-% %     rl_reward = rl_data{3}; % should be clear
-% %     rl_next_state = rl_data{4}; % as above
-% %     transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
-% %     reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
-% % end
-% transition_counter = transition_counter ./ sum(transition_counter, 2);
-% % sum(transition_counter(:,:,3), 2)
+% mdp.TerminalStates = ["s2";"s14"];
 
 mdp.T = transition_counter;
 mdp.R = reward_counter;
