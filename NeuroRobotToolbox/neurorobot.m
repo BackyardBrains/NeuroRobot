@@ -2,11 +2,11 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 1;               % Use robot with RAK5206 or RAK5270
+rak_only = 0;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
-use_esp32 = 0;              % Use robot with ESP32-CAM
+use_esp32 = 1;           % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.1;         % Step time in seconds
+pulse_period = 0.5;         % Step time in seconds
 dev_mode = 0;               % Custom rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -23,8 +23,7 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_for_hippocampus = 0;
-save_for_basal_ganglia = 0;
+save_experiences = 1;       % 0 = no, 1 = tuples, 2 = tuples and audiovisual
 
 
 %% Advanced settings
@@ -32,7 +31,7 @@ use_speech2text = 0;        % In progress, requires key
 grey_background = 1;        % Grey background (1) or white background (0)
 save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;
-use_profile = 0;
+use_profile = 1;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
@@ -160,12 +159,14 @@ l_torque = 0;
 object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
 inhibition_col = [0.85 0.85 0.85];
 
-if save_for_basal_ganglia
-    rl_state = zeros(n_basic_vis_features * 2, 1);
+if save_experiences
+    rl_state = zeros(1, 10, 'single');
     rl_action = [0 0];
     rl_reward = 0;
+    load('bag.mat')
+    left_torque_mem = 0;
+    right_torque_mem = 0;
 end
-
 
 %% Audio
 audx = 250;

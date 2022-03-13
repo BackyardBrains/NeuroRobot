@@ -4,9 +4,8 @@ NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
-NeuroRobotToolbox/Hippocampus/Data/*.png
-NeuroRobotToolbox/Hippocampus/Data/*.mat
-NeuroRobotToolbox/Basal ganglia/Tuples/*.mat
+NeuroRobotToolbox/Experiences/*.png
+NeuroRobotToolbox/Experiences/*.mat
 
 OGLdpf.log
 

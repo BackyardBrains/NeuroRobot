@@ -78,32 +78,8 @@ if xstep == nsteps_per_loop
     end
 end
 
-%% Hippocampus
-if save_for_hippocampus && ~rem(nstep, round(nsteps_per_loop/10)) && ~robot_moving
-    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));  
-    fname = strcat('.\Hippocampus\Data\', brain_name, '-', num2str(xstep), '-left_uframe.png');
-    imwrite(left_uframe, fname);
-    fname = strcat('.\Hippocampus\Data\', brain_name, '-', num2str(xstep), '-right_uframe.png');
-    imwrite(right_uframe, fname);    
-    fname = strcat('.\Hippocampus\Data\', brain_name, '-', num2str(xstep), '-this_audio.mat');
-    save(fname, 'this_audio', '-mat');    
-    fname = strcat('.\Hippocampus\Data\', brain_name, '-', num2str(xstep), '-serial_data.mat');
-    save(fname, 'serial_data', '-mat');
-end
-
-%% Basal ganglia
-if save_for_basal_ganglia    
-    rl_next_state = vis_pref_vals(:); % this will need binarization later during basal ganglia sleep, 
-    % actually what we need are binary bag of features, ideally combined
-    % with retinotopic positions
-    this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
-    file_name = strcat('.\Basal ganglia\Tuples\', brain_name, '-', num2str(xstep), '-tuple.mat');
-    rl_tuple = {rl_state, rl_action, rl_reward, rl_next_state};
-    save(file_name, 'rl_tuple', '-mat')
-    rl_state = vis_pref_vals(:);
-    rl_action = [(left_torque * left_dir) (right_torque * right_dir)]; % this_network? % this will need binarization later
-    rl_reward = reward;
-end
+% Test
+thalamocortical_loop
 
 %%
 if nstep == nsteps_per_loop %% Happens again below
@@ -168,16 +144,13 @@ try % This avoids error due to stop code deleting step_timer before it's called 
 catch
 end
 if run_button == 6
-    
-    %% Make annotation
+
+    % Make annotation
     make_annotation
     
-    %% Return
+    % Return
     run_button = 0;
     
 end
 
-if exist('lrrr', 'var')
-    lrrr.YData = score(object_ns);
-end
 
