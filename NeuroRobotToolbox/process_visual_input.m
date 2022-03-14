@@ -16,13 +16,13 @@ for ncam = 1:2
     for ncol = 1:3
         if ncol == 1
             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.5 & uframe(:,:,1) > uframe(:,:,3) * 1.5;
-            colframe(uframe(:,:,1) < 125) = 0;
+            colframe(uframe(:,:,1) < 75) = 0;
         elseif ncol == 2
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.3 & uframe(:,:,2) > uframe(:,:,3) * 1.3;
-            colframe(uframe(:,:,2) < 125) = 0;
+            colframe(uframe(:,:,2) < 75) = 0;
         elseif ncol == 3     
             colframe = uframe(:,:,3) > uframe(:,:,2) * 1.4 & uframe(:,:,3) > uframe(:,:,1) * 1.4;
-            colframe(uframe(:,:,3) < 125) = 0;
+            colframe(uframe(:,:,3) < 75) = 0;
         end
     
         blob = bwconncomp(colframe);
@@ -48,7 +48,7 @@ for ncam = 1:2
     bwframe = xframe > 20;
     
     blob = bwconncomp(bwframe);
-    if blob.NumObjects && ~robot_moving
+    if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
     %     disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))

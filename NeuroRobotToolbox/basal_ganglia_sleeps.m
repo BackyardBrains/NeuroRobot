@@ -1,55 +1,85 @@
 
 close all
 clear
+clc
 
-% States
+%% States
 nsensors = 2;
-nfeatures = 5;
-all_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
-nstates = size(all_combs, 1);
+nfeatures = 4;
+state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
+state_combs = padarray(state_combs, [0 1], 0, 'pre');
+state_combs = padarray(state_combs, [0 1], 1, 'post');
+nstates = size(state_combs, 1);
+disp(horzcat('nstates: ', num2str(nstates)))
 
-% Motors
+%% Motors
 nmotors = 2;
-ntorques = 10;
-nactions = ntorques^nmotors;
+ntorques = 5; % Should be odd number
+motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
+motor_combs = padarray(motor_combs, [0 1], -floor(ntorques/2), 'pre');
+motor_combs = padarray(motor_combs, [0 1], floor(ntorques/2), 'post');
+nactions = size(motor_combs, 1);
+disp(horzcat('nstates: ', num2str(nactions)))
 
-% Markov
+%% Markov
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
-% Get tuples
+%% Get tuples
 tuples = dir('.\Experiences\*tuple.mat');
 ntuples = size(tuples, 1);
-data = zeros(ntuples, 4);
+disp(horzcat('ntuples: ', num2str(ntuples)))
+rand_tuples = randsample(ntuples, ntuples/2, 0);
+
+rl_data = zeros(ntuples, 4);
 motor_data = zeros(ntuples, 2);
+state_data = zeros(ntuples, nsensors * nfeatures);
 
-for ntuple = 2:ntuples % this will need to be randomized then prioritized
+counter = 0;
+for ntuple = rand_tuples' % this will need to be prioritized
 
-    disp(horzcat('ntuple: ', num2str(ntuple)))
-    
+    counter = counter + 1;
+
+    if ~rem(ntuple, 100)
+        disp(horzcat('count: ', num2str(counter), ', ntuple: ', num2str(ntuple)))
+    end
+
     % Load data
     load(horzcat('.\Experiences\', tuples(ntuple).name))
 
     % Get state
     state_vector = rl_tuple{1};
-    r = corr(state_vector', all_combs');
+    state_vector = state_vector(1:8); % temp
+    state_data(ntuple, :) = state_vector;
+    state_vector = padarray(state_vector, [0 1], 0, 'pre');
+    state_vector = padarray(state_vector, [0 1], 50, 'post');    
+    r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_state = ind;
 
     % Get action    
-    torques = rl_tuple{2};
-    torques = round(5 * ((torques / 250) + 1)); % convert from 2 continuous vals to 100 combs
-    rl_action = (torques(1)*10 + torques(2)) + 1;
-    rl_action(rl_action > nactions) = nactions;
-    motor_data(ntuple, :) = rl_tuple{2};
+    motor_vector = rl_tuple{2};
+    motor_vector(motor_vector > 250) = 250;
+    motor_vector(motor_vector < -250) = -250;
+    motor_data(ntuple, :) = motor_vector;
+
+    motor_vector = padarray(motor_vector, [0 1], -250, 'pre');
+    motor_vector = padarray(motor_vector, [0 1], 250, 'post');
+    r = corr(motor_vector', motor_combs');
+    [~, ind] = max(r);
+    rl_action = ind;
 
     % Get reward
     rl_reward = rl_tuple{3};
 
     % Get next state
     state_vector = rl_tuple{4};
-    r = corr(state_vector', all_combs');
+    state_vector = state_vector(1:8); % temp
+    state_data(ntuple, :) = state_vector;
+    state_vector = padarray(state_vector, [0 1], 0, 'pre');
+    state_vector = padarray(state_vector, [0 1], 50, 'post');    
+    r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_next_state = ind;
 
@@ -58,10 +88,10 @@ for ntuple = 2:ntuples % this will need to be randomized then prioritized
     reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
 
     % Store data
-    data(ntuple, 1) = rl_state;
-    data(ntuple, 2) = rl_action;
-    data(ntuple, 3) = rl_reward;
-    data(ntuple, 4) = rl_next_state;
+    rl_data(ntuple, 1) = rl_state;
+    rl_data(ntuple, 2) = rl_action;
+    rl_data(ntuple, 3) = rl_reward;
+    rl_data(ntuple, 4) = rl_next_state;
 
 end
     
@@ -69,25 +99,59 @@ end
 %%
 figure(1)
 clf
-subplot(3,1,1)
-histogram(data(:,1), 'binwidth', 1)
-title('States')
-subplot(3,1,2)
-histogram(data(:,2), 'binwidth', 1)
-title('Actions')
-subplot(3,1,3)
-histogram(data(data(:,3) > 0,4), 'binwidth', 1)
-title('Rewarded states')
 
-%%
-transition_matrix = ones(size(mdp.T));
-transition_matrix = transition_matrix ./ sum(transition_matrix(:,2));
-mdp.T = transition_matrix;
-reward_counter = reward_counter ./ sum(reward_counter(:,2));
+subplot(3,1,1)
+histogram(rl_data(:,1), 'binwidth', 1)
+hold on
+histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 1)
+set(gca, 'yscale', 'log')
+title('States and Rewarded States')
+xlabel('State')
+ylabel('Count')
+
+subplot(3,1,2)
+histogram(rl_data(:,2), 'binwidth', 1)
+hold on
+histogram(rl_data(rl_data(:,3) > 0,2), 'binwidth', 1)
+set(gca, 'yscale', 'log')
+title('Actions and Rewarded Actions')
+xlabel('Action')
+ylabel('Count')
+
+subplot(3,1,3)
+plot(transition_counter(:))
+hold on
+plot(reward_counter(:))
+% set(gca, 'yscale', 'log')
+title('Transitions and Rewards')
+
+transition_counter_save = transition_counter;
+reward_counter_save = reward_counter;
+
+%% Build Markov process
+mdp = createMDP(nstates, nactions);
+transition_counter = transition_counter_save;
+for ii_state = 1:nstates
+    for naction = 1:nactions
+        this_sum = sum(transition_counter(ii_state, :, naction));
+        if this_sum
+            transition_counter(ii_state, :, naction) = transition_counter(ii_state, :, naction) / this_sum;
+        else
+            transition_counter(ii_state, :, naction) = 1/nstates;
+        end
+    end
+end
+
+%% 
+mdp.T = transition_counter;
+reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
-env.ResetFcn = @() 1;
+env.ResetFcn = @() ((0.5 * nactions) + 0.5);
+% env.CurrentState
+% env.TerminalState
+validateEnvironment(env)
 
 %% Train
 obsInfo = getObservationInfo(env);
@@ -98,24 +162,25 @@ critic_opts = rlOptimizerOptions;
 critic_opts.LearnRate = 1;
 
 agent_opts = rlQAgentOptions;
-agent_opts.DiscountFactor = 0.2;
+agent_opts.DiscountFactor = 0.95;
 agent_opts.EpsilonGreedyExploration.Epsilon = 0.9;
 agent_opts.EpsilonGreedyExploration.EpsilonDecay = 0.01;
 agent_opts.CriticOptimizerOptions = critic_opts;
 agent = rlQAgent(critic,agent_opts);
 
 training_opts = rlTrainingOptions;
-training_opts.MaxStepsPerEpisode = 20;
+training_opts.MaxStepsPerEpisode = 50;
 training_opts.MaxEpisodes = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
+% training_opts.UseParallel = true;
 
+%%
 trainingStats = train(agent,env,training_opts);
+% action = getAction(agent, 13)
+% sim_data = sim(agent,env);
+% cumulativeReward = sum(sim_data.Reward)
 
-% action = getAction(agent, [0 0 0 0 0 0 0 0 0 0])
-
-% Data = sim(agent,env);
-% cumulativeReward = sum(Data.Reward)
 % QTable = getLearnableParameters(getCritic(agent));
 % QTable{1}
 
@@ -127,7 +192,7 @@ trainingStats = train(agent,env,training_opts);
 % % % actInfo = rlFiniteSetSpec(1:nactions); % 50-levels thresholded motor (2) speaker (5) and lights (3) (500 states total)
 % % % 
 % % % qTable = rlTable(obsInfo,actInfo);
-critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
+% critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
 % % % 
 % % % opt = rlQAgentOptions;
 % % % agent = rlQAgent(critic,opt);
@@ -142,7 +207,6 @@ critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
 % % % trainStats = train(agent,env,opt);
 % % % 
 % % % %% Test :)
-% % % % value = getValue(critic,{5},{9})
 % % % % action = getAction(agent,{8})
 % % % 
 % % % 

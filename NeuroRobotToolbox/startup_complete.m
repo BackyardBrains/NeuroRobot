@@ -12,6 +12,8 @@ end
     
 if rak_only
     rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
+elseif use_esp32
+    esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;');
 end
 
 if isempty(brain_edit_name.String) && popup_select_brain.Value == 1

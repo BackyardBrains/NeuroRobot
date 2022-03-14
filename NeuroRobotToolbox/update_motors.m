@@ -141,7 +141,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
     motor_command(1,4) = left_dir;
     
     right_torque = right_forward - right_backward;
-    right_torque_mem = left_torque;
+    right_torque_mem = right_torque;
     right_dir = max([1 - sign(right_torque) 1]);
     right_torque = abs(right_torque); 
     right_torque(right_torque > 250) = 250;   

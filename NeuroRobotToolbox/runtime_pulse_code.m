@@ -78,8 +78,11 @@ if xstep == nsteps_per_loop
     end
 end
 
-% Test
-thalamocortical_loop
+% If saving experiences
+if save_experiences
+    thalamocortical_loop
+end
+% disp(num2str(vis_pref_vals(:)'))
 
 %%
 if nstep == nsteps_per_loop %% Happens again below
