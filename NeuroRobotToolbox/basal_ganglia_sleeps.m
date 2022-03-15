@@ -5,7 +5,7 @@ clc
 
 %% States
 nsensors = 2;
-nfeatures = 4;
+nfeatures = 5;
 state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
 state_combs = padarray(state_combs, [0 1], 0, 'pre');
 state_combs = padarray(state_combs, [0 1], 1, 'post');
@@ -30,11 +30,9 @@ reward_counter = zeros(size(mdp.R));
 tuples = dir('.\Experiences\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
-
 rl_data = zeros(ntuples, 4);
-motor_data = zeros(ntuples, 2);
 state_data = zeros(ntuples, nsensors * nfeatures);
-
+motor_data = zeros(ntuples, 2);
 counter = 0;
 rand_tuples = randsample(ntuples, round(ntuples/2), 0); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
@@ -50,10 +48,9 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
     % Get state
     state_vector = rl_tuple{1};
-    state_vector = state_vector(1:8); % temp
     state_data(ntuple, :) = state_vector;
     state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], 50, 'post');    
+    state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
     r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_state = ind;
@@ -75,10 +72,9 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
     % Get next state
     state_vector = rl_tuple{4};
-    state_vector = state_vector(1:8); % temp
     state_data(ntuple, :) = state_vector;
     state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], 50, 'post');    
+    state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change lone 1 to 50 to do vis_pref_vals
     r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_next_state = ind;
@@ -129,7 +125,6 @@ transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
 
 %% Build Markov process
-mdp = createMDP(nstates, nactions);
 transition_counter = transition_counter_save;
 for ii_state = 1:nstates
     for naction = 1:nactions
@@ -151,13 +146,11 @@ env = rlMDPEnv(mdp);
 env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 validateEnvironment(env)
 
-
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
-critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
-critic_opts = rlOptimizerOptions;
-critic_opts.LearnRate = 0.001;
+
+critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 agent_opt = rlDQNAgentOptions;
 agent_opt.DiscountFactor = 0.95;
@@ -170,7 +163,7 @@ agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
 training_opts.MaxStepsPerEpisode = 10;
-training_opts.MaxEpisodes = 5000;
+training_opts.MaxEpisodes = 50000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
 training_opts.UseParallel = true;
