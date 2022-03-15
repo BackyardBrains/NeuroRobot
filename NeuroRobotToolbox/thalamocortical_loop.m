@@ -21,13 +21,13 @@ this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 % fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
 % save(fname, 'serial_data', '-mat');
 
-[left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
-[right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
-rl_next_state = [left_featureVector right_featureVector];
+% [left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
+% [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
+% rl_next_state = [left_featureVector right_featureVector];
 
-% left_featureVector = vis_pref_vals([1 4 7 10],1);
-% right_featureVector = vis_pref_vals([1 4 7 10],2);
-% rl_next_state = [left_featureVector' right_featureVector'];
+left_featureVector = vis_pref_vals([1 4 7 10],1);
+right_featureVector = vis_pref_vals([1 4 7 10],2);
+rl_next_state = [left_featureVector' right_featureVector'];
 
 if ~exist('rl_state', 'var')
     rl_state = rl_next_state;
