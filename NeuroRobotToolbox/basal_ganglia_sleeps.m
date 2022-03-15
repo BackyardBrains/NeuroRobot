@@ -30,13 +30,13 @@ reward_counter = zeros(size(mdp.R));
 tuples = dir('.\Experiences\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
-rand_tuples = randsample(ntuples, ntuples/2, 0);
 
 rl_data = zeros(ntuples, 4);
 motor_data = zeros(ntuples, 2);
 state_data = zeros(ntuples, nsensors * nfeatures);
 
 counter = 0;
+rand_tuples = randsample(ntuples, round(ntuples/2), 0); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
@@ -149,67 +149,54 @@ reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
 env.ResetFcn = @() ((0.5 * nactions) + 0.5);
-% env.CurrentState
-% env.TerminalState
 validateEnvironment(env)
 
-%% Train
+
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
 critic_opts = rlOptimizerOptions;
-critic_opts.LearnRate = 1;
+critic_opts.LearnRate = 0.001;
 
-agent_opts = rlQAgentOptions;
-agent_opts.DiscountFactor = 0.95;
-agent_opts.EpsilonGreedyExploration.Epsilon = 0.9;
-agent_opts.EpsilonGreedyExploration.EpsilonDecay = 0.01;
-agent_opts.CriticOptimizerOptions = critic_opts;
-agent = rlQAgent(critic,agent_opts);
+agent_opt = rlDQNAgentOptions;
+agent_opt.DiscountFactor = 0.95;
+agent_opt.EpsilonGreedyExploration.Epsilon = 0.9;
+agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+agent = rlDQNAgent(critic, agent_opt);
+
+% agent = rlDQNAgent(obsInfo,actInfo)
 
 training_opts = rlTrainingOptions;
-training_opts.MaxStepsPerEpisode = 50;
-training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxEpisodes = 5000;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 5;
-% training_opts.UseParallel = true;
+training_opts.ScoreAveragingWindowLength = 50;
+training_opts.UseParallel = true;
+trainingStats = train(agent,env);
+action = getAction(agent,13)
 
-%%
-trainingStats = train(agent,env,training_opts);
+
+%% Train
+% agent_opts = rlQAgentOptions;
+% agent_opts.DiscountFactor = 0.95;
+% agent_opts.EpsilonGreedyExploration.Epsilon = 0.9;
+% agent_opts.EpsilonGreedyExploration.EpsilonDecay = 0.01;
+% agent_opts.CriticOptimizerOptions = critic_opts;
+% agent = rlQAgent(critic,agent_opts);
+% opt = rlSARSAAgentOptions;
+% agent = rlSARSAAgent(critic,opt);
+% training_opts = rlTrainingOptions;
+% training_opts.MaxStepsPerEpisode = 50;
+% training_opts.MaxEpisodes = 500;
+% training_opts.StopTrainingCriteria = "AverageReward";
+% training_opts.ScoreAveragingWindowLength = 5;
+% % % training_opts.UseParallel = true;
+% trainingStats = train(agent,env);
 % action = getAction(agent, 13)
 % sim_data = sim(agent,env);
 % cumulativeReward = sum(sim_data.Reward)
-
 % QTable = getLearnableParameters(getCritic(agent));
 % QTable{1}
-
-% % % % mdp.TerminalStates = ["s2";"s14"];
-
-% % % 
-% % % %% Get agent
-% % % obsInfo = rlFiniteSetSpec(1:nstates); % binary thresholded bag-of-features histogram (1000 states total)
-% % % actInfo = rlFiniteSetSpec(1:nactions); % 50-levels thresholded motor (2) speaker (5) and lights (3) (500 states total)
-% % % 
-% % % qTable = rlTable(obsInfo,actInfo);
-% critic = rlQValueRepresentation(qTable,obsInfo,actInfo);
-% % % 
-% % % opt = rlQAgentOptions;
-% % % agent = rlQAgent(critic,opt);
-% % % 
-% % % % opt = rlSARSAAgentOptions;
-% % % % agent = rlSARSAAgent(critic,opt)
-% % % 
-% % % %% Train agent
-% % % opt = rlTrainingOptions;
-% % % trainOpts.MaxStepsPerEpisode = 50;
-% % % trainOpts.MaxEpisodes = 500;
-% % % trainStats = train(agent,env,opt);
-% % % 
-% % % %% Test :)
-% % % % action = getAction(agent,{8})
-% % % 
-% % % 
-% % % 
-% % % 
-% % %
+% mdp.TerminalStates = ["s2";"s14"];
