@@ -1,25 +1,21 @@
 
 
-% Scared
+[left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
+[right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
+state_vector = [left_featureVector right_featureVector];
+state_vector = padarray(state_vector, [0 1], 0, 'pre');
+state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
 
-script_step_count = script_step_count + 1;
+r = corr(state_vector', state_combs');
+[~, this_state] = max(r);
 
-if script_step_count == 1
-    rak_cam.writeSerial('d:131;')
-    rak_cam.writeSerial('d:231;')
-    rak_cam.writeSerial('d:331;')
-    rak_cam.writeSerial('d:431;')
-    rak_cam.writeSerial('d:531;')
-    rak_cam.writeSerial('d:631;')
+disp(horzcat('state: ', num2str(this_state)))
 
-end
-if (script_step_count * pulse_period) > 3
-    rak_cam.writeSerial('d:130;')
-    rak_cam.writeSerial('d:230;')
-    rak_cam.writeSerial('d:330;')
-    rak_cam.writeSerial('d:430;')
-    rak_cam.writeSerial('d:530;')
-    rak_cam.writeSerial('d:630;')         
-    script_running = 0;
-    script_step_count = 0;  
-end
+this_action = getAction(agent, this_state);
+
+disp(horzcat('action: ', num2str(cell2mat(this_action))))
+
+this_motor_vector = motor_combs(cell2mat(this_action), :);
+
+left_forward = this_motor_vector(1);
+right_forward = this_motor_vector(2);

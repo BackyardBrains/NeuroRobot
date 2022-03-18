@@ -1,14 +1,15 @@
 
-close all
+% close all
 clear
 clc
 
 %% States
 nsensors = 2;
 nfeatures = 5;
+statemax = 1; % vis_pref_vals = 50, bag = 1
 state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
 state_combs = padarray(state_combs, [0 1], 0, 'pre');
-state_combs = padarray(state_combs, [0 1], 1, 'post');
+state_combs = padarray(state_combs, [0 1], statemax, 'post');
 nstates = size(state_combs, 1);
 disp(horzcat('nstates: ', num2str(nstates)))
 
@@ -50,7 +51,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
     state_vector = rl_tuple{1};
     state_data(ntuple, :) = state_vector;
     state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
+    state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
     r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_state = ind;
@@ -74,7 +75,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
     state_vector = rl_tuple{4};
     state_data(ntuple, :) = state_vector;
     state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change lone 1 to 50 to do vis_pref_vals
+    state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals
     r = corr(state_vector', state_combs');
     [~, ind] = max(r);
     rl_next_state = ind;
@@ -97,9 +98,9 @@ figure(1)
 clf
 
 subplot(3,1,1)
-histogram(rl_data(:,1), 'binwidth', 1)
+histogram(rl_data(:,1), 'binwidth', 20)
 hold on
-histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 1)
+histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 20)
 set(gca, 'yscale', 'log')
 title('States and Rewarded States')
 xlabel('State')
@@ -115,11 +116,15 @@ xlabel('Action')
 ylabel('Count')
 
 subplot(3,1,3)
-plot(transition_counter(:))
-hold on
-plot(reward_counter(:))
-% set(gca, 'yscale', 'log')
+% plot(sum(mean(transition_counter, 3)))
+% hold on
+test = reward_counter ./ transition_counter;
+test(isnan(test)) = 0;
+plot(sum(mean(test, 3)))
+axis tight
 title('Transitions and Rewards')
+ylabel('Count')
+xlabel('State')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -159,18 +164,21 @@ agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
 agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 
-% agent = rlDQNAgent(obsInfo,actInfo)
-
 training_opts = rlTrainingOptions;
-training_opts.MaxStepsPerEpisode = 10;
-training_opts.MaxEpisodes = 50000;
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxEpisodes = 5000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
 training_opts.UseParallel = true;
 trainingStats = train(agent,env);
-action = getAction(agent,13)
 
 
+%% Test controller
+this_state = randsample(nstates, 1)
+this_action = getAction(agent, this_state)
+
+
+%%
 %% Train
 % agent_opts = rlQAgentOptions;
 % agent_opts.DiscountFactor = 0.95;

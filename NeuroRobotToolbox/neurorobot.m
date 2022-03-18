@@ -4,9 +4,9 @@
 %% Settings 
 rak_only = 0;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 1;             % Use webcamera
+use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
-use_esp32 = 0;              % Use robot with ESP32-CAM
+use_esp32 = 1;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.1;         % Step time in seconds
+pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Custom rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -24,8 +24,8 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 0;       % 0 = no, 1 = tuples, 2 = tuples and audiovisual
-statemax = 1;
-nfeatures = 4;
+use_controllers = 1;
+
 
 %% Advanced settings
 use_speech2text = 0;        % In progress, requires key
@@ -36,7 +36,7 @@ use_profile = 0;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Controller 1'};
 
 
 %% Clear timers - why is this used?
@@ -167,6 +167,25 @@ if save_experiences
     left_torque_mem = 0;
     right_torque_mem = 0;
 end
+
+if use_controllers
+    
+    nsensors = 2;
+    nfeatures = 5;
+    statemax = 1; % vis_pref_vals = 50, bag = 1
+    state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
+    state_combs = padarray(state_combs, [0 1], 0, 'pre');
+    state_combs = padarray(state_combs, [0 1], statemax, 'post');
+    load('bag.mat')
+
+    nmotors = 2;
+    ntorques = 5; % Should be odd number
+    motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
+    motor_combs = motor_combs * 50;
+    load('agent.mat')
+
+end
+
 
 %% Audio
 audx = 250;
