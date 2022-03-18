@@ -23,8 +23,8 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;       % 0 = no, 1 = tuples, 2 = tuples and audiovisual
-use_controllers = 1;
+save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
+use_controllers = 0;        % Add deep net controllers as scripts
 
 
 %% Advanced settings

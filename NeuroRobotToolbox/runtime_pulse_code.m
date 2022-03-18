@@ -78,11 +78,10 @@ if xstep == nsteps_per_loop
     end
 end
 
-% If saving experiences
-if save_experiences
-    thalamocortical_loop
-end
-% disp(num2str(vis_pref_vals(:)'))
+
+%% Save sensory data and tuples
+thalamocortical_loop
+
 
 %%
 if nstep == nsteps_per_loop %% Happens again below
