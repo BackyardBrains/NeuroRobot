@@ -34,7 +34,7 @@ end
 %% Plot
 figure(1)
 clf
-set(1, 'position', [376 760 1045 179], 'color', 'w')
+set(1, 'position', [376 50 1045 179], 'color', 'w')
 plot(data(:,1), 'linestyle', '-', 'linewidth', 2, 'color', [0.2 0.2 0.2], 'DisplayName', 'ECG');
 hold on
 plot(qrs_times(:,1), data(qrs_times(:,1),1), 'marker', 'o', 'linestyle', 'none', 'markersize', 10, 'color', [0.8 0.4 0.2], 'DisplayName','R', 'linewidth', 2);

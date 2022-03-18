@@ -1,15 +1,13 @@
 
 
-% Hypothesis: Have robot spin round a KNOWN number of times. Label manually
-% (supervised learning) or learn autonomously.
+% This is all the data saved in Experiences for later hippocampal and basal
+% ganglia processing
 
-% This is what's going to become cortex
-
-% CORTEX CORTEX CORTEX 
-
-
+% Try: Have robot spin round a KNOWN number of times. Label manually and
+% compare to autonomous (unsupervised) learning
 
 % special_tic = tic;
+
 this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));  
 
 % fname = strcat('.\Experiences\',this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');
@@ -39,8 +37,7 @@ save(file_name, 'rl_tuple', '-mat')
 rl_state = rl_next_state;
 rl_action = [left_torque_mem right_torque_mem]; % this_network? % this will need binarization later
 
-rl_reward = reward; % should this be from the next time step or somethimng?
-
+rl_reward = reward; % should this be from the next time step? does it matter?
 
 % toc(special_tic)
 
