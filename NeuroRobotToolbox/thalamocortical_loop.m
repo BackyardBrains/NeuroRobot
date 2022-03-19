@@ -8,17 +8,19 @@
 
 % special_tic = tic;
 
-if save_experiences == 1
+if save_experiences > 0
 
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));  
     
-    [left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
-    [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
-    rl_next_state = [left_featureVector right_featureVector];
-    
-    % left_featureVector = vis_pref_vals([1 4 7 10],1);
-    % right_featureVector = vis_pref_vals([1 4 7 10],2);
-    % rl_next_state = [left_featureVector' right_featureVector'];
+    if raw_or_bag == 1    
+        left_featureVector = vis_pref_vals([1 4 7 10],1);
+        right_featureVector = vis_pref_vals([1 4 7 10],2);
+        rl_next_state = [left_featureVector' right_featureVector'];
+    elseif raw_or_bag == 2
+        [left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
+        [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
+        rl_next_state = [left_featureVector right_featureVector];
+    end
     
     if ~exist('rl_state', 'var')
         rl_state = rl_next_state;
@@ -34,7 +36,9 @@ if save_experiences == 1
     
     % toc(special_tic)
 
-elseif save_experiences == 2
+end
+
+if save_experiences == 2
 
     fname = strcat('.\Experiences\',this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');
     imwrite(left_uframe, fname);
