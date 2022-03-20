@@ -1,12 +1,18 @@
 
-% close all
+close all
 clear
 clc
 
 %% States
 nsensors = 2;
-nfeatures = 5;
-statemax = 1; % vis_pref_vals = 50, bag = 1
+raw_or_bag = 1; % 1 = raw, 2 = bag
+if raw_or_bag == 1
+    nfeatures = 4;
+    statemax = 50; % vis_pref_vals = 50, bag = 1        
+elseif raw_or_bag == 2
+    nfeatures = 5;
+    statemax = 1; % vis_pref_vals = 50, bag = 1
+end
 state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
 state_combs = padarray(state_combs, [0 1], 0, 'pre');
 state_combs = padarray(state_combs, [0 1], statemax, 'post');
@@ -35,7 +41,7 @@ rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = randsample(ntuples, round(ntuples/2), 0); % this will need to be prioritized
+rand_tuples = randsample(ntuples, round(ntuples/2)); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
@@ -172,8 +178,11 @@ training_opts.ScoreAveragingWindowLength = 50;
 training_opts.UseParallel = true;
 trainingStats = train(agent,env);
 
-
+save('agent', 'agent')
 %% Test controller
+
+% this_action = getAction(agent, 1)
+
 this_state = randsample(nstates, 1)
 this_action = getAction(agent, this_state)
 

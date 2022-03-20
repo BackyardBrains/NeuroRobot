@@ -3,7 +3,7 @@
 %% Create image datastore (run in png directory)
 ims = imageDatastore('.\Experiences\*.png');
 nfiles = length(ims.Files);
-ims = subset(ims, randsample(nfiles, round(nfiles/4)));
+ims = subset(ims, randsample(nfiles, round(nfiles/2)));
 frames = readall(ims);
 nframes = length(frames);
 
@@ -27,9 +27,8 @@ figure(11)
 clf
 [~, ~, o] = dendrogram(links, nframes);
 
-%
 %% K-means clustering
-ngroups = 10;
+ngroups = 100;
 inds = kmeans(links, ngroups);
 for ii = 1:ngroups
     figure(3)
@@ -40,8 +39,8 @@ histogram(inds, 'binwidth', 1)
 
 %% Hierarchical clustering
 ngroups = 10;
-% clusts = cluster(links,'maxclust',ngroups);
-clusts = cluster(links,'cutoff',1.154698);
+clusts = cluster(links,'maxclust',ngroups);
+% clusts = cluster(links,'cutoff',1.154698);
 for ii = 1:ngroups
     figure(ii)
     clf
