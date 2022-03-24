@@ -2,11 +2,11 @@
 clear
 
 %% Settings
-load_name = 'Critter';
-duration_in_sec = 1000;
-input_neurons = [1 2];
+load_name = 'Critter 3';
+duration_in_sec = 100;
+input_neurons = 1;
 input_value = 50;
-output_neurons = [11 12];
+output_neurons = 13:16;
 disabled_neurons = [];
 
 %% Prepare
@@ -17,15 +17,16 @@ nsteps_per_loop = 1;
 dist_I = 0;
 audio_I = 0;
 load_or_initialize_brain
-spike_log = zeros(nneurons, duration_in_sec * ms_per_step);
+ts = ms_per_step * duration_in_sec;
+spike_log = zeros(nneurons, ts);
 
 %% Modify connectome
-connectome(connectome == -20) = -20;
+connectome(connectome == -20) = -40;
 
 %% Run
 for nstep = 1:duration_in_sec
     vis_I = zeros(nneurons, 1);
-    if nstep < duration_in_sec / 2
+    if nstep > duration_in_sec / 2
         vis_I(input_neurons) = input_value;
     end
     for t = 1:ms_per_step
@@ -45,7 +46,11 @@ for nstep = 1:duration_in_sec
 end
 
 %% Plot
-figure(1)
+figure(10)
 clf
-imagesc(spike_log(output_neurons, :))
+imagesc(spike_log(:, :))
+hold on
+plot([ts/2 ts/2], [0.5 nneurons + 0.5], 'color', 'r', 'linewidth', 2)
+rectangle('pos', [1 output_neurons(1) - 0.5 ts output_neurons(end) - output_neurons(1) + 1], 'edgecolor', 'g', 'linewidth', 2)
+set(gca, 'ytick', 1:nneurons)
 xlabel('ms')
