@@ -18,7 +18,7 @@ pulse_period = 0.1;         % Step time in seconds
 dev_mode = 0;               % Custom rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
-cpg_integration = 0;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
+cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast

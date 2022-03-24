@@ -136,7 +136,7 @@ network_colors = linspecer(length(unique(network_ids)));
 da_rew_neurons = [da_rew_neurons; da_rew_neurons_2];
 neuron_tones = [neuron_tones; neuron_tones_2];
 neuron_scripts = [neuron_scripts; neuron_scripts_2];
-network = [network; network_2]; % Not sure if this works
+% network = [network; network_2]; % Not sure if this works
 bg_neurons = [bg_neurons; bg_neurons_2];
 
 steps_since_last_spike = nan(nneurons, 1); % this resets
