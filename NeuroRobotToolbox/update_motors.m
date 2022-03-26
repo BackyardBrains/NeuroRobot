@@ -122,6 +122,8 @@ if nneurons % This prevents error caused by running script after deleting all ne
             end
         elseif script_running == 5
             behavior_script_5
+        elseif script_running == 6
+            behavior_script_6            
         else
             disp('Unknown behavior')
         end

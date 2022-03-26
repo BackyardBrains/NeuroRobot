@@ -39,7 +39,7 @@ use_profile = 0;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Controller 1'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'QController 1', 'SpinLED'};
 
 
 %% Clear timers - why is this used?
