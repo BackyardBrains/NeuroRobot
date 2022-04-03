@@ -5,7 +5,7 @@ clc
 
 %% States
 nsensors = 2;
-raw_or_bag = 1; % 1 = raw, 2 = bag
+raw_or_bag = 2; % 1 = raw, 2 = bag
 if raw_or_bag == 1
     nfeatures = 4;
     statemax = 50; % vis_pref_vals = 50, bag = 1        
@@ -34,7 +34,7 @@ transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Experiences\*tuple.mat');
+tuples = dir('.\Experiences\*SpringDrivenClockFace*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
@@ -96,8 +96,9 @@ for ntuple = rand_tuples' % this will need to be prioritized
     rl_data(ntuple, 3) = rl_reward;
     rl_data(ntuple, 4) = rl_next_state;
 
+    disp(num2str(rl_state))
 end
-    
+    clf
 
 %%
 figure(1)
@@ -210,3 +211,25 @@ this_action = getAction(agent, this_state)
 % QTable = getLearnableParameters(getCritic(agent));
 % QTable{1}
 % mdp.TerminalStates = ["s2";"s14"];
+
+
+
+
+%% Get distances
+dists = pdist(state_data);
+links = linkage(dists, 'average');
+figure(11)
+clf
+[~, ~, o] = dendrogram(links, size(state_data, 1));
+
+% %% Clustering
+% ngroups = 100;
+% clusts = cluster(links,'maxclust',ngroups);
+% for ii = 1:ngroups
+%     figure(ii)
+%     clf
+%     montage({frames{clusts == ii}})
+%     title(horzcat('Group ', num2str(ii)))
+% end
+% figure(ii+1)
+% histogram(clusts, 'binwidth', 1)

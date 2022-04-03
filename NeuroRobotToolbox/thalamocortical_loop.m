@@ -38,7 +38,7 @@ if save_experiences > 0
 
 end
 
-if save_experiences == 2
+if save_experiences ~= 3
 
     fname = strcat('.\Experiences\',this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');
     imwrite(left_uframe, fname);

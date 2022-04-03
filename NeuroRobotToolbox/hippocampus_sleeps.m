@@ -1,54 +1,49 @@
 
 
+tic
+
 %% Create image datastore (run in png directory)
 ims = imageDatastore('.\Experiences\*.png');
-nfiles = length(ims.Files);
-ims = subset(ims, randsample(nfiles, round(nfiles/2)));
+n = length(ims.Files);
+ims = subset(ims, randsample(n, round(n/4)));
 frames = readall(ims);
 nframes = length(frames);
+% imageIndex = indexImages(ims);
 
 %% Create Bag of Features
 bag = bagOfFeatures(ims, 'TreeProperties', [1 5]);
 save('bag.mat', 'bag')
 nfeatures = bag.NumVisualWords;
 
-%% Get feature vectors
-xdata = zeros(nframes, nfeatures);
-for nframe = 1:nframes
-    img = frames{nframe};
-    [featureVector, words] = encode(bag, img);
-    xdata(nframe, :) = featureVector;
-end
+disp(horzcat('Hippocampus slept ', num2str(round(toc/60/60)), ' hrs'))
 
-%% Get distances
-dists = pdist(xdata);
-links = linkage(dists, 'average');
-figure(11)
-clf
-[~, ~, o] = dendrogram(links, nframes);
 
-%% K-means clustering
-ngroups = 100;
-inds = kmeans(links, ngroups);
-for ii = 1:ngroups
-    figure(3)
-    clf
-    montage({frames{inds == ii}})
-end
-histogram(inds, 'binwidth', 1)
+% %% Get feature vectors
+% xdata = zeros(nframes, nfeatures);
+% for nframe = 1:nframes
+%     img = frames{nframe};
+%     [featureVector, words] = encode(bag, img);
+%     xdata(nframe, :) = featureVector;
+% end
+% 
+% %% Get distances
+% dists = pdist(xdata);
+% links = linkage(dists, 'average');
+% figure(11)
+% clf
+% [~, ~, o] = dendrogram(links, nframes);
 
-%% Hierarchical clustering
-ngroups = 10;
-clusts = cluster(links,'maxclust',ngroups);
-% clusts = cluster(links,'cutoff',1.154698);
-for ii = 1:ngroups
-    figure(ii)
-    clf
-    montage({frames{clusts == ii}})
-    title(horzcat('Group ', num2str(ii)))
-end
-figure(ii+1)
-histogram(clusts, 'binwidth', 1)
+% %% Clustering
+% ngroups = 100;
+% clusts = cluster(links,'maxclust',ngroups);
+% for ii = 1:ngroups
+%     figure(ii)
+%     clf
+%     montage({frames{clusts == ii}})
+%     title(horzcat('Group ', num2str(ii)))
+% end
+% figure(ii+1)
+% histogram(clusts, 'binwidth', 1)
 
 % %% dbscan clustering
 % y = dbscan(xdata, 0.8, 5);

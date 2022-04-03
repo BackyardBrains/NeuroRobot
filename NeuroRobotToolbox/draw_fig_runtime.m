@@ -88,7 +88,8 @@ if nneurons
         x = ms_per_step * nsteps_per_loop + 1; % edited for appearence
         y = 1;
     end
-    vplot = plot(x, y, 'linestyle', 'none', 'marker', '.', 'markersize', max([min([15, 45 - nneurons]), 5])   , 'color', 'k');
+%     vplot = plot(x, y, 'linestyle', 'none', 'marker', '.', 'markersize', max([min([15, 45 - nneurons]), 5])   , 'color', 'k');
+    vplot = plot(x, y, 'linestyle', 'none', 'marker', '.', 'markersize', 5 , 'color', 'k');
     this_val = nneurons;
 else
     vplot = plot(1, ms_per_step * nsteps_per_loop, 'linestyle', 'none', 'marker', '.', 'markersize', 1, 'color', 'k');
