@@ -33,6 +33,10 @@ prev_right_eye_frame = imresize(right_eye_frame, net_input_size);
 left_uframe = prev_left_eye_frame;
 right_uframe = prev_right_eye_frame;
 
+if dev_mode
+    brainless_prepare
+end
+
 if matlab_audio_rec
     mic_fs = 16000;
     if exist('mic_obj', 'var')

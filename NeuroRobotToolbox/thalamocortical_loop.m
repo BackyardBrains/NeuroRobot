@@ -38,16 +38,24 @@ if save_experiences > 0
 
 end
 
-if save_experiences ~= 3
+if save_experiences == 2
 
-    fname = strcat('.\Experiences\',this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');
-    imwrite(left_uframe, fname);
-    fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-right_uframe.png');
-    imwrite(right_uframe, fname);    
-    fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-this_audio.mat');
-    save(fname, 'this_audio', '-mat');    
-    fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
-    save(fname, 'serial_data', '-mat');
+    if camera_present
+        fname = strcat('.\Experiences\',this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');
+        imwrite(left_uframe, fname);
+        fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-right_uframe.png');
+        imwrite(right_uframe, fname);
+    end
+
+    if rak_only || use_esp32 || matlab_audio_rec
+        fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-this_audio.mat');
+        save(fname, 'this_audio', '-mat');
+    end
+
+    if rak_only || use_esp32
+        fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
+        save(fname, 'serial_data', '-mat');
+    end
 
 end
 

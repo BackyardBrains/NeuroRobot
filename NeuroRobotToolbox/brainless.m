@@ -1,10 +1,9 @@
 
 %%%% Brainless %%%%
 
-%% Visual line - before first run only
-% brainless_first_visual_line
 
-%% Visual line - every run
+% Assumes brainless_prepare.m ran in runtime.m 
+
 
 left_eye_frame = large_frame(left_cut(1):left_cut(2), left_cut(3):left_cut(4), :);
 right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(4), :);
@@ -15,7 +14,6 @@ right_uframe = imresize(right_eye_frame, net_input_size);
 [left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
 [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
 bl1_plt.YData = [left_featureVector right_featureVector];
-disp('brailess')
 drawnow
 
 % this_frame = imresize(large_frame, [227 404]);

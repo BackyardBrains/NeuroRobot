@@ -3,7 +3,7 @@ if run_button == 1
 %     rak_cam.stop();
     stop(runtime_pulse) % Why doesn't this cause an error
     
-    if rak_only || use_esp32
+    if rak_only || use_esp32 || use_webcam
         if exist('rak_pulse', 'var') && isvalid(rak_pulse)
             stop(rak_pulse)
             delete(rak_pulse)
