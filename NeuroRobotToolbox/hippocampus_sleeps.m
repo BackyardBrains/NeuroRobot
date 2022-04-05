@@ -5,7 +5,7 @@ tic
 %% Create image datastore (run in png directory)
 ims = imageDatastore('.\Experiences\*.png');
 n = length(ims.Files);
-ims = subset(ims, randsample(n, round(n/4)));
+ims = subset(ims, randsample(n, round(n/10)));
 frames = readall(ims);
 nframes = length(frames);
 % imageIndex = indexImages(ims);
