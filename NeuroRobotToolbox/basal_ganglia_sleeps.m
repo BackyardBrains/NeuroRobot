@@ -34,14 +34,14 @@ transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Experiences\*SpringDrivenClockFace*tuple.mat');
+tuples = dir('.\Experiences\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = randsample(ntuples, round(ntuples/2)); % this will need to be prioritized
+rand_tuples = randsample(ntuples, round(ntuples/1)); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
@@ -53,52 +53,56 @@ for ntuple = rand_tuples' % this will need to be prioritized
     % Load data
     load(horzcat('.\Experiences\', tuples(ntuple).name))
 
-    % Get state
-    state_vector = rl_tuple{1};
-    state_data(ntuple, :) = state_vector;
-    state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
-    r = corr(state_vector', state_combs');
-    [~, ind] = max(r);
-    rl_state = ind;
+    if length(rl_tuple{1}) == 10
 
-    % Get action    
-    motor_vector = rl_tuple{2};
-    motor_vector(motor_vector > 250) = 250;
-    motor_vector(motor_vector < -250) = -250;
-    motor_data(ntuple, :) = motor_vector;
+        % Get state
+        state_vector = rl_tuple{1};
+        state_data(ntuple, :) = state_vector;
+        state_vector = padarray(state_vector, [0 1], 0, 'pre');
+        state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
+        r = corr(state_vector', state_combs');
+        [~, ind] = max(r);
+        rl_state = ind;
+    
+        % Get action    
+        motor_vector = rl_tuple{2};
+        motor_vector(motor_vector > 250) = 250;
+        motor_vector(motor_vector < -250) = -250;
+        motor_data(ntuple, :) = motor_vector;
+    
+        motor_vector = padarray(motor_vector, [0 1], -250, 'pre');
+        motor_vector = padarray(motor_vector, [0 1], 250, 'post');
+        r = corr(motor_vector', motor_combs');
+        [~, ind] = max(r);
+        rl_action = ind;
+    
+        % Get reward
+        rl_reward = rl_tuple{3};
+    
+        % Get next state
+        state_vector = rl_tuple{4};
+        state_data(ntuple, :) = state_vector;
+        state_vector = padarray(state_vector, [0 1], 0, 'pre');
+        state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals
+        r = corr(state_vector', state_combs');
+        [~, ind] = max(r);
+        rl_next_state = ind;
+    
+        % Update MDP
+        transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
+        reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
+    
+        % Store data
+        rl_data(ntuple, 1) = rl_state;
+        rl_data(ntuple, 2) = rl_action;
+        rl_data(ntuple, 3) = rl_reward;
+        rl_data(ntuple, 4) = rl_next_state;
 
-    motor_vector = padarray(motor_vector, [0 1], -250, 'pre');
-    motor_vector = padarray(motor_vector, [0 1], 250, 'post');
-    r = corr(motor_vector', motor_combs');
-    [~, ind] = max(r);
-    rl_action = ind;
+        disp(num2str(rl_state))
+    
+    end
 
-    % Get reward
-    rl_reward = rl_tuple{3};
-
-    % Get next state
-    state_vector = rl_tuple{4};
-    state_data(ntuple, :) = state_vector;
-    state_vector = padarray(state_vector, [0 1], 0, 'pre');
-    state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals
-    r = corr(state_vector', state_combs');
-    [~, ind] = max(r);
-    rl_next_state = ind;
-
-    % Update MDP
-    transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
-    reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
-
-    % Store data
-    rl_data(ntuple, 1) = rl_state;
-    rl_data(ntuple, 2) = rl_action;
-    rl_data(ntuple, 3) = rl_reward;
-    rl_data(ntuple, 4) = rl_next_state;
-
-    disp(num2str(rl_state))
 end
-    clf
 
 %%
 figure(1)
