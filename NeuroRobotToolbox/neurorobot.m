@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.3;         % Step time in seconds
+pulse_period = 0.15;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -26,7 +26,7 @@ brain_gen = 0;              % Use "Create New Brain" to algorithmically generate
 
 % RL settings
 save_experiences = 2;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
-raw_or_bag = 2;             % 1 = raw, 2 = bag
+raw_or_bag = 1;             % 1 = raw, 2 = bag
 use_controllers = 0;        % Add deep net controllers as scripts
 
 
