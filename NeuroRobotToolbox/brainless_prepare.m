@@ -8,7 +8,7 @@ figure(5)
 clf
 set(gcf, 'position', [220 250 830 520])
 bl1_plt = bar(zeros(nfeatures * nsensors, 1));
-ylim([0 1])
+ylim([0 0.5])
 title('feature vector')
 
 % this_frame = zeros(227, 404, 3, 'uint8');

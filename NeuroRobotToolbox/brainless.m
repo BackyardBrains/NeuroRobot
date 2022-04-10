@@ -16,6 +16,8 @@ right_uframe = imresize(right_eye_frame, net_input_size);
 bl1_plt.YData = [left_featureVector right_featureVector];
 drawnow
 
+1
+
 % this_frame = imresize(large_frame, [227 404]);
 % xframe = imsubtract(rgb2gray(this_frame), rgb2gray(prev_frame));
 % % xframe = imsubtract(rgb2gray(prev_frame), rgb2gray(this_frame));

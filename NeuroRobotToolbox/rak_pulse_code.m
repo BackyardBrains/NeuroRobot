@@ -16,5 +16,7 @@ end
 % large_frame = histeq(large_frame, 64*4);
 
 if exist('dev_mode', 'var') && dev_mode
+    tic
     brainless
+    toc
 end

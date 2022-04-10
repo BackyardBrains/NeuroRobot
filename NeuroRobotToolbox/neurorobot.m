@@ -11,10 +11,10 @@ use_cnn = 0;                % Use a convolutional neural network (Googlenet) for
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 1;       % Use computer microphone to listen
+matlab_audio_rec = 0;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.15;         % Step time in seconds
+pulse_period = 0.25;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -23,10 +23,8 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-
-% RL settings
-save_experiences = 2;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
-raw_or_bag = 1;             % 1 = raw, 2 = bag
+save_experiences = 1;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
+raw_or_bag = 2;             % 1 = raw state, 2 = bag state
 use_controllers = 0;        % Add deep net controllers as scripts
 
 
@@ -166,7 +164,7 @@ inhibition_col = [0.85 0.85 0.85];
 if save_experiences
     rl_action = [0 0];
     rl_reward = 0;
-    load('bag.mat')
+    load('bag50.mat')
     left_torque_mem = 0;
     right_torque_mem = 0;
 end
@@ -179,14 +177,14 @@ if save_experiences || use_controllers || dev_mode
         nfeatures = 4;
         statemax = 50; % vis_pref_vals = 50, bag = 1        
     elseif raw_or_bag == 2
-        nfeatures = 5;
+        nfeatures = 500;
         statemax = 1; % vis_pref_vals = 50, bag = 1
     end
     
-    state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
-    state_combs = padarray(state_combs, [0 1], 0, 'pre');
-    state_combs = padarray(state_combs, [0 1], statemax, 'post');
-    load('bag.mat')
+%     state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
+%     state_combs = padarray(state_combs, [0 1], 0, 'pre');
+%     state_combs = padarray(state_combs, [0 1], statemax, 'post');
+    load('bag50.mat')
 
     nmotors = 2;
     ntorques = 5; % Should be odd number
