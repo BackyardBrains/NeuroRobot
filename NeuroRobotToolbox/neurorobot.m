@@ -7,7 +7,7 @@ camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 1;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
-use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
+use_cnn = 1;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
@@ -125,12 +125,15 @@ load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
 vis_pref_names = {'Red', 'red-temp', 'Green', ...
-    'green-temp', 'Blue', 'blue-temp'};
+    'green-temp', 'Blue', 'blue-temp', ...
+    'Movement'};
 n_basic_vis_features = length(vis_pref_names);
+
 if use_cnn
-    load object_strs
-    load object_ns
-    vis_pref_names = [vis_pref_names, object_strs];
+    labels = readcell('alllabels.txt');
+    object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
+    object_strs = labels(object_ns);
+    vis_pref_names = [vis_pref_names, object_strs'];
     score = zeros(1, 1000);
 elseif use_rcnn
     vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
