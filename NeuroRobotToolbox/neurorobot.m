@@ -37,7 +37,7 @@ use_profile = 0;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'QController 1', 'SpinLED'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Controller 1', 'SpinLED'};
 
 
 %% Clear timers - why is this used?
@@ -124,10 +124,9 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
-vis_pref_names = {'red', 'red-left', 'red-right', ...
-    'green', 'green-left', 'green-right', ...
-    'blue', 'blue-left', 'blue-right', ...
-    'movement', 'movement-left', 'movement-right'};
+vis_pref_names = {'red', 'green', 'blue', ...
+    'red-temp', 'green-temp', 'blue-temp', ...
+    'movement'};
 n_basic_vis_features = length(vis_pref_names);
 if use_cnn
     load object_strs

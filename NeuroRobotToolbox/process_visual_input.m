@@ -39,9 +39,16 @@ for ncam = 1:2
             this_left_score = 0;
             this_right_score = 0;
         end
-        vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
-        vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
-        vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
+%         vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
+%         vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
+%         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
+
+        vis_pref_vals(ncol, ncam) = this_score;
+        if ncam == 1
+            vis_pref_vals(ncol + 3, ncam) = this_left_score;
+        else
+            vis_pref_vals(ncol + 3, ncam) = this_right_score;
+        end
 
     end
 
@@ -63,9 +70,7 @@ for ncam = 1:2
         x = [0 0 0];
     end
 
-    vis_pref_vals(10, ncam) = this_score;
-    vis_pref_vals(11, ncam) = this_left_score;
-    vis_pref_vals(12, ncam) = this_right_score;
+    vis_pref_vals(7, ncam) = this_score;
     
     % Get object classification scores
     if use_cnn
