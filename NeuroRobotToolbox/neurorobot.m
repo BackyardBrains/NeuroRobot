@@ -124,8 +124,8 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brain_im_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
-vis_pref_names = {'red', 'green', 'blue', ...
-    'red-temp', 'green-temp', 'blue-temp'};
+vis_pref_names = {'Red', 'red-temp', 'Green', ...
+    'green-temp', 'Blue', 'blue-temp'};
 n_basic_vis_features = length(vis_pref_names);
 if use_cnn
     load object_strs
