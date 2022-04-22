@@ -2,9 +2,9 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 0;               % Use robot with RAK5206 or RAK5270
+rak_only = 1;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 1;             % Use webcamera
+use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.1;         % Step time in seconds
+pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -23,9 +23,9 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
-raw_or_bag = 1;             % 1 = raw state, 2 = bag state
-use_controllers = 0;        % Add deep net controllers as scripts
+save_experiences = 1;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
+raw_or_bag = 2;             % 1 = raw state, 2 = bag state
+use_controllers = 1;        % Add deep net controllers as scripts
 
 
 %% Advanced settings
@@ -178,20 +178,22 @@ if save_experiences || use_controllers || dev_mode
         nfeatures = 4;
         statemax = 50; % vis_pref_vals = 50, bag = 1        
     elseif raw_or_bag == 2
-        nfeatures = 500;
+        nfeatures = 5; % must mirror loaded bag
         statemax = 1; % vis_pref_vals = 50, bag = 1
     end
     
 %     state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
 %     state_combs = padarray(state_combs, [0 1], 0, 'pre');
 %     state_combs = padarray(state_combs, [0 1], statemax, 'post');
-    load('bag50.mat')
+    load('bag5.mat')
 
-    nmotors = 2;
-    ntorques = 5; % Should be odd number
-    motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
-    motor_combs = motor_combs * 50;
-    load('agent.mat')
+    if use_controllers
+        nmotors = 2;
+        ntorques = 5; % Should be odd number
+        motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
+        motor_combs = motor_combs * 50;
+        load('agent.mat')
+    end
 
 end
 
