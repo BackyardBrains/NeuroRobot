@@ -2,9 +2,9 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 0;               % Use robot with RAK5206 or RAK5270
+rak_only = 1;               % Use robot with RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 1;             % Use webcamera
+use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
@@ -24,7 +24,7 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
-raw_or_bag = 2;             % 1 = raw state, 2 = bag state
+raw_or_bag = 1;             % 1 = raw state, 2 = bag state
 use_controllers = 0;        % Add deep net controllers as scripts
 
 
