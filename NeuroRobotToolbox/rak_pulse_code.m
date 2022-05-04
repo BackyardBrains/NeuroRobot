@@ -10,13 +10,10 @@ elseif rak_only
     large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);
     this_audio = double(rak_cam.readAudio());
     serial_receive = rak_cam.readSerial();
-    % disp(serial_receive)
-    % length(this_audio)
 end
-% large_frame = histeq(large_frame, 64*4);
 
 if exist('dev_mode', 'var') && dev_mode
-%     tic
     brainless
-%     toc
 end
+
+% disp(serial_receive)
