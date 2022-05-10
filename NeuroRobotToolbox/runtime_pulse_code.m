@@ -80,7 +80,9 @@ end
 
 
 %% Save sensory data and tuples
-thalamocortical_loop
+if save_experiences
+    thalamocortical_loop
+end
 
 
 %%

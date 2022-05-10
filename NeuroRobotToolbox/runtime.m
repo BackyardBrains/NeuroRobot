@@ -9,10 +9,10 @@ clear spikes_step
 
 
 %% Prepare
-if use_profile
-    profile clear
-    profile on
-end
+% if use_profile
+%     profile clear
+%     profile on
+% end
 
 life_timer = tic;
 
@@ -91,10 +91,7 @@ if bluetooth_present
 end
 xstep = 0;
 rak_fail = 0;
-if use_profile
-    profile clear
-    profile on    
-end
+
 if hd_camera
     fs = 32000;
 else
