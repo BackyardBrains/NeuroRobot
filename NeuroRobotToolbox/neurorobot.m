@@ -11,7 +11,7 @@ use_cnn = 0;                % Use a convolutional neural network (Googlenet) for
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 1;       % Use computer microphone to listen
+matlab_audio_rec = 0;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.1;         % Step time in seconds
@@ -165,7 +165,7 @@ inhibition_col = [0.85 0.85 0.85];
 if save_experiences
     rl_action = [0 0];
     rl_reward = 0;
-    load('bag50.mat')
+    load('bag5.mat')
     left_torque_mem = 0;
     right_torque_mem = 0;
 end
@@ -268,11 +268,10 @@ text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'norma
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 clear brain_string
 brain_string{1} = '-- Create new brain --';
-brain_directory = './Brains/*.mat';
-available_brains = dir(brain_directory);
+available_brains = dir('b0_*.mat');
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
-    brain_string{nbrain + 1} = available_brains(nbrain).name(1:end-4);
+    brain_string{nbrain + 1} = available_brains(nbrain).name(4:end-4);
 end
 popup_select_brain = uicontrol('Style', 'popup', 'String', brain_string, 'callback', 'update_brain_name_edit', 'units', 'normalized', ...
     'position', [0.05 0.7 0.35 0.1], 'fontsize', bfsize + 8, 'fontweight', gui_font_weight, 'FontName', gui_font_name);

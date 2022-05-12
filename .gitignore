@@ -7,6 +7,7 @@ NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/Experiences/*.png
 NeuroRobotToolbox/Experiences/*.mat
 NeuroRobotToolbox/vslam
+NeuroRobotToolbox/SpikerBot
 
 OGLdpf.log
 
