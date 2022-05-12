@@ -23,7 +23,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
         mouse_location = get(gca, 'CurrentPoint');
         
         % If the location is inside the brain
-        if sqrt(mouse_location(1, 1)^2 + mouse_location(1, 2)^2) < 2.8 % This should be a custom ROI (brain_im_xy)
+        if sqrt(mouse_location(1, 1)^2 + mouse_location(1, 2)^2) < 2.8 % This should be a custom ROI (brainim_xy)
             
             % Add neuron
             nneurons = nneurons + 1; % This should be carefully changed to 'presynaptic_neuron'

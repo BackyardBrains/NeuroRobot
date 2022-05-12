@@ -37,7 +37,7 @@ brain.network_drive = network_drive;
 brain.bg_neurons = bg_neurons;
 
 % Save brain
-brain_file_name = strcat('b0_', brain_name, '.mat');
+brain_file_name = strcat('.\Brains\', brain_name, '.mat');
 save(brain_file_name, 'brain')
 if exist('button_save', 'var') && isvalid(button_save) && ~restarting
     for ii = 1:-0.05:0.8

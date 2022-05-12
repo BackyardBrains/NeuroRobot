@@ -1,6 +1,6 @@
 %% Load or initialize brain
 if brain_selection_val > 1
-    load(strcat('b0_', load_name, '.mat'))
+    load(strcat('.\Brains\', load_name, '.mat'))
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;
     connectome = brain.connectome;

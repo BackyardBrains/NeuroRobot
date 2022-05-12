@@ -121,7 +121,7 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
 ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
-load('brain_im_xy')
+load('brainim_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
 vis_pref_names = {'Red', 'red-temp', 'Green', ...
@@ -268,10 +268,10 @@ text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'norma
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 clear brain_string
 brain_string{1} = '-- Create new brain --';
-available_brains = dir('b0_*.mat');
+available_brains = dir('.\Brains\*.mat');
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
-    brain_string{nbrain + 1} = available_brains(nbrain).name(4:end-4);
+    brain_string{nbrain + 1} = available_brains(nbrain).name(1:end-4);
 end
 popup_select_brain = uicontrol('Style', 'popup', 'String', brain_string, 'callback', 'update_brain_name_edit', 'units', 'normalized', ...
     'position', [0.05 0.7 0.35 0.1], 'fontsize', bfsize + 8, 'fontweight', gui_font_weight, 'FontName', gui_font_name);

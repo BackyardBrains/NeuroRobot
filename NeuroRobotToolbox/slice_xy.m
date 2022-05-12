@@ -39,5 +39,5 @@ hold on
 % x = (x * 5) - 3;
 % y = (y * 5.3) - 3;
 
-brain_im_xy = [x y];
-% save('brain_im_xy', 'brain_im_xy');
+brainim_xy = [x y];
+% save('brainim_xy', 'brain_im_xy');
