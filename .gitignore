@@ -8,6 +8,7 @@ NeuroRobotToolbox/Experiences/*.png
 NeuroRobotToolbox/Experiences/*.mat
 NeuroRobotToolbox/vslam
 SpikerBot*
+SpikerBot_resources*
 
 OGLdpf.log
 
