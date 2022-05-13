@@ -268,7 +268,11 @@ text_load = uicontrol('Style', 'text', 'String', 'Select brain', 'units', 'norma
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 clear brain_string
 brain_string{1} = '-- Create new brain --';
-available_brains = dir('.\Brains\*.mat'); % This must be manually added to path in Matlab??
+if ispc
+    available_brains = dir('.\Brains\*.mat');
+elseif ismac
+    available_brains = dir('./Brains/*.mat');
+end
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
     brain_string{nbrain + 1} = available_brains(nbrain).name(1:end-4);
