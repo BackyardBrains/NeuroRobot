@@ -27,7 +27,7 @@ else
     
     text_brain_info.String = popup_select_brain.String{popup_select_brain.Value};
     
-    load(strcat(popup_select_brain.String{popup_select_brain.Value}, '.mat'))
+    load(strcat('.\Brains\', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
     brain_edit_name.String = popup_select_brain.String{popup_select_brain.Value};
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;
