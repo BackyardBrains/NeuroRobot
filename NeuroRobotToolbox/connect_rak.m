@@ -16,10 +16,10 @@ drawnow
 
 if rak_only
     try
-    if (~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac)
-        disp('Building mex')
-        rak_mex_build
-    end
+%     if (~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac)
+%         disp('Building mex')
+%         rak_mex_build
+%     end
     
     try % This cause may cause crash here as well??
         disp('check 1')
@@ -58,7 +58,7 @@ if rak_only
     catch exception
         disp('rak connect failed')
         this_error = exception.message;
-        save('horse.mat', 'this_error')
+        msgbox(this_error)
         
     end
 end
