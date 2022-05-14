@@ -57,6 +57,9 @@ if rak_only
     end
     catch
         disp('rak connect failed')
+        fid = fopen('log.txt', 'wt');
+        fprintf(fid, lasterror().message)
+        
     end
 end
 

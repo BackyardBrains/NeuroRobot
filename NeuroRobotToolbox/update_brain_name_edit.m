@@ -29,8 +29,10 @@ else
     
     if ispc
         load(strcat('.\Brains\', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
-    elseif ismac
+    elseif ismac && ~isdeployed
         load(strcat('./Brains/', popup_select_brain.String{popup_select_brain.Value}, '.mat'))
+    elseif ismac && isdeployed
+        load(strcat(popup_select_brain.String{popup_select_brain.Value}, '.mat'))
     end
 
     brain_edit_name.String = popup_select_brain.String{popup_select_brain.Value};

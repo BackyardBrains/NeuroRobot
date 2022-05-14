@@ -2,8 +2,10 @@
 if brain_selection_val > 1
     if ispc
         load(strcat('.\Brains\', load_name, '.mat'))
-    elseif ismac
+    elseif ismac && ~isdeployed
         load(strcat('./Brains/', load_name, '.mat'))
+    elseif ismac && isdeployed
+        load(strcat(load_name, '.mat'))        
     end
     nneurons = brain.nneurons;
     neuron_xys = brain.neuron_xys;

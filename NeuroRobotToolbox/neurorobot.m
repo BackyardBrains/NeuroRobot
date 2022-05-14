@@ -270,9 +270,14 @@ clear brain_string
 brain_string{1} = '-- Create new brain --';
 if ispc
     available_brains = dir('.\Brains\*.mat');
-elseif ismac
+elseif ismac && ~isdeployed
     available_brains = dir('./Brains/*.mat');
+elseif ismac && isdeployed
+    available_brains = struct;
+    available_brains(1,1).name = '3Jane.mat';
+    available_brains(2,1).name = 'Chopin.mat';
 end
+
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
     brain_string{nbrain + 1} = available_brains(nbrain).name(1:end-4);

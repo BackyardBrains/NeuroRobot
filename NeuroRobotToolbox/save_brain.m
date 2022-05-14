@@ -39,8 +39,10 @@ brain.bg_neurons = bg_neurons;
 % Save brain
 if ispc
     brain_file_name = strcat('.\Brains\', brain_name, '.mat');
-elseif ismac
+elseif ismac && ~isdeployed
     brain_file_name = strcat('./Brains/', brain_name, '.mat');
+elseif ismac && isdeployed
+    brain_file_name = strcat(brain_name, '.mat');
 end
 
 save(brain_file_name, 'brain')
