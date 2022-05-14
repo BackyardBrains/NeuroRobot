@@ -59,7 +59,6 @@ if rak_only
         disp('rak connect failed')
         this_error = exception.message;
         msgbox(this_error)
-        
     end
 end
 

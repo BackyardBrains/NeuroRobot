@@ -45,7 +45,13 @@ elseif ismac && isdeployed
     brain_file_name = strcat(brain_name, '.mat');
 end
 
-save(brain_file_name, 'brain')
+try
+    save(brain_file_name, 'brain')
+catch exception
+    this_error = exception.message;
+    msgbox(this_error)
+end
+
 if exist('button_save', 'var') && isvalid(button_save) && ~restarting
     for ii = 1:-0.05:0.8
         button_save.BackgroundColor = [0.8 ii 0.8];
