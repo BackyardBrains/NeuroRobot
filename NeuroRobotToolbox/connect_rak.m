@@ -55,9 +55,9 @@ if rak_only
         rak_cam_w = rak_cam.readVideoWidth();
         connect_success = 1;
     end
-    catch
+    catch exception
         disp('rak connect failed')
-        this_error = lasterror().message;
+        this_error = exception.message;
         save('horse.mat', 'this_error')
         
     end
