@@ -1,15 +1,20 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
   <configuration file="C:\Users\Christopher Harris\NeuroRobot\SpikerBot.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="SpikerBot" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>SpikerBot</param.appname>
-    <param.icon />
-    <param.icons />
+    <param.icon>${PROJECT_ROOT}\SpikerBot_resources\icon.ico</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}\SpikerBot_resources\icon_48.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_resources\icon_32.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_resources\icon_24.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_resources\icon_16.png</file>
+    </param.icons>
     <param.version>1.0</param.version>
-    <param.authnamewatermark />
+    <param.authnamewatermark>Christopher Harris</param.authnamewatermark>
     <param.email />
     <param.company />
     <param.summary />
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\Gallery\robot.jpg</param.screenshot>
     <param.guid />
     <param.installpath.string>\SpikerBot\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
@@ -33,7 +38,7 @@
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.web.mcr.name>Install_SpikerBot_Win</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
@@ -49,15 +54,11 @@
 	 -?  print help on how to use the application 
 	 input arguments</param.help.text>
     <unset>
-      <param.icon />
-      <param.icons />
       <param.version />
-      <param.authnamewatermark />
       <param.email />
       <param.company />
       <param.summary />
       <param.description />
-      <param.screenshot />
       <param.guid />
       <param.installpath.string />
       <param.installpath.combo />
@@ -74,7 +75,6 @@
       <param.web.mcr />
       <param.package.mcr />
       <param.no.mcr />
-      <param.web.mcr.name />
       <param.package.mcr.name />
       <param.no.mcr.name />
       <param.windows.command.prompt />
@@ -102,23 +102,6 @@
       <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\Utility.p</file>
       <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\extractsessioninfomex.mexw64</file>
       <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\ipcam.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\agent.mat</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\bag5.mat</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\brainim_xy.mat</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\combinator.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\connect_rak.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\draw_brain.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\draw_fig_runtime.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\ESP32SocketClient.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\linspecer.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\load_or_initialize_brain.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_matlab.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\NeuroRobot_MatlabBridge.mexw64</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\rcnn5heads.mat</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\runtime.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\startup_complete.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\tts.m</file>
-      <file>${PROJECT_ROOT}\NeuroRobotToolbox\workspace2.jpg</file>
     </fileset.depfun>
     <build-deliverables>
       <file location="${PROJECT_ROOT}\SpikerBot\for_testing" name="splash.png" optional="false">C:\Users\Christopher Harris\NeuroRobot\SpikerBot\for_testing\splash.png</file>
