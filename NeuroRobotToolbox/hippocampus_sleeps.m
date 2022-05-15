@@ -11,8 +11,8 @@ nframes = length(frames);
 % imageIndex = indexImages(ims);
 
 %% Create Bag of Features
-bag = bagOfFeatures(ims, 'TreeProperties', [1 50]);
-save('bag50.mat', 'bag')
+bag = bagOfFeatures(ims, 'TreeProperties', [1 5]);
+% save('bag50.mat', 'bag')
 nfeatures = bag.NumVisualWords;
 disp(horzcat('Hippocampus slept ', num2str(round(toc/60/60)), ' hrs'))
 
