@@ -10,13 +10,13 @@
     </param.icons>
     <param.version>1.0</param.version>
     <param.authnamewatermark>Christopher Harris</param.authnamewatermark>
-    <param.email />
-    <param.company />
-    <param.summary />
+    <param.email>christoper@backyardbrains.com</param.email>
+    <param.company>Backyard Brains</param.company>
+    <param.summary>Let's build brains together!</param.summary>
     <param.description />
     <param.screenshot>${PROJECT_ROOT}\Gallery\robot.jpg</param.screenshot>
     <param.guid />
-    <param.installpath.string>\SpikerBot\</param.installpath.string>
+    <param.installpath.string>\Backyard Brains\SpikerBot\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
     <param.logo />
     <param.install.notes />
@@ -55,9 +55,6 @@
 	 input arguments</param.help.text>
     <unset>
       <param.version />
-      <param.email />
-      <param.company />
-      <param.summary />
       <param.description />
       <param.guid />
       <param.installpath.string />
