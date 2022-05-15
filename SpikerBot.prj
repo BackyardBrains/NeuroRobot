@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="758433275" file="C:\Users\Christopher Harris\NeuroRobot\SpikerBot.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="SpikerBot" preferred-package-location="C:\Users\Christopher Harris\NeuroRobot\SpikerBot\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="3785830717" file="C:\Users\Christopher Harris\NeuroRobot\SpikerBot.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="SpikerBot" preferred-package-location="C:\Users\Christopher Harris\NeuroRobot\SpikerBot\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>SpikerBot</param.appname>
     <param.icon>${PROJECT_ROOT}\SpikerBot_resources\icon.ico</param.icon>
     <param.icons>
@@ -29,12 +29,16 @@
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
     <param.support.packages>
+      <item>&lt;package displayname="IP Cameras" enabled="false" name="IP Cameras" product="MATLAB"&gt;
+   &lt;thirdparty downloadurl="" name="Cisco OpenH264 library to decode H.264 video stream. Get more details" url="www.mathworks.com/help/supportpkg/ipcamera/ug/ip-camera-acquistion-overview.html"/&gt;
+&lt;/package&gt;</item>
       <item>&lt;package displayname="OS Generic Video Interface" enabled="false" name="OS Generic Video Interface" product="Image Acquisition Toolbox"/&gt;</item>
+      <item>&lt;package displayname="Deep Learning Toolbox Model for GoogLeNet Network" enabled="false" name="Deep Learning Toolbox Model for GoogLeNet Network" product="Deep Learning Toolbox"/&gt;</item>
     </param.support.packages>
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.web.mcr.name>Install_SpikerBot_Win</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>false</param.windows.command.prompt>
@@ -66,7 +70,6 @@
       <param.web.mcr />
       <param.package.mcr />
       <param.no.mcr />
-      <param.web.mcr.name />
       <param.package.mcr.name />
       <param.no.mcr.name />
       <param.create.log />
@@ -83,7 +86,16 @@
     <fileset.package>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\Brains</file>
     </fileset.package>
-    <fileset.depfun />
+    <fileset.depfun>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\DataUtilityConstants.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\DataUtilityHelper.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\ErrorFlagEnum.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\IpcamController.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\PreviewController.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\+ipcamera\+internal\Utility.p</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\extractsessioninfomex.mexw64</file>
+      <file>C:\ProgramData\MATLAB\SupportPackages\R2022a\toolbox\matlab\hardware\supportpackages\ipcamera\ipcam.m</file>
+    </fileset.depfun>
     <build-deliverables>
       <file location="${PROJECT_ROOT}\SpikerBot\for_testing" name="splash.png" optional="false">C:\Users\Christopher Harris\NeuroRobot\SpikerBot\for_testing\splash.png</file>
       <file location="${PROJECT_ROOT}\SpikerBot\for_testing" name="SpikerBot.exe" optional="false">C:\Users\Christopher Harris\NeuroRobot\SpikerBot\for_testing\SpikerBot.exe</file>
