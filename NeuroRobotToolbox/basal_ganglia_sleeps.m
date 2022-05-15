@@ -175,7 +175,6 @@ agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
 agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 
-%%
 training_opts = rlTrainingOptions;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.MaxEpisodes = 50000;
