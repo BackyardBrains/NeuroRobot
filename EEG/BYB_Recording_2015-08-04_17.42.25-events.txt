@@ -1,0 +1,6 @@
+# Marker IDs can be arbitrary strings.
+# Marker ID,	Time (in s)
+Close,	5.3240
+Open,	11.8728
+Close,	16.1320
+Open,	22.5617
