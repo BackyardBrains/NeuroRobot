@@ -169,6 +169,10 @@ if nneurons % This prevents error caused by running script after deleting all ne
         end
     end
     
+    if (xstep * pulse_period) < init_motor_block_in_s
+        motor_command = [0 0 0 0 speaker_tone];
+    end
+
     % Repackage
     r_torque = motor_command(1,1);
     r_dir = motor_command(1,2);

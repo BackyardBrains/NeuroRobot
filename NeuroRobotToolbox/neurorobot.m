@@ -26,7 +26,7 @@ brain_gen = 0;              % Use "Create New Brain" to algorithmically generate
 save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
 raw_or_bag = 0;             % 1 = raw state, 2 = bag state
 use_controllers = 0;        % Add deep net controllers as scripts
-
+init_motor_block_in_s = 3;  
 
 %% Advanced settings
 use_speech2text = 0;        % In progress, requires key
