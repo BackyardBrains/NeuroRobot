@@ -1,7 +1,7 @@
 
-close all
-clear
-clc
+% close all
+% clear
+% clc
 
 %% States
 nsensors = 2;

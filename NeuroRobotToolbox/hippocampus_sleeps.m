@@ -2,12 +2,12 @@
 
 tic
 
-% %% Create image datastore (run in png directory)
-% ims = imageDatastore('.\Experiences\*.png');
-% n = length(ims.Files);
-% ims = subset(ims, randsample(n, round(n/1)));
-% frames = readall(ims);
-% nframes = length(frames);
+%% Create image datastore (run in png directory)
+ims = imageDatastore('.\Experiences\*.png');
+n = length(ims.Files);
+ims = subset(ims, randsample(n, round(n/1)));
+frames = readall(ims);
+nframes = length(frames);
 % % imageIndex = indexImages(ims);
 
 %% Create Bag of Features
