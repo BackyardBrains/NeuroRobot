@@ -79,7 +79,7 @@ if use_esp32
         
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
-        rak_cam = ipcam(url);
+%         rak_cam = ipcam(url);
         rak_cam_h = 240;
         rak_cam_w = 320;   
         
@@ -90,10 +90,10 @@ if use_esp32
             esp32WebsocketClient.delete();
             evalin('base','clear esp32WebsocketClient');
         end
-        
-        esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');%robot is AP
+%         esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');%robot is AP
         %esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');%use local AP
         esp32WebsocketClient.send('d:121;d:221;d:321;d:421;d:521;d:621;');
+
         connect_success = 1;
 
     catch
@@ -106,9 +106,9 @@ if use_webcam
     try
         delete(imaqfind)
         if ispc
-            rak_cam = videoinput('winvideo', 1);
+%             rak_cam = videoinput('winvideo', 1);
         elseif ismac
-            rak_cam = videoinput('macvideo', 1);
+%             rak_cam = videoinput('macvideo', 1);
         else
             disp('Unknown OS. Webcam not found.')
         end
