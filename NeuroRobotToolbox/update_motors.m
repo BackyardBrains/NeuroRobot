@@ -22,67 +22,72 @@ if nneurons % This prevents error caused by running script after deleting all ne
     end
     % disp('2')
     if these_speaker_neurons
-        if ~vocal_buffer && max(these_tones) <= length(audio_out_fs)
-    %             disp('1')
-            if length(these_speaker_neurons) > 1
-                these_speaker_neurons = these_speaker_neurons(1);
-                disp('Too many custom sound neurons: playing first sound only')
-            end
-            nsound = neuron_tones(these_speaker_neurons, 1);
-            if rak_only && nsound <= length(n_out_sounds)
-                audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
-                rak_cam.sendAudio(audio_file_name);
-    %         elseif rak_only
-    %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
-    %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
-    %             rak_cam.sendAudio(audio_file_name);            
-            elseif nsound && audio_out_fs(nsound) % so for now...
-                soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
-            end
-    %         disp('3')
-            vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
-        elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)
-            speaker_tone = these_tones(1);
-        elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~(rak_only || use_esp32)        
-    
-            if matlab_speaker_ctrl
-                dxfs=16000;
-                dxduration=pulse_period;
-                dxvalues=1/dxfs:1/dxfs:dxduration;
-    
-                dxa = zeros(size(dxvalues));           
-                for dxii = 1:length(these_tones)
-                    dxfreq = these_tones(dxii);
-                    dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+        try
+            if ~vocal_buffer && max(these_tones) <= length(audio_out_fs)
+        %             disp('1')
+                if length(these_speaker_neurons) > 1
+                    these_speaker_neurons = these_speaker_neurons(1);
+                    disp('Too many custom sound neurons: playing first sound only')
                 end
-                dxa = dxa / length(these_tones);
-                
-                dxa2 = ones(size(dxvalues));
-                dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
-                dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
-                dxa = dxa .* dxa2;
-                
-                speaker_obj(dxa');
-                speaker_tone = 0;
-            else            
-                dxfs=16000;
-                dxduration=pulse_period*2;
-                dxvalues=1/dxfs:1/dxfs:dxduration;
-    
-                dxa = zeros(size(dxvalues));
-                for dxii = 1:length(these_tones)
-                    dxfreq = these_tones(dxii);
-                    dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+                nsound = neuron_tones(these_speaker_neurons, 1);
+                if rak_only && nsound <= length(n_out_sounds)
+                    audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
+                    rak_cam.sendAudio(audio_file_name);
+        %         elseif rak_only
+        %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
+        %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
+        %             rak_cam.sendAudio(audio_file_name);            
+                elseif nsound && audio_out_fs(nsound) % so for now...
+                    soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
                 end
-    
-                dxa2 = ones(size(dxvalues));
-                dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
-                dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
-                dxa = dxa .* dxa2;            
-                
-                soundsc(dxa, dxfs)
-                speaker_tone = 0;
+        %         disp('3')
+                vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
+            elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)
+                speaker_tone = these_tones(1);
+            elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~(rak_only || use_esp32)        
+        
+                if matlab_speaker_ctrl
+                    dxfs=16000;
+                    dxduration=pulse_period;
+                    dxvalues=1/dxfs:1/dxfs:dxduration;
+        
+                    dxa = zeros(size(dxvalues));           
+                    for dxii = 1:length(these_tones)
+                        dxfreq = these_tones(dxii);
+                        dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+                    end
+                    dxa = dxa / length(these_tones);
+                    
+                    dxa2 = ones(size(dxvalues));
+                    dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+                    dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+                    dxa = dxa .* dxa2;
+                    
+                    speaker_obj(dxa');
+                    speaker_tone = 0;
+                else            
+                    dxfs=16000;
+                    dxduration=pulse_period*2;
+                    dxvalues=1/dxfs:1/dxfs:dxduration;
+        
+                    dxa = zeros(size(dxvalues));
+                    for dxii = 1:length(these_tones)
+                        dxfreq = these_tones(dxii);
+                        dxa = dxa + sin(2*pi*dxfreq*dxvalues);
+                    end
+        
+                    dxa2 = ones(size(dxvalues));
+                    dxa2(1:500) = dxa2(1:500) .* [0.002:0.002:1];
+                    dxa2((end-499):end) = dxa2((end-499):end) .* [1:-0.002:0.002];             
+                    dxa = dxa .* dxa2;            
+                    
+                    soundsc(dxa, dxfs)
+                    speaker_tone = 0;
+                end
             end
+        catch exception
+            this_error = exception.message;
+            disp(this_error)
         end
     else
         speaker_tone = 0;

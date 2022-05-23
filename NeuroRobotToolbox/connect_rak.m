@@ -16,45 +16,45 @@ drawnow
 
 if rak_only
     try
-%     if (~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac)
-%         disp('Building mex')
-%         rak_mex_build
-%     end
-    
-    try % This cause may cause crash here as well??
-        disp('check 1')
-        rak_cam_base = evalin('base','rak_cam');
-        disp('check 2')
-        if rak_cam_base.isRunning()
-            rak_cam_base.stop();
+    %     if (~exist('NeuroRobot_MatlabBridge.mexw64', 'file') && ispc) || (~isfile('NeuroRobot_MatlabBridge.mexmaci64') && ismac)
+    %         disp('Building mex')
+    %         rak_mex_build
+    %     end
+        
+        try % This cause may cause crash here as well??
+            disp('check 1')
+            rak_cam_base = evalin('base','rak_cam');
+            disp('check 2')
+            if rak_cam_base.isRunning()
+                rak_cam_base.stop();
+            end
+            disp('check 3')
+            clear rak_cam_base
+            disp('Previous rak_cam cleared')
+        catch
+            disp('No previous rak_cam')
         end
-        disp('check 3')
-        clear rak_cam_base
-        disp('Previous rak_cam cleared')
-    catch
-        disp('No previous rak_cam')
-    end
-    clear rak_cam
-    rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
-%         rak_cam = NeuroRobot_matlab('10.0.0.1', '80');        
-    disp('rak_cam created')
-    rak_cam.start();
-    if ~rak_cam.isRunning()
-        disp('rak_cam created but not running')
-        if hd_camera
-            rak_cam_h = 1080;
-            rak_cam_w = 1920;
+        clear rak_cam
+        rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+    %         rak_cam = NeuroRobot_matlab('10.0.0.1', '80');        
+        disp('rak_cam created')
+        rak_cam.start();
+        if ~rak_cam.isRunning()
+            disp('rak_cam created but not running')
+            if hd_camera
+                rak_cam_h = 1080;
+                rak_cam_w = 1920;
+            else
+                rak_cam_h = 720;
+                rak_cam_w = 1280;                
+            end
         else
-            rak_cam_h = 720;
-            rak_cam_w = 1280;                
+            disp('rak_cam is running')
+            rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
+            rak_cam_h = rak_cam.readVideoHeight();
+            rak_cam_w = rak_cam.readVideoWidth();
+            connect_success = 1;
         end
-    else
-        disp('rak_cam is running')
-        rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
-        rak_cam_h = rak_cam.readVideoHeight();
-        rak_cam_w = rak_cam.readVideoWidth();
-        connect_success = 1;
-    end
     catch exception
         disp('rak connect failed')
         this_error = exception.message;
