@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 0;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.25;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -173,15 +173,17 @@ if save_experiences || use_controllers || dev_mode
 
     if raw_or_bag == 1
         nfeatures = 4;
-        statemax = 50; % vis_pref_vals = 50, bag = 1        
-    elseif raw_or_bag == 2
+        statemax = 50; % vis_pref_vals = 50, bag = 1         
+    elseif raw_or_bag == 2 || use_controllers
         nfeatures = 5; % must mirror loaded bag
         statemax = 1; % vis_pref_vals = 50, bag = 1
     end
     
-%     state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
-%     state_combs = padarray(state_combs, [0 1], 0, 'pre');
-%     state_combs = padarray(state_combs, [0 1], statemax, 'post');
+    state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
+    state_combs = padarray(state_combs, [0 1], 0, 'pre');
+    state_combs = padarray(state_combs, [0 1], statemax, 'post');
+    nstates = size(state_combs, 1);
+
     load('bag5.mat')
 
     if use_controllers
@@ -189,7 +191,7 @@ if save_experiences || use_controllers || dev_mode
         ntorques = 5; % Should be odd number
         motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
         motor_combs = motor_combs * 50;
-        load('agent.mat')
+        load('agent1a.mat')
     end
 
 end

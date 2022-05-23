@@ -34,7 +34,7 @@ transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Experiences\*tuple.mat');
+tuples = dir('.\Experiences\Recording_1\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
@@ -51,7 +51,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
     end
 
     % Load data
-    load(horzcat('.\Experiences\', tuples(ntuple).name))
+    load(horzcat('.\Experiences\Recording_1\', tuples(ntuple).name))
 
     if length(rl_tuple{1}) == 10
 
@@ -184,7 +184,7 @@ training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = false;
 trainingStats = train(agent,env, training_opts);
 
-save('agent4', 'agent')
+save('agent1b', 'agent')
 %% Test controller
 
 % this_action = getAction(agent, 1)
@@ -231,7 +231,7 @@ clf
 % ngroups = 100;
 % clusts = cluster(links,'maxclust',ngroups);
 % for ii = 1:ngroups
-%     figure(ii)
+%     figure(ii) 
 %     clf
 %     montage({frames{clusts == ii}})
 %     title(horzcat('Group ', num2str(ii)))

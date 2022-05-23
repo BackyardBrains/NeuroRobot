@@ -4,7 +4,7 @@
 [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
 state_vector = [left_featureVector right_featureVector];
 state_vector = padarray(state_vector, [0 1], 0, 'pre');
-state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
+state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change 1 to 50 to do raw state
 
 r = corr(state_vector', state_combs');
 [~, this_state] = max(r);
