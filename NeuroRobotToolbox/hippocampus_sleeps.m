@@ -1,29 +1,12 @@
 
 
 %% Create image database
-ims = imageDatastore('.\Experiences\Recording_2-4\*.png');
+ims = imageDatastore('.\Experiences\Recording_6\*.png');
 n = length(ims.Files);
 ims = subset(ims, randsample(n, round(n/2)));
 frames = readall(ims);
 nframes = length(frames)
 % % imageIndex = indexImages(ims);
-
-% alt
-imgSet = imageSet('.\Experiences\Recording_2-4\');
-MemImages_tocall = indexImages(imgSet);
-
-for ii = 1:10
-    id1 = randsample(n)
-    large_frame = readimage(imgSet,8076)
-    [IDs,scores]=retrieveImages(large_frame,MemImages_tocall,'NumResults',Inf);
-    closest_match=memory_images{IDs(1)}; %%display this
-    figure(1)
-    clf
-    subplot(1,2,1)
-    imshow()
-    subplot(1,2,2)
-    imshow()
-end
 
 %% Create Bag of Features
 bag = bagOfFeatures(ims, 'TreeProperties', [1 5]);
