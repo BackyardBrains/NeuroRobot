@@ -1,18 +1,18 @@
 
 
 %% Create image database
-ims = imageDatastore('.\Experiences\Recording_6\*.png');
+ims = imageDatastore('.\Experiences\Recording_2-9\*.png');
 n = length(ims.Files);
-ims = subset(ims, randsample(n, round(n/2)));
+ims = subset(ims, randsample(n, round(n/3)));
 frames = readall(ims);
 nframes = length(frames)
 % % imageIndex = indexImages(ims);
 
 %% Create Bag of Features
 bag = bagOfFeatures(ims, 'TreeProperties', [1 5]);
-save('bag_rec_2-4.mat', 'bag')
+save('bag5_rec_2-9.mat', 'bag')
 nfeatures = bag.NumVisualWords;
-disp(horzcat('Hippocampus slept ', num2str(round(toc/60/60)), ' hrs'))
+% disp(horzcat('Hippocampus slept ', num2str(round(toc/60/60)), ' hrs'))
 
 %% Get feature vectors
 xdata = zeros(nframes, nfeatures);
@@ -33,7 +33,7 @@ clf
 ngroups = 200;
 clusts = cluster(links,'maxclust',ngroups);
 for ii = 1:ngroups
-    if sum(clusts == ii) > 20
+    if sum(clusts == ii) > 50
         figure(ii)
         clf
         montage({frames{clusts == ii}})

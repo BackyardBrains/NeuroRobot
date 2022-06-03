@@ -1,7 +1,7 @@
 
-% close all
-% clear
-% clc
+close all
+clear
+clc
 
 %% States
 nsensors = 2;
@@ -34,14 +34,14 @@ transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Experiences\*tuple.mat');
+tuples = dir('.\Experiences\Recording_2-9\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = randsample(ntuples, round(ntuples/1)); % this will need to be prioritized
+rand_tuples = randsample(ntuples, round(ntuples/3)); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
@@ -51,7 +51,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
     end
 
     % Load data
-    load(horzcat('.\Experiences\', tuples(ntuple).name))
+    load(horzcat('.\Experiences\Recording_2-9\', tuples(ntuple).name))
 
     if length(rl_tuple{1}) == 10
 
@@ -109,9 +109,9 @@ figure(1)
 clf
 
 subplot(3,1,1)
-histogram(rl_data(:,1), 'binwidth', 20)
+histogram(rl_data(:,1), 'binwidth', 10)
 hold on
-histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 20)
+histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 10)
 set(gca, 'yscale', 'log')
 title('States and Rewarded States')
 xlabel('State')
@@ -170,7 +170,7 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %%
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.05;
+agent_opt.DiscountFactor = 0.01;
 agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
 agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
 agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
@@ -184,7 +184,8 @@ training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = false;
 trainingStats = train(agent,env, training_opts);
 
-save('agent_from_rec_2-4', 'agent')
+save('agent_7-9_DiscountFactor_0-01', 'agent')
+
 %% Test controller
 
 % this_action = getAction(agent, 1)
