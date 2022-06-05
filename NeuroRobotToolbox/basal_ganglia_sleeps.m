@@ -34,24 +34,24 @@ transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Experiences\Recording_2-9\*tuple.mat');
+tuples = dir('.\Transfer\*tuple.mat');
 ntuples = size(tuples, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = randsample(ntuples, round(ntuples/3)); % this will need to be prioritized
+rand_tuples = randsample(ntuples, round(ntuples/2)); % this will need to be prioritized
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
     if ~rem(ntuple, 100)
-        disp(horzcat('count: ', num2str(counter), ', ntuple: ', num2str(ntuple)))
+        disp(num2str(counter/length(rand_tuples)))
     end
 
     % Load data
-    load(horzcat('.\Experiences\Recording_2-9\', tuples(ntuple).name))
+    load(horzcat('.\Transfer\', tuples(ntuple).name))
 
     if length(rl_tuple{1}) == 10
 
@@ -98,7 +98,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         rl_data(ntuple, 3) = rl_reward;
         rl_data(ntuple, 4) = rl_next_state;
 
-        disp(num2str(rl_state))
+%         disp(num2str(rl_state))
     
     end
 
@@ -170,21 +170,21 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %%
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.01;
-agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+% agent_opt.DiscountFactor = 0.9;
+% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxStepsPerEpisode = 50;
 training_opts.MaxEpisodes = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
-training_opts.UseParallel = false;
+training_opts.UseParallel = true;
 trainingStats = train(agent,env, training_opts);
 
-save('agent_7-9_DiscountFactor_0-01', 'agent')
+save('agent_10-11_Steps_50', 'agent')
 
 %% Test controller
 
