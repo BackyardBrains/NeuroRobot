@@ -41,7 +41,11 @@ rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
+<<<<<<< HEAD
 rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+=======
+rand_tuples = randsample(ntuples, round(ntuples/2)); % this will need to be prioritized
+>>>>>>> 4dca2ea8527f142fb7bb754629c30f353a8259cf
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
@@ -170,15 +174,20 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %%
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.01;
-agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+% agent_opt.DiscountFactor = 0.9;
+% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
+<<<<<<< HEAD
 training_opts.MaxStepsPerEpisode = 100;
 training_opts.MaxEpisodes = 10000;
+=======
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxEpisodes = 1000;
+>>>>>>> 4dca2ea8527f142fb7bb754629c30f353a8259cf
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
