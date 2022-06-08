@@ -1,18 +1,13 @@
 
+
 close all
 clear
 clc
 
 %% States
 nsensors = 2;
-raw_or_bag = 2; % 1 = raw, 2 = bag
-if raw_or_bag == 1
-    nfeatures = 4;
-    statemax = 50; % vis_pref_vals = 50, bag = 1        
-elseif raw_or_bag == 2
-    nfeatures = 5;
-    statemax = 1; % vis_pref_vals = 50, bag = 1
-end
+nfeatures = 5;
+statemax = 1; % vis_pref_vals = 50, bag = 1
 state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
 state_combs = padarray(state_combs, [0 1], 0, 'pre');
 state_combs = padarray(state_combs, [0 1], statemax, 'post');
@@ -36,21 +31,18 @@ reward_counter = zeros(size(mdp.R));
 %% Get tuples
 tuples = dir('.\Transfer\*tuple.mat');
 ntuples = size(tuples, 1);
-disp(horzcat('ntuples: ', num2str(ntuples)))
 rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-<<<<<<< HEAD
-rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
-=======
-rand_tuples = randsample(ntuples, round(ntuples/2)); % this will need to be prioritized
->>>>>>> 4dca2ea8527f142fb7bb754629c30f353a8259cf
-for ntuple = rand_tuples' % this will need to be prioritized
+rand_tuples = 20001:40000;
+% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
+for ntuple = rand_tuples % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(ntuple, 100)
+    if ~rem(ntuple, round(length(rand_tuples)/10))
         disp(num2str(counter/length(rand_tuples)))
     end
 
@@ -102,8 +94,6 @@ for ntuple = rand_tuples' % this will need to be prioritized
         rl_data(ntuple, 3) = rl_reward;
         rl_data(ntuple, 4) = rl_next_state;
 
-%         disp(num2str(rl_state))
-    
     end
 
 end
@@ -174,33 +164,28 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %%
 agent_opt = rlDQNAgentOptions;
-% agent_opt.DiscountFactor = 0.9;
-% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+agent_opt.DiscountFactor = 0.1;
+agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
-<<<<<<< HEAD
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.MaxEpisodes = 10000;
-=======
-training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.MaxEpisodes = 1000;
->>>>>>> 4dca2ea8527f142fb7bb754629c30f353a8259cf
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats = train(agent,env, training_opts);
 
-save('agent_10-11_Steps_50', 'agent')
+save('agent_hydroga_steps20', 'agent')
 
 %% Test controller
 
 % this_action = getAction(agent, 1)
 
-this_state = randsample(nstates, 1)
-this_action = getAction(agent, this_state)
+% this_state = randsample(nstates, 1)
+% this_action = getAction(agent, this_state)
 
 
 %%
@@ -230,12 +215,12 @@ this_action = getAction(agent, this_state)
 
 
 
-%% Get distances
-dists = pdist(state_data);
-links = linkage(dists, 'average');
-figure(11)
-clf
-[~, ~, o] = dendrogram(links, size(state_data, 1));
+% %% Get distances
+% dists = pdist(state_data);
+% links = linkage(dists, 'average');
+% figure(11)
+% clf
+% [~, ~, o] = dendrogram(links, size(state_data, 1));
 
 % %% Clustering
 % ngroups = 100;
