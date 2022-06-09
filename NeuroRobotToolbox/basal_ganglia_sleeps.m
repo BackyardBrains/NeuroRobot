@@ -1,8 +1,12 @@
 
 
-close all
-clear
-clc
+% close all
+% clear
+% clc
+
+% working_dir = '.\Transfer\';
+working_dir = '.\Experiences\Recording_10\';
+regenerate_rewards = 1;
 
 %% States
 nsensors = 2;
@@ -23,22 +27,27 @@ motor_combs = padarray(motor_combs, [0 1], floor(ntorques/2), 'post');
 nactions = size(motor_combs, 1);
 disp(horzcat('nstates: ', num2str(nactions)))
 
+%% Custom rewards
+if regenerate_rewards
+    serials = dir(strcat(working_dir, '*serial_data.mat'));
+end
+
 %% Markov
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
 %% Get tuples
-tuples = dir('.\Transfer\*tuple.mat');
+tuples = dir(strcat(working_dir, '*tuple.mat'));
 ntuples = size(tuples, 1);
 rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = 20001:40000;
-% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+% rand_tuples = 20001:40000;
+rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
 disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
-for ntuple = rand_tuples % this will need to be prioritized
+for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
@@ -47,7 +56,7 @@ for ntuple = rand_tuples % this will need to be prioritized
     end
 
     % Load data
-    load(horzcat('.\Transfer\', tuples(ntuple).name))
+    load(horzcat(working_dir, tuples(ntuple).name))
 
     if length(rl_tuple{1}) == 10
 
@@ -74,6 +83,17 @@ for ntuple = rand_tuples % this will need to be prioritized
     
         % Get reward
         rl_reward = rl_tuple{3};
+
+        % Get custom reward
+        if regenerate_rewards
+            load(horzcat(working_dir, serials(ntuple).name))
+            this_distance = str2double(serial_data{3});
+%             this_distance(this_distance == 0) = 4000;
+            rl_reward = 4000 / this_distance;
+            if rl_reward == Inf
+                rl_reward = -1;
+            end
+        end
     
         % Get next state
         state_vector = rl_tuple{4};
@@ -164,72 +184,18 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %%
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.1;
-agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+% agent_opt.DiscountFactor = 0.9;
+% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
 training_opts.MaxStepsPerEpisode = 20;
-training_opts.MaxEpisodes = 1000;
+training_opts.MaxEpisodes = 200;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats = train(agent,env, training_opts);
 
-save('agent_hydroga_steps20', 'agent')
-
-%% Test controller
-
-% this_action = getAction(agent, 1)
-
-% this_state = randsample(nstates, 1)
-% this_action = getAction(agent, this_state)
-
-
-%%
-%% Train
-% agent_opts = rlQAgentOptions;
-% agent_opts.DiscountFactor = 0.95;
-% agent_opts.EpsilonGreedyExploration.Epsilon = 0.9;
-% agent_opts.EpsilonGreedyExploration.EpsilonDecay = 0.01;
-% agent_opts.CriticOptimizerOptions = critic_opts;
-% agent = rlQAgent(critic,agent_opts);
-% opt = rlSARSAAgentOptions;
-% agent = rlSARSAAgent(critic,opt);
-% training_opts = rlTrainingOptions;
-% training_opts.MaxStepsPerEpisode = 50;
-% training_opts.MaxEpisodes = 500;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 5;
-% % % training_opts.UseParallel = true;
-% trainingStats = train(agent,env);
-% action = getAction(agent, 13)
-% sim_data = sim(agent,env);
-% cumulativeReward = sum(sim_data.Reward)
-% QTable = getLearnableParameters(getCritic(agent));
-% QTable{1}
-% mdp.TerminalStates = ["s2";"s14"];
-
-
-
-
-% %% Get distances
-% dists = pdist(state_data);
-% links = linkage(dists, 'average');
-% figure(11)
-% clf
-% [~, ~, o] = dendrogram(links, size(state_data, 1));
-
-% %% Clustering
-% ngroups = 100;
-% clusts = cluster(links,'maxclust',ngroups);
-% for ii = 1:ngroups
-%     figure(ii) 
-%     clf
-%     montage({frames{clusts == ii}})
-%     title(horzcat('Group ', num2str(ii)))
-% end
-% figure(ii+1)
-% histogram(clusts, 'binwidth', 1)
+save('agent_1', 'agent')
