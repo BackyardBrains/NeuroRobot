@@ -37,7 +37,8 @@ save_data_and_commands = 0;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Controller 1', 'SpinLED'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
+    'Agent 1', 'Agent 2', 'Agent 3','Agent 4', 'Agent 5'};
 
 
 %% Clear timers - why is this used?
@@ -191,7 +192,17 @@ if save_experiences || use_controllers || dev_mode
         ntorques = 5; % Should be odd number
         motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
         motor_combs = motor_combs * 50;
-        load('agent1a.mat')
+        if use_controllers == 1
+            load('agent_1.mat')
+        elseif use_controllers == 2
+            load('agent_2.mat')
+        elseif use_controllers == 3
+            load('agent_3.mat')
+        elseif use_controllers == 4
+            load('agent_4.mat')
+        elseif use_controllers == 5
+            load('agent_5.mat')    
+        end
     end
 
 end
