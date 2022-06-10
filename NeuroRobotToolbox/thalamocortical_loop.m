@@ -17,9 +17,21 @@ if save_experiences > 0
         right_featureVector = vis_pref_vals([1 4 7 10],2);
         rl_next_state = [left_featureVector' right_featureVector'];
     elseif raw_or_bag == 2 || use_controllers
-        [left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
-        [right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
-        rl_next_state = [left_featureVector right_featureVector];
+        [left_featureVector, words] = encode(bag, left_uframe, 'UseParallel', 0);
+        locs = words.Location;
+        clear left_featureVector_locs
+        for nfeature = 1:5
+            left_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+        end
+        
+        [right_featureVector, words] = encode(bag, right_uframe, 'UseParallel', 0);
+        locs = words.Location;
+        clear right_featureVector_locs
+        for nfeature = 1:5
+            right_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+        end
+        
+        rl_next_state = [left_featureVector left_featureVector_locs right_featureVector right_featureVector_locs];
     end
     
     if ~exist('rl_state', 'var')

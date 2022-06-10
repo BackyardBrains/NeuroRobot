@@ -1,8 +1,20 @@
 
 
-[left_featureVector, ~] = encode(bag, left_uframe, 'UseParallel', 0);
-[right_featureVector, ~] = encode(bag, right_uframe, 'UseParallel', 0);
-state_vector = [left_featureVector right_featureVector];
+[left_featureVector, words] = encode(bag, left_uframe, 'UseParallel', 0);
+locs = words.Location;
+clear left_featureVector_locs
+for nfeature = 1:5
+    left_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+end
+
+[right_featureVector, words] = encode(bag, right_uframe, 'UseParallel', 0);
+locs = words.Location;
+clear right_featureVector_locs
+for nfeature = 1:5
+    right_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+end
+
+state_vector = [left_featureVector left_featureVector_locs right_featureVector right_featureVector_locs];
 state_vector = padarray(state_vector, [0 1], 0, 'pre');
 state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change 1 to 50 to do raw state
 
