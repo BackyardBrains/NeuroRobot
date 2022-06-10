@@ -126,9 +126,19 @@ if nneurons % This prevents error caused by running script after deleting all ne
                 behavior_script_4
             end
         elseif script_running == 5
-            behavior_script_5
+            if rak_only || use_esp32
+                behavior_script_5
+            end            
         elseif script_running == 6
-            behavior_script_6            
+            behavior_script_6
+        elseif script_running == 7
+            behavior_script_7
+        elseif script_running == 8
+            behavior_script_8
+        elseif script_running == 9
+            behavior_script_9
+        elseif script_running == 10
+            behavior_script_10            
         else
             disp('Unknown behavior')
         end
