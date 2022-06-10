@@ -1,11 +1,11 @@
 
 
-% close all
-% clear
-% clc
+close all
+clear
+clc
 
-% working_dir = '.\Transfer\';
-working_dir = '.\Experiences\Recording_10\';
+working_dir = '.\Transfer\';
+% working_dir = '.\Experiences\Recording_10\';
 regenerate_rewards = 1;
 
 %% States
@@ -45,7 +45,8 @@ state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
 % rand_tuples = 20001:40000;
-rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
 for ntuple = rand_tuples' % this will need to be prioritized
 
@@ -89,10 +90,10 @@ for ntuple = rand_tuples' % this will need to be prioritized
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
 %             this_distance(this_distance == 0) = 4000;
-            rl_reward = 4000 / this_distance;
-            if rl_reward == Inf
-                rl_reward = -1;
-            end
+            rl_reward = this_distance / 4000;
+%             if rl_reward == Inf
+%                 rl_reward = -1;
+%             end
         end
     
         % Get next state
@@ -182,7 +183,15 @@ qTable = rlTable(obsInfo, actInfo);
 
 critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
-%%
+%% Shallow Q
+agent_opt = rlQAgentOptions;
+agent = rlQAgent(critic, agent_opt)
+training_opts = rlTrainingOptions;
+training_opts.StopTrainingCriteria = "AverageReward";
+training_opts.ScoreAveragingWindowLength = 10;
+trainingStats = train(agent,env, training_opts);
+
+%% Deep Q
 agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.9;
 % agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
@@ -191,8 +200,8 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 
 training_opts = rlTrainingOptions;
-training_opts.MaxStepsPerEpisode = 20;
-training_opts.MaxEpisodes = 200;
+% training_opts.MaxStepsPerEpisode = 20;
+% training_opts.MaxEpisodes = 200;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
