@@ -1,8 +1,5 @@
 
-
-figure(2)
-clf
-set(2, 'position', [100 100 1280 720])
+set(gcf, 'position', [100 100 1280 720])
 data = zeros(1024, 2);
 clf
 hold on
