@@ -77,14 +77,10 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         end
     end
 
-    if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
-%     if length(rl_tuple{1}) == 20
+%     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
+    if length(rl_tuple{1}) == 10
 
-%         if length(state_vector) == 12;
-%             state_vector([1, 12]) = [];
-%         end
         state_data(ntuple, :) = state_vector;
-%         disp(num2str(state_vector))
         state_vector = padarray(state_vector, [0 1], 0, 'pre');
         state_vector = padarray(state_vector, [0 1], statemax, 'post');  % Change lone 1 to 50 to do vis_pref_vals  
         r = corr(state_vector', state_combs');
@@ -110,11 +106,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         if regenerate_rewards
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
-%             this_distance(this_distance == 0) = 4000;
             rl_reward = this_distance / 4000;
-%             if rl_reward == Inf
-%                 rl_reward = -1;
-%             end
         end
 
         % Get state
@@ -125,10 +117,8 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         if length(rl_tuple{4}) == 20  
 %             if ~rem(counter, 2)
 %                 state_vector([1:5, 11:15]) = [];
-%                 3
 %             else        
 %                 state_vector([6:10, 16:20]) = [];
-%                 4
 %             end
 %         end        
 
@@ -231,7 +221,7 @@ training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_Shallow = train(agent,env, training_opts);
-save('agent_4b', 'agent')
+save('agent_4', 'agent')
 
 %% Deep Q
 agent_opt = rlDQNAgentOptions;
@@ -247,8 +237,5 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats_Deep = train(agent,env, training_opts);
-
-%% Save trained agent
-
 save('agent_5', 'agent')
 
