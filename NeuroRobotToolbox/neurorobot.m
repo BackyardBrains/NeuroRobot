@@ -25,7 +25,7 @@ night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 2;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
 raw_or_bag = 2;             % 1 = raw state, 2 = bag state
-use_controllers = 0;        % Add deep net controllers as scripts
+use_controllers = 2;        % Add deep net controllers as scripts
 init_motor_block_in_s = 2;  
 
 %% Advanced settings
@@ -38,7 +38,7 @@ bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
-    'Agent 1', 'Agent 2', 'Agent 3','Agent 4', 'Agent 5'};
+    'Agent 1', 'Agent 6', 'Agent x','Agent x', 'Agent x'};
 
 
 %% Clear timers - why is this used?
@@ -194,13 +194,10 @@ if save_experiences || use_controllers || dev_mode
         if use_controllers == 1
             load('agent_1.mat')
         elseif use_controllers == 2
-            load('agent_2.mat')
+            load('agent_6.mat')
         elseif use_controllers == 3
-            load('agent_3.mat')
         elseif use_controllers == 4
-            load('agent_4.mat')
         elseif use_controllers == 5
-            load('agent_5.mat')    
         end
     end
 
