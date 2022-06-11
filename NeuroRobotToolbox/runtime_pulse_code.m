@@ -159,12 +159,13 @@ end
 
 
 % Temp rl exp code
-if nstep > 1
+if exist('serial_data', 'var') == 1 && use_controllers
     rl_distance = str2double(serial_data{3});
     rl_exp_data(xstep, 1) = rl_distance;
     rl_exp_data(xstep, 2) = rl_distance / 4000;
     rl_exp_data(xstep, 3) = this_state;
     rl_exp_data(xstep, 4) = cell2mat(this_action);    
+    disp('rl exp data saved')
 end
 
 if xstep == rl_exp_dur_in_steps
