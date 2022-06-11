@@ -69,12 +69,15 @@ for ntuple = rand_tuples' % this will need to be prioritized
     if length(rl_tuple{1}) == 20  
         if ~rem(counter, 2)
             state_vector([1:5, 11:15]) = [];
+            1
         else        
             state_vector([6:10, 16:20]) = [];
+            2
         end
     end
 
-    if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
+%     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
+    if length(rl_tuple{1}) == 20
 
 %         if length(state_vector) == 12;
 %             state_vector([1, 12]) = [];
@@ -121,8 +124,10 @@ for ntuple = rand_tuples' % this will need to be prioritized
         if length(rl_tuple{4}) == 20  
             if ~rem(counter, 2)
                 state_vector([1:5, 11:15]) = [];
+                3
             else        
                 state_vector([6:10, 16:20]) = [];
+                4
             end
         end        
 
@@ -231,9 +236,9 @@ save('agent_4', 'agent')
 %% Deep Q
 agent_opt = rlDQNAgentOptions;
 agent_opt.DiscountFactor = 0.5;
-% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 1000;
