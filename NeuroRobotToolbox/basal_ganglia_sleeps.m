@@ -162,9 +162,9 @@ figure(1)
 clf
 
 subplot(3,1,1)
-histogram(rl_data(:,1), 'binwidth', 10)
+histogram(rl_data(:,1), 'binwidth', 5)
 hold on
-histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 1)
+histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 5)
 set(gca, 'yscale', 'log')
 title('States and Rewarded States')
 xlabel('State')
