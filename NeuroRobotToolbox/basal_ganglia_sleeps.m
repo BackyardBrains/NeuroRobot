@@ -66,8 +66,12 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
     % Get state
     state_vector = rl_tuple{1};
-    if length(rl_tuple{1}) == 20   
-        state_vector([6:10, 16:20]) = [];
+    if length(rl_tuple{1}) == 20  
+        if ~rem(counter, 2)
+            state_vector([1:5, 11:15]) = [];
+        else        
+            state_vector([6:10, 16:20]) = [];
+        end
     end
 
     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
@@ -111,8 +115,15 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
         % Get state
         state_vector = rl_tuple{4};
-        if length(rl_tuple{4}) == 20   
-            state_vector([6:10, 16:20]) = [];
+%         if length(rl_tuple{4}) == 20   
+%             state_vector([6:10, 16:20]) = [];
+%         end      
+        if length(rl_tuple{4}) == 20  
+            if ~rem(counter, 2)
+                state_vector([1:5, 11:15]) = [];
+            else        
+                state_vector([6:10, 16:20]) = [];
+            end
         end        
 
         state_data(ntuple, :) = state_vector;
