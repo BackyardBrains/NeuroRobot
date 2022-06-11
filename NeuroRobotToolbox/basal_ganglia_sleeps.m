@@ -48,16 +48,14 @@ rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-%%% rand_tuples = 20001:40000;
-% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
 rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 % rand_tuples = 1:ntuples;
-disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
+disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(counter, round(length(rand_tuples)/10))
+    if ~rem(counter, round(length(rand_tuples)/5))
         disp(num2str(counter/length(rand_tuples)))
     end
 
@@ -147,7 +145,11 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
 end
 
-disp(horzcat('nmissed_tuples: ', num2str(missed_tuples)))
+disp(horzcat('n_missed_tuples: ', num2str(missed_tuples)))
+disp(horzcat('n_unique_states: ', num2str(length(unique(rl_data(:,1))))))
+disp(horzcat('%: ', num2str(100*(length(unique(rl_data(:,1)))/nstates))))
+disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
+
 
 %%
 figure(1)
@@ -223,7 +225,7 @@ training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_Shallow = train(agent,env, training_opts);
-save('agent_4', 'agent')
+save('agent_5', 'agent')
 
 %% Deep Q
 agent_opt = rlDQNAgentOptions;
@@ -234,10 +236,10 @@ agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats_Deep = train(agent,env, training_opts);
-save('agent_5', 'agent')
+save('agent_6', 'agent')
 
