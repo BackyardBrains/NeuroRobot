@@ -2,16 +2,16 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 0;               % Use RAK5206 or RAK5270
+rak_only = 1;               % Use RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
-use_esp32 = 1;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
+use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 0;       % Use computer microphone to listen
+matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.3;         % Step time in seconds
@@ -23,7 +23,7 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 2;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
+save_experiences = 1;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
 raw_or_bag = 2;             % 1 = raw state, 2 = bag state
 use_controllers = 2;        % Add deep net controllers as scripts
 init_motor_block_in_s = 2;  
@@ -38,7 +38,7 @@ bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
-    'Agent 1', 'Agent 6', 'Agent x','Agent x', 'Agent x'};
+    'Agent 1', 'Agent 2', 'Agent 3','Agent 4', 'Agent 5'};
 
 
 %% Clear timers - why is this used?
@@ -194,10 +194,13 @@ if save_experiences || use_controllers || dev_mode
         if use_controllers == 1
             load('agent_1.mat')
         elseif use_controllers == 2
-            load('agent_6.mat')
+            load('agent_2.mat')
         elseif use_controllers == 3
+            load('agent_3.mat')
         elseif use_controllers == 4
+            load('agent_4.mat')
         elseif use_controllers == 5
+            load('agent_5.mat')
         end
     end
 
