@@ -21,14 +21,14 @@ if save_experiences > 0
         locs = words.Location;
         clear left_featureVector_locs
         for nfeature = 1:5
-            left_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+            left_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 1)) / 227;
         end
         
         [right_featureVector, words] = encode(bag, right_uframe, 'UseParallel', 0);
         locs = words.Location;
         clear right_featureVector_locs
         for nfeature = 1:5
-            right_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
+            right_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 1)) / 227;
         end
         
         rl_next_state = [left_featureVector left_featureVector_locs right_featureVector right_featureVector_locs];
