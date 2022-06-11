@@ -28,7 +28,8 @@ for nfeature = 1:5
     right_featureVector_locs(nfeature) = mean(locs(words.WordIndex == nfeature, 2)) / 227;
 end
 
-state_vector = [left_featureVector left_featureVector_locs right_featureVector right_featureVector_locs];
+% state_vector = [left_featureVector left_featureVector_locs right_featureVector right_featureVector_locs];
+state_vector = [left_featureVector right_featureVector];
 state_vector = padarray(state_vector, [0 1], 0, 'pre');
 state_vector = padarray(state_vector, [0 1], 1, 'post');  % Change 1 to 50 to do raw state
 

@@ -179,7 +179,7 @@ if save_experiences || use_controllers || dev_mode
         statemax = 1; % vis_pref_vals = 50, bag = 1
     end
     
-    state_combs = combinator(2, nsensors * nfeatures * 2,'p','r') - 1;
+    state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
     state_combs = padarray(state_combs, [0 1], 0, 'pre');
     state_combs = padarray(state_combs, [0 1], statemax, 'post');
     nstates = size(state_combs, 1);
