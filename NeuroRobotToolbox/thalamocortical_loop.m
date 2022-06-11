@@ -66,12 +66,8 @@ if save_experiences == 2
 
 end
 
-if save_experiences >= 1
-
-    if rak_only || use_esp32
-        fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
-        save(fname, 'serial_data', '-mat');
-    end
-
+if save_experiences && (rak_only || use_esp32)
+    fname = strcat('.\Experiences\', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
+    save(fname, 'serial_data', '-mat');
 end
 

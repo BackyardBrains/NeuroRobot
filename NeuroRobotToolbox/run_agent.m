@@ -44,11 +44,3 @@ else
     right_backward = -this_motor_vector(2);
 end
 
-% Temp rl exp code
-rl_distance = str2double(serial_data{3});
-this_dist_reward(xstep, 1) = rl_distance;
-this_dist_reward(xstep, 2) = rl_distance / 4000;
-
-if xstep == rl_exp_dur_in_steps
-    run_button = 4;
-end
