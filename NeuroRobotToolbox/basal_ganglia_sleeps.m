@@ -77,8 +77,8 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         end
     end
 
-%     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
-    if length(rl_tuple{1}) == 20
+    if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
+%     if length(rl_tuple{1}) == 20
 
 %         if length(state_vector) == 12;
 %             state_vector([1, 12]) = [];
