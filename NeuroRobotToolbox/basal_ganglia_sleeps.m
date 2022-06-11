@@ -176,7 +176,8 @@ ylabel('Count')
 
 subplot(3,1,3)
 histogram(rl_data(:, 3), 'binwidth', 0.01)
-axis tight
+set(gca, 'yscale', 'log')
+% axis tight
 title('Rewards')
 ylabel('Count')
 xlabel('Reward')
@@ -243,7 +244,7 @@ training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats_Deep = train(agent,env, training_opts);
 save('agent_6', 'agent')
-figure(10)
+figure(11)
 clf
 scan_agent
 title('Agent 6')
