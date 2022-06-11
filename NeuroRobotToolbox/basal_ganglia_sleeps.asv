@@ -7,7 +7,6 @@ clc
 working_dir = '.\Transfer\';
 % working_dir = '.\Experiences\Recording_10\';
 regenerate_rewards = 1;
-missed_tuples = 0;
 
 %% States
 nsensors = 2;
@@ -49,32 +48,30 @@ state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
 %%% rand_tuples = 20001:40000;
-% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
-rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
+rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+% rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 % rand_tuples = 1:ntuples;
 disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(counter, round(length(rand_tuples)/10))
+    if ~rem(ntuple, round(length(rand_tuples)/10))
         disp(num2str(counter/length(rand_tuples)))
     end
 
     % Load data
     load(horzcat(working_dir, tuples(ntuple).name))
 
-    % Get state
-    state_vector = rl_tuple{1};
     if length(rl_tuple{1}) == 20   
+
+        % Get state
+        state_vector = rl_tuple{1};
         state_vector([6:10, 16:20]) = [];
     end
-
+        
     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
 
-%         if length(state_vector) == 12;
-%             state_vector([1, 12]) = [];
-%         end
         state_data(ntuple, :) = state_vector;
 %         disp(num2str(state_vector))
         state_vector = padarray(state_vector, [0 1], 0, 'pre');
@@ -108,12 +105,16 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %                 rl_reward = -1;
 %             end
         end
-
-        % Get state
+    
+        if length(rl_tuple{1}) == 20
+        % Get next state
         state_vector = rl_tuple{4};
-        if length(rl_tuple{4}) == 20   
-            state_vector([6:10, 16:20]) = [];
-        end        
+        state_vector([6:10, 16:20]) = [];    
+
+        end
+
+    if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
+        
 
         state_data(ntuple, :) = state_vector;
         state_vector = padarray(state_vector, [0 1], 0, 'pre');
@@ -131,10 +132,6 @@ for ntuple = rand_tuples' % this will need to be prioritized
         rl_data(ntuple, 2) = rl_action;
         rl_data(ntuple, 3) = rl_reward;
         rl_data(ntuple, 4) = rl_next_state;
-
-    else
-
-        missed_tuples = missed_tuples + 1
 
     end
 
@@ -206,33 +203,33 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 %% Shallow Q
 agent_opt = rlQAgentOptions;
-agent_opt.DiscountFactor = 0.5;
+agent_opt.DiscountFactor = 0.95;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 1000;
 training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
-trainingStats_Shallow = train(agent,env, training_opts);
-
-save('agent_4', 'agent')
+trainingStats = train(agent,env, training_opts);
 
 %% Deep Q
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.5;
-% agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
-% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
-% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
+agent_opt.DiscountFactor = 0.1;
+
+agent_opt.EpsilonGreedyExploration.Epsilon = 0.01;
+agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.001;
+agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
+
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 1000;
 training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
-trainingStats_Deep = train(agent,env, training_opts);
+trainingStats = train(agent,env, training_opts);
 
 %% Save trained agent
 
-save('agent_5', 'agent')
+save('agent_4', 'agent')
 
