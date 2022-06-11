@@ -1,4 +1,6 @@
 
+% Training works
+
 agent_opt = rlQAgentOptions;
 agent_opt.DiscountFactor = 0.1;
 agent = rlQAgent(critic, agent_opt);
