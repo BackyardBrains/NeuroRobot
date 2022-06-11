@@ -223,11 +223,11 @@ training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_Shallow = train(agent,env, training_opts);
-save('agent_5', 'agent')
+save('agent_1', 'agent')
 figure(10)
 clf
 scan_agent
-title('Agent 5')
+title('Agent 1')
 
 %% Deep Q
 agent_opt = rlDQNAgentOptions;
@@ -243,8 +243,8 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = true;
 trainingStats_Deep = train(agent,env, training_opts);
-save('agent_6', 'agent')
+save('agent_2', 'agent')
 figure(11)
 clf
 scan_agent
-title('Agent 6')
+title('Agent 2')
