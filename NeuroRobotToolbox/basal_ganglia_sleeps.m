@@ -25,7 +25,7 @@ motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
 motor_combs = padarray(motor_combs, [0 1], -floor(ntorques/2), 'pre');
 motor_combs = padarray(motor_combs, [0 1], floor(ntorques/2), 'post');
 nactions = size(motor_combs, 1);
-disp(horzcat('nstates: ', num2str(nactions)))
+disp(horzcat('nactions: ', num2str(nactions)))
 
 %% Custom rewards
 if regenerate_rewards
@@ -44,9 +44,10 @@ rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-% rand_tuples = 20001:40000;
-% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
-rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
+%%% rand_tuples = 20001:40000;
+%%% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+% rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
+rand_tuples = 1:ntuples;
 disp(horzcat('n tuples to process = ', num2str(length(rand_tuples))))
 for ntuple = rand_tuples' % this will need to be prioritized
 
