@@ -107,7 +107,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
             this_distance = str2double(serial_data{3});
             rl_reward = this_distance / 4000;
         else
-            rl_reward = -1;
+            rl_reward = -0.05;
         end
 
         % Get state
@@ -231,7 +231,7 @@ figure(10)
 clf
 scan_agent
 title('Agent 5')
-% save('agent_5', 'agent')
+save('agent_5', 'agent')
 
 % %% Deep Q
 % agent_opt = rlDQNAgentOptions;
