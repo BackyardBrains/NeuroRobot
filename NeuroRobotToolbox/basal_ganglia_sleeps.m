@@ -99,13 +99,15 @@ for ntuple = rand_tuples' % this will need to be prioritized
         rl_action = ind;
     
         % Get reward
-        rl_reward = rl_tuple{3};
+%         rl_reward = rl_tuple{3};
 
         % Get custom reward
-        if regenerate_rewards
+        if regenerate_rewards && rl_action == 13
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
             rl_reward = this_distance / 4000;
+        else
+            rl_reward = -1;
         end
 
         % Get state
@@ -223,11 +225,11 @@ training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_Shallow = train(agent,env, training_opts);
-save('agent_1', 'agent')
+save('agent_4', 'agent')
 figure(10)
 clf
 scan_agent
-title('Agent 1')
+title('Agent 4')
 
 
 % %% Deep Q
