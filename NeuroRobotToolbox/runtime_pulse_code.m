@@ -159,7 +159,7 @@ end
 
 
 % Temp rl exp code
-if exist('serial_data', 'var') == 1 && use_controllers
+if exist('rl_exp_data', 'var') == 1
     rl_distance = str2double(serial_data{3});
     rl_exp_data(xstep, 1) = rl_distance;
     rl_exp_data(xstep, 2) = rl_distance / 4000;
