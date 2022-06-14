@@ -216,30 +216,7 @@ qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
 train_shallow_agent
-
-figure(10)
-clf
-scan_agent
-title('Agent 1')
-
 save('agent_1', 'agent')
 
-% %% Deep Q
-% agent_opt = rlDQNAgentOptions;
-% agent_opt.DiscountFactor = 0.1;
-% % agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
-% % agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
-% % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
-% agent = rlDQNAgent(critic, agent_opt);
-% training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = 1000;
-% training_opts.MaxStepsPerEpisode = 500;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 10;
-% training_opts.UseParallel = true;
-% trainingStats_Deep = train(agent,env, training_opts);
-% save('agent_5', 'agent')
-% figure(11)
-% clf
-% scan_agent
-% title('Agent 5')
+train_deep_agent
+save('agent_2', 'agent')
