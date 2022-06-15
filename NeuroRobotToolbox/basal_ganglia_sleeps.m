@@ -48,7 +48,8 @@ rl_data = zeros(ntuples, 4);
 state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
-rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
+load working_rand_tuples_1.mat
+% rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
 % rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 % rand_tuples = 1:ntuples;
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
@@ -106,9 +107,9 @@ for ntuple = rand_tuples' % this will need to be prioritized
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
             if this_distance
-                rl_reward = 5000 - this_distance;
+                rl_reward = 4500 - this_distance;
             else
-                rl_reward = 0;
+                rl_reward = -1;
             end
         else
             rl_reward = -1;
