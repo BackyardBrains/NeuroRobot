@@ -1,6 +1,9 @@
 
 agent_opt = rlQAgentOptions;
-agent_opt.DiscountFactor = 0.99;
+agent_opt.DiscountFactor = 0.01;
+qOptions = rlOptimizerOptions;
+qOptions.LearnRate = 0.1;
+agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
