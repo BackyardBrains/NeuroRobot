@@ -15,3 +15,6 @@ else
     disp('serial_receive is empty')
     this_distance = 4000;
 end
+% if this_distance < 4000
+%     this_distance
+% end

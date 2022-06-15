@@ -105,9 +105,13 @@ for ntuple = rand_tuples' % this will need to be prioritized
         if regenerate_rewards && rl_action >= 13
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
-            rl_reward = this_distance / 4000;
+            if this_distance
+                rl_reward = 5000 - this_distance;
+            else
+                rl_reward = 0;
+            end
         else
-            rl_reward = -0.05;
+            rl_reward = -1;
         end
 
         % Get state
@@ -218,5 +222,5 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 train_shallow_agent
 save('agent_1', 'agent')
 
-train_deep_agent
-save('agent_2', 'agent')
+% train_deep_agent
+% save('agent_2', 'agent')
