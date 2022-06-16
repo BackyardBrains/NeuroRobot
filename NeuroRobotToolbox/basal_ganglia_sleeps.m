@@ -67,18 +67,10 @@ for ntuple = rand_tuples' % this will need to be prioritized
     % Get state
     state_vector = rl_tuple{1};
     if length(state_vector) == 20 
-            state_vector([6:10, 16:20]) = [];        
-%         if ~rem(counter, 2)
-%             state_vector([1:5, 11:15]) = [];
-%             1
-%         else        
-%             state_vector([6:10, 16:20]) = [];
-%             2
-%         end
+        state_vector([6:10, 16:20]) = [];
     end
 
     if length(rl_tuple{1}) == 10 || length(rl_tuple{1}) == 20
-%     if length(rl_tuple{1}) == 10
 
         state_data(ntuple, :) = state_vector;
         state_vector = padarray(state_vector, [0 1], 0, 'pre');
@@ -117,14 +109,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         state_vector = rl_tuple{4};
         if length(state_vector) == 20   
             state_vector([6:10, 16:20]) = [];
-        end      
-%         if length(rl_tuple{4}) == 20  
-%             if ~rem(counter, 2)
-%                 state_vector([1:5, 11:15]) = [];
-%             else        
-%                 state_vector([6:10, 16:20]) = [];
-%             end
-%         end        
+        end     
 
         state_data(ntuple, :) = state_vector;
         state_vector = padarray(state_vector, [0 1], 0, 'pre');
