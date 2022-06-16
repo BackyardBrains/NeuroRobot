@@ -103,16 +103,14 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         rl_reward = rl_tuple{3};
 
         % Get custom reward
-        if regenerate_rewards && rl_action >= 13
+        if regenerate_rewards && sum(motor_vector(2:3)) >= 0
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
             if this_distance
-                rl_reward = 4500 - this_distance;
+                rl_reward = 1;
             else
-                rl_reward = -1;
+                rl_reward = 0;
             end
-        else
-            rl_reward = -1;
         end
 
         % Get state
