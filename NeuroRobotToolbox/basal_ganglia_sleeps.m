@@ -147,9 +147,9 @@ figure(1)
 clf
 
 subplot(3,1,1)
-histogram(rl_data(:,1), 'binwidth', 5)
+histogram(rl_data(:,1), 'binwidth', 2)
 hold on
-histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 5)
+histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 2)
 set(gca, 'yscale', 'log')
 title('States and Rewarded States')
 xlabel('State')
@@ -165,7 +165,7 @@ xlabel('Action')
 ylabel('Count')
 
 subplot(3,1,3)
-histogram(rl_data(:, 3), 'binwidth', 0.01)
+histogram(rl_data(:, 3), 'binwidth', 1)
 set(gca, 'yscale', 'log')
 % axis tight
 title('Rewards')
@@ -206,5 +206,5 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 % train_shallow_agent
 % save('agent_1', 'agent')
 
-train_deep_agent
-save('agent_2', 'agent')
+% train_deep_agent
+% save('agent_2', 'agent')
