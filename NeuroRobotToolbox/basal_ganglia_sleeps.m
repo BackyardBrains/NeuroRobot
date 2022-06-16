@@ -203,8 +203,8 @@ qTable = rlTable(obsInfo, actInfo);
 
 critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
-train_shallow_agent
-save('agent_1', 'agent')
+% train_shallow_agent
+% save('agent_1', 'agent')
 
-% train_deep_agent
-% save('agent_2', 'agent')
+train_deep_agent
+save('agent_2', 'agent')
