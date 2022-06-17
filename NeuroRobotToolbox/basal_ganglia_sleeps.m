@@ -194,7 +194,7 @@ reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
-env.ResetFcn = @() ((0.5 * nactions) + 0.5);
+% env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 validateEnvironment(env)
 
 obsInfo = getObservationInfo(env);
