@@ -1,15 +1,15 @@
 
 agent_opt = rlQAgentOptions;
-% agent_opt.DiscountFactor = 0.99;
-% qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.5;
-% agentOpts.CriticOptimizerOptions = qOptions;
+agent_opt.DiscountFactor = 0.99;
+qOptions = rlOptimizerOptions;
+qOptions.LearnRate = 0.05;
+agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = 1000;
-% training_opts.MaxStepsPerEpisode = 20;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 10;
+training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
 
 figure(11)

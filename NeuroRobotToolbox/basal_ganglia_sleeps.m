@@ -99,7 +99,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
             load(horzcat(working_dir, serials(ntuple).name))
             this_distance = str2double(serial_data{3});
             if this_distance
-                rl_reward = 1;
+                rl_reward = 1/this_distance;
             else
                 rl_reward = 0;
             end
@@ -165,7 +165,7 @@ xlabel('Action')
 ylabel('Count')
 
 subplot(3,1,3)
-histogram(rl_data(:, 3), 'binwidth', 1)
+histogram(rl_data(:, 3), 'binwidth', 0.00005)
 set(gca, 'yscale', 'log')
 % axis tight
 title('Rewards')
@@ -203,8 +203,8 @@ qTable = rlTable(obsInfo, actInfo);
 
 critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
 
-% train_shallow_agent
-% save('agent_1', 'agent')
+train_shallow_agent
+save('agent_1', 'agent')
 
 % train_deep_agent
 % save('agent_2', 'agent')
