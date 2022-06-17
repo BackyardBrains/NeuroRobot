@@ -92,11 +92,12 @@ end
 %     
 % end
 
+%% Analysis
+exp_report
+
 %% Return to startup
 if restarting && ~voluntary_restart
     save('brain_name', 'brain_name')
-    neurorobot
-elseif restarting && ~voluntary_restart
     neurorobot
 else
     if rak_only
@@ -109,5 +110,7 @@ else
     end
     neurorobot
 end
+
+
 
 
