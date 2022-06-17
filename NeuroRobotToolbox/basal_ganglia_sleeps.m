@@ -91,6 +91,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         rl_reward = rl_tuple{3};
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
+        this_distance(this_distance == Inf) = 0;
         if this_distance
             rl_reward = 1/this_distance;
         else
@@ -134,7 +135,7 @@ disp(horzcat('%: ', num2str(100*(length(unique(rl_data(:,1)))/nstates))))
 disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
 
 
-%%
+%% Plot mdp
 figure(1)
 clf
 
@@ -157,12 +158,11 @@ xlabel('Action')
 ylabel('Count')
 
 subplot(3,1,3)
-histogram(rl_data(:, 3), 'binwidth', 0.00005)
-set(gca, 'yscale', 'log')
-% axis tight
-title('Rewards')
-ylabel('Count')
-xlabel('Reward')
+area(rl_data(:, 3))
+axis tight
+title('Reward')
+ylabel('R')
+xlabel('Step')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -184,15 +184,51 @@ reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
-% env.ResetFcn = @() ((0.5 * nactions) + 0.5);
+env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
-train_shallow_agent
+%% Shallow
+agent_opt = rlQAgentOptions;
+agent_opt.DiscountFactor = 0.99;
+qOptions = rlOptimizerOptions;
+qOptions.LearnRate = 0.2;
+agentOpts.CriticOptimizerOptions = qOptions;
+agent = rlQAgent(critic, agent_opt);
+training_opts = rlTrainingOptions;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.StopTrainingCriteria = "AverageReward";
+training_opts.ScoreAveragingWindowLength = 5;
+trainingStats_shallow = train(agent,env, training_opts);
+
+figure(11)
+clf
+scan_agent
+title('Shallow agent')
 save('agent_1', 'agent')
 
-% train_deep_agent
-% save('agent_2', 'agent')
+%% Deep
+agent_opt = rlDQNAgentOptions;
+agent_opt.DiscountFactor = 0.99;
+agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
+agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
+agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
+agent = rlDQNAgent(critic, agent_opt);
+training_opts = rlTrainingOptions;
+training_opts.MaxEpisodes = 100;
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.StopTrainingCriteria = "AverageReward";
+training_opts.ScoreAveragingWindowLength = 10000;
+training_opts.UseParallel = 1;
+trainingStats_deep = train(agent, env, training_opts);
+
+figure(12)
+clf
+scan_agent
+title('Deep agent')
+
+save('agent_2', 'agent')
