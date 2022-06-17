@@ -5,8 +5,6 @@ clear
 clc
 
 working_dir = '.\Transfer\';
-% working_dir = '.\Experiences\Recording_10\';
-regenerate_rewards = 1;
 missed_tuples = 0;
 
 %% States
@@ -32,9 +30,7 @@ nactions = size(motor_combs, 1);
 disp(horzcat('nactions: ', num2str(nactions)))
 
 %% Custom rewards
-if regenerate_rewards
-    serials = dir(strcat(working_dir, '*serial_data.mat'));
-end
+serials = dir(strcat(working_dir, '*serial_data.mat'));
 
 %% Markov
 mdp = createMDP(nstates, nactions);
@@ -93,16 +89,12 @@ for ntuple = rand_tuples' % this will need to be prioritized
     
         % Get reward
 %         rl_reward = rl_tuple{3};
-
-        % Get custom reward
-        if regenerate_rewards && sum(motor_vector(2:3)) >= 0
-            load(horzcat(working_dir, serials(ntuple).name))
-            this_distance = str2double(serial_data{3});
-            if this_distance
-                rl_reward = 1/this_distance;
-            else
-                rl_reward = 0;
-            end
+        load(horzcat(working_dir, serials(ntuple).name))
+        this_distance = str2double(serial_data{3});
+        if this_distance
+            rl_reward = 1/this_distance;
+        else
+            rl_reward = 0;
         end
 
         % Get state
@@ -174,9 +166,9 @@ xlabel('Reward')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
-
-%% Build Markov process
 transition_counter = transition_counter_save;
+
+%% Build MDP
 for ii_state = 1:nstates
     for naction = 1:nactions
         this_sum = sum(transition_counter(ii_state, :, naction));
@@ -187,8 +179,6 @@ for ii_state = 1:nstates
         end
     end
 end
-
-%% 
 mdp.T = transition_counter;
 reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
@@ -196,12 +186,10 @@ mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 validateEnvironment(env)
-
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
-
-critic = rlQValueFunction(qTable,obsInfo,actInfo); % Learn rate
+critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 train_shallow_agent
 save('agent_1', 'agent')
