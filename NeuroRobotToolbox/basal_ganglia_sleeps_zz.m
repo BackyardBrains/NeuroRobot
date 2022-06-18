@@ -91,7 +91,8 @@ for ntuple = rand_tuples' % this will need to be prioritized
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
         if this_distance
-            rl_reward = 1/this_distance;
+%             rl_reward = 1/this_distance;
+            rl_reward = 1;            
         else
             rl_reward = 0;
         end
@@ -194,11 +195,11 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 agent_opt = rlQAgentOptions;
 agent_opt.DiscountFactor = 0.99;
 qOptions = rlOptimizerOptions;
-qOptions.LearnRate = 0.1;
+% qOptions.LearnRate = 0.1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
+training_opts.MaxEpisodes = 500;
 training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
@@ -222,7 +223,7 @@ agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
+training_opts.MaxEpisodes = 500;
 training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;

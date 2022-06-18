@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.3;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -197,7 +197,7 @@ if save_experiences || use_controllers || dev_mode
         motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
         motor_combs = motor_combs * 50;
         if use_controllers == 1
-            load('agent_1.mat')
+            load('agent_z.mat')
         elseif use_controllers == 2
             load('agent_2.mat')
         elseif use_controllers == 3
