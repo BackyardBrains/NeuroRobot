@@ -130,7 +130,7 @@ disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
 
 
 %% Plot mdp
-figure(1)
+figure(4)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
@@ -202,7 +202,7 @@ training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
-figure(11)
+figure(41)
 clf
 set(gcf, 'color', 'w')
 scan_agent
@@ -227,7 +227,7 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
-figure(12)
+figure(42)
 clf
 set(gcf, 'color', 'w')
 scan_agent

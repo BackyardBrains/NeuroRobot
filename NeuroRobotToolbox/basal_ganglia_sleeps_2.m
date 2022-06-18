@@ -43,6 +43,10 @@ motor_data = zeros(ntuples, 2);
 counter = 0;
 missed_tuples = 0;
 load working_rand_tuples_1.mat
+r1 = rand_tuples;
+load working_rand_tuples.mat
+r2 = rand_tuples;
+rand_tuples = [r1' r2'];
 % rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
 % rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 % rand_tuples = 1:ntuples;
@@ -130,7 +134,7 @@ disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
 
 
 %% Plot mdp
-figure(1)
+figure(2)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
@@ -202,7 +206,7 @@ training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
-figure(11)
+figure(21)
 clf
 set(gcf, 'color', 'w')
 scan_agent
@@ -227,7 +231,7 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
-figure(12)
+figure(22)
 clf
 set(gcf, 'color', 'w')
 scan_agent

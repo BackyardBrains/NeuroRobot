@@ -197,9 +197,9 @@ if save_experiences || use_controllers || dev_mode
         motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
         motor_combs = motor_combs * 50;
         if use_controllers == 1
-            load('agent_q.mat')
+            load('agent_1.mat')
         elseif use_controllers == 2
-            load('agent_qq.mat')
+            load('agent_2.mat')
         elseif use_controllers == 3
             load('agent_3.mat')
         elseif use_controllers == 4
