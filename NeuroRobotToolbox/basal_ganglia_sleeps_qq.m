@@ -202,10 +202,12 @@ training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
 figure(11)
 clf
+set(gcf, 'color', 'w')
 scan_agent
-title('Q agent')
+title('Agent Q')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat('agent_q_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent_q', 'agent')
-export_fig(horzcat('agent_q_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Deep
@@ -224,8 +226,10 @@ training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
 figure(12)
 clf
+set(gcf, 'color', 'w')
 scan_agent
-title('Deep Q agent')
+title('Agent QQ')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat('agent_qq_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent_qq', 'agent')
-export_fig(horzcat('agent_qq_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
