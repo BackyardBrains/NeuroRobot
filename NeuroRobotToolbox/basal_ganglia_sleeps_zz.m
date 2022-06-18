@@ -90,7 +90,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance
+        if this_distance && rl_action == 13
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -198,8 +198,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -222,8 +222,8 @@ agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
@@ -232,6 +232,7 @@ figure(12)
 clf
 set(gcf, 'color', 'w')
 scan_agent
+ylim([0 1025])
 title('Agent ZZ')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_zz_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
