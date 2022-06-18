@@ -205,6 +205,7 @@ clf
 scan_agent
 title('Q agent')
 save('agent_q', 'agent')
+export_fig(horzcat('agent_q_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Deep
@@ -226,4 +227,5 @@ clf
 scan_agent
 title('Deep Q agent')
 save('agent_qq', 'agent')
+export_fig(horzcat('agent_qq_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
