@@ -90,7 +90,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance
+        if this_distance && sum(motor_vector(2:3)) >= 0
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -180,7 +180,7 @@ reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
-env.ResetFcn = @() randsample(nstates, 1);
+% env.ResetFcn = @() randsample(nstates, 1);
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
