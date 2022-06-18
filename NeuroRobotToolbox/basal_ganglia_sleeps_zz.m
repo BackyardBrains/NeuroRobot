@@ -90,8 +90,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-%         if this_distance && sum(motor_vector(2:3)) >= 0
-        if this_distance
+        if this_distance % Z-configuration
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -203,9 +202,12 @@ training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
 figure(11)
 clf
+set(gcf, 'color', 'w')
 scan_agent
-title('Q agent')
-save('agent_q', 'agent')
+title('Agent Z')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat('agent_z_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_z', 'agent')
 
 
 %% Deep
@@ -224,7 +226,10 @@ training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
 figure(12)
 clf
+set(gcf, 'color', 'w')
 scan_agent
-title('Deep Q agent')
-save('agent_qq', 'agent')
+title('Agent ZZ')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat('agent_zz_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_zz', 'agent')
 
