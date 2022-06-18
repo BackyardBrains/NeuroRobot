@@ -25,11 +25,11 @@ night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 1;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
 raw_or_bag = 2;             % 1 = raw state, 2 = bag state
-use_controllers = 1;        % Add deep net controllers as scripts
+use_controllers = 2;        % Add deep net controllers as scripts
 init_motor_block_in_s = 2;
 
 if ~exist('rl_exp_data', 'var')
-    rl_exp_dur_in_steps = 2000;
+    rl_exp_dur_in_steps = 1000;
     rl_exp_data = zeros(rl_exp_dur_in_steps, 4);
 end
 
@@ -197,9 +197,9 @@ if save_experiences || use_controllers || dev_mode
         motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
         motor_combs = motor_combs * 50;
         if use_controllers == 1
-            load('agent_z.mat')
+            load('agent_q.mat')
         elseif use_controllers == 2
-            load('agent_2.mat')
+            load('agent_qq.mat')
         elseif use_controllers == 3
             load('agent_3.mat')
         elseif use_controllers == 4

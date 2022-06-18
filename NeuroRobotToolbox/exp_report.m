@@ -22,6 +22,7 @@ figure(13)
 clf
 rl_a = rl_exp_data(:,3);
 rl_a(rl_a == Inf) = 0;
+rl_a(rl_a >= 4000) = 0;
 rl_exp_data(:,3) = rl_a;
 rl_r = rl_exp_data(:,3);
 rl_r = rl_r - min(rl_r);
