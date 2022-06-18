@@ -85,14 +85,14 @@ for ntuple = rand_tuples' % this will need to be prioritized
         [~, ind] = max(r);
         rl_action = ind;
     
-        % Get reward
+        % Get reward %%%%%% Q CONFIGURATION
 %         rl_reward = rl_tuple{3};
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
 %         if this_distance && sum(motor_vector(2:3)) >= 0 
         if this_distance
-            rl_reward = this_distance/4500; % Q-configuration % Q-configuration% Q-configuration% Q-configuration
+            rl_reward = this_distance/4500;
         else
             rl_reward = 0;
         end
@@ -161,7 +161,7 @@ title('Rewards')
 ylabel('Reward')
 xlabel('Step')
 
-export_fig(horzcat('agent_zz_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('agent_q_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -184,7 +184,7 @@ reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
-% env.ResetFcn = @() randsample(nstates, 1);
+env.ResetFcn = @() randsample(nstates, 1);
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
@@ -199,8 +199,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -223,8 +223,8 @@ agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
@@ -233,6 +233,7 @@ figure(12)
 clf
 set(gcf, 'color', 'w')
 scan_agent
+ylim([0 1025])
 title('Agent QQ')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_qq_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
