@@ -85,13 +85,12 @@ for ntuple = rand_tuples' % this will need to be prioritized
         [~, ind] = max(r);
         rl_action = ind;
     
-        % Get reward %%%%%% Q CONFIGURATION
-%         rl_reward = rl_tuple{3};
+        % Get reward
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
-        this_distance(this_distance == Inf) = 0;
+        this_distance(this_distance >= 4000) = 0;                
         if this_distance
-            rl_reward = this_distance/4500;
+            rl_reward = 1;
         else
             rl_reward = 0;
         end
@@ -158,9 +157,9 @@ plot(rl_data(:, 3))
 axis tight
 title('Rewards')
 ylabel('Reward')
-xlabel('Step')
+xlabel('Time')
 
-export_fig(horzcat('agent_q_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('agent_2_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -208,10 +207,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 1025])
-title('Agent Q')
+title('Agent 2')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_q_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_q', 'agent')
+export_fig(horzcat('agent_2_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_2', 'agent')
 
 
 %% Deep
@@ -233,8 +232,8 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 1025])
-title('Agent QQ')
+title('Agent 22')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_qq_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_qq', 'agent')
+export_fig(horzcat('agent_22_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_22', 'agent')
 
