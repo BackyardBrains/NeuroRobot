@@ -85,12 +85,12 @@ for ntuple = rand_tuples' % this will need to be prioritized
         [~, ind] = max(r);
         rl_action = ind;
     
-        % Get reward
+        % Get reward %%%%%% Z CONFIGURATION
 %         rl_reward = rl_tuple{3};
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance % Z-configuration % Z-configuration % Z-configuration % Z-configuration % Z-configuration 
+        if this_distance
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -160,7 +160,7 @@ title('Rewards')
 ylabel('Reward')
 xlabel('Step')
 
-export_fig(horzcat('agent_zz_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('agent_z_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -183,7 +183,7 @@ reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
-% env.ResetFcn = @() randsample(nstates, 1);
+env.ResetFcn = @() randsample(nstates, 1);
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
