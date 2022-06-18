@@ -90,7 +90,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance && sum(motor_vector(2:3)) >= 0 % Q-configuration
+        if this_distance && sum(motor_vector(2:3)) >= 0 %Q Q-configuration
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
