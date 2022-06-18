@@ -90,7 +90,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance % Z-configuration
+        if this_distance % Z-configuration % Z-configuration % Z-configuration % Z-configuration % Z-configuration 
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -133,6 +133,7 @@ disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
 %% Plot mdp
 figure(1)
 clf
+set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
 subplot(3,1,1)
 histogram(rl_data(:,1), 'binwidth', 2)
@@ -157,7 +158,9 @@ plot(rl_data(:, 3))
 axis tight
 title('Rewards')
 ylabel('Reward')
-xlabel('xstep')
+xlabel('Step')
+
+export_fig(horzcat('agent_zz_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -204,6 +207,7 @@ figure(11)
 clf
 set(gcf, 'color', 'w')
 scan_agent
+ylim([0 1025])
 title('Agent Z')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_z_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
