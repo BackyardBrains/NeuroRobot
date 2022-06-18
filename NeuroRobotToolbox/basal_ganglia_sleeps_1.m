@@ -46,7 +46,7 @@ load working_rand_tuples_1.mat
 r1 = rand_tuples;
 load working_rand_tuples.mat
 r2 = rand_tuples;
-rand_tuples = [r1' r2'];
+rand_tuples = [r1; r2];
 % rand_tuples = randsample(ntuples, round(ntuples/1.5)); % this will need to be prioritized
 % rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
 % rand_tuples = 1:ntuples;
@@ -55,7 +55,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(counter, round(length(rand_tuples)/5))
+    if ~rem(counter, round(length(rand_tuples)/100))
         disp(num2str(counter/length(rand_tuples)))
     end
 
