@@ -90,7 +90,8 @@ for ntuple = rand_tuples' % this will need to be prioritized
         load(horzcat(working_dir, serials(ntuple).name))
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == Inf) = 0;
-        if this_distance && sum(motor_vector(2:3)) >= 0
+%         if this_distance && sum(motor_vector(2:3)) >= 0
+        if this_distance
             rl_reward = 1/this_distance;
         else
             rl_reward = 0;
@@ -189,14 +190,14 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 %% Shallow
 agent_opt = rlQAgentOptions;
-% agent_opt.DiscountFactor = 0.99;
+agent_opt.DiscountFactor = 0.99;
 qOptions = rlOptimizerOptions;
 % qOptions.LearnRate = 0.01;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 200;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -209,14 +210,14 @@ save('agent_q', 'agent')
 
 %% Deep
 agent_opt = rlDQNAgentOptions;
-% agent_opt.DiscountFactor = 0.99;
+agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
 % agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 200;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
