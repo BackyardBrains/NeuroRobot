@@ -43,13 +43,13 @@ motor_data = zeros(ntuples, 2);
 counter = 0;
 missed_tuples = 0;
 load working_rand_tuples_2.mat
-% rand_tuples = randsample(ntuples, ntuples * 5, 1);
+rand_tuples = randsample(ntuples, ntuples * 5, 1); % this will need to be prioritized
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(counter, round(length(rand_tuples)/5))
+    if ~rem(counter, round(length(rand_tuples)/100))
         disp(num2str(counter/length(rand_tuples)))
     end
 
@@ -84,14 +84,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
         rl_action = ind;
     
         % Get reward
-        load(horzcat(working_dir, serials(ntuple).name))
-        this_distance = str2double(serial_data{3});
-        this_distance(this_distance >= 4000) = 0;                
-        if this_distance
-            rl_reward = 1;
-        else
-            rl_reward = 0;
-        end
+        rl_reward = rand;
 
         % Get state
         state_vector = rl_tuple{4};
@@ -128,7 +121,7 @@ disp(horzcat('total reward: ', num2str(sum(rl_data(:,3)))))
 
 
 %% Plot mdp
-figure(2)
+figure(1)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
@@ -157,7 +150,7 @@ title('Rewards')
 ylabel('Reward')
 xlabel('Time')
 
-export_fig(horzcat('agent_2_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('agent_1_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
@@ -200,15 +193,15 @@ training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
-figure(21)
+figure(11)
 clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 1025])
-title('Agent 2')
+title('Agent 1')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_2_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_2', 'agent')
+export_fig(horzcat('agent_1_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_1', 'agent')
 
 
 %% Deep
@@ -225,13 +218,13 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
-figure(22)
+figure(12)
 clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 1025])
-title('Agent 22')
+title('Agent 11')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_22_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_22', 'agent')
+export_fig(horzcat('agent_11_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_11', 'agent')
 

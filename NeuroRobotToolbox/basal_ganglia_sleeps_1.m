@@ -42,10 +42,8 @@ state_data = zeros(ntuples, nsensors * nfeatures);
 motor_data = zeros(ntuples, 2);
 counter = 0;
 missed_tuples = 0;
-% load working_rand_tuples_1.mat
-rand_tuples = randsample(ntuples, ntuples * 5, 1); % this will need to be prioritized
-% rand_tuples = randsample(ntuples, ntuples); % this will need to be prioritized
-% rand_tuples = 1:ntuples;
+load working_rand_tuples_2.mat
+% rand_tuples = randsample(ntuples, ntuples * 5, 1);
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 for ntuple = rand_tuples' % this will need to be prioritized
 
