@@ -49,7 +49,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 
     counter = counter + 1;
 
-    if ~rem(counter, round(length(rand_tuples)/100))
+    if ~rem(counter, round(length(rand_tuples)/20))
         disp(num2str(counter/length(rand_tuples)))
     end
 
