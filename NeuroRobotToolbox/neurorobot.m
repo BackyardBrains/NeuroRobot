@@ -11,7 +11,7 @@ use_cnn = 0;                % Use a convolutional neural network (Googlenet) for
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 1;       % Use computer microphone to listen
+matlab_audio_rec = 0;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.3;         % Step time in seconds
@@ -23,9 +23,9 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 1;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
+save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
 raw_or_bag = 2;             % 1 = raw state, 2 = bag state
-use_controllers = 2;        % Add deep net controllers as scripts
+use_controllers = 0;        % Add deep net controllers as scripts
 init_motor_block_in_s = 2;
 
 if ~exist('rl_exp_data', 'var')
