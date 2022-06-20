@@ -12,7 +12,7 @@ if save_experiences > 0
     % Action
     torques = [left_torque_mem right_torque_mem];    
     fname = strcat('.\Data\', this_time, '-', brain_name, '-', num2str(xstep), '-torques.mat');
-    save(fname, 'rl_action', '-mat')
+    save(fname, 'torques', '-mat')
 
     % Non-state data
     if rak_only || use_esp32
