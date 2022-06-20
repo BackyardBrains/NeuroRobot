@@ -23,15 +23,10 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;       % 0 = no, 1 = only tuples, 2 = tuples and audiovisual
-raw_or_bag = 2;             % 1 = raw state, 2 = bag state
+save_experiences = 1;
 use_controllers = 0;        % Add deep net controllers as scripts
 init_motor_block_in_s = 2;
 
-if ~exist('rl_exp_data', 'var')
-    rl_exp_dur_in_steps = 1000;
-    rl_exp_data = zeros(rl_exp_dur_in_steps, 4);
-end
 
 %% Advanced settings
 use_speech2text = 0;        % In progress, requires key
@@ -175,22 +170,7 @@ end
 if save_experiences || use_controllers || dev_mode
     
     nsensors = 2;
-
-    if raw_or_bag == 1
-        nfeatures = 4;
-        statemax = 50; % vis_pref_vals = 50, bag = 1         
-    elseif raw_or_bag == 2 || use_controllers
-        nfeatures = 5; % must mirror loaded bag
-        statemax = 1; % vis_pref_vals = 50, bag = 1
-    end
     
-    state_combs = combinator(2, nsensors * nfeatures,'p','r') - 1;
-    state_combs = padarray(state_combs, [0 1], 0, 'pre');
-    state_combs = padarray(state_combs, [0 1], statemax, 'post');
-    nstates = size(state_combs, 1);
-
-    load('bag5.mat')
-
     if use_controllers
         nmotors = 2;
         ntorques = 5; % Should be odd number

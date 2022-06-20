@@ -92,8 +92,6 @@ end
 %     
 % end
 
-%% Analysis
-exp_report
 
 %% Return to startup
 if restarting && ~voluntary_restart

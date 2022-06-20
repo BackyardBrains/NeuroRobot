@@ -157,15 +157,3 @@ if run_button == 6
     
 end
 
-
-% Temp rl exp code
-if exist('rl_exp_data', 'var') == 1 && exist('this_state', 'var') == 1
-    rl_exp_data(xstep, 1) = this_state;
-    rl_exp_data(xstep, 2) = cell2mat(this_action);    
-    rl_exp_data(xstep, 3) = this_distance;
-    if xstep == rl_exp_dur_in_steps
-        run_button = 4;
-    end
-end
-
-
