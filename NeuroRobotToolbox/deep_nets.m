@@ -1,22 +1,15 @@
 
 
+close all
+clear
+clc
+
 this_dir = '.\Data\Recording_1\';
-% ndistances = 10;
+imdim = 50;
 
-% cd(this_dir)
-% for ii = 0:ndistances-1
-%     if ~exist(num2str(ii),'dir')
-%         mkdir(num2str(ii))
-%     end
-% end
-% cd ..
-% cd ..
-
-images = imageDatastore(strcat(this_dir, '*.png'));
 serials = dir(strcat(this_dir, '*serial_data.mat'));
 nserials = size(serials, 1);
 distance = zeros(nserials * 2, 1);
-
 for nserial = 1:nserials
     if ~rem(nserial, round(nserials/10))
         disp(num2str(nserial/(nserials)))
@@ -24,33 +17,52 @@ for nserial = 1:nserials
     load(horzcat(this_dir, serials(nserial).name))
     this_distance = str2double(serial_data{3});
     this_distance(this_distance >= 4000) = 0;
-%     dcat = floor(this_distance / 401);
+    if this_distance
+        this_distance = this_distance/4000;
+    end
     distance(nserial*2-1:nserial*2) = this_distance;
-
-%     ind = nserial*2;
-%     for ii = 1:2
-%         fname = strcat(working_dir, num2str(dcat), '\image_', num2str(ind-(ii-1)), '.png');
-%         uframe = readimage(images, ind);
-%         imwrite(uframe, fname);
-%     end
 end
 
-% images = imageDatastore(this_dir, 'IncludeSubfolders',true, 'LabelSource', 'foldernames');
+dist_ds = arrayDatastore(distance);
 
-label_info = labelDefinitionCreator;
-labels = create(ldc);
-addLabel(label_info, 'Distance', 'Custom')
-gtSource = groundTruthDataSource(images);
-gtruth = groundTruth(gtSource, labels, distance);
+img_ds = imageDatastore(strcat(this_dir, '*uframe.png'));
+nimgs = size(img_ds.Files, 1);
+img_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
-options = trainingOptions("sgdm", ...
-    LearnRateSchedule="piecewise", ...
-    LearnRateDropFactor=0.2, ...
-    LearnRateDropPeriod=5, ...
-    MaxEpochs=20, ...
-    MiniBatchSize=64, ...
-    Plots="training-progress")
-net = trainNetwork(images, layers_1, options)
+final_ds = combine(img_ds, dist_ds);
+
+%%
+layers = [
+    imageInputLayer([imdim imdim 3],"Name","imageinput","Normalization","rescale-zero-one")
+    convolution2dLayer([3 3],32,"Name","conv","Padding","same")
+    reluLayer("Name","relu_1")
+    fullyConnectedLayer(100,"Name","fc_1")
+    reluLayer("Name","relu_2")
+    fullyConnectedLayer(100,"Name","fc_2")    
+    reluLayer("Name","relu_3")
+    fullyConnectedLayer(1,"Name","fc_3")
+    regressionLayer("Name","regressionoutput")];
+
+options = trainingOptions("adam", Plots="training-progress")
+
+net = trainNetwork(final_ds, layers, options)
+
+
+
+%%
+data = zeros(nimgs, 1);
+for ii = 1:nimgs
+    ii/nimgs
+    im = readimage(img_ds, ii);
+    data(ii) = predict(net, im);
+end
+
+figure(1)
+clf
+scatter(distance, data)
+
+
+
 
 
 
