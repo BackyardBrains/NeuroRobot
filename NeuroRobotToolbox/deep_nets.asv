@@ -18,31 +18,23 @@ nserials = size(serials, 1);
 distance = zeros(nserials * 2, 1);
 
 for nserial = 1:nserials
-    if ~rem(nserial, round(nserials/10))
+    if ~rem(nserial, round(nserials/20))
         disp(num2str(nserial/(nserials)))
     end    
-    load(horzcat(this_dir, serials(nserial).name))
+    load(horzcat(working_dir, serials(nserial).name))
     this_distance = str2double(serial_data{3});
     this_distance(this_distance >= 4000) = 0;
-%     dcat = floor(this_distance / 401);
-    distance(nserial*2-1:nserial*2) = this_distance;
-
-%     ind = nserial*2;
-%     for ii = 1:2
-%         fname = strcat(working_dir, num2str(dcat), '\image_', num2str(ind-(ii-1)), '.png');
-%         uframe = readimage(images, ind);
-%         imwrite(uframe, fname);
-%     end
+    dcat = floor(this_distance / 401);
+    distance(nserial*2-1:nserial*2) = 
+    ind = nserial*2;
+    for ii = 1:2
+        fname = strcat(working_dir, num2str(dcat), '\image_', num2str(ind-(ii-1)), '.png');
+        uframe = readimage(images, ind);
+        imwrite(uframe, fname);
+    end
 end
 
-% images = imageDatastore(this_dir, 'IncludeSubfolders',true, 'LabelSource', 'foldernames');
-
-label_info = labelDefinitionCreator;
-labels = create(ldc);
-addLabel(label_info, 'Distance', 'Custom')
-gtSource = groundTruthDataSource(images);
-gtruth = groundTruth(gtSource, labels, distance);
-
+images = imageDatastore(this_dir, 'IncludeSubfolders',true, 'LabelSource', 'foldernames');
 options = trainingOptions("sgdm", ...
     LearnRateSchedule="piecewise", ...
     LearnRateDropFactor=0.2, ...
