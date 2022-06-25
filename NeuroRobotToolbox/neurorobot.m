@@ -24,8 +24,9 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 1;
-use_controllers = 0;        % Add deep net controllers as scripts
+use_controllers = 5;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
+stop_step = 0;
 
 
 %% Advanced settings
@@ -171,25 +172,24 @@ end
 if save_experiences || use_controllers || dev_mode
     
     nsensors = 2;
-    
-    if use_controllers
-        nmotors = 2;
-        ntorques = 5; % Should be odd number
-        motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
-        motor_combs = motor_combs * 50;
-        if use_controllers == 1
-            load('agent_1.mat')
-        elseif use_controllers == 2
-            load('agent_2.mat')
-        elseif use_controllers == 3
-            load('agent_3.mat')
-        elseif use_controllers == 4
-            load('agent_4.mat')
-        elseif use_controllers == 5
-            load('agent_5.mat')
-        end
-    end
 
+    nmotors = 2;
+    ntorques = 5; % Should be odd number
+    motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
+    motor_combs = motor_combs * 25;
+    nactions = size(motor_combs, 1);
+
+    if use_controllers == 1
+        load('agent_1.mat')
+    elseif use_controllers == 2
+        load('agent_2.mat')
+    elseif use_controllers == 3
+        load('agent_3.mat')
+    elseif use_controllers == 4
+        load('agent_4.mat')
+    elseif use_controllers == 5
+        load('rl_net.mat')
+    end
 end
 
 

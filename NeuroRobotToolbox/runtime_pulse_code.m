@@ -14,6 +14,8 @@ elseif lifetime >= 5 * 60 * 60
 end
 
 
+
+
 %% Get visual input
 get_visual_input
 
@@ -83,7 +85,9 @@ end
 if save_experiences
     thalamocortical_loop
 end
-
+if xstep == stop_step
+    run_button = 4;
+end
 
 %%
 if nstep == nsteps_per_loop %% Happens again below
