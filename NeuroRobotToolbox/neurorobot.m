@@ -26,7 +26,7 @@ brain_gen = 0;              % Use "Create New Brain" to algorithmically generate
 save_experiences = 1;
 use_controllers = 5;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
-stop_step = 0;
+stop_step = 1000;
 
 
 %% Advanced settings

@@ -12,9 +12,11 @@ right_state = classify(net, imresize(right_uframe, [50 50]));
 disp(horzcat('right state: ', char(right_state)))
 
 this_action = randsample(nactions, 1);
-disp(horzcat('action: ', num2str(this_action)))
-
 this_motor_vector = motor_combs(this_action, :);
+
+this_motor_vector = this_motor_vector + 25;
+
+disp(horzcat('action: ', num2str(this_action)))
 
 disp(horzcat('torques: ', num2str(this_motor_vector(1)), ' ', num2str(this_motor_vector(2))))
 

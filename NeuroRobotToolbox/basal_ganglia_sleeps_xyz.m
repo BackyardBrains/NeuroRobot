@@ -7,7 +7,7 @@ clc
 working_dir = '.\Transfer\';
 
 %% States
-rootdir = '.\Data\';
+rootdir = '.\Data_2\';
 filelist = dir(fullfile(rootdir, '**\*.png'));  %get list of files and folders in any subfolder
 states = folders2labels(rootdir);
 ustates = unique(states);
@@ -27,7 +27,7 @@ serials = dir(fullfile(rootdir, '**\*serial_data.mat'));  %get list of files and
 torques = dir(fullfile(rootdir, '**\*torques.mat'));  %get list of files and folders in any subfolder
 
 %% Markov
-mdp = createMDP(60, 25)
+mdp = createMDP(nstates, nactions)
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
 
