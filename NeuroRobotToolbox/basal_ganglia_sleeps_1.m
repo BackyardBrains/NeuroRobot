@@ -154,19 +154,37 @@ export_fig(horzcat('agent_1_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop
 
 transition_counter_save = transition_counter;
 reward_counter_save = reward_counter;
-transition_counter = transition_counter_save;
 
 %% Build MDP
+transition_counter = transition_counter_save;
+
 for ii_state = 1:nstates
     for naction = 1:nactions
         this_sum = sum(transition_counter(ii_state, :, naction));
         if this_sum
             transition_counter(ii_state, :, naction) = transition_counter(ii_state, :, naction) / this_sum;
-        else
-            transition_counter(ii_state, :, naction) = 1/nstates;
+%         else
+%             transition_counter(ii_state, :, naction) = 1/nstates;
         end
     end
 end
+for naction = 1:nactions
+    this_sum = sum(transition_counter(:, :, naction));
+    if ~sum(this_sum)
+        transition_counter(:, :, naction) = mean(transition_counter, 3);
+    end
+end
+for ii_state = 1:nstates
+    for naction = 1:nactions
+        this_sum = sum(transition_counter(ii_state, :, naction));
+        if 1 - this_sum ~= 0
+            this_diff = 1 - sum(this_array);
+            transition_counter(ii_state, :, naction) = transition_counter(ii_state, :, naction) + this_diff/nstates;
+            this_array = transition_counter(ii_state, :, naction);
+        end
+    end
+end
+
 mdp.T = transition_counter;
 reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;

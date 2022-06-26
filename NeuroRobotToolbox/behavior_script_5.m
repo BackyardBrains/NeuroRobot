@@ -5,16 +5,17 @@ script_step_count = script_step_count + 1;
 
 disp(strcat('xstep: ', num2str(xstep)))
 
-left_state = classify(net, imresize(left_uframe, [50 50]));
-disp(horzcat('left state: ', char(left_state)))
-
-right_state = classify(net, imresize(right_uframe, [50 50]));
-disp(horzcat('right state: ', char(right_state)))
+% left_state = classify(net, imresize(left_uframe, [50 50]));
+% disp(horzcat('left state: ', char(left_state)))
+% 
+% right_state = classify(net, imresize(right_uframe, [50 50]));
+% disp(horzcat('right state: ', char(right_state)))
 
 this_action = randsample(nactions, 1);
 this_motor_vector = motor_combs(this_action, :);
 
-this_motor_vector = this_motor_vector + 25;
+% this_motor_vector = this_motor_vector + 25;
+% this_motor_vector = this_motor_vector / 2;
 
 disp(horzcat('action: ', num2str(this_action)))
 

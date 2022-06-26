@@ -3,7 +3,7 @@ close all
 clear
 clc
 
-rootdir = '.\Data\';
+rootdir = '.\Data_1\';
 filelist = dir(fullfile(rootdir, '**\*.png'));  %get list of files and folders in any subfolder
 states = folders2labels(rootdir);
 ustates = unique(states);
@@ -12,16 +12,16 @@ img_ds = imageDatastore(rootdir, 'IncludeSubfolders',true,'LabelSource','foldern
 nimgs = size(img_ds.Files, 1);
 img_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
-% net = [
-%     imageInputLayer([50 50 3],"Name","imageinput","Normalization","none")
-%     convolution2dLayer([5 5],16,"Name","conv")
-%     batchNormalizationLayer("Name","batchnorm")
-%     reluLayer("Name","relu_1")
-%     fullyConnectedLayer(50,"Name","fc_1")
-%     reluLayer("Name","relu_2")
-%     fullyConnectedLayer(60,"Name","fc_2")
-%     softmaxLayer("Name","softmax")
-%     classificationLayer("Name","classoutput")];
+net = [
+    imageInputLayer([50 50 3],"Name","imageinput","Normalization","none")
+    convolution2dLayer([5 5],16,"Name","conv")
+    batchNormalizationLayer("Name","batchnorm")
+    reluLayer("Name","relu_1")
+    fullyConnectedLayer(50,"Name","fc_1")
+    reluLayer("Name","relu_2")
+    fullyConnectedLayer(60,"Name","fc_2")
+    softmaxLayer("Name","softmax")
+    classificationLayer("Name","classoutput")];
 
 % featInput = featureInputLayer(1,Name="features",Normalization="none");
 % lgraph = addLayers(lgraph,featInput);
@@ -33,7 +33,7 @@ options = trainingOptions("sgdm", ...
     LearnRateSchedule="piecewise", ...
     LearnRateDropFactor=0.2, ...
     LearnRateDropPeriod=5, ...
-    MaxEpochs=20, ...
+    MaxEpochs=5, ...
     MiniBatchSize=64, ...
     Plots="training-progress")
 
