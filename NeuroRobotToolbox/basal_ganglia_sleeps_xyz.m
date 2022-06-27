@@ -161,9 +161,10 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         rl_next_state = randsample(nstates, 1);
 %     end    
 
-    xix = randsample(nstates, 4);
-    if sum(rl_state == xix')
+%     xix = randsample(nstates, 4);
+%     if sum(rl_state == xix')
 %     if sum(rl_state == 57:60)
+    if sum(rl_state == 39:42)
         rl_reward = 1;
     else
         rl_reward = 0;
@@ -242,7 +243,7 @@ for ii_state = 1:nstates
                 if sum(this_val) < 1
                     this_state = randsample(1:nstates, 1);
                     if this_state ~= ii_state
-                        this_val(this_state) = 0.05;
+                        this_val(this_state) = 0.025;
                         disp('padded')
                     end
                 else
@@ -298,10 +299,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 nstates + 1])
-title('Agent 5')
+title('Agent 5 -39-42-')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_5_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_5', 'agent')
+export_fig(horzcat('agent_5_-39-42-_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_5_-39-42-', 'agent')
 
 
 %% Deep
@@ -323,8 +324,8 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 nstates + 1])
-title('Agent 55')
+title('Agent 55 -39-42-')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_55_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_55', 'agent')
+export_fig(horzcat('agent_55_-39-42-', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_55_-39-42-', 'agent')
 
