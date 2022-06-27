@@ -44,7 +44,7 @@ rl_data = nan(nserials, 4);
 missed_tuples = 0;
 counter = 0;
 load rand_tuples.mat
-% rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
+rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 for ntuple = rand_tuples' % this will need to be prioritized
 % for counter = 1:nserials-1
@@ -161,14 +161,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         rl_next_state = randsample(nstates, 1);
 %     end    
 
-    xix = randsample(nstates, 4);
-    if sum(rl_state == xix')
-%     if sum(rl_state == 57:60)
-        rl_reward = 1;
-    else
-        rl_reward = 0;
-    end
-    
+    if sum(rl_state, 57:60)
     % Update MDP
     transition_counter(rl_state, rl_next_state, rl_action) = transition_counter(rl_state, rl_next_state, rl_action) + 1;
     reward_counter(rl_state, rl_next_state, rl_action) = reward_counter(rl_state, rl_next_state, rl_action) + rl_reward;
