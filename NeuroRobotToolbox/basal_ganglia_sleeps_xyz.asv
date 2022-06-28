@@ -38,16 +38,15 @@ ntorques = size(torques_dir, 1);
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
-sdata = zeros(nserials, 2);
+sdata = zeros()
 
 %% Get tuples
 rl_data = nan(nserials, 4);
 missed_tuples = 0;
 counter = 0;
-% rand_tuples = 1:nserials - 1;
-% rand_tuples = rand_tuples';
+rand_tuples = 1:nserials - 1;
 % load rand_tuples.mat
-rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
+% rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 sdata = zeros(nserials, 4);
 for ntuple = rand_tuples' % this will need to be prioritized
@@ -84,29 +83,27 @@ for ntuple = rand_tuples' % this will need to be prioritized
         error('unrecognized action')
     end
 
-%     serial_fname = horzcat(serials_dir(ntuple).folder, '\', serials_dir(ntuple).name);
-%     load(serial_fname)
-%     if ~isempty(serial_data)
-%         this_distance = str2double(serial_data{3});
-%         this_distance(this_distance >= 4000) = 0;
-%     else
-%         this_distance = 0;
-%     end
-%     if this_distance
-%         rl_reward = 1/this_distance;
-%     else
-%         rl_reward = 0;
-%     end
+    serial_fname = horzcat(serials_dir(ntuple).folder, '\', serials_dir(ntuple).name);
+    load(serial_fname)
+    if ~isempty(serial_data)
+        this_distance = str2double(serial_data{3});
+        this_distance(this_distance >= 4000) = 0;
+    else
+        this_distance = 0;
+    end
+    if this_distance
+        rl_reward = 1/this_distance;
+    else
+        rl_reward = 0;
+    end
 
+    ix1 = [];
+    ix2 = [];
+    iy1 = [];
+    iy2 = [];
     rl_state = [];
     rl_next_state = [];
     for ii = 1:2
-
-        ix1 = NaN;
-        ix2 = NaN;
-        iy1 = NaN;
-        iy2 = NaN;
-        
         ii2 = ntuple*2-(ii-1);
         this_im = imread(strcat(images_dir(ii2).folder, '\',  images_dir(ii2).name));
         this_im = imresize(this_im, 'outputsize', [50 50]);
@@ -128,34 +125,24 @@ for ntuple = rand_tuples' % this will need to be prioritized
         elseif ii == 2
             iy2 = find(states == next_state);
         end
+        
+        if iy1 == iy2
+            rl_next_state = iy1;
+%             disp('binocular match!')
+        elseif ~isempty(iy1)
+            rl_next_state = iy1;
+        elseif ~isempty(iy2)
+            rl_next_state = iy2;
+        else
+            error('something wrong')
+        end
 
-        sdata(ntuple, 1) = ix1;
-        sdata(ntuple, 2) = ix2;
-        sdata(ntuple, 3) = iy1;
-        sdata(ntuple, 4) = iy2;        
-
-    end
-
-    if sdata(ntuple, 1) == sdata(ntuple, 2)
-        rl_state = sdata(ntuple, 1);
-    elseif ~isnan(sdata(ntuple, 1))
-        rl_state = sdata(ntuple, 1);
-    elseif ~isnan(sdata(ntuple, 2))
-        rl_state = sdata(ntuple, 2);
-    end
-
-    if sdata(ntuple, 3) == sdata(ntuple, 4)
-        rl_next_state = sdata(ntuple, 3);
-    elseif ~isnan(sdata(ntuple, 3))
-        rl_next_state = sdata(ntuple, 3);
-    elseif ~isnan(sdata(ntuple, 4))
-        rl_next_state = sdata(ntuple, 4);
     end
 
 %     xix = randsample(nstates, 4);
 %     if sum(rl_state == xix')
 %     if sum(rl_state == 57:60)
-    if sum(rl_state == 1)
+    if sum(rl_state == 39:42)
         rl_reward = 1;
     else
         rl_reward = 0;
@@ -232,6 +219,9 @@ for ii_state = 1:nstates
                     flag = 1;
                 end
             end
+%             if abs(1 - sum(this_val)) > 0.001
+%                 error('sgs')
+%             end
         end
         transition_counter(ii_state, :, naction) = this_val;
     end
@@ -268,8 +258,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -292,8 +282,8 @@ agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
