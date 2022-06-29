@@ -46,8 +46,8 @@ missed_tuples = 0;
 counter = 0;
 % rand_tuples = 1:nserials - 1;
 % rand_tuples = rand_tuples';
-% load rand_tuples.mat
-rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
+load rand_tuples.mat
+% rand_tuples = randsample(nserials-1, round(nserials * 1.5), 1);
 disp(horzcat('Processing ', num2str(length(rand_tuples)), ' tuples...'))
 sdata = zeros(nserials, 4);
 for ntuple = rand_tuples' % this will need to be prioritized
@@ -98,14 +98,13 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %         rl_reward = 0;
 %     end
 
+    ix1 = NaN;
+    ix2 = NaN;
+    iy1 = NaN;
+    iy2 = NaN;
     rl_state = [];
     rl_next_state = [];
     for ii = 1:2
-
-        ix1 = NaN;
-        ix2 = NaN;
-        iy1 = NaN;
-        iy2 = NaN;
         
         ii2 = ntuple*2-(ii-1);
         this_im = imread(strcat(images_dir(ii2).folder, '\',  images_dir(ii2).name));
@@ -155,7 +154,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %     xix = randsample(nstates, 4);
 %     if sum(rl_state == xix')
 %     if sum(rl_state == 57:60)
-    if sum(rl_state == 1)
+    if sum(rl_state == 28)
         rl_reward = 1;
     else
         rl_reward = 0;
@@ -184,7 +183,7 @@ subplot(3,1,1)
 histogram(rl_data(:,1), 'binwidth', 2)
 hold on
 histogram(rl_data(rl_data(:,3) > 0,1), 'binwidth', 2)
-set(gca, 'yscale', 'log')
+% set(gca, 'yscale', 'log')
 title('States (location and heading)')
 xlabel('State')
 ylabel('Count')
@@ -250,7 +249,7 @@ mdp.T = transition_counter;
 reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
-% mdp.TerminalStates = ["s7";"s8"];
+mdp.TerminalStates = "s28";
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 env.ResetFcn = @() randsample(nstates, 1);
