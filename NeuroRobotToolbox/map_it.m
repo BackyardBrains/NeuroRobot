@@ -1,11 +1,11 @@
 
 
 
-xdata = zeros(nstates, 3);
+xdata = nan(nstates, 3);
 
 for nstate = 1:nstates
 
-    this_state = find(states == state);
+    this_state = find(states == states(nstate));
 
         % tv
     if this_state == 25

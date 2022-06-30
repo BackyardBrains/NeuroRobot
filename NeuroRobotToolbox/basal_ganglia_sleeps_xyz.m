@@ -38,7 +38,8 @@ ntorques = size(torques_dir, 1);
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
 reward_counter = zeros(size(mdp.R));
-sdata = zeros(nserials, 2);
+sdata = zeros(nserials, 4);
+mdata = zeros(nserials, 2);
 
 %% Get tuples
 rl_data = nan(nserials, 4);
@@ -127,13 +128,14 @@ for ntuple = rand_tuples' % this will need to be prioritized
         elseif ii == 2
             iy2 = find(states == next_state);
         end
-
-        sdata(ntuple, 1) = ix1;
-        sdata(ntuple, 2) = ix2;
-        sdata(ntuple, 3) = iy1;
-        sdata(ntuple, 4) = iy2;        
-
     end
+
+    sdata(ntuple, 1) = ix1;
+    sdata(ntuple, 2) = ix2;
+    sdata(ntuple, 3) = iy1;
+    sdata(ntuple, 4) = iy2;     
+
+    mdata(ntuple, :) = torques;
 
     if sdata(ntuple, 1) == sdata(ntuple, 2)
         rl_state = sdata(ntuple, 1);
@@ -154,7 +156,7 @@ for ntuple = rand_tuples' % this will need to be prioritized
 %     xix = randsample(nstates, 4);
 %     if sum(rl_state == xix')
 %     if sum(rl_state == 57:60)
-    if sum(rl_state == 28)
+    if sum(rl_state == 28:38)
         rl_reward = 1;
     else
         rl_reward = 0;
@@ -173,6 +175,11 @@ for ntuple = rand_tuples' % this will need to be prioritized
 end
 
 rl_data(end,:) = [];
+
+%%
+save('rl_data', 'rl_data')
+save('sdata', 'sdata')
+
 
 %% Plot mdp
 figure(1)
@@ -235,21 +242,15 @@ for ii_state = 1:nstates
         transition_counter(ii_state, :, naction) = this_val;
     end
 end
-x = [];
-for ii_state = 1:nstates
-    for naction = 1:nactions
-        this_sum = sum(transition_counter(ii_state, :, naction));
-        this_array = transition_counter(ii_state, :, naction);
-        this_diff = 1 - sum(this_array);
-        x = [x; this_array];
-    end
-end
 
 mdp.T = transition_counter;
 reward_counter = reward_counter_save ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
-mdp.TerminalStates = "s28";
+% mdp.TerminalStates = 's28';
+
+save('mdp', 'mdp')
+
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() ((0.5 * nactions) + 0.5);
 env.ResetFcn = @() randsample(nstates, 1);
@@ -261,14 +262,14 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 %% Shallow
 agent_opt = rlQAgentOptions;
-agent_opt.DiscountFactor = 0.99;
+agent_opt.DiscountFactor = 0.1;
 qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.1;
+qOptions.LearnRate = 1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 10;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -291,8 +292,8 @@ agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 10;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
 training_opts.UseParallel = 1;
