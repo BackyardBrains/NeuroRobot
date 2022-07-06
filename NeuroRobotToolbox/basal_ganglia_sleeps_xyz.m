@@ -6,22 +6,21 @@ clc
 
 
 %% Get states
-load rl_net
+load livingroom2_net
 
-rootdir = '.\Data_1\';
-filelist = dir(fullfile(rootdir, '**\*.png'));  %get list of files and folders in any subfolder
+rootdir = '.\Data_1\Rec_2\';
 folders = folders2labels(rootdir);
 unique_states = unique(folders);
 nstates = length(unique_states);
 
 rootdir = '.\Data_2\';
-% get_states
+get_states
 load(horzcat(rootdir, 'states.mat'))
 nsteps = length(states);
 
 get_xdata
 
-states = modefilt(states, [15 1]);
+% states = modefilt(states, [15 1]);
 
 %% Get actions
 torques_dir = dir(fullfile(rootdir, '**\*torques.mat'));
@@ -165,7 +164,7 @@ for ntuple = 1:ntuples
     this_action = tuples(ntuple, 2);
     this_next_state = tuples(ntuple, 3);
 
-    if sum(this_state == 25:44)
+    if sum(this_state == 1:4)
         this_reward = 1;
     else
         this_reward = 0;

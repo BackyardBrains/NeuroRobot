@@ -20,7 +20,7 @@ for nstep = 1:nimages/2
         this_ind = nstep*2-(ii-1);
         
         this_im = imread(strcat(images_dir(this_ind).folder, '\',  images_dir(this_ind).name));
-        this_im = imresize(this_im, 'outputsize', [50 50]);
+%         this_im = imresize(this_im, 'outputsize', [50 50]);
         state = classify(net, this_im);
         
         if ii == 1
