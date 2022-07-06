@@ -1,63 +1,67 @@
 
 
-%% Create image database
-ims = imageDatastore('.\Experiences\Recording_2-9\*.png');
-n = length(ims.Files);
-ims = subset(ims, randsample(n, round(n/3)));
-frames = readall(ims);
-nframes = length(frames)
-% % imageIndex = indexImages(ims);
+close all
+clear
+clc
 
-%% Create Bag of Features
-bag = bagOfFeatures(ims, 'TreeProperties', [1 5]);
-save('bag5_rec_2-9.mat', 'bag')
-nfeatures = bag.NumVisualWords;
-% disp(horzcat('Hippocampus slept ', num2str(round(toc/60/60)), ' hrs'))
+this_dir = '.\Data_1\Rec_2\';
+ims = imageDatastore(this_dir,'IncludeSubFolders',true','LabelSource','foldernames');
+ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+imdim = 227;
 
-%% Get feature vectors
-xdata = zeros(nframes, nfeatures);
-for nframe = 1:nframes
-    img = frames{nframe};
-    [featureVector, words] = encode(bag, img);
-    xdata(nframe, :) = featureVector;
-end
+% dist_ds = arrayDatastore(distance);
+% final_ds = combine(img_ds, dist_ds);
 
-%% Get distances
-dists = pdist(xdata);
-links = linkage(dists, 'average');
-figure(11)
-clf
-[~, ~, o] = dendrogram(links, nframes);
 
-%% Clustering
-ngroups = 200;
-clusts = cluster(links,'maxclust',ngroups);
-for ii = 1:ngroups
-    if sum(clusts == ii) > 50
-        figure(ii)
-        clf
-        montage({frames{clusts == ii}})
-        title(horzcat('Group ', num2str(ii)))
-    end
-end
-figure(ii+1)
-histogram(clusts, 'binwidth', 1)
+%%
+net = [
+    imageInputLayer([imdim imdim 3])
+    
+    convolution2dLayer(3,16,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,32,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,32,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    fullyConnectedLayer(24)
+    softmaxLayer
+    classificationLayer];
 
-% %% dbscan clustering
-% y = dbscan(xdata, 0.8, 5);
-% z = unique(y);
-% z(z == -1) = [];
-% ngroups = length(z);
-% for ii = 1:ngroups
-%     figure(3+ii)
-%     clf
-%     x = find(y == ii);
-%     if length(x) > 20
-%         x = randsample(x, 20);
-%     end    
-%     montage({frames{x}})
-%     title(horzcat('Group ', num2str(ii)))
+options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
+
+% LearnRateDropFactor=0.5, ...
+%     LearnRateDropPeriod=1, ....
+%     LearnRateSchedule="piecewise", ...
+
+% options = trainingOptions("sgdm", ...
+%     InitialLearnRate=0.001,...
+%     MiniBatchSize=64, ...
+%     Plots="training-progress")
+
+net = trainNetwork(ims, net, options)
+
+save('livingroom2_net', 'net')
+
+
+% unique_states = unique(rl_data(:,1));
+% for ii = unique_states'
+%     these_frames = rl_data(:,1) == ii;
+%     if sum(these_frames) > 50
+%         figure(ii)
+%         montage({frames{these_frames}})
+%         title(horzcat('State: ', num2str(ii)))
+%         pause
+%     end
 % end
-
-
 
