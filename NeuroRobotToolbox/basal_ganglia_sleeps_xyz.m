@@ -18,9 +18,9 @@ get_states
 load(horzcat(rootdir, 'states.mat'))
 nsteps = length(states);
 
-get_xdata
+% get_xdata
 
-% states = modefilt(states, [15 1]);
+states = modefilt(states, [9 1]);
 
 %% Get actions
 torques_dir = dir(fullfile(rootdir, '**\*torques.mat'));
@@ -164,7 +164,9 @@ for ntuple = 1:ntuples
     this_action = tuples(ntuple, 2);
     this_next_state = tuples(ntuple, 3);
 
-    if sum(this_state == 1:4)
+%     goal_states = randsample(nstates,4);
+    goal_states = 1:4;
+    if sum(this_state == goal_states)
         this_reward = 1;
     else
         this_reward = 0;
@@ -214,27 +216,29 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_xyz', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent_xyz', 'agent')
 
-%% Deep
-agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.99;
-% agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
-% agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
-% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
-agent = rlDQNAgent(critic, agent_opt);
-training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 5;
-training_opts.UseParallel = 1;
-trainingStats_deep = train(agent, env, training_opts);
-figure(12)
-clf
-set(gcf, 'color', 'w')
-scan_agent
-ylim([0 nstates + 1])
-title('Agent xyz2')
-set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_xyz2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_xyz2', 'agent')
+
+% %% Deep
+% agent_opt = rlDQNAgentOptions;
+% agent_opt.DiscountFactor = 0.99;
+% % agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
+% % agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
+% % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.005;
+% agent = rlDQNAgent(critic, agent_opt);
+% training_opts = rlTrainingOptions;
+% training_opts.MaxEpisodes = 500;
+% training_opts.MaxStepsPerEpisode = 100;
+% training_opts.StopTrainingValue = 500;
+% training_opts.StopTrainingCriteria = "AverageReward";
+% training_opts.ScoreAveragingWindowLength = 5;
+% training_opts.UseParallel = 1;
+% trainingStats_deep = train(agent, env, training_opts);
+% figure(12)
+% clf
+% set(gcf, 'color', 'w')
+% scan_agent
+% ylim([0 nstates + 1])
+% title('Agent xyz2')
+% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+% export_fig(horzcat('agent_xyz2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+% save('agent_xyz2_a3', 'agent')
 
