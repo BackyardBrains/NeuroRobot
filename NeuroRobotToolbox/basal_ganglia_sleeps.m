@@ -14,40 +14,31 @@ unique_states = unique(folders);
 nstates = length(unique_states);
 
 rootdir = '.\Data_2\';
-get_states
+% get_states
 load(horzcat(rootdir, 'states.mat'))
 nsteps = length(states);
 
-% get_xdata
-
-states = modefilt(states, [9 1]);
+% states = modefilt(states, [9 1]);
 
 %% Get actions
 torques_dir = dir(fullfile(rootdir, '**\*torques.mat'));
-ntorques = size(torques_dir, 1);
-ntuples = sum(abs(diff(states)) > 0);
-tuples = zeros(ntuples, 3);
 
 nmotors = 2;
 ntorques = 2; % Should be odd number
 motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
-motor_combs = motor_combs * 100;
+motor_combs = motor_combs * 500;
 
-% motor_combs = zeros(5,2);
-% motor_combs(1,:) = 50;
-% motor_combs(2,1) = 50;
-% motor_combs(2,2) = -50;
-% motor_combs(3,1) = -50;
-% motor_combs(3,2) = 50;
-% motor_combs(5,:) = -50;
+% motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 
 motor_combs = padarray(motor_combs, [0 1], rand * 0.001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.001, 'post');
 nactions = size(motor_combs, 1);
 
-counter = 0;
-buf = [];
-bufl = [];
+state1_buffer = [];
+state2_buffer = [];
+action_buffer = [];
+tuples = [];
+moving = 0;
 for nstep = 1:nsteps-1
 
     this_state = states(nstep);
@@ -58,27 +49,30 @@ for nstep = 1:nsteps-1
     torques(torques > 250) = 250;
     torques(torques < -250) = -250;
 
-    buf = [buf; torques];
-    
-    if this_state ~= this_next_state
-
-        counter = counter + 1;
-    
-        motor_vector = sum(buf, 1);
+    if sum(torques)
+        moving = moving + 1;
+        state1_buffer = [state1_buffer; this_state];
+        action_buffer = [action_buffer; torques];
+        state2_buffer = [state2_buffer; this_next_state];
+    elseif moving
+%         state1_buffer'
+%         action_buffer'
+%         state2_buffer'
+        moving = 0;
+        motor_vector = mean(action_buffer, 1);
         motor_vector = padarray(motor_vector, [0 1], rand * 0.001, 'pre');
         motor_vector = padarray(motor_vector, [0 1], rand * 0.001, 'post');
         r = corr(motor_vector', motor_combs');    
         [~, ind] = max(r);
         this_action = ind;
-
-        tuples(counter, 1) = this_state;
-        tuples(counter, 2) = this_action;
-        tuples(counter, 3) = this_next_state;
-   
-        bufl = [bufl length(buf)];
-        buf = [];
+        tuples = [tuples; state1_buffer(1), this_action, state2_buffer(end)];
+        state1_buffer = [];
+        action_buffer = [];
+        state2_buffer = [];
     end
 end
+
+ntuples = size(tuples, 1);
 
 %% Get Markov Decision Process
 mdp = createMDP(nstates, nactions);
@@ -148,9 +142,9 @@ subplot(2,2,3)
 imagesc(mean(transition_counter, 3))
 title('Transitions')
 
-subplot(2,2,4)
-histogram(bufl)
-title('Movements per transition')
+% subplot(2,2,4)
+% histogram(bufl)
+% title('Movements per transition')
 
 export_fig(horzcat('agent_5_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 

@@ -1,7 +1,7 @@
 
 images_dir = dir(fullfile(rootdir, '**\*.png'));  %get list of files and folders in any subfolder
 nimages = size(images_dir,1);
-disp(horzcat('nstates: ', num2str(nstates)))
+disp(horzcat('nimages: ', num2str(nimages)))
 
 states = zeros(nimages/2, 1);
 
