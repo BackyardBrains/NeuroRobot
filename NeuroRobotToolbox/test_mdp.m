@@ -10,12 +10,34 @@
 %     mdp.T(14,13,:); mdp.T(18,17,:); mdp.T(22,21,:)];
 % squeeze(turning_right)
 
-origin = [2 1 3 4 2] - 1;
-turning_left = [];
-for ii = 1:4:24
-    for jj = 1:4
-        this_array = squeeze(mdp.T(origin(ii + jj), origin(ii + jj + 1), :))
-        turning_left = [turning_left; this_array];
-    end
-end
+% origin = [2 1 3 4 2] - 1;
+% turning_left = [];
+% for ii = 1:4:24
+%     this_array = squeeze(mdp.T(origin(ii + jj + 1), origin(ii + jj), :))
+%         turning_left = [turning_left; this_array];    
+%     for jj = 1:4
+%         this_array = squeeze(mdp.T(origin(ii + jj + 1), origin(ii + jj), :))
+%         turning_left = [turning_left; this_array];
+%     end
+% end
+% 
+% figure(1)
+% clf
+% plot(mean(turning_left, 2))
 
+turning_left = [...
+    squeeze(mdp.T(1, 5, :)), ...
+    squeeze(mdp.T(2, 14, :)), ...
+    squeeze(mdp.T(6, 18, :)), ...
+    squeeze(mdp.T(10, 22, :)), ...
+    squeeze(mdp.T(10, 22, :)), ...
+    squeeze(mdp.T(21, 17, :)), ...
+    squeeze(mdp.T(17, 13, :)), ...
+    squeeze(mdp.T(16, 20, :)), ...
+    squeeze(mdp.T(23, 11, :)), ...
+    squeeze(mdp.T(16, 20, :)), ...
+    ];
+
+figure(1)
+clf
+plot(mean(turning_left, 2))
