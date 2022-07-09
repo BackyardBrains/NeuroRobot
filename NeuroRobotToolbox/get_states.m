@@ -1,14 +1,11 @@
 
-images_dir = dir(fullfile(rootdir, '**\*.png'));  %get list of files and folders in any subfolder
-nimages = size(images_dir,1);
-disp(horzcat('nimages: ', num2str(nimages)))
 
-states = zeros(nimages/2, 1);
+states = zeros(ntuples, 1);
 
-for nstep = 1:nimages/2
+for nstep = 1:ntuples
 
-    if ~rem(nstep, round((nimages/2)/100))
-        disp(num2str(nstep/(nimages/2)))
+    if ~rem(nstep, round(ntuples/10))
+        disp(num2str(nstep/ntuples))
     end
 
     left_state = NaN;
@@ -19,8 +16,7 @@ for nstep = 1:nimages/2
         
         this_ind = nstep*2-(ii-1);
         
-        this_im = imread(strcat(images_dir(this_ind).folder, '\',  images_dir(this_ind).name));
-%         this_im = imresize(this_im, 'outputsize', [50 50]);
+        this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
         state = classify(net, this_im);
         
         if ii == 1
@@ -39,8 +35,9 @@ for nstep = 1:nimages/2
         this_state = right_state;
     end
 
-    states(nstep, 1) = this_state;
+    states(nstep) = this_state;
 
 end
 
-save(horzcat(rootdir, 'states.mat'), 'states')
+save('states', 'states')
+
