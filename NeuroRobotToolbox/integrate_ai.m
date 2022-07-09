@@ -1,5 +1,4 @@
 
-close all
 clear
 clc
 
@@ -48,6 +47,16 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 disp(horzcat('n uniqe actions: ', num2str(n_unique_actions)))
 disp(horzcat('n tuples: ', num2str(ntuples)))
 
+%% Prepare figure
+figure(1)
+clf
+subplot(1,2,1)
+left_eye = image(zeros(227, 227, 3));
+left_title = title('');
+subplot(1,2,2)
+right_eye = image(zeros(227, 227, 3));
+right_title = title('');
+
 %% 
 image_buffer = [];
 state_buffer = [];
@@ -63,7 +72,6 @@ for ntuple = 1:ntuples - 1
     if ~rem(ntuple, round((ntuples-1)/10))
         disp(num2str(ntuple/(ntuples-1)))
     end
-
 
     this_state = states(ntuple);
     this_action = actions(ntuple);
@@ -92,8 +100,8 @@ for ntuple = 1:ntuples - 1
     elseif moving
         disp(horzcat('processing sequence of ', num2str(moving), ' actions'))
         moving = 0;
-        btuples = [btuples; state_buffer(1), next_state_buffer(end), this_action];
-        disp(num2str(btuples))
+%         btuples = [btuples; state_buffer(1), next_state_buffer(end), this_action];
+%         disp(num2str(btuples))
         state_buffer = [];
         torque_buffer = [];
         next_state_buffer = [];
@@ -105,11 +113,26 @@ for ntuple = 1:ntuples - 1
     atuples(ntuple, 2) = this_next_state;
     atuples(ntuple, 3) = this_action;
 
+    image_array = [left_eye_frame; right_eye_frame];
+    image_array_2 = reshape(image_array, 227, 227, 3, size(image_array, 1)/size(image_array, 2));
+    left_eye.CData = right_eye_frame;
+    left_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
+    right_eye.CData = left_eye_frame;
+    right_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
+    clc
+    disp(horzcat('ntuple: ', num2str(ntuple)))
+    disp(horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state))));
+    disp(horzcat('S: ', num2str(this_state), ', A: ', num2str(this_action), ', Sx: ', num2str(this_next_state)))
+%     pause
+    drawnow
+
 end
 
 
-
 %% Get Markov Decision Process
+tuples = atuples;
+% tuples = btuples; % adjust montage
+
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
 for ntuple = 1:nimages
