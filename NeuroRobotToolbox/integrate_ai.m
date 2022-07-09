@@ -9,15 +9,13 @@ labels = folders2labels(classifier_dir_name);
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-%% Classifier
-load livingroom2_net
-
 %% Tuples
 tuples_dir_name = '.\Data_3\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 ntuples = size(image_dir, 1)/2;
 
 %% States
+% load livingroom2_net
 % get_states
 load('states.mat')
 mode_states = modefilt(states, [9 1]);
@@ -40,22 +38,22 @@ load('actions')
 
 %% Checksum
 if ntuples ~= length(torque_data)
-    error('unequeal number of states and torques')
+    disp('unequeal number of states and torques!!!')
 end
 
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 disp(horzcat('n uniqe actions: ', num2str(n_unique_actions)))
 disp(horzcat('n tuples: ', num2str(ntuples)))
 
-%% Prepare figure
-figure(1)
-clf
-subplot(1,2,1)
-left_eye = image(zeros(227, 227, 3));
-left_title = title('');
-subplot(1,2,2)
-right_eye = image(zeros(227, 227, 3));
-right_title = title('');
+% %% Prepare figure
+% figure(1)
+% clf
+% subplot(1,2,1)
+% left_eye = image(zeros(227, 227, 3));
+% left_title = title('');
+% subplot(1,2,2)
+% right_eye = image(zeros(227, 227, 3));
+% right_title = title('');
 
 %% 
 image_buffer = [];
@@ -63,10 +61,10 @@ state_buffer = [];
 next_state_buffer = [];
 torque_buffer = [];
 action_buffer = [];
-
 atuples = zeros(ntuples - 1, 3);
 btuples = [];
 moving = 0;
+moving_counter = [];
 for ntuple = 1:ntuples - 1
 
     if ~rem(ntuple, round((ntuples-1)/10))
@@ -75,6 +73,7 @@ for ntuple = 1:ntuples - 1
 
     this_state = states(ntuple);
     this_action = actions(ntuple);
+    these_torques = torque_data(ntuple, :);
     this_next_state = states(ntuple + 1);
     
     for ii = 1:2
@@ -87,22 +86,25 @@ for ntuple = 1:ntuples - 1
         end    
     end
 
-    torques = torque_data(ntuple, :);
-
     image_buffer = [image_buffer; left_eye_frame right_eye_frame];
     state_buffer = [state_buffer; this_state];
     next_state_buffer = [next_state_buffer; this_next_state];
-    torque_buffer = [torque_buffer; torques];
+    torque_buffer = [torque_buffer; these_torques];
     action_buffer = [action_buffer; this_action];
 
-    if sum(torques)
+%     if sum(torques)
+    if this_next_state ~= this_state
         moving = moving + 1;
     elseif moving
+        moving_counter = [moving_counter moving];
         disp(horzcat('processing sequence of ', num2str(moving), ' actions'))
         moving = 0;
 %         btuples = [btuples; state_buffer(1), next_state_buffer(end), this_action];
 %         disp(num2str(btuples))
+
+        image_buffer = [];
         state_buffer = [];
+        action_buffer = [];
         torque_buffer = [];
         next_state_buffer = [];
     else
@@ -113,18 +115,16 @@ for ntuple = 1:ntuples - 1
     atuples(ntuple, 2) = this_next_state;
     atuples(ntuple, 3) = this_action;
 
-    image_array = [left_eye_frame; right_eye_frame];
-    image_array_2 = reshape(image_array, 227, 227, 3, size(image_array, 1)/size(image_array, 2));
-    left_eye.CData = right_eye_frame;
-    left_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
-    right_eye.CData = left_eye_frame;
-    right_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
-    clc
-    disp(horzcat('ntuple: ', num2str(ntuple)))
-    disp(horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state))));
-    disp(horzcat('S: ', num2str(this_state), ', A: ', num2str(this_action), ', Sx: ', num2str(this_next_state)))
+%     left_eye.CData = right_eye_frame;
+%     left_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
+%     right_eye.CData = left_eye_frame;
+%     right_title.String = horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state)));
+%     clc
+%     disp(horzcat('ntuple: ', num2str(ntuple), ' of ', num2str(ntuples)))
+%     disp(horzcat('S: ', char(unique_states(this_state)), ', A: ', num2str(this_action), ', Sx: ', char(unique_states(this_next_state))));
+%     disp(horzcat('S: ', num2str(this_state), ', A: ', num2str(this_action), ', Sx: ', num2str(this_next_state)))
+%     drawnow
 %     pause
-    drawnow
 
 end
 
@@ -132,6 +132,7 @@ end
 %% Get Markov Decision Process
 tuples = atuples;
 % tuples = btuples; % adjust montage
+
 
 mdp = createMDP(nstates, nactions);
 transition_counter = zeros(size(mdp.T));
