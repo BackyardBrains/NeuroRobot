@@ -11,13 +11,13 @@ unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = '.\Data_3\';
+tuples_dir_name = 'C:\Users\Christopher Harris\Dropbox (CNE)\Operant\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 ntuples = size(image_dir, 1)/2;
 
 %% States
 % load livingroom2_net
-% get_states
+get_states
 load('states.mat')
 mode_states = modefilt(states, [9 1]);
 
