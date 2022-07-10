@@ -347,3 +347,26 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent_2', 'agent')
 
+%%
+
+critic = rlQValueFunction(qTable,obsInfo,actInfo);
+opt = rlSARSAAgentOptions
+agent = rlSARSAAgent(critic,opt)
+
+
+training_opts = rlTrainingOptions;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 500;
+training_opts.StopTrainingValue = 500000;
+training_opts.StopTrainingCriteria = "AverageReward";
+training_opts.ScoreAveragingWindowLength = 5;
+trainingStats_shallow = train(agent,env, training_opts);
+figure(11)
+clf
+set(gcf, 'color', 'w')
+scan_agent
+ylim([0 n_unique_states + 1])
+title('Agent 3 (sarsa)')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat('agent3_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent3', 'agent')
