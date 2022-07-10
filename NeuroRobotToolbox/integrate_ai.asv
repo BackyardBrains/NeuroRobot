@@ -116,14 +116,14 @@ for ntuple = 1:ntuples - 1
                 right_eye_frame = this_im;
             end    
         end
-%     image_buffer = [image_buffer; binocular];        
     end
 
+%     image_buffer = [image_buffer; binocular];
     state_buffer = [state_buffer; this_state];
     next_state_buffer = [next_state_buffer; this_next_state];
     torque_buffer = [torque_buffer; these_torques];
     action_buffer = [action_buffer; this_action];
-    dist_buffer = [dist_buffer; this_dist];
+    dist_buffer = [dist_buffer, ]
 
 %     if sum(torques)
     if this_next_state ~= this_state
@@ -144,7 +144,6 @@ for ntuple = 1:ntuples - 1
         image_buffer = [];
         state_buffer = [];
         action_buffer = [];
-        dist_buffer = [];
         torque_buffer = [];
         next_state_buffer = [];
     else
@@ -154,7 +153,6 @@ for ntuple = 1:ntuples - 1
         action_buffer = [];
         torque_buffer = [];
         next_state_buffer = [];
-        dist_buffer = [];
     end
     
     atuples(ntuple, 1) = this_state;
@@ -254,7 +252,7 @@ set(gca, 'yscale', 'log')
 title('Movements per sequence')
 xlabel('Moving tran sitions (moving counter)')
 
-export_fig(horzcat('mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('agent_5_', num2str(date), '_mdp'), '-r150', '-jpg', '-nocrop')
 
 %% Get reward
 reward_counter = zeros(size(mdp.R));
@@ -285,7 +283,6 @@ reward_counter = reward_counter ./ transition_counter_save;
 reward_counter(isnan(reward_counter)) = 0;
 mdp.R = reward_counter;
 save('reward_counter', 'reward_counter')
-disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 
 %%
 % mdp.TerminalStates = 's1';
@@ -317,10 +314,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Agent 1')
+title('Agent xyz')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent1_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent1', 'agent')
+export_fig(horzcat('agent_xyz', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_xyz', 'agent')
 
 %% Deep
 agent_opt = rlDQNAgentOptions;
@@ -342,8 +339,8 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Agent 2')
+title('Agent xyz2')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent_2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent_2', 'agent')
+export_fig(horzcat('agent_xyz2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
+save('agent_xyz2', 'agent')
 

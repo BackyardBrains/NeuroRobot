@@ -1,10 +1,11 @@
 
 
 states = zeros(ntuples, 1);
+disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
 
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/10))
+    if ~rem(ntuple, round(ntuples/100))
         disp(num2str(ntuple/ntuples))
     end
 
@@ -16,7 +17,11 @@ for ntuple = 1:ntuples
         
         this_ind = ntuple*2-(ii-1);
         
-        this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+        try
+            this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+        catch
+            this_im = zeros(227, 227, 3, 'uint8');
+        end
         state = classify(net, this_im);
         
         if ii == 1

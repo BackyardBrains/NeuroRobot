@@ -1,8 +1,10 @@
 
 torque_data = zeros(ntuples, 2);
+disp(horzcat('getting ', num2str(ntuples), ' torques'))
+
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/10))
+    if ~rem(ntuple, round(ntuples/20))
         disp(num2str(ntuple/ntuples))
     end
 
