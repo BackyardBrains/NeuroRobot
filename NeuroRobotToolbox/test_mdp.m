@@ -1,13 +1,16 @@
 
 origin = [2 1 3 4 2] - 1;
-turning_left = [];
+data = [];
 for ii = 1:4:n_unique_states
     for jj = 1:4
-        this_array = squeeze(mdp.T(ii + origin(jj), ii + origin(jj + 1), :))
-        turning_left = [turning_left this_array];
+        this_state = ii + origin(jj + 1)
+        this_next_state = ii + origin(jj)
+        this_array = squeeze(mdp.T(this_state, this_next_state, :))
+        data = [data this_array];
     end
 end
 
-figure(1)
-clf
-plot(mean(turning_left, 2))
+% figure(10)
+% clf
+hold on
+plot(mean(data, 2), 'color', [0.8 0.4 0.2])

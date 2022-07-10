@@ -33,14 +33,14 @@ load('torque_data')
 load('dists')
 
 %% Actions
-torque_vals = 3;
+torque_vals = 2;
 motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
 motor_combs = motor_combs * 50;
-% motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
+motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-% get_actions
+get_actions
 load('actions')
 
 %% Checksum
@@ -205,13 +205,13 @@ for ii_state = 1:n_unique_states
             this_val = transition_counter(ii_state, :, naction) / this_sum;
         else
             this_val = zeros(size(transition_counter(ii_state, :, naction)));
-            this_val(ii_state) = 0.5;
+%             this_val(ii_state) = 0.05;
             flag = 0;
             while ~flag
                 if sum(this_val) < 1
                     this_state = randsample(1:n_unique_states, 1);
                     if this_state ~= ii_state
-                        this_val(this_state) = 0.05;
+                        this_val(this_state) = 0.02;
                         disp('padded')
                     end
                 else
@@ -265,17 +265,17 @@ for ntuple = 1:ntuples
     this_next_state = tuples(ntuple, 2);
     this_action = tuples(ntuple, 3);
 
-%     goal_states = randsample(n_unique_states,4);
+%     goal_states = randsample(n_unique_states, 8);
 %     goal_states = 1:4:n_unique_states;
-    goal_states = 1:4;
+    goal_states = [1:4, 13:16];
     if sum(this_state == goal_states)
         this_reward = 1;
     else
         this_reward = 0;
     end
-    if this_dist
-        this_reward = this_reward - (1/this_dist);
-    end
+%     if this_dist
+%         this_reward = this_reward - (1/this_dist);
+%     end
     
     reward_counter(this_state, this_next_state, this_action) = reward_counter(this_state, this_next_state, this_action) + this_reward;
 
@@ -298,20 +298,20 @@ actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
-%% Shallow
+%% Agent 1 (Q)
 agent_opt = rlQAgentOptions;
 agent_opt.DiscountFactor = 0.1;
 qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.1;
+qOptions.LearnRate = 0.1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
-trainingStats_shallow = train(agent,env, training_opts);
+trainingStats_shallow = train(agent,env, training_opts)
 figure(11)
 clf
 set(gcf, 'color', 'w')
@@ -322,16 +322,16 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent1_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent1', 'agent')
 
-%% Deep
+%% Agent 2 (Deep Q)
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.1;
+agent_opt.DiscountFactor = 0.99;
 % agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
 % agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
-agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.5;
+% agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.5;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
@@ -347,16 +347,15 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent_2', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent_2', 'agent')
 
-%%
+%% Agent 3 (SARSA)
 
 critic = rlQValueFunction(qTable,obsInfo,actInfo);
 opt = rlSARSAAgentOptions
 agent = rlSARSAAgent(critic,opt)
 
-
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 5;
@@ -370,3 +369,7 @@ title('Agent 3 (sarsa)')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent3_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
 save('agent3', 'agent')
+
+
+%% Agent 4 (custom)
+reinforcementLearningDesigner
