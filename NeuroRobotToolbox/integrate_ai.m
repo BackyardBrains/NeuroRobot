@@ -19,9 +19,9 @@ serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-load livingroom2_net
-get_states
-% load('states')
+% load livingroom2_net
+% get_states
+load('states')
 states = modefilt(states, [9 1]);
 
 %% Torques
@@ -297,11 +297,11 @@ qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 %%
-save('states_rand', 'states')
-save('torque_data_rand', 'torque_data')
-save('actions_rand', 'actions')
-save('mdp_rand', 'mdp')
-save('transition_counter_save', 'transition_counter_save')
+save('states', 'states')
+save('torque_data', 'torque_data')
+save('actions', 'actions')
+save('mdp', 'mdp')
+save('transition_counter', 'transition_counter_save')
 
 %% Agent 1 (Q)
 agent_opt = rlQAgentOptions;
