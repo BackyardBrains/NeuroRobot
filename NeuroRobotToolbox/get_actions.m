@@ -1,9 +1,10 @@
 
 actions = zeros(ntuples, 1);
 disp('getting actions')
-
+% xtuples = randsample(ntuples, ntuples);
 for ntuple = 1:ntuples
 
+%     ntuple = xtuples(xtuple);
     if ~rem(ntuple, round(ntuples/20))
         disp(num2str(ntuple/ntuples))
     end

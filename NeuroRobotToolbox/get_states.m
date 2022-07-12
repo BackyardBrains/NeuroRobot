@@ -2,10 +2,11 @@
 
 states = zeros(ntuples, 1);
 disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
-
+% xtuples = randsample(ntuples, ntuples);
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/100))
+%     ntuple = xtuples(xtuple);
+    if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
 
@@ -40,6 +41,7 @@ for ntuple = 1:ntuples
         this_state = right_state;
     end
 
+%     states(ntuple) = round(rand * 23) + 1;
     states(ntuple) = this_state;
 
 end
