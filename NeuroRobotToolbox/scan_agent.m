@@ -1,4 +1,7 @@
 
+% n_unique_states  = 25;
+% n_unique_actions = 4;
+
 set(gcf, 'position', [100 50 1280 720])
 data = zeros(n_unique_states, 2);
 clf

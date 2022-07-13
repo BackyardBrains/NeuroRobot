@@ -25,8 +25,8 @@ load('states')
 states = modefilt(states, [9 1]);
 
 %% Torques
-get_torques
-% load('torque_data')
+% get_torques
+load('torque_data')
 
 %% Distances
 % get_dists
@@ -40,14 +40,10 @@ motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-get_actions
-% load('actions')
+% get_actions
+load('actions')
 
 %% Checksum
-if ntuples ~= length(torque_data)
-    disp('unequeal number of states and torques!!!')
-end
-
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 disp(horzcat('n uniqe actions: ', num2str(n_unique_actions)))
 disp(horzcat('n tuples: ', num2str(ntuples)))
@@ -78,6 +74,7 @@ moving = 0;
 moving_counter = [];
 % xtuples = randsample(ntuples - 1, ntuples - 1);
 % ytuples = randsample(ntuples - 1, ntuples - 1);
+stepcount = 0;
 for ntuple = 1:ntuples - 1
 
 %     ntuple = xtuples(xtuple);
@@ -130,12 +127,17 @@ for ntuple = 1:ntuples - 1
     action_buffer = [action_buffer; this_action];
     dist_buffer = [dist_buffer; this_dist];
 
+    
 %     if sum(torques)
     if this_next_state ~= this_state
+%     if stepcount < 10
+%         stepcount = stepcount + 1;
         moving = moving + 1;
     elseif moving
+%     elseif stepcount
         moving_counter = [moving_counter moving];
         moving = 0;
+%         stepcount = 0;
         
         motor_vector = mean(torque_buffer(1:end-1, :), 1);
         motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'pre');
@@ -196,11 +198,8 @@ for ntuple = 1:ntuples
     end
 end
 
-transition_counter_save = transition_counter;
 disp(horzcat('n transitions: ', num2str(sum(transition_counter(:)))))
-
-%% Normalize MDP
-transition_counter = transition_counter_save;
+transition_counter_save = transition_counter;
 
 for ii_state = 1:n_unique_states
     for naction = 1:n_unique_actions
@@ -260,131 +259,29 @@ export_fig(horzcat('mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 %% Get reward
 reward_counter = zeros(size(mdp.R));
-counter = 0;
-for ntuple = 1:ntuples
-
-    this_state = tuples(ntuple, 1);
-    this_next_state = tuples(ntuple, 2);
-    this_action = tuples(ntuple, 3);
-
-%     goal_states = randsample(n_unique_states, 8);
-    goal_states = [1:4, 13:16];
-    if sum(this_state == goal_states)
-        this_reward = 1;
-    else
-        this_reward = 0;
-    end
-%     if this_dist
-%         this_reward = this_reward - (1/this_dist);
-%     end
-    
-    reward_counter(this_state, this_next_state, this_action) = reward_counter(this_state, this_next_state, this_action) + this_reward;
-
-end
-
-reward_counter = reward_counter ./ transition_counter_save;
-reward_counter(isnan(reward_counter)) = 0;
+reward_counter = reward_counter - 1;
+reward_counter(:,14,:) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
+% mdp.TerminalStates = "s14";
 
-%%
-env = rlMDPEnv(mdp);
-env.ResetFcn = @() randsample(n_unique_states, 1);
-validateEnvironment(env)
-obsInfo = getObservationInfo(env);
-actInfo = getActionInfo(env);
-qTable = rlTable(obsInfo, actInfo);
-critic = rlQValueFunction(qTable,obsInfo,actInfo);
-
-%%
-save('states', 'states')
-save('torque_data', 'torque_data')
-save('actions', 'actions')
+%% Scramble 
 save('mdp', 'mdp')
-save('transition_counter', 'transition_counter_save')
+for nstate = 1:n_unique_states
+    for naction = 1:n_unique_actions
+        this_array = mdp.T(nstate, :, naction);
+        mdp.T(nstate, :, naction) = this_array(randperm(length(this_array)));
+    end
+end
+save('mdp_rand', 'mdp')
 
-%% Agent 1 (Q)
-agent_opt = rlQAgentOptions;
-% agent_opt.DiscountFactor = 0.1;
-qOptions = rlOptimizerOptions;
-qOptions.LearnRate = 1;
-agentOpts.CriticOptimizerOptions = qOptions;
-agent = rlQAgent(critic, agent_opt);
-training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 200;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 500000;
-training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 5;
-trainingStats_shallow = train(agent,env, training_opts);
-figure(11)
-clf
-set(gcf, 'color', 'w')
-scan_agent
-ylim([0 n_unique_states + 1])
-title('Agent 1')
-set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent1_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-save('agent1_', 'agent')
-
-% %% Agent 2 (Deep Q)
-% agent_opt = rlDQNAgentOptions;
-% agent_opt.DiscountFactor = 0.99;
-% % agent_opt.EpsilonGreedyExploration.Epsilon = 0.1;
-% % agent_opt.EpsilonGreedyExploration.EpsilonMin = 0.01;
-% % agent_opt.EpsilonGreedyExploration.EpsilonDecay = 0.5;
-% agent = rlDQNAgent(critic, agent_opt);
-% training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = 100;
-% training_opts.MaxStepsPerEpisode = 20;
-% training_opts.StopTrainingValue = 500000;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 5;
-% training_opts.UseParallel = 1;
-% trainingStats_deep = train(agent, env, training_opts);
-% figure(12)
-% clf
-% set(gcf, 'color', 'w')
-% scan_agent
-% ylim([0 n_unique_states + 1])
-% title('Agent 2')
-% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-% export_fig(horzcat('agent2_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-% save('agent2', 'agent')
-
-% %% Agent 3 (SARSA)
-% critic = rlQValueFunction(qTable,obsInfo,actInfo);
-% opt = rlSARSAAgentOptions
-% agent = rlSARSAAgent(critic,opt)
-% training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = 500;
-% training_opts.MaxStepsPerEpisode = 100;
-% training_opts.StopTrainingValue = 500000;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 5;
-% trainingStats_shallow = train(agent,env, training_opts);
-% figure(11)
-% clf
-% set(gcf, 'color', 'w')
-% scan_agent
-% ylim([0 n_unique_states + 1])
-% title('Agent 3 (sarsa) randomized tuples')
-% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-% export_fig(horzcat('agent3_rand_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-% % save('agent3', 'agent')
-% 
-% 
-% %% Agent 4 (custom)
-% reinforcementLearningDesigner
-% 
-% figure(14)
-% clf
-% set(gcf, 'color', 'w')
-% scan_agent
-% ylim([0 n_unique_states + 1])
-% title('Agent 4 (custom) randomized tuples')
-% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-% export_fig(horzcat('agent4_rand_', num2str(date), '_net'), '-r150', '-jpg', '-nocrop')
-% % save('agent4', 'agent')
-
+figure(1)
+subplot(1,2,1)
+load('mdp')
+imagesc(mean(mdp.T, 3), [0 0.2])
+title('MDP')
+subplot(1,2,2)
+load('mdp_rand')
+imagesc(mean(mdp.T, 3), [0 0.2])
+title('RMDP')
 
