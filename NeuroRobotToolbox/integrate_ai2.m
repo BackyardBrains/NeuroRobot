@@ -27,7 +27,7 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('mdp_rand')
+title('Agent 1')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat('agent1_', 'net'), '-r150', '-jpg', '-nocrop')
 save(horzcat('agent1'), 'agent')

@@ -1,0 +1,17 @@
+
+for ntuple = tlog(1) - 10 : tlog(end)
+    ind = ntuple*2 - 1
+    fname = horzcat(image_dir(ind).folder, '\', image_dir(ind).name);
+    im = imread(fname);
+    draw1.CData = im;
+
+    ind = ntuple*2
+    fname = horzcat(image_dir(ind).folder, '\', image_dir(ind).name);
+    im = imread(fname);
+    draw2.CData = im;
+
+    disp(horzcat('ntuple: ', num2str(ntuple))
+    torque_data(ntuple, :)
+    pause(0.2)
+    drawnow
+end

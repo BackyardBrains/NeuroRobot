@@ -22,7 +22,7 @@ ntuples = size(torque_dir, 1);
 % load livingroom2_net
 % get_states
 load('states')
-states = modefilt(states, [3 1]);
+states = modefilt(states, [15 1]);
 
 %% Torques
 % get_torques
@@ -94,11 +94,7 @@ for ntuple = 1:ntuples - 1
     elseif moving
         moving_counter = [moving_counter moving];
         tlog = [tlog ntuple];
-
-        this_val = size(torque_buffer, 1) - 4;
-        this_val = max([this_val, 1]);
-
-        motor_vector = mean(torque_buffer(this_val:end-1, :), 1);
+        motor_vector = mean(torque_buffer(1:end, :), 1);
         motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'pre');
         motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'post');
         r = corr(motor_vector', motor_combs');  
@@ -106,10 +102,9 @@ for ntuple = 1:ntuples - 1
 
         btuples = [btuples; state_buffer(1), state_buffer(end), this_action];
 
-%         clc
-%         disp(horzcat('sequence: ', num2str(length(moving_counter))))
-%         disp(horzcat('movements: ', num2str(moving)))
-%         disp(horzcat('tuples: ', num2str(tlog(1)), ' to ', num2str(tlog(end))))
+        clc
+        disp(horzcat('sequence: ', num2str(length(moving_counter))))
+        disp(horzcat('movements: ', num2str(moving)))
 
         state_buffer = [];
         torque_buffer = [];
@@ -118,15 +113,14 @@ for ntuple = 1:ntuples - 1
 
     else
         state_buffer = [];
-        tlog = [];
-%         torque_buffer = [];
+        torque_buffer = [];
     end
 end
 
 
 %% Get Markov Decision Process
-% tuples = atuples;
-tuples = btuples;
+tuples = atuples;
+% tuples = btuples;
 ntuples = size(tuples, 1);
 
 mdp = createMDP(n_unique_states, n_unique_actions);
@@ -187,7 +181,7 @@ xlabel('Action')
 ylabel('Actions')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.2])
+imagesc(mean(transition_counter, 3), [0 0.5])
 colorbar
 title('Transitions')
 
