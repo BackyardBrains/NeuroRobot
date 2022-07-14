@@ -5,7 +5,7 @@ disp('getting actions')
 for ntuple = 1:ntuples
 
 %     ntuple = xtuples(xtuple);
-    if ~rem(ntuple, round(ntuples/20))
+    if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
 

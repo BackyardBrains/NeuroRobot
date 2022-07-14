@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 1;
+rand_states = 0;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -43,7 +43,7 @@ motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-get_actions
+% get_actions
 load('actions')
 
 %% Checksum
@@ -191,11 +191,7 @@ title('Movements per sequence')
 xlabel('Movements')
 ylabel('Sequences')
 
-if rand_states
-    export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-else
-    export_fig(horzcat('mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-end
+export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Get reward
@@ -205,9 +201,5 @@ reward_counter(:,[1:4, 13:16], :) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 % mdp.TerminalStates = "s14";
-if rand_states
-    save('rmdp', 'mdp')
-else
-    save('mdp', 'mdp')
-end
+save('rmdp', 'mdp')
 
