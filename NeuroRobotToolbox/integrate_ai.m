@@ -195,9 +195,10 @@ reward_counter(:,[1:4, 13:16],[1:2, 4:5]) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 % mdp.TerminalStates = "s14";
+save('mdp', 'mdp')
 
 %% Scramble 
-save('mdp', 'mdp')
+load('mdp')
 for nstate = 1:n_unique_states
     for naction = 1:n_unique_actions
         this_array = mdp.T(nstate, :, naction);
@@ -206,7 +207,9 @@ for nstate = 1:n_unique_states
 end
 save('rmdp', 'mdp')
 
-figure(1)
+figure(2)
+clf
+set(gcf, 'position', [96 110 1330 651])
 subplot(1,2,1)
 load('mdp')
 imagesc(mean(mdp.T, 3), [0 0.2])
@@ -215,4 +218,5 @@ subplot(1,2,2)
 load('rmdp')
 imagesc(mean(mdp.T, 3), [0 0.2])
 title('RMDP')
+clear mdp
 
