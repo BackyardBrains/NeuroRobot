@@ -1,5 +1,5 @@
 
-filename = 'mdp';
+filename = 'rmdp';
 load(filename)
 env = rlMDPEnv(mdp);
 % env.ResetFcn = @() 24;
@@ -27,10 +27,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Agent 1')
+title(horzcat('Agent 1 - ', filename))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent1_', 'net'), '-r150', '-jpg', '-nocrop')
-save(horzcat('agent1'), 'agent')
+export_fig(horzcat('agent1_', filename, '_net'), '-r150', '-jpg', '-nocrop')
+save(horzcat('agent1_', filename), 'agent')
 
 % %% Agent 2 (Deep Q)
 % agent_opt = rlDQNAgentOptions;

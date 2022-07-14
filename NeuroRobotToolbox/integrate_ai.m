@@ -12,17 +12,17 @@ unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\Dropbox (CNE)\Operant\';
+tuples_dir_name = '.\Data_2\Rec_6\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-% load livingroom2_net
+load livingroom2_net
 % get_states
 load('states')
-states = modefilt(states, [3 1]);
+states = modefilt(states, [5 1]);
 
 %% Torques
 % get_torques
@@ -47,18 +47,6 @@ load('actions')
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 disp(horzcat('n uniqe actions: ', num2str(n_unique_actions)))
 disp(horzcat('n tuples: ', num2str(ntuples)))
-
-%% Figure
-if draw_steps
-    figure(1)
-    clf
-    ax1 = axes('Position', [0.02 0.02 0.47 0.96]);
-    draw1 = image(zeros(227, 227, 3));
-    set(gca, 'xtick', [], 'ytick', [])
-    ax2 = axes('Position', [0.51 0.02 0.47 0.96]);
-    draw2 = image(zeros(227, 227, 3));
-    set(gca, 'xtick', [], 'ytick', [])
-end
 
 %% 
 state_buffer = [];
@@ -95,10 +83,10 @@ for ntuple = 1:ntuples - 1
         moving_counter = [moving_counter moving];
         tlog = [tlog ntuple];
 
-        this_val = size(torque_buffer, 1) - 4;
+        this_val = size(torque_buffer, 1) - moving - 5;
         this_val = max([this_val, 1]);
 
-        motor_vector = mean(torque_buffer(this_val:end-1, :), 1);
+        motor_vector = mean(torque_buffer(this_val:end-2, :), 1);
         motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'pre');
         motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'post');
         r = corr(motor_vector', motor_combs');  
@@ -216,7 +204,7 @@ for nstate = 1:n_unique_states
         mdp.T(nstate, :, naction) = this_array(randperm(length(this_array)));
     end
 end
-save('mdp_rand', 'mdp')
+save('rmdp', 'mdp')
 
 figure(1)
 subplot(1,2,1)
@@ -224,7 +212,7 @@ load('mdp')
 imagesc(mean(mdp.T, 3), [0 0.2])
 title('MDP')
 subplot(1,2,2)
-load('mdp_rand')
+load('rmdp')
 imagesc(mean(mdp.T, 3), [0 0.2])
 title('RMDP')
 
