@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 1;
+rand_states = 0;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -43,7 +43,7 @@ motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-get_actions
+% get_actions
 load('actions')
 
 %% Checksum
