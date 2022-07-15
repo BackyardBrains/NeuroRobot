@@ -45,11 +45,12 @@ for ntuple = 1:ntuples
 
     else
 
-        states(ntuple) = randsample(n_unique_states, 1);
+        states(ntuple) = ceil(rand*24);
 
     end
 
 end
 
-save('rstates', 'states')
-
+if ~rand_states
+    save('states', 'states')
+end

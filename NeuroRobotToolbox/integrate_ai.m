@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 0;
+rand_states = 1;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -11,20 +11,20 @@ unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\Dropbox (CNE)\Operant\';
-image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+% image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
-serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
+% serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
+ntuples = size(torque_dir, 1);
 
 %% States
-% load livingroom2_net
-% get_states
+load livingroom2_net
 if ~rand_states
+    % get_states
     load('states')
 else
-    load('rstates')
+    get_states
 end
-ntuples = length(states);
 states = modefilt(states, [5 1]);
 
 %% Torques
@@ -168,7 +168,7 @@ clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
 subplot(2,2,1)
-histogram(tuples(:,1), 'binwidth', 1)
+histogram(tuples(:,1), 'binwidth', .25)
 title('States')
 xlabel('State')
 ylabel('States')
@@ -180,7 +180,7 @@ xlabel('Action')
 ylabel('Actions')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.4])
+imagesc(mean(transition_counter, 3), [0 0.3])
 colorbar
 title('Transitions')
 
@@ -201,10 +201,9 @@ end
 %% Get reward
 reward_counter = zeros(size(mdp.R));
 reward_counter = reward_counter - 1;
-reward_counter(:,[1:4, 13:16], :) = 10;
+reward_counter(:,[4, 16], :) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-% mdp.TerminalStates = "s14";
 if rand_states
     save('rmdp', 'mdp')
 else
