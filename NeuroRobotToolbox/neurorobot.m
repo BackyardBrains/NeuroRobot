@@ -2,11 +2,11 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 0;               % Use RAK5206 or RAK5270
+rak_only = 1;               % Use RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
-use_esp32 = 1;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
+use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
@@ -175,8 +175,8 @@ if save_experiences || use_controllers || dev_mode
 
     torque_vals = 2;
     motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
-    motor_combs = motor_combs * 50;
-    motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
+    motor_combs = motor_combs * 100;
+%     motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
     motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
     motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
     nactions = size(motor_combs, 1);
