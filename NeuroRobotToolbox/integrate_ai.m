@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 0;
+rand_states = 1;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -23,16 +23,16 @@ if ~rand_states
     get_states
 %     load('states')
 else
-    states = states(randperm([ntuples 1])); % ceil(rand*24);
+    states = ceil(rand(ntuples, 1)*24);
 end
 states = modefilt(states, [5 1]);
 
 %% Torques
-get_torques
+% get_torques
 load('torque_data')
 
 %% Distances
-get_dists
+% get_dists
 load('dists')
 
 %% Actions
@@ -43,7 +43,7 @@ motor_combs = motor_combs * 100;
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-get_actions
+% get_actions
 load('actions')
 
 %% Checksum
