@@ -12,13 +12,13 @@ n_unique_states = length(unique_states);
 
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-% image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
-% serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
+image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
+serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-% load livingroom2_net
+load livingroom2_net
 if ~rand_states
     get_states
 %     load('states')
