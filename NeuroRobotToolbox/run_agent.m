@@ -1,8 +1,22 @@
 
 if use_controllers
-    
-    xxxx = predict(net, uframe)
-    
+
+    left_state = NaN;
+    right_state = NaN;
+    this_state = NaN;
+
+    left_state = classify(net, left_uframe);
+    right_state = classify(net, right_uframe);
+
+    left_state = find(unique_states == left_state);
+    right_state = find(unique_states == right_state);
+
+    if left_state == right_state
+        this_state = left_state;
+    else
+        this_state = right_state;
+    end   
+
     disp(horzcat('state: ', num2str(this_state)))
     
     this_action = getAction(agent, this_state);

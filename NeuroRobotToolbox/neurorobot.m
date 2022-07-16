@@ -23,8 +23,8 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 1;
-use_controllers = 0;        % 5 = Random walk for RL
+save_experiences = 0;
+use_controllers = 1;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
 stop_step = 10000;
 
@@ -173,14 +173,20 @@ if save_experiences || use_controllers || dev_mode
     
     nsensors = 2;
 
-    nmotors = 2;
-    ntorques = 5; % Should be odd number
-    motor_combs = combinator(ntorques, nmotors,'p','r') - ((0.5 * ntorques) + 0.5);
-    motor_combs = motor_combs * 25;
+    torque_vals = 2;
+    motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
+    motor_combs = motor_combs * 50;
+    motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
+    motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
+    motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
     nactions = size(motor_combs, 1);
 
     if use_controllers == 1
-        load('agent_1.mat')
+        load livingroom2_net
+        load('agent1_mdp.mat')
+        classifier_dir_name = '.\Data_1\Rec_2\';
+        labels = folders2labels(classifier_dir_name);
+        unique_states = unique(labels);        
     elseif use_controllers == 2
         load('agent_2.mat')
     elseif use_controllers == 3
