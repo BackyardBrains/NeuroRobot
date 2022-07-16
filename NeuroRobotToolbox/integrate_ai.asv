@@ -41,7 +41,7 @@ load('dists')
 torque_vals = 2;
 motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
 motor_combs = motor_combs * 100;
-% motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
+motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
@@ -81,7 +81,7 @@ for ntuple = 5:ntuples - 1
     atuples(ntuple, 3) = actions(ntuple-4);    
     
 %     if sum(these_torques)
-    if this_state ~= states(ntuple + 1)
+    if this_state ~= states(ntuple + 1) && moving <= 5
         moving = moving + 1;
         tlog = [tlog ntuple];
     elseif moving
@@ -118,8 +118,8 @@ end
 
 
 %% Get Markov Decision Process
-tuples = atuples;
-% tuples = btuples;
+% tuples = atuples;
+tuples = btuples;
 ntuples = size(tuples, 1);
 
 mdp = createMDP(n_unique_states, n_unique_actions);
@@ -182,7 +182,7 @@ xlabel('Action')
 ylabel('Actions')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.1])
+imagesc(mean(transition_counter, 3), [0 0.3])
 colorbar
 title('Transitions')
 

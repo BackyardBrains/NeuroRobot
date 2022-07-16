@@ -8,7 +8,7 @@ for ntuple = 1:ntuples
         disp(num2str(ntuple/ntuples))
     end
 
-    if ~rand_states
+%     if ~rand_states
 
         left_state = NaN;
         right_state = NaN;
@@ -43,14 +43,14 @@ for ntuple = 1:ntuples
     
         states(ntuple) = this_state;
 
-    else
+%     else
 
-        states(ntuple) = ceil(rand*24);
+%         states(ntuple) = ceil(rand*24);
 
-    end
+%     end
 
 end
 
-if ~rand_states
+% if ~rand_states
     save('states', 'states')
-end
+% end
