@@ -23,7 +23,9 @@ if ~rand_states
     % get_states
     load('states')
 else
-    get_states
+%     get_states
+    load('states')
+    states = states(randsample(size(states)));
 end
 states = modefilt(states, [5 1]);
 
