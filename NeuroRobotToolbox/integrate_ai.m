@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 1;
+rand_states = 0;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -25,7 +25,7 @@ if ~rand_states
 else
 %     get_states
     load('states')
-    states = states(randsample(size(states)));
+    states = states(randperm(size(states, 1)));
 end
 states = modefilt(states, [5 1]);
 
@@ -38,14 +38,14 @@ load('torque_data')
 load('dists')
 
 %% Actions
-torque_vals = 2;
+torque_vals = 3;
 motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
-motor_combs = motor_combs * 50;
-motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
+motor_combs = motor_combs * 100;
+% motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
 motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
 n_unique_actions = size(motor_combs, 1);
-% get_actions
+get_actions
 load('actions')
 
 %% Checksum
@@ -64,7 +64,7 @@ btuples = [];
 moving = 0;
 moving_counter = [];
 tlog = [];
-for ntuple = 1:ntuples - 1
+for ntuple = 5:ntuples - 1
 
     if ~rem(ntuple, round((ntuples-1)/10))
         disp(num2str(ntuple/(ntuples-1)))
@@ -78,7 +78,7 @@ for ntuple = 1:ntuples - 1
 
     atuples(ntuple, 1) = this_state;
     atuples(ntuple, 2) = states(ntuple + 1);
-    atuples(ntuple, 3) = actions(ntuple);    
+    atuples(ntuple, 3) = actions(ntuple-4);    
     
 %     if sum(these_torques)
     if this_state ~= states(ntuple + 1)
@@ -203,7 +203,7 @@ end
 %% Get reward
 reward_counter = zeros(size(mdp.R));
 reward_counter = reward_counter - 1;
-reward_counter(:,[4, 16], :) = 10;
+reward_counter(:,[1,2,13,14], :) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states
