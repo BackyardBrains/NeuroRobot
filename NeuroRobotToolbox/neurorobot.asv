@@ -187,8 +187,7 @@ if save_experiences || use_controllers || dev_mode
         n_unique_actions = length(unique(actions));
         motor_combs = zeros(n_unique_actions, 2);
         for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
-        end
+            motor_coms(naction, :) = mean(torque_data(actions == ))
 
         load livingroom2_net
         load('agent1_mdp.mat')

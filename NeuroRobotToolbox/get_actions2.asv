@@ -1,0 +1,5 @@
+
+
+ngroups = 10;
+kinds = kmeans(torque_data, ngroups);
+gscatter(torque_data(:,1)+randn(ntuples,1)*5, torque_data(:,2)+randn(ntuples,1)*5, kinds)
