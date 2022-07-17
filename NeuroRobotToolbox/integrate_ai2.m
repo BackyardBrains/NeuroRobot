@@ -2,7 +2,7 @@
 clear
 clc
 
-filename = 'rmdp';
+filename = 'mdp';
 load(filename)
 env = rlMDPEnv(mdp);
 

@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 1;
+rand_states = 0;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -147,7 +147,7 @@ end
 %% Get reward
 reward_counter = zeros(size(mdp.R));
 reward_counter = reward_counter - 1;
-reward_counter(:,[2,14], :) = 10;
+reward_counter(:,[2,14], 1) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states
