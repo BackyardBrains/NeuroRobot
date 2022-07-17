@@ -2,7 +2,7 @@
 clear
 clc
 
-rand_states = 0;
+rand_states = 1;
 
 %% Ontology
 classifier_dir_name = '.\Data_1\Rec_2\';
@@ -32,9 +32,11 @@ states = modefilt(states, [5 1]);
 load('torque_data')
 
 %% Actions
-n_unique_actions = 20;
-actions = kmeans(torque_data, n_unique_actions);
-% load('actions')
+% n_unique_actions = 24;
+% actions = kmeans(torque_data, n_unique_actions);
+% save('actions', 'actions')
+load('actions')
+n_unique_actions = length(unique(actions));
 figure; gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
 
 %% Distances
@@ -124,7 +126,7 @@ xlabel('Action')
 ylabel('Actions')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.05])
+imagesc(mean(transition_counter, 3), [0 0.15])
 colorbar
 title('Transitions')
 
