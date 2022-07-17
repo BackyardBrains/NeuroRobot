@@ -21,9 +21,9 @@ if use_controllers
     
     this_action = getAction(agent, this_state);
 
-    this_motor_vector = motor_combs(this_action, :);
+    this_motor_vector = motor_combs(cell2mat(this_action), :);
 
-    disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(this_motor_vector)))
+    disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
     if this_motor_vector(1) > 0
         left_forward = this_motor_vector(1);
