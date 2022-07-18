@@ -108,6 +108,19 @@ end
 
 mdp.T = transition_counter;
 
+%% Get reward
+reward_counter = zeros(size(mdp.R));
+reward_counter = reward_counter - 1;
+reward_counter(:,1:4:n_unique_states, 1) = 10;
+mdp.R = reward_counter;
+disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
+if rand_states
+    save('rmdp', 'mdp')
+else
+    save('mdp', 'mdp')
+end
+
+
 %% Plot mdp
 figure(10)
 clf
@@ -130,12 +143,17 @@ imagesc(mean(transition_counter, 3), [0 0.15])
 colorbar
 title('Transitions')
 
+% subplot(2,2,4)
+% histogram(moving_counter)
+% set(gca, 'yscale', 'log')
+% title('Movements per sequence')
+% xlabel('Movements')
+% ylabel('Sequences')
+
 subplot(2,2,4)
-histogram(moving_counter)
-set(gca, 'yscale', 'log')
-title('Movements per sequence')
-xlabel('Movements')
-ylabel('Sequences')
+imagesc(mean(reward_counter, 3))
+colorbar
+title('Reward')
 
 if rand_states
     export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
@@ -144,15 +162,4 @@ else
 end
 
 
-%% Get reward
-reward_counter = zeros(size(mdp.R));
-reward_counter = reward_counter - 1;
-reward_counter(:,13:16, 1) = 10;
-mdp.R = reward_counter;
-disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-if rand_states
-    save('rmdp', 'mdp')
-else
-    save('mdp', 'mdp')
-end
 
