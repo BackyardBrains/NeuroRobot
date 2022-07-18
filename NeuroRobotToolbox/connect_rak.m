@@ -16,17 +16,18 @@ drawnow
 
 if rak_only
     try
-%         try
-%             rak_cam_base = evalin('base','rak_cam');
-%             if rak_cam_base.isRunning()
-%                 rak_cam_base.stop();
-%             end
-%             clear rak_cam_base
-%             disp('Previous rak_cam cleared')
-%         catch
-%             disp('may23 connect_rak error')
-%         end
+        try
+            rak_cam_base = evalin('base','rak_cam');
+            if rak_cam_base.isRunning()
+                rak_cam_base.stop();
+            end
+            clear rak_cam_base
+            disp('Previous rak_cam cleared')
+        catch
+            disp('may23 connect_rak error')
+        end
         clear rak_cam
+        disp('Attempting RAK connect...')
         rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
         disp('rak_cam created')
 
