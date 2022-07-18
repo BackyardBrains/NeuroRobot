@@ -22,7 +22,7 @@ if use_controllers
     this_action = getAction(agent, this_state);
 
     this_motor_vector = motor_combs(cell2mat(this_action), :);
-%     this_motor_vector = this_motor_vector/2;
+    this_motor_vector = this_motor_vector/3;
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
