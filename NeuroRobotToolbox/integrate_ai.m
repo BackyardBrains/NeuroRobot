@@ -110,8 +110,8 @@ mdp.T = transition_counter;
 
 %% Get reward
 reward_counter = zeros(size(mdp.R));
-reward_counter = reward_counter - 1;
-reward_counter(:,1:4:n_unique_states, 1) = 10;
+reward_counter = reward_counter - 2;
+reward_counter(:,10, 1) = 10;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states
@@ -142,13 +142,6 @@ subplot(2,2,3)
 imagesc(mean(transition_counter, 3), [0 0.15])
 colorbar
 title('Transitions')
-
-% subplot(2,2,4)
-% histogram(moving_counter)
-% set(gca, 'yscale', 'log')
-% title('Movements per sequence')
-% xlabel('Movements')
-% ylabel('Sequences')
 
 subplot(2,2,4)
 imagesc(mean(reward_counter, 3))

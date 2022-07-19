@@ -23,9 +23,8 @@ if use_controllers
 
     this_motor_vector = motor_combs(cell2mat(this_action), :);
 
-    if max(this_motor_vector) > 100
-        this_motor_vector = this_motor_vector/2;
-    end
+    if max(this_motor_vector) > 5
+    this_motor_vector = this_motor_vector;
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
