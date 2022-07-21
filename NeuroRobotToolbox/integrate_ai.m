@@ -32,7 +32,7 @@ states = modefilt(states, [5 1]);
 load('torque_data')
 
 %% Actions
-% n_unique_actions = 24;
+% n_unique_actions = 10;
 % actions = kmeans(torque_data, n_unique_actions);
 % save('actions', 'actions')
 load('actions')
@@ -59,9 +59,9 @@ for ntuple = 5:ntuples - 1
         disp(num2str(ntuple/(ntuples-1)))
     end
     this_state = states(ntuple);
-    atuples(ntuple-4, 1) = this_state;
-    atuples(ntuple-4, 2) = states(ntuple + 1);
-    atuples(ntuple-4, 3) = actions(ntuple-4);
+    atuples(ntuple - 4, 1) = this_state;
+    atuples(ntuple - 4, 2) = states(ntuple + 1);
+    atuples(ntuple - 4, 3) = actions(ntuple - 4);
 end
 
 
@@ -102,7 +102,12 @@ for ii_state = 1:n_unique_states
                 end
             end
         end
-        transition_counter(ii_state, :, naction) = this_val;
+        if naction == 1
+            transition_counter(ii_state, :, naction) = 0;
+            transition_counter(ii_state, ii_state, naction) = 1;
+        else
+            transition_counter(ii_state, :, naction) = this_val;
+        end
     end
 end
 
@@ -110,8 +115,7 @@ mdp.T = transition_counter;
 
 %% Get reward
 reward_counter = zeros(size(mdp.R));
-reward_counter = reward_counter - 2;
-reward_counter(:,10, 1) = 10;
+reward_counter(:,[2 14], 1) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states

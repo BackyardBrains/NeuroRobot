@@ -2,11 +2,11 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 1;               % Use RAK5206 or RAK5270
+rak_only = 0;               % Use RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
 use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
-use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
+use_esp32 = 1;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 0;                  % Custom sound output
@@ -196,7 +196,19 @@ if save_experiences || use_controllers || dev_mode
         labels = folders2labels(classifier_dir_name);
         unique_states = unique(labels);        
     elseif use_controllers == 2
-        load('agent_2.mat')
+        load('torque_data')
+        load('actions')
+        n_unique_actions = length(unique(actions));
+        motor_combs = zeros(n_unique_actions, 2);
+        for naction = 1:n_unique_actions
+            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
+        end
+
+        load livingroom2_net
+        load('agent2_mdp.mat')
+        classifier_dir_name = '.\Data_1\Rec_2\';
+        labels = folders2labels(classifier_dir_name);
+        unique_states = unique(labels);      
     elseif use_controllers == 3
         load('agent_3.mat')
     elseif use_controllers == 4
