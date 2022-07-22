@@ -18,10 +18,12 @@ if use_controllers
         this_state = left_state;
     else
         this_state = right_state;
-    end   
-    disp(horzcat('left state: ', num2str(left_state)))
-    disp(horzcat('right state: ', num2str(right_state)))
-    disp(horzcat('this state: ', num2str(this_state)))
+    end
+    disp('----')
+    disp(horzcat('xstep: ', num2str(xstep)))
+    disp(horzcat('left state: ', num2str(left_state), ', confidence: ', num2str(left_score(left_state))))
+    disp(horzcat('right state: ', num2str(right_state), ', confidence: ', num2str(right_score(right_state))))
+    disp(horzcat('state: ', num2str(this_state)))
     
     this_action = getAction(agent, this_state);
 
