@@ -14,10 +14,16 @@ if use_controllers
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
-    if left_state == right_state
-        this_state = left_state;
+    if max([left_score right_score]) > 0.9
+        if left_state == right_state
+            this_state = left_state;
+        elseif left_score >= right_score
+            this_state = left_state;
+        else
+            this_state = right_state;
+        end
     else
-        this_state = right_state;
+        disp('I do not know where I am or which way I am heading')
     end
     disp('----')
     disp(horzcat('xstep: ', num2str(xstep)))
@@ -29,9 +35,7 @@ if use_controllers
 
     this_motor_vector = motor_combs(cell2mat(this_action), :);
 
-%     if max(this_motor_vector) > 100
 %         this_motor_vector = this_motor_vector/2;
-%     end
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
@@ -48,23 +52,6 @@ if use_controllers
     end
 
 
-%     this_motor_vector = motor_combs(cell2mat(this_action), :);
     this_motor_vector = this_motor_vector/2;
     
-%     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(this_motor_vector(2:3))))
-%     
-%     if this_motor_vector(2) > 0
-%         left_forward = this_motor_vector(2);
-%     else
-%         left_backward = -this_motor_vector(2);
-%     end
-%     
-%     if this_motor_vector(3) > 0
-%         right_forward = this_motor_vector(3);
-%     else
-%         right_backward = -this_motor_vector(3);
-%     end
-
-
-
 end
