@@ -5,8 +5,8 @@ if use_controllers
     right_state = NaN;
     this_state = NaN;
 
-    left_state = classify(net, left_uframe);
-    right_state = classify(net, right_uframe);
+    [left_state, left_score] = classify(net, left_uframe)
+    [right_state, right_score] = classify(net, right_uframe)
 
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
