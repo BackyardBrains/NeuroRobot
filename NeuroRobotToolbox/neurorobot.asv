@@ -2,16 +2,16 @@
 %%%%  NeuroRobot App by Backyard Brains  %%%%
 
 %% Settings 
-rak_only = 0;               % Use RAK5206 or RAK5270
+rak_only = 1;               % Use RAK5206 or RAK5270
 camera_present = 1;         % Use robot camera or webcamera
-use_webcam = 1;             % Use webcamera
+use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
-vocal = 0;                  % Custom sound output
+vocal = 1;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-matlab_audio_rec = 0;       % Use computer microphone to listen
+matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
 pulse_period = 0.1;         % Step time in seconds
@@ -23,7 +23,7 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;
+save_experiences = 1;
 use_controllers = 1;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
 stop_step = 10000;
@@ -208,24 +208,12 @@ if save_experiences || use_controllers || dev_mode
         load('agent2_mdp.mat')
         classifier_dir_name = '.\Data_1\Rec_2\';
         labels = folders2labels(classifier_dir_name);
-        unique_states = unique(labels); 
+        unique_states = unique(labels);      
     elseif use_controllers == 3
-        load('torque_data')
-        load('actions')
-        n_unique_actions = length(unique(actions));
-        motor_combs = zeros(n_unique_actions, 2);
-        for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
-        end
-
-        load livingroom2_net
-        load('agent1_rmdp.mat')
-        classifier_dir_name = '.\Data_1\Rec_2\';
-        labels = folders2labels(classifier_dir_name);
-        unique_states = unique(labels); 
+        load('agent_3.mat')
     elseif use_controllers == 4
         load('agent_4.mat')
-    elseif use_controllers == 51
+    elseif use_controllers == 5
         load('rl_net.mat')
     end
 end

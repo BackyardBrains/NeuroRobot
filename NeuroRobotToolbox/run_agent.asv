@@ -24,8 +24,7 @@ if use_controllers
         end
     else
         if isnan(this_state)
-            this_state = randsample(length(unique_states), 1);
-        end
+            this_state = randsampl
         disp('I do not know where I am or which way I am heading')
     end
     disp('----')
@@ -37,6 +36,8 @@ if use_controllers
     this_action = getAction(agent, this_state);
 
     this_motor_vector = motor_combs(cell2mat(this_action), :);
+
+%         this_motor_vector = this_motor_vector/2;
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
@@ -51,5 +52,8 @@ if use_controllers
     else
         right_backward = -this_motor_vector(2);
     end
+
+
+%     this_motor_vector = this_motor_vector/2;
     
 end
