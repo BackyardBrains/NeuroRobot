@@ -10,7 +10,7 @@ use_esp32 = 1;              % Use robot with ESP32-CAM ---- you also need to add
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 1;                  % Custom sound output
-supervocal = 1;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
+supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
@@ -23,7 +23,7 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;
+save_experiences = 1;
 use_controllers = 1;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
 stop_step = 10000;
