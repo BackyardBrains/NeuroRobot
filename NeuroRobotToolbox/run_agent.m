@@ -14,7 +14,7 @@ if use_controllers
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
-    if max([left_score right_score]) > 0.9
+    if max([left_score right_score]) > 0.95
         if left_state == right_state
             this_state = left_state;
         elseif left_score >= right_score
@@ -37,6 +37,7 @@ if use_controllers
     this_action = getAction(agent, this_state);
 
     this_motor_vector = motor_combs(cell2mat(this_action), :);
+    this_motor_vector = this_motor_vector/2;
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     

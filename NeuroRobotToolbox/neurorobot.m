@@ -162,53 +162,34 @@ l_torque = 0;
 object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
 inhibition_col = [0.85 0.85 0.85];
 
-if save_experiences
-    rl_action = [0 0];
-    rl_reward = 0;
-    left_torque_mem = 0;
-    right_torque_mem = 0;
-end
-
 if save_experiences || use_controllers || dev_mode
     
-    nsensors = 2;
+    left_torque_mem = 0;
+    right_torque_mem = 0;
 
-%     torque_vals = 3;
-%     motor_combs = combinator(torque_vals, 2,'p','r') - ((0.5 * torque_vals) + 0.5);
-%     motor_combs = motor_combs * 100;
-% %     motor_combs = [motor_combs(1:2,:); [0 0]; motor_combs(3:4,:)];
-%     motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'pre');
-%     motor_combs = padarray(motor_combs, [0 1], rand * 0.00001, 'post');
-%     nactions = size(motor_combs, 1);
+
+    if use_controllers
+
+        rldata = zeros(xstep, 2);
+        load livingroom2_net
+        classifier_dir_name = '.\Data_1\Rec_2\';
+        labels = folders2labels(classifier_dir_name);
+        unique_states = unique(labels);
+        n_unique_states = length(unique_states);
+    
+        load('torque_data')
+        load('actions')
+        n_unique_actions = length(unique(actions));
+        motor_combs = zeros(n_unique_actions, 2);
+        for naction = 1:n_unique_actions
+            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
+        end
+    end
 
     if use_controllers == 1
-        load('torque_data')
-        load('actions')
-        n_unique_actions = length(unique(actions));
-        motor_combs = zeros(n_unique_actions, 2);
-        for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
-        end
-
-        load livingroom2_net
         load('agent1_mdp.mat')
-        classifier_dir_name = '.\Data_1\Rec_2\';
-        labels = folders2labels(classifier_dir_name);
-        unique_states = unique(labels);        
     elseif use_controllers == 2
-        load('torque_data')
-        load('actions')
-        n_unique_actions = length(unique(actions));
-        motor_combs = zeros(n_unique_actions, 2);
-        for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
-        end
-
-        load livingroom2_net
         load('agent2_mdp.mat')
-        classifier_dir_name = '.\Data_1\Rec_2\';
-        labels = folders2labels(classifier_dir_name);
-        unique_states = unique(labels);      
     elseif use_controllers == 3
         load('agent_3.mat')
     elseif use_controllers == 4

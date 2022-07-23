@@ -27,4 +27,14 @@ if save_experiences > 0
 %         save(fname, 'this_audio', '-mat');
 %     end
 
+    % Tuples
+    if use_controllers
+        rldata(xstep, 1) = this_state;
+        rldata(xstep, 2) = this_action;
+        rldata(xstep, 3) = left_state;
+        rldata(xstep, 4) = left_score(left_state);
+        rldata(xstep, 5) = right_state;
+        rldata(xstep, 6) = right_score(right_state);
+    end
+
 end
