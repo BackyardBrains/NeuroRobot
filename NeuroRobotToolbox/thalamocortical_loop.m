@@ -1,7 +1,7 @@
 
 if save_experiences > 0
 
-    this_dir = '.\Data_3\Rec_2\';
+    this_dir = '.\Data_3\Rec_1\';
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 
     % State
@@ -29,12 +29,14 @@ if save_experiences > 0
 
     % Tuples
     if use_controllers
-        rldata(xstep, 1) = this_state;
-        rldata(xstep, 2) = this_action;
-        rldata(xstep, 3) = left_state;
-        rldata(xstep, 4) = left_score(left_state);
-        rldata(xstep, 5) = right_state;
-        rldata(xstep, 6) = right_score(right_state);
+        tuples(xstep, 1) = this_state;
+        tuples(xstep, 2) = cell2mat(this_action);
+        tuples(xstep, 3) = left_state;
+        tuples(xstep, 4) = left_score(left_state);
+        tuples(xstep, 5) = right_state;
+        tuples(xstep, 6) = right_score(right_state);
+        fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-tuples.mat');
+        save(fname, 'tuples', '-mat');
     end
 
 end
