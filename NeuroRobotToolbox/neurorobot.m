@@ -9,7 +9,7 @@ hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
-vocal = 1;                  % Custom sound output
+vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
@@ -167,10 +167,10 @@ if save_experiences || use_controllers || dev_mode
     left_torque_mem = 0;
     right_torque_mem = 0;
 
-
     if use_controllers
 
-        rldata = zeros(xstep, 2);
+        tuples = zeros(stop_step, 6);
+
         load livingroom2_net
         classifier_dir_name = '.\Data_1\Rec_2\';
         labels = folders2labels(classifier_dir_name);
@@ -184,6 +184,7 @@ if save_experiences || use_controllers || dev_mode
         for naction = 1:n_unique_actions
             motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
         end
+
     end
 
     if use_controllers == 1
