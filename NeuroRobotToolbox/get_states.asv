@@ -2,14 +2,11 @@
 
 states = zeros(ntuples, 1);
 disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
-confusions = 0;
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/100))
         disp(horzcat('Counter: ', num2str(ntuple/ntuples), ...
-            ', ntuple: ', num2str(ntuple), ...
-            ', confusions: ', num2str(confusions)))
-        confusions = 0;
+            ', ntuple: ', num2str(ntup))
     end
 
     left_state = NaN;
@@ -40,7 +37,7 @@ for ntuple = 1:ntuples
     else
 %         this_state = randsample(length(unique_states), 1);
         this_state = nan;
-        confusions = confusions + 1;
+        disp('Confusion')
     end
     
     states(ntuple) = this_state;

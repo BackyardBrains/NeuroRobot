@@ -47,9 +47,9 @@ for ntuple = 1:ntuples
         disp(num2str(ntuple/ntuples))
     end
 
-    if sum(states(1) == [1:4 13:16]) && sum(action(1) == 1)
+    if sum(states(ntuple) == [1:4 13:16]) && sum(action(ntuple) == 1)
         rewards(ntuple) = 1;
-    elseif sum(states(1) == [1:4 13:16]) && sum(action(1) == 1)
+    elseif sum(states(ntuple) == [9:12 21:24]) && sum(action(ntuple) == 1)
         rewards(ntuple) = -1;
     end
 

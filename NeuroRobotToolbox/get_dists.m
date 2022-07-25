@@ -17,5 +17,3 @@ for ntuple = 1:ntuples
 
 end
 
-save('dists', 'dists')
-
