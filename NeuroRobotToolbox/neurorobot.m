@@ -171,7 +171,7 @@ if save_experiences || use_controllers || dev_mode
 
         tuples = zeros(stop_step, 6);
 
-        load livingroom2_net
+        load livingroom_net
         classifier_dir_name = '.\Data_1\Rec_2\';
         labels = folders2labels(classifier_dir_name);
         unique_states = unique(labels);
