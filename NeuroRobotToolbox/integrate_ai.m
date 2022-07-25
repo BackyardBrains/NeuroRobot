@@ -116,7 +116,7 @@ mdp.T = transition_counter;
 %% Get reward
 reward_counter = zeros(size(mdp.R));
 reward_counter(:,[1:4 13:16], 1) = 1;
-reward_counter(:,[5:8 17:20], 1) = -1;
+reward_counter(:,[9:12 21:24], 1) = -1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states

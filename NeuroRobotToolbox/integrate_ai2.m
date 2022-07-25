@@ -42,7 +42,6 @@ save(horzcat('agent1_', filename), 'agent')
 
 %% Agent 2 (Deep Q)
 agent_opt = rlDQNAgentOptions;
-% agent_opt.DiscountFactor = 0.9;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 2000;
