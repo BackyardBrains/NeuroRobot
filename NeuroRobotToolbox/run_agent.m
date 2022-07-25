@@ -14,7 +14,7 @@ if use_controllers
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
-    if max([left_score right_score]) > 0.95
+    if max([left_score right_score]) > 0.9
         if left_state == right_state
             this_state = left_state;
         elseif left_score >= right_score
@@ -23,10 +23,8 @@ if use_controllers
             this_state = right_state;
         end
     else
-        if isnan(this_state)
-            this_state = randsample(length(unique_states), 1);
-        end
-        disp('I do not know where I am or which way I am heading')
+        this_state = randsample(length(unique_states), 1);
+        disp('Confusion')
     end
     disp('----')
     disp(horzcat('xstep: ', num2str(xstep)))

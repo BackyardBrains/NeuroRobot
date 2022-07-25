@@ -29,14 +29,9 @@ if save_experiences > 0
 
     % Tuples
     if use_controllers
-        tuples(xstep, 1) = this_state;
-        tuples(xstep, 2) = cell2mat(this_action);
-        tuples(xstep, 3) = left_state;
-        tuples(xstep, 4) = left_score(left_state);
-        tuples(xstep, 5) = right_state;
-        tuples(xstep, 6) = right_score(right_state);
-        fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-tuples.mat');
-        save(fname, 'tuples', '-mat');
+        tuple = [this_state, cell2mat(this_action), left_state, left_score(left_state), right_state, right_score(right_state)];
+        fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-tuple.mat');
+        save(fname, 'tuple', '-mat');
     end
 
 end
