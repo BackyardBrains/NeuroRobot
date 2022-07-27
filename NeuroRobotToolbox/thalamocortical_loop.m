@@ -1,7 +1,7 @@
 
 if save_experiences > 0
 
-    this_dir = '.\Data_3\Rec_2\';
+    this_dir = '.\Data_3\Rec_4\';
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 
     % State
