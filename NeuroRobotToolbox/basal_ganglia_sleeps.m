@@ -21,7 +21,7 @@ ntuples = size(torque_dir, 1);
 load livingroom_net
 if ~rand_states
     get_states
-    save('states2', 'states')
+    save('states', 'states')
     load('states')
 else
     states = ceil(rand(ntuples, 1)*24);
@@ -120,8 +120,8 @@ mdp.T = transition_counter;
 
 %% Get reward
 reward_counter = zeros(size(mdp.R));
-reward_counter(:,[1:4 13:16], 1) = 1;
-reward_counter(:,[9:12 21:24], 1) = -1;
+reward_counter(:,[1:4 13:16], :) = 1;
+reward_counter(:,[9:12 21:24], :) = -1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states
