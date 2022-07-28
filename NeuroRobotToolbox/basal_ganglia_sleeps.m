@@ -11,15 +11,15 @@ n_unique_states = length(unique_states);
 
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
+% image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-load livingroom_net
+% load livingroom_net
 if ~rand_states
-    get_states
-    save('states2', 'states')
+%     get_states
+%     save('states2', 'states')
     load('states2')
 else
     states = ceil(rand(ntuples, 1)*24);
@@ -27,15 +27,15 @@ end
 % states = modefilt(states, [5 1]);
 
 %% Torques
-get_torques
-save('torque_data2', 'torque_data')
+% get_torques
+% save('torque_data2', 'torque_data')
 load('torque_data2')
 
 %% Actions
-n_unique_actions = 10;
-[actions, cactions] = kmeans(torque_data, n_unique_actions);
-save('actions2', 'actions')
-save('cactions', 'cactions')
+% n_unique_actions = 10;
+% [actions, cactions] = kmeans(torque_data, n_unique_actions);
+% save('actions2', 'actions')
+% save('cactions', 'cactions')
 load('actions2')
 load('cactions')
 n_unique_actions = length(unique(actions));
@@ -186,8 +186,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
@@ -207,8 +207,8 @@ save(horzcat('agent1_', filename), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;

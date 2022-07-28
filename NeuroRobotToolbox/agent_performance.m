@@ -78,7 +78,4 @@ subplot(2,2,3:4)
 plot(rewards)
 title('Reward')
 
-% subplot(2,2,4)
-% title('')
-
 export_fig(horzcat('mdp3_', num2str(date)), '-r150', '-jpg', '-nocrop')
