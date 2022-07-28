@@ -17,7 +17,6 @@ tuples_dir = dir(fullfile(tuples_dir_name, '**\*tuple.mat'));
 ntuples = size(tuples_dir, 1);
 
 %% Get states and actions
-disp(horzcat('getting ', num2str(ntuples), ' torques'))
 load livingroom_net
 get_states
 save('states3', 'states')
@@ -59,7 +58,7 @@ disp(horzcat('Total reward: ', num2str(sum(rewards))))
 disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
 
 %% Plot mdp
-figure(10)
+figure(11)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
