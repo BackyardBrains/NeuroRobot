@@ -58,17 +58,14 @@ ntuples = size(tuples, 1);
 %% Get baseline reward
 rewards = zeros(ntuples, 1);
 for ntuple = 1:ntuples
-
     if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
-
     if sum(tuples(ntuple, 1) == [1:4 13:16]) && sum(tuples(ntuple, 3) == 1)
         rewards(ntuple) = 1;
     elseif sum(tuples(ntuple, 1) == [9:12 21:24]) && sum(tuples(ntuple, 3) == 1)
         rewards(ntuple) = -1;
     end
-
 end
 disp(horzcat('Total reward: ', num2str(sum(rewards))))
 disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
@@ -156,9 +153,10 @@ colorbar
 title('Transitions')
 
 subplot(2,2,4)
-imagesc(mean(reward_counter, 3))
-colorbar
-title('Reward')
+plot(rewards)
+title('Rewards')
+xlabel('Time (steps)')
+ylabel('Reward value')
 
 if rand_states
     export_fig(horzcat('rmdp2_', num2str(date)), '-r150', '-jpg', '-nocrop')
