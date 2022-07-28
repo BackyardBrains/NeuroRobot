@@ -1,8 +1,5 @@
 
-
-
 clear
-clc
 
 rand_states = 0;
 
@@ -14,29 +11,33 @@ n_unique_states = length(unique_states);
 
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\PerformanceData\';
-% image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
-% serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
+image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 tuples_dir = dir(fullfile(tuples_dir_name, '**\*tuple.mat'));
 ntuples = size(tuples_dir, 1);
 
 %% Get states and actions
 disp(horzcat('getting ', num2str(ntuples), ' torques'))
-states = zeros(ntuples, 1);
-actions = zeros(ntuples, 1);
-for ntuple = 1:ntuples
+load livingroom_net
+get_states
+save('states3', 'states')
+get_torques
+load('cactions')
+get_actions
+save('actions3', 'actions')
 
-    if ~rem(ntuple, round(ntuples/100))
-        disp(num2str(ntuple/ntuples))
+%% Get tuples
+tuples = zeros(ntuples - 5, 3);
+for ntuple = 5:ntuples - 1
+    if ~rem(ntuple, round((ntuples-1)/10))
+        disp(num2str(ntuple/(ntuples-6)))
     end
-
-    tuples_fname = horzcat(tuples_dir(ntuple).folder, '\', tuples_dir(ntuple).name);
-    load(tuples_fname)
-
-    states(ntuple) = tuple(1);
-    actions(ntuple) = tuple(2);
-
+    this_state = states(ntuple);
+    tuples(ntuple - 4, 1) = this_state;
+    tuples(ntuple - 4, 2) = states(ntuple + 1);
+    tuples(ntuple - 4, 3) = actions(ntuple - 4);
 end
+ntuples = size(tuples, 1);
 
 %% Get reward
 disp('getting rewards')
@@ -81,4 +82,4 @@ title('Reward')
 % subplot(2,2,4)
 % title('')
 
-% export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('mdp3_', num2str(date)), '-r150', '-jpg', '-nocrop')

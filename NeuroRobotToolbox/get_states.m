@@ -38,7 +38,6 @@ for ntuple = 1:ntuples
             this_state = right_state;
         end
     else
-%         this_state = randsample(length(unique_states), 1);
         this_state = nan;
         confusions = confusions + 1;
     end

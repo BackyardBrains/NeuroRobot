@@ -1,25 +1,21 @@
 
 actions = zeros(ntuples, 1);
 disp('getting actions')
-% xtuples = randsample(ntuples, ntuples);
+
 for ntuple = 1:ntuples
 
-%     ntuple = xtuples(xtuple);
     if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
 
     torques = torque_data(ntuple, :);
-    torques(torques > 250) = 250;
-    torques(torques < -250) = -250;
+    mses = zeros(size(cactions, 1), 1);
+    for ii = 1:size(cactions, 1)
+        mses(ii, 1) = immse(torques, cactions(ii,:));
+    end
 
-    motor_vector = torques;
-    motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'pre');
-    motor_vector = padarray(motor_vector, [0 1], rand * 0.00001, 'post');
-    r = corr(motor_vector', motor_combs');    
-    [~, ind] = max(r);
+    [~, ind] = min(mses);
     actions(ntuple) = ind;
 
 end
 
-save('actions', 'actions')

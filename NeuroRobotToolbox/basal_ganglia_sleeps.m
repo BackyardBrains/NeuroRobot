@@ -1,6 +1,5 @@
 
 clear
-clc
 
 rand_states = 0;
 
@@ -13,7 +12,6 @@ n_unique_states = length(unique_states);
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
-% serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
@@ -21,57 +19,62 @@ ntuples = size(torque_dir, 1);
 load livingroom_net
 if ~rand_states
     get_states
-    save('states', 'states')
-    load('states')
+    save('states2', 'states')
+    load('states2')
 else
     states = ceil(rand(ntuples, 1)*24);
 end
-states = modefilt(states, [5 1]);
+% states = modefilt(states, [5 1]);
 
 %% Torques
-% get_torques
-% save('torque_data', 'torque_data')
-load('torque_data')
+get_torques
+save('torque_data2', 'torque_data')
+load('torque_data2')
 
 %% Actions
-% n_unique_actions = 10;
-% actions = kmeans(torque_data, n_unique_actions);
-% save('actions', 'actions')
-load('actions')
+n_unique_actions = 10;
+[actions, cactions] = kmeans(torque_data, n_unique_actions);
+save('actions2', 'actions')
+save('cactions', 'cactions')
+load('actions2')
+load('cactions')
 n_unique_actions = length(unique(actions));
-figure; gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
-
-%% Distances
-% get_dists
-% save('dists', 'dists')
-load('dists')
-
-%% Checksum
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
-disp(horzcat('n uniqe actions: ', num2str(n_unique_actions)))
-disp(horzcat('n tuples: ', num2str(ntuples)))
+% figure(4)
+% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
 
 %% Get tuples
-atuples = zeros(ntuples - 5, 3);
-btuples = [];
-moving = 0;
-moving_counter = [];
-tlog = [];
+tuples = zeros(ntuples - 5, 3);
 for ntuple = 5:ntuples - 1
     if ~rem(ntuple, round((ntuples-1)/10))
-        disp(num2str(ntuple/(ntuples-1)))
+        disp(num2str(ntuple/(ntuples-6)))
     end
     this_state = states(ntuple);
-    atuples(ntuple - 4, 1) = this_state;
-    atuples(ntuple - 4, 2) = states(ntuple + 1);
-    atuples(ntuple - 4, 3) = actions(ntuple - 4);
+    tuples(ntuple - 4, 1) = this_state;
+    tuples(ntuple - 4, 2) = states(ntuple + 1);
+    tuples(ntuple - 4, 3) = actions(ntuple - 4);
 end
+ntuples = size(tuples, 1);
+
+%% Get baseline reward
+rewards = zeros(ntuples, 1);
+for ntuple = 1:ntuples
+
+    if ~rem(ntuple, round(ntuples/10))
+        disp(num2str(ntuple/ntuples))
+    end
+
+    if sum(tuples(ntuple, 1) == [1:4 13:16]) && sum(tuples(ntuple, 3) == 1)
+        rewards(ntuple) = 1;
+    elseif sum(tuples(ntuple, 1) == [9:12 21:24]) && sum(tuples(ntuple, 3) == 1)
+        rewards(ntuple) = -1;
+    end
+
+end
+disp(horzcat('Total reward: ', num2str(sum(rewards))))
+disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
 
 
 %% Get Markov Decision Process
-tuples = atuples;
-ntuples = size(tuples, 1);
-
 mdp = createMDP(n_unique_states, n_unique_actions);
 transition_counter = zeros(size(mdp.T));
 for ntuple = 1:ntuples
@@ -130,7 +133,6 @@ else
     save('mdp', 'mdp')
 end
 
-
 %% Plot mdp
 figure(10)
 clf
@@ -159,9 +161,9 @@ colorbar
 title('Reward')
 
 if rand_states
-    export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+    export_fig(horzcat('rmdp2_', num2str(date)), '-r150', '-jpg', '-nocrop')
 else
-    export_fig(horzcat('mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+    export_fig(horzcat('mdp2_', num2str(date)), '-r150', '-jpg', '-nocrop')
 end
 
 %% Train agents
@@ -186,7 +188,7 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 2000;
+training_opts.MaxEpisodes = 500;
 training_opts.MaxStepsPerEpisode = 10;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
@@ -207,7 +209,7 @@ save(horzcat('agent1_', filename), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 2000;
+training_opts.MaxEpisodes = 500;
 training_opts.MaxStepsPerEpisode = 10;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
