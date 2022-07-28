@@ -15,7 +15,7 @@ if save_experiences > 0
     fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-torques.mat');
     save(fname, 'torques', '-mat')
 
-    % Non-state data
+    % Non-MDP data
     if rak_only || use_esp32
         fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
         save(fname, 'serial_data', '-mat');
@@ -26,12 +26,5 @@ if save_experiences > 0
 %         fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-this_audio.mat');
 %         save(fname, 'this_audio', '-mat');
 %     end
-
-    % Tuples
-    if use_controllers
-        tuple = [this_state, cell2mat(this_action), left_state, left_score(left_state), right_state, right_score(right_state)];
-        fname = strcat(this_dir, this_time, '-', brain_name, '-', num2str(xstep), '-tuple.mat');
-        save(fname, 'tuple', '-mat');
-    end
 
 end

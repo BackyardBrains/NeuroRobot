@@ -10,11 +10,11 @@ unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\PerformanceData\';
+% tuples_dir_name = 'C:\Users\Christopher Harris\PerformanceData\';
+tuples_dir_name = '.\Data_3\Rec_4\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
-tuples_dir = dir(fullfile(tuples_dir_name, '**\*tuple.mat'));
-ntuples = size(tuples_dir, 1);
+ntuples = size(torque_dir, 1);
 
 %% Get states and actions
 load livingroom_net
