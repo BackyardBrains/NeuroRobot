@@ -17,7 +17,7 @@ tuples_dir_name = 'C:\Users\Christopher Harris\PerformanceData\';
 % image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 % serial_dir = dir(fullfile(tuples_dir_name, '**\*serial_data.mat'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
-tuples_dir = dir(fullfile(tuples_dir_name, '**\*tuples.mat'));
+tuples_dir = dir(fullfile(tuples_dir_name, '**\*tuple.mat'));
 ntuples = size(tuples_dir, 1);
 
 %% Get states and actions
@@ -26,7 +26,7 @@ states = zeros(ntuples, 1);
 actions = zeros(ntuples, 1);
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/10))
+    if ~rem(ntuple, round(ntuples/100))
         disp(num2str(ntuple/ntuples))
     end
 
@@ -47,14 +47,15 @@ for ntuple = 1:ntuples
         disp(num2str(ntuple/ntuples))
     end
 
-    if sum(states(ntuple) == [1:4 13:16]) && sum(action(ntuple) == 1)
+    if sum(states(ntuple) == [1:4 13:16]) && sum(actions(ntuple) == 1)
         rewards(ntuple) = 1;
-    elseif sum(states(ntuple) == [9:12 21:24]) && sum(action(ntuple) == 1)
+    elseif sum(states(ntuple) == [9:12 21:24]) && sum(actions(ntuple) == 1)
         rewards(ntuple) = -1;
     end
 
-
 end
+disp(horzcat('Total reward: ', num2str(sum(rewards))))
+disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
 
 %% Plot mdp
 figure(10)
@@ -77,7 +78,7 @@ subplot(2,2,3:4)
 plot(rewards)
 title('Reward')
 
-subplot(2,2,4)
-title('')
+% subplot(2,2,4)
+% title('')
 
 % export_fig(horzcat('rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
