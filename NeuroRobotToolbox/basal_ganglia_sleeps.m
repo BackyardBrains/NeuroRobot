@@ -11,7 +11,7 @@ n_unique_states = length(unique_states);
 
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-% image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
+image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 

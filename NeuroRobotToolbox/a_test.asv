@@ -1,0 +1,24 @@
+
+
+
+clear
+rand_states = 0;
+
+%% Ontology
+classifier_dir_name = '.\Data_1\Rec_2\';
+labels = folders2labels(classifier_dir_name);
+unique_states = unique(labels);
+n_unique_states = length(unique_states);
+
+%% Tuples
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
+torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
+ntuples = size(torque_dir, 1);
+
+%% 
+image_ds = imageDatastore(tuples_dir_name, 'FileExtensions',".png", 'IncludeSubfolders',true)
+imageIndex = indexImages(image_ds);
+imageIndex.MatchThreshold = 0;
+
+[IDs,scores] = retrieveImages(uframe,imageIndex,'NumResults',20)
