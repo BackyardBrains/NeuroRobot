@@ -1,14 +1,10 @@
 
-/o.';/l";_+']
-o,j,um,o,'p;[]]p'0/[
-    l']
-
-
 clear
 clc
-13
-tuples_dir_name = 'C:\Users\Christopher Harris\TestData\';
-image_ds = imageDatastore(grktc,fhdggvgery4u56TTTTTT6780Y8E7TTRe_ds);
+
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\Rec_1\';
+image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
+imageIndex = indexImages(image_ds);
 imageIndex.MatchThreshold = 0;
 
 %%
