@@ -6,7 +6,7 @@ clc
 
 this_dir = '.\Data_1\Rec_3\';
 ims = imageDatastore(this_dir,'IncludeSubFolders',true','LabelSource','foldernames');
-ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 imdim = 227;
 
 % dist_ds = arrayDatastore(distance);
@@ -33,12 +33,12 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(30)
+    fullyConnectedLayer(21)
     softmaxLayer
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
 
 % LearnRateDropFactor=0.5, ...
 %     LearnRateDropPeriod=1, ....

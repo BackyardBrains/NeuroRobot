@@ -13,12 +13,12 @@ image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSub
 % imageIndex.MatchThreshold = 0;
 load('image_ds')
 load('imageIndex')
-nimages = length(imageIndex.ImageLocation);
-removeImages(imageIndex, ((round(nimages/1.5))+1):nimages)
+% nimages = length(imageIndex.ImageLocation);
+% removeImages(imageIndex, ((round(nimages))+1):nimages)
 
 %%
 ntuples = length(imageIndex.ImageLocation);
-xdata = zeros(ntuples, ntuples, 'single');
+xdata = zeros(ntuples, ntuples, 'uint8');
 for ntuple = 1:ntuples
     disp(horzcat('Processing tuple ', num2str(ntuple), ' of ', num2str(ntuples)))
     img = readimage(image_ds, ntuple);
@@ -26,7 +26,8 @@ for ntuple = 1:ntuples
 %     inds(similarity_scores < this_th) = [];
 %     similarity_scores(similarity_scores < this_th) = 0;
 %     similarity_scores(similarity_scores > 0) = 1;
-    xdata(ntuple, inds) = similarity_scores;
+    similarity_scores = similarity_scores*100;
+    xdata(ntuple, inds) = uint8(similarity_scores);
 end
 save('xdata', 'xdata')
 % load('xdata')
@@ -35,7 +36,7 @@ save('xdata', 'xdata')
 % n_unique_states = 10;
 % states = clusterdata(xdata,'SaveMemory', 'on', 'metric', 'euclidian', 'linkage', 'centroid', 'Maxclust',n_unique_states); 
 
-n_unique_states = 20;
+n_unique_states = 30;
 [states, cstates] = kmeans(xdata, n_unique_states);
 
 % inds3 = dbscan(xdata, 0.25, 5);
@@ -65,7 +66,6 @@ set(gca, 'yscale', 'log')
 %     close(10+ntuple)
 % end
 
-%% Create new database
 min_size = 20;
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
