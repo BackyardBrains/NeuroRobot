@@ -4,27 +4,33 @@ clear
 rand_states = 0;
 
 %% Ontology
-classifier_dir_name = '.\Data_1\Rec_2\';
-labels = folders2labels(classifier_dir_name);
-unique_states = unique(labels);
-n_unique_states = length(unique_states);
+% classifier_dir_name = '.\Data_1\Rec_2\';
+% labels = folders2labels(classifier_dir_name);
+% unique_states = unique(labels);
+% n_unique_states = length(unique_states);
+load('inds2')
+states = inds2;
+n_unique_states = length(unique(states));
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\Rec_1\';
+% tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
-ntuples = size(torque_dir, 1);
+ntuples = size(torque_dir, 1)/2;
 
-%% States
-% load livingroom_net
-if ~rand_states
-%     get_states
-%     save('states2', 'states')
-    load('states2')
-else
-    states = ceil(rand(ntuples, 1)*24);
-end
-% states = modefilt(states, [5 1]);
+% %% States
+% % load livingroom_net
+% if ~rand_states
+% %     get_states
+% %     save('states2', 'states')
+% %     load('states2')
+%     load('inds')
+%     states = inds;
+% else
+%     states = ceil(rand(ntuples, 1)*n_unique_states);
+% end
+% % states = modefilt(states, [5 1]);
 
 %% Torques
 % get_torques
@@ -32,15 +38,15 @@ end
 load('torque_data2')
 
 %% Actions
-% n_unique_actions = 10;
-% [actions, cactions] = kmeans(torque_data, n_unique_actions);
-% save('actions2', 'actions')
-% save('cactions', 'cactions')
+n_unique_actions = 10;
+[actions, cactions] = kmeans(torque_data, n_unique_actions);
+save('actions2', 'actions')
+save('cactions', 'cactions')
 load('actions2')
 load('cactions')
 n_unique_actions = length(unique(actions));
-% figure(4)
-% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+figure(4)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
 
 %% Get tuples
 tuples = zeros(ntuples - 5, 3);
@@ -56,19 +62,17 @@ end
 ntuples = size(tuples, 1);
 
 %% Get baseline reward
-rewards = zeros(ntuples, 1);
-for ntuple = 1:ntuples
-    if ~rem(ntuple, round(ntuples/10))
-        disp(num2str(ntuple/ntuples))
-    end
-    if sum(tuples(ntuple, 1) == [1:4 13:16]) && sum(tuples(ntuple, 3) == 1)
-        rewards(ntuple) = 1;
-    elseif sum(tuples(ntuple, 1) == [9:12 21:24]) && sum(tuples(ntuple, 3) == 1)
-        rewards(ntuple) = -1;
-    end
-end
-disp(horzcat('Total reward: ', num2str(sum(rewards))))
-disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
+rewards = zeros(ntuples, 1) - 1;
+% for ntuple = 1:ntuples
+%     if ~rem(ntuple, round(ntuples/10))
+%         disp(num2str(ntuple/ntuples))
+%     end
+%     if sum(tuples(ntuple, 1) == 51) && sum(tuples(ntuple, 3) == 1)
+%         rewards(ntuple) = 1;
+%     end
+% end
+% disp(horzcat('Total reward: ', num2str(sum(rewards))))
+% disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
 
 
 %% Get Markov Decision Process
@@ -119,9 +123,8 @@ end
 mdp.T = transition_counter;
 
 %% Get reward
-reward_counter = zeros(size(mdp.R));
-reward_counter(:,[1:4 13:16], :) = 1;
-reward_counter(:,[9:12 21:24], :) = -1;
+reward_counter = zeros(size(mdp.R)) - 1;
+reward_counter(:,1:2, :) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states

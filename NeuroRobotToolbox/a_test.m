@@ -1,122 +1,104 @@
 
+%% New hippocampus code
+
 clear
 clc
 
+nmatches = Inf;
+queryROI = [1 1 226 126];
+this_th = 0.995;
+
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\Rec_1\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
-imageIndex = indexImages(image_ds);
-imageIndex.MatchThreshold = 0;
+% imageIndex = indexImages(image_ds);
+% imageIndex.MatchThreshold = 0;
 load('image_ds')
 load('imageIndex')
+nimages = length(imageIndex.ImageLocation);
+removeImages(imageIndex, ((nimages/2)+1):nimages)
 
 %%
-nframes = length(imageIndex.ImageLocation) / 2;
-xdata = zeros(nframes, nframes);
-for ii = 1:nframes
-    disp(horzcat('Processing image ', num2str(ii), ' of ', num2str(nframes)))
-    img = readimage(image_ds, ii);
-    [inds,scores] = retrieveImages(img, imageIndex, 'NumResults', Inf);
-    xdata(ii, inds) = scores;
+ntuples = length(imageIndex.ImageLocation);
+xdata = single(ntuples);
+for ntuple = 1:ntuples
+    disp(horzcat('Processing tuple ', num2str(ntuple), ' of ', num2str(ntuples)))
+    img = readimage(image_ds, ntuple);
+    [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
+%     inds(similarity_scores < this_th) = [];
+%     similarity_scores(similarity_scores < this_th) = 0;
+%     similarity_scores(similarity_scores > 0) = 1;
+    xdata(ntuple, inds) = similarity_scores;
 end
-
+% xdata(:,(ntuples+1):end) = [];
+save('xdata', 'xdata')
+% load('xdata')
 
 %%
-nclusters1 = 100;
-inds = kmeans(xdata, nclusters1);
-ydata = zeros(nclusters1, nframes);
-for ii = 1:nclusters1
-    ydata(ii, :) = mean(xdata(inds == ii, :));
-    yinds{ii} = find(inds == ii);
-end
+% n_unique_states = 10;
+% states = clusterdata(xdata,'SaveMemory', 'on', 'metric', 'euclidian', 'linkage', 'centroid', 'Maxclust',n_unique_states); 
+
+n_unique_states = 50;
+[states, cstates] = kmeans(xdata, n_unique_states);
+
+% inds3 = dbscan(xdata, 0.25, 5);
+% unique_inds = unique(inds3);
+% unique_inds(unique_inds == -1) = [];
+% n_unique_states = length(unique_inds);
+% disp(horzcat('nclusters: ', num2str(n_unique_states)))
 
 figure(1)
 clf
-histogram(inds, 'binwidth', 1)
-title('Pre merge')
+histogram(states, 'binwidth', 0.25)
+title('States')
 xlabel('State')
+ylabel('Count')
 
-%%
-noise_cluster = mode(inds)
-noise_inds = yinds{noise_cluster};
-noise_fix = [];
-inds2 = inds;
-for ii = 1:length(noise_inds)
-    disp(num2str(ii/length(noise_inds)))
-    this_array = xdata(noise_inds(ii), :);
-    temp = zeros(nclusters1, 1);
-    for jj = 1:nclusters1
-        temp(jj) = immse(double(this_array), ydata(jj, :)');
+% %%
+% for ntuple = 1:n_unique_states
+%     figure(10+ntuple)
+%     clf
+%     x = find(states == ntuple);
+%     if length(x) > 50 
+%         x = randsample(x, 50);
+%     end
+%     montage(imageIndex.ImageLocation(x))
+%     pause
+%     close(10+ntuple)
+% end
+
+%% Create new database
+min_size = 20;
+state_info = zeros(n_unique_states, 1);
+state_inds = zeros(n_unique_states, min_size);
+for nstate = 1:n_unique_states
+    these_inds = find(states == nstate);
+    if length(these_inds) >= min_size
+        state_info(nstate, 1) = 1;
+        state_inds(nstate, :) = randsample(these_inds, min_size);
     end
-    [i, j] = sort(temp);
-%     this_ind = randsample(2:10, 1);
-    this_ind = 2;
-    inds2(noise_inds(ii)) = j(this_ind);
-    noise_fix = [noise_fix j(this_ind)];
 end
+noise_group = mode(states)
+state_inds(noise_group,:) = [];
+state_info(noise_group) = [];
+state_inds(state_info == 0, :) = [];
+state_info(state_info == 0) = [];
+n_unique_states = sum(state_info)
 
-figure(2)
-clf
-histogram(inds2, 'binwidth', 1)
-title('Post merge')
-xlabel('State')
-
-figure(3)
-clf
-histogram(noise_fix, 'binwidth', 1)
-title('Noise fix')
-
-%%
-for ii = 1:nclusters1
-    figure(10+ii)
-    clf
-    x = find(inds == ii);
-    if length(x) > 20
-        x = randsample(x, 20);
+this_root = '.\Data_1\Rec_3\';
+for nstate = 1:n_unique_states
+    disp(horzcat('Processing state ', num2str(nstate)))
+    if nstate >= 100
+        this_dir = strcat('state_', num2str(nstate));
+    elseif nstate >= 10
+        this_dir = strcat('state_0', num2str(nstate));
+    else
+        this_dir = strcat('state_00', num2str(nstate));
     end
-    montage(imageIndex.ImageLocation(x))
-end
-
-%%
-inds3 = dbscan(xdata, 0.25, 5);
-unique_inds = unique(inds3);
-unique_inds(unique_inds == -1) = [];
-nclusters1 = length(unique_inds);
-disp(horzcat('nclusters: ', num2str(nclusters1)))
-inds4 = inds3;
-
-ydata = zeros(nclusters1, nframes);
-for ii = 1:nclusters1
-    ydata(ii, :) = mean(xdata(inds3 == ii, :));
-    yinds{ii} = find(inds3 == ii);
-end
-
-figure(5)
-clf
-subplot(1,2,1)
-histogram(inds3, 'binwidth', 1)
-
-noise_inds = find(inds == -1);
-for ii = 1:length(noise_inds)
-    this_array = xdata(noise_inds(ii), :);
-    temp = zeros(nclusters1, 1);
-    for jj = 1:nclusters1
-        temp(jj) = immse(double(this_array), ydata(jj ,:)');
+    mkdir(strcat(this_root, this_dir))
+    for ntuple = 1:min_size
+        this_ind = state_inds(nstate, ntuple);
+        this_im = imread(imageIndex.ImageLocation{this_ind});
+        fname = strcat(this_root, this_dir, '\', 'im', num2str(this_ind), '.png');
+        imwrite(this_im, fname);
     end
-    [i, j] = sort(temp);
-    inds4(noise_inds(ii)) = j(2);
-end
-
-subplot(1,2,2)
-histogram(inds4, 'binwidth', 1)
-
-%%
-for ii = 1:nclusters1
-    figure(10+ii)
-    clf
-    x = find(inds == ii);
-    if length(x) > 20
-        x = randsample(x, 20);
-    end
-    montage(imageIndex.ImageLocation(x))
-    title(horzcat('Group ', num2str(ii)))
 end
