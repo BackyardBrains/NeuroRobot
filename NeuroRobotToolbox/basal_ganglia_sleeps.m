@@ -4,33 +4,27 @@ clear
 rand_states = 0;
 
 %% Ontology
-% classifier_dir_name = '.\Data_1\Rec_2\';
-% labels = folders2labels(classifier_dir_name);
-% unique_states = unique(labels);
-% n_unique_states = length(unique_states);
-load('inds2')
-states = inds2;
-n_unique_states = length(unique(states));
+classifier_dir_name = '.\Data_1\Rec_3\';
+labels = folders2labels(classifier_dir_name);
+unique_states = unique(labels);
+n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\Rec_1\';
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 % tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
-ntuples = size(torque_dir, 1)/2;
+ntuples = size(torque_dir, 1);
 
-% %% States
-% % load livingroom_net
-% if ~rand_states
-% %     get_states
-% %     save('states2', 'states')
-% %     load('states2')
-%     load('inds')
-%     states = inds;
-% else
-%     states = ceil(rand(ntuples, 1)*n_unique_states);
-% end
-% % states = modefilt(states, [5 1]);
+%% States
+load livingroom_k30_net
+if ~rand_states
+    get_states
+    save('states', 'states')
+else
+    states = ceil(rand(ntuples, 1)*n_unique_states);
+end
+% states = modefilt(states, [5 1]);
 
 %% Torques
 % get_torques
@@ -40,19 +34,19 @@ load('torque_data2')
 %% Actions
 n_unique_actions = 10;
 [actions, cactions] = kmeans(torque_data, n_unique_actions);
-save('actions2', 'actions')
+save('actions', 'actions')
 save('cactions', 'cactions')
-load('actions2')
+load('actions')
 load('cactions')
 n_unique_actions = length(unique(actions));
-figure(4)
-gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+% figure(4)
+% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
 
 %% Get tuples
 tuples = zeros(ntuples - 5, 3);
 for ntuple = 5:ntuples - 1
     if ~rem(ntuple, round((ntuples-1)/10))
-        disp(num2str(ntuple/(ntuples-6)))
+        disp(num2str(ntuple/(ntuples - 6)))
     end
     this_state = states(ntuple);
     tuples(ntuple - 4, 1) = this_state;
@@ -60,20 +54,6 @@ for ntuple = 5:ntuples - 1
     tuples(ntuple - 4, 3) = actions(ntuple - 4);
 end
 ntuples = size(tuples, 1);
-
-%% Get baseline reward
-rewards = zeros(ntuples, 1) - 1;
-% for ntuple = 1:ntuples
-%     if ~rem(ntuple, round(ntuples/10))
-%         disp(num2str(ntuple/ntuples))
-%     end
-%     if sum(tuples(ntuple, 1) == 51) && sum(tuples(ntuple, 3) == 1)
-%         rewards(ntuple) = 1;
-%     end
-% end
-% disp(horzcat('Total reward: ', num2str(sum(rewards))))
-% disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
-
 
 %% Get Markov Decision Process
 mdp = createMDP(n_unique_states, n_unique_actions);
@@ -122,9 +102,21 @@ end
 
 mdp.T = transition_counter;
 
-%% Get reward
+%% Get rewards
+rewards = zeros(ntuples, 1) - 1;
+for ntuple = 1:ntuples
+    if ~rem(ntuple, round(ntuples/10))
+        disp(num2str(ntuple/ntuples))
+    end
+    if sum(tuples(ntuple, 1) == [15 17 29]) && sum(tuples(ntuple, 3) == 1)
+        rewards(ntuple) = 1;
+    end
+end
+disp(horzcat('Total reward: ', num2str(sum(rewards))))
+disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
+
 reward_counter = zeros(size(mdp.R)) - 1;
-reward_counter(:,1:2, :) = 1;
+reward_counter(:,[15 17 29], 1) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 if rand_states
@@ -189,8 +181,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 20;
+training_opts.MaxEpisodes = 200;
+training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
@@ -206,25 +198,25 @@ export_fig(horzcat('agent1_', filename, '_net'), '-r150', '-jpg', '-nocrop')
 save(horzcat('agent1_', filename), 'agent')
 
 
-%% Agent 2 (Deep Q)
-agent_opt = rlDQNAgentOptions;
-agent = rlDQNAgent(critic, agent_opt);
-training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 20;
-training_opts.StopTrainingValue = 10000;
-training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
-training_opts.UseParallel = 1;
-trainingStats_deep = train(agent, env, training_opts);
-figure(12)
-clf
-set(gcf, 'color', 'w')
-scan_agent
-ylim([0 n_unique_states + 1])
-title(horzcat('Agent 2 - ', filename))
-set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent2_', filename, '_net'), '-r150', '-jpg', '-nocrop')
-save(horzcat('agent2_', filename), 'agent')
+% %% Agent 2 (Deep Q)
+% agent_opt = rlDQNAgentOptions;
+% agent = rlDQNAgent(critic, agent_opt);
+% training_opts = rlTrainingOptions;
+% training_opts.MaxEpisodes = 1000;
+% training_opts.MaxStepsPerEpisode = 20;
+% training_opts.StopTrainingValue = 10000;
+% training_opts.StopTrainingCriteria = "AverageReward";
+% training_opts.ScoreAveragingWindowLength = 100;
+% training_opts.UseParallel = 1;
+% trainingStats_deep = train(agent, env, training_opts);
+% figure(12)
+% clf
+% set(gcf, 'color', 'w')
+% scan_agent
+% ylim([0 n_unique_states + 1])
+% title(horzcat('Agent 2 - ', filename))
+% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+% export_fig(horzcat('agent2_', filename, '_net'), '-r150', '-jpg', '-nocrop')
+% save(horzcat('agent2_', filename), 'agent')
 
 

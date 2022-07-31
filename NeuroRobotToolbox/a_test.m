@@ -4,7 +4,6 @@
 clear
 clc
 
-nmatches = Inf;
 queryROI = [1 1 226 126];
 this_th = 0.995;
 
@@ -15,11 +14,11 @@ image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSub
 load('image_ds')
 load('imageIndex')
 nimages = length(imageIndex.ImageLocation);
-removeImages(imageIndex, ((nimages/2)+1):nimages)
+removeImages(imageIndex, ((round(nimages/1.5))+1):nimages)
 
 %%
 ntuples = length(imageIndex.ImageLocation);
-xdata = single(ntuples);
+xdata = zeros(ntuples, ntuples, 'single');
 for ntuple = 1:ntuples
     disp(horzcat('Processing tuple ', num2str(ntuple), ' of ', num2str(ntuples)))
     img = readimage(image_ds, ntuple);
@@ -29,7 +28,6 @@ for ntuple = 1:ntuples
 %     similarity_scores(similarity_scores > 0) = 1;
     xdata(ntuple, inds) = similarity_scores;
 end
-% xdata(:,(ntuples+1):end) = [];
 save('xdata', 'xdata')
 % load('xdata')
 
@@ -37,7 +35,7 @@ save('xdata', 'xdata')
 % n_unique_states = 10;
 % states = clusterdata(xdata,'SaveMemory', 'on', 'metric', 'euclidian', 'linkage', 'centroid', 'Maxclust',n_unique_states); 
 
-n_unique_states = 50;
+n_unique_states = 20;
 [states, cstates] = kmeans(xdata, n_unique_states);
 
 % inds3 = dbscan(xdata, 0.25, 5);
@@ -52,6 +50,7 @@ histogram(states, 'binwidth', 0.25)
 title('States')
 xlabel('State')
 ylabel('Count')
+set(gca, 'yscale', 'log')
 
 % %%
 % for ntuple = 1:n_unique_states

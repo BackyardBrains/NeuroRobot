@@ -4,7 +4,7 @@ close all
 clear
 clc
 
-this_dir = '.\Data_1\Rec_2\';
+this_dir = '.\Data_1\Rec_3\';
 ims = imageDatastore(this_dir,'IncludeSubFolders',true','LabelSource','foldernames');
 ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 imdim = 227;
@@ -33,12 +33,12 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(24)
+    fullyConnectedLayer(30)
     softmaxLayer
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
 % LearnRateDropFactor=0.5, ...
 %     LearnRateDropPeriod=1, ....
@@ -51,7 +51,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(ims, net, options)
 
-save('livingroom_k50_net', 'net')
+save('livingroom_k30_net', 'net')
 
 
 
