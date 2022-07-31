@@ -5,14 +5,20 @@ clear
 clc
 
 queryROI = [1 1 226 126];
-this_th = 0.995;
+this_th = 0.99;
 
+ntuples = 100000;
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
-% imageIndex = indexImages(image_ds);
-% imageIndex.MatchThreshold = 0;
-load('image_ds')
+image_ds_small = subset(image_ds, randsample(length(image_ds.Files), ntuples));
+save('image_ds_small', 'image_ds_small')
+load('image_ds_small')
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 10]);
+imageIndex = indexImages(image_ds_small, bag);
+% imageIndex.MatchThreshold = this_th;
+save('imageIndex', 'imageIndex')
 load('imageIndex')
+
 % nimages = length(imageIndex.ImageLocation);
 % removeImages(imageIndex, ((round(nimages))+1):nimages)
 
@@ -66,7 +72,7 @@ set(gca, 'yscale', 'log')
 %     close(10+ntuple)
 % end
 
-min_size = 20;
+min_size = 32;
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
 for nstate = 1:n_unique_states

@@ -5,39 +5,38 @@ clear
 clc
 
 queryROI = [1 1 226 126];
-this_th = 0.995;
+this_th = 0.99;
 
-tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\Rec_1\';
+nimages = 10000;
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
-% imageIndex = indexImages(image_ds);
-% imageIndex.MatchThreshold = 0;
-load('image_ds')
+image_ds_small = subset(image_ds, randsample(length(image_ds.Files), nimages));
+save('image_ds_small', 'image_ds_small')
+load('image_ds_small')
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 10]);
+imageIndex = indexImages(image_ds, bag);
+% imageIndex.MatchThreshold = this_th;
+save('imageIndex', 'imageIndex')
 load('imageIndex')
-% nimages = length(imageIndex.ImageLocation);
-% removeImages(imageIndex, ((round(nimages))+1):nimages)
 
 %%
-ntuples = length(imageIndex.ImageLocation);
-xdata = zeros(ntuples, ntuples, 'uint8');
-for ntuple = 1:ntuples
-    disp(horzcat('Processing tuple ', num2str(ntuple), ' of ', num2str(ntuples)))
-    img = readimage(image_ds, ntuple);
+xdata = zeros(nimages, nimages, 'uint8');
+for nimage = 1:nimages
+    disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nimages)))
+    img = readimage(image_ds, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
-%     inds(similarity_scores < this_th) = [];
-%     similarity_scores(similarity_scores < this_th) = 0;
-%     similarity_scores(similarity_scores > 0) = 1;
-    similarity_scores = similarity_scores*100;
-    xdata(ntuple, inds) = uint8(similarity_scores);
+    similarity_scores = similarity_scores * 100;
+    xdata(nimage, inds) = uint8(similarity_scores);
 end
 save('xdata', 'xdata')
-% load('xdata')
+load('xdata')
 
 %%
 % n_unique_states = 10;
 % states = clusterdata(xdata,'SaveMemory', 'on', 'metric', 'euclidian', 'linkage', 'centroid', 'Maxclust',n_unique_states); 
 
-n_unique_states = 30;
-[states, cstates] = kmeans(xdata, n_unique_states);
+n_unique_states = 50;
+[group_inds, group_cs] = kmeans(xdata, n_unique_states);
 
 % inds3 = dbscan(xdata, 0.25, 5);
 % unique_inds = unique(inds3);
@@ -47,7 +46,7 @@ n_unique_states = 30;
 
 figure(1)
 clf
-histogram(states, 'binwidth', 0.25)
+histogram(group_inds, 'binwidth', 0.25)
 title('States')
 xlabel('State')
 ylabel('Count')
@@ -66,17 +65,17 @@ set(gca, 'yscale', 'log')
 %     close(10+ntuple)
 % end
 
-min_size = 20;
+min_size = 32;
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
 for nstate = 1:n_unique_states
-    these_inds = find(states == nstate);
+    these_inds = find(group_inds == nstate);
     if length(these_inds) >= min_size
         state_info(nstate, 1) = 1;
         state_inds(nstate, :) = randsample(these_inds, min_size);
     end
 end
-noise_group = mode(states)
+noise_group = mode(group_inds)
 state_inds(noise_group,:) = [];
 state_info(noise_group) = [];
 state_inds(state_info == 0, :) = [];
@@ -94,8 +93,8 @@ for nstate = 1:n_unique_states
         this_dir = strcat('state_00', num2str(nstate));
     end
     mkdir(strcat(this_root, this_dir))
-    for ntuple = 1:min_size
-        this_ind = state_inds(nstate, ntuple);
+    for nimage = 1:min_size
+        this_ind = state_inds(nstate, nimage);
         this_im = imread(imageIndex.ImageLocation{this_ind});
         fname = strcat(this_root, this_dir, '\', 'im', num2str(this_ind), '.png');
         imwrite(this_im, fname);
