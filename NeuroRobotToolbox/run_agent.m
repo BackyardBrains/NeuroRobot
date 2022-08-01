@@ -14,7 +14,7 @@ if use_controllers
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
-    if max([left_score right_score]) > 0.9
+    if max([left_score right_score]) > 0.75
         if left_state == right_state
             this_state = left_state;
         elseif left_score >= right_score

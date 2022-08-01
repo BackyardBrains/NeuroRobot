@@ -12,8 +12,6 @@ imdim = 227;
 % dist_ds = arrayDatastore(distance);
 % final_ds = combine(img_ds, dist_ds);
 
-
-%%
 net = [
     imageInputLayer([imdim imdim 3])
     
@@ -33,25 +31,16 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(21)
+    fullyConnectedLayer(32)
     softmaxLayer
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
-% LearnRateDropFactor=0.5, ...
-%     LearnRateDropPeriod=1, ....
-%     LearnRateSchedule="piecewise", ...
+net = trainNetwork(ims, net, options);
 
-% options = trainingOptions("sgdm", ...
-%     InitialLearnRate=0.001,...
-%     MiniBatchSize=64, ...
-%     Plots="training-progress")
-
-net = trainNetwork(ims, net, options)
-
-save('livingroom_k30_net', 'net')
+save('livingroom_k32_net', 'net')
 
 
 

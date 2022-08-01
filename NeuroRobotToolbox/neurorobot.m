@@ -14,7 +14,7 @@ supervocal = 1;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.1;         % Step time in seconds
+pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -171,8 +171,8 @@ if save_experiences || use_controllers || dev_mode
 
         tuples = zeros(stop_step, 6);
 
-        load livingroom_net
-        classifier_dir_name = '.\Data_1\Rec_2\';
+        load livingroom_k32_net
+        classifier_dir_name = '.\Data_1\Rec_3\';
         labels = folders2labels(classifier_dir_name);
         unique_states = unique(labels);
         n_unique_states = length(unique_states);

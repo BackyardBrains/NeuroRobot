@@ -7,15 +7,14 @@ clc
 queryROI = [1 1 226 126];
 this_th = 0.99;
 
-nsmall = 500;
-nmedium = 5000;
+nsmall = 2000;
+nmedium = 20000;
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
 image_ds_small = subset(image_ds, randsample(length(image_ds.Files), nsmall));
 image_ds_medium = subset(image_ds, randsample(length(image_ds.Files), nmedium));
-% save('image_ds_small', 'image_ds_small')
-% load('image_ds_small')
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 20]);
+
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
 imageIndex = indexImages(image_ds_medium, bag);
 % imageIndex.MatchThreshold = this_th;
 save('bag')
@@ -26,21 +25,24 @@ load('imageIndex')
 xdata = zeros(nmedium, nmedium);
 for nimage = 1:nmedium
     disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
-    img = readimage(image_ds, nimage);
+    img = readimage(image_ds_medium, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
-%     similarity_scores = similarity_scores * 100;
-%     xdata(nimage, inds) = uint8(similarity_scores);
     xdata(nimage, inds) = similarity_scores;
 end
 save('xdata', 'xdata')
 load('xdata')
+figure(1)
+clf
+imagesc(xdata)
+colorbar
 
 %%
-% n_unique_states = 10;
-% states = clusterdata(xdata,'SaveMemory', 'on', 'metric', 'euclidian', 'linkage', 'centroid', 'Maxclust',n_unique_states); 
-
 n_unique_states = 20;
 [group_inds, group_cs] = kmeans(xdata, n_unique_states);
+
+noise_group = mode(group_inds);
+disp(horzcat('noise group: ', num2str(group_inds)))
+disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
 % inds3 = dbscan(xdata, 0.25, 5);
 % unique_inds = unique(inds3);
@@ -48,7 +50,7 @@ n_unique_states = 20;
 % n_unique_states = length(unique_inds);
 % disp(horzcat('nclusters: ', num2str(n_unique_states)))
 
-figure(1)
+figure(2)
 clf
 histogram(group_inds, 'binwidth', 0.25)
 title('States')
@@ -57,20 +59,22 @@ ylabel('Count')
 set(gca, 'yscale', 'log')
 
 %%
-for ntuple = 1:n_unique_states
-    figure(10+ntuple)
-    clf
-    x = find(states == ntuple);
-    if length(x) > 50 
-        x = randsample(x, 50);
-    end
-    montage(imageIndex.ImageLocation(x))
-    pause
-    close(10+ntuple)
-end
+% for ntuple = 1:n_unique_states
+%     figure(10+ntuple)
+%     clf
+%     x = find(group_inds == ntuple);
+%     if length(x) > 1
+%         if length(x) > 25
+%             x = randsample(x, 25);
+%         end
+%     end
+%     montage(imageIndex.ImageLocation(x))
+%     pause
+%     close(10+ntuple)
+% end
 
 %%
-min_size = 5;
+min_size = 50;
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
 for nstate = 1:n_unique_states
@@ -81,13 +85,15 @@ for nstate = 1:n_unique_states
     end
 end
 
-noise_group = mode(group_inds)
+noise_group = mode(group_inds);
 state_inds(noise_group,:) = [];
 state_info(noise_group) = [];
 state_inds(state_info == 0, :) = [];
 state_info(state_info == 0) = [];
-n_unique_states = sum(state_info)
+n_unique_states = sum(state_info);
+disp(horzcat('nstates in ', num2str(n_unique_states)))
 
+%%
 this_root = '.\Data_1\Rec_3\';
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))

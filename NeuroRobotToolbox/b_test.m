@@ -1,19 +1,25 @@
 
-% load('image_ds')
-% load('imageIndex')
+%% Find threshold
+
+clear
+clc
+
+
+load('imageIndex')
+load('image_ds_large')
 
 %%
 
-nmatches = Inf;
+nmatches = 30;
 queryROI = [1 1 226 126];
 this_th = 0.99;
 
 flag = 1;
 while flag
 
-    this_ind = randsample(20000, 1);
+    this_ind = randsample(nlarge, 1);
     
-    img = readimage(image_ds, this_ind);
+    img = readimage(image_ds_large, this_ind);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'NumResults', nmatches, 'ROI',queryROI);
     
     figure(1)
