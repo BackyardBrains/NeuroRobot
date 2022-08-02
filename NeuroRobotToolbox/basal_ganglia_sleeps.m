@@ -16,7 +16,7 @@ torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-load livingroom_k32_net
+load livingroom_k89_net
 if ~rand_states
     get_states
     save('states', 'states')
@@ -100,7 +100,7 @@ end
 mdp.T = transition_counter;
 
 %% Get rewards
-reward_states = [13 14];
+reward_states = [3];
 rewards = zeros(ntuples, 1) - 1;
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
@@ -179,8 +179,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
@@ -200,8 +200,8 @@ save(horzcat('agent1_', filename), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 50;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 10;
 training_opts.StopTrainingValue = 10000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;

@@ -31,7 +31,7 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(32)
+    fullyConnectedLayer(89)
     softmaxLayer
     classificationLayer];
 
@@ -40,7 +40,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(ims, net, options);
 
-save('livingroom_k32_net', 'net')
+save('livingroom_k89_net', 'net')
 
 
 

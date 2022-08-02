@@ -29,7 +29,7 @@ for ntuple = 1:ntuples
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
-    if max([left_score right_score]) > 0.9
+%     if max([left_score right_score]) > 0.9
         if left_state == right_state
             this_state = left_state;
         elseif left_score >= right_score
@@ -37,10 +37,10 @@ for ntuple = 1:ntuples
         else
             this_state = right_state;
         end
-    else
-        this_state = nan;
-        confusions = confusions + 1;
-    end
+%     else
+%         this_state = nan;
+%         confusions = confusions + 1;
+%     end
     
     states(ntuple) = this_state;
 

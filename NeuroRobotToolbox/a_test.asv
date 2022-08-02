@@ -13,26 +13,24 @@ tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
 image_ds_small = subset(image_ds, randsample(length(image_ds.Files), nsmall));
 image_ds_medium = subset(image_ds, randsample(length(image_ds.Files), nmedium));
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 10]);
-save('bag')
-imageIndex = indexImages(image_ds_medium, bag);
+% bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
+% imageIndex = indexImages(image_ds_medium, bag);
 % imageIndex.MatchThreshold = this_th;
-save('imageIndex', 'imageIndex')
+% save('bag')
+% save('imageIndex', 'imageIndex')
+load('imageIndex')
 
 %%
 xdata = zeros(nmedium, nmedium);
 for nimage = 1:nmedium
-    if ~rem(nimage, round(nmedium/10))
-        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
-    end
+    if rem(nimage, round(nmedium))
+    disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
     img = readimage(image_ds_medium, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
     xdata(nimage, inds) = similarity_scores;
 end
-save('xdata', 'xdata', '-v7.3')
+save('xdata', 'xdata')
 load('xdata')
-
-%%
 figure(1)
 clf
 subplot(1,2,1)
@@ -41,7 +39,6 @@ colorbar
 title('xdata')
 subplot(1,2,2)
 histogram(xdata(:))
-set(gca, 'yscale', 'log')
 title('xdata histogram')
 
 
@@ -50,7 +47,7 @@ n_unique_states = 100;
 [group_inds, group_cs] = kmeans(xdata, n_unique_states);
 
 noise_group = mode(group_inds);
-disp(horzcat('noise group: ', num2str(noise_group)))
+disp(horzcat('noise group: ', num2str(group_inds)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
 % inds3 = dbscan(xdata, 0.25, 5);
@@ -68,7 +65,22 @@ ylabel('Count')
 set(gca, 'yscale', 'log')
 
 %%
-min_size = 100;
+% for ntuple = 1:n_unique_states
+%     figure(10+ntuple)
+%     clf
+%     x = find(group_inds == ntuple);
+%     if length(x) > 1
+%         if length(x) > 25
+%             x = randsample(x, 25);
+%         end
+%     end
+%     montage(imageIndex.ImageLocation(x))
+%     pause
+%     close(10+ntuple)
+% end
+
+%%
+min_size = 50;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
