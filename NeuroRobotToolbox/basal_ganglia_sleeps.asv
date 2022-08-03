@@ -196,10 +196,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent 1'))
+title(horzcat('Agent 1 - ', filename))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(classifier_dir_name, 'agent1'), '-r150', '-jpg', '-nocrop')
-save(horzcat(classifier_dir_name, 'agent1'), 'agent')
+export_fig(horzcat('agent1_', filename, '_net'), '-r150', '-jpg', '-nocrop')
+save(horzcat(classifier_dir_name, 'agent1_', filename), 'agent')
 
 
 % %% Agent 2 (Deep Q)
