@@ -16,7 +16,7 @@ torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% States
-load livingroom_k89_net
+load livingroom_k36_net
 if ~rand_states
     get_states
     save('states', 'states')
@@ -100,13 +100,13 @@ end
 mdp.T = transition_counter;
 
 %% Get rewards
-reward_states = [3];
+reward_states = [23 31];
 rewards = zeros(ntuples, 1) - 1;
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
-    if sum(tuples(ntuple, 1) == reward_states) && sum(tuples(ntuple, 3) == 1)
+    if sum(tuples(ntuple, 1) == reward_states) && sum(tuples(ntuple, 3) == mode(actions))
         rewards(ntuple) = 1;
     end
 end
@@ -196,25 +196,25 @@ export_fig(horzcat('agent1_', filename, '_net'), '-r150', '-jpg', '-nocrop')
 save(horzcat('agent1_', filename), 'agent')
 
 
-%% Agent 2 (Deep Q)
-agent_opt = rlDQNAgentOptions;
-agent = rlDQNAgent(critic, agent_opt);
-training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 10;
-training_opts.StopTrainingValue = 10000;
-training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
-training_opts.UseParallel = 1;
-trainingStats_deep = train(agent, env, training_opts);
-figure(12)
-clf
-set(gcf, 'color', 'w')
-scan_agent
-ylim([0 n_unique_states + 1])
-title(horzcat('Agent 2 - ', filename))
-set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat('agent2_', filename, '_net'), '-r150', '-jpg', '-nocrop')
-save(horzcat('agent2_', filename), 'agent')
+% %% Agent 2 (Deep Q)
+% agent_opt = rlDQNAgentOptions;
+% agent = rlDQNAgent(critic, agent_opt);
+% training_opts = rlTrainingOptions;
+% training_opts.MaxEpisodes = 1000;
+% training_opts.MaxStepsPerEpisode = 100;
+% training_opts.StopTrainingValue = 10000;
+% training_opts.StopTrainingCriteria = "AverageReward";
+% training_opts.ScoreAveragingWindowLength = 100;
+% training_opts.UseParallel = 1;
+% trainingStats_deep = train(agent, env, training_opts);
+% figure(12)
+% clf
+% set(gcf, 'color', 'w')
+% scan_agent
+% ylim([0 n_unique_states + 1])
+% title(horzcat('Agent 2 - ', filename))
+% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+% export_fig(horzcat('agent2_', filename, '_net'), '-r150', '-jpg', '-nocrop')
+% save(horzcat('agent2_', filename), 'agent')
 
 

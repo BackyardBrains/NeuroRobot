@@ -4,16 +4,20 @@
 clear
 clc
 
-queryROI = [1 1 226 126];
-this_th = 0.99;
+queryROI = [1 1 99 99];
+this_th = 0.9;
 
-nsmall = 2000;
-nmedium = 20000;
+nsmall = 1000;
+nmedium = 5000;
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
 image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
 image_ds_small = subset(image_ds, randsample(length(image_ds.Files), nsmall));
 image_ds_medium = subset(image_ds, randsample(length(image_ds.Files), nmedium));
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 10]);
+
+image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 200]);
 save('bag')
 imageIndex = indexImages(image_ds_medium, bag);
 % imageIndex.MatchThreshold = this_th;
@@ -27,6 +31,7 @@ for nimage = 1:nmedium
     end
     img = readimage(image_ds_medium, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
+%     similarity_scores(similarity_scores < this_th) = 0;
     xdata(nimage, inds) = similarity_scores;
 end
 save('xdata', 'xdata', '-v7.3')
@@ -46,7 +51,7 @@ title('xdata histogram')
 
 
 %%
-n_unique_states = 100;
+n_unique_states = 50;
 [group_inds, group_cs] = kmeans(xdata, n_unique_states);
 
 noise_group = mode(group_inds);
@@ -68,7 +73,7 @@ ylabel('Count')
 set(gca, 'yscale', 'log')
 
 %%
-min_size = 100;
+min_size = 50;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);

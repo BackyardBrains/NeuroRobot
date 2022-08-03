@@ -6,8 +6,8 @@ clc
 
 this_dir = '.\Data_1\Rec_3\';
 ims = imageDatastore(this_dir,'IncludeSubFolders',true','LabelSource','foldernames');
-% ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-imdim = 227;
+ims.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+imdim = 100;
 
 % dist_ds = arrayDatastore(distance);
 % final_ds = combine(img_ds, dist_ds);
@@ -31,7 +31,7 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(89)
+    fullyConnectedLayer(36)
     softmaxLayer
     classificationLayer];
 
@@ -40,7 +40,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(ims, net, options);
 
-save('livingroom_k89_net', 'net')
+save('livingroom_k36_net', 'net')
 
 
 
