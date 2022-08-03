@@ -122,6 +122,9 @@ end
 
 
 %% Train classifier net
+classifier_ds = imageDatastore(classifier_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+
 net = [
     imageInputLayer([imdim imdim 3])
     
@@ -146,10 +149,10 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=8);
 
-net = trainNetwork(image_ds, net, options);
+net = trainNetwork(classifier_ds, net, options);
 
-save(strcat('livingroom_k', num2str(n_unique_states), '_net'), 'net')
+save(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'), 'net')
 
 

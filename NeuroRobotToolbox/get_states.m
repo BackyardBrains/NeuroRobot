@@ -2,14 +2,11 @@
 imdim = 100;
 states = zeros(ntuples, 1);
 disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
-confusions = 0;
+confusion = zeros(ntuples, 2);
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/100))
-        disp(horzcat('Counter: ', num2str(ntuple/ntuples), ...
-            ', ntuple: ', num2str(ntuple), ...
-            ', confusions: ', num2str(confusions)))
-        confusions = 0;
+    if ~rem(ntuple, round(ntuples/20))
+        disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
 
     left_state = NaN;
@@ -31,6 +28,10 @@ for ntuple = 1:ntuples
     left_state = find(unique_states == left_state);
     right_state = find(unique_states == right_state);
 
+    left_score = left_score(left_state);
+    right_score = right_score(right_state);
+
+    confusion(ntuple, :) = [left_score right_score];
 %     if max([left_score right_score]) > 0.9
         if left_state == right_state
             this_state = left_state;

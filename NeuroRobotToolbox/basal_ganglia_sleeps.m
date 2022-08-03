@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = [23 31];
+reward_states = [7 22 35 37];
 rand_states = 0;
 
 
@@ -12,11 +12,13 @@ rand_states = 0;
 classifier_dir_name = '.\Data_1\Rec_4\';
 labels = folders2labels(classifier_dir_name);
 unique_states = unique(labels);
+unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
 n_unique_states = length(unique_states);
 
 
 %% Tuples
 tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
@@ -128,11 +130,6 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, 1) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-if rand_states
-    save(strcat(classifier_dir_name, 'rmdp'), 'rmdp')
-else
-    save(strcat(classifier_dir_name, 'mdp'), 'mdp')
-end
 
 
 %% Plot mdp
@@ -190,9 +187,9 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
+training_opts.MaxEpisodes = 500;
 training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 10000;
+training_opts.StopTrainingValue = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -207,25 +204,25 @@ export_fig(horzcat(classifier_dir_name, 'agent1'), '-r150', '-jpg', '-nocrop')
 save(horzcat(classifier_dir_name, 'agent1'), 'agent')
 
 
-% %% Agent 2 (Deep Q)
-% agent_opt = rlDQNAgentOptions;
-% agent = rlDQNAgent(critic, agent_opt);
-% training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = 1000;
-% training_opts.MaxStepsPerEpisode = 100;
-% training_opts.StopTrainingValue = 10000;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = 100;
-% training_opts.UseParallel = 1;
-% trainingStats_deep = train(agent, env, training_opts);
-% figure(12)
-% clf
-% set(gcf, 'color', 'w')
-% scan_agent
-% ylim([0 n_unique_states + 1])
-% title(horzcat('Agent 2 - ', filename))
-% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-% export_fig(horzcat('agent2_', filename, '_net'), '-r150', '-jpg', '-nocrop')
-% save(horzcat('agent2_', filename), 'agent')
+%% Agent 2 (Deep Q)
+agent_opt = rlDQNAgentOptions;
+agent = rlDQNAgent(critic, agent_opt);
+training_opts = rlTrainingOptions;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 100;
+training_opts.StopTrainingValue = 10000;
+training_opts.StopTrainingCriteria = "AverageReward";
+training_opts.ScoreAveragingWindowLength = 100;
+training_opts.UseParallel = 1;
+trainingStats_deep = train(agent, env, training_opts);
+figure(12)
+clf
+set(gcf, 'color', 'w')
+scan_agent
+ylim([0 n_unique_states + 1])
+title('Agent 2')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+export_fig(horzcat(classifier_dir_name, 'agent2'), '-r150', '-jpg', '-nocrop')
+save(horzcat(classifier_dir_name, 'agent2'), 'agent')
 
 
