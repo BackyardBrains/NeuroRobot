@@ -25,27 +25,29 @@ ntuples = size(torque_dir, 1);
 load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
 if ~rand_states
     get_states
-    save('states', 'states')
+    save(strcat(classifier_dir_name, 'states'), 'states')
 else
     states = ceil(rand(ntuples, 1)*n_unique_states);
 end
 % states = modefilt(states, [5 1]);
+% load(strcat(classifier_dir_name, 'states'))
 
 
 %% Torques
 get_torques
 save(strcat(classifier_dir_name, 'torque_data'), 'torque_data')
-load(strcat(classifier_dir_name, 'torque_data'))
+% load(strcat(classifier_dir_name, 'torque_data'))
 
 
 %% Actions
 n_unique_actions = 10;
-[actions, cactions] = kmeans(torque_data, n_unique_actions);
+actions = kmeans(torque_data, n_unique_actions);
 save(strcat(classifier_dir_name, 'actions'), 'actions')
-load(strcat(classifier_dir_name, 'actions'))
+% load(strcat(classifier_dir_name, 'actions'))
 n_unique_actions = length(unique(actions));
 % figure(4)
 % gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+
 
 %% Get tuples
 tuples = zeros(ntuples - 5, 3);
@@ -59,6 +61,7 @@ for ntuple = 5:ntuples - 1
     tuples(ntuple - 4, 3) = actions(ntuple - 4);
 end
 ntuples = size(tuples, 1);
+
 
 %% Get Markov Decision Process
 mdp = createMDP(n_unique_states, n_unique_actions);
@@ -107,8 +110,8 @@ end
 
 mdp.T = transition_counter;
 
-%% Get rewards
 
+%% Get rewards
 rewards = zeros(ntuples, 1) - 1;
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
@@ -130,6 +133,7 @@ if rand_states
 else
     save(strcat(classifier_dir_name, 'mdp'), 'mdp')
 end
+
 
 %% Plot mdp
 figure(10)
@@ -164,6 +168,7 @@ if rand_states
 else
     export_fig(horzcat(classifier_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 end
+
 
 %% Train agents
 env = rlMDPEnv(mdp);

@@ -57,7 +57,8 @@ title('xdata histogram')
 
 %% Group images
 n_unique_states = 50;
-[group_inds, group_cs] = kmeans(xdata, n_unique_states);
+group_inds = kmeans(xdata, n_unique_states);
+% group_inds = kmedoids(xdata, n_unique_states);
 
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
@@ -147,7 +148,7 @@ net = [
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
     Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
-net = trainNetwork(ims, net, options);
+net = trainNetwork(image_ds, net, options);
 
 save(strcat('livingroom_k', num2str(n_unique_states), '_net'), 'net')
 
