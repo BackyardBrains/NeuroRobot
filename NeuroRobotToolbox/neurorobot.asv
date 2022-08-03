@@ -174,28 +174,28 @@ if save_experiences || use_controllers || dev_mode
         classifier_dir_name = '.\Data_1\Rec_4\';
         labels = folders2labels(classifier_dir_name);
         unique_states = unique(labels);
-        unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
         n_unique_states = length(unique_states);
-        
-        load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
     
-        load(strcat(classifier_dir_name, 'torque_data'))
-        load(strcat(classifier_dir_name, 'actions'))
+        load('torque_data')
+        load('actions')
         n_unique_actions = length(unique(actions));
         motor_combs = zeros(n_unique_actions, 2);
         for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :), 1);
+            motor_combs(naction, :) = mean(torque_data(actions == naction, :),1);
         end
 
     end
 
     if use_controllers == 1
-        load(strcat(classifier_dir_name, 'agent1'))
+        load('agent1_mdp.mat')
     elseif use_controllers == 2
-        load(strcat(classifier_dir_name, 'agent2'))
+        load('agent2_mdp.mat')
     elseif use_controllers == 3
+        load('agent_3.mat')
     elseif use_controllers == 4
+        load('agent_4.mat')
     elseif use_controllers == 5
+        load('rl_net.mat')
     end
 end
 
