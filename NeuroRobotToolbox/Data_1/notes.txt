@@ -1,0 +1,3 @@
+Rec_4 is the classification_dir for Agent1
+Rec_5 is 10k steps of Agent1 with bookshelf as target [7 22 35 37]
+Rec_6 is 10k steps of Agent1 with bookshelf as target [7 22 35 37]

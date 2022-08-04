@@ -1,29 +1,27 @@
 
 clear
 
-rand_states = 0;
+reward_states = [7 22 35 37];
 
 %% Ontology
-classifier_dir_name = '.\Data_1\Rec_2\';
+classifier_dir_name = '.\Data_1\Rec_4\';
 labels = folders2labels(classifier_dir_name);
 unique_states = unique(labels);
+unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\PerformanceData\';
-% tuples_dir_name = '.\Data_3\Rec_4\';
+tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+% tuples_dir_name = '.\Data_1\Rec_5\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% Get states and actions
-load livingroom_net
+% load livingroom_net
+load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
 get_states
-save('states3', 'states')
-get_torques
-load('cactions')
-get_actions
-save('actions3', 'actions')
+load(strcat(classifier_dir_name, 'actions'))
 
 %% Get tuples
 tuples = zeros(ntuples - 5, 3);
@@ -47,9 +45,9 @@ for ntuple = 1:ntuples
         disp(num2str(ntuple/ntuples))
     end
 
-    if sum(states(ntuple) == [1:4 13:16]) && sum(actions(ntuple) == 1)
+    if sum(states(ntuple) == reward_states) && sum(actions(ntuple) == mode(actions))
         rewards(ntuple) = 1;
-    elseif sum(states(ntuple) == [9:12 21:24]) && sum(actions(ntuple) == 1)
+    else
         rewards(ntuple) = -1;
     end
 
@@ -78,4 +76,4 @@ subplot(2,2,3:4)
 plot(rewards)
 title('Reward')
 
-export_fig(horzcat('mdp3_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat('randomwalk_mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
