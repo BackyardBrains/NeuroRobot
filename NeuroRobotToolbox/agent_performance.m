@@ -11,8 +11,8 @@ unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
 n_unique_states = length(unique_states);
 
 %% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-% tuples_dir_name = '.\Data_1\Rec_5\';
+% tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
+tuples_dir_name = '.\Data_1\Rec_6\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
