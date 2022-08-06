@@ -4,7 +4,7 @@ clear
 reward_states = [7 22 35 37];
 
 %% Ontology
-classifier_dir_name = '.\Data_1\Rec_4\';
+classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
 labels = folders2labels(classifier_dir_name);
 unique_states = unique(labels);
 unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
@@ -12,14 +12,14 @@ n_unique_states = length(unique_states);
 
 %% Tuples
 % tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-tuples_dir_name = '.\Data_1\Rec_6\';
+tuples_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
 image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
 torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 %% Get states and actions
 % load livingroom_net
-load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
+load(strcat(classifier_dir_name, 'circle_net'))
 get_states
 load(strcat(classifier_dir_name, 'actions'))
 
