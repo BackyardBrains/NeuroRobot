@@ -10,11 +10,11 @@ use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 1;                  % Custom sound output
-supervocal = 1;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
+supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 1;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -26,7 +26,7 @@ brain_gen = 0;              % Use "Create New Brain" to algorithmically generate
 save_experiences = 0;
 use_controllers = 0;        % 5 = Random walk for RL
 init_motor_block_in_s = 2;
-stop_step = 0;
+stop_step = 300;
 
 
 %% Advanced settings
@@ -171,13 +171,13 @@ if save_experiences || use_controllers || dev_mode
 
         tuples = zeros(stop_step, 6);
 
-        classifier_dir_name = '.\Data_1\Rec_4\';
+        classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
         labels = folders2labels(classifier_dir_name);
         unique_states = unique(labels);
         unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
         n_unique_states = length(unique_states);
         
-        load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
+        load(strcat(classifier_dir_name, 'circle_net'))
     
         load(strcat(classifier_dir_name, 'torque_data'))
         load(strcat(classifier_dir_name, 'actions'))
