@@ -5,41 +5,30 @@ clear
 clc
 
 imdim = 100;
-nsmall = 1000;
-nmedium = 10000;
-tuples_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
-classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
 
-image_ds = imageDatastore(tuples_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true);
-image_ds_small = subset(image_ds, randsample(length(image_ds.Files), nsmall));
-image_ds_medium = subset(image_ds, randsample(length(image_ds.Files), nmedium));
+image_ds = imageDatastore(strcat(data_dir_name, 'Tuples\'), 'FileExtensions', '.png');
+image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+nimages = length(image_ds.Files);
 
-image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+bag = bagOfFeatures(image_ds, 'treeproperties', [1 200]);
+save(strcat(data_dir_name, 'bag'), 'bag')
 
-
-%% Get image features
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 200]);
-save(strcat(classifier_dir_name, 'bag'), 'bag')
-
-
-%% Get image index
-imageIndex = indexImages(image_ds_medium, bag);
-save(strcat(classifier_dir_name, 'imageIndex'), 'imageIndex')
-
+imageIndex = indexImages(image_ds, bag);
+save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
 
 %% Get image similarity matrix
 queryROI = [1, 1, imdim - 1, imdim - 1];
-xdata = zeros(nmedium, nmedium);
-for nimage = 1:nmedium
-    if ~rem(nimage, round(nmedium/10))
-        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
+xdata = zeros(nimages, nimages);
+for nimage = 1:nimages
+    if ~rem(nimage, round(nimages/10))
+        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nimages)))
     end
-    img = readimage(image_ds_medium, nimage);
+    img = readimage(image_ds, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
     xdata(nimage, inds) = similarity_scores;
 end
-save(strcat(classifier_dir_name, 'xdata'), 'xdata', '-v7.3')
+save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
 
 
 %% Plot similarity matrix
@@ -56,7 +45,7 @@ title('xdata histogram')
 
 
 %% Group images
-n_unique_states = 50;
+n_unique_states = 20;
 group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
@@ -111,18 +100,18 @@ for nstate = 1:n_unique_states
     else
         this_dir = strcat('state_00', num2str(nstate));
     end
-    mkdir(strcat(classifier_dir_name, this_dir))
+    mkdir(strcat(data_dir_name, 'Classifier\', this_dir))
     for nimage = 1:min_size
         this_ind = state_inds(nstate, nimage);
         this_im = imread(imageIndex.ImageLocation{this_ind});
-        fname = strcat(classifier_dir_name, this_dir, '\', 'im', num2str(this_ind), '.png');
+        fname = strcat(data_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
         imwrite(this_im, fname);
     end
 end
 
 
 %% Train classifier net
-classifier_ds = imageDatastore(classifier_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
@@ -149,10 +138,10 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=8);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(classifier_dir_name, 'circle_net'), 'net')
+save(strcat(data_dir_name, 'circle_net'), 'net')
 
 

@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 1;         % Step time in seconds
+pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -23,10 +23,11 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 0;
-use_controllers = 0;        % 5 = Random walk for RL
+save_experiences = 1;
+use_controllers = 0;        %
 init_motor_block_in_s = 2;
-stop_step = 300;
+stop_step = 20000;
+data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
 
 
 %% Advanced settings
@@ -170,17 +171,11 @@ if save_experiences || use_controllers || dev_mode
     if use_controllers
 
         tuples = zeros(stop_step, 6);
-
-        classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
-        labels = folders2labels(classifier_dir_name);
+        labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
         unique_states = unique(labels);
-        unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
         n_unique_states = length(unique_states);
-        
-        load(strcat(classifier_dir_name, 'circle_net'))
-    
-        load(strcat(classifier_dir_name, 'torque_data'))
-        load(strcat(classifier_dir_name, 'actions'))
+        load(strcat(data_dir_name, 'torque_data'))
+        load(strcat(data_dir_name, 'actions'))
         n_unique_actions = length(unique(actions));
         motor_combs = zeros(n_unique_actions, 2);
         for naction = 1:n_unique_actions
@@ -190,9 +185,8 @@ if save_experiences || use_controllers || dev_mode
     end
 
     if use_controllers == 1
-        load(strcat(classifier_dir_name, 'agent1'))
+        load(strcat(data_dir_name, 'circle_net'))
     elseif use_controllers == 2
-        load(strcat(classifier_dir_name, 'agent2'))
     elseif use_controllers == 3
     elseif use_controllers == 4
     elseif use_controllers == 5

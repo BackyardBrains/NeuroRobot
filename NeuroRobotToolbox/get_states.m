@@ -31,6 +31,7 @@ for ntuple = 1:ntuples
     left_score = left_score(left_state);
     right_score = right_score(right_state);
 
+    if ~isempty(left_score) && ~isempty(right_score)
     confusion(ntuple, :) = [left_score right_score];
 %     if max([left_score right_score]) > 0.9
         if left_state == right_state
@@ -44,7 +45,10 @@ for ntuple = 1:ntuples
 %         this_state = nan;
 %         confusions = confusions + 1;
 %     end
-    
+    else
+        this_state = 1;
+        disp('error')
+    end
     states(ntuple) = this_state;
 
 end

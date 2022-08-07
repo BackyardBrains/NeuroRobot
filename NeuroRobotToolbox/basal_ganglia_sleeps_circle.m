@@ -4,63 +4,54 @@
 clear
 clc
 
-reward_states = [7 22 35 37];
-rand_states = 0;
+reward_states = [17];
 
 
-%% Ontology
-classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
-labels = folders2labels(classifier_dir_name);
+data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
+labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
-unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
 n_unique_states = length(unique_states);
 
-
-%% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
-image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
-torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, 'Tuples\'), '**\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, 'Tuples\'), '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 
 %% States
-load(strcat(classifier_dir_name, 'circle_net'))
-if ~rand_states
-    get_states
-    save(strcat(classifier_dir_name, 'states'), 'states')
-else
-    states = ceil(rand(ntuples, 1)*n_unique_states);
-end
+load(strcat(data_dir_name, 'circle_net'))
+get_states
+save(strcat(data_dir_name, 'states'), 'states')
+load(strcat(data_dir_name, 'states'))
+% states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
-% load(strcat(classifier_dir_name, 'states'))
 
 
 %% Torques
 get_torques
-save(strcat(classifier_dir_name, 'torque_data'), 'torque_data')
-% load(strcat(classifier_dir_name, 'torque_data'))
+save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 10;
+n_unique_actions = 3;
 actions = kmeans(torque_data, n_unique_actions);
-save(strcat(classifier_dir_name, 'actions'), 'actions')
-% load(strcat(classifier_dir_name, 'actions'))
+save(strcat(data_dir_name, 'actions'), 'actions')
+load(strcat(data_dir_name, 'actions'))
 n_unique_actions = length(unique(actions));
-% figure(4)
-% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+figure(4)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+
+
+%% Lucid sleep?
+% lucid_sleep
 
 
 %% Get tuples
-tuples = zeros(ntuples - 5, 3);
-for ntuple = 5:ntuples - 1
-    if ~rem(ntuple, round((ntuples-1)/10))
-        disp(num2str(ntuple/(ntuples - 6)))
-    end
-    this_state = states(ntuple);
-    tuples(ntuple - 4, 1) = this_state;
-    tuples(ntuple - 4, 2) = states(ntuple + 1);
-    tuples(ntuple - 4, 3) = actions(ntuple - 4);
+tuples = zeros(ntuples - 6, 3);
+for ntuple = 6:ntuples - 1
+    tuples(ntuple - 5, 1) = states(ntuple - 5);
+    tuples(ntuple - 5, 2) = states(ntuple);
+    tuples(ntuple - 5, 3) = actions(ntuple - 5);
 end
 ntuples = size(tuples, 1);
 
@@ -137,34 +128,40 @@ figure(10)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
-subplot(2,2,1)
+subplot(2,3,1)
 histogram(tuples(:,1), 'binwidth', .25)
 title('States')
 xlabel('State')
 ylabel('States')
 
-subplot(2,2,2)
+subplot(2,3,2)
 histogram(tuples(:,3), 'binwidth', .25)
 title('Actions')
 xlabel('Action')
 ylabel('Actions')
 
-subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.15])
-colorbar
-title('Transitions')
-
-subplot(2,2,4)
+subplot(2,3,3)
 plot(rewards)
 title('Rewards')
 xlabel('Time (steps)')
 ylabel('Reward value')
 
-if rand_states
-    export_fig(horzcat(classifier_dir_name, 'rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-else
-    export_fig(horzcat(classifier_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-end
+subplot(2,3,4)
+imagesc(transition_counter(:,:,1), [0 0.5])
+colorbar
+title('Transitions (Action 1)')
+
+subplot(2,3,5)
+imagesc(transition_counter(:,:,2), [0 0.5])
+colorbar
+title('Transitions (Action 2)')
+
+subplot(2,3,6)
+imagesc(transition_counter(:,:,3), [0 0.5])
+colorbar
+title('Transitions (Action 3)')
+
+export_fig(horzcat(data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Train agents
@@ -200,8 +197,8 @@ scan_agent
 ylim([0 n_unique_states + 1])
 title(horzcat('Agent Archimedes'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(classifier_dir_name, 'AgentArchimedes'), '-r150', '-jpg', '-nocrop')
-save(horzcat(classifier_dir_name, 'AgentArchimedes'), 'agent')
+export_fig(horzcat(data_dir_name, 'AgentArchimedes'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'AgentArchimedes'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -222,7 +219,7 @@ scan_agent
 ylim([0 n_unique_states + 1])
 title('Deep Agent Archimedes')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(classifier_dir_name, 'DeepAgentArchimedes'), '-r150', '-jpg', '-nocrop')
-save(horzcat(classifier_dir_name, 'DeepAgentArchimedes'), 'agent')
+export_fig(horzcat(data_dir_name, 'DeepAgentArchimedes'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'DeepAgentArchimedes'), 'agent')
 
 
