@@ -4,7 +4,7 @@ clear
 reward_states = [7 22 35 37];
 
 %% Ontology
-classifier_dir_name = 'C:\Users\Christopher Harris\Data_2\Rec_1\';
+classifier_dir_name = 'C:\Users\Christopher Harris\Data_1\';
 labels = folders2labels(classifier_dir_name);
 unique_states = unique(labels);
 unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];

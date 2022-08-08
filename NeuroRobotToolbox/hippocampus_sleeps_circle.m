@@ -5,26 +5,37 @@ clear
 clc
 
 imdim = 100;
-data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
+tu1 = 'Tuples1\';
+% tu2 = 'Tuples2\';
 
-image_ds = imageDatastore(strcat(data_dir_name, 'Tuples\'), 'FileExtensions', '.png');
+image_ds = imageDatastore(strcat(data_dir_name, tu1), 'FileExtensions', '.png');
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 nimages = length(image_ds.Files);
 
-bag = bagOfFeatures(image_ds, 'treeproperties', [1 200]);
+nsmall = 500;
+nmedium = 5000;
+image_ds_small = subset(image_ds, randsample(nimages, nsmall));
+image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
+
+image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
 save(strcat(data_dir_name, 'bag'), 'bag')
 
-imageIndex = indexImages(image_ds, bag);
+imageIndex = indexImages(image_ds_medium, bag);
 save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+load(strcat(data_dir_name, 'imageIndex'))
 
 %% Get image similarity matrix
 queryROI = [1, 1, imdim - 1, imdim - 1];
-xdata = zeros(nimages, nimages);
-for nimage = 1:nimages
-    if ~rem(nimage, round(nimages/10))
-        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nimages)))
+xdata = zeros(nmedium, nmedium);
+for nimage = 1:nmedium
+    if ~rem(nimage, round(nmedium/10))
+        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
     end
-    img = readimage(image_ds, nimage);
+    img = readimage(image_ds_medium, nimage);
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI);
     xdata(nimage, inds) = similarity_scores;
 end
@@ -69,7 +80,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 50;
+min_size = 40;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -138,7 +149,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=15);
 
 net = trainNetwork(classifier_ds, net, options);
 

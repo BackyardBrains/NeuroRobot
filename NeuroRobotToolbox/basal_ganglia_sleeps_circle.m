@@ -4,16 +4,15 @@
 clear
 clc
 
-reward_states = [17];
+reward_states = 8;
 
-
-data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-image_dir = dir(fullfile(strcat(data_dir_name, 'Tuples\'), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, 'Tuples\'), '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, 'Tuples1\'), '**\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, 'Tuples1\'), '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 
@@ -185,7 +184,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
@@ -206,7 +205,7 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;

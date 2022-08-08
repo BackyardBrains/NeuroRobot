@@ -8,7 +8,7 @@ use_webcam = 0;             % Use webcamera
 hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
-use_rcnn = 0;               % Use a convolution6al neural network (Alexnet) for custom object recognition (e.g. face detection)
+use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
 vocal = 1;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
@@ -24,10 +24,10 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 1;
-use_controllers = 0;        %
+use_controllers = 1;        %
 init_motor_block_in_s = 2;
-stop_step = 20000;
-data_dir_name = 'C:\Users\Christopher Harris\Data_4\';
+stop_step = 10000;
+data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
 
 
 %% Advanced settings
@@ -186,6 +186,7 @@ if save_experiences || use_controllers || dev_mode
 
     if use_controllers == 1
         load(strcat(data_dir_name, 'circle_net'))
+        load(strcat(data_dir_name, 'AgentArchimedes'))
     elseif use_controllers == 2
     elseif use_controllers == 3
     elseif use_controllers == 4
