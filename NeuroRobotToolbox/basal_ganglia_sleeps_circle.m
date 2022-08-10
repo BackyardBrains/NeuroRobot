@@ -4,15 +4,17 @@
 clear
 clc
 
-reward_states = 8;
+reward_states = [10 13];
 
 data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
+tuple_dir_name = 'Tuples1\';
+
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-image_dir = dir(fullfile(strcat(data_dir_name, 'Tuples1\'), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, 'Tuples1\'), '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
 
@@ -127,38 +129,28 @@ figure(10)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
-subplot(2,3,1)
+subplot(2,2,1)
 histogram(tuples(:,1), 'binwidth', .25)
 title('States')
 xlabel('State')
 ylabel('States')
 
-subplot(2,3,2)
+subplot(2,2,2)
 histogram(tuples(:,3), 'binwidth', .25)
 title('Actions')
 xlabel('Action')
 ylabel('Actions')
 
-subplot(2,3,3)
+subplot(2,2,4)
 plot(rewards)
 title('Rewards')
 xlabel('Time (steps)')
 ylabel('Reward value')
 
-subplot(2,3,4)
-imagesc(transition_counter(:,:,1), [0 0.5])
+subplot(2,2,3)
+imagesc(mean(transition_counter, 3), [0 0.5])
 colorbar
-title('Transitions (Action 1)')
-
-subplot(2,3,5)
-imagesc(transition_counter(:,:,2), [0 0.5])
-colorbar
-title('Transitions (Action 2)')
-
-subplot(2,3,6)
-imagesc(transition_counter(:,:,3), [0 0.5])
-colorbar
-title('Transitions (Action 3)')
+title('Transitions')
 
 export_fig(horzcat(data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
@@ -183,11 +175,11 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
+training_opts.MaxEpisodes = 2000;
 training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
+training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_shallow = train(agent,env, training_opts);
 figure(11)
 clf
@@ -204,11 +196,11 @@ save(horzcat(data_dir_name, 'AgentArchimedes'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
+training_opts.MaxEpisodes = 2000;
 training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 1000;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
+training_opts.ScoreAveragingWindowLength = 50;
 training_opts.UseParallel = 1;
 trainingStats_deep = train(agent, env, training_opts);
 figure(12)
