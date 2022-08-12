@@ -14,7 +14,7 @@ supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WIND
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
 audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.15;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
 microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
@@ -24,11 +24,11 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 1;
-use_controllers = 0;        %
+use_controllers = 1;        %
 init_motor_block_in_s = 2;
-stop_step = 50000;
+stop_step = 20000;
 data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
-tuple_dir_name = 'Tuples1\';
+tuple_dir_name = 'Tuples2\';
 
 
 %% Advanced settings
@@ -41,7 +41,7 @@ bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
-    'Agent 1', 'Agent 2', 'Agent 3','Agent 4', 'Agent 5'};
+    'Agent Archimedes 2', 'Deep Agent Archimedes 2', 'Agent Helium','Deep Agent Helium', '---'};
 
 
 %% Clear timers - why is this used?
@@ -187,10 +187,16 @@ if save_experiences || use_controllers || dev_mode
 
     if use_controllers == 1
         load(strcat(data_dir_name, 'circle_net'))
-        load(strcat(data_dir_name, 'AgentArchimedes'))
+        load(strcat(data_dir_name, 'AgentArchimedes2'))
     elseif use_controllers == 2
+        load(strcat(data_dir_name, 'circle_net'))
+        load(strcat(data_dir_name, 'DeepAgentArchimedes2'))
     elseif use_controllers == 3
+        load(strcat(data_dir_name, 'randomwalk_net'))
+        load(strcat(data_dir_name, 'AgentHelium'))        
     elseif use_controllers == 4
+        load(strcat(data_dir_name, 'randomwalk_net'))
+        load(strcat(data_dir_name, 'DeepAgentHelium'))        
     elseif use_controllers == 5
     end
 end

@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = [10 13];
+reward_states = [2 4 5 6 8 11 15 16 18 22 26 31 34 38 41 43];
 
 data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
 tuple_dir_name = 'Tuples1\';
@@ -22,7 +22,9 @@ ntuples = size(torque_dir, 1);
 load(strcat(data_dir_name, 'circle_net'))
 get_states
 save(strcat(data_dir_name, 'states'), 'states')
+
 load(strcat(data_dir_name, 'states'))
+
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
 
@@ -30,6 +32,7 @@ load(strcat(data_dir_name, 'states'))
 %% Torques
 get_torques
 save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+
 load(strcat(data_dir_name, 'torque_data'))
 
 
@@ -37,10 +40,12 @@ load(strcat(data_dir_name, 'torque_data'))
 n_unique_actions = 3;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
-load(strcat(data_dir_name, 'actions'))
-n_unique_actions = length(unique(actions));
 figure(4)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+
+load(strcat(data_dir_name, 'actions'))
+
+n_unique_actions = length(unique(actions));
 
 
 %% Lucid sleep?
@@ -143,6 +148,7 @@ ylabel('Actions')
 
 subplot(2,2,4)
 plot(rewards)
+axis tight
 title('Rewards')
 xlabel('Time (steps)')
 ylabel('Reward value')
@@ -175,9 +181,9 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 2000;
-training_opts.MaxStepsPerEpisode = 20;
-training_opts.StopTrainingValue = 1000;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 10;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_shallow = train(agent,env, training_opts);
@@ -186,19 +192,19 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent Archimedes'))
+title(horzcat('Agent Archimedes2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'AgentArchimedes'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'AgentArchimedes'), 'agent')
+export_fig(horzcat(data_dir_name, 'AgentArchimedes2'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'AgentArchimedes2'), 'agent')
 
 
 %% Agent 2 (Deep Q)
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 2000;
-training_opts.MaxStepsPerEpisode = 20;
-training_opts.StopTrainingValue = 1000;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 10;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
 training_opts.UseParallel = 1;
@@ -208,9 +214,9 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Deep Agent Archimedes')
+title('Deep Agent Archimedes2')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'DeepAgentArchimedes'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'DeepAgentArchimedes'), 'agent')
+export_fig(horzcat(data_dir_name, 'DeepAgentArchimedes2'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'DeepAgentArchimedes2'), 'agent')
 
 
