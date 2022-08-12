@@ -2,12 +2,12 @@
 %% Performance
 
 clear
-clc
+% clc
 
-reward_states = [10 13];
+reward_states = [2 4 5 6 8 11 15 16 18 22 26 31 34 38 41 43];
 
 data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
-tuple_dir_name = 'Tuples2\';
+tuple_dir_name = 'Tuples1\';
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
@@ -17,7 +17,6 @@ image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
 ntuples = size(torque_dir, 1);
 
-
 %% Get states
 load(strcat(data_dir_name, 'circle_net'))
 get_states
@@ -26,16 +25,6 @@ load(strcat(data_dir_name, 'states'))
 
 %% Get actions
 get_torques
-quiescence = ~sum(abs(torque_data')); % For agents
-
-%% Get tuples
-tuples = zeros(ntuples - 6, 3);
-for ntuple = 6:ntuples - 1
-    tuples(ntuple - 5, 1) = states(ntuple - 5);
-    tuples(ntuple - 5, 2) = states(ntuple);
-    tuples(ntuple - 5, 3) = quiescence(ntuple - 5);
-end
-ntuples = size(tuples, 1);
 
 %% Get reward
 disp('getting rewards')
@@ -44,7 +33,7 @@ for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
         disp(num2str(ntuple/ntuples))
     end
-    if sum(states(ntuple) == reward_states) && sum(quiescence(ntuple) == mode(quiescence))
+    if sum(states(ntuple) == reward_states) && ~sum(abs(torque_data(ntuple, :)))
         rewards(ntuple) = 1;
     else
         rewards(ntuple) = -1;
@@ -65,13 +54,14 @@ xlabel('State')
 ylabel('Count')
 
 subplot(2,2,2)
-histogram(quiescence, 'binwidth', .25)
+histogram(torque_data, 'binwidth', 5)
+set(gca, 'yscale', 'log')
 title('Quiesence (goal action)')
 xlabel('Quiesence')
 ylabel('Count')
 
 subplot(2,2,3:4)
-plot(rewards)
+area(rewards)
 axis tight
 title('Reward')
 
