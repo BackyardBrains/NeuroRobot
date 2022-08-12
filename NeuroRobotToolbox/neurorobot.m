@@ -27,8 +27,8 @@ save_experiences = 1;
 use_controllers = 1;        %
 init_motor_block_in_s = 2;
 stop_step = 20000;
-data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
-tuple_dir_name = 'Tuples2\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
+tuple_dir_name = 'Tuples1\';
 
 
 %% Advanced settings
