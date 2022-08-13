@@ -24,11 +24,11 @@ draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 1;
-use_controllers = 0;        %
+use_controllers = 3;        %
 init_motor_block_in_s = 2;
 stop_step = 20000;
 data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
-tuple_dir_name = 'Tuples1\';
+tuple_dir_name = 'Tuples2\';
 
 
 %% Advanced settings

@@ -4,10 +4,10 @@
 clear
 % clc
 
-reward_states = [1];
+reward_states = [30 31 39 40];
 
 data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
-tuple_dir_name = 'Tuples1\';
+tuple_dir_name = 'Tuples2\';
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
@@ -18,7 +18,7 @@ torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.ma
 ntuples = size(torque_dir, 1);
 
 %% Get states
-load(strcat(data_dir_name, 'circle_net'))
+load(strcat(data_dir_name, 'randomwalk_net'))
 get_states
 save(strcat(data_dir_name, 'states'), 'states')
 load(strcat(data_dir_name, 'states'))
