@@ -4,9 +4,9 @@
 clear
 clc
 
-reward_states = [2 4 5 6 8 11 15 16 18 22 26 31 34 38 41 43];
+reward_states = [30 31 39 40];
 
-data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 tuple_dir_name = 'Tuples1\';
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
@@ -19,7 +19,7 @@ ntuples = size(torque_dir, 1);
 
 
 %% States
-load(strcat(data_dir_name, 'circle_net'))
+load(strcat(data_dir_name, 'randomwalk_net'))
 get_states
 save(strcat(data_dir_name, 'states'), 'states')
 
@@ -37,7 +37,7 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 3;
+n_unique_actions = 10;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 figure(4)
@@ -192,10 +192,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent Archimedes2'))
+title(horzcat('Agent Helium'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'AgentArchimedes2'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'AgentArchimedes2'), 'agent')
+export_fig(horzcat(data_dir_name, 'AgentHelium'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'AgentHelium'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -214,9 +214,9 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Deep Agent Archimedes2')
+title('Deep Agent Helium')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'DeepAgentArchimedes2'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'DeepAgentArchimedes2'), 'agent')
+export_fig(horzcat(data_dir_name, 'DeepAgentHelium'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'DeepAgentHelium'), 'agent')
 
 

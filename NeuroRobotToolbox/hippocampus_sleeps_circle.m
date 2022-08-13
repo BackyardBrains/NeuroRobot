@@ -5,7 +5,7 @@ clear
 clc
 
 imdim = 100;
-data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 tuple_dir_name = 'Tuples1\';
 
 image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png');
@@ -152,6 +152,6 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(data_dir_name, 'circle_net'), 'net')
+save(strcat(data_dir_name, 'randomwalk_net'), 'net')
 
 

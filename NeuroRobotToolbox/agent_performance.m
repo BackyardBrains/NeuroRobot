@@ -4,9 +4,9 @@
 clear
 % clc
 
-reward_states = [2 4 5 6 8 11 15 16 18 22 26 31 34 38 41 43];
+reward_states = [1];
 
-data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
+data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 tuple_dir_name = 'Tuples1\';
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
