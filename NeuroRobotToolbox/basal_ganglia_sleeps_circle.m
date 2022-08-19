@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = [7 22 25];
+reward_states = 7;
 
 % data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 % tuple_dir_name = 'Tuples1\';
@@ -13,7 +13,7 @@ data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 tuple_dir_name = '';
 
 % labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
-load(strcat(data_dir_name, 'labels'))
+load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
@@ -24,8 +24,8 @@ ntuples = size(torque_dir, 1);
 
 %% States
 load(strcat(data_dir_name, 'randomwalk_net'))
-get_states
-save(strcat(data_dir_name, 'states'), 'states')
+% get_states
+% save(strcat(data_dir_name, 'states'), 'states')
 
 load(strcat(data_dir_name, 'states'))
 
@@ -41,7 +41,7 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 5;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 figure(4)
@@ -185,8 +185,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 20;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 30;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
@@ -206,8 +206,8 @@ save(horzcat(data_dir_name, 'AgentHeliomax'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 20;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 30;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;

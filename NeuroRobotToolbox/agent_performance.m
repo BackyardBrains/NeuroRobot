@@ -4,7 +4,7 @@
 clear
 % clc
 
-reward_states = [30 31 39 40];
+reward_states = [7 22 25];
 
 data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 tuple_dir_name = 'Tuples2\';
