@@ -27,7 +27,7 @@ save_experiences = 1;
 use_controllers = 0;        %
 init_motor_block_in_s = 2;
 stop_step = 20000;
-data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset_1\';
 tuple_dir_name = 'Tuples1\';
 
 
@@ -41,7 +41,7 @@ bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
-    'Agent Archimedes 2', 'Deep Agent Archimedes 2', 'Agent Helium','Deep Agent Helium', '---'};
+    'Agent Archimedes 2', 'Deep Agent Archimedes 2', 'Agent Heliomax','Deep Agent Heliomax', '---'};
 
 
 %% Clear timers - why is this used?
@@ -193,10 +193,10 @@ if save_experiences || use_controllers || dev_mode
         load(strcat(data_dir_name, 'DeepAgentArchimedes2'))
     elseif use_controllers == 3
         load(strcat(data_dir_name, 'randomwalk_net'))
-        load(strcat(data_dir_name, 'AgentHelium'))        
+        load(strcat(data_dir_name, 'AgentHeliomax'))        
     elseif use_controllers == 4
         load(strcat(data_dir_name, 'randomwalk_net'))
-        load(strcat(data_dir_name, 'DeepAgentHelium'))        
+        load(strcat(data_dir_name, 'DeepAgentHeliomax'))        
     elseif use_controllers == 5
     end
 end
