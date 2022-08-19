@@ -127,6 +127,8 @@ for nstate = 1:n_unique_states
     end
 end
 
+save(strcat(data_dir_name, 'labels'), 'labels')
+
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
