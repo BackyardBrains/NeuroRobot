@@ -4,10 +4,13 @@
 clear
 clc
 
-reward_states = [30 31 39 40];
+reward_states = [7 22 25];
 
-data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
-tuple_dir_name = 'Tuples1\';
+% data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
+% tuple_dir_name = 'Tuples1\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+% tuple_dir_name = 'Tuples1\';
+tuple_dir_name = '';
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 unique_states = unique(labels);
@@ -37,7 +40,7 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 10;
+n_unique_actions = 9;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 figure(4)
@@ -154,7 +157,7 @@ xlabel('Time (steps)')
 ylabel('Reward value')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.5])
+imagesc(mean(transition_counter, 3), [0 0.2])
 colorbar
 title('Transitions')
 
@@ -182,7 +185,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
@@ -192,10 +195,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent Helium'))
+title(horzcat('Agent Heliomax'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'AgentHelium'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'AgentHelium'), 'agent')
+export_fig(horzcat(data_dir_name, 'AgentHeliomax'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'AgentHeliomax'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -203,20 +206,20 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 10;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
-training_opts.UseParallel = 1;
+training_opts.UseParallel = 0;
 trainingStats_deep = train(agent, env, training_opts);
 figure(12)
 clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Deep Agent Helium')
+title('Deep Agent Heliomax')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'DeepAgentHelium'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'DeepAgentHelium'), 'agent')
+export_fig(horzcat(data_dir_name, 'DeepAgentHeliomax'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'DeepAgentHeliomax'), 'agent')
 
 

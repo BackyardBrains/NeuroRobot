@@ -5,7 +5,7 @@ disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
 confusion = zeros(ntuples, 2);
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/20))
+    if ~rem(ntuple, round(ntuples/100))
         disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
 

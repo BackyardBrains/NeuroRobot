@@ -5,33 +5,40 @@ clear
 clc
 
 imdim = 100;
-data_dir_name = 'C:\Users\Christopher Harris\Data_1\';
-tuple_dir_name = 'Tuples1\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+% tuple_dir_name = 'Tuples1\';
+tuple_dir_name = '';
 
-image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png');
-image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+% image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% save('image_ds', 'image_ds')
+load('image_ds')
 nimages = length(image_ds.Files);
 
-nsmall = 2000;
-nmedium = 5000;
+nsmall = 500;
+nmedium = 2000;
 image_ds_small = subset(image_ds, randsample(nimages, nsmall));
 image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
 
 image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
-save(strcat(data_dir_name, 'bag'), 'bag')
+ps = parallel.Settings;
+ps.Pool.AutoCreate = false;
+ps.Pool.IdleTimeout = Inf;
 
-imageIndex = indexImages(image_ds_medium, bag);
-save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+% bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
+% save(strcat(data_dir_name, 'bag'), 'bag')
+
+% imageIndex = indexImages(image_ds_medium, bag);
+% save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
 load(strcat(data_dir_name, 'imageIndex'))
 
 %% Get image similarity matrix
 queryROI = [1, 1, imdim - 1, imdim - 1];
 xdata = zeros(nmedium, nmedium);
 for nimage = 1:nmedium
-    if ~rem(nimage, round(nmedium/10))
+    if ~rem(nimage, round(nmedium/100))
         disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
     end
     img = readimage(image_ds_medium, nimage);
@@ -55,7 +62,7 @@ title('xdata histogram')
 
 
 %% Group images
-n_unique_states = 20;
+n_unique_states = 200;
 group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
@@ -79,7 +86,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 40;
+min_size = 100;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -92,8 +99,8 @@ for nstate = 1:n_unique_states
 end
 
 noise_group = mode(group_inds);
-state_inds(noise_group,:) = [];
-state_info(noise_group) = [];
+% state_inds(noise_group,:) = [];
+% state_info(noise_group) = [];
 state_inds(state_info == 0, :) = [];
 state_info(state_info == 0) = [];
 n_unique_states = sum(state_info);
@@ -152,6 +159,6 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(data_dir_name, 'circle_net'), 'net')
+save(strcat(data_dir_name, 'randomwalk_net'), 'net')
 
 
