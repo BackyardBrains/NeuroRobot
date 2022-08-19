@@ -12,7 +12,8 @@ data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 % tuple_dir_name = 'Tuples1\';
 tuple_dir_name = '';
 
-labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+% labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+load(strcat(data_dir_name, 'labels'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 

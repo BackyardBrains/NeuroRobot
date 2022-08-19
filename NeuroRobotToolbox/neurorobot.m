@@ -172,7 +172,8 @@ if save_experiences || use_controllers || dev_mode
     if use_controllers
 
         tuples = zeros(stop_step, 6);
-        labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+%         labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+        load(strcat(data_dir_name, 'labels'))
         unique_states = unique(labels);
         n_unique_states = length(unique_states);
         load(strcat(data_dir_name, 'torque_data'))
