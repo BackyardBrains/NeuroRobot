@@ -16,8 +16,8 @@ tuple_dir_name = '';
 % load('image_ds')
 % nimages = length(image_ds.Files);
 % 
-nsmall = 5000;
-nmedium = 20000;
+% nsmall = 5000;
+% nmedium = 20000;
 % image_ds_small = subset(image_ds, randsample(nimages, nsmall));
 % image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
 % 
@@ -42,18 +42,17 @@ ps.Pool.IdleTimeout = Inf;
 load(strcat(data_dir_name, 'xdata'))
 
 %%
-rand_subset = randsample(size(xdata, 1), nsmall);
-ydata = xdata(rand_subset, rand_subset);
-
+./randsample(nimages, nsmall)
+ydata = xdata()
 %% Plot similarity matrix
 figure(1)
 clf
 subplot(1,2,1)
-imagesc(ydata)
+imagesc(xdata)
 colorbar
 title('xdata')
 subplot(1,2,2)
-histogram(ydata(:))
+histogram(xdata(:))
 set(gca, 'yscale', 'log')
 title('xdata histogram')
 
@@ -62,17 +61,20 @@ title('xdata histogram')
 
 n_unique_states = 50;
 
-Y = pdist(ydata,'euclidean');
-Z = linkage(Y,'ward');
-% [H,T,outperm] = dendrogram(Z);
-% figure(2)
-% clf
-% imagesc(ydata)
-% colorbar
-group_inds = cluster(Z,'MaxClust',n_unique_states);
+group_inds = clusterdata(xdata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
 
-% group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
-% group_inds = kmeans(xdata, n_unique_states);
+
+Y = pdist(xdata,'euclidean')
+Z = linkage(Y,'ward')
+[H,T,outperm] = dendrogram(Z)
+figure(2)
+clf
+imagesc(xdata(outperm, outperm))
+colorbar
+
+group_inds = cluster(Z,'MaxClust',n_unique_states)
+
+group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
 noise_group = mode(group_inds);
@@ -95,7 +97,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 50;
+min_size = 100;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
