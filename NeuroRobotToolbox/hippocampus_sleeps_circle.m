@@ -63,13 +63,14 @@ title('xdata histogram')
 n_unique_states = 50;
 
 Y = pdist(ydata,'euclidean');
-Z = linkage(Y,'ward');
+links = linkage(Y,'ward');
+[~, ~, o] = dendrogram(links, nneurons);
 % [H,T,outperm] = dendrogram(Z);
-% figure(2)
-% clf
-% imagesc(ydata)
-% colorbar
-group_inds = cluster(Z,'MaxClust',n_unique_states);
+figure(2)
+clf
+imagesc(ydata(o, o))
+colorbar
+group_inds = cluster(links,'MaxClust',n_unique_states);
 
 % group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
 % group_inds = kmeans(xdata, n_unique_states);
