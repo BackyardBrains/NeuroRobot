@@ -27,27 +27,18 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
-save(strcat(data_dir_name, 'bag'), 'bag')
+% bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
+% save(strcat(data_dir_name, 'bag'), 'bag')
 load(strcat(data_dir_name, 'bag'))
 
-imageIndex = indexImages(image_ds_medium, bag);
-save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+% imageIndex = indexImages(image_ds_medium, bag);
+% save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
 load(strcat(data_dir_name, 'imageIndex'))
 
 %% Get image similarity matrix
-queryROI = [1, 1, imdim - 1, imdim - 1];
-xdata = zeros(nmedium, nmedium);
-for nimage = 1:nmedium
-    if ~rem(nimage, round(nmedium/100))
-        disp(horzcat('Processing tuple ', num2str(nimage), ' of ', num2str(nmedium)))
-    end
-    img = readimage(image_ds_medium, nimage);
-    [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'ROI', queryROI, 'NumResults', Inf);
-    xdata(nimage, inds) = similarity_scores;
-end
-save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
-
+% get_image_crosscorr
+% save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
+load(strcat(data_dir_name, 'xdata'))
 
 %% Plot similarity matrix
 figure(1)
