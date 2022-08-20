@@ -55,23 +55,24 @@ title('xdata histogram')
 
 
 %% Group images
-n_unique_states = 100;
-Y = pdist(xdata,'euclidean');
-links = linkage(Y,'ward');
-figure(2)
-clf
-subplot(1,2,1)
-[~, ~, o] = dendrogram(links, nsmall);
-subplot(1,2,2)
-imagesc(xdata(o, o))
-colorbar
+% n_unique_states = 100;
+% Y = pdist(xdata,'euclidean');
+% links = linkage(Y,'ward');
+% figure(2)
+% clf
+% subplot(1,2,1)
+% [~, ~, o] = dendrogram(links, nsmall);
+% subplot(1,2,2)
+% imagesc(xdata(o, o))
+% colorbar
 
-group_inds = cluster(links,'MaxClust',n_unique_states);
+% group_inds = cluster(links,'MaxClust',n_unique_states);
 
 % group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
 % group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
+load(strcat(data_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
@@ -168,7 +169,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=15);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
 
 net = trainNetwork(classifier_ds, net, options);
 

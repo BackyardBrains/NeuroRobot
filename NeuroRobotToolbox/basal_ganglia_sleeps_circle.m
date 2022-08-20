@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = 7;
+reward_states = [1 7 8 24];
 
 % data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 % tuple_dir_name = 'Tuples1\';
@@ -26,8 +26,8 @@ ntuples = size(torque_dir, 1);
 
 %% States
 load(strcat(data_dir_name, 'randomwalk_net'))
-% get_states
-% save(strcat(data_dir_name, 'states'), 'states')
+get_states
+save(strcat(data_dir_name, 'states'), 'states')
 
 load(strcat(data_dir_name, 'states'))
 
@@ -36,16 +36,16 @@ load(strcat(data_dir_name, 'states'))
 
 
 %% Torques
-% get_torques
-% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+get_torques
+save(strcat(data_dir_name, 'torque_data'), 'torque_data')
 load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-% n_unique_actions = 20;
-% actions = kmeans(torque_data, n_unique_actions);
-% figure(4)
-% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+n_unique_actions = 10;
+actions = kmeans(torque_data, n_unique_actions);
+figure(4)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
 
 % save(strcat(data_dir_name, 'actions'), 'actions')
 
@@ -187,11 +187,11 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 30;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 10;
+training_opts.ScoreAveragingWindowLength = 50;
 trainingStats_shallow = train(agent,env, training_opts);
 figure(11)
 clf
@@ -208,8 +208,8 @@ save(horzcat(data_dir_name, 'AgentHeliomax'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 30;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 50;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
