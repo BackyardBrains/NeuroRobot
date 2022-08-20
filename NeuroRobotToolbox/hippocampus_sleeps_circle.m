@@ -16,8 +16,8 @@ save('image_ds', 'image_ds')
 load('image_ds')
 nimages = length(image_ds.Files);
 
-nsmall = 1000;
-nmedium = 5000;
+nsmall = 2000;
+nmedium = 20000;
 image_ds_small = subset(image_ds, randsample(nimages, nsmall));
 image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
 
@@ -28,7 +28,7 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 100]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
 save(strcat(data_dir_name, 'bag'), 'bag')
 load(strcat(data_dir_name, 'bag'))
 
@@ -41,44 +41,40 @@ get_image_crosscorr
 save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
 load(strcat(data_dir_name, 'xdata'))
 
-%%
-rand_subset = randsample(size(xdata, 1), nsmall);
-ydata = xdata(rand_subset, rand_subset);
-
 %% Plot similarity matrix
 figure(1)
 clf
 subplot(1,2,1)
-imagesc(ydata)
+imagesc(xdata)
 colorbar
-title('ydata')
+title('xdata')
 subplot(1,2,2)
-histogram(ydata(:))
+histogram(xdata(:))
 set(gca, 'yscale', 'log')
-title('ydata histogram')
+title('xdata histogram')
 
 
 %% Group images
-n_unique_states = 50;
-Y = pdist(ydata,'euclidean');
-links = linkage(Y,'ward');
-figure(2)
-clf
-subplot(1,2,1)
-[~, ~, o] = dendrogram(links, nsmall);
-subplot(1,2,2)
-imagesc(ydata(o, o))
-colorbar
+n_unique_states = 100;
+% Y = pdist(xdata,'euclidean');
+% links = linkage(Y,'ward');
+% figure(2)
+% clf
+% subplot(1,2,1)
+% [~, ~, o] = dendrogram(links, nsmall);
+% subplot(1,2,2)
+% imagesc(xdata(o, o))
+% colorbar
 
-group_inds = cluster(links,'MaxClust',n_unique_states);
+% group_inds = cluster(links,'MaxClust',n_unique_states);
 
 % group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
-% group_inds = kmeans(xdata, n_unique_states);
+group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
-noise_group = mode(group_inds);
-disp(horzcat('noise group: ', num2str(noise_group)))
-disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
+% noise_group = mode(group_inds);
+% disp(horzcat('noise group: ', num2str(noise_group)))
+% disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
 % inds3 = dbscan(xdata, 0.25, 5);
 % unique_inds = unique(inds3);
@@ -86,7 +82,7 @@ disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group)))
 % n_unique_states = length(unique_inds);
 % disp(horzcat('nclusters: ', num2str(n_unique_states)))
 
-figure(2)
+figure(3)
 clf
 histogram(group_inds, 'binwidth', 0.25)
 title('States')
@@ -96,7 +92,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 25;
+min_size = 20;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -108,7 +104,7 @@ for nstate = 1:n_unique_states
     end
 end
 
-noise_group = mode(group_inds);
+% noise_group = mode(group_inds);
 % state_inds(noise_group,:) = [];
 % state_info(noise_group) = [];
 state_inds(state_info == 0, :) = [];
@@ -118,9 +114,10 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Create ground truth image folders
+get_state_entropy
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))
-    if state_entropy(nstate) > median(state_entropy) * 1    
+    if state_entropy(nstate) > nanmedian(state_entropy) * 3    
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
         elseif nstate >= 10
