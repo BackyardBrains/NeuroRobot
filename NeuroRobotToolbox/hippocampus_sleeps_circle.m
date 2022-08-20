@@ -17,7 +17,7 @@ load('image_ds')
 nimages = length(image_ds.Files);
 
 nsmall = 2000;
-nmedium = 20000;
+nmedium = 10000;
 image_ds_small = subset(image_ds, randsample(nimages, nsmall));
 image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
 
