@@ -9,36 +9,36 @@ data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 % tuple_dir_name = 'Tuples1\';
 tuple_dir_name = '';
 
-image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
-image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-save('image_ds', 'image_ds')
-
-load('image_ds')
-nimages = length(image_ds.Files);
-
+% image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+% image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% save('image_ds', 'image_ds')
+% 
+% load('image_ds')
+% nimages = length(image_ds.Files);
+% 
 nsmall = 2000;
 nmedium = 10000;
-image_ds_small = subset(image_ds, randsample(nimages, nsmall));
-image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
+% image_ds_small = subset(image_ds, randsample(nimages, nsmall));
+% image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
+% 
+% image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% 
+% ps = parallel.Settings;
+% ps.Pool.AutoCreate = false;
+% ps.Pool.IdleTimeout = Inf;
+% 
+% bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
+% save(strcat(data_dir_name, 'bag'), 'bag')
+% load(strcat(data_dir_name, 'bag'))
 
-image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-
-ps = parallel.Settings;
-ps.Pool.AutoCreate = false;
-ps.Pool.IdleTimeout = Inf;
-
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
-save(strcat(data_dir_name, 'bag'), 'bag')
-load(strcat(data_dir_name, 'bag'))
-
-imageIndex = indexImages(image_ds_medium, bag);
-save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+% imageIndex = indexImages(image_ds_medium, bag);
+% save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
 load(strcat(data_dir_name, 'imageIndex'))
 
 %% Get image similarity matrix
-get_image_crosscorr
-save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
+% get_image_crosscorr
+% save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
 load(strcat(data_dir_name, 'xdata'))
 
 %% Plot similarity matrix
@@ -56,25 +56,25 @@ title('xdata histogram')
 
 %% Group images
 n_unique_states = 100;
-% Y = pdist(xdata,'euclidean');
-% links = linkage(Y,'ward');
-% figure(2)
-% clf
-% subplot(1,2,1)
-% [~, ~, o] = dendrogram(links, nsmall);
-% subplot(1,2,2)
-% imagesc(xdata(o, o))
-% colorbar
+Y = pdist(xdata,'euclidean');
+links = linkage(Y,'ward');
+figure(2)
+clf
+subplot(1,2,1)
+[~, ~, o] = dendrogram(links, nsmall);
+subplot(1,2,2)
+imagesc(xdata(o, o))
+colorbar
 
-% group_inds = cluster(links,'MaxClust',n_unique_states);
+group_inds = cluster(links,'MaxClust',n_unique_states);
 
 % group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
-group_inds = kmeans(xdata, n_unique_states);
+% group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
-% noise_group = mode(group_inds);
-% disp(horzcat('noise group: ', num2str(noise_group)))
-% disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
+noise_group = mode(group_inds);
+disp(horzcat('noise group: ', num2str(noise_group)))
+disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
 % inds3 = dbscan(xdata, 0.25, 5);
 % unique_inds = unique(inds3);
@@ -92,7 +92,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 20;
+min_size = 100;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -117,7 +117,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 get_state_entropy
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))
-    if state_entropy(nstate) > nanmedian(state_entropy) * 3    
+%     if state_entropy(nstate) > nanmedian(state_entropy) * 3    
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
         elseif nstate >= 10
@@ -132,7 +132,7 @@ for nstate = 1:n_unique_states
             fname = strcat(data_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
-    end
+%     end
 end
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
