@@ -11,7 +11,7 @@ for nstate = 1:n_unique_states
 end
 figure(5)
 clf
-histogram(state_entropy, 'binwidth', 0.01)
+histogram(state_entropy, 'binwidth', 0.001)
 hold on
 plot([median(state_entropy) median(state_entropy)], [0 2] + 2, 'linewidth', 2, 'color', 'r')
 title('State entropies')

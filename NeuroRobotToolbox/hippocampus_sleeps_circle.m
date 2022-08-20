@@ -9,36 +9,36 @@ data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 % tuple_dir_name = 'Tuples1\';
 tuple_dir_name = '';
 
-% image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
-% image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-% save('image_ds', 'image_ds')
+image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+save('image_ds', 'image_ds')
 
-% load('image_ds')
-% nimages = length(image_ds.Files);
-% 
-nsmall = 5000;
-nmedium = 20000;
-% image_ds_small = subset(image_ds, randsample(nimages, nsmall));
-% image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
-% 
-% image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-% image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+load('image_ds')
+nimages = length(image_ds.Files);
+
+nsmall = 1000;
+nmedium = 5000;
+image_ds_small = subset(image_ds, randsample(nimages, nsmall));
+image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
+
+image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-% bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
-% save(strcat(data_dir_name, 'bag'), 'bag')
-% load(strcat(data_dir_name, 'bag'))
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 100]);
+save(strcat(data_dir_name, 'bag'), 'bag')
+load(strcat(data_dir_name, 'bag'))
 
-% imageIndex = indexImages(image_ds_medium, bag);
-% save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
-% load(strcat(data_dir_name, 'imageIndex'))
+imageIndex = indexImages(image_ds_medium, bag);
+save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+load(strcat(data_dir_name, 'imageIndex'))
 
 %% Get image similarity matrix
-% get_image_crosscorr
-% save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
+get_image_crosscorr
+save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
 load(strcat(data_dir_name, 'xdata'))
 
 %%
@@ -51,25 +51,25 @@ clf
 subplot(1,2,1)
 imagesc(ydata)
 colorbar
-title('xdata')
+title('ydata')
 subplot(1,2,2)
 histogram(ydata(:))
 set(gca, 'yscale', 'log')
-title('xdata histogram')
+title('ydata histogram')
 
 
 %% Group images
-
 n_unique_states = 50;
-
 Y = pdist(ydata,'euclidean');
 links = linkage(Y,'ward');
-[~, ~, o] = dendrogram(links, nneurons);
-% [H,T,outperm] = dendrogram(Z);
 figure(2)
 clf
+subplot(1,2,1)
+[~, ~, o] = dendrogram(links, nsmall);
+subplot(1,2,2)
 imagesc(ydata(o, o))
 colorbar
+
 group_inds = cluster(links,'MaxClust',n_unique_states);
 
 % group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
@@ -96,7 +96,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 50;
+min_size = 25;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -120,7 +120,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 %% Create ground truth image folders
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))
-    if state_entropy(nstate) > median(state_entropy) * 3    
+    if state_entropy(nstate) > median(state_entropy) * 1    
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
         elseif nstate >= 10
@@ -138,8 +138,10 @@ for nstate = 1:n_unique_states
     end
 end
 
+labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+labels = unique(labels);
 save(strcat(data_dir_name, 'labels'), 'labels')
-
+n_unique_states = length(labels);
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
