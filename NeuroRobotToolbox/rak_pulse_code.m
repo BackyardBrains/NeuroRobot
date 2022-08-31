@@ -4,7 +4,7 @@ if use_esp32
     esp_get_serial
 elseif use_webcam
     trigger(rak_cam)
-    large_frame = getdata(rak_cam, 1);
+%     large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging
 elseif rak_only
     large_frame = rak_cam.readVideo();
     large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);
@@ -15,5 +15,3 @@ end
 if exist('dev_mode', 'var') && dev_mode
     brainless
 end
-
-% disp(serial_receive)

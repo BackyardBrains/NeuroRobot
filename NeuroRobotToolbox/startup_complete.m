@@ -42,7 +42,7 @@ else
     disp(horzcat('Brain name = ', brain_name))
     if ~exist('net', 'var') && use_cnn
         tic
-        g_net = googlenet;
+%         g_net = googlenet; %%% <<<<< Commented out for packaging
         net_input_size = g_net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
     elseif ~exist('net', 'var') && use_rcnn

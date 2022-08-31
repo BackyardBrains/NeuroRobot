@@ -4,7 +4,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
     % This script takes the current brain state, extracts motor and speaker
     % commands, and sends them (as motor_command) to robot
     
-    % disp('1')
     motor_command = zeros(1, 5);
     
     % Extract motor out from spiking neurons
@@ -20,11 +19,11 @@ if nneurons % This prevents error caused by running script after deleting all ne
     else
         these_tones = [];
     end
-    % disp('2')
+
     if these_speaker_neurons
         try
             if ~vocal_buffer && max(these_tones) <= length(audio_out_fs)
-        %             disp('1')
+
                 if length(these_speaker_neurons) > 1
                     these_speaker_neurons = these_speaker_neurons(1);
                     disp('Too many custom sound neurons: playing first sound only')
@@ -40,7 +39,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
                 elseif nsound && audio_out_fs(nsound) % so for now...
                     soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
                 end
-        %         disp('3')
+
                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
             elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)
                 speaker_tone = these_tones(1);
@@ -92,7 +91,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
     else
         speaker_tone = 0;
     end
-    % disp('4')
+
     if vocal_buffer
         vocal_buffer = vocal_buffer - 1;
     end
@@ -105,44 +104,10 @@ if nneurons % This prevents error caused by running script after deleting all ne
     if exist('this_script', 'var') && ~isempty(this_script) && ~script_running % If spiking scripted neuron and no script currently running
         script_step_count = 0;
         script_running = neuron_scripts(this_script);
-    %     disp(horzcat('Script running', num2str(script_running)))
     end
     
     if script_running
-        if script_running == 1
-            if rak_only || use_esp32
-                behavior_script_1
-            end
-        elseif script_running == 2
-            if rak_only || use_esp32
-                behavior_script_2
-            end
-        elseif script_running == 3
-            if rak_only || use_esp32
-                behavior_script_3
-            end        
-        elseif script_running == 4
-            if rak_only || use_esp32
-                behavior_script_4
-            end
-        elseif script_running == 5
-            if rak_only || use_esp32
-                behavior_script_5
-            end            
-        elseif script_running == 6
-            behavior_script_6
-        elseif script_running == 7
-            behavior_script_7
-        elseif script_running == 8
-            behavior_script_8
-        elseif script_running == 9
-            behavior_script_9
-        elseif script_running == 10
-            behavior_script_10            
-        else
-            disp('Unknown behavior')
-        end
-        script_running = 0;
+        run_script
     end
     
     % Prepare to send
@@ -246,7 +211,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         try
             rak_cam.writeSerial(send_this)
-    %         disp(send_this)
         catch
             disp('Cannot send RAK serial')
         end
@@ -254,7 +218,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         try
             esp32WebsocketClient.send(send_this);
-    %         disp(send_this)
         catch
             disp('Cannot send ESP32 serial')
         end    

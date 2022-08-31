@@ -9,7 +9,7 @@ try
         large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
     elseif use_webcam
         trigger(rak_cam)
-        large_frame = getdata(rak_cam, 1);
+%         large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging
     end
     if night_vision
         large_frame = histeq(large_frame, 64*4);

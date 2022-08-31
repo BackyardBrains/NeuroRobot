@@ -23,10 +23,10 @@ draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-save_experiences = 1;
-use_controllers = 3;        %
+save_experiences = 0;
+use_controllers = 0;        %
 init_motor_block_in_s = 2;
-stop_step = 10000;
+stop_step = 0;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 tuple_dir_name = 'AgentPerformance\';
 
@@ -40,8 +40,7 @@ save_data_and_commands = 0;
 bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'SpinLED', ...
-    'Agent Archimedes 2', 'Deep Agent Archimedes 2', 'Agent Heliomax','Deep Agent Heliomax', '---'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
 
 
 %% Clear timers - why is this used?
@@ -125,9 +124,7 @@ n_dist_prefs = size(dist_pref_names, 2);
 load('brainim_xy')
 design_action = 0;
 network_colors(1, :) = [1 0.9 0.8];
-vis_pref_names = {'Red', 'red-temp', 'Green', ...
-    'green-temp', 'Blue', 'blue-temp', ...
-    'Movement'};
+vis_pref_names = {'Red', 'red-temp', 'Green', 'green-temp', 'Blue', 'blue-temp', 'Movement'};
 n_basic_vis_features = length(vis_pref_names);
 serial_data = [];
 
@@ -187,18 +184,11 @@ if save_experiences || use_controllers || dev_mode
     end
 
     if use_controllers == 1
-        load(strcat(data_dir_name, 'circle_net'))
-        load(strcat(data_dir_name, 'AgentArchimedes2'))
-    elseif use_controllers == 2
-        load(strcat(data_dir_name, 'circle_net'))
-        load(strcat(data_dir_name, 'DeepAgentArchimedes2'))
-    elseif use_controllers == 3
         load(strcat(data_dir_name, 'randomwalk_net'))
         load(strcat(data_dir_name, 'AgentHeliomax'))        
-    elseif use_controllers == 4
+    elseif use_controllers == 2
         load(strcat(data_dir_name, 'randomwalk_net'))
-        load(strcat(data_dir_name, 'DeepAgentHeliomax'))        
-    elseif use_controllers == 5
+        load(strcat(data_dir_name, 'DeepAgentHeliomax'))
     end
 end
 

@@ -72,7 +72,7 @@ if use_esp32
         
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
-        rak_cam = ipcam(url);
+%         rak_cam = ipcam(url);  %%% <<<<< Commented out for packaging
         rak_cam_h = 240;
         rak_cam_w = 320;   
         
@@ -97,11 +97,11 @@ end
 if use_webcam
     disp('Attempting webcam connect...')
     try
-        delete(imaqfind)
+%         delete(imaqfind) %%% <<<<< Commented out for packaging
         if ispc
-            rak_cam = videoinput('winvideo', 1);
+%             rak_cam = videoinput('winvideo', 1); %%% <<<<< Commented out for packaging
         elseif ismac
-            rak_cam = videoinput('macvideo', 1);
+%             rak_cam = videoinput('macvideo', 1); %%% <<<<< Commented out for packaging
         else
             disp('Unknown OS. Webcam not found.')
         end
@@ -109,13 +109,13 @@ if use_webcam
         disp('error: unable to connect webcam')
         disp('solution: open Add-On Explorer and install Image Acquisition Support Package for Generic OS Interface')
     end
-    triggerconfig(rak_cam, 'manual');
+%     triggerconfig(rak_cam, 'manual'); %%% <<<<< Commented out for packaging
     rak_cam.TriggerRepeat = Inf;
     rak_cam.FramesPerTrigger = 1;
     rak_cam.ReturnedColorspace = 'rgb';
     start(rak_cam)
     trigger(rak_cam)
-    large_frame = getdata(rak_cam, 1);        
+%     large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging       
     [rak_cam_h, rak_cam_w, ~] = size(large_frame);
     connect_success = 1;
 end

@@ -4,63 +4,66 @@
 clear
 clc
 
-reward_states = [7 22 35 37];
-rand_states = 0;
+reward_states = [1 7 8 19 24];
 
+% data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
+% tuple_dir_name = 'Tuples1\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+% tuple_dir_name = 'Tuples1\';
+tuple_dir_name = '';
 
-%% Ontology
-classifier_dir_name = '.\Data_1\Rec_4\';
-labels = folders2labels(classifier_dir_name);
+% labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
-unique_states(unique_states == classifier_dir_name(end-5:end-1)) = [];
 n_unique_states = length(unique_states);
 
-
-%% Tuples
-tuples_dir_name = 'C:\Users\Christopher Harris\RandomWalkData\';
-image_dir = dir(fullfile(tuples_dir_name, '**\*.png'));
-torque_dir = dir(fullfile(tuples_dir_name, '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
+ntorques = size(torque_dir, 1);
+nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
 
 %% States
-load(strcat(classifier_dir_name, 'livingroom_k', num2str(n_unique_states), '_net'))
-if ~rand_states
-    get_states
-    save(strcat(classifier_dir_name, 'states'), 'states')
-else
-    states = ceil(rand(ntuples, 1)*n_unique_states);
-end
+load(strcat(data_dir_name, 'randomwalk_net'))
+get_states
+save(strcat(data_dir_name, 'states'), 'states')
+
+load(strcat(data_dir_name, 'states'))
+
+% states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
-% load(strcat(classifier_dir_name, 'states'))
 
 
 %% Torques
 get_torques
-save(strcat(classifier_dir_name, 'torque_data'), 'torque_data')
-% load(strcat(classifier_dir_name, 'torque_data'))
+save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
 n_unique_actions = 10;
 actions = kmeans(torque_data, n_unique_actions);
-save(strcat(classifier_dir_name, 'actions'), 'actions')
-% load(strcat(classifier_dir_name, 'actions'))
+figure(4)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+
+save(strcat(data_dir_name, 'actions'), 'actions')
+
+load(strcat(data_dir_name, 'actions'))
+
 n_unique_actions = length(unique(actions));
-% figure(4)
-% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
+
+
+%% Lucid sleep?
+% lucid_sleep
 
 
 %% Get tuples
-tuples = zeros(ntuples - 5, 3);
-for ntuple = 5:ntuples - 1
-    if ~rem(ntuple, round((ntuples-1)/10))
-        disp(num2str(ntuple/(ntuples - 6)))
-    end
-    this_state = states(ntuple);
-    tuples(ntuple - 4, 1) = this_state;
-    tuples(ntuple - 4, 2) = states(ntuple + 1);
-    tuples(ntuple - 4, 3) = actions(ntuple - 4);
+tuples = zeros(ntuples - 6, 3);
+for ntuple = 6:ntuples - 1
+    tuples(ntuple - 5, 1) = states(ntuple - 5);
+    tuples(ntuple - 5, 2) = states(ntuple);
+    tuples(ntuple - 5, 3) = actions(ntuple - 5);
 end
 ntuples = size(tuples, 1);
 
@@ -111,7 +114,8 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-
+save(strcat(data_dir_name, 'mdp'), 'mdp')
+load(strcat(data_dir_name, 'mdp'))
 
 %% Get rewards
 rewards = zeros(ntuples, 1) - 1;
@@ -149,22 +153,19 @@ title('Actions')
 xlabel('Action')
 ylabel('Actions')
 
+subplot(2,2,4)
+plot(rewards)
+axis tight
+title('Rewards')
+xlabel('Time (steps)')
+ylabel('Reward value')
+
 subplot(2,2,3)
 imagesc(mean(transition_counter, 3), [0 0.15])
 colorbar
 title('Transitions')
 
-subplot(2,2,4)
-plot(rewards)
-title('Rewards')
-xlabel('Time (steps)')
-ylabel('Reward value')
-
-if rand_states
-    export_fig(horzcat(classifier_dir_name, 'rmdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-else
-    export_fig(horzcat(classifier_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
-end
+export_fig(horzcat(data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Train agents
@@ -188,20 +189,20 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 1000;
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
+training_opts.ScoreAveragingWindowLength = 50;
 trainingStats_shallow = train(agent,env, training_opts);
 figure(11)
 clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent 1'))
+title(horzcat('Agent Heliomax'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(classifier_dir_name, 'agent1'), '-r150', '-jpg', '-nocrop')
-save(horzcat(classifier_dir_name, 'agent1'), 'agent')
+export_fig(horzcat(data_dir_name, 'AgentHeliomax'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'AgentHeliomax'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -209,20 +210,20 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 10000;
+training_opts.MaxStepsPerEpisode = 50;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
-training_opts.UseParallel = 1;
+training_opts.ScoreAveragingWindowLength = 50;
+training_opts.UseParallel = 0;
 trainingStats_deep = train(agent, env, training_opts);
 figure(12)
 clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Agent 2')
+title('Deep Agent Heliomax')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(classifier_dir_name, 'agent2'), '-r150', '-jpg', '-nocrop')
-save(horzcat(classifier_dir_name, 'agent2'), 'agent')
+export_fig(horzcat(data_dir_name, 'DeepAgentHeliomax'), '-r150', '-jpg', '-nocrop')
+save(horzcat(data_dir_name, 'DeepAgentHeliomax'), 'agent')
 
 
