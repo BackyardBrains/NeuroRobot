@@ -4,24 +4,25 @@
 clear
 % clc
 
-reward_states = [7 22 25];
+reward_states = [1 7 8 19 24];
 
-data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
-tuple_dir_name = 'Tuples2\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+% tuple_dir_name = 'Tuples1\';
+tuple_dir_name = '';
 
-labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
 image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
+ntorques = size(torque_dir, 1);
+nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
 %% Get states
 load(strcat(data_dir_name, 'randomwalk_net'))
 get_states
-save(strcat(data_dir_name, 'states'), 'states')
-load(strcat(data_dir_name, 'states'))
 
 %% Get actions
 get_torques
