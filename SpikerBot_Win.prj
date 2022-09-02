@@ -31,8 +31,8 @@
     <param.support.packages>
       <item>&lt;package displayname="OS Generic Video Interface" enabled="false" name="OS Generic Video Interface" product="Image Acquisition Toolbox"/&gt;</item>
     </param.support.packages>
-    <param.web.mcr>false</param.web.mcr>
-    <param.package.mcr>true</param.package.mcr>
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
     <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
@@ -67,6 +67,8 @@
       <param.enable.clean.build />
       <param.user.defined.mcr.options />
       <param.target.type />
+      <param.web.mcr />
+      <param.package.mcr />
       <param.no.mcr />
       <param.web.mcr.name />
       <param.package.mcr.name />
@@ -79,7 +81,9 @@
     <fileset.main>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\neurorobot.m</file>
     </fileset.main>
-    <fileset.resources />
+    <fileset.resources>
+      <file>${PROJECT_ROOT}\NeuroRobotToolbox</file>
+    </fileset.resources>
     <fileset.package />
     <fileset.depfun>
       <file>${PROJECT_ROOT}\NeuroRobotToolbox\brainim_xy.mat</file>
