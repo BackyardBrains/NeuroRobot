@@ -14,8 +14,8 @@ load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*torques.mat'));
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);

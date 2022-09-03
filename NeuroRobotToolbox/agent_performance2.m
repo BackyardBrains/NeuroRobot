@@ -1,7 +1,7 @@
 
 %% Performance
 
-clear
+% clear
 % clc
 
 reward_states = [1 7 8 19 24];
@@ -13,18 +13,25 @@ load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\*torques.mat'));
-ntorques = size(torque_dir, 1);
-nimages = size(image_dir, 1);
+% image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*.png'));
+% torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Agent*\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Agent*\*torques.mat'));
+% ntorques = size(torque_dir, 1);
+% nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
+
 
 %% Get states
 load(strcat(data_dir_name, 'randomwalk_net'))
 get_states
+save(strcat(data_dir_name, 'states2'), 'states')
+load(strcat(data_dir_name, 'states2'))
 
 %% Get actions
-get_torques
+% get_torques
+save(strcat(data_dir_name, 'torque_data2'), 'torque_data')
+load(strcat(data_dir_name, 'torque_data2'))
 
 %% Get reward
 disp('getting rewards')
@@ -65,25 +72,26 @@ area(rewards)
 axis tight
 title('Reward')
 
-export_fig(horzcat(tuple_dir_name(1:end-1), '_mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(tuple_dir_name(1:end-1), '_mdp2_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 %% Get steps to reward state
 nruns = 10000;
 disp('getting steps to reward')
-steps_to_reward = zeros(nruns, 1);
+steps_to_reward2 = zeros(nruns, 1);
 nrun = 0;
 while nrun < nruns
     nrun = nrun + 1;
+    if ~rem(nrun, round(nruns/10))
+        disp(num2str(nrun/nruns))
+    end    
     step_counter = 0;
     flag = 0;
     start_step = randsample(ntuples-1, 1);
-    if ~sum(satates(start_step) == reward_states)
+    if ~sum(states(start_step) == reward_states)
         for ntuple = start_step:ntuples
-            if ~rem(ntuple, round(ntuples/10))
-                disp(num2str(ntuple/ntuples))
-            end
+
             if sum(states(ntuple) == reward_states) && ~flag
-                steps_to_reward(nrun) = step_counter;
+                steps_to_reward2(nrun) = step_counter;
                 flag = 1;
             else
                 step_counter = step_counter + 1;
@@ -93,3 +101,4 @@ while nrun < nruns
         nrun = nrun - 1;
     end
 end
+save(strcat(data_dir_name, 'steps_to_reward2'), 'steps_to_reward2')
