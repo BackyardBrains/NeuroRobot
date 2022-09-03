@@ -12,6 +12,6 @@ hold on
 draw_brain
 this_time = char(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss'));
 
-export_fig(fig_print, horzcat('./Data/', this_time, '-', brain_name, '-brain_print'), '-r150', '-jpg', '-nocrop')
+export_fig(fig_print, horzcat(this_time, '-', brain_name, '-brain_print'), '-r150', '-jpg', '-nocrop')
 
 close(fig_print)
