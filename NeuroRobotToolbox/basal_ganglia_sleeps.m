@@ -26,8 +26,8 @@ ntuples = size(torque_dir, 1);
 
 %% States
 load(strcat(data_dir_name, 'randomwalk_net'))
-get_states
-save(strcat(data_dir_name, 'states'), 'states')
+% get_states
+% save(strcat(data_dir_name, 'states'), 'states')
 
 load(strcat(data_dir_name, 'states'))
 
@@ -36,20 +36,20 @@ load(strcat(data_dir_name, 'states'))
 
 
 %% Torques
-get_torques
-save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+% get_torques
+% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
 load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 10;
-actions = kmeans(torque_data, n_unique_actions);
-figure(4)
-gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*2, torque_data(:,2)+randn(size(torque_data(:,2)))*2, actions)
-
-save(strcat(data_dir_name, 'actions'), 'actions')
+% n_unique_actions = 10;
+% actions = kmeans(torque_data, n_unique_actions);
+% save(strcat(data_dir_name, 'actions'), 'actions')
 
 load(strcat(data_dir_name, 'actions'))
+
+figure(4)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 
 n_unique_actions = length(unique(actions));
 
