@@ -21,6 +21,8 @@ ntorques = size(torque_dir, 1);
 % nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
+retina_movie5_setup
+
 %% Get states
 % load(strcat(data_dir_name, 'randomwalk_net'))
 % get_states
@@ -81,19 +83,23 @@ steps_to_reward = zeros(n_unique_states, nruns);
 for start_state = 1:n_unique_states
     disp(horzcat('start_state = ', num2str(start_state)))
     inds = find(states == start_state);
-    if ~isempty(inds)
+    if ~isempty(inds) && ~sum(start_state == reward_states)
         for nrun = 1:nruns
             this_start_ind = randsample(inds, 1);
             xx = sum(states(this_start_ind:end)' == reward_states');
             this_many_steps = find(xx, 1, 'first');
             if ~isempty(this_many_steps)
+                disp(horzcat('this_many_steps = ', num2str(this_many_steps)))
                 steps_to_reward(start_state, nrun) = this_many_steps;
+%                 retina_movie5
             end
         end
     end
 end
 save(strcat(data_dir_name, 'steps_to_reward2'), 'steps_to_reward')
 load(strcat(data_dir_name, 'steps_to_reward2'))
+
+close(vid_writer)
 
 %%
 load(strcat(data_dir_name, 'steps_to_reward'))
