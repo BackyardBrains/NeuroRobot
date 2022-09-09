@@ -1,8 +1,8 @@
 
 
-these_tuples = this_start_ind : this_start_ind + this_many_steps;
+these_tuples = this_start_ind : this_start_ind + this_many_steps + 10;
 
-counter = length(these_tuples);
+counter = length(these_tuples) - 10;
 disp(horzcat('steps = ', num2str(counter)))
 
 for ntuple = these_tuples
@@ -18,18 +18,11 @@ for ntuple = these_tuples
     right_im = imresize(right_im, [imdim imdim]);
 
     montage({left_im right_im})
+    title(horzcat('current state = ', num2str(states(ntuple)), ', remaining steps = ', num2str(counter)))
+    writeVideo(vid_writer, getframe(10));
+    drawnow
 
-    if ntuple == these_tuples(end)
-        title(horzcat('current state = ', num2str(states(ntuple)), ', remaining steps = ', num2str(counter)))
-        for ii = 1:30
-            writeVideo(vid_writer, getframe(10));
-            drawnow
-        end
-    else
-        title(horzcat('current state = ', num2str(states(ntuple)), ', remaining steps = ', num2str(counter)))
-        writeVideo(vid_writer, getframe(10));
-        drawnow
-    end
+    pause(0.1)
    
 end
  

@@ -27,7 +27,7 @@ ntuples = size(torque_dir, 1);
 % get_states
 % save(strcat(data_dir_name, 'states2'), 'states')
 load(strcat(data_dir_name, 'states2'))
-states = modefilt(states, [9 1]);
+% states = modefilt(states, [9 1]);
 
 %% Get actions
 % get_torques
@@ -82,22 +82,22 @@ sequence_video_setup
 disp('getting steps to reward')
 steps_to_reward = zeros(n_unique_states, nruns);
 scount = 0;
-for start_state = 11:n_unique_states
+for start_state = 1:n_unique_states
     disp(horzcat('start_state = ', num2str(start_state)))
     inds = find(states == start_state);
     if ~isempty(inds) && ~sum(start_state == reward_states)
         for nrun = 1:nruns
             this_start_ind = randsample(inds, 1);
-            xx = sum(states(this_start_ind:end)' == reward_states');
-            this_many_steps = find(xx, 1, 'first');
+            subsequent_reward_inds = sum(states(this_start_ind+1:end)' == reward_states');
+            this_many_steps = find(subsequent_reward_inds, 1, 'first');
             if ~isempty(this_many_steps)
                 disp(horzcat('this_many_steps = ', num2str(this_many_steps)))
                 steps_to_reward(start_state, nrun) = this_many_steps;
-                if this_many_steps > 61 && this_many_steps < 2060
+%                 if this_many_steps > 61 && this_many_steps < 2060
                     scount = scount + this_many_steps;
                     disp(horzcat('scount = ', num2str(scount)))
                     sequence_video
-                end
+%                 end
             end
         end
     end
