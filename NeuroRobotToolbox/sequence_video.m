@@ -3,6 +3,8 @@
 these_tuples = this_start_ind : this_start_ind + this_many_steps;
 
 counter = length(these_tuples);
+disp(horzcat('steps = ', num2str(counter)))
+
 for ntuple = these_tuples
 
     counter = counter - 1;
@@ -17,19 +19,17 @@ for ntuple = these_tuples
 
     montage({left_im right_im})
 
-    drawnow
-
     if ntuple == these_tuples(end)
-        title('goal state reached')
-        for ii = 1:10
+        title(horzcat('current state = ', num2str(states(ntuple)), ', remaining steps = ', num2str(counter)))
+        for ii = 1:30
             writeVideo(vid_writer, getframe(10));
+            drawnow
         end
     else
-        title(horzcat('start state = ', num2str(states(ntuple)), ', steps remaining = ', num2str(counter)))
+        title(horzcat('current state = ', num2str(states(ntuple)), ', remaining steps = ', num2str(counter)))
         writeVideo(vid_writer, getframe(10));
+        drawnow
     end
-    
+   
 end
-
-
  
