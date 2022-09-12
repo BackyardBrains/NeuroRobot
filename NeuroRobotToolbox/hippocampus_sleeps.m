@@ -6,10 +6,9 @@ clc
 
 imdim = 100;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-% tuple_dir_name = 'Tuples1\';
-tuple_dir_name = '';
+rec_dir_name = '';
 
-% image_ds = imageDatastore(strcat(data_dir_name, tuple_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+% image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
 % image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 % save('image_ds', 'image_ds')
 % 

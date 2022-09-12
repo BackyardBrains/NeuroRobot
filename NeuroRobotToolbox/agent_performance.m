@@ -8,16 +8,16 @@ imdim = 100;
 reward_states = [1 7 8 19 24];
 video_file_name = 'sequence_video2';
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-tuple_dir_name = '';
+rec_dir_name = '';
 
 load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-% image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*.png'));
-% torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Rec*\*torques.mat'));
-image_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Agent*\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, tuple_dir_name), '**\Agent*\*torques.mat'));
+% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Rec*\*.png'));
+% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Rec*\*torques.mat'));
+image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Agent*\*.png'));
+torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Agent*\*torques.mat'));
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
