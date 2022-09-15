@@ -6,7 +6,7 @@ clear
 
 imdim = 100;
 reward_states = [1 7 8 19 24];
-video_file_name = 'sequence_video2';
+video_file_name = 'sequence_video3';
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = '';
 
@@ -23,16 +23,16 @@ nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
 %% Get states
-% load(strcat(data_dir_name, 'randomwalk_net'))
-% get_states
-% save(strcat(data_dir_name, 'states2'), 'states')
-load(strcat(data_dir_name, 'states2'))
+load(strcat(data_dir_name, 'randomwalk_net'))
+get_states
+save(strcat(data_dir_name, 'states_agent'), 'states')
+load(strcat(data_dir_name, 'states_agent'))
 % states = modefilt(states, [9 1]);
 
 %% Get actions
-% get_torques
-% save(strcat(data_dir_name, 'torque_data2'), 'torque_data')
-load(strcat(data_dir_name, 'torque_data2'))
+get_torques
+save(strcat(data_dir_name, 'torque_data_agent'), 'torque_data')
+load(strcat(data_dir_name, 'torque_data_agent'))
 
 %% Get reward
 disp('getting rewards')

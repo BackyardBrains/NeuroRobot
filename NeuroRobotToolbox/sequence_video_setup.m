@@ -1,5 +1,5 @@
 
-video_fps = 30;
+video_fps = 10;
 video_compression = 'MPEG-4';
 
 this_ind = 30*2-1;    
