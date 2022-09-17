@@ -5,7 +5,7 @@ NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 
-NeuroRobotToolbox/Data/*
+NeuroRobotToolbox/Data
 
 OGLdpf.log
 
