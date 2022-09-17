@@ -9,26 +9,21 @@ hd_camera = 0;              % Use robot with RAK5270
 use_esp32 = 0;              % Use robot with ESP32-CAM ---- you also need to add matlabwebsocket to path
 use_cnn = 0;                % Use a convolutional neural network (Googlenet) for object recognition
 use_rcnn = 0;               % Use a convolutional neural network (Alexnet) for custom object recognition (e.g. face detection)
-vocal = 1;                  % Custom sound output
-supervocal = 1;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
+vocal = 0;                  % Custom sound output
+supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
 matlab_audio_rec = 1;       % Use computer microphone to listen
 matlab_speaker_ctrl = 0;    % Multi tone output
-audio_th = 1;               % Audio threshold (increase if sound spectrum looks too crowded)
-pulse_period = 0.2;        % Step time in seconds
+audio_th = 100;               % Audio threshold (increase if sound spectrum looks too crowded)
+pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes
-microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers
 cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 draw_synapse_strengths = 1;
 draw_neuron_numbers = 1;
 night_vision = 0;           % Use histeq to enhance image contrast
 brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
 save_experiences = 0;
-use_controllers = 0;        %
-init_motor_block_in_s = 2;
-stop_step = 0;
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 2\';
-rec_dir_name = 'Rec_1\';
+use_controllers = 0;        % Switch this so correct nets are loaded with brain selection
 
 
 %% Advanced settings
@@ -41,6 +36,9 @@ bg_brain = 1;
 manual_controls = 0;
 bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
+data_dir_name = '.\Data\';
+rec_dir_name = '';
+init_motor_block_in_s = 2;
 
 
 %% Clear timers - why is this used?
@@ -65,6 +63,8 @@ computer_name = 'laptop1';
 
 
 %% Prepare
+microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers (AUTOMATIC?)
+stop_step = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 nsteps_per_loop = 100;
