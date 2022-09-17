@@ -21,7 +21,7 @@ image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
-ntuples = size(torque_dir, 1);
+% ntuples = size(torque_dir, 1);
 
 
 %% States
@@ -30,6 +30,7 @@ load(strcat(data_dir_name, 'randomwalk_net'))
 % save(strcat(data_dir_name, 'states'), 'states')
 
 load(strcat(data_dir_name, 'states'))
+ntuples = size(states, 1);
 
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
@@ -42,9 +43,9 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-% n_unique_actions = 10;
-% actions = kmeans(torque_data, n_unique_actions);
-% save(strcat(data_dir_name, 'actions'), 'actions')
+n_unique_actions = 10;
+actions = kmeans(torque_data, n_unique_actions);
+save(strcat(data_dir_name, 'actions'), 'actions')
 
 load(strcat(data_dir_name, 'actions'))
 
