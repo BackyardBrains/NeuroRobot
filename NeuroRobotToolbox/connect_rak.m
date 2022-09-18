@@ -72,7 +72,7 @@ if use_esp32
         
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
-%         rak_cam = ipcam(url);  %%% <<<<< Commented out for packaging
+        rak_cam = ipcam(url);  %%% <<<<< Commented out for packaging
         rak_cam_h = 240;
         rak_cam_w = 320;   
         
@@ -147,4 +147,5 @@ if camera_present
 end
 set(button_startup_complete, 'enable', 'on')
 
+disp('end of connect_rak')
 
