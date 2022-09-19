@@ -1,17 +1,17 @@
-function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, use_webcam, text_title, text_load, button_bluetooth, popup_select_brain, edit_name, button_startup_complete, camera_present, bluetooth_present, rak_only, gong, hd_camera, use_esp32, esp32WebsocketClient)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, camera_present, use_webcam, text_title, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_design, button_to_library, button_to_sleep, button_new_brain)
 
 connect_success = 0;
 
 tic
-disp('Connecting camera...')
-button_camera.BackgroundColor = [0.94 0.78 0.62];
+disp('Connecting...')
 text_title.String = 'Connecting...';
-text_load.String = '';
-set(button_bluetooth, 'enable', 'off')
-set(popup_select_brain, 'visible', 'off')
-set(edit_name, 'enable', 'off')
+button_camera.BackgroundColor = [0.94 0.78 0.62];
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
+set(button_to_design, 'enable', 'off')
+set(button_to_library, 'enable', 'off')
+set(button_to_sleep, 'enable', 'off')
+set(button_new_brain, 'enable', 'off')
 drawnow
 
 if rak_only
@@ -121,31 +121,26 @@ if use_webcam
 end
 
 if connect_success
-
     button_camera.BackgroundColor = [0.6 0.95 0.6];
     drawnow
     disp(horzcat('Camera connected in ', num2str(round(toc)), ' s'))
-
+elseif ~camera_present
+    button_camera.BackgroundColor = [0.6 0.95 0.6];
+    drawnow
+    rak_cam = 0;
+    rak_cam_h = 1;
+    rak_cam_w = 1;     
+    disp(horzcat('No camera connected in ', num2str(round(toc)), ' s'))  
 else
-
     disp('error: rak_cam created but not running')
     button_camera.BackgroundColor = [1 0.5 0.5];
-    sound(flipud(gong), 8192 * 7)
     disp('check your settings in neurorobot.m, make sure you are connected to the correct wifi, restart matlab, restart everything')
-    
 end
 
-text_title.String = 'Neurorobot Startup';
-text_load.String = 'Select brain';
-if bluetooth_present
-    set(button_bluetooth, 'enable', 'on')
-end
-set(popup_select_brain, 'visible', 'on')
-set(edit_name, 'enable', 'on')
-if camera_present
-    set(button_camera, 'enable', 'on')
-end
+text_title.String = 'Main Menu';
+set(button_camera, 'enable', 'on')
 set(button_startup_complete, 'enable', 'on')
-
-disp('end of connect_rak')
-
+set(button_to_design, 'enable', 'on')
+set(button_to_library, 'enable', 'on')
+set(button_to_sleep, 'enable', 'on')
+set(button_new_brain, 'enable', 'on')

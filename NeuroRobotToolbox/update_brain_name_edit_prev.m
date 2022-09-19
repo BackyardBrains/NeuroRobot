@@ -16,8 +16,8 @@ if popup_select_brain.Value == 1
     draw_brain
 else
     
-%     text_title.String = 'Loading brain...';
-%     text_load.String = '';
+    text_title.String = 'Loading brain...';
+    text_load.String = '';
     set(popup_select_brain, 'visible', 'off')
     set(brain_edit_name, 'enable', 'off')
     set(button_camera, 'enable', 'off')
@@ -87,7 +87,7 @@ else
     end    
     
     try
-%         draw_brain
+        draw_brain
     catch
         disp('Cannot load brain, may need use_cnn (object recognition) active')
     end
@@ -98,8 +98,8 @@ else
         set(button_camera, 'enable', 'on')
     end
     set(button_startup_complete, 'enable', 'on')
-%     text_title.String = 'Neurorobot Startup';
-%     text_load.String = 'Select brain';
+    text_title.String = 'Neurorobot Startup';
+    text_load.String = 'Select brain';
     drawnow    
 end
 

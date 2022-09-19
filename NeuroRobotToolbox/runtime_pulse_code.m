@@ -60,8 +60,6 @@ if rak_only
     rak_get_serial
 elseif use_esp32
     esp_get_serial    
-elseif bluetooth_present
-    bluetooth_get_distance
 end
 
 %% Interface

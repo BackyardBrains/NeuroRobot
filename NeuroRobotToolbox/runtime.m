@@ -59,7 +59,7 @@ end
 
 
 %% Initialize brain and Runtime figure
-load_or_initialize_brain
+load_brain
 draw_fig_runtime
 draw_brain
 
@@ -72,7 +72,6 @@ motor_command = zeros(1, 5);
 prev_motor_command = zeros(1, 5);
 this_distance = 4000;
 reward = 0;
-distance_read = 0;
 firing = [];
 manual_control = 0;
 nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
@@ -111,6 +110,8 @@ end
 %     sound_in_file_name = strcat('./Hippocampus/', brain_name, '-', this_time, '.xlsx');    
 %     writematrix([], sound_in_file_name, 'FileType', 'spreadsheet')
 % end
+
+multi_neuron_opt = 0;
 
 if supervocal && isfield(brain, 'audio_out_wavs')
     n_also_these = size(brain.audio_out_wavs, 2);
