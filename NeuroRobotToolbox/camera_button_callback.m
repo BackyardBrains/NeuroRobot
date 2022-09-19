@@ -1,6 +1,9 @@
 
 read_module
 
+if use_esp32
+    addpath('.\MatlabWebSocket\src\')
+end
 if ~exist('esp32WebsocketClient', 'var')
     esp32WebsocketClient = 0;
 end
