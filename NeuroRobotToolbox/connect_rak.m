@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, camera_present, use_webcam, text_title, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_design, button_to_library, button_to_sleep, button_new_brain)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, camera_present, use_webcam, text_title, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
 
 connect_success = 0;
 
@@ -8,9 +8,9 @@ text_title.String = 'Connecting...';
 button_camera.BackgroundColor = [0.94 0.78 0.62];
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
-set(button_to_design, 'enable', 'off')
 set(button_to_library, 'enable', 'off')
 set(button_to_sleep, 'enable', 'off')
+set(button_to_quit, 'enable', 'off')
 set(button_new_brain, 'enable', 'off')
 drawnow
 
@@ -139,7 +139,7 @@ end
 text_title.String = 'SpikerBot - Main Menu';
 set(button_camera, 'enable', 'on')
 set(button_startup_complete, 'enable', 'on')
-set(button_to_design, 'enable', 'on')
 set(button_to_library, 'enable', 'on')
 set(button_to_sleep, 'enable', 'on')
+set(button_to_quit, 'enable', 'on')
 set(button_new_brain, 'enable', 'on')

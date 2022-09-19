@@ -146,28 +146,34 @@ set(button_new_brain, 'Callback', 'initialize_brain; neurorobot', 'FontSize', bf
     'BackgroundColor', [0.8 0.8 0.8])
 
 %% Buttons
+button1_pos = [0.03 0.02 0.17 0.05];
+button2_pos = [0.22 0.02 0.17 0.05];
+button3_pos = [0.41 0.02 0.17 0.05];
+button4_pos = [0.6 0.02 0.17 0.05];
+button5_pos = [0.79 0.02 0.17 0.05];
+
 % Camera button
-button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect to NeuroRobot', 'units', 'normalized', 'position', [0.02 0.02 0.18 0.05]);
+button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', button1_pos);
 set(button_camera, 'Callback', 'camera_button_callback; camera_button_col ', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 % Start button
-button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Start Brain Simulation', 'units', 'normalized', 'position', [0.22 0.02 0.18 0.05]);
+button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 'units', 'normalized', 'position', button2_pos);
 set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Brain Design button
-button_to_design = uicontrol('Style', 'pushbutton', 'String', '', 'units', 'normalized', 'position', [0.42 0.02 0.18 0.05]);
-set(button_to_design, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
-    'BackgroundColor', [0.8 0.8 0.8])
-
-% Brain Library button
-button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Brain Library', 'units', 'normalized', 'position', [0.62 0.02 0.15 0.05]);
+% Library button
+button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
 set(button_to_library, 'Callback', 'brain_library', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 % Sleep button
-button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', [0.8 0.02 0.15 0.05]);
+button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', 'sleep_networks', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+    'BackgroundColor', [0.8 0.8 0.8])
+
+% Quit button
+button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);
+set(button_to_quit, 'Callback', '!!!!', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 

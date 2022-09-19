@@ -117,19 +117,25 @@ title('Right eye', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweigh
 set(right_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
 box on
 
-% Create runtime buttons
-button_design = uicontrol('Style', 'pushbutton', 'String', 'Brain Design', 'units', 'normalized', 'position', [0.02 0.02 0.15 0.05]);
+%% Buttons
+button1_pos = [0.03 0.02 0.17 0.05];
+button2_pos = [0.22 0.02 0.17 0.05];
+button3_pos = [0.41 0.02 0.17 0.05];
+button4_pos = [0.6 0.02 0.17 0.05];
+button5_pos = [0.79 0.02 0.17 0.05];
+
+button_design = uicontrol('Style', 'pushbutton', 'String', 'Design', 'units', 'normalized', 'position', button1_pos);
 set(button_design,'Callback', 'run_button = 1;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_save = uicontrol('Style', 'pushbutton', 'String', 'Save Brain', 'units', 'normalized', 'position', [0.216 0.02 0.15 0.05]);
+button_save = uicontrol('Style', 'pushbutton', 'String', 'Save', 'units', 'normalized', 'position', button2_pos);
 set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_pause = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', [0.412 0.02 0.15 0.05]);
+button_pause = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', button3_pos);
 set(button_pause,'Callback', 'sleep_networks;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine Reward', 'units', 'normalized', 'position', [0.608 0.02 0.15 0.05]);
+button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine', 'units', 'normalized', 'position', button4_pos);
 set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_stop = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', [0.804 0.02 0.15 0.05]);
+button_stop = uicontrol('Style', 'pushbutton', 'String', 'Menu', 'units', 'normalized', 'position', button5_pos);
 set(button_stop,'Callback', 'run_button = 4;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
