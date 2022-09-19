@@ -106,8 +106,7 @@ if use_webcam
             disp('Unknown OS. Webcam not found.')
         end
     catch
-        disp('error: unable to connect webcam')
-        disp('solution: open Add-On Explorer and install Image Acquisition Support Package for Generic OS Interface')
+        error('Unable to connect to Webcamera. Plut it in. Install Image Acquisition Support Package for Generic OS Interface.')
     end
     triggerconfig(rak_cam, 'manual'); %%% <<<<< Commented out for packaging
     rak_cam.TriggerRepeat = Inf;
