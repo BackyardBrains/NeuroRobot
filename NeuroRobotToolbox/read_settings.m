@@ -48,22 +48,25 @@ end
 if sum(select_vision.Value == 4)
 end
 
-% option_hearing = {'Mic&FFT', 'Speech2Text'};
+% option_hearing = {'Microphone/FFT', 'Speech2Text', 'Text2Speech'; 'OpenAI'};
 audio_th = 100;               % Audio threshold (increase if sound spectrum looks too crowded)
 matlab_audio_rec = 1;       % Use computer microphone to listen
-if sum(select_hearing.Value == 1)
-end
-if sum(select_hearing.Value == 2)
-end
 
-
-% option_speech = {'Text2Speech'; 'OpenAI'};
 matlab_speaker_ctrl = 0;    % Multi tone output
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
-if sum(select_speech.Value == 1)
+
+if sum(select_communication.Value == 1)
+else
 end
-if sum(select_speech.Value == 2)
+if sum(select_communication.Value == 2)
+else
+end
+if sum(select_communication.Value == 3)
+else
+end
+if sum(select_communication.Value == 4)
+else
 end
 
 % select_brain
