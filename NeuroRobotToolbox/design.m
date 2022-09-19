@@ -7,9 +7,8 @@ sel_col_core = [0.6 0.8 1];
 %% Create figure window
 fig_design = figure(2);
 clf
-% set(fig_design, 'NumberTitle', 'off', 'Name', 'Brain Design')
-set(fig_design, 'Name', 'SpikerBot - Design')
-% set(fig_design, 'menubar', 'none', 'toolbar', 'none')
+set(fig_design, 'NumberTitle', 'off', 'Name', 'SpikerBot Design')
+set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 0; % This indicates design mode
 

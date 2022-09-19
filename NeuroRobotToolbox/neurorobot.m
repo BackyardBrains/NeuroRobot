@@ -55,29 +55,28 @@ if ismac
     fig_pos = get(0, 'screensize') + [0 149 0 -171];
 else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
-    startup_fig_pos(1) = startup_fig_pos(1) + 50;
-    startup_fig_pos(2) = startup_fig_pos(2) + 50;
-    startup_fig_pos(3) = startup_fig_pos(3) - 100;
-    startup_fig_pos(4) = startup_fig_pos(4) - 150;
+%     startup_fig_pos(1) = startup_fig_pos(1) + 50;
+%     startup_fig_pos(2) = startup_fig_pos(2) + 50;
+%     startup_fig_pos(3) = startup_fig_pos(3) - 100;
+%     startup_fig_pos(4) = startup_fig_pos(4) - 150;
 
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
-    fig_pos(1) = fig_pos(1) + 50;
-    fig_pos(2) = fig_pos(2) + 50;
-    fig_pos(3) = fig_pos(3) - 100;
-    fig_pos(4) = fig_pos(4) - 150;    
+%     fig_pos(1) = fig_pos(1) + 50;
+%     fig_pos(2) = fig_pos(2) + 50;
+%     fig_pos(3) = fig_pos(3) - 100;
+%     fig_pos(4) = fig_pos(4) - 150;    
 end
 
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'Name', 'SpikerBot - Main Menu')
-% set(fig_startup, 'NumberTitle', 'off', 'Name', 'Main Menu')
-% set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Main Menu')
+set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.85 0.9 0.1], ...
-    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 20, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 %% Selection
 % Robot
@@ -95,17 +94,17 @@ select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Vision
-text_vision = uicontrol('Style', 'text', 'String', 'Vision', 'units', 'normalized', 'position', [0.3 0.75 0.2 0.05], ...
+text_vision = uicontrol('Style', 'text', 'String', 'Vision', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_vision = {'RandomWalk'; 'AlexNet'; 'Robots'; 'Faces'};
-select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.3 0.55 0.2 0.2], ...
+select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Communication
-text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.3 0.45 0.2 0.05], ...
+text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_communication = {'Microphone/FFT'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
-select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.3 0.15 0.2 0.3], ...
+select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Brain
@@ -132,16 +131,16 @@ for nbrain = 1:nbrains
     brain_string{nbrain} = available_brains(nbrain).name(1:end-4);
 end
 
-text_brain = uicontrol('Style', 'text', 'String', 'Brain', 'units', 'normalized', 'position', [0.6 0.75 0.2 0.05], ...
+text_brain = uicontrol('Style', 'text', 'String', 'Brain', 'units', 'normalized', 'position', [0.6 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-select_brain = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.6 0.45 0.2 0.3], ...
+select_brain = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.6 0.375 0.25 0.375], ...
     'fontsize', bfsize + 4, 'string', brain_string, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 
-text_new_name = uicontrol('Style', 'text', 'String', 'Name', 'units', 'normalized', 'position', [0.6 0.3 0.25 0.05], ...
+text_new_name = uicontrol('Style', 'text', 'String', 'Name', 'units', 'normalized', 'position', [0.6 0.255 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-brain_edit_name = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', [0.6 0.225 0.25 0.075], 'fontsize', bfsize + 6, ....
+brain_edit_name = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', [0.6 0.22 0.25 0.05], 'fontsize', bfsize + 6, ....
     'FontName', gui_font_name, 'fontweight', gui_font_weight);
-button_new_brain = uicontrol('Style', 'pushbutton', 'String', 'Create New Brain', 'units', 'normalized', 'position', [0.6 0.15 0.25 0.05]);
+button_new_brain = uicontrol('Style', 'pushbutton', 'String', 'Create New Brain', 'units', 'normalized', 'position', [0.6 0.15 0.15 0.05]);
 set(button_new_brain, 'Callback', 'initialize_brain; neurorobot', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
