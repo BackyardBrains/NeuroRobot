@@ -13,20 +13,15 @@ elseif lifetime >= 5 * 60 * 60
     disp(horzcat('Lifetime = ', num2str(round(lifetime/60/60)), ' hrs'))
 end
 
-
-
-
 %% Get visual input
 get_visual_input
 
 %% Process visual input
-% disp('4')
 if camera_present
     process_visual_input
 end
     
 %% Process audio input
-% disp('5')
 process_audio_input
 
 %% Update brain
@@ -34,7 +29,6 @@ update_brain
 draw_step
 
 %% Update motors
-% disp('6')
 try
     update_motors
 catch
@@ -55,7 +49,6 @@ show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
 
 %% Serial
-% disp('7')
 if rak_only
     rak_get_serial
 elseif use_esp32
@@ -63,7 +56,6 @@ elseif use_esp32
 end
 
 %% Interface
-% disp('7')
 if run_button == 2
     save_brain
 end
@@ -77,7 +69,6 @@ if xstep == nsteps_per_loop
         mem_baseline = mem.MemUsedMATLAB;
     end
 end
-
 
 %% Save sensory data and tuples
 if save_experiences
@@ -137,7 +128,6 @@ if save_data_and_commands
         data.timestamp(xstep) = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
     end
 end
-
 
 % End of pulse code
 enter_design % if run_button = 1

@@ -8,10 +8,8 @@ if isempty(imaqfind)
     else
         this_col = [0.8 0.8 0.8];
     end
-elseif sum(select_robot.Value == 4)
+elseif sum(select_robot.Value == 5)
     this_col = [0.6 0.95 0.6];
-else
-    this_col = [0.8 0.8 0.8];
 end
 
 button_camera.BackgroundColor = this_col;
