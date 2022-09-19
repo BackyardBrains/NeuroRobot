@@ -103,7 +103,7 @@ text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'unit
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_communication = {'Microphone/FFT'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.3 0.15 0.2 0.3], ...
-    'fontsize', bfsize + 4, 'string', option_hearing, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
+    'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Brain
 clear brain_string
