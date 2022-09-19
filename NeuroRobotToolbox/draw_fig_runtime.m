@@ -129,8 +129,8 @@ set(button_design,'Callback', 'run_button = 1;', 'FontSize', bfsize + 4, 'fontna
 button_save = uicontrol('Style', 'pushbutton', 'String', 'Save', 'units', 'normalized', 'position', button2_pos);
 set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_pause = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', button3_pos);
-set(button_pause,'Callback', 'sleep_networks;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_pause = uicontrol('Style', 'pushbutton', 'String', '', 'units', 'normalized', 'position', button3_pos);
+set(button_pause,'Callback', '', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine', 'units', 'normalized', 'position', button4_pos);
 set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
