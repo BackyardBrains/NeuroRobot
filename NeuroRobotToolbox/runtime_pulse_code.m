@@ -104,7 +104,6 @@ if nstep == nsteps_per_loop %% Happens again below
 end
 if ~camera_present && rak_only && ~rak_cam.isRunning() % This screws with DIY no? %% What is this?
     disp('error: rak_cam exists but is not running')
-    sound(flipud(gong), 8192 * 7)
     disp('solution 1: make sure you are connected to the correct wifi network')
     disp('solution 2: try the connect button again')
     disp('solution 3: restart matlab (be persistent)')

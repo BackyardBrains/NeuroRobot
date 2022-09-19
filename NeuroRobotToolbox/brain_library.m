@@ -1,4 +1,9 @@
 
+
+
+%%tbd
+error('not implemented')
+
 % Brain display
 brain_ax = axes('position', [0.475 0.16 0.45 0.69]);
 image('CData',im2,'XData',[-3 3],'YData',[-3 3])
@@ -7,8 +12,6 @@ axis([-3 3 -3 3])
 hold on
 box off
 ext_ax = brain_ax;
-
-
 
 
 % draw_brain  ???

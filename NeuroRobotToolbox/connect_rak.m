@@ -137,7 +137,7 @@ else
     disp('check your settings in neurorobot.m, make sure you are connected to the correct wifi, restart matlab, restart everything')
 end
 
-text_title.String = 'Main Menu';
+text_title.String = 'SpikerBot - Main Menu';
 set(button_camera, 'enable', 'on')
 set(button_startup_complete, 'enable', 'on')
 set(button_to_design, 'enable', 'on')

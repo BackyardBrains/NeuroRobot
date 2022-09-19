@@ -4,8 +4,10 @@
 
 
 %% The SpikerBot App
-% Christopher Harris
-% Backyard Brains
+% Christopher Harris, PhD
+% Backyard Brains, Inc
+% christopher@backyardbrains.com
+
 
 
 
@@ -74,6 +76,7 @@ set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.85 0.9 0.1], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 20, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
+%% Selection
 % Robot
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
@@ -101,7 +104,6 @@ text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'unit
 option_communication = {'Microphone/FFT'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.3 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_hearing, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-
 
 % Brain
 clear brain_string
@@ -140,6 +142,7 @@ button_new_brain = uicontrol('Style', 'pushbutton', 'String', 'Create New Brain'
 set(button_new_brain, 'Callback', 'initialize_brain; neurorobot', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
+%% Buttons
 % Camera button
 button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect to NeuroRobot', 'units', 'normalized', 'position', [0.02 0.02 0.18 0.05]);
 set(button_camera, 'Callback', 'camera_button_callback; camera_button_col ', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
