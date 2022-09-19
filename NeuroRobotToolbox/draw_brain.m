@@ -188,7 +188,7 @@ if draw_synapses
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10), 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
                 if draw_synapse_strengths && ~nma_flag && ~bg_neurons(p2)
                     w = round(w);
-                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.15, num2str(w), 'fontsize', bfsize - 5, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.4 0.2 0]);
+                    plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.15, num2str(w), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.4 0.2 0]);
 %                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.1, num2str(w), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0 .8 0]);                    
                 end
             end
@@ -258,20 +258,20 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
                     this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
+                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, vis_pref_names{this_vis_pref}, 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
                 end
                 
                 if ncontact == 3 && audio_prefs(nneuron)
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                 end
                 
                 if ncontact == 4 && neuron_tones(nneuron)
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     if neuron_tones(nneuron) > length(audio_out_names)
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     elseif iscell(audio_out_names)
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     else
                         disp('Unable to draw synapse label. Is the brain combining pure tones with custom audio output?')
                     end
@@ -338,7 +338,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     end
     if draw_neuron_numbers && ~nma_flag
         for nneuron = 1:nneurons
-            neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
                 neuron_annotation(nneuron).ButtonDownFcn = 'neuron_selected';
             end
@@ -354,9 +354,9 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
             end            
             if ~bg_neurons(nneuron) && network_ids(nneuron) > 1
                 draw_msn_skylt(nneuron, 1) = plot(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, 'markeredgecolor', [0 0 0], 'markerfacecolor', this_col, 'marker', 'o', 'markersize', 10, 'linewidth', 1);  
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, letters(network_ids(nneuron)), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2)+0.13, letters(network_ids(nneuron)), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             elseif bg_neurons(nneuron) && network_ids(nneuron) > 1 && ~draw_neuron_numbers
-                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), letters(network_ids(nneuron)), 'fontsize', bfsize - 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+                draw_msn_skylt(nneuron, 2) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), letters(network_ids(nneuron)), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end                
         end
     end     
@@ -371,7 +371,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(script_strs(neuron_scripts(nneuron)).name), 'fontsize', bfsize, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end

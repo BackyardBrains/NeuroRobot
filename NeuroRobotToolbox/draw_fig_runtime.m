@@ -1,9 +1,11 @@
 
+
 %% Prepare figure
 fig_design = figure(2);
 clf
-set(fig_design, 'NumberTitle', 'off', 'Name', horzcat('Neurorobot Runtime (restarts = ', num2str(restarts), ')'))
-set(fig_design, 'menubar', 'none', 'toolbar', 'none')
+set(fig_design, 'Name', 'Brain Simulation (Runtime)')
+% set(fig_design, 'NumberTitle', 'off', 'Name', 'Runtime')
+% set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 10; % This indicates runtime mode
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
@@ -29,14 +31,14 @@ else
     draw_audio = imagesc(sound_spectrum, [0 1]);
 end
 set(audio_ax, 'ytick', round(linspace(1, audx, 5)), 'yticklabel', round(linspace(0, 4, 5)), ...
-    'xtick', [], 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', ...
+    'xtick', [], 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', ...
     gui_font_weight, 'linewidth', 2, 'ydir', 'normal')
 cmap = flipud(gray);
 colormap(audio_ax, cmap)
 hold on
 cplot_front = plot([0 0], [0 audx], 'color', 'r', 'linewidth', 2);
-title('Microphone', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-ylabel('kHz', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
+title('Microphone', 'FontSize', bfsize + 6, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+ylabel('kHz', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight)   
 
 if bg_brain
     
@@ -54,9 +56,9 @@ if bg_brain
         drive_bar = bar(0, 'linewidth', 2);
     end
     drive_bar_ax.Color = fig_bg_col;
-    set(drive_bar_ax, 'FontSize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'linewidth', 2)
-    title('Basal Ganglia', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-    xlabel('Network', 'FontSize', bfsize, 'fontname', gui_font_name);
+    set(drive_bar_ax, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'linewidth', 2)
+    title('Basal Ganglia', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+    xlabel('Network', 'FontSize', bfsize + 4, 'fontname', gui_font_name);
     ylim([0 255])
     set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', letters(2:nnetworks), 'ytick', [], 'ycolor', fig_bg_col)
     box off
@@ -67,16 +69,16 @@ elseif manual_controls
     backward_pos = [0.81 0.3 0.11 0.05];
     hold_pos = [0.83 0.37 0.07 0.05];
     button_left = uicontrol('Style', 'pushbutton', 'String', 'Left', 'units', 'normalized', 'position', left_pos);
-    set(button_left, 'Callback', 'manual_control = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+    set(button_left, 'Callback', 'manual_control = 1;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     button_right = uicontrol('Style', 'pushbutton', 'String', 'Right', 'units', 'normalized', 'position', right_pos);
-    set(button_right, 'Callback', 'manual_control = 2;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+    set(button_right, 'Callback', 'manual_control = 2;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     button_forward = uicontrol('Style', 'pushbutton', 'String', 'Forward', 'units', 'normalized', 'position', forward_pos);
-    set(button_forward, 'Callback', 'manual_control = 3;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+    set(button_forward, 'Callback', 'manual_control = 3;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     button_backward = uicontrol('Style', 'pushbutton', 'String', 'Backward', 'units', 'normalized', 'position', backward_pos);
-    set(button_backward, 'Callback', 'manual_control = 4;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+    set(button_backward, 'Callback', 'manual_control = 4;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
     button_hold = uicontrol('Style', 'pushbutton', 'String', 'Hold', 'units', 'normalized', 'position', hold_pos);
-    set(button_hold, 'Callback', 'manual_control = 5;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    manual_control_title = uicontrol('style', 'text', 'string', 'Manual control', 'units', 'normalized', 'position', [0.75 0.5 0.23 0.05], 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'horizontalalignment', 'center', 'backgroundcolor', fig_bg_col);
+    set(button_hold, 'Callback', 'manual_control = 5;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
+    manual_control_title = uicontrol('style', 'text', 'string', 'Manual control', 'units', 'normalized', 'position', [0.75 0.5 0.23 0.05], 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'horizontalalignment', 'center', 'backgroundcolor', fig_bg_col);
 end
 
 % Activity axes
@@ -98,36 +100,36 @@ end
 vplot_front = plot([0 0], [0 this_val + 1], 'color', 'r', 'linewidth', 2);
 xlim([0 ms_per_step * nsteps_per_loop + 0])
 ylim([0 this_val + 1])
-set(gca, 'xtick', [], 'ytick', 1:round(nneurons/5):nneurons, 'yticklabels', 1:round(nneurons/5):nneurons, 'fontsize', bfsize - 6, 'ydir', 'reverse', 'xcolor', 'k', 'ycolor', 'k', 'fontname', gui_font_name, 'fontweight', gui_font_weight)
-ylabel('Neuron', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+set(gca, 'xtick', [], 'ytick', 1:round(nneurons/5):nneurons, 'yticklabels', 1:round(nneurons/5):nneurons, 'fontsize', bfsize + 4, 'ydir', 'reverse', 'xcolor', 'k', 'ycolor', 'k', 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+ylabel('Neuron', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 box on
 
 % Initialize camera streams
 axes(left_eye_ax)
 show_left_eye = image(zeros(left_yx(1), left_yx(2), 3, 'uint8'));
-title('Left eye', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+title('Left eye', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 set(left_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
 box on
 
 axes(right_eye_ax)
 show_right_eye = image(zeros(right_yx(1), right_yx(2), 3, 'uint8'));
-title('Right eye', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
+title('Right eye', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight)
 set(right_eye_ax, 'xtick', [], 'ytick', [], 'linewidth', 2)
 box on
 
 % Create runtime buttons
-button_design = uicontrol('Style', 'pushbutton', 'String', 'Brain Design', 'units', 'normalized', 'position', [0.02 0.02 0.176 0.05]);
-set(button_design,'Callback', 'run_button = 1;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_design = uicontrol('Style', 'pushbutton', 'String', 'Brain Design', 'units', 'normalized', 'position', [0.02 0.02 0.15 0.05]);
+set(button_design,'Callback', 'run_button = 1;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_save = uicontrol('Style', 'pushbutton', 'String', 'Save Brain', 'units', 'normalized', 'position', [0.216 0.02 0.176 0.05]);
-set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_save = uicontrol('Style', 'pushbutton', 'String', 'Save Brain', 'units', 'normalized', 'position', [0.216 0.02 0.15 0.05]);
+set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_pause = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', [0.412 0.02 0.176 0.05]);
-set(button_pause,'Callback', 'sleep_networks;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_pause = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', [0.412 0.02 0.15 0.05]);
+set(button_pause,'Callback', 'sleep_networks;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine Reward', 'units', 'normalized', 'position', [0.608 0.02 0.176 0.05]);
-set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine Reward', 'units', 'normalized', 'position', [0.608 0.02 0.15 0.05]);
+set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_stop = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', [0.804 0.02 0.176 0.05]);
-set(button_stop,'Callback', 'run_button = 4;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_stop = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', [0.804 0.02 0.15 0.05]);
+set(button_stop,'Callback', 'run_button = 4;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 

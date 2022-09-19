@@ -118,7 +118,6 @@ if run_button == 4 || rak_fail
 end
 
 %% Record data
-% disp('8')
 if save_data_and_commands
     if nneurons
         rec_timer = tic;
