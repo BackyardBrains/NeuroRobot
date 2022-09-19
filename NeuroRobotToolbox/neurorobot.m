@@ -65,13 +65,13 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'Name', 'Main Menu')
+set(fig_startup, 'Name', 'SpikerBot - Main Menu')
 % set(fig_startup, 'NumberTitle', 'off', 'Name', 'Main Menu')
 % set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'Main Menu', 'units', 'normalized', 'position', [0.05 0.85 0.9 0.1], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.85 0.9 0.1], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 20, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 % Robot
