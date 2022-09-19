@@ -196,7 +196,7 @@ if nneurons
                     w = connectome(nneuron, postsyn);
                     w = round(w);
                     if draw_synapses
-                        plot_neuron_synapses(nneuron,postsyn,1).LineWidth = ((abs(w) / 12) + 1) / (1 + microcircuit * 2);
+                        plot_neuron_synapses(nneuron,postsyn,1).LineWidth = ((abs(w) / 12) + 1) / 1;
                     end
                     if draw_synapses && draw_synapse_strengths
                         try

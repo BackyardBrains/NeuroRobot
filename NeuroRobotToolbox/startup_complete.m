@@ -1,6 +1,6 @@
 
 
-startup_post_fig_prep
+startup_prep
 
 if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
     if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))

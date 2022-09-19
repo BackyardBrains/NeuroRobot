@@ -21,15 +21,11 @@ if rak_only
 elseif use_esp32
     esp32WebsocketClient.send('l:0;r:0;s:0;')
     esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;')
-elseif bluetooth_present
-    motor_command = [0 0 0 0 0];
-    prev_motor_command = [0 0 0 0 0];
-    bluetooth_send_motor_command
 end
 
 
 %% Save brain figure
-if ~restarting && save_brain_jpg
+if save_brain_jpg
     print_brain
 end
 
@@ -72,12 +68,6 @@ disp('Run complete')
 
 if rak_fail
     disp('RAK connection lost')
-%     pause(0.5)
-%     restarting = 1;
-end
-
-if voluntary_restart
-    restarting = 1;
 end
 
 % if evodevo
@@ -93,20 +83,15 @@ end
 
 
 %% Return to startup
-if restarting && ~voluntary_restart
-    save('brain_name', 'brain_name')
-    neurorobot
-else
-    if rak_only
-        if exist('rak_pulse', 'var') && isvalid(rak_pulse)
-            stop(rak_pulse)
-            delete(rak_pulse)
-        end
-        rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'executionmode', 'fixedrate');    
-        start(rak_pulse)    
+if rak_only
+    if exist('rak_pulse', 'var') && isvalid(rak_pulse)
+        stop(rak_pulse)
+        delete(rak_pulse)
     end
-    neurorobot
+    rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'executionmode', 'fixedrate');    
+    start(rak_pulse)    
 end
+neurorobot
 
 
 

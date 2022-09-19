@@ -220,10 +220,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
             esp32WebsocketClient.send(send_this);
         catch
             disp('Cannot send ESP32 serial')
-        end    
-    elseif bluetooth_present && ~isequal(motor_command, prev_motor_command)
-        bluetooth_send_motor_command
-        prev_motor_command = motor_command;
+        end
     end
 
 end

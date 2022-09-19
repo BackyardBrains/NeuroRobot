@@ -85,9 +85,7 @@ if ext_cam_id
 end
 step_times = zeros(nsteps_per_loop, 1) + 0.1;
 steps_since_last_spike = nan(nneurons, 1);
-if bluetooth_present
-    bluetooth_flush
-end
+
 xstep = 0;
 rak_fail = 0;
 

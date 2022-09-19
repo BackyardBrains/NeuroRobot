@@ -25,7 +25,6 @@ save_data_and_commands = 0;
 % use_profile = 0;          % Disabled for packaging
 bg_brain = 1;
 manual_controls = 0;
-bluetooth_present = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
 data_dir_name = '.\Data\';
 rec_dir_name = '';
@@ -33,6 +32,8 @@ init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 9;
+ms_per_step = round(pulse_period * 1000);
+nsteps_per_loop = 100;
 
 
 %% Background
@@ -45,6 +46,8 @@ else
     fig_bg_col = [1 1 1];
     this_workspace_fig = 'workspace.jpg';
 end
+im = flipud(255 - ((255 - imread(this_workspace_fig))));
+im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 
 %% Screensize
 if ismac
@@ -153,8 +156,8 @@ set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize 
     'BackgroundColor', [0.8 0.8 0.8])
 
 % Brain Design button
-button_to_design = uicontrol('Style', 'pushbutton', 'String', 'Brain Design', 'units', 'normalized', 'position', [0.42 0.02 0.18 0.05]);
-set(button_to_design, 'Callback', 'get_to_design', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+button_to_design = uicontrol('Style', 'pushbutton', 'String', '', 'units', 'normalized', 'position', [0.42 0.02 0.18 0.05]);
+set(button_to_design, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 % Brain Library button

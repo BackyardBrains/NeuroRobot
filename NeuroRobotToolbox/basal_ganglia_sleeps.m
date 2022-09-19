@@ -23,6 +23,8 @@ ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 % ntuples = size(torque_dir, 1);
 
+% get_dists
+
 
 %% States
 load(strcat(data_dir_name, 'randomwalk_net'))

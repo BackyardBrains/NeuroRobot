@@ -1,5 +1,5 @@
 
-if nneurons > 100 || microcircuit
+if nneurons > 100
     nma = 1; % small neurons setting
 else
     nma = 0;
@@ -8,7 +8,7 @@ nma_flag = 0; % nma design hack
 if nma
     nma_flag = 1;
 end
-if nneurons > 100 && ~microcircuit
+if nneurons > 100
     draw_synapses = 0;
 else
     draw_synapses = 1;
@@ -88,17 +88,17 @@ if draw_synapses
     adjust1 = 0.05;
     if exist('fig_design') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         % If in runtime (not sure why this conditional is so complex)
-        if microcircuit
-            adjust2 = 0.09;
-        else
+%         if microcircuit
+%             adjust2 = 0.09;
+%         else
             adjust2 = 0.22;
-        end
+%         end
     else
-        if microcircuit
-            adjust2 = 0.12;
-        else
+%         if microcircuit
+%             adjust2 = 0.12;
+%         else
             adjust2 = 0.29;
-        end
+%         end
     end                                            
     for p1 = 1:nneurons
 %         disp(horzcat(num2str(p1), ' of ', num2str(nneurons)))
@@ -166,10 +166,10 @@ if draw_synapses
                     connectome(p1, p2) = 2;
                     da_connectome(p1, p2, :) = [2 2 2];
                 else
-                    plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', ((abs(w) / 12) + 1) / (1 + microcircuit * 2), 'color', [0 0 0]);
+                    plot_neuron_synapses(p1, p2, 1) = plot([x1 x2], [y1 y2], 'linewidth', ((abs(w) / 12) + 1) / 1, 'color', [0 0 0]);
                 end
                 if connectome(p1, p2) > 0
-                    lw = 2 - microcircuit;
+                    lw = 2;
                     s = 9 - (nma_flag * 9);
                     m = 'square';
                     if da_connectome(p1, p2) == 1
@@ -180,7 +180,7 @@ if draw_synapses
                         mf = 'w';
                     end
                 else
-                    lw = 2 - microcircuit;
+                    lw = 2;
                     s = 30 - (nma_flag * 9);                
                     m = '.';
                     mf = 'w';
@@ -242,7 +242,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     x2b = x2 - 0.3 * rx;
                     y2b = y2 + 0.3 * ry;                    
                 end
-                lw = 2 - microcircuit;
+                lw = 2;
                 s = 7;
                 
                 if nma_flag

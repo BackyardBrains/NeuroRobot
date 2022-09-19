@@ -17,11 +17,9 @@ disp('---------')
 %% Prepare
 computer_name = getenv('COMPUTERNAME');
 user_name = getenv('USERNAME');
-microcircuit = 0;           % Use smaller neurons and synapses, no neuron numbers (AUTOMATIC?)
 stop_step = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
-nsteps_per_loop = 100;
 max_w = 100;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
@@ -51,15 +49,10 @@ right_dir = 0;
 robot_moving = 0;
 base_weight = max_w;
 
-ms_per_step = round(pulse_period * 1000);
+
 ltp_recency_th_in_steps = round(ltp_recency_th_in_sec / ms_per_step);
 speaker_selected = 0;
-if ~exist('voluntary_restart', 'var')
-    voluntary_restart = 0;
-end
 vocal_buffer = 0;
-im = flipud(255 - ((255 - imread(this_workspace_fig))));
-im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
@@ -86,12 +79,7 @@ end
 n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];
 encoding_pattern = ones(size(sens_thresholds));
-if ~exist('restarting', 'var')
-    restarting = 0;
-end
-if ~exist('restarts', 'var')
-    restarts = 0;
-end
+
 pulse_led_flag_1 = 0;
 pulse_led_flag_2 = 0;
 pulse_led_flag_3 = 0;

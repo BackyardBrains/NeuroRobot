@@ -56,16 +56,12 @@ button_return_to_runtime = uicontrol('Style', 'pushbutton', 'String', 'Return to
 set(button_return_to_runtime, 'Callback', 'if fig_design.UserData == 0; fig_design.UserData = 10; exit_design; end', 'FontSize', bfsize + 4, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 % Turn off motors
-if rak_only
+if exist('rak_only', 'var') && rak_only
     rak_cam.writeSerial('l:0;r:0;s:0;')
     rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
-elseif use_esp32
+elseif exist('use_esp32', 'var') && use_esp32
     esp32WebsocketClient.send('l:0;r:0;s:0;')
     esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;')
-elseif bluetooth_present
-    motor_command = [0 0 0 0 0];
-    prev_motor_command = [0 0 0 0 0];
-    bluetooth_send_motor_command
 end
 
 % Text heading

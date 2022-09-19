@@ -59,7 +59,6 @@ end
 if run_button == 2
     save_brain
 end
-enter_pause % if run_button == 3
 enter_reward % if run_button == 5
 
 % Memory leak fix (2020-Jul-06)
@@ -128,7 +127,9 @@ if save_data_and_commands
 end
 
 % End of pulse code
-enter_design % if run_button = 1
+if run_button == 1   
+    enter_design
+end
 if nstep
     drawnow
 end

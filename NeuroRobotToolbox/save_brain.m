@@ -52,7 +52,7 @@ catch exception
     msgbox(this_error)
 end
 
-if exist('button_save', 'var') && isvalid(button_save) && ~restarting
+if exist('button_save', 'var') && isvalid(button_save)
     for ii = 1:-0.05:0.8
         button_save.BackgroundColor = [0.8 ii 0.8];
         pause(0.05)
