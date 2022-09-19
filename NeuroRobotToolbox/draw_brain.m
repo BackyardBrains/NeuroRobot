@@ -330,7 +330,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     
     % Neuron colors
     draw_neuron_edge = scatter(neuron_xys(:,1), neuron_xys(:,2), edge_size, zeros(size(neuron_xys,1), 3), 'filled');
-    draw_neuron_core = scatter(neuron_xys(:,1), neuron_xys(:,2), core_size, neuron_cols, 'filled');
+    draw_neuron_core = scatter(neuron_xys(:,1), neuron_xys(:,2), core_size, neuron_cols, 'filled'); % <<<< neuron_cols was not aquired properly, creates error here but only 1st step
     
     if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
         draw_neuron_edge.ButtonDownFcn = 'neuron_selected';
