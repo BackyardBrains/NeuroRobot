@@ -133,7 +133,7 @@ elseif ~camera_present
 else
     disp('error: rak_cam created but not running')
     button_camera.BackgroundColor = [1 0.5 0.5];
-    disp('check your settings in neurorobot.m, make sure you are connected to the correct wifi, restart matlab, restart everything')
+    disp('Are you connected to your robots WiFi? Try restarting')
 end
 
 text_title.String = 'SpikerBot - Main Menu';

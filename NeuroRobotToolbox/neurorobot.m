@@ -73,6 +73,7 @@ clf
 set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Main Menu')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
+% set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
 text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
@@ -157,7 +158,7 @@ set(button_camera, 'Callback', 'camera_button_callback; camera_button_col ', 'Fo
 
 % Start button
 button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 'units', 'normalized', 'position', button2_pos);
-set(button_startup_complete, 'Callback', 'startup_complete', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+set(button_startup_complete, 'Callback', 'runtime_prep', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 % Library button
@@ -172,7 +173,7 @@ set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_fon
 
 % Quit button
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);
-set(button_to_quit, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+set(button_to_quit, 'Callback', 'closereq', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 

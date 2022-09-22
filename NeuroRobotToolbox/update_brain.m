@@ -242,15 +242,16 @@ if nneurons
                 end                
                 
                 if down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                    draw_msn_skylt(nneuron,1).MarkerFaceColor = [0.85 0.85 0.85];
-                    draw_msn_skylt(nneuron,1).MarkerEdgeColor = 'k';
+                    draw_msn_skylt(nneuron, 1).MarkerFaceColor = 'k';
+                    draw_msn_skylt(nneuron, 2).Color = 'w';
                     draw_msn_skylt(nneuron, 3).LineWidth = 20;
                     p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
                     if ~isempty(p1)
                         plot_bg_lines(p1, nneuron).Color = this_col;
                     end
                 elseif ~down_neurons(nneuron) && ~bg_neurons(nneuron) && network_ids(nneuron) > 1
-                    draw_msn_skylt(nneuron,1).MarkerFaceColor = 'w';
+                    draw_msn_skylt(nneuron, 1).MarkerFaceColor = 'w';
+                    draw_msn_skylt(nneuron, 2).Color = 'k';
                     draw_msn_skylt(nneuron, 3).LineWidth = 2;
                     p1 = find(bg_neurons & network_ids == network_ids(nneuron), 1);
                     if ~isempty(p1)

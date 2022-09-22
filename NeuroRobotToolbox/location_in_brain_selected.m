@@ -1,10 +1,14 @@
 
 % If no design action is in progress
 
-% Disable unavailable buttons
-set(button_add_neuron, 'enable', 'off')
-set(button_add_network, 'enable', 'off')
-set(button_return_to_runtime, 'enable', 'off')
+% Disable Design buttons
+delete(button_add_neuron)
+delete(button_add_population)
+delete(button_add_algorithm)
+delete(button_add_agents)
+delete(button_add_brain)
+delete(button_save)
+delete(button_return_to_runtime)
 
 if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     
@@ -28,10 +32,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             % Add neuron
             nneurons = nneurons + 1; % This should be carefully changed to 'presynaptic_neuron'
             neuron_xys(nneurons, :) = mouse_location(1,1:2);
-            
-            % Reset add neuron button color
-            button_add_neuron.BackgroundColor = [0.8 0.8 0.8];
-            
+                       
             % Design action: add neuron or network
             fig_design.UserData = 1;
             
@@ -41,7 +42,9 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             % Plot preliminary neuron
             temp_plot(1) = scatter(neuron_xys(nneurons,1), neuron_xys(nneurons,2), 700, zeros(1, 3), 'filled');
             temp_plot(2) = scatter(neuron_xys(nneurons,1), neuron_xys(nneurons,2), 400, neuron_cols(nneurons, 1:3), 'filled');
-            temp_plot(3) = text(neuron_xys(nneurons,1), neuron_xys(nneurons,2), num2str(nneurons), 'fontsize', bfsize - 6, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            if draw_neuron_numbers
+                temp_plot(3) = text(neuron_xys(nneurons,1), neuron_xys(nneurons,2), num2str(nneurons), 'fontsize', bfsize + 2, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            end
             
             % Initialize neuron variables
             connectome(nneurons, nneurons) = 0;
@@ -64,50 +67,50 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             end
             
             % Open selection menu
-            text_heading = uicontrol('Style', 'text', 'String', 'What kind of neuron is this?', 'units', 'normalized', 'position', [0.02 0.95 0.29 0.03], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_heading = uicontrol('Style', 'text', 'String', 'What kind of neuron is this?', 'units', 'normalized', 'position', [0.02 0.95 0.29 0.03], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
             
             % Type 1 button
             button_n1 = uicontrol('Style', 'pushbutton', 'String', 'Quiet', 'units', 'normalized', 'position', [0.02 0.9 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n1, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.6 0.95 0.6])
+            set(button_n1, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.6 0.95 0.6])
             % Type 2 button
             button_n2 = uicontrol('Style', 'pushbutton', 'String', 'Occasionally active', 'units', 'normalized', 'position', [0.02 0.84 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n2, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n2, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 3 button
             button_n3 = uicontrol('Style', 'pushbutton', 'String', 'Highly active', 'units', 'normalized', 'position', [0.02 0.78 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n3, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n3, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 4 button
             button_n4 = uicontrol('Style', 'pushbutton', 'String', 'Generates bursts', 'units', 'normalized', 'position', [0.02 0.72 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n4, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n4, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 5 button
             button_n5 = uicontrol('Style', 'pushbutton', 'String', 'Bursts when activated', 'units', 'normalized', 'position', [0.02 0.66 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n5, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n5, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 6 button
             button_n6 = uicontrol('Style', 'pushbutton', 'String', 'Dopaminergic', 'units', 'normalized', 'position', [0.02 0.6 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n6, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n6, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             % Type 6 button
             button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Striatal', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize - 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+            set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
             
             % A
-            text_a = uicontrol('Style', 'text', 'String', 'a', 'units', 'normalized', 'position', [0.02 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_a = uicontrol('Style', 'edit', 'String', num2str(a_init), 'units', 'normalized', 'position', [0.03 0.48 0.03 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_a = uicontrol('Style', 'text', 'String', 'a', 'units', 'normalized', 'position', [0.02 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_a = uicontrol('Style', 'edit', 'String', num2str(a_init), 'units', 'normalized', 'position', [0.03 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             % B
-            text_b = uicontrol('Style', 'text', 'String', 'b', 'units', 'normalized', 'position', [0.07 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_b = uicontrol('Style', 'edit', 'String', num2str(b_init), 'units', 'normalized', 'position', [0.08 0.48 0.03 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_b = uicontrol('Style', 'text', 'String', 'b', 'units', 'normalized', 'position', [0.07 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_b = uicontrol('Style', 'edit', 'String', num2str(b_init), 'units', 'normalized', 'position', [0.08 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             % C
-            text_c = uicontrol('Style', 'text', 'String', 'c', 'units', 'normalized', 'position', [0.12 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_c = uicontrol('Style', 'edit', 'String', num2str(c_init), 'units', 'normalized', 'position', [0.13 0.48 0.03 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_c = uicontrol('Style', 'text', 'String', 'c', 'units', 'normalized', 'position', [0.12 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_c = uicontrol('Style', 'edit', 'String', num2str(c_init), 'units', 'normalized', 'position', [0.13 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             % D
-            text_d = uicontrol('Style', 'text', 'String', 'd', 'units', 'normalized', 'position', [0.17 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_d = uicontrol('Style', 'edit', 'String', num2str(d_init), 'units', 'normalized', 'position', [0.18 0.48 0.03 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_d = uicontrol('Style', 'text', 'String', 'd', 'units', 'normalized', 'position', [0.17 0.48 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_d = uicontrol('Style', 'edit', 'String', num2str(d_init), 'units', 'normalized', 'position', [0.18 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             % ID
-            text_id = uicontrol('Style', 'text', 'String', 'id', 'units', 'normalized', 'position', [0.23 0.48 0.02 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_id = uicontrol('Style', 'edit', 'String', num2str(max([max(network_ids) 1])), 'units', 'normalized', 'position', [0.25 0.48 0.03 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            text_id = uicontrol('Style', 'text', 'String', 'id', 'units', 'normalized', 'position', [0.23 0.48 0.02 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_id = uicontrol('Style', 'edit', 'String', num2str(max([max(network_ids) 1])), 'units', 'normalized', 'position', [0.25 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             
             % Wait for OK
             button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.4 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
+            set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
             waitfor(fig_design, 'UserData', 0)
             delete(button_confirm)
             
@@ -183,10 +186,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
         
         % ...or if the location is outside the brain
         if sqrt(mouse_location(1,1)^2 + mouse_location(1,2)^2) < 2.2
-            
-            % Reset add neuron button color
-            button_add_network.BackgroundColor = [0.8 0.8 0.8];
-            
+                        
             % Design action: add neuron or network
             fig_design.UserData = 1;
             
@@ -196,68 +196,27 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             % Plot preliminary neuron
             temp_plot(1) = plot(mouse_location(1,1), mouse_location(1,2), 'marker', 'p', 'markersize', 15, 'linewidth', 2, 'markeredgecolor', 'k', 'markerfacecolor', [0.6 0.95 0.6]);
             
-            % Add Many Neurons
-            if ~cpg_integration % Random CPG build
-                
-                % Open selection menu
-                text_heading = uicontrol('Style', 'text', 'String', 'How many neurons in this network?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % How many neurons
-                text_w1 = uicontrol('Style', 'text', 'String', 'Neurons:', 'units', 'normalized', 'position', [0.02 0.86 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w1 = uicontrol('Style', 'edit', 'String', '10', 'units', 'normalized', 'position', [0.23 0.86 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Probability of interconnection
-                text_w2 = uicontrol('Style', 'text', 'String', 'Connectivity (%):', 'units', 'normalized', 'position', [0.02 0.79 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w2 = uicontrol('Style', 'edit', 'String', '0', 'units', 'normalized', 'position', [0.23 0.79 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Fraction excitatory synapses
-                text_w3 = uicontrol('Style', 'text', 'String', 'Synapse weights:', 'units', 'normalized', 'position', [0.02 0.72 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w3 = uicontrol('Style', 'edit', 'String', '0', 'units', 'normalized', 'position', [0.23 0.72 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Fraction dopamine-responsive synapses
-                text_w4 = uicontrol('Style', 'text', 'String', 'Reward learning (%):', 'units', 'normalized', 'position', [0.02 0.65 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w4 = uicontrol('Style', 'edit', 'String', '0', 'units', 'normalized', 'position', [0.23 0.65 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Fraction sensory neurons
-                text_w5 = uicontrol('Style', 'text', 'String', 'Visual input (%):', 'units', 'normalized', 'position', [0.02 0.58 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w5 = uicontrol('Style', 'edit', 'String', '0', 'units', 'normalized', 'position', [0.23 0.58 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Fraction motor neurons
-                text_w6 = uicontrol('Style', 'text', 'String', 'Motor output (%):', 'units', 'normalized', 'position', [0.02 0.51 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_w6 = uicontrol('Style', 'edit', 'String', '0', 'units', 'normalized', 'position', [0.23 0.51 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                % Network ID
-                text_id = uicontrol('Style', 'text', 'String', 'Network ID:', 'units', 'normalized', 'position', [0.02 0.44 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                edit_id = uicontrol('Style', 'edit', 'String', num2str(max([max(network_ids) 1])), 'units', 'normalized', 'position', [0.23 0.44 0.05 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-            else
-                
-                % Open selection menu
-                text_heading = uicontrol('Style', 'text', 'String', 'What do you want to integrate?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                text_w1 = uicontrol('Style', 'text', 'String', 'Available brains', 'units', 'normalized', 'position', [0.02 0.86 0.21 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-                
-                popup_select_brain = uicontrol('Style', 'popup', 'String', brain_string(2:end), 'callback', '', 'units', 'normalized', ...
-                    'position', [0.02 0.81 0.26 0.05], 'fontsize', bfsize, 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-                
+            if multi_neuron_opt == 1 % Population
+                design_population
+            elseif multi_neuron_opt == 2 % Algorithm
+                design_algorithm
+            elseif multi_neuron_opt == 3 % Agent
+                design_agent
+            elseif multi_neuron_opt == 4 % Brain
+                design_brain
             end
             
             % Wait for OK
             button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.36 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
+            set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
             waitfor(fig_design, 'UserData', 0)
             delete(button_confirm)
             design_action = 0;
             delete(temp_plot)
             
-            %             if nma
-            %                 nma_build % skipping NMA build for now, just using its
-            %                 neuron sizes
-            %             else
-            
-            if ~cpg_integration
+            if multi_neuron_opt == 1 % Population
 
-                large_net_gen_1
+                create_population
                 delete(text_heading)
                 delete(text_w1)
                 delete(edit_w1)
@@ -274,13 +233,22 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 delete(text_id)
                 delete(edit_id)
                 
-            else
+            elseif multi_neuron_opt == 2 % Algorithm
                 
-                large_net_gen_2
+                create_from_algorithm
+                create_combo_brain
+
+            elseif multi_neuron_opt == 3 % Agent
+
+                create_from_agent
+
+            elseif multi_neuron_opt == 4 % Brain
+
+                load_additional_brain
+                create_combo_brain
                 delete(text_heading)
                 delete(text_w1)
-                delete(popup_select_brain)
-                
+                delete(popup_select_brain)                
             end
             
             
@@ -327,10 +295,8 @@ elseif fig_design.UserData == 4
     
 end
 
-% Disable unavailable buttons
-set(button_add_neuron, 'enable', 'on')
-set(button_add_network, 'enable', 'on')
-set(button_return_to_runtime, 'enable', 'on')
+% Enable design buttons
+design_buttons
 
 neuron_or_network = 1; % Default to adding single neuron if click brain directly
 

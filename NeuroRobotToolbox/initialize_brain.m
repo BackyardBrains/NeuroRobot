@@ -28,8 +28,3 @@ network = struct; % this will need its subdivisions in design mode
 network_drive = zeros(1, 3);
 nnetworks = 0;
 bg_neurons = [];
-
-if brain_gen
-    brain_gen_build_7
-    neuron_scripts = zeros(nneurons, 1);
-end

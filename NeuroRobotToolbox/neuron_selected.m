@@ -1,4 +1,15 @@
 
+if ~exist('presynaptic_neuron', 'var')
+    % Disable Design buttons
+    delete(button_add_neuron)
+    delete(button_add_population)
+    delete(button_add_algorithm)
+    delete(button_add_agents)
+    delete(button_add_brain)
+    delete(button_save)
+    delete(button_return_to_runtime)
+end
+
 % Remove any previous highlights
 if exist('presynaptic_neuron', 'var') && design_action ~=2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var')) && fig_design.UserData ~= 1
     draw_neuron_edge.CData(presynaptic_neuron, :) = [0 0 0];
@@ -12,16 +23,6 @@ if exist('presynaptic_neuron', 'var') && design_action ~=2 && (~exist('postsynap
     delete(button_cancel)
     drawnow
 end
-
-button_add_neuron.BackgroundColor = [0.8 0.8 0.8];
-button_add_network.BackgroundColor = [0.8 0.8 0.8];
-
-% If no other design action is in progress
-
-% Disable unavailable buttons
-set(button_add_neuron, 'enable', 'off')
-set(button_add_network, 'enable', 'off')
-set(button_return_to_runtime, 'enable', 'off')
 
 design_action = 0;
 if fig_design.UserData == 0
@@ -42,26 +43,26 @@ if fig_design.UserData == 0
     draw_neuron_core.CData(presynaptic_neuron, :) = sel_col_core;
     
     % Open selection menu
-    text_heading = uicontrol('Style', 'text', 'String', 'What do you want to do with this neuron?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    text_heading = uicontrol('Style', 'text', 'String', 'Select an action', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
     % Type 1 button
-    button1 = uicontrol('Style', 'pushbutton', 'String', 'Extend an axon', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button1, 'Callback', 'extend_axon', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+    button1 = uicontrol('Style', 'pushbutton', 'String', 'Axon', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button1, 'Callback', 'extend_axon', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     % Type 2 button
-    button2 = uicontrol('Style', 'pushbutton', 'String', 'Edit its properties', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button2, 'Callback', 'edit_properties', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+    button2 = uicontrol('Style', 'pushbutton', 'String', 'Properties', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button2, 'Callback', 'edit_properties', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     % Type 3 button
-    button3 = uicontrol('Style', 'pushbutton', 'String', 'Move it', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button3, 'Callback', 'move_neuron', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+    button3 = uicontrol('Style', 'pushbutton', 'String', 'Move', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button3, 'Callback', 'move_neuron', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     % Type 4 button
-    button4 = uicontrol('Style', 'pushbutton', 'String', 'Delete it', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button4, 'Callback', 'delete_neuron', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
+    button4 = uicontrol('Style', 'pushbutton', 'String', 'Delete', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button4, 'Callback', 'delete_neuron', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
     % Type 5 button
-    button5 = uicontrol('Style', 'pushbutton', 'String', 'Attach script', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button5, 'Callback', 'attach_script', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
+    button5 = uicontrol('Style', 'pushbutton', 'String', 'Lights', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    set(button5, 'Callback', 'attach_script', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
     % Cancel button
     button_cancel = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.45 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-    set(button_cancel, 'Callback', 'cancel_edit', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])  
+    set(button_cancel, 'Callback', 'cancel_edit', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])  
 
 % If a presynaptic neuron has already been selected and an axon is being extended
 elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var'))
@@ -130,15 +131,15 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
         growth_cone = plot([x1 x2], [y1 y2], 'linewidth', 2, 'color', sel_col_edge);
         
         % Text
-        text_heading = uicontrol('Style', 'text', 'String', 'Select synapse properties', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_heading = uicontrol('Style', 'text', 'String', 'Select synapse properties', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
         % Excitatory button
         button_w1 = uicontrol('Style', 'pushbutton', 'String', 'Excitatory', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        set(button_w1, 'Callback', 'set_synapse_type', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+        set(button_w1, 'Callback', 'set_synapse_type', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
         % Inhibitory button
         button_w2 = uicontrol('Style', 'pushbutton', 'String', 'Inhibitory', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        set(button_w2, 'Callback', 'set_synapse_type', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+        set(button_w2, 'Callback', 'set_synapse_type', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
         % Manual weight
         current_weight = num2str(connectome(presynaptic_neuron, postsynaptic_neuron));
@@ -146,23 +147,23 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
             current_weight = 30; % What???
             disp('Weirdness at ln 143 neuron_selected.m') % Probably never happens
         end
-        text_w = uicontrol('Style', 'text', 'String', 'Weight (-100 to 100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_w = uicontrol('Style', 'text', 'String', 'Weight (-100 to 100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
         % Plastic
 %         current_da_mod = num2str(da_connectome(presynaptic_neuron, postsynaptic_neuron, 1));
-        text_mod = uicontrol('Style', 'text', 'String', 'Plastic', 'units', 'normalized', 'position', [0.02 0.62 0.06 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_mod = uicontrol('Style', 'text', 'String', 'Plastic', 'units', 'normalized', 'position', [0.02 0.62 0.06 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         check_mod = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.08 0.63 0.02 0.05], 'BackgroundColor', fig_bg_col);        
          
         % Dopamine-modulated
-        text_dmod = uicontrol('Style', 'text', 'String', 'Needs dopamine', 'units', 'normalized', 'position', [0.14 0.62 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_dmod = uicontrol('Style', 'text', 'String', 'Needs dopamine', 'units', 'normalized', 'position', [0.14 0.62 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         check_dmod = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.24 0.63 0.02 0.05], 'BackgroundColor', fig_bg_col);           
         
         % There should be a cancel button here
 
         % Wait for OK
         button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
+        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
         waitfor(fig_design, 'UserData', 0)
         delete(button_confirm)
         design_action = 0;
@@ -294,22 +295,22 @@ elseif fig_design.UserData == 6
             command_log.n = command_log.n + 1;
         end
         
-        text_heading = uicontrol('Style', 'text', 'String', 'Select visual preference', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_heading = uicontrol('Style', 'text', 'String', 'Select visual preference', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         
-        popup_select_preference = uicontrol('Style', 'popup', 'String', vis_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        popup_select_preference = uicontrol('Style', 'popup', 'String', vis_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         if existing_pref
             popup_select_preference.Value = find(vis_prefs(postsynaptic_neuron, :, presynaptic_contact));
         end
         
         % Option to delete existing sensory synapse
         delete_synapse = 0;
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;')         
         if existing_pref
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         else
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         end
         
@@ -341,20 +342,20 @@ elseif fig_design.UserData == 6
         end
         
         % Set auditory preference
-        text_heading = uicontrol('Style', 'text', 'String', 'Select auditory preference (Pitch, Hz)', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);        
+        text_heading = uicontrol('Style', 'text', 'String', 'Select auditory preference (Pitch, Hz)', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);        
 
         current_weight = num2str(audio_prefs(postsynaptic_neuron));
-        text_w = uicontrol('Style', 'text', 'String', 'Hz (0 - 5000):', 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.85 0.09 0.06], 'fontsize', bfsize - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_w = uicontrol('Style', 'text', 'String', 'Hz (0 - 5000):', 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.85 0.09 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
         delete_synapse = 0;
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;')         
         if existing_pref
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         else
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         end
         
@@ -394,27 +395,27 @@ elseif fig_design.UserData == 6
             command_log.n = command_log.n + 1;        
         end
         
-        text_heading = uicontrol('Style', 'text', 'String', 'Select distance preference', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        text_heading = uicontrol('Style', 'text', 'String', 'Select distance preference', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         
-        popup_select_preference = uicontrol('Style', 'popup', 'String', dist_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
+        popup_select_preference = uicontrol('Style', 'popup', 'String', dist_pref_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
         if existing_pref
             popup_select_preference.Value = dist_prefs(postsynaptic_neuron);
         end
         
         % Option to delete existing sensory synapse
         delete_synapse = 0;
-        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+        button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
         set(button_confirm, 'Callback', 'fig_design.UserData = 0;')         
         if existing_pref
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Delete existing synapse', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')
         else
-            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize, 'BackgroundColor', [0.8 0.8 0.8]);
+            button_stop = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.69 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8]);
             set(button_stop, 'Callback', 'fig_design.UserData = 0; delete_synapse = 1;')            
         end      
         
         % Wait for OK        
-        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
+        set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
         waitfor(fig_design, 'UserData', 0)
         delete(button_confirm)
         delete(growth_cone)
@@ -444,9 +445,7 @@ elseif fig_design.UserData == 6
 end
 
 if ~exist('presynaptic_neuron', 'var')
-    set(button_add_neuron, 'enable', 'on')
-    set(button_add_network, 'enable', 'on')
-    set(button_return_to_runtime, 'enable', 'on')
+    design_buttons
 end
 
 % Design action: add neuron-neuron or neuron-motor synapse
