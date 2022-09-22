@@ -1,19 +1,4 @@
 
-delete(text_heading)
-delete(text_w1)
-delete(edit_w1)
-delete(text_w2)
-delete(edit_w2)
-delete(text_w3)
-delete(edit_w3)
-delete(text_w4)
-delete(edit_w4)
-delete(text_w5)
-delete(edit_w5)
-delete(text_w6)
-delete(edit_w6)
-delete(text_id)
-delete(edit_id)
 
 % Get number of neurons in the network
 n = str2double(edit_w1.String);
@@ -105,4 +90,21 @@ if ext_cam_id
     save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
 end
 disp('Population created')
+
+
+delete(text_heading)
+delete(text_w1)
+delete(edit_w1)
+delete(text_w2)
+delete(edit_w2)
+delete(text_w3)
+delete(edit_w3)
+delete(text_w4)
+delete(edit_w4)
+delete(text_w5)
+delete(edit_w5)
+delete(text_w6)
+delete(edit_w6)
+delete(text_id)
+delete(edit_id)
 
