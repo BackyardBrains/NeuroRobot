@@ -217,21 +217,6 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             if multi_neuron_opt == 1 % Population
 
                 create_population
-                delete(text_heading)
-                delete(text_w1)
-                delete(edit_w1)
-                delete(text_w2)
-                delete(edit_w2)
-                delete(text_w3)
-                delete(edit_w3)
-                delete(text_w4)
-                delete(edit_w4)
-                delete(text_w5)
-                delete(edit_w5)
-                delete(text_w6)
-                delete(edit_w6)
-                delete(text_id)
-                delete(edit_id)
                 
             elseif multi_neuron_opt == 2 % Algorithm
                 
@@ -259,9 +244,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             % Draw brain
             draw_brain
         else
-            neuron_or_network = 1;
-            button_add_neuron.BackgroundColor = [0.8 0.8 0.8];
-            button_add_network.BackgroundColor = [0.8 0.8 0.8];
+            disp('Click inside the brain')
         end
         
     end
