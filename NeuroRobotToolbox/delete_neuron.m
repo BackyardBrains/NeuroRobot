@@ -64,13 +64,9 @@ end
 % Clear neurons
 clear presynaptic_neuron
 
-if ~exist('presynaptic_neuron', 'var')
-    set(button_add_neuron, 'enable', 'on')
-    set(button_add_network, 'enable', 'on')
-    set(button_return_to_runtime, 'enable', 'on')
-end
-
 % Draw brain
 draw_brain
 
+% Restore design buttons
+design_buttons
 

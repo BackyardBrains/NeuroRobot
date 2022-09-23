@@ -7,10 +7,10 @@
 % If no other design action is in progress
 if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var') && nneurons
     
-    % Disable unavailable buttons
-    set(button_add_neuron, 'enable', 'off')
-    set(button_add_network, 'enable', 'off')
-    set(button_return_to_runtime, 'enable', 'off')   
+%     % Disable unavailable buttons
+%     set(button_add_neuron, 'enable', 'off')
+%     set(button_add_network, 'enable', 'off')
+%     set(button_return_to_runtime, 'enable', 'off')   
     
     % Set current design action
     fig_design.UserData = 6;
