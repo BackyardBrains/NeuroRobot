@@ -1,6 +1,3 @@
-ms_per_step = round(pulse_period * 1000);
-nsteps_per_loop = 100;
-
 if ispc
     load(strcat('.\Brains\', brain_name, '.mat'))
 elseif ismac && ~isdeployed
