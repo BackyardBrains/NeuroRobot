@@ -1,14 +1,16 @@
 
 % If no design action is in progress
 
-% Disable Design buttons
-delete(button_add_neuron)
-delete(button_add_population)
-delete(button_add_algorithm)
-delete(button_add_agents)
-delete(button_add_brain)
-delete(button_save)
-delete(button_return_to_runtime)
+if fig_design.UserData ~= 6
+    % Disable Design buttons
+    delete(button_add_neuron)
+    delete(button_add_population)
+    delete(button_add_algorithm)
+    delete(button_add_agents)
+    delete(button_add_brain)
+    delete(button_save)
+    delete(button_return_to_runtime)
+end
 
 if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     
