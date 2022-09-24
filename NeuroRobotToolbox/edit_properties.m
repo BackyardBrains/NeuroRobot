@@ -73,19 +73,19 @@ set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname
     
 % A
 text_a = uicontrol('Style', 'text', 'String', 'a', 'units', 'normalized', 'position', [0.02 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_a = uicontrol('Style', 'edit', 'String', num2str(this_a), 'units', 'normalized', 'position', [0.03 0.46 0.03 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_a = uicontrol('Style', 'edit', 'String', num2str(this_a), 'units', 'normalized', 'position', [0.03 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % B
 text_b = uicontrol('Style', 'text', 'String', 'b', 'units', 'normalized', 'position', [0.07 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_b = uicontrol('Style', 'edit', 'String', num2str(this_b), 'units', 'normalized', 'position', [0.08 0.46 0.03 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_b = uicontrol('Style', 'edit', 'String', num2str(this_b), 'units', 'normalized', 'position', [0.08 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % C
 text_c = uicontrol('Style', 'text', 'String', 'c', 'units', 'normalized', 'position', [0.12 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_c = uicontrol('Style', 'edit', 'String', num2str(this_c), 'units', 'normalized', 'position', [0.13 0.46 0.03 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_c = uicontrol('Style', 'edit', 'String', num2str(this_c), 'units', 'normalized', 'position', [0.13 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % D
 text_d = uicontrol('Style', 'text', 'String', 'd', 'units', 'normalized', 'position', [0.17 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_d = uicontrol('Style', 'edit', 'String', num2str(this_d), 'units', 'normalized', 'position', [0.18 0.46 0.03 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_d = uicontrol('Style', 'edit', 'String', num2str(this_d), 'units', 'normalized', 'position', [0.18 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % ID
 text_id = uicontrol('Style', 'text', 'String', 'id', 'units', 'normalized', 'position', [0.23 0.46 0.02 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_id = uicontrol('Style', 'edit', 'String', num2str(this_id), 'units', 'normalized', 'position', [0.25 0.46 0.03 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_id = uicontrol('Style', 'edit', 'String', num2str(this_id), 'units', 'normalized', 'position', [0.25 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
 % Wait for OK
 button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.38 0.26 0.06]);
