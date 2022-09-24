@@ -179,15 +179,19 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
 ncontacts = size(contact_xys, 1);
-if use_cnn
+if exist('use_cnn', 'var') && use_cnn && ~use_rcnn
     labels = readcell('alllabels.txt');
     object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
     object_strs = labels(object_ns);
     vis_pref_names = [vis_pref_names, object_strs'];
     score = zeros(1, 1000);
-elseif use_rcnn
+    n_vis_prefs = size(vis_pref_names, 2);
+elseif exist('use_rcnn', 'var') && use_rcnn && ~use_cnn
     vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
     object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
+    n_vis_prefs = size(vis_pref_names, 2);
+else
+    n_vis_prefs = 0;
 end
-n_vis_prefs = size(vis_pref_names, 2);
+
 

@@ -29,6 +29,7 @@ if ~isempty(brain_edit_name.String)
     network_drive = zeros(1, 3);
     nnetworks = 0;
     bg_neurons = [];
+    neuron_scripts = [];
     brain_name = brain_edit_name.String;
 else
     brain_edit_name.BackgroundColor = [1 0.25 0.25];

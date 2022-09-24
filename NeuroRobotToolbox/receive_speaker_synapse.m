@@ -1,6 +1,15 @@
 
 if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var'))
 
+    % Disable Design buttons
+    delete(button_add_neuron)
+    delete(button_add_population)
+    delete(button_add_algorithm)
+    delete(button_add_agents)
+    delete(button_add_brain)
+    delete(button_save)
+    delete(button_return_to_runtime)
+    
     % Log command
     if save_data_and_commands
         this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
