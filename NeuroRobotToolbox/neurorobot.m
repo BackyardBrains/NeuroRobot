@@ -162,8 +162,8 @@ button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Sleep button
-button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', button4_pos);
+% Sleep/ML button
+button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep/ML', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
