@@ -17,8 +17,6 @@
 pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 night_vision = 0;           % Use histeq to enhance image contrast
-brain_gen = 0;              % Use "Create New Brain" to algorithmically generate new brains
-cpg_integration = 1;        % Add New Neurons (0 = semi random, 1 = add previously designed brains as CPGs)
 use_speech2text = 0;        % In progress, requires key
 save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;
@@ -31,9 +29,7 @@ rec_dir_name = '';
 init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
-bfsize = 9;
-ms_per_step = round(pulse_period * 1000);
-nsteps_per_loop = 100;
+bfsize = 8;
 
 
 %% Background
@@ -142,7 +138,7 @@ text_new_name = uicontrol('Style', 'text', 'String', 'Name', 'units', 'normalize
 brain_edit_name = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', [0.6 0.22 0.25 0.05], 'fontsize', bfsize + 6, ....
     'FontName', gui_font_name, 'fontweight', gui_font_weight);
 button_new_brain = uicontrol('Style', 'pushbutton', 'String', 'Create New Brain', 'units', 'normalized', 'position', [0.6 0.15 0.15 0.05]);
-set(button_new_brain, 'Callback', 'initialize_brain; neurorobot', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+set(button_new_brain, 'Callback', 'initialize_brain; save_brain; neurorobot', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
 %% Buttons
@@ -166,8 +162,8 @@ button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Sleep button
-button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep', 'units', 'normalized', 'position', button4_pos);
+% Sleep/ML button
+button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep/ML', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
@@ -176,6 +172,26 @@ button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'no
 set(button_to_quit, 'Callback', 'closereq', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-
+%% Prep variables necessary for brain load
+ms_per_step = round(pulse_period * 1000);
+nsteps_per_loop = 100;
+contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
+    -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
+    -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
+ncontacts = size(contact_xys, 1);
+if exist('use_cnn', 'var') && use_cnn && ~use_rcnn
+    labels = readcell('alllabels.txt');
+    object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
+    object_strs = labels(object_ns);
+    vis_pref_names = [vis_pref_names, object_strs'];
+    score = zeros(1, 1000);
+    n_vis_prefs = size(vis_pref_names, 2);
+elseif exist('use_rcnn', 'var') && use_rcnn && ~use_cnn
+    vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
+    object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
+    n_vis_prefs = size(vis_pref_names, 2);
+else
+    n_vis_prefs = 0;
+end
 
 

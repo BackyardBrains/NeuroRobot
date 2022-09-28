@@ -1,14 +1,16 @@
 
 % If no design action is in progress
 
-% Disable Design buttons
-delete(button_add_neuron)
-delete(button_add_population)
-delete(button_add_algorithm)
-delete(button_add_agents)
-delete(button_add_brain)
-delete(button_save)
-delete(button_return_to_runtime)
+if fig_design.UserData ~= 6
+    % Disable Design buttons
+    delete(button_add_neuron)
+    delete(button_add_population)
+    delete(button_add_algorithm)
+    delete(button_add_agents)
+    delete(button_add_brain)
+    delete(button_save)
+    delete(button_return_to_runtime)
+end
 
 if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
     
@@ -215,27 +217,19 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             delete(temp_plot)
             
             if multi_neuron_opt == 1 % Population
-
                 create_population
-                
             elseif multi_neuron_opt == 2 % Algorithm
-                
                 create_from_algorithm
                 create_combo_brain
-
             elseif multi_neuron_opt == 3 % Agent
-
                 create_from_agent
-
             elseif multi_neuron_opt == 4 % Brain
-
                 load_additional_brain
                 create_combo_brain
                 delete(text_heading)
                 delete(text_w1)
                 delete(popup_select_brain)                
             end
-            
             
             % Clear neurons
             clear presynaptic_neuron

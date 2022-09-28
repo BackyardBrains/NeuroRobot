@@ -2,7 +2,7 @@
 
 
 %% Get settings
-% option_app = {'BG Colors', 'Draw Neuron Numbers'; 'Draw Synapse Weights', 'Record Data', 'Use RL Controllers};
+% option_app = {'BG Color Scheme', 'Draw Neuron Numbers'; 'Draw Synapse Weights', 'Record Data', 'Use RL Controllers};
 if sum(select_app.Value == 1)
     bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes  
 else
@@ -50,9 +50,8 @@ if sum(select_vision.Value == 4)
 end
 
 % option_hearing = {'Microphone/FFT', 'Speech2Text', 'Text2Speech'; 'OpenAI'};
-audio_th = 100;               % Audio threshold (increase if sound spectrum looks too crowded)
+audio_th = 5;             % Audio threshold (increase if sound spectrum looks too crowded)
 matlab_audio_rec = 1;       % Use computer microphone to listen
-
 matlab_speaker_ctrl = 0;    % Multi tone output
 vocal = 0;                  % Custom sound output
 supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
@@ -87,13 +86,13 @@ disp('---------')
 microcircuit = 0;
 computer_name = getenv('COMPUTERNAME');
 user_name = getenv('USERNAME');
+user_name(user_name == ' ') = '_';
 stop_step = 0;
 ext_cam_id = 0;
 ext_cam_nsteps = 100; % check this
 max_w = 100;
 ltp_recency_th_in_sec = 2000; % must be >= pulse_period
 permanent_memory_th = 24;
-
 im3 = flipud(255 - ((255 - imread('workspace2.jpg'))));
 adjust2 = 0.29;
 letters = {'A', 'B', 'C', 'D', 'E',...
@@ -122,10 +121,6 @@ base_weight = max_w;
 ltp_recency_th_in_steps = round(ltp_recency_th_in_sec / ms_per_step);
 speaker_selected = 0;
 vocal_buffer = 0;
-contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
-    -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
-    -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
-ncontacts = size(contact_xys, 1);
 dist_pref_names = {'Short', 'Medium', 'Long'};
 n_dist_prefs = size(dist_pref_names, 2);
 load('brainim_xy')
@@ -134,18 +129,6 @@ network_colors(1, :) = [1 0.9 0.8];
 vis_pref_names = {'Red', 'red-temp', 'Green', 'green-temp', 'Blue', 'blue-temp', 'Movement'};
 n_basic_vis_features = length(vis_pref_names);
 serial_data = [];
-
-if use_cnn
-    labels = readcell('alllabels.txt');
-    object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
-    object_strs = labels(object_ns);
-    vis_pref_names = [vis_pref_names, object_strs'];
-    score = zeros(1, 1000);
-elseif use_rcnn
-    vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
-    object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
-end
-n_vis_prefs = size(vis_pref_names, 2);
 sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];
 encoding_pattern = ones(size(sens_thresholds));
 
@@ -272,7 +255,7 @@ drawnow
 disp(horzcat('Brain name = ', brain_name))
 if ~exist('net', 'var') && use_cnn
     tic
-%         g_net = googlenet; %%% <<<<< Commented out for packaging
+    g_net = googlenet; %%% <<<<< Commented out for packaging
     net_input_size = g_net.Layers(1).InputSize(1:2);
     disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
 elseif ~exist('net', 'var') && use_rcnn
@@ -296,8 +279,6 @@ end
 drawnow
 pause(1)
 clear fig_design
-
-
 
 
 %% Clear
@@ -450,7 +431,4 @@ runtime_pulse = timer('period', pulse_period, 'timerfcn', 'runtime_pulse_code;',
     'executionmode', 'fixedrate');
 
 start(runtime_pulse)
-
-
-
 
