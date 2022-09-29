@@ -1,10 +1,13 @@
-if ispc
-    load(strcat('.\Brains\', brain_name, '.mat'))
-elseif ismac && ~isdeployed
-    load(strcat('./Brains/', brain_name, '.mat'))
-elseif ismac && isdeployed
-    load(strcat(brain_name, '.mat'))        
+
+
+if ispc && ~isdeployed
+    load(strcat('.\Brains\', brain_name, '.mat'))    
+elseif ispc && isdeployed
+    load(strcat(ctfroot, '\SpikerBot\Brains\', brain_name, '.mat'))
+elseif ismac
+    load(strcat('./Brains/', brain_name, '.mat'))        
 end
+
 nneurons = brain.nneurons;
 neuron_xys = brain.neuron_xys;
 neuron_cols = brain.neuron_cols;

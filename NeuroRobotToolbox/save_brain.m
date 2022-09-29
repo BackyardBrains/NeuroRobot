@@ -37,12 +37,12 @@ brain.network_drive = network_drive;
 brain.bg_neurons = bg_neurons;
 
 % Save brain
-if ispc
+if ispc && ~isdeployed
     brain_file_name = strcat('.\Brains\', brain_name, '.mat');
-elseif ismac && ~isdeployed
+elseif ispc && isdeployed
+    brain_file_name = strcat(ctfroot, '\SpikerBot\Brains\', brain_name, '.mat');
+elseif ismac
     brain_file_name = strcat('./Brains/', brain_name, '.mat');
-elseif ismac && isdeployed
-    brain_file_name = strcat(brain_name, '.mat');
 end
 
 try

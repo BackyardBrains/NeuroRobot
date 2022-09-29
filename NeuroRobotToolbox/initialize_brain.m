@@ -1,4 +1,3 @@
-
 if ~isempty(brain_edit_name.String)
     brain = struct;
     nneurons = 0;
@@ -30,7 +29,7 @@ if ~isempty(brain_edit_name.String)
     nnetworks = 0;
     bg_neurons = [];
     neuron_scripts = [];
-    brain_name = brain_edit_name.String;
+    brain_name = strcat(brain_edit_name.String);
 else
     brain_edit_name.BackgroundColor = [1 0.25 0.25];
     pause(0.75)

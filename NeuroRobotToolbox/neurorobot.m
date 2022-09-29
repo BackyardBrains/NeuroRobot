@@ -51,16 +51,7 @@ if ismac
     fig_pos = get(0, 'screensize') + [0 149 0 -171];
 else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
-%     startup_fig_pos(1) = startup_fig_pos(1) + 50;
-%     startup_fig_pos(2) = startup_fig_pos(2) + 50;
-%     startup_fig_pos(3) = startup_fig_pos(3) - 100;
-%     startup_fig_pos(4) = startup_fig_pos(4) - 150;
-
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
-%     fig_pos(1) = fig_pos(1) + 50;
-%     fig_pos(2) = fig_pos(2) + 50;
-%     fig_pos(3) = fig_pos(3) - 100;
-%     fig_pos(4) = fig_pos(4) - 150;    
 end
 
 %% Prepare figure
@@ -80,6 +71,9 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32';'Computer with Camera'};
+if isdeployed
+    option_robot(4) = [];
+end
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 
@@ -105,24 +99,15 @@ select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Positi
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Brain
-clear brain_string
-brain_string{1} = '-- Create new brain --';
-if ispc
+if ispc && ~isdeployed
     available_brains = dir('.\Brains\*.mat');
-elseif ismac && ~isdeployed
+elseif ispc && isdeployed
+    available_brains = dir(strcat(ctfroot, '\SpikerBot\Brains\*.mat'));
+elseif ismac
     available_brains = dir('./Brains/*.mat');
-elseif ismac && isdeployed
-    available_brains = struct;
-    available_brains(1,1).name = 'Betsy.mat';
-    available_brains(2,1).name = 'Chopin.mat';
-    available_brains(3,1).name = 'Critter.mat';
-    available_brains(4,1).name = 'Glunkakakakah.mat';
-    available_brains(5,1).name = 'Merlin.mat'; 
-    available_brains(6,1).name = 'Pavlov.mat';
-    available_brains(7,1).name = 'SingSong.mat';
-    available_brains(8,1).name = 'ZiggyZag.mat';
 end
 
+clear brain_string
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains
     brain_string{nbrain} = available_brains(nbrain).name(1:end-4);

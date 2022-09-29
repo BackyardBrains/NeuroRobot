@@ -2,7 +2,14 @@
 brain_name_2 = popup_select_brain.String{popup_select_brain.Value};
 
 %% Load brain 2
-load(strcat('./Brains/', brain_name_2, '.mat'))
+if ispc && ~isdeployed
+    load(strcat('.\Brains\', brain_name_2, '.mat'))    
+elseif ispc && isdeployed
+    load(strcat(ctfroot, '\SpikerBot\Brains\', brain_name_2, '.mat'))
+elseif ismac
+    load(strcat('./Brains/', brain_name_2, '.mat'))        
+end
+
 nneurons_2 = brain.nneurons;
 neuron_xys_2 = brain.neuron_xys;
 connectome_2 = brain.connectome;

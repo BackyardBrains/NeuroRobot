@@ -32,7 +32,7 @@ elseif select_robot.Value == 5
     use_esp32 = 0;
 end
 
-if use_esp32
+if use_esp32 && ~isdeployed
     addpath('.\MatlabWebSocket\src\')
 end
 if ~exist('esp32WebsocketClient', 'var')
