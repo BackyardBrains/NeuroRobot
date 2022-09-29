@@ -53,10 +53,9 @@ catch exception
 end
 
 if exist('button_save', 'var') && isvalid(button_save)
-    for ii = 1:-0.05:0.8
-        button_save.BackgroundColor = [0.8 ii 0.8];
-        pause(0.05)
-    end
+    button_save.BackgroundColor = [0.8 1 0.8];
+    pause(0.75)
+    button_save.BackgroundColor = [0.8 0.8 0.8];
 end
 
 run_button = 0;

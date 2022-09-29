@@ -1,11 +1,11 @@
 
-button1_pos = [0.02 0.52 0.26 0.05];
-button2_pos = [0.02 0.45 0.26 0.05];
-button3_pos = [0.02 0.38 0.26 0.05];
-button4_pos = [0.02 0.31 0.26 0.05];
-button5_pos = [0.02 0.24 0.26 0.05];
-button6_pos = [0.02 0.17 0.26 0.05];
-button7_pos = [0.02 0.1 0.26 0.05];
+button1_pos = [0.02 0.47 0.26 0.05];
+button2_pos = [0.02 0.4 0.26 0.05];
+button3_pos = [0.02 0.33 0.26 0.05];
+button4_pos = [0.02 0.26 0.26 0.05];
+button5_pos = [0.02 0.19 0.26 0.05];
+button6_pos = [0.02 0.12 0.26 0.05];
+button7_pos = [0.02 0.05 0.26 0.05];
 
 % Add neuron
 button_add_neuron = uicontrol('Style', 'pushbutton', 'String', 'Neuron', 'units', 'normalized', 'position', button1_pos, 'fontname', gui_font_name, 'fontweight', gui_font_weight);

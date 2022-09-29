@@ -1,15 +1,10 @@
 
 
 
-
-
 %% The SpikerBot App
-% Christopher Harris, PhD
-% Backyard Brains, Inc
+% Christopher Harris
 % christopher@backyardbrains.com
-
-
-
+% Backyard Brains, Inc.
 
 
 
@@ -30,6 +25,7 @@ init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
+vis_pref_names = {'Red', 'red-temp', 'Green', 'green-temp', 'Blue', 'blue-temp', 'Movement'};
 
 
 %% Background
@@ -70,10 +66,7 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 % Robot
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32';'Computer with Camera'};
-if isdeployed
-    option_robot(4) = [];
-end
+option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'};
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 
@@ -94,7 +87,7 @@ select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone/FFT'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
+option_communication = {'Microphone'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
@@ -135,7 +128,7 @@ button5_pos = [0.79 0.02 0.17 0.05];
 
 % Camera button
 button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', button1_pos);
-set(button_camera, 'Callback', 'camera_button_callback; camera_button_col ', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+set(button_camera, 'Callback', 'camera_button_callback; camera_button_col', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 % Start button
 button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 'units', 'normalized', 'position', button2_pos);
@@ -147,8 +140,8 @@ button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Sleep/ML button
-button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Sleep/ML', 'units', 'normalized', 'position', button4_pos);
+% ML button
+button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'ML', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
@@ -176,7 +169,5 @@ elseif exist('use_rcnn', 'var') && use_rcnn && ~use_cnn
     object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
     n_vis_prefs = size(vis_pref_names, 2);
 else
-    n_vis_prefs = 0;
+    n_vis_prefs = size(vis_pref_names, 2);
 end
-
-

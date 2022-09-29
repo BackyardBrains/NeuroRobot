@@ -1,4 +1,6 @@
-if isempty(imaqfind)
+if sum(select_robot.Value == 5) && exist('rak_only', 'var')
+    this_col = [0.6 0.95 0.6];
+elseif isempty(imaqfind)
     if ~sum(select_robot.Value == 3) && sum(select_robot.Value == [1 2]) && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
         this_col = [0.6 0.95 0.6];
     elseif exist('rak_cam', 'var') && sum(select_robot.Value == [1 2]) && (isa(rak_cam, 'NeuroRobot_matlab')) && ~rak_cam.isRunning() 
@@ -8,7 +10,7 @@ if isempty(imaqfind)
     else
         this_col = [0.8 0.8 0.8];
     end
-elseif sum(select_robot.Value == 4)
+elseif sum(select_robot.Value == 4) && ~isdeployed
     this_col = [0.6 0.95 0.6];
 else
     this_col = [0.8 0.8 0.8];
