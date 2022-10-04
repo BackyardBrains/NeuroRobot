@@ -8,15 +8,20 @@ imdim = 100;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = '';
 
+nsmall = 2000;
+nmedium = 10000;
+
+load('image_ds')
+load(strcat(data_dir_name, 'bag'))
+load(strcat(data_dir_name, 'imageIndex'))
+load(strcat(data_dir_name, 'xdata'))
+
 % image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
 % image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 % save('image_ds', 'image_ds')
 % 
-% load('image_ds')
 % nimages = length(image_ds.Files);
 % 
-nsmall = 2000;
-nmedium = 10000;
 % image_ds_small = subset(image_ds, randsample(nimages, nsmall));
 % image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
 % 
@@ -29,20 +34,18 @@ nmedium = 10000;
 % 
 % bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
 % save(strcat(data_dir_name, 'bag'), 'bag')
-% load(strcat(data_dir_name, 'bag'))
-
+% 
 % imageIndex = indexImages(image_ds_medium, bag);
 % save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
-load(strcat(data_dir_name, 'imageIndex'))
-
-%% Get image similarity matrix
+% 
 % get_image_crosscorr
 % save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
-load(strcat(data_dir_name, 'xdata'))
+
 
 %% Plot similarity matrix
 figure(1)
 clf
+set(gcf, 'color', 'w')
 subplot(1,2,1)
 imagesc(xdata)
 colorbar
@@ -54,9 +57,11 @@ title('xdata histogram')
 
 
 %% Group images
-% n_unique_states = 100;
-% Y = pdist(xdata,'euclidean');
-% links = linkage(Y,'ward');
+
+n_unique_states = 100;
+dists = pdist(xdata,'euclidean');
+links = linkage(dists,'ward');
+
 % figure(2)
 % clf
 % subplot(1,2,1)
@@ -67,7 +72,8 @@ title('xdata histogram')
 
 % group_inds = cluster(links,'MaxClust',n_unique_states);
 
-% group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
+group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
+
 % group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
 
