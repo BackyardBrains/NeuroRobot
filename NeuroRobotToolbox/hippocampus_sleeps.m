@@ -45,6 +45,9 @@ load(strcat(data_dir_name, 'xdata_L1'))
 % % % save(strcat(data_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
 
 
+%%
+xdata(xdata<0.7) = 0;
+
 %% Plot similarity matrix
 figure(1)
 clf
@@ -61,25 +64,23 @@ title('xdata histogram')
 
 %% Group images
 
-n_unique_states = 100;
+n_unique_states = 1000;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
 
-% figure(2)
-% clf
-% subplot(1,2,1)
-% [~, ~, o] = dendrogram(links, nsmall);
-% subplot(1,2,2)
-% imagesc(xdata(o, o))
-% colorbar
+figure(2)
+clf
+subplot(1,2,1)
+[~, ~, o] = dendrogram(links, nsmall);
+subplot(1,2,2)
+imagesc(xdata(o, o))
+colorbar
 
-% group_inds = cluster(links,'MaxClust',n_unique_states);
-
-group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
-
+group_inds = cluster(links,'MaxClust',n_unique_states);
+% group_inds = clusterdata(ydata,'Linkage', 'ward', 'SaveMemory','on','Maxclust',n_unique_states);
 % group_inds = kmeans(xdata, n_unique_states);
 % group_inds = kmedoids(xdata, n_unique_states);
-
+save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 load(strcat(data_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
@@ -101,7 +102,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 100;
+min_size = 10;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -113,9 +114,9 @@ for nstate = 1:n_unique_states
     end
 end
 
-% noise_group = mode(group_inds);
-% state_inds(noise_group,:) = [];
-% state_info(noise_group) = [];
+noise_group = mode(group_inds);
+state_inds(noise_group,:) = [];
+state_info(noise_group) = [];
 state_inds(state_info == 0, :) = [];
 state_info(state_info == 0) = [];
 n_unique_states = sum(state_info);
@@ -126,7 +127,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 get_state_entropy
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))
-%     if state_entropy(nstate) > nanmedian(state_entropy) * 3    
+    if state_entropy(nstate) > nanmedian(state_entropy) * 3    
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
         elseif nstate >= 10
@@ -141,7 +142,7 @@ for nstate = 1:n_unique_states
             fname = strcat(data_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
-%     end
+    end
 end
 
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
@@ -181,6 +182,6 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(data_dir_name, 'randomwalk_net'), 'net')
+save(strcat(data_dir_name, 'dwg_net'), 'net')
 
 
