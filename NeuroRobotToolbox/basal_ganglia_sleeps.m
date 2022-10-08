@@ -4,13 +4,12 @@
 clear
 clc
 
-reward_states = [1 7 8 19 24];
+reward_states = [10 13 19 20]; % livingroom_net watching tv
 
 % data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
 % rec_dir_name = 'Tuples1\';
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-% rec_dir_name = 'Tuples1\';
-rec_dir_name = '';
+rec_dir_name = 'PreTraining\';
 
 % labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 load(strcat(data_dir_name, 'labels.mat'))
@@ -27,9 +26,10 @@ nimages = size(image_dir, 1);
 
 
 %% States
-load(strcat(data_dir_name, 'randomwalk_net'))
-% get_states
-% save(strcat(data_dir_name, 'states'), 'states')
+% load(strcat(data_dir_name, 'randomwalk_net'))
+load(strcat(data_dir_name, 'livingroom_net'))
+get_states
+save(strcat(data_dir_name, 'states'), 'states')
 
 load(strcat(data_dir_name, 'states'))
 ntuples = size(states, 1);
@@ -39,9 +39,9 @@ ntuples = size(states, 1);
 
 
 %% Torques
-% get_torques
-% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
-load(strcat(data_dir_name, 'torque_data'))
+get_torques
+save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+% load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions

@@ -46,7 +46,7 @@ load(strcat(data_dir_name, 'xdata_L1'))
 
 
 %%
-xdata(xdata<0.7) = 0;
+xdata(xdata<0.6) = 0;
 
 %% Plot similarity matrix
 figure(1)
@@ -64,7 +64,7 @@ title('xdata histogram')
 
 %% Group images
 
-n_unique_states = 1000;
+n_unique_states = 200;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
 
@@ -102,7 +102,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Remove noise group and small groups
-min_size = 10;
+min_size = 50;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 1);
 state_inds = zeros(n_unique_states, min_size);
@@ -125,9 +125,13 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 %% Create ground truth image folders
 get_state_entropy
+
+%%
+n_unique_states = sum(state_info);
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
 for nstate = 1:n_unique_states
     disp(horzcat('Processing state ', num2str(nstate)))
-    if state_entropy(nstate) > nanmedian(state_entropy) * 3    
+    if state_entropy(nstate) > nanmedian(state_entropy)    
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
         elseif nstate >= 10
@@ -149,6 +153,8 @@ labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 labels = unique(labels);
 save(strcat(data_dir_name, 'labels'), 'labels')
 n_unique_states = length(labels);
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
+
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
@@ -182,6 +188,6 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(data_dir_name, 'dwg_net'), 'net')
+save(strcat(data_dir_name, 'livingroom_net'), 'net')
 
 
