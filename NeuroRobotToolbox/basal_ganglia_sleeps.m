@@ -20,7 +20,8 @@ image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
-% ntuples = size(torque_dir, 1);
+ntuples = size(torque_dir, 1);
+disp(horzcat('ntuples: ', num2str(ntuples)))
 
 % get_dists
 
@@ -30,10 +31,8 @@ nimages = size(image_dir, 1);
 load(strcat(data_dir_name, 'livingroom_net'))
 get_states
 save(strcat(data_dir_name, 'states'), 'states')
-
 load(strcat(data_dir_name, 'states'))
 ntuples = size(states, 1);
-
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
 
@@ -41,7 +40,7 @@ ntuples = size(states, 1);
 %% Torques
 get_torques
 save(strcat(data_dir_name, 'torque_data'), 'torque_data')
-% load(strcat(data_dir_name, 'torque_data'))
+load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
@@ -58,7 +57,7 @@ n_unique_actions = length(unique(actions));
 
 
 %% Lucid sleep?
-% lucid_sleep
+lucid_sleep
 
 
 %% Get tuples
