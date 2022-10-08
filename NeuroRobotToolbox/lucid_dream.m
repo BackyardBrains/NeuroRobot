@@ -5,23 +5,24 @@ clear
 % clc
 
 imdim = 100;
-reward_states = [1 7 8 19 24];
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\PreTraining\';
+reward_states = [10 13 19 20]; % livingroom_net watching tv
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+rec_dir_name = 'PreTraining\';
 
 load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-% image_dir = dir(fullfile(data_dir_name, '**\Rec*\*.png'));
-% torque_dir = dir(fullfile(data_dir_name, '**\Rec*\*torques.mat'));
-image_dir = dir(fullfile(data_dir_name, '**\Agent*\*.png'));
-torque_dir = dir(fullfile(data_dir_name, '**\Agent*\*torques.mat'));
+image_dir = dir(fullfile(data_dir_name, '**\', rec_dir_name, '*.png'));
+torque_dir = dir(fullfile(data_dir_name, '**\', rec_dir_name, '*torques.mat'));
+% image_dir = dir(fullfile(data_dir_name, '**\Agent*\*.png'));
+% torque_dir = dir(fullfile(data_dir_name, '**\Agent*\*torques.mat'));
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
-load(strcat(data_dir_name, 'torque_data2'))
-load(strcat(data_dir_name, 'randomwalk_net'))
+load(strcat(data_dir_name, 'torque_data'))
+load(strcat(data_dir_name, 'livingroom_net'))
 
 %%
 figure(2)

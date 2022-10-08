@@ -5,8 +5,8 @@ clear
 % clc
 
 imdim = 100;
-reward_states = [1 7 8 19 24];
-video_file_name = 'sequence_video3';
+reward_states = [10 13 19 20]; % livingroom_net watching tv
+video_file_name = 'vid1';
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = '';
 
@@ -14,25 +14,24 @@ load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 
-% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Rec*\*.png'));
-% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Rec*\*torques.mat'));
-image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Agent*\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\Agent*\*torques.mat'));
+image_dir = dir(fullfile(data_dir_name, '**\', rec_dir_name, '*.png'));
+torque_dir = dir(fullfile(data_dir_name, '**\', rec_dir_name, '*torques.mat'));
+
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 
 %% Get states
-load(strcat(data_dir_name, 'randomwalk_net'))
-get_states
-save(strcat(data_dir_name, 'states_agent'), 'states')
-load(strcat(data_dir_name, 'states_agent'))
+load(strcat(data_dir_name, 'livingroom_net'))
+% get_states
+% save(strcat(data_dir_name, 'states_agent'), 'states')
+load(strcat(data_dir_name, 'states'))
 % states = modefilt(states, [9 1]);
 
 %% Get actions
 get_torques
-save(strcat(data_dir_name, 'torque_data_agent'), 'torque_data')
-load(strcat(data_dir_name, 'torque_data_agent'))
+% save(strcat(data_dir_name, 'torque_data_agent'), 'torque_data')
+% load(strcat(data_dir_name, 'torque_data_agent'))
 
 %% Get reward
 disp('getting rewards')
