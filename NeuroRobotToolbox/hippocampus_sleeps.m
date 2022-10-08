@@ -4,43 +4,45 @@
 clear
 clc
 
-imdim = 50;
+imdim = 100;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-rec_dir_name = 'PreTraining';
+rec_dir_name = 'PreTraining\';
 
 nsmall = 2000;
 nmedium = 10000;
 
-% load(strcat(data_dir_name, 'image_ds'))
-% load(strcat(data_dir_name, 'bag'))
-% load(strcat(data_dir_name, 'imageIndex'))
-% load(strcat(data_dir_name, 'xdata'))
+load(strcat(data_dir_name, 'image_ds'))
+load(strcat(data_dir_name, 'bag'))
+load(strcat(data_dir_name, 'imageIndex'))
 
-image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
-image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-save(strcat(data_dir_name, 'image_ds'), 'image_ds')
+load(strcat(data_dir_name, 'xdata_L1'))
+% load(strcat(data_dir_name, 'xdata_cosine'))
 
-nimages = length(image_ds.Files);
-disp(horzcat('N images: ', num2str(nimages)))
-
-image_ds_small = subset(image_ds, randsample(nimages, nsmall));
-image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
-
-image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-
-ps = parallel.Settings;
-ps.Pool.AutoCreate = false;
-ps.Pool.IdleTimeout = Inf;
-
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 200]);
-save(strcat(data_dir_name, 'bag'), 'bag')
-
-imageIndex = indexImages(image_ds_medium, bag);
-save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
-
-get_image_crosscorr
-save(strcat(data_dir_name, 'xdata'), 'xdata', '-v7.3')
+% % % image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+% % % image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% % % save(strcat(data_dir_name, 'image_ds'), 'image_ds')
+% % % 
+% % % nimages = length(image_ds.Files);
+% % % disp(horzcat('N images: ', num2str(nimages)))
+% % % 
+% % % image_ds_small = subset(image_ds, randsample(nimages, nsmall));
+% % % image_ds_medium = subset(image_ds, randsample(nimages, nmedium));
+% % % 
+% % % image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% % % image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% % % 
+% % % ps = parallel.Settings;
+% % % ps.Pool.AutoCreate = false;
+% % % ps.Pool.IdleTimeout = Inf;
+% % % 
+% % % bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
+% % % save(strcat(data_dir_name, 'bag'), 'bag')
+% % % 
+% % % imageIndex = indexImages(image_ds_medium, bag);
+% % % save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
+% % % 
+% % % get_image_crosscorr
+% % % save(strcat(data_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
 
 
 %% Plot similarity matrix

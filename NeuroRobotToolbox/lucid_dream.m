@@ -6,7 +6,7 @@ clear
 
 imdim = 100;
 reward_states = [1 7 8 19 24];
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\PreTraining\';
 
 load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);

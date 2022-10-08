@@ -1,6 +1,6 @@
 function this_im = customReadFcn(im_fname)
 
-    imdim = 50;
+    imdim = 100;
 
     this_im = imread(im_fname);
 %     this_im = rgb2gray(this_im);
