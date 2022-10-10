@@ -36,6 +36,7 @@ load(strcat(data_dir_name, 'states'))
 ntuples = size(states, 1);
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
+disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
