@@ -51,7 +51,7 @@ if exist('rak_only', 'var')
     end
     
     % option_hearing = {'Microphone/FFT', 'Speech2Text', 'Text2Speech'; 'OpenAI'};
-    audio_th = 5;             % Audio threshold (increase if sound spectrum looks too crowded)
+    audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
     matlab_audio_rec = 1;       % Use computer microphone to listen
     matlab_speaker_ctrl = 0;    % Multi tone output
     vocal = 0;                  % Custom sound output
