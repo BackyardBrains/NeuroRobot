@@ -25,4 +25,5 @@ imageIndex = indexImages(image_ds_medium, bag);
 save(strcat(data_dir_name, 'imageIndex'), 'imageIndex')
 
 get_image_crosscorr
-save(strcat(data_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
+save(strcat(data_dir_name, 'xdata_L1'), 'xdata', '-v7.3')
+% save(strcat(data_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
