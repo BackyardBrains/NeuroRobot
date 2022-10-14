@@ -11,7 +11,7 @@ rec_dir_name = 'PreTraining\';
 nsmall = 2000;
 nmedium = 10000;
 
-hippocampus_associator
+% hippocampus_associator
 
 load(strcat(data_dir_name, 'image_ds'))
 load(strcat(data_dir_name, 'bag'))
@@ -39,11 +39,10 @@ title('xdata histogram')
 
 
 %% Group images
+
 n_unique_states = 200;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
-group_inds = cluster(links,'MaxClust',n_unique_states);
-save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
 figure(2)
 clf
@@ -53,10 +52,20 @@ subplot(1,2,2)
 imagesc(xdata(o, o))
 colorbar
 
+group_inds = cluster(links,'MaxClust',n_unique_states);
+
+
+save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 load(strcat(data_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
+
+% inds3 = dbscan(xdata, 0.25, 5);
+% unique_inds = unique(inds3);
+% unique_inds(unique_inds == -1) = [];
+% n_unique_states = length(unique_inds);
+% disp(horzcat('nclusters: ', num2str(n_unique_states)))
 
 figure(3)
 clf
@@ -103,7 +112,7 @@ for nstate = 1:n_unique_states
     state_info(nstate, 3) = these_inds(j);    
 end
 
-figure(4)
+figure(5)
 clf
 h = histogram(state_entropy, 'binwidth', 0.05);
 hold on

@@ -6,12 +6,9 @@ clc
 
 reward_states = [10 13 19 20]; % livingroom_net watching tv
 
-% data_dir_name = 'C:\Users\Christopher Harris\Data_2\';
-% rec_dir_name = 'Tuples1\';
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = 'PreTraining\';
 
-% labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);

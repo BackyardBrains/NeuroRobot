@@ -1,19 +1,14 @@
 
 %% Lucid dream
 
+load(strcat(data_dir_name, 'torque_data'))
+load(strcat(data_dir_name, 'livingroom_net'))
 image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
-
-save(strcat(data_dir_name, 'image_dir'), 'image_dir')
-save(strcat(data_dir_name, 'torque_dir'), 'torque_dir')
-
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
-
-load(strcat(data_dir_name, 'torque_data'))
-load(strcat(data_dir_name, 'livingroom_net'))
 
 load(strcat(data_dir_name, 'labels.mat'))
 unique_states = unique(labels);
@@ -41,24 +36,31 @@ for ntuple = rinds'
 
     this_ind = ntuple*2-1;    
     left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
-    left_im = imresize(left_im, [imdim imdim]);
+    im1.CData = left_im;
+
     [left_state, left_score] = classify(net, left_im);
     left_state = find(unique_states == left_state);
-    left_score = left_score(left_state);
-    im1.CData = left_im;
-    tx1.String = horzcat('State: ', num2str(left_state), ', score: ', num2str(left_score));
+    left_score = left_score(left_state);    
+    tx2.String = horzcat('State: ', num2str(nstate), ', score: ', num2str(left_score));
 
-    best_score = state_info(left_state, 2);
-    best_ind = state_info(left_state, 3);
+    best_score = state_info(nstate, 2);
+    best_ind = state_info(nstate, 3);
     this_im = imread(imageIndex.ImageLocation{best_ind});
     im2.CData = this_im;
-    tx2.String = horzcat('State: ', num2str(left_state), ', score: ', num2str(best_score));
+    tx2.String = horzcat('State: ', num2str(nstate), ', score: ', num2str(best_score));
+
+
 
     this_motor_vector = torque_data(ntuple, :);
-    
-%     clc
-%     disp(horzcat('ntuple: ', num2str(ntuple)))
-%     disp(horzcat('torques: ', num2str(round(this_motor_vector))))
+
+    clc
+    disp(horzcat('nstep: ', num2str(ntuple)))
+    disp(horzcat('left state: ', num2str(left_state), ', confidence: ', num2str(left_score)))
+%     disp(horzcat('right state: ', num2str(right_state), ', confidence: ', num2str(right_score)))
+    disp(horzcat('torques: ', num2str(round(this_motor_vector))))
+
+    tx1.String = horzcat('observed state: ', num2str(left_state), ', confidence: ', num2str(left_score));
+    tx2.String = horzcat('confidence: ', num2str(1));
 
     drawnow
     pause
