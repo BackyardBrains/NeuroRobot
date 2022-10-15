@@ -39,24 +39,24 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+get_torques
+save(strcat(data_dir_name, 'torque_data'), 'torque_data')
 load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 10;
+n_unique_actions = 5;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 load(strcat(data_dir_name, 'actions'))
-figure(4)
+figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 
 
 %% Lucid sleep?
-% lucid_dream
+% bacal_ganglia_lucid
 
 
 %% Get tuples
@@ -119,10 +119,11 @@ save(strcat(data_dir_name, 'mdp'), 'mdp')
 load(strcat(data_dir_name, 'mdp'))
 
 %% Get rewards
+disp('Getting reward...')
 rcount = 0;
 rewards = zeros(ntuples, 1) - 1;
 for ntuple = 1:ntuples
-    if ~rem(ntuple, round(ntuples/10))
+    if ~rem(ntuple, round(ntuples/5))
         disp(num2str(ntuple/ntuples))
     end
     if sum(tuples(ntuple, 1) == reward_states) && sum(tuples(ntuple, 3) == mode(actions))
@@ -140,7 +141,7 @@ disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 
 
 %% Plot mdp
-figure(10)
+figure(8)
 clf
 set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 

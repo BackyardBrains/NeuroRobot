@@ -2,6 +2,17 @@
 %% Lucid dream
 % Demo Sleep:Hippocampus
 
+
+% try this:
+% % randomly extract image index to display some images 
+% idx=randperm(numel(imds.Files),20);
+% % use readByIndex function to read images from the autmented datastore
+% imgEx=readByIndex(augImds,idx);
+% % to show the tiled images
+% figure;montage(imgEx.input);title('example of the dataset')
+
+
+
 % image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 % torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
 % save(strcat(data_dir_name, 'image_dir'), 'image_dir')

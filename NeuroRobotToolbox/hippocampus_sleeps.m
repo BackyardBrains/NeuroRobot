@@ -61,14 +61,6 @@ noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
-figure(3)
-clf
-histogram(group_inds, 'binwidth', 0.25)
-title('States')
-xlabel('State')
-ylabel('Count')
-set(gca, 'yscale', 'log')
-
 
 %% Optional: Remove small groups and/or noise group
 disp('Prune clusters...')
@@ -96,6 +88,15 @@ state_info(state_info(:,1)==0, :) = [];
 n_unique_states = sum(state_info(:,1));
 disp(horzcat('N unique states: ', num2str(n_unique_states)))
 
+figure(3)
+clf
+h = histogram(group_inds, 'binwidth', 0.25);
+hold on
+plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
+title('States')
+xlabel('State')
+ylabel('Count')
+set(gca, 'yscale', 'log')
 
 %% Entropy quality check
 disp('Remove high entropy clusters')
