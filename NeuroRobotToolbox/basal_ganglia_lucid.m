@@ -1,6 +1,6 @@
 
 %% Lucid dream
-% Demo Sleep:Hippocampus
+% Demo Sleep:Basal Ganglia
 
 % image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 % torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
@@ -37,8 +37,10 @@ tx2 = title('');
 
 
 %%
-rinds = randsample(ntuples, ntuples, 0);
-for ntuple = rinds'
+for n = 1:100
+
+%     ntuple = start at random ind and proceed sequentially, hopefully
+%     showing how action and states are entangled
 
     this_ind = ntuple*2-1;    
     left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
@@ -47,13 +49,13 @@ for ntuple = rinds'
     left_state = find(unique_states == left_state);
     left_score = left_score(left_state);
     im1.CData = left_im;
-    tx1.String = horzcat('Tuple: ', num2str(ntuple), ', state: ', num2str(left_state), ', conf: ', num2str(left_score));
+    tx1.String = horzcat('Rand tuple: ', num2str(ntuple), ', state: ', num2str(left_state), ', conf: ', num2str(left_score));
 
     best_score = state_info(left_state, 2);
     best_ind = state_info(left_state, 3);
     this_im = imread(imageIndex.ImageLocation{best_ind});
     im2.CData = this_im;
-    tx2.String = horzcat('State: ', num2str(left_state), ', score: ', num2str(best_score));
+    tx2.String = horzcat('Max selfsim tuple: ', num2str(best_ind), ' from state ', num2str(left_state), ', whose mean selfsim is: ', num2str(best_score));
 
 %     this_motor_vector = torque_data(ntuple, :);
     

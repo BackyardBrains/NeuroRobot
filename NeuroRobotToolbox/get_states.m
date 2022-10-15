@@ -1,11 +1,11 @@
 
 imdim = 100;
 states = zeros(ntuples, 1);
-disp(horzcat('getting ', num2str(ntuples), ' states from camera frames'))
+disp(horzcat('Getting ', num2str(ntuples), ' states from camera frames (slow, be patient...)'))
 confusion = zeros(ntuples, 2);
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/100))
+    if ~rem(ntuple, round(ntuples/10))
         disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
 

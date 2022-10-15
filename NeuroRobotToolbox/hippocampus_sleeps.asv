@@ -8,23 +8,22 @@ imdim = 100;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = 'PreTraining\';
 
-nsmall = 2000;
+nsmall = 5000;
 nmedium = 10000;
 
 % hippocampus_associator
 
+disp('Re-loading databases and matrices...')
 load(strcat(data_dir_name, 'image_ds'))
 load(strcat(data_dir_name, 'bag'))
 load(strcat(data_dir_name, 'imageIndex'))
-load(strcat(data_dir_name, 'xdata_L1'))
-% load(strcat(data_dir_name, 'xdata_cosine'))
 
-
-%%
-xdata(xdata<0.5) = 0;
+% load(strcat(data_dir_name, 'xdata_L1'))
+load(strcat(data_dir_name, 'xdata_cosine'))
 
 
 %% Plot similarity matrix
+disp('Plotting similarity matrix...')
 figure(1)
 clf
 set(gcf, 'color', 'w')
@@ -37,35 +36,31 @@ histogram(xdata(:))
 set(gca, 'yscale', 'log')
 title('xdata histogram')
 
+% xdata(xdata<0.5) = 0;
+
+
+%%
 
 %% Group images
-
-n_unique_states = 200;
+disp('Clustering...')
+n_unique_states = 100;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
+group_inds = cluster(links,'MaxClust',n_unique_states);
+save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
 figure(2)
 clf
 subplot(1,2,1)
-[~, ~, o] = dendrogram(links, nsmall);
+[~, ~, o] = dendrogram(links, 0);
 subplot(1,2,2)
 imagesc(xdata(o, o))
 colorbar
 
-group_inds = cluster(links,'MaxClust',n_unique_states);
-
-
-save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 load(strcat(data_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
-
-% inds3 = dbscan(xdata, 0.25, 5);
-% unique_inds = unique(inds3);
-% unique_inds(unique_inds == -1) = [];
-% n_unique_states = length(unique_inds);
-% disp(horzcat('nclusters: ', num2str(n_unique_states)))
 
 figure(3)
 clf
@@ -76,7 +71,8 @@ ylabel('Count')
 set(gca, 'yscale', 'log')
 
 
-%% Remove noise group and small groups
+%% Optional: Remove small groups and/or noise group
+disp('Prune clusters...')
 min_size = 50;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
@@ -91,8 +87,9 @@ for nstate = 1:n_unique_states
 end
 
 noise_group = mode(group_inds);
-state_inds(noise_group, :) = [];
-state_info(noise_group, :) = [];
+disp(horzcat('noise group: ', num2str(noise_group)))
+% state_inds(noise_group, :) = [];
+% state_info(noise_group, :) = [];
 
 state_inds(state_info(:,1)==0, :) = [];
 state_info(state_info(:,1)==0, :) = [];
@@ -102,6 +99,7 @@ disp(horzcat('N unique states: ', num2str(n_unique_states)))
 
 
 %% Entropy quality check
+disp('Remove high entropy clusters')
 state_entropy = zeros(n_unique_states, 1);
 for nstate = 1:n_unique_states
     these_inds = state_inds(nstate, :);
@@ -112,12 +110,15 @@ for nstate = 1:n_unique_states
     state_info(nstate, 3) = these_inds(j);    
 end
 
-figure(5)
+th = prctile(state_entropy, 25);
+% th = 0;
+
+figure(4)
 clf
-h = histogram(state_entropy, 'binwidth', 0.05);
+h = histogram(state_entropy, 'binwidth', 0.005);
 hold on
-plot([median(state_entropy) median(state_entropy)], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
-title('State entropies')
+plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
+title('Inverse entropy of states')
 
 
 %%
@@ -125,7 +126,7 @@ n_unique_states = sum(state_info(:,1));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 for nstate = 1:n_unique_states
     
-    if state_entropy(nstate) > median(state_entropy)    
+    if state_entropy(nstate) > th
         disp(horzcat('Processing state ', num2str(nstate)))
         if nstate >= 100
             this_dir = strcat('state_', num2str(nstate));
@@ -148,6 +149,7 @@ for nstate = 1:n_unique_states
     end
 end
 
+state_entropy(state_info(:,1) == 0) = [];
 state_info(state_info(:,1) == 0, :) = [];
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 labels = unique(labels);
@@ -187,7 +189,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
 net = trainNetwork(classifier_ds, net, options);
 

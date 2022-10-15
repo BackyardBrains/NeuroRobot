@@ -1,18 +1,19 @@
 
 %% Lucid dream
+% Demo Sleep:Hippocampus
 
-image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
-
-save(strcat(data_dir_name, 'image_dir'), 'image_dir')
-save(strcat(data_dir_name, 'torque_dir'), 'torque_dir')
+% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
+% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
+% save(strcat(data_dir_name, 'image_dir'), 'image_dir')
+% save(strcat(data_dir_name, 'torque_dir'), 'torque_dir')
+load(strcat(data_dir_name, 'image_dir'))
+load(strcat(data_dir_name, 'torque_dir'))
 
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
-load(strcat(data_dir_name, 'torque_data'))
 load(strcat(data_dir_name, 'livingroom_net'))
 
 load(strcat(data_dir_name, 'labels.mat'))
@@ -22,7 +23,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Prepare
-figure(2)
+figure(6)
 clf
 set(gcf, 'position', [80 80 1320 530], 'color', 'w')
 ax1 = subplot(1,2,1);
@@ -41,22 +42,22 @@ for ntuple = rinds'
 
     this_ind = ntuple*2-1;    
     left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
-    left_im = imresize(left_im, [imdim imdim]);
-    [left_state, left_score] = classify(net, left_im);
+    left_im_small = imresize(left_im, [imdim imdim]);
+    [left_state, left_score] = classify(net, left_im_small);
     left_state = find(unique_states == left_state);
     left_score = left_score(left_state);
     im1.CData = left_im;
-    tx1.String = horzcat('State: ', num2str(left_state), ', score: ', num2str(left_score));
+    tx1.String = horzcat('Rand tuple: ', num2str(ntuple), ', state: ', num2str(left_state), ', conf: ', num2str(left_score));
 
     best_score = state_info(left_state, 2);
     best_ind = state_info(left_state, 3);
     this_im = imread(imageIndex.ImageLocation{best_ind});
     im2.CData = this_im;
-    tx2.String = horzcat('State: ', num2str(left_state), ', score: ', num2str(best_score));
+    tx2.String = horzcat('Max selfsim tuple: ', num2str(best_ind), ' from state ', num2str(left_state), ', whose mean selfsim is: ', num2str(best_score));
 
-    this_motor_vector = torque_data(ntuple, :);
+%     this_motor_vector = torque_data(ntuple, :);
     
-%     clc
+%     clc 
 %     disp(horzcat('ntuple: ', num2str(ntuple)))
 %     disp(horzcat('torques: ', num2str(round(this_motor_vector))))
 
