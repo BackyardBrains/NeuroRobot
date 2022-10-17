@@ -28,8 +28,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% States
-get_states
-save(strcat(data_dir_name, 'states'), 'states')
+% get_states
+% save(strcat(data_dir_name, 'states'), 'states')
 load(strcat(data_dir_name, 'states'))
 
 ntuples = size(states, 1);
@@ -39,13 +39,13 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-get_torques
-save(strcat(data_dir_name, 'torque_data'), 'torque_data')
+% get_torques
+% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
 load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 5;
+n_unique_actions = 10;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 load(strcat(data_dir_name, 'actions'))
