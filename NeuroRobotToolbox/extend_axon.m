@@ -26,7 +26,7 @@ if ~da_rew_neurons(presynaptic_neuron)
     design_action = 2;
 
     % Text
-    text_heading = uicontrol('Style', 'text', 'String', 'Where do you want to extend the axon?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    text_heading = uicontrol('Style', 'text', 'String', 'Where do you want to extend the axon?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
     % Extend axons
     x = neuron_xys(presynaptic_neuron, 1);
