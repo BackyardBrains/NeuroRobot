@@ -21,23 +21,19 @@ if use_controllers
     left_score = left_score(left_state);
     right_score = right_score(right_state);
 
-%     if max([left_score right_score]) > 0.75
-        if left_state == right_state
-            this_state = left_state;
-        elseif left_score >= right_score
-            this_state = left_state;
-        else
-            this_state = right_state;
-        end
-%     else
-%         this_state = randsample(length(unique_states), 1);
-%         disp('Confusion')
-%     end
+    if left_state == right_state
+        this_state = left_state;
+    elseif left_score >= right_score
+        this_state = left_state;
+    else
+        this_state = right_state;
+    end
+
     disp('----')
     disp(horzcat('xstep: ', num2str(xstep)))
-    disp(horzcat('left state: ', num2str(left_state), ', confidence: ', num2str(left_score)))
-    disp(horzcat('right state: ', num2str(right_state), ', confidence: ', num2str(right_score)))
-    disp(horzcat('state: ', num2str(this_state)))
+    disp(horzcat('left state: ', num2str(left_state), ' (', char(labels(left_state)), '), confidence: ', num2str(left_score)))
+    disp(horzcat('right state: ', num2str(right_state), ' (', char(labels(right_state)), '), confidence: ', num2str(right_score)))
+    disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
     
     this_action = getAction(agent, this_state);
 

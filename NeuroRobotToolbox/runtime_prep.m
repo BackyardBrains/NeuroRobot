@@ -172,10 +172,10 @@ if exist('rak_only', 'var')
     
         if use_controllers == 1
             load(strcat(data_dir_name, 'livingroom_net'))
-            load(strcat(data_dir_name, 'AgentHeliomax_TV'))        
+            load(strcat(data_dir_name, 'AgentTV'))        
         elseif use_controllers == 2
             load(strcat(data_dir_name, 'livingroom_net'))
-            load(strcat(data_dir_name, 'DeepAgentHeliomax_TV'))
+            load(strcat(data_dir_name, 'DeepAgentTV'))
         end
     end
     
