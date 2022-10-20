@@ -5,7 +5,8 @@ clear
 clc
 
 imdim = 100;
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
 nsmall = 5000;
@@ -14,12 +15,12 @@ nmedium = 10000;
 % hippocampus_associator
 
 disp('Re-loading databases and matrices...')
-load(strcat(data_dir_name, 'image_ds'))
-load(strcat(data_dir_name, 'bag'))
-load(strcat(data_dir_name, 'imageIndex'))
+load(strcat(localdata_dir_name, 'image_ds'))
+load(strcat(localdata_dir_name, 'bag'))
+load(strcat(localdata_dir_name, 'imageIndex'))
 
 % load(strcat(data_dir_name, 'xdata_L1'))
-load(strcat(data_dir_name, 'xdata_cosine'))
+load(strcat(localdata_dir_name, 'xdata_cosine'))
 
 
 %% Plot similarity matrix
@@ -46,7 +47,7 @@ n_unique_states = 100;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
 group_inds = cluster(links,'MaxClust',n_unique_states);
-save(strcat(data_dir_name, 'group_inds'), 'group_inds', '-v7.3')
+save(strcat(localdata_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
 figure(2)
 clf
@@ -56,7 +57,7 @@ subplot(1,2,2)
 imagesc(xdata(o, o))
 colorbar
 
-load(strcat(data_dir_name, 'group_inds'))
+load(strcat(localdata_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
@@ -135,11 +136,11 @@ for nstate = 1:n_unique_states
         else
             this_dir = strcat('state_00', num2str(nstate));
         end
-        mkdir(strcat(data_dir_name, 'Classifier\', this_dir))
+        mkdir(strcat(localdata_dir_name, 'Classifier\', this_dir))
         for nimage = 1:min_size
             this_ind = state_inds(nstate, nimage);
             this_im = imread(imageIndex.ImageLocation{this_ind});
-            fname = strcat(data_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
+            fname = strcat(localdata_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
         state_info(nstate, 1) = 1;
@@ -151,18 +152,16 @@ end
 
 state_entropy(state_info(:,1) == 0) = [];
 state_info(state_info(:,1) == 0, :) = [];
-labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
+
+labels = folders2labels(strcat(localdata_dir_name, 'Classifier\'));
 labels = unique(labels);
-save(strcat(data_dir_name, 'labels'), 'labels')
+save(strcat(shared_data_dir_name, 'livingroom_labels'), 'labels')
 n_unique_states = length(labels);
 disp(horzcat('N unique states: ', num2str(n_unique_states)))
 
-save(strcat(data_dir_name, 'state_info'), 'state_info')
-save(strcat(data_dir_name, 'state_inds'), 'state_inds')
-
 
 %% Train classifier net
-classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds = imageDatastore(strcat(localdata_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
@@ -193,7 +192,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(data_dir_name, 'livingroom_net'), 'net')
+save(strcat(shared_data_dir_name, 'livingroom_net'), 'net')
 
 
 

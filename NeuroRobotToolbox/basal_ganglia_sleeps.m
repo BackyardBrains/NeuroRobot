@@ -4,35 +4,35 @@
 clear
 clc
 
-reward_states = [30 31]; % livingroom_net watching tv
-
-data_dir_name = '.\Brains\';
+reward_states = [28 29]; % livingroom_net watching tv
+localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
-% load(strcat(data_dir_name, 'randomwalk_net'))
-load(strcat(data_dir_name, 'livingroom_net'))
+load(strcat(shared_data_dir_name, 'livingroom_net'))
+load(strcat(shared_data_dir_name, 'livingroom_labels'))
 
-load(strcat(data_dir_name, 'labels.mat'))
+image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
+save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
+
+load(strcat(shared_data_dir_name, 'image_dir'))
+load(strcat(shared_data_dir_name, 'torque_dir'))
+
+ntorques = size(torque_dir, 1);
+nimages = size(image_dir, 1);
+ntuples = size(torque_dir, 1);
+disp(horzcat('ntuples: ', num2str(ntuples)))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
-% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
-% load(strcat(data_dir_name, 'image_dir'))
-% load(strcat(data_dir_name, 'torque_dir'))
-% ntorques = size(torque_dir, 1);
-% nimages = size(image_dir, 1);
-% ntuples = size(torque_dir, 1);
-% disp(horzcat('ntuples: ', num2str(ntuples)))
-
-% get_dists
-
 
 %% States
-% get_states
-% save(strcat(data_dir_name, 'states'), 'states')
-load(strcat(data_dir_name, 'states'))
+get_states
+save(strcat(shared_data_dir_name, 'states'), 'states')
+load(strcat(shared_data_dir_name, 'states'))
 ntuples = size(states, 1);
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
@@ -40,16 +40,16 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(strcat(data_dir_name, 'torque_data'), 'torque_data')
-load(strcat(data_dir_name, 'torque_data'))
+get_torques
+save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
+load(strcat(shared_data_dir_name, 'torque_data'))
 
 
 %% Actions
-% n_unique_actions = 20;
-% actions = kmeans(torque_data, n_unique_actions);
-% save(strcat(data_dir_name, 'actions'), 'actions')
-load(strcat(data_dir_name, 'actions'))
+n_unique_actions = 20;
+actions = kmeans(torque_data, n_unique_actions);
+save(strcat(shared_data_dir_name, 'actions'), 'actions')
+load(strcat(shared_data_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
@@ -116,8 +116,9 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(data_dir_name, 'mdp'), 'mdp')
-load(strcat(data_dir_name, 'mdp'))
+save(strcat(shared_data_dir_name, 'mdp'), 'mdp')
+load(strcat(shared_data_dir_name, 'mdp'))
+
 
 %% Get rewards
 disp('Getting reward...')
@@ -139,6 +140,8 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
+save(strcat(shared_data_dir_name, 'rmdp'), 'mdp')
+load(strcat(shared_data_dir_name, 'rmdp'))
 
 
 %% Plot mdp
@@ -170,14 +173,13 @@ imagesc(mean(transition_counter, 3), [0 0.15])
 colorbar
 title('Transitions')
 
-export_fig(horzcat(data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(shared_data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Train agents
 env = rlMDPEnv(mdp);
-save(strcat(data_dir_name, 'env'), 'env')
-save('env', 'env')
-load('env')
+save(strcat(shared_data_dir_name, 'env'), 'env')
+load(strcat(shared_data_dir_name, 'env'))
 
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
@@ -209,10 +211,10 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title(horzcat('Agent Heliomax TV'))
+title(horzcat('AgentTV'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'AgentHeliomax_TV'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'AgentHeliomax_TV'), 'agent')
+export_fig(horzcat(shared_data_dir_name, 'AgentTV'), '-r150', '-jpg', '-nocrop')
+save(horzcat(shared_data_dir_name, 'AgentTV'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -233,9 +235,9 @@ clf
 set(gcf, 'color', 'w')
 scan_agent
 ylim([0 n_unique_states + 1])
-title('Deep Agent Heliomax TV')
+title('DeepAgentTV')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(data_dir_name, 'DeepAgentHeliomax_TV'), '-r150', '-jpg', '-nocrop')
-save(horzcat(data_dir_name, 'DeepAgentHeliomax_TV'), 'agent')
+export_fig(horzcat(shared_data_dir_name, 'DeepAgentTV'), '-r150', '-jpg', '-nocrop')
+save(horzcat(shared_data_dir_name, 'DeepAgentTV'), 'agent')
 
 

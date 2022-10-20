@@ -2,28 +2,9 @@
 %% Lucid dream
 % Demo Sleep:Basal Ganglia
 
-% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
-% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
-% save(strcat(data_dir_name, 'image_dir'), 'image_dir')
-% save(strcat(data_dir_name, 'torque_dir'), 'torque_dir')
-% load(strcat(data_dir_name, 'image_dir'))
-% load(strcat(data_dir_name, 'torque_dir'))
-
-% ntorques = size(torque_dir, 1);
-% nimages = size(image_dir, 1);
-% ntuples = size(torque_dir, 1);
-% disp(horzcat('ntuples: ', num2str(ntuples)))
-% 
-% load(strcat(data_dir_name, 'livingroom_net'))
-% 
-% load(strcat(data_dir_name, 'labels.mat'))
-% unique_states = unique(labels);
-% n_unique_states = length(unique_states);
-% disp(horzcat('n unique states: ', num2str(n_unique_states)))
-
 
 %% Prepare
-figure(6)
+figure(9)
 clf
 set(gcf, 'position', [80 80 1320 600], 'color', 'w')
 ax1 = axes('position', [0.05 0.1 0.4 0.85]);
@@ -35,8 +16,9 @@ im2 = image(zeros(227, 227, 3, 'uint8'));
 set(gca, 'xtick', [], 'ytick', [])
 tx2 = title('');
 ax3 = axes('position', [0.3 0.025 0.4 0.05], 'xcolor', 'w', 'ycolor', 'w');
-set(gca, 'xtick', [], 'ytick', [])
-tx3 = text(0.25, 0.5, 'Action:', 'HorizontalAlignment','center');
+plot([0 10], [0 10], 'color', 'w')
+set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+tx3 = text(5, 5, '', 'HorizontalAlignment','center', 'VerticalAlignment', 'middle');
 
 
 %%
@@ -46,16 +28,16 @@ for start_tuple = rinds'
 %     ntuple = start at random ind and proceed sequentially, hopefully
 %     showing how action and states are entangled
 
-    for ntuple = start_tuple:start_tuple + 20
+    for ntuple = start_tuple:start_tuple + 50
         this_ind = ntuple*2-1;    
         left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
         im1.CData = left_im;
-        tx1.String = horzcat('Tuple: ', num2str(ntuple), ', state: ', num2str(states(ntuple)));
+        tx1.String = horzcat('Tuple: ', num2str(ntuple), ', state: ', num2str(states(ntuple)), ' (', char(labels(states(ntuple))), ')');
         
         this_ind = (ntuple + 5)*2-1;
         this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
         im2.CData = this_im;
-        tx2.String = horzcat('Prime tuple: ', num2str(ntuple + 5), ' , state: ', num2str(states(ntuple + 5)));
+        tx2.String = horzcat('Prime tuple: ', num2str(ntuple + 5), ' , state: ', num2str(states(ntuple + 5)), ' (', char(labels(states(ntuple + 5))), ')');
     
         this_motor_vector = torque_data(ntuple, :);
         this_action = actions(ntuple);
