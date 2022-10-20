@@ -8,7 +8,7 @@
 
 
 
-%% Settings 
+%% Settings
 pulse_period = 0.2;         % Step time in seconds
 dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 night_vision = 0;           % Use histeq to enhance image contrast
