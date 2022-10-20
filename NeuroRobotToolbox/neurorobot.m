@@ -19,7 +19,7 @@ save_data_and_commands = 0;
 bg_brain = 1;
 manual_controls = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
-data_dir_name = '.\Data\';
+data_dir_name = '.\Brains\';
 rec_dir_name = '';
 init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
@@ -73,14 +73,14 @@ select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'unit
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_app = {'Basal Ganglia Colors', 'Draw Neuron Numbers'; 'Draw Synapse Weights', 'Record Data'};
+option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'UseController1'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 
 % Vision
 text_vision = uicontrol('Style', 'text', 'String', 'Vision', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'RandomWalk'; 'AlexNet'; 'Robots'; 'Faces'};
+option_vision = {'livingroom-net'; 'AlexNet'; 'Robots'; 'Faces'};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 

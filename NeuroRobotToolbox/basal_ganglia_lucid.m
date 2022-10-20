@@ -6,65 +6,64 @@
 % torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
 % save(strcat(data_dir_name, 'image_dir'), 'image_dir')
 % save(strcat(data_dir_name, 'torque_dir'), 'torque_dir')
-load(strcat(data_dir_name, 'image_dir'))
-load(strcat(data_dir_name, 'torque_dir'))
+% load(strcat(data_dir_name, 'image_dir'))
+% load(strcat(data_dir_name, 'torque_dir'))
 
-ntorques = size(torque_dir, 1);
-nimages = size(image_dir, 1);
-ntuples = size(torque_dir, 1);
-disp(horzcat('ntuples: ', num2str(ntuples)))
-
-load(strcat(data_dir_name, 'livingroom_net'))
-
-load(strcat(data_dir_name, 'labels.mat'))
-unique_states = unique(labels);
-n_unique_states = length(unique_states);
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
+% ntorques = size(torque_dir, 1);
+% nimages = size(image_dir, 1);
+% ntuples = size(torque_dir, 1);
+% disp(horzcat('ntuples: ', num2str(ntuples)))
+% 
+% load(strcat(data_dir_name, 'livingroom_net'))
+% 
+% load(strcat(data_dir_name, 'labels.mat'))
+% unique_states = unique(labels);
+% n_unique_states = length(unique_states);
+% disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Prepare
 figure(6)
 clf
-set(gcf, 'position', [80 80 1320 530], 'color', 'w')
-ax1 = subplot(1,2,1);
+set(gcf, 'position', [80 80 1320 600], 'color', 'w')
+ax1 = axes('position', [0.05 0.1 0.4 0.85]);
 im1 = image(zeros(227, 227, 3, 'uint8'));
 set(gca, 'xtick', [], 'ytick', [])
 tx1 = title('');
-ax2 = subplot(1,2,2);
+ax2 = axes('position', [0.55 0.1 0.4 0.85]);
 im2 = image(zeros(227, 227, 3, 'uint8'));
 set(gca, 'xtick', [], 'ytick', [])
 tx2 = title('');
+ax3 = axes('position', [0.3 0.025 0.4 0.05], 'xcolor', 'w', 'ycolor', 'w');
+set(gca, 'xtick', [], 'ytick', [])
+tx3 = text(0.25, 0.5, 'Action:', 'HorizontalAlignment','center');
 
 
 %%
-for n = 1:100
+rinds = randsample(ntuples-5, 100, 0);
+for start_tuple = rinds'
 
 %     ntuple = start at random ind and proceed sequentially, hopefully
 %     showing how action and states are entangled
 
-    this_ind = ntuple*2-1;    
-    left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
-    left_im_small = imresize(left_im, [imdim imdim]);
-    [left_state, left_score] = classify(net, left_im_small);
-    left_state = find(unique_states == left_state);
-    left_score = left_score(left_state);
-    im1.CData = left_im;
-    tx1.String = horzcat('Rand tuple: ', num2str(ntuple), ', state: ', num2str(left_state), ', conf: ', num2str(left_score));
-
-    best_score = state_info(left_state, 2);
-    best_ind = state_info(left_state, 3);
-    this_im = imread(imageIndex.ImageLocation{best_ind});
-    im2.CData = this_im;
-    tx2.String = horzcat('Max selfsim tuple: ', num2str(best_ind), ' from state ', num2str(left_state), ', whose mean selfsim is: ', num2str(best_score));
-
-%     this_motor_vector = torque_data(ntuple, :);
+    for ntuple = start_tuple:start_tuple + 20
+        this_ind = ntuple*2-1;    
+        left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+        im1.CData = left_im;
+        tx1.String = horzcat('Tuple: ', num2str(ntuple), ', state: ', num2str(states(ntuple)));
+        
+        this_ind = (ntuple + 5)*2-1;
+        this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+        im2.CData = this_im;
+        tx2.String = horzcat('Prime tuple: ', num2str(ntuple + 5), ' , state: ', num2str(states(ntuple + 5)));
     
-%     clc 
-%     disp(horzcat('ntuple: ', num2str(ntuple)))
-%     disp(horzcat('torques: ', num2str(round(this_motor_vector))))
-
-    drawnow
-    pause
+        this_motor_vector = torque_data(ntuple, :);
+        this_action = actions(ntuple);
+        tx3.String = horzcat('Action: ', num2str(this_action), ', left: ', num2str(this_motor_vector(1)), ', right: ', num2str(this_motor_vector(2)));
+           
+        drawnow
+        pause
+    end
 
 end
 

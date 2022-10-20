@@ -155,10 +155,11 @@ if exist('rak_only', 'var')
         if use_controllers
     
             tuples = zeros(stop_step, 6);
-    %         labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
-            load(strcat(data_dir_name, 'labels'))
+            
+            load(strcat(data_dir_name, 'livingroom_labels'))
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
+
             load(strcat(data_dir_name, 'torque_data'))
             load(strcat(data_dir_name, 'actions'))
             n_unique_actions = length(unique(actions));
@@ -170,11 +171,11 @@ if exist('rak_only', 'var')
         end
     
         if use_controllers == 1
-            load(strcat(data_dir_name, 'randomwalk_net'))
-            load(strcat(data_dir_name, 'AgentHeliomax'))        
+            load(strcat(data_dir_name, 'livingroom_net'))
+            load(strcat(data_dir_name, 'AgentHeliomax_TV'))        
         elseif use_controllers == 2
-            load(strcat(data_dir_name, 'randomwalk_net'))
-            load(strcat(data_dir_name, 'DeepAgentHeliomax'))
+            load(strcat(data_dir_name, 'livingroom_net'))
+            load(strcat(data_dir_name, 'DeepAgentHeliomax_TV'))
         end
     end
     

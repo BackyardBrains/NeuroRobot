@@ -17,8 +17,10 @@ unique_states = unique(labels);
 n_unique_states = length(unique_states);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
-torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
+% image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
+% torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
+load(strcat(data_dir_name, 'image_dir'))
+load(strcat(data_dir_name, 'torque_dir'))
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
@@ -45,7 +47,7 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 10;
+n_unique_actions = 20;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(data_dir_name, 'actions'), 'actions')
 load(strcat(data_dir_name, 'actions'))
@@ -53,10 +55,6 @@ figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
-
-
-%% Lucid sleep?
-% bacal_ganglia_lucid
 
 
 %% Get tuples
@@ -67,6 +65,10 @@ for ntuple = 6:ntuples - 1
     tuples(ntuple - 5, 3) = actions(ntuple - 5);
 end
 ntuples = size(tuples, 1);
+
+
+%% Lucid sleep?
+% basal_ganglia_lucid
 
 
 %% Get Markov Decision Process
@@ -174,6 +176,9 @@ export_fig(horzcat(data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-noc
 
 %% Train agents
 env = rlMDPEnv(mdp);
+save(strcat(data_dir_name, 'env'), 'env')
+save('env', 'env')
+load('env')
 
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
