@@ -47,9 +47,9 @@ load(strcat(data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 20;
-actions = kmeans(torque_data, n_unique_actions);
-save(strcat(data_dir_name, 'actions'), 'actions')
+% n_unique_actions = 20;
+% actions = kmeans(torque_data, n_unique_actions);
+% save(strcat(data_dir_name, 'actions'), 'actions')
 load(strcat(data_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
@@ -117,7 +117,7 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(data_dir_name, 'mdp'), 'mdp')
+% save(strcat(data_dir_name, 'mdp'), 'mdp')
 load(strcat(data_dir_name, 'mdp'))
 
 %% Get rewards
