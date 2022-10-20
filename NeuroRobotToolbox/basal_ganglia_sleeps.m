@@ -6,7 +6,7 @@ clc
 
 reward_states = [30 31]; % livingroom_net watching tv
 
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
 % load(strcat(data_dir_name, 'randomwalk_net'))
@@ -19,12 +19,12 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 % image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 % torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
-load(strcat(data_dir_name, 'image_dir'))
-load(strcat(data_dir_name, 'torque_dir'))
-ntorques = size(torque_dir, 1);
-nimages = size(image_dir, 1);
-ntuples = size(torque_dir, 1);
-disp(horzcat('ntuples: ', num2str(ntuples)))
+% load(strcat(data_dir_name, 'image_dir'))
+% load(strcat(data_dir_name, 'torque_dir'))
+% ntorques = size(torque_dir, 1);
+% nimages = size(image_dir, 1);
+% ntuples = size(torque_dir, 1);
+% disp(horzcat('ntuples: ', num2str(ntuples)))
 
 % get_dists
 
@@ -33,7 +33,6 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 % get_states
 % save(strcat(data_dir_name, 'states'), 'states')
 load(strcat(data_dir_name, 'states'))
-
 ntuples = size(states, 1);
 % states = ceil(rand(ntuples, 1)*n_unique_states);
 % states = modefilt(states, [5 1]);
