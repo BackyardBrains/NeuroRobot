@@ -46,7 +46,7 @@ load(strcat(shared_data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 20;
+n_unique_actions = 15;
 actions = kmeans(torque_data, n_unique_actions);
 save(strcat(shared_data_dir_name, 'actions'), 'actions')
 load(strcat(shared_data_dir_name, 'actions'))
@@ -118,7 +118,7 @@ end
 mdp.T = transition_counter;
 save(strcat(shared_data_dir_name, 'mdp'), 'mdp')
 load(strcat(shared_data_dir_name, 'mdp'))
-
+disp('Markov ready')
 
 %% Get rewards
 disp('Getting reward...')
