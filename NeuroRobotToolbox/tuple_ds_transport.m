@@ -12,17 +12,21 @@ nmedium = 20000;
 imdim = 100;
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = 'PreTraining\';
+extra_dir_name = 'Classifier\';
 new_data_dir_name = 'D:\';
 
-randsample(nimages, nsmall)
-randsample(nimages, nmedium)
+image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
+nimages = size(image_dir, 1);
+ntuples = nimages/2;
 
+inds_small = randsample(ntuples, nsmall);
+inds_medium = randsample(ntuples, nmedium);
 
-mkdir(strcat(localdata_dir_name, 'Classifier\', this_dir))
-for nimage = 1:min_size
-    this_ind = state_inds(nstate, nimage);
-    this_im = imread(imageIndex.ImageLocation{this_ind});
-    fname = strcat(localdata_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
+mkdir(strcat(new_data_dir_name, extra_dir_name))
+for n = 1:nsmall
+    this_ind = inds_small(n)*2-1;
+    this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    fname = strcat(new_data_dir_name, extra_dir_name, 'im', num2str(this_ind), '.png');
     imwrite(this_im, fname);
 end
 
