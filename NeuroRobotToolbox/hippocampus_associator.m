@@ -1,8 +1,7 @@
 
 
-image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), ...
-    'FileExtensions', '.png', 'IncludeSubfolders', 1);
-image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+image_ds = imageDatastore(strcat(data_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 save(strcat(data_dir_name, 'image_ds'), 'image_ds')
 
 nimages = length(image_ds.Files);
