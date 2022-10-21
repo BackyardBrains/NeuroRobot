@@ -9,10 +9,10 @@ localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
-nsmall = 5000;
-nmedium = 10000;
+nsmall = 20000;
+nmedium = 50000;
 
-% hippocampus_associator
+hippocampus_associator
 
 disp('Re-loading databases and matrices...')
 load(strcat(localdata_dir_name, 'image_ds'))
@@ -40,7 +40,6 @@ title('xdata histogram')
 % xdata(xdata<0.5) = 0;
 
 
-%%
 %% Group images
 disp('Clustering...')
 n_unique_states = 100;
@@ -65,7 +64,7 @@ disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group)))
 
 %% Optional: Remove small groups and/or noise group
 disp('Prune clusters...')
-min_size = 50;
+min_size = 100;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
@@ -153,6 +152,8 @@ end
 state_entropy(state_info(:,1) == 0) = [];
 state_info(state_info(:,1) == 0, :) = [];
 
+
+%% Prepare categories
 labels = folders2labels(strcat(localdata_dir_name, 'Classifier\'));
 labels = unique(labels);
 save(strcat(shared_data_dir_name, 'livingroom_labels'), 'labels')
@@ -188,7 +189,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
 
 net = trainNetwork(classifier_ds, net, options);
 
