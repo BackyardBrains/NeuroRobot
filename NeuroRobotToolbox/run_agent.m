@@ -36,9 +36,13 @@ if use_controllers
     disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
     
     this_action = getAction(agent, this_state);
+    this_action = cell2mat(this_action);
 
-    this_motor_vector = motor_combs(cell2mat(this_action), :);
-    this_motor_vector = this_motor_vector/1;
+    soundsc(state_wavs(this_state).y, 16000);
+
+    this_motor_vector = motor_combs(this_action, :);
+%     this_motor_vector = this_motor_vector/1;
+    this_motor_vector = [0 0];
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
