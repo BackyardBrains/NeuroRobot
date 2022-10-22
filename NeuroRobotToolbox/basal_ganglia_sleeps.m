@@ -31,8 +31,8 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% States
-% get_states
-% save(strcat(shared_data_dir_name, 'states'), 'states')
+get_states
+save(strcat(shared_data_dir_name, 'states'), 'states')
 
 load(strcat(shared_data_dir_name, 'states'))
 ntuples = size(states, 1);
@@ -42,14 +42,14 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
+get_torques
+save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
 
 load(strcat(shared_data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 6;
+n_unique_actions = 19;
 actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
@@ -209,7 +209,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
@@ -230,7 +230,7 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
