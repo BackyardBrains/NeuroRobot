@@ -9,8 +9,8 @@ localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
-nsmall = 20000;
-nmedium = 50000;
+nsmall = 10000;
+nmedium = 20000;
 
 hippocampus_associator
 
@@ -42,7 +42,7 @@ title('xdata histogram')
 
 %% Group images
 disp('Clustering...')
-n_unique_states = 100;
+n_unique_states = 200;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
 group_inds = cluster(links,'MaxClust',n_unique_states);
@@ -193,7 +193,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(shared_data_dir_name, 'livingroom_net'), 'net')
+save(strcat(shared_data_dir_name, 'livingroomX_net'), 'net')
 
 
 

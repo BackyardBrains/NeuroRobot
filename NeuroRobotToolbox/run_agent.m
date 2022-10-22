@@ -42,6 +42,8 @@ if use_controllers
 
     disp(horzcat('action: ', num2str(cell2mat(this_action)), ', torques: ', num2str(round(this_motor_vector))))
     
+%     this_motor_vector = [0 0];
+
     if this_motor_vector(1) > 0
         left_forward = this_motor_vector(1);
     else
