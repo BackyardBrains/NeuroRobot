@@ -11,11 +11,12 @@ rec_dir_name = 'PreTraining\';
 
 load(strcat(shared_data_dir_name, 'livingroom_net'))
 load(strcat(shared_data_dir_name, 'livingroom_labels'))
+disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
 
-image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
-torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
-save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
-save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
+% image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+% torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+% save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
+% save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
 
 load(strcat(shared_data_dir_name, 'image_dir'))
 load(strcat(shared_data_dir_name, 'torque_dir'))
@@ -30,8 +31,9 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% States
-get_states
-save(strcat(shared_data_dir_name, 'states'), 'states')
+% get_states
+% save(strcat(shared_data_dir_name, 'states'), 'states')
+
 load(strcat(shared_data_dir_name, 'states'))
 ntuples = size(states, 1);
 % states = ceil(rand(ntuples, 1)*n_unique_states);
@@ -40,15 +42,20 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-get_torques
-save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
+% get_torques
+% save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
+
 load(strcat(shared_data_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 15;
+n_unique_actions = 6;
 actions = kmeans(torque_data, n_unique_actions);
+still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
+disp(horzcat('n still actions: ', num2str(sum(still))))
+actions(still) = n_unique_actions + 1;
 save(strcat(shared_data_dir_name, 'actions'), 'actions')
+
 load(strcat(shared_data_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
@@ -142,6 +149,7 @@ mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 save(strcat(shared_data_dir_name, 'rmdp'), 'mdp')
 load(strcat(shared_data_dir_name, 'rmdp'))
+disp('Rewards ready')
 
 
 %% Plot mdp
@@ -169,10 +177,11 @@ xlabel('Time (steps)')
 ylabel('Reward value')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.5])
+imagesc(mean(transition_counter, 3), [0 0.3])
 colorbar
-title('Transitions')
-
+title('Transition probabilities (avg across actions)')
+ylabel('State')
+xlabel('Next State')
 export_fig(horzcat(shared_data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
@@ -189,6 +198,7 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
+disp('Environment ready')
 
 
 %% Agent 1 (Q)
@@ -205,12 +215,10 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
 trainingStats_shallow = train(agent,env, training_opts);
 
+
 %%
 figure(11)
-clf
-set(gcf, 'color', 'w')
 scan_agent
-ylim([0 n_unique_states + 1])
 title(horzcat('AgentTV'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(shared_data_dir_name, 'AgentTV'), '-r150', '-jpg', '-nocrop')
@@ -231,10 +239,7 @@ trainingStats_deep = train(agent, env, training_opts);
 
 %%
 figure(12)
-clf
-set(gcf, 'color', 'w')
 scan_agent
-ylim([0 n_unique_states + 1])
 title('DeepAgentTV')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(shared_data_dir_name, 'DeepAgentTV'), '-r150', '-jpg', '-nocrop')

@@ -1,32 +1,35 @@
-figure(12)
+
 clf
 set(gcf, 'color', 'w')
-
-% n_unique_states  = 25;
-% n_unique_actions = 4;
-
-set(gcf, 'position', [100 50 960 540])
-data = zeros(n_unique_states, 2);
-clf
+set(gcf, 'position', [100 50 900 700])
 hold on
+
+data = zeros(n_unique_states, 2);
+motor_combs = zeros(n_unique_actions, 2);
+for naction = 1:n_unique_actions
+    y = naction * (n_unique_states/n_unique_actions);
+    plot(4.5, y, 'marker', '.', 'markersize', 50, 'color', [0.8 0.8 0.8])
+    motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
+    mvec = motor_combs(naction, :);    
+    text(4.6, y, strcat(num2str(naction), '.  L: ', num2str(mvec(1)), ...
+        ',  R: ', num2str(mvec(2))), 'HorizontalAlignment','left')    
+end
 for this_state = 1:n_unique_states
     this_action = getAction(agent, this_state);
     this_action = cell2mat(this_action);
-    plot([1 1], [this_state this_state], 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
-    plot([2 2], [this_action this_action] * (n_unique_states/n_unique_actions), 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
-    plot([1 2], [this_state this_action * (n_unique_states/n_unique_actions)], 'linestyle', '-', 'marker', '.', 'markersize', 30, 'color', 'k', 'linewidth', 1);
+    y = this_action * (n_unique_states/n_unique_actions);
+    plot(2, this_state, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
+    plot(4.5, y, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
+    plot([2 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 30, 'color', 'k', 'linewidth', 1);
     if sum(this_state == reward_states)
         if this_action == mode(actions)
-            plot([1 2], [this_state this_action * (n_unique_states/n_unique_actions)], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
+            plot([2 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
         end
     end
-    mvec = motor_combs(this_action, :);
-    text(0.5, this_state, char(labels(this_state)))
-    text(1.5, this_action * (n_unique_states/n_unique_actions), strcat('A:', num2str(this_action), ...
-        'L:', num2str(mvec(this_action, 1), 'R:', num2str(mvec(this_action, 2)))))
+    text(1.9, this_state, horzcat(num2str(this_state), '. ', char(labels(this_state))), 'HorizontalAlignment','right')
     drawnow
 end
 ylim([0 n_unique_states + 1])
-xlim([0 3])
-
+xlim([1.5 5.5])
+set(gca, 'ydir', 'reverse')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
