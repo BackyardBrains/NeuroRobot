@@ -181,7 +181,8 @@ if exist('rak_only', 'var')
         if use_controllers % special
             state_wavs = struct;
             for nstate = 1:n_unique_states
-                
+                word_name = char(labels(nstate));
+                word_name(word_name == '-') = ' ';
                 this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
                 this_wav_f = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
                 if length(this_wav_m) > length(this_wav_f)
