@@ -29,7 +29,7 @@ if exist('rak_only', 'var')
     end
     
     if sum(select_app.Value == 5)
-        use_controllers = 1;        % Switch this so correct nets are loaded with brain selection    
+        use_controllers = 2;        % Switch this so correct nets are loaded with brain selection    
     else
         use_controllers = 0;
     end
