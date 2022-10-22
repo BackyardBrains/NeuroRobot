@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = [28 29]; % livingroom_net watching tv
+reward_states = 7; % livingroom_net watching tv
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
@@ -169,7 +169,7 @@ xlabel('Time (steps)')
 ylabel('Reward value')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.15])
+imagesc(mean(transition_counter, 3), [0 0.5])
 colorbar
 title('Transitions')
 
