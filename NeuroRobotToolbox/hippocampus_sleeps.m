@@ -19,8 +19,8 @@ load(strcat(localdata_dir_name, 'image_ds'))
 load(strcat(localdata_dir_name, 'bag'))
 load(strcat(localdata_dir_name, 'imageIndex'))
 
-% load(strcat(data_dir_name, 'xdata_L1'))
-load(strcat(localdata_dir_name, 'xdata_cosine'))
+load(strcat(localdata_dir_name, 'xdata_L1'))
+% load(strcat(localdata_dir_name, 'xdata_cosine'))
 
 
 %% Plot similarity matrix
@@ -42,7 +42,7 @@ title('xdata histogram')
 
 %% Group images
 disp('Clustering...')
-n_unique_states = 200;
+n_unique_states = 500;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'ward');
 group_inds = cluster(links,'MaxClust',n_unique_states);
@@ -64,7 +64,7 @@ disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group)))
 
 %% Optional: Remove small groups and/or noise group
 disp('Prune clusters...')
-min_size = 100;
+min_size = 25;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
@@ -92,7 +92,7 @@ figure(3)
 clf
 h = histogram(group_inds, 'binwidth', 0.25);
 hold on
-plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
+% plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
 title('States')
 xlabel('State')
 ylabel('Count')
