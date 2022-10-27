@@ -9,7 +9,7 @@ localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
 
-nsmall = 10000;
+nsmall = 20000;
 nmedium = 20000;
 
 hippocampus_associator
@@ -42,9 +42,9 @@ title('xdata histogram')
 
 %% Group images
 disp('Clustering...')
-n_unique_states = 500;
+n_unique_states = 200;
 dists = pdist(xdata,'euclidean');
-links = linkage(dists,'ward');
+links = linkage(dists,'average');
 group_inds = cluster(links,'MaxClust',n_unique_states);
 save(strcat(localdata_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
@@ -64,7 +64,7 @@ disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group)))
 
 %% Optional: Remove small groups and/or noise group
 disp('Prune clusters...')
-min_size = 25;
+min_size = 50;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
