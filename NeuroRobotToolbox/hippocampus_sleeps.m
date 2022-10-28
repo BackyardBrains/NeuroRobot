@@ -6,7 +6,7 @@ clc
 
 imdim = 100;
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-shared_data_dir_name = '.\Brains\';
+shared_data_dir_name = '.\RL\';
 rec_dir_name = 'PreTraining\';
 
 nsmall = 20000;
