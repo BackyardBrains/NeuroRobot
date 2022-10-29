@@ -18,7 +18,6 @@ for ntuple = 1:ntuples
     left_im = imresize(left_im, [imdim imdim]);
 
     this_ind = ntuple*2;
-            
     right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
     right_im = imresize(right_im, [imdim imdim]);
 

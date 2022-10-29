@@ -6,6 +6,16 @@ for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
         disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
+
+    this_ind = ntuple*2-1;    
+    left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    left_im = imresize(left_im, [imdim imdim]);
+
+    this_ind = ntuple*2;
+            
+    right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    right_im = imresize(right_im, [imdim imdim]);
+    
     uframe = imresize(large_frame, [404 227]);
     colframe = uframe(:,:,1) > uframe(:,:,2) * 1.5 & uframe(:,:,1) > uframe(:,:,3) * 1.5;
     colframe(uframe(:,:,1) < 75) = 0;

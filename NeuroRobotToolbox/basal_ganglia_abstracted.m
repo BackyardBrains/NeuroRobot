@@ -9,12 +9,16 @@ localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\RL\';
 rec_dir_name = 'PreTraining\';
 
+image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
+load(strcat(shared_data_dir_name, 'image_dir'))
+
 % serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
 % save(strcat(shared_data_dir_name, 'serial_dir'), 'serial_dir')
-load(strcat(shared_data_dir_name, 'serial_dir'))
+% load(strcat(shared_data_dir_name, 'serial_dir'))
 
-% torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
-% save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
 load(strcat(shared_data_dir_name, 'torque_dir'))
 
 ntorques = size(torque_dir, 1);
@@ -30,6 +34,7 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 % dists = dists/max(dists);
 % dists = round(dists * (n_unique_states - 1));
 % states = dists + 1;
+
 
 %% States
 n_unique_states = 20;
