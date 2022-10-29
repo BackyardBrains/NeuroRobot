@@ -22,15 +22,19 @@ ntuples = size(torque_dir, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
-%% States
-n_unique_states = 20;
+%% Dists
 % get_dists
 % save(strcat(shared_data_dir_name, 'dists'), 'dists')
-load(strcat(shared_data_dir_name, 'dists'))
-dists = dists(:,1);
-dists = dists/max(dists);
-dists = round(dists * (n_unique_states - 1));
-states = dists + 1;
+% load(strcat(shared_data_dir_name, 'dists'))
+% dists = dists(:,1);
+% dists = dists/max(dists);
+% dists = round(dists * (n_unique_states - 1));
+% states = dists + 1;
+
+%% States
+n_unique_states = 20;
+get_states2
+
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
