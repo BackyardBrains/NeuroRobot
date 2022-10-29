@@ -35,6 +35,7 @@ for ncam = 1:2
             this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
             this_right_score = sigmoid(((mean(x)) / 227), 0.85, 10) * this_score;
         else
+            x = 0;
             this_score = 0;
             this_left_score = 0;
             this_right_score = 0;
@@ -42,6 +43,13 @@ for ncam = 1:2
 %         vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
 %         vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
 %         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
+
+        if ncol == 1 && ncam == 1
+%             disp(horzcat('the left cam - red - x is: ', num2str(mean(x))))
+%             disp(horzcat('the left cam - red - score is: ', num2str(this_score)))
+%             disp(horzcat('the left cam - red - left score is: ', num2str(this_left_score)))
+%             disp(horzcat('the left cam - red - right score is: ', num2str(this_right_score)))            
+        end
 
         vis_pref_vals(ncol * 2 - 1, ncam) = this_score;
         if ncam == 1
