@@ -135,10 +135,10 @@ load(strcat(shared_data_dir_name, 'mdp'))
 disp('Markov ready')
 
 %% Get rewards
-reward_states = 4:6; % livingroom_net watching tv
+reward_states = 2:10; % livingroom_net watching tv
 disp('Get reward landscape')
 reward_counter = zeros(size(mdp.T));
-reward_counter(:,reward_states, mode(actions)) = 1;
+reward_counter(:, 1, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 save(strcat(shared_data_dir_name, 'rmdp'), 'mdp')
@@ -203,7 +203,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxStepsPerEpisode = 20;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
