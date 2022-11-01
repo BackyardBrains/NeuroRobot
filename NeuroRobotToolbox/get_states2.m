@@ -16,7 +16,10 @@ for ntuple = 1:ntuples
     right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
     right_im = imresize(right_im, [imdim imdim]);
     
-    uframe = imresize(large_frame, [404 227]);
+    large_frame = zeros(100, 178, 3, 'uint8');
+    large_frame(:, 1:100, :) = left_im;
+    large_frame(:, 101:178, :) = right_im(:, end-77:end, :);
+    uframe = large_frame;
     colframe = uframe(:,:,1) > uframe(:,:,2) * 1.5 & uframe(:,:,1) > uframe(:,:,3) * 1.5;
     colframe(uframe(:,:,1) < 75) = 0;
 
@@ -30,8 +33,7 @@ for ntuple = 1:ntuples
     end
 
     avg_x = round(mean(x));
-    disp(horzcat('avg red x: ', num2str(avg_x)))
-    
+%     disp(horzcat('avg red x: ', num2str(avg_x)))  
     states(ntuple) = avg_x;
 
 end
