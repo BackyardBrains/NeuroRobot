@@ -15,7 +15,7 @@ load(strcat(shared_data_dir_name, 'image_dir'))
 
 % serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
 % save(strcat(shared_data_dir_name, 'serial_dir'), 'serial_dir')
-% load(strcat(shared_data_dir_name, 'serial_dir'))
+load(strcat(shared_data_dir_name, 'serial_dir'))
 
 % torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
 % save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
@@ -29,19 +29,21 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 %% Dists
 % get_dists
 % save(strcat(shared_data_dir_name, 'dists'), 'dists')
-% load(strcat(shared_data_dir_name, 'dists'))
-% dists = dists(:,1);
-% dists = dists/max(dists);
+load(strcat(shared_data_dir_name, 'dists'))
+dists = dists(:,1);
+dists = dists/max(dists);
 % dists = round(dists * (n_unique_states - 1));
 % states = dists + 1;
 
 
 %% States
-n_unique_states = 179;
-get_states2
-
+% get_states2
+% save(strcat(shared_data_dir_name, 'states2'), 'states')
+load(strcat(shared_data_dir_name, 'states2'))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
+
+n_unique_states = 179;
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 clear labels
 for nstate = 1:n_unique_states
@@ -54,13 +56,12 @@ end
 load(strcat(shared_data_dir_name, 'torque_data'))
 
 %% Actions
-n_unique_actions = 9;
-actions = kmeans(torque_data, n_unique_actions);
-still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
-disp(horzcat('n still actions: ', num2str(sum(still))))
-actions(still) = n_unique_actions + 1;
-save(strcat(shared_data_dir_name, 'actions'), 'actions')
-
+% n_unique_actions = 9;
+% actions = kmeans(torque_data, n_unique_actions);
+% still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
+% disp(horzcat('n still actions: ', num2str(sum(still))))
+% actions(still) = n_unique_actions + 1;
+% save(strcat(shared_data_dir_name, 'actions'), 'actions')
 load(strcat(shared_data_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
@@ -79,7 +80,7 @@ ntuples = size(tuples, 1);
 
 
 %% Lucid sleep?
-% basal_ganglia_lucid
+basal_ganglia_lucid
 
 
 %% Get Markov Decision Process
