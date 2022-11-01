@@ -4,14 +4,13 @@
 clear
 clc
 
-reward_states = 8:12; % livingroom_net watching tv
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\RL\';
 rec_dir_name = 'PreTraining\';
 
 % image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
 % save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
-load(strcat(shared_data_dir_name, 'image_dir'))
+% load(strcat(shared_data_dir_name, 'image_dir'))
 
 % serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
 % save(strcat(shared_data_dir_name, 'serial_dir'), 'serial_dir')
@@ -32,8 +31,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 load(strcat(shared_data_dir_name, 'dists'))
 dists = dists(:,1);
 dists = dists/max(dists);
-% dists = round(dists * (n_unique_states - 1));
-% states = dists + 1;
+dists = round(dists * 9);
+states = dists + 1;
 
 
 %% States
@@ -41,8 +40,8 @@ dists = dists/max(dists);
 % states = ceil(states/10);
 % states = states + 1;
 % save(strcat(shared_data_dir_name, 'states2'), 'states')
-load(strcat(shared_data_dir_name, 'states2'))
-ntuples = size(states, 1);
+% load(strcat(shared_data_dir_name, 'states2'))
+% ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 n_unique_states = max(states);
@@ -58,12 +57,12 @@ end
 load(strcat(shared_data_dir_name, 'torque_data'))
 
 %% Actions
-% n_unique_actions = 9;
-% actions = kmeans(torque_data, n_unique_actions);
-% still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
-% disp(horzcat('n still actions: ', num2str(sum(still))))
-% actions(still) = n_unique_actions + 1;
-% save(strcat(shared_data_dir_name, 'actions'), 'actions')
+n_unique_actions = 9;
+actions = kmeans(torque_data, n_unique_actions);
+still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
+disp(horzcat('n still actions: ', num2str(sum(still))))
+actions(still) = n_unique_actions + 1;
+save(strcat(shared_data_dir_name, 'actions'), 'actions')
 load(strcat(shared_data_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
@@ -82,7 +81,7 @@ ntuples = size(tuples, 1);
 
 
 %% Lucid sleep?
-basal_ganglia_lucid
+% basal_ganglia_lucid
 
 
 %% Get Markov Decision Process
@@ -136,8 +135,9 @@ load(strcat(shared_data_dir_name, 'mdp'))
 disp('Markov ready')
 
 %% Get rewards
+reward_states = 4:6; % livingroom_net watching tv
 disp('Get reward landscape')
-reward_counter = zeros(size(mdp.R));
+reward_counter = zeros(size(mdp.T));
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
@@ -173,7 +173,7 @@ ylabel('Actions')
 % ylabel('Reward value')
 
 subplot(2,2,3)
-imagesc(mean(transition_counter, 3), [0 0.3])
+imagesc(mean(transition_counter, 3), [0 0.4])
 colorbar
 title('Transition probabilities (avg across actions)')
 ylabel('State')
@@ -185,13 +185,11 @@ export_fig(horzcat(shared_data_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg'
 env = rlMDPEnv(mdp);
 save(strcat(shared_data_dir_name, 'env'), 'env')
 load(strcat(shared_data_dir_name, 'env'))
-
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
 critic = rlQValueFunction(qTable,obsInfo,actInfo);
-
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
 disp('Environment ready')
@@ -205,7 +203,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
@@ -226,7 +224,7 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
