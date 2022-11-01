@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = 2:6; % livingroom_net watching tv
+reward_states = 8:12; % livingroom_net watching tv
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\RL\';
 rec_dir_name = 'PreTraining\';
@@ -38,12 +38,14 @@ dists = dists/max(dists);
 
 %% States
 % get_states2
+% states = ceil(states/10);
+% states = states + 1;
 % save(strcat(shared_data_dir_name, 'states2'), 'states')
 load(strcat(shared_data_dir_name, 'states2'))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
-n_unique_states = 179;
+n_unique_states = max(states);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 clear labels
 for nstate = 1:n_unique_states
@@ -134,22 +136,8 @@ load(strcat(shared_data_dir_name, 'mdp'))
 disp('Markov ready')
 
 %% Get rewards
-disp('Getting reward...')
-rcount = 0;
-rewards = zeros(ntuples, 1) - 1;
-for nstate = 1:ntuples
-    if ~rem(nstate, round(ntuples/5))
-        disp(num2str(nstate/ntuples))
-    end
-    if sum(tuples(nstate, 1) == reward_states) && sum(tuples(nstate, 3) == mode(actions))
-        rewards(nstate) = 1;
-        rcount = rcount + 1;
-    end
-end
-disp(horzcat('Total reward count: ', num2str(sum(rcount))))
-disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
-
-reward_counter = zeros(size(mdp.R)) - 1;
+disp('Get reward landscape')
+reward_counter = zeros(size(mdp.R));
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
@@ -165,22 +153,24 @@ set(gcf, 'position', [100 50 1280 720], 'color', 'w')
 
 subplot(2,2,1)
 histogram(tuples(:,1), 'binwidth', .25)
+set(gca, 'yscale', 'log')
 title('States')
 xlabel('State')
 ylabel('States')
 
 subplot(2,2,2)
 histogram(tuples(:,3), 'binwidth', .25)
+set(gca, 'yscale', 'log')
 title('Actions')
 xlabel('Action')
 ylabel('Actions')
 
-subplot(2,2,4)
-plot(rewards)
-axis tight
-title('Rewards')
-xlabel('Time (steps)')
-ylabel('Reward value')
+% subplot(2,2,4)
+% plot(rewards)
+% axis tight
+% title('Rewards')
+% xlabel('Time (steps)')
+% ylabel('Reward value')
 
 subplot(2,2,3)
 imagesc(mean(transition_counter, 3), [0 0.3])
