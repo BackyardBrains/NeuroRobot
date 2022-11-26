@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
 
 connect_success = 0;
 
@@ -93,7 +93,7 @@ if use_esp32
     end
 end
 
-if use_webcam
+if use_webcam && ~(rak_only || use_esp3)
     disp('Attempting webcam connect...')
     try
         delete(imaqfind) %%% <<<<< Commented out for packaging
@@ -116,6 +116,31 @@ if use_webcam
     large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging       
     [rak_cam_h, rak_cam_w, ~] = size(large_frame);
     connect_success = 1;
+end
+
+if rak_only && (use_webcam || use_esp32)
+    disp('Attempting webcam connect...')
+    try
+        delete(imaqfind) %%% <<<<< Commented out for packaging
+        if ispc
+            ext_cam = videoinput('winvideo', 1); %%% <<<<< Commented out for packaging
+        elseif ismac
+            ext_cam = videoinput('macvideo', 1); %%% <<<<< Commented out for packaging
+        else
+            disp('Unknown OS. Webcam not found.')
+        end
+    catch
+        error('Unable to connect to Webcamera. Plut it in. Install Image Acquisition Support Package for Generic OS Interface.')
+    end
+    triggerconfig(ext_cam, 'manual'); %%% <<<<< Commented out for packaging
+    ext_cam.TriggerRepeat = Inf;
+    ext_cam.FramesPerTrigger = 1;
+    ext_cam.ReturnedColorspace = 'rgb';
+    start(ext_cam)
+    trigger(ext_cam)
+    ext_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging       
+else
+    ext_cam = 0;
 end
 
 if connect_success

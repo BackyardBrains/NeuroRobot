@@ -293,7 +293,11 @@ if exist('rak_only', 'var')
     if ~camera_present || ~exist('rak_cam', 'var')
         camera_present = 0;
         large_frame = zeros(720, 1280, 3, 'uint8');          
-    end    
+    end
+    if use_webcam && (rak_only || use_esp32)
+        large_frame = zeros(720, 1280, 3, 'uint8');
+        prev_ext_uframe = imresize(large_frame, [227 404]);
+    end
     
     drawnow
     pause(1)

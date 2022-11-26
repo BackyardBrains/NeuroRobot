@@ -21,6 +21,7 @@ manual_controls = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
 data_dir_name = '.\Brains\';
 rec_dir_name = '';
+rec_dir_name_2 = 'C:\Users\Christopher Harris\Dataset 1\NewHeliumLivingroomRandomWalk\';
 init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -66,7 +67,7 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 % Robot
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'};
+option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'; 'SpikerBot RAK5206 + Webcam'; 'SpikerBot RAK5270 + Webcam'};
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 
