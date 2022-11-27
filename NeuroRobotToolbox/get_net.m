@@ -8,7 +8,7 @@ imdim = 100;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
 
 image_dir = dir(fullfile(data_dir_name, '**\*.png'));
-% serial_dir = dir(fullfile(data_dir_name, '**\*serial_data.mat'));
+serial_dir = dir(fullfile(data_dir_name, '**\*serial_data.mat'));
 robot_xy_dir = dir(fullfile(data_dir_name, '**\*robot_xy.mat'));
 % torque_dir = dir(fullfile(data_dir_name, '**\*torques.mat'));
 
@@ -32,23 +32,19 @@ for ntuple = 1:ntuples
     left_frames(:,:,:,ntuple) = left_im;
 end
 
-% %% Get dists
-% dists = zeros(ntuples, 1);
-% disp(horzcat('getting ', num2str(ntuples), ' dists'))
-% for ntuple = 1:ntuples
-%     if ~rem(ntuple, round(ntuples/5))
-%         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
-%     end
-%     serial_fname = horzcat(serial_dir(ntuple).folder, '\', serial_dir(ntuple).name);
-%     load(serial_fname)
-%     this_distance = str2double(serial_data{3});
-%     this_distance(this_distance == Inf) = 0;    
-%     dists(ntuple, :) = this_distance;
-% end
-% cdists = dists > 0;
-% unique_states = unique(cdists);
-% n_unique_states = length(unique_states);
-% disp(horzcat('There are ', num2str(n_unique_states), ' unique states'))
+%% Get dists
+dists = zeros(ntuples, 1);
+disp(horzcat('getting ', num2str(ntuples), ' dists'))
+for ntuple = 1:ntuples
+    if ~rem(ntuple, round(ntuples/5))
+        disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
+    end
+    serial_fname = horzcat(serial_dir(ntuple).folder, '\', serial_dir(ntuple).name);
+    load(serial_fname)
+    this_distance = str2double(serial_data{3});
+    this_distance(this_distance == Inf) = 0;    
+    dists(ntuple, :) = this_distance;
+end
 
 %% Get robot XYs
 robot_xy_data = zeros(ntuples, 2);
@@ -66,6 +62,7 @@ figure(1)
 clf
 plot(robot_xy_data(:,1), robot_xy_data(:,2))
 set(gca, 'ydir', 'reverse')
+drawnow 
 
 %% Get distance to target (D2Gs)
 target_x = 250;
@@ -81,12 +78,13 @@ for ntuple = 1:ntuples
     d2g(ntuple) = sqrt(xdist^2 + ydist^2);
 end
 
-dd2g = zeros(ntuples, 1);
-for ntuple = 1:ntuples - 5
-    dd2g(ntuple) = d2g(ntuple + 5) - d2g(ntuple);
-end
+%% Get prime change in distance to target
+% dd2g = zeros(ntuples, 1);
+% for ntuple = 1:ntuples - 5
+%     dd2g(ntuple) = d2g(ntuple + 5) - d2g(ntuple);
+% end
 
-% %% Get torques
+%% Get torques
 % torque_data = zeros(ntuples, 2);
 % disp(horzcat('Getting ', num2str(ntuples), ' torques'))
 % for ntuple = 1:ntuples
@@ -99,8 +97,8 @@ end
 %     torques(torques < -250) = -250;
 %     torque_data(ntuple, :) = torques;
 % end
-
-% %% Get actions
+% 
+%% Get actions
 % n_unique_actions = 9;
 % actions = kmeans(torque_data, n_unique_actions);
 % still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
@@ -118,12 +116,12 @@ end
 %% Combine
 frames = arrayDatastore(left_frames, IterationDimension=4);
 % additional_feature = categorical(cdists);
-% additional_feature = arrayDatastore(dists);
+additional_feature = arrayDatastore(dists);
 % acts = arrayDatastore(actions);
 % dsts = arrayDatastore(dists);
-additional_feature = arrayDatastore(d2g);
+goal_feature = arrayDatastore(d2g);
 % ds_train = combine(frames, acts, additional_feature);
-ds_train = combine(frames, additional_feature);
+ds_train = combine(frames, additional_feature, goal_feature);
 
 %%
 layers = [
@@ -171,7 +169,7 @@ lgraph = layerGraph(layers);
 % lgraph = addLayers(lgraph,featInput);
 % lgraph = connectLayers(lgraph,"actions","cat/in2");
 
-figure(5)
+figure(2)
 clf
 plot(lgraph)
 drawnow
