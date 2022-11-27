@@ -42,7 +42,7 @@ if save_experiences > 0
         ext_uframe = imresize(ext_frame, [227 404]);
         ext_im.CData = ext_uframe;
         ext_xframe = imsubtract(rgb2gray(ext_uframe), rgb2gray(prev_ext_uframe));
-        ext_bwframe = ext_xframe > 10;  
+        ext_bwframe = ext_xframe > 125;  
         ext_blob = bwconncomp(ext_bwframe);
         if ext_blob.NumObjects
             [npx, this_blob] = max(cellfun(@numel,ext_blob.PixelIdxList));

@@ -1,8 +1,8 @@
 figure(16)
 ax1 = axes('position', [0 0.05 1 0.9]);
-ext_im = image(zeros(720, 1280, 3, 'uint8'));
+ext_im = image(zeros(227, 404, 3, 'uint8'));
 hold on
-ext_xy = plot(0, 0, 'marker', '.', 'markersize', 20, 'color', 'r');
+ext_xy = plot(0, 0, 'marker', '.', 'markersize', 30, 'color', [0.2 0.4 0.8]);
 set(ax1, 'xtick', [], 'ytick', [])
 
 % ext_im.CData = ext_uframe;
