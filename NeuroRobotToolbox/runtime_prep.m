@@ -146,6 +146,10 @@ if exist('rak_only', 'var')
     l_torque = 0;
     object_scores = zeros(n_vis_prefs-n_basic_vis_features,1); % should not be hard-coded
     inhibition_col = [0.85 0.85 0.85];
+
+    robot_xy = [0 0];
+    rblob_xy = [0 0];
+    gblob_xy = [0 0];    
     
     if save_experiences || use_controllers || dev_mode
         

@@ -71,7 +71,7 @@ end
 
 %% Save sensory data and tuples
 if save_experiences
-    thalamocortical_loop
+    record_data
 end
 if xstep == stop_step
     run_button = 4;

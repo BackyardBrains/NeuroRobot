@@ -9,10 +9,9 @@ data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
 
 image_dir = dir(fullfile(data_dir_name, '**\*.png'));
 serial_dir = dir(fullfile(data_dir_name, '**\*serial_data.mat'));
-robot_xy_dir = dir(fullfile(data_dir_name, '**\*robot_xy.mat'));
-% torque_dir = dir(fullfile(data_dir_name, '**\*torques.mat'));
+ext_data_dir = dir(fullfile(data_dir_name, '**\*ext_data.mat'));
 
-ntuples = size(robot_xy_dir, 1);
+ntuples = size(serial_dir, 1);
 
 ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
@@ -47,14 +46,21 @@ end
 
 %% Get robot XYs
 robot_xy_data = zeros(ntuples, 2);
-disp(horzcat('Getting ', num2str(ntuples), ' robot xys'))
+rblob_xy_data = zeros(ntuples, 2);
+gblob_xy_data = zeros(ntuples, 2);
+disp(horzcat('Getting ', num2str(ntuples), ' xys'))
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/5))
         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
     end
-    robot_xy_fname = horzcat(robot_xy_dir(ntuple).folder, '\', robot_xy_dir(ntuple).name);
-    load(robot_xy_fname)
+    ext_data_fname = horzcat(ext_data_dir(ntuple).folder, '\', ext_data_dir(ntuple).name);
+    load(ext_data_fname)
+    robot_xy = ext_data.robot_xy;
+    rblob_xy = ext_data.rblob_xy;
+    gblob_xy = ext_data.gblob_xy;    
     robot_xy_data(ntuple, :) = robot_xy;
+    rblob_xy_data(ntuple, :) = rblob_xy;
+    gblob_xy_data(ntuple, :) = gblob_xy;
 end
 
 figure(1)
@@ -124,6 +130,9 @@ reward_num = round(nouts * reward);
 reward_num(reward_num < 1) = 1;
 reward_cats = categorical(reward_num);
 ds_reward = arrayDatastore(reward_cats);
+
+% create state array from location and orientation here (3x3x4)
+
 ds = combine(ds_frames, ds_dists, ds_reward);
 % ds = combine(ds_frames, ds_reward);
 
