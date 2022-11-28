@@ -4,7 +4,7 @@
 clear
 clc
 
-imdim = 100;
+imdim = 227;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
 
 image_dir = dir(fullfile(data_dir_name, '**\*.png'));
@@ -13,7 +13,6 @@ robot_xy_dir = dir(fullfile(data_dir_name, '**\*robot_xy.mat'));
 % torque_dir = dir(fullfile(data_dir_name, '**\*torques.mat'));
 
 ntuples = size(robot_xy_dir, 1);
-disp(horzcat('ntuples: ', num2str(ntuples)))
 
 ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
@@ -69,6 +68,7 @@ target_x = 250;
 target_y = 100;
 
 d2g = zeros(ntuples, 1);
+disp(horzcat('Getting ', num2str(ntuples), ' distances to target'))
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/5))
         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
@@ -114,16 +114,22 @@ end
 % % gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*1.5, torque_data(:,2)+randn(size(torque_data(:,2)))*1.5, actions)
 
 %% Combine
-frames = arrayDatastore(left_frames, IterationDimension=4);
-% additional_feature = categorical(cdists);
-additional_feature = arrayDatastore(dists);
-% acts = arrayDatastore(actions);
-% dsts = arrayDatastore(dists);
-goal_feature = arrayDatastore(d2g);
-% ds_train = combine(frames, acts, additional_feature);
-ds_train = combine(frames, additional_feature, goal_feature);
+disp('Combining datastores...')
+ds_frames = arrayDatastore(left_frames, IterationDimension=4);
+ds_dists = arrayDatastore(dists);
+nouts = 10;
+thix_max = max(d2g);
+reward = 1-(d2g/thix_max);
+reward_num = round(nouts * reward);
+reward_num(reward_num < 1) = 1;
+reward_cats = categorical(reward_num);
+ds_reward = arrayDatastore(reward_cats);
+ds = combine(ds_frames, ds_dists, ds_reward);
+% ds = combine(ds_frames, ds_reward);
+
 
 %%
+disp('Creating neural network...')
 layers = [
     imageInputLayer([imdim imdim 3], Normalization="none")
     
@@ -132,52 +138,63 @@ layers = [
     reluLayer
 
     maxPooling2dLayer(2,'Stride',2)
-    
+        
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
-    reluLayer
-    
+    reluLayer    
+
     maxPooling2dLayer(2,'Stride',2)
-    
+        
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
-    reluLayer    
+    reluLayer       
 
-    fullyConnectedLayer(300)
+    fullyConnectedLayer(100)
     batchNormalizationLayer
     reluLayer    
 
-    fullyConnectedLayer(200)
-    batchNormalizationLayer
-    reluLayer        
-
-%     fullyConnectedLayer(50)
-%     flattenLayer
-%     concatenationLayer(1,2,Name="cat")
-
-%     fullyConnectedLayer(n_unique_states)
-%     softmaxLayer
-%     classificationLayer];
-
-    fullyConnectedLayer(1)
+    fullyConnectedLayer(50)
+    flattenLayer
+    concatenationLayer(1,2,Name="cat")
+    fullyConnectedLayer(nouts)
     softmaxLayer
-    regressionLayer];
+    classificationLayer];
+
+%     fullyConnectedLayer(1)
+%     softmaxLayer
+%     regressionLayer];
+
 
 lgraph = layerGraph(layers);
-
-% featInput = featureInputLayer(1,Name="actions");
-% lgraph = addLayers(lgraph,featInput);
-% lgraph = connectLayers(lgraph,"actions","cat/in2");
 
 figure(2)
 clf
 plot(lgraph)
 drawnow
 
-%%
+featInput = featureInputLayer(1,Name="actions");
+lgraph = addLayers(lgraph,featInput);
+lgraph = connectLayers(lgraph,"actions","cat/in2");
+plot(lgraph)
+drawnow
 
-options = trainingOptions("adam", 'ExecutionEnvironment', 'auto', ...
-    MaxEpochs=20, Plots="training-progress", Shuffle ='every-epoch', Verbose=1);
+%% Train net
+disp('Training neural network...')
+options = trainingOptions("sgdm", 'ExecutionEnvironment', 'auto', ...
+    MaxEpochs=10, Plots="training-progress", Shuffle ='every-epoch', ...
+    LearnRateSchedule='piecewise', LearnRateDropPeriod = 1, Verbose=1);
 
-net = trainNetwork(ds_train,lgraph,options);
+net = trainNetwork(ds,lgraph,options);
 
+disp('Neural network ready')
+
+
+%% Test net
+this_ind = round(ntuples * rand)*2-1;
+this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+this_im = imresize(this_im, [imdim imdim]);
+[cat, score] = classify(net, this_im);
+figure(3)
+clf
+image(this_im)
+title(horzcat('frame = ', num2str(this_ind), ', cat = ', char(cat)))
