@@ -15,7 +15,7 @@ end
 robot_xy = round(robot_xy);
 prev_ext_uframe = ext_uframe;
 
-padding = 30;
+padding = 40;
 xx = max([robot_xy(1) padding]);
 xx = min([xx 404 - padding]);
 yy = max([robot_xy(2) padding]);
@@ -50,13 +50,15 @@ ext_data.robot_xy = robot_xy;
 ext_data.rblob_xy = rblob_xy;
 ext_data.gblob_xy = gblob_xy;
 
-fname = strcat(rec_dir_name_2, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-robot_xy.mat');        
-save(fname, 'ext_data', '-mat');
+if save_experiences
+    fname = strcat(rec_dir_name_2, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-robot_xy.mat');        
+    save(fname, 'ext_data', '-mat');
+end
 
-ext_im.CData = ext_uframe;
-robot_marker.XData = robot_xy(1);
-robot_marker.YData = robot_xy(2);
-rblob_marker.XData = rblob_xy(1) + xx - padding;
-rblob_marker.YData = rblob_xy(2) + yy - padding;
-gblob_marker.XData = gblob_xy(1) + xx - padding;
-gblob_marker.YData = gblob_xy(2) + yy - padding;
+% ext_im.CData = ext_uframe;
+% robot_marker.XData = robot_xy(1);
+% robot_marker.YData = robot_xy(2);
+% rblob_marker.XData = rblob_xy(1) + xx - padding;
+% rblob_marker.YData = rblob_xy(2) + yy - padding;
+% gblob_marker.XData = gblob_xy(1) + xx - padding;
+% gblob_marker.YData = gblob_xy(2) + yy - padding;
