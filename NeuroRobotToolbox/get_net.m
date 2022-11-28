@@ -5,7 +5,7 @@ clear
 clc
 
 imdim = 227;
-data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
 
 image_dir = dir(fullfile(data_dir_name, '**\*.png'));
 serial_dir = dir(fullfile(data_dir_name, '**\*serial_data.mat'));
@@ -19,7 +19,7 @@ ps.Pool.IdleTimeout = Inf;
 
 %% Get left frames
 left_frames = zeros(imdim, imdim, 3, ntuples);
-disp(horzcat('Getting ', num2str(ntuples), ' frames'))
+disp(horzcat('Getting ', num2str(ntuples), ' images'))
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/5))
         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
@@ -32,7 +32,7 @@ end
 
 %% Get dists
 dists = zeros(ntuples, 1);
-disp(horzcat('getting ', num2str(ntuples), ' dists'))
+disp(horzcat('Getting ', num2str(ntuples), ' distances'))
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/5))
         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
@@ -66,6 +66,9 @@ end
 figure(1)
 clf
 plot(robot_xy_data(:,1), robot_xy_data(:,2))
+% hold on
+% plot(rblob_xy_data(:,1), rblob_xy_data(:,2))
+% plot(gblob_xy_data(:,1), gblob_xy_data(:,2))
 set(gca, 'ydir', 'reverse')
 drawnow 
 

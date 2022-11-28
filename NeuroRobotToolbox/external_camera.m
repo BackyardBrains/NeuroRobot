@@ -51,14 +51,14 @@ ext_data.rblob_xy = rblob_xy;
 ext_data.gblob_xy = gblob_xy;
 
 if save_experiences
-    fname = strcat(rec_dir_name_2, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-robot_xy.mat');        
+    fname = strcat(rec_dir_name_2, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
     save(fname, 'ext_data', '-mat');
 end
 
-% ext_im.CData = ext_uframe;
-% robot_marker.XData = robot_xy(1);
-% robot_marker.YData = robot_xy(2);
-% rblob_marker.XData = rblob_xy(1) + xx - padding;
-% rblob_marker.YData = rblob_xy(2) + yy - padding;
-% gblob_marker.XData = gblob_xy(1) + xx - padding;
-% gblob_marker.YData = gblob_xy(2) + yy - padding;
+ext_im.CData = ext_uframe;
+robot_marker.XData = robot_xy(1);
+robot_marker.YData = robot_xy(2);
+rblob_marker.XData = rblob_xy(1) + xx - padding;
+rblob_marker.YData = rblob_xy(2) + yy - padding;
+gblob_marker.XData = gblob_xy(1) + xx - padding;
+gblob_marker.YData = gblob_xy(2) + yy - padding;

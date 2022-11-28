@@ -3,10 +3,10 @@ set(16, "Position", [300 150 404*2 227*2])
 clf
 ax1 = axes('position', [0.05 0.07 0.9 0.9]);
 
-trigger(ext_cam)
-this_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging        
-this_frame = imresize(this_frame, [227 404]);
-% this_frame = zeros(227, 404, 3, 'uint8')
+% trigger(ext_cam)
+% this_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging        
+% this_frame = imresize(this_frame, [227 404]);
+this_frame = zeros(227, 404, 3, 'uint8');
 
 ext_im = image(this_frame);
 hold on
