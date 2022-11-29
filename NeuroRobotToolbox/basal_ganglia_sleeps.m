@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = 7; % livingroom_net watching tv
+reward_states = [5 6 7 8]; % livingroom_net watching tv
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
