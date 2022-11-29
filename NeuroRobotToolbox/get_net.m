@@ -5,13 +5,17 @@ clear
 clc
 
 imdim = 227;
-data_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
+data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
+
+image_ds = imageDatastore(strcat(localdata_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 
 image_dir = dir(fullfile(data_dir_name, '**\*.png'));
 serial_dir = dir(fullfile(data_dir_name, '**\*serial_data.mat'));
 ext_data_dir = dir(fullfile(data_dir_name, '**\*ext_data.mat'));
 
-ntuples = size(serial_dir, 1);
+% ntuples = size(serial_dir, 1);
+ntuples = 10000;
 
 ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
@@ -69,23 +73,24 @@ plot(robot_xy_data(:,1), robot_xy_data(:,2))
 % hold on
 % plot(rblob_xy_data(:,1), rblob_xy_data(:,2))
 % plot(gblob_xy_data(:,1), gblob_xy_data(:,2))
+axis([1 404 1 227])
 set(gca, 'ydir', 'reverse')
 drawnow 
 
 %% Get distance to target (D2Gs)
-target_x = 250;
-target_y = 100;
-
-d2g = zeros(ntuples, 1);
-disp(horzcat('Getting ', num2str(ntuples), ' distances to target'))
-for ntuple = 1:ntuples
-    if ~rem(ntuple, round(ntuples/5))
-        disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
-    end    
-    xdist = robot_xy_data(ntuple, 1) - target_x;
-    ydist = robot_xy_data(ntuple, 2) - target_y;
-    d2g(ntuple) = sqrt(xdist^2 + ydist^2);
-end
+% target_x = 250;
+% target_y = 100;
+% 
+% d2g = zeros(ntuples, 1);
+% disp(horzcat('Getting ', num2str(ntuples), ' distances to target'))
+% for ntuple = 1:ntuples
+%     if ~rem(ntuple, round(ntuples/5))
+%         disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
+%     end    
+%     xdist = robot_xy_data(ntuple, 1) - target_x;
+%     ydist = robot_xy_data(ntuple, 2) - target_y;
+%     d2g(ntuple) = sqrt(xdist^2 + ydist^2);
+% end
 
 %% Get prime change in distance to target
 % dd2g = zeros(ntuples, 1);
@@ -122,22 +127,149 @@ end
 % % figure(7)
 % % gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*1.5, torque_data(:,2)+randn(size(torque_data(:,2)))*1.5, actions)
 
+%% Get states
+states = zeros(ntuples, 1);
+for ntuple = 1:ntuples
+    rbox = robot_xy_data(ntuple, 1);
+    rboy = robot_xy_data(ntuple, 2);
+    gx = gblob_xy_data(ntuple, 1);
+    gy = gblob_xy_data(ntuple, 2);
+    rx = rblob_xy_data(ntuple, 1);
+    ry = rblob_xy_data(ntuple, 2);
+
+    if rbox < 135
+        xx = 1;
+    elseif rbox >= 135 && rbox < 270
+        xx = 2;
+    elseif rbox >= 270
+        xx = 3;
+    end
+
+    if rboy < 76
+        yy = 1;
+    elseif rboy >= 76 && rboy < 152
+        yy = 2;
+    elseif rboy >= 152
+        yy = 3;
+    end
+
+    if gx <= rx && gy <= ry
+        oo = 1;
+    elseif gx > rx && gy <= ry
+        oo = 2;
+    elseif gx > rx && gy > ry
+        oo = 3;
+    elseif gx <= rx && gy > ry
+        oo = 4;
+    end
+
+    if xx == 1
+        if yy == 1
+            if oo == 1
+                states(ntuple) = 1;
+            elseif oo == 2
+                states(ntuple) = 2;
+            elseif oo == 3
+                states(ntuple) = 3;
+            elseif oo == 4
+                states(ntuple) = 4;
+            end
+        elseif yy == 2
+            if oo == 1
+                states(ntuple) = 5;
+            elseif oo == 2
+                states(ntuple) = 6;
+            elseif oo == 3
+                states(ntuple) = 7;
+            elseif oo == 4
+                states(ntuple) = 8;
+            end
+        elseif yy == 3
+            if oo == 1
+                states(ntuple) = 9;
+            elseif oo == 2
+                states(ntuple) = 10;
+            elseif oo == 3
+                states(ntuple) = 11;
+            elseif oo == 4
+                states(ntuple) = 12;
+            end
+        end
+    elseif xx == 2
+        if yy == 1
+            if oo == 1
+                states(ntuple) = 13;
+            elseif oo == 2
+                states(ntuple) = 14;
+            elseif oo == 3
+                states(ntuple) = 15;
+            elseif oo == 4
+                states(ntuple) = 16;
+            end
+        elseif yy == 2
+            if oo == 1
+                states(ntuple) = 17;
+            elseif oo == 2
+                states(ntuple) = 18;
+            elseif oo == 3
+                states(ntuple) = 19;
+            elseif oo == 4
+                states(ntuple) = 20;
+            end
+        elseif yy == 3
+            if oo == 1
+                states(ntuple) = 21;
+            elseif oo == 2
+                states(ntuple) = 22;
+            elseif oo == 3
+                states(ntuple) = 23;
+            elseif oo == 4
+                states(ntuple) = 24;
+            end
+        end
+    elseif xx == 3
+        if yy == 1
+            if oo == 1
+                states(ntuple) = 25;
+            elseif oo == 2
+                states(ntuple) = 26;
+            elseif oo == 3
+                states(ntuple) = 27;
+            elseif oo == 4
+                states(ntuple) = 28;
+            end
+        elseif yy == 2
+            if oo == 1
+                states(ntuple) = 29;
+            elseif oo == 2
+                states(ntuple) = 30;
+            elseif oo == 3
+                states(ntuple) = 31;
+            elseif oo == 4
+                states(ntuple) = 32;
+            end
+        elseif yy == 3
+            if oo == 1
+                states(ntuple) = 33;
+            elseif oo == 2
+                states(ntuple) = 34;
+            elseif oo == 3
+                states(ntuple) = 35;
+            elseif oo == 4
+                states(ntuple) = 36;
+            end
+        end
+    end
+end
+n_unique_states = 36;
+
 %% Combine
 disp('Combining datastores...')
 ds_frames = arrayDatastore(left_frames, IterationDimension=4);
 ds_dists = arrayDatastore(dists);
-nouts = 10;
-thix_max = max(d2g);
-reward = 1-(d2g/thix_max);
-reward_num = round(nouts * reward);
-reward_num(reward_num < 1) = 1;
-reward_cats = categorical(reward_num);
-ds_reward = arrayDatastore(reward_cats);
-
-% create state array from location and orientation here (3x3x4)
-
-ds = combine(ds_frames, ds_dists, ds_reward);
-% ds = combine(ds_frames, ds_reward);
+ds_states = arrayDatastore(categorical(states));
+ds = combine(ds_frames, ds_states);
+% ds = combine(ds_frames, ds_dists, ds_states);
 
 
 %%
@@ -165,10 +297,11 @@ layers = [
     batchNormalizationLayer
     reluLayer    
 
-    fullyConnectedLayer(50)
-    flattenLayer
-    concatenationLayer(1,2,Name="cat")
-    fullyConnectedLayer(nouts)
+%     fullyConnectedLayer(50)
+%     flattenLayer
+%     concatenationLayer(1,2,Name="cat")
+
+    fullyConnectedLayer(n_unique_states)
     softmaxLayer
     classificationLayer];
 
@@ -179,14 +312,12 @@ layers = [
 
 lgraph = layerGraph(layers);
 
+% featInput = featureInputLayer(1,Name="actions");
+% lgraph = addLayers(lgraph,featInput);
+% lgraph = connectLayers(lgraph,"actions","cat/in2");
+
 figure(2)
 clf
-plot(lgraph)
-drawnow
-
-featInput = featureInputLayer(1,Name="actions");
-lgraph = addLayers(lgraph,featInput);
-lgraph = connectLayers(lgraph,"actions","cat/in2");
 plot(lgraph)
 drawnow
 
