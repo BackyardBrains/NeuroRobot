@@ -153,7 +153,8 @@ end
 %%
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 labels = unique(labels);
-save(strcat(shared_data_dir_name, 'livingroom_slam_labels'), 'labels')
+save(strcat(data_dir_name, 'livingroom_slam_labels'), 'labels')
+save('livingroom_slam_labels', 'labels')
 
 %%
 classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
