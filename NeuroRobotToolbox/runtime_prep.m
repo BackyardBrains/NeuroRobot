@@ -30,32 +30,38 @@ if exist('rak_only', 'var')
         save_experiences = 0;
     end
 
-    % 5 = 'Use RL Controllers    
+    % 5 = 'Use RL agent
     if sum(select_app.Value == 5)
         use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
+        load(strcat(rl_dir_name, 'LivingRoomAgent'))
     else
         use_controllers = 0;
     end
-    
+
+
     %% Deep net settings
     % 1 = 'LivingRoomNet (slam)'
     if sum(select_vision.Value == 1)  
         load(strcat(rl_dir_name, 'LivingRoomNet'))
-    end
+        load(strcat(rl_dir_name, 'LivingRoomLabels'))
+        unique_states = unique(labels);
+        n_unique_states = length(unique_states);
+    end  
 
     % 2 = 'GoogLeNet (generic)'    
-    if sum(select_vision.Value == 2)
+    if sum(select_vision.Value == 3)
         use_cnn = 1;
     else
         use_cnn = 0;
     end
 
-    % = 'AlexNet (custom)'
-    if sum(select_vision.Value == 3)
+    % 3 = 'AlexNet (custom)'
+    if sum(select_vision.Value == 5)
         use_rcnn = 1;
     else
         use_rcnn = 0;
     end
+    
     
     %% Communication settings
     audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
@@ -187,11 +193,7 @@ if exist('rak_only', 'var')
         if use_controllers
     
             tuples = zeros(stop_step, 6);
-            load(strcat(rl_dir_name, 'AgentTV'))            
-            load(strcat(rl_dir_name, 'LivingRoomNetLabels'))
-            unique_states = unique(labels);
-            n_unique_states = length(unique_states);
-
+                        
             load(strcat(rl_dir_name, 'torque_data'))
             load(strcat(rl_dir_name, 'actions'))
             n_unique_actions = length(unique(actions));

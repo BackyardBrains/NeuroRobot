@@ -5,19 +5,55 @@ clear
 clc
 
 imdim = 227;
-data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
-image_dir_name = 'C:\Users\Christopher Harris\Dataset2_cyclops\';
+data_dir_name = '.\Datasets\';
+rec_dir_name = 'Recordings\';
+comb_img_dir_name = 'CombinedImages\';
+image_dir = dir(fullfile(data_dir_name, rec_dir_name, '**\*.png'));
+nimages = length(image_dir);
+ntuples = nimages/2;
+
+%% Combine eye frames to large frame
+disp('Combining eye frames to large frames...')
+new_frame = zeros(227, 404, 3, 'uint8');
+for ntuple = 1:ntuples
+    if ~rem(ntuple, round(ntuples/20))
+        disp(horzcat(num2str(round(20*(ntuple/ntuples))), ' %'))
+    end
+    this_ind = ntuple*2-1;
+    left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    this_ind = ntuple*2;
+    right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    new_frame(:, 1:227, :) = left_im;
+    new_frame(:, 178:404, :) = right_im;    
+    fname = strcat(data_dir_name, comb_img_dir_name, image_dir(this_ind).name(1:end-16), 'uframe.png');
+    imwrite(new_frame, fname);
+end
 
 image_ds = imageDatastore(image_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', 1);
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 
-ext_data_dir = dir(fullfile(data_dir_name, '**\*ext_data.mat'));
+ext_data_dir = dir(fullfile(data_dir_name, rec_dir_name, '**\*ext_data.mat'));
+serial_dir = dir(fullfile(data_dir_name, rec_dir_name, '**\*serial_data.mat'));
 
 ntuples = size(ext_data_dir, 1);
 
 ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
+
+%% Get dists
+dists = zeros(ntuples, 1);
+disp(horzcat('Getting ', num2str(ntuples), ' distances'))
+for ntuple = 1:ntuples
+    if ~rem(ntuple, round(ntuples/5))
+        disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
+    end
+    serial_fname = horzcat(serial_dir(ntuple).folder, '\', serial_dir(ntuple).name);
+    load(serial_fname)
+    this_distance = str2double(serial_data{3});
+    this_distance(this_distance == Inf) = 0;    
+    dists(ntuple, :) = this_distance;
+end
 
 %% Get robot XYs
 robot_xy_data = zeros(ntuples, 2);
@@ -153,7 +189,7 @@ end
 %%
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 labels = unique(labels);
-save(strcat(rl_dir_name, 'livingroom_slam_labels'), 'labels')
+save(strcat(rl_dir_name, 'LivingRoomLabels'), 'labels')
 
 
 %%
@@ -180,11 +216,23 @@ layers = [
     batchNormalizationLayer
     reluLayer
 
+    fullyConnectedLayer(100)
+    batchNormalizationLayer
+    reluLayer   
+
+%     fullyConnectedLayer(50)
+%     flattenLayer
+%     concatenationLayer(1,2,Name="cat")    
+
     fullyConnectedLayer(n_unique_states)
     softmaxLayer
     classificationLayer];
 
 lgraph = layerGraph(layers);
+
+% featInput = featureInputLayer(1,Name="actions");
+% lgraph = addLayers(lgraph,featInput);
+% lgraph = connectLayers(lgraph,"actions","cat/in2");
 
 
 %% Train net
@@ -199,7 +247,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
     Verbose=1);
 
 net = trainNetwork(classifier_ds,lgraph,options);
-save(strcat(rl_dir_name, 'livingroom_slam_net'), 'net')
+save(strcat(rl_dir_name, 'LivingRoomNet'), 'net')
 
 disp('Neural network ready')
 
