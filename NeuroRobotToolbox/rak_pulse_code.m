@@ -5,9 +5,6 @@ if use_esp32
 elseif use_webcam && ~(rak_only || use_esp3)
     trigger(rak_cam)
     large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging
-elseif use_webcam && (rak_only || use_esp3)
-    trigger(ext_cam)
-    ext_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging
 elseif rak_only
     large_frame = rak_cam.readVideo();
     large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);

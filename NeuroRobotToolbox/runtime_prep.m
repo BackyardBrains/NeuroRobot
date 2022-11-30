@@ -29,7 +29,7 @@ if exist('rak_only', 'var')
     end
     
     if sum(select_app.Value == 5)
-        use_controllers = 2;        % Switch this so correct nets are loaded with brain selection    
+        use_controllers = 1;        % Switch this so correct nets are loaded with brain selection    
     else
         use_controllers = 0;
     end
@@ -160,7 +160,7 @@ if exist('rak_only', 'var')
     
             tuples = zeros(stop_step, 6);
             
-            load(strcat(data_dir_name, 'livingroom_labels'))
+            load(strcat(data_dir_name, 'livingroom_slam_labels'))
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
 
@@ -175,10 +175,10 @@ if exist('rak_only', 'var')
         end
     
         if use_controllers == 1
-            load(strcat(data_dir_name, 'livingroom_net'))
+            load(strcat(data_dir_name, 'livingroom_slam_net'))
             load(strcat(data_dir_name, 'AgentTV'))        
         elseif use_controllers == 2
-            load(strcat(data_dir_name, 'livingroom_net'))
+            load(strcat(data_dir_name, 'livingroom_slam_net'))
             load(strcat(data_dir_name, 'DeepAgentTV'))
         end
 

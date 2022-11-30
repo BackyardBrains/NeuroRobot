@@ -30,6 +30,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 %% States
 get_states3
 save(strcat(shared_data_dir_name, 'states'), 'states')
+save('states', 'states')
 
 load(strcat(shared_data_dir_name, 'states'))
 ntuples = size(states, 1);
@@ -41,7 +42,7 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 %% Torques
 get_torques
 save(strcat(shared_data_dir_name, 'torque_data'), 'torque_data')
-
+save('torque_data', 'torque_data')
 load(strcat(shared_data_dir_name, 'torque_data'))
 
 
@@ -52,8 +53,10 @@ still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
 save(strcat(shared_data_dir_name, 'actions'), 'actions')
+save('actions', 'actions')
 
 load(strcat(shared_data_dir_name, 'actions'))
+
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*1.5, torque_data(:,2)+randn(size(torque_data(:,2)))*1.5, actions)
 n_unique_actions = length(unique(actions));

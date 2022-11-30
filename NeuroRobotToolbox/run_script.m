@@ -7,10 +7,11 @@ if rak_only || use_esp32
         just_blue
     elseif script_running == 4
         just_off
-    elseif sum(script_running == 5:10)
-        run_agent    
-    else
-        disp('Unknown behavior')
     end
+end
+if sum(script_running == 5:10)
+    run_agent    
+else
+    disp('Unknown behavior')
 end
 script_running = 0;
