@@ -93,7 +93,7 @@ if use_esp32
     end
 end
 
-if use_webcam && ~(rak_only || use_esp3)
+if use_webcam && ~(rak_only || use_esp32)
     disp('Attempting webcam connect...')
     try
         delete(imaqfind) %%% <<<<< Commented out for packaging

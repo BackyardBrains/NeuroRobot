@@ -2,7 +2,7 @@
 if use_esp32
     large_frame = snapshot(rak_cam);
     esp_get_serial
-elseif use_webcam && ~(rak_only || use_esp3)
+elseif use_webcam && ~(rak_only || use_esp32)
     trigger(rak_cam)
     large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging
 elseif rak_only

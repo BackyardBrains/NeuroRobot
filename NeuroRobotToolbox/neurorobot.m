@@ -65,12 +65,35 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 
 %% Selection
 % Robot
+
+% Guess current setup
+est_option_robot = [];
+if exist('rak_only', 'var') && rak_only
+    if exist('use_webcam', 'var') && ~use_webcam
+        est_option_robot = 1;
+        if exist('hd_camera', 'var') && hd_camera
+            est_option_robot = 2;
+        end
+    end
+elseif exist('use_esp32', 'var') && use_esp32 && ~use_webcam
+    est_option_robot = 3;
+elseif use_webcam && ~rak_only
+    est_option_robot = 4;
+elseif ~use_webcam && ~rak_only
+    est_option_robot = 5;
+elseif rak_only && use_webcam
+    est_option_robot = 6;
+elseif use_esp32 && use_webcam
+    est_option_robot = 7;
+end
+
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'; 'SpikerBot RAK5206 + Webcam'; 'SpikerBot RAK5270 + Webcam'};
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
-select_robot.Value = 5;
+select_robot.Value = est_option_robot;
+% camera_button_col
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
