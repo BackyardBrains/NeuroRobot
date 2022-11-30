@@ -272,12 +272,14 @@ while ~flag
     this_ind = randsample(ntuples, 1);
     this_im = readimage(image_ds, this_ind);
     % this_im = imresize(this_im, [imdim imdim]);
-    [cat, score] = classify(net, this_im);
-    cat_str = char(cat);
-    cat_str(cat_str=='_') = [];
+    [state, scores] = classify(net, new_im);
+    this_state = find(unique_states == state);
+    scores = scores(this_state);
+    state_str = char(state);
+    state_str(state_str=='_') = [];
     this_im = imresize(this_im, [imdim 404]*2);
     imshow(this_im)
-    title(horzcat('frame = ', num2str(this_ind), ', cat = ', cat_str))
+    title(horzcat('frame = ', num2str(this_ind), ', cat = ', state_str, ', conf = ', num2str(score)))
     drawnow
     pause
 end
