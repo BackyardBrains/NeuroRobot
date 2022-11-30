@@ -10,10 +10,6 @@ for ntuple = 1:ntuples
         disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
 
-    left_state = NaN;
-    right_state = NaN;
-    this_state = NaN;
-
     this_ind = ntuple*2-1;    
     left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
     left_im = imresize(left_im, [imdim imdim]);

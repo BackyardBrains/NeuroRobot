@@ -4,7 +4,7 @@
 clear
 clc
 
-reward_states = [5 6 7 8]; % livingroom_net watching tv
+reward_states = [11 12 15 16]; % livingroom_net watching tv
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = 'PreTraining\';
@@ -206,7 +206,7 @@ agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
@@ -227,7 +227,7 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxStepsPerEpisode = 100;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
