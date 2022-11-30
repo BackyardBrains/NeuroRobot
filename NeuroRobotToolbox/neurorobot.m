@@ -19,7 +19,7 @@ save_data_and_commands = 0;
 bg_brain = 1;
 manual_controls = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
-data_dir_name = '.\Data\';
+data_dir_name = '.\Dataset\Recordings\';
 rec_dir_name = 'Rec1\';
 
 init_motor_block_in_s = 2;

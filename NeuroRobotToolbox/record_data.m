@@ -31,7 +31,7 @@ if save_experiences > 0
     if (rak_only || use_esp32) && use_webcam
         external_camera
         if save_experiences
-            fname = strcat(rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
+            fname = strcat(data_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
             save(fname, 'ext_data', '-mat');
         end        
     end
