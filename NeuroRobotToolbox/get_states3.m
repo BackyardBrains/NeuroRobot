@@ -23,7 +23,7 @@ for ntuple = 1:ntuples
 
     [state, scores] = classify(net, new_im);
     this_state = find(unique_states == state);
-    scores = scores(this_state);
+    scores = scores(this_state); % mislabeled and unused?
 
     states(ntuple) = this_state;
 

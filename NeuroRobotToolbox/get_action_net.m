@@ -4,9 +4,9 @@
 clear
 clc
 
-reward_states = [2 6 10 14]; % livingroom_net watching tv
-data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-rec_dir_name = 'PreTraining\';
+reward_states = 13; % livingroom_net watching tv
+data_dir_name = '.\Datasets\';
+rec_dir_name = 'Recordings\PreTraining\';
 net_dir_name = '.\Nets\';
 
 load(horzcat(net_dir_name, 'LivingRoomNet'))
@@ -28,17 +28,17 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% States
-% get_states3
-% save(strcat(shared_data_dir_name, 'states'), 'states')
-% save('states', 'states')
+get_states3
+save(strcat(net_dir_name, 'states'), 'states')
+save('states', 'states')
 load(strcat(net_dir_name, 'states'))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(strcat(rl_dir_name, 'torque_data'), 'torque_data')
+get_torques
+save(strcat(net_dir_name, 'torque_data'), 'torque_data')
 load(strcat(net_dir_name, 'torque_data'))
 
 
