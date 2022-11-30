@@ -263,13 +263,21 @@ disp('Neural network ready')
 
 
 %% Test net
-this_ind = randsample(ntuples, 1);
-this_im = readimage(image_ds, this_ind);
-% this_im = imresize(this_im, [imdim imdim]);
-[cat, score] = classify(net, this_im);
-cat_str = char(cat);
-cat_str(cat_str=='_') = [];
+
 figure(3)
 clf
-imshow(this_im)
-title(horzcat('frame = ', num2str(this_ind), ', cat = ', cat_str))
+
+flag = 0;
+while ~flag
+    this_ind = randsample(ntuples, 1);
+    this_im = readimage(image_ds, this_ind);
+    % this_im = imresize(this_im, [imdim imdim]);
+    [cat, score] = classify(net, this_im);
+    cat_str = char(cat);
+    cat_str(cat_str=='_') = [];
+    this_im = imresize(this_im, [imdim 404]*2);
+    imshow(this_im)
+    title(horzcat('frame = ', num2str(this_ind), ', cat = ', cat_str))
+    drawnow
+    pause
+end
