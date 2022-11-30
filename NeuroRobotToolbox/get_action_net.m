@@ -7,10 +7,10 @@ clc
 reward_states = [2 6 10 14]; % livingroom_net watching tv
 data_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 rec_dir_name = 'PreTraining\';
-rl_dir_name = '.\RL\';
+net_dir_name = '.\Nets\';
 
-load(horzcat(rl_dir_name, 'LivingRoomNet'))
-load(horzcat(rl_dir_name, 'LivingRoomLabels'))
+load(horzcat(net_dir_name, 'LivingRoomNet'))
+load(horzcat(net_dir_name, 'LivingRoomLabels'))
 
 image_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*.png'));
 torque_dir = dir(fullfile(strcat(data_dir_name, rec_dir_name), '**\*torques.mat'));
@@ -31,7 +31,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 % get_states3
 % save(strcat(shared_data_dir_name, 'states'), 'states')
 % save('states', 'states')
-load(strcat(rl_dir_name, 'states'))
+load(strcat(net_dir_name, 'states'))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
@@ -39,7 +39,7 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 %% Torques
 % get_torques
 % save(strcat(rl_dir_name, 'torque_data'), 'torque_data')
-load(strcat(rl_dir_name, 'torque_data'))
+load(strcat(net_dir_name, 'torque_data'))
 
 
 %% Actions
@@ -48,8 +48,8 @@ actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
-save(strcat(rl_dir_name, 'actions'), 'actions')
-load(strcat(rl_dir_name, 'actions'))
+save(strcat(net_dir_name, 'actions'), 'actions')
+load(strcat(net_dir_name, 'actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*1.5, torque_data(:,2)+randn(size(torque_data(:,2)))*1.5, actions)
 n_unique_actions = length(unique(actions));
@@ -116,8 +116,8 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(rl_dir_name, 'mdp'), 'mdp')
-load(strcat(rl_dir_name, 'mdp'))
+save(strcat(net_dir_name, 'mdp'), 'mdp')
+load(strcat(net_dir_name, 'mdp'))
 disp('Markov ready')
 
 %% Get rewards
@@ -140,8 +140,8 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-save(strcat(rl_dir_name, 'rmdp'), 'mdp')
-load(strcat(rl_dir_name, 'rmdp'))
+save(strcat(net_dir_name, 'rmdp'), 'mdp')
+load(strcat(net_dir_name, 'rmdp'))
 disp('Rewards ready')
 
 
@@ -175,13 +175,13 @@ colorbar
 title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
-export_fig(horzcat(rl_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(net_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Train agents
 env = rlMDPEnv(mdp);
-save(strcat(rl_dir_name, 'env'), 'env')
-load(strcat(rl_dir_name, 'env'))
+save(strcat(net_dir_name, 'env'), 'env')
+load(strcat(net_dir_name, 'env'))
 
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
@@ -214,8 +214,8 @@ figure(11)
 scan_agent
 title(horzcat('LivingRoomAgent'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(rl_dir_name, 'LivingRoomAgent'), '-r150', '-jpg', '-nocrop')
-save(horzcat(rl_dir_name, 'LivingRoomAgent'), 'agent')
+export_fig(horzcat(net_dir_name, 'LivingRoomAgent'), '-r150', '-jpg', '-nocrop')
+save(horzcat(net_dir_name, 'LivingRoomAgent'), 'agent')
 
 
 %% Agent 2 (Deep Q)
@@ -235,7 +235,7 @@ figure(12)
 scan_agent
 title('DeepLivingRoomAgent')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(rl_dir_name, 'DeepLivingRoomAgent'), '-r150', '-jpg', '-nocrop')
-save(horzcat(rl_dir_name, 'DeepLivingRoomAgent'), 'agent')
+export_fig(horzcat(net_dir_name, 'DeepLivingRoomAgent'), '-r150', '-jpg', '-nocrop')
+save(horzcat(net_dir_name, 'DeepLivingRoomAgent'), 'agent')
 
 
