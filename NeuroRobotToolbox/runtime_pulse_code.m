@@ -73,9 +73,7 @@ end
 if save_experiences
     record_data
 end
-if xstep == stop_step
-    run_button = 4;
-end
+
 
 %%
 if nstep == nsteps_per_loop %% Happens again below

@@ -35,7 +35,7 @@ if exist('rak_only', 'var')
     % 5 = 'Use RL Agent
     if sum(select_app.Value == 5)
         use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
-        load(strcat(rl_dir_name, 'LivingRoomAgent'))
+        load(strcat(net_dir_name, 'LivingRoomAgent'))
     else
         use_controllers = 0;
     end
@@ -44,8 +44,8 @@ if exist('rak_only', 'var')
     %% Deep net settings
     % 1 = 'LivingRoomNet (slam)'
     if sum(select_vision.Value == 1)  
-        load(strcat(rl_dir_name, 'LivingRoomNet'))
-        load(strcat(rl_dir_name, 'LivingRoomLabels'))
+        load(strcat(net_dir_name, 'LivingRoomNet'))
+        load(strcat(net_dir_name, 'LivingRoomLabels'))
         unique_states = unique(labels);
         n_unique_states = length(unique_states);
     end  
@@ -124,7 +124,6 @@ if exist('rak_only', 'var')
     computer_name = getenv('COMPUTERNAME');
     user_name = getenv('USERNAME');
     user_name(user_name == ' ') = '_';
-    stop_step = 0;
     ext_cam_id = 0;
     ext_cam_nsteps = 100; % check this
     max_w = 100;
@@ -193,11 +192,9 @@ if exist('rak_only', 'var')
         right_torque_mem = 0;
     
         if use_controllers
-    
-            tuples = zeros(stop_step, 6);
-                        
-            load(strcat(rl_dir_name, 'torque_data'))
-            load(strcat(rl_dir_name, 'actions'))
+                           
+            load(strcat(net_dir_name, 'torque_data'))
+            load(strcat(net_dir_name, 'actions'))
             n_unique_actions = length(unique(actions));
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions

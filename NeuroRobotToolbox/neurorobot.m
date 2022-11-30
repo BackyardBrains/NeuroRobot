@@ -21,6 +21,7 @@ manual_controls = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
 data_dir_name = '.\Dataset\Recordings\';
 rec_dir_name = 'Rec1\';
+net_dir_name = '.\Nets\';
 
 init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
