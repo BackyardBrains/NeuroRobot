@@ -38,47 +38,67 @@ if exist('rak_only', 'var')
     end
     
     %% Deep net settings
-    % 1 = 'livingroom_slam'
-    if sum(select_vision.Value == 1)    
+    % 1 = 'LivingRoomNet (slam)'
+    if sum(select_vision.Value == 1)  
+        load(strcat(rl_dir_name, 'LivingRoomNet'))
     end
 
-    % 2 = 'AlexNet'    
+    % 2 = 'GoogLeNet (generic)'    
     if sum(select_vision.Value == 2)
         use_cnn = 1;
     else
         use_cnn = 0;
     end
 
-; 'Robots'; 'Faces'    
+    % = 'AlexNet (custom)'
     if sum(select_vision.Value == 3)
         use_rcnn = 1;
     else
         use_rcnn = 0;
     end
-    if sum(select_vision.Value == 4)
-    end
     
-    % option_hearing = {'Microphone/FFT', 'Speech2Text', 'Text2Speech'; 'OpenAI'};
+    %% Communication settings
     audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
-    matlab_audio_rec = 1;       % Use computer microphone to listen
-    matlab_speaker_ctrl = 0;    % Multi tone output
-    vocal = 0;                  % Custom sound output
-    supervocal = 0;             % Custom word output (text-to-speech - REQUIRES WINDOWS)
     
+    % 1 = 'Microphone input'
     if sum(select_communication.Value == 1)
+        matlab_audio_rec = 1; % Use computer microphone to listen
     else
+        matlab_audio_rec = 0;
     end
+
+    % 2 = 'Custom sounds'
+    if sum(select_communication.Value == 1)
+        vocal = 1; % Use computer microphone to listen
+    else
+        vocal = 0;
+    end
+
+    % 3 = 'Speak words'
+    if sum(select_communication.Value == 1)
+        supervocal = 1; % Custom word output (text-to-speech - REQUIRES WINDOWS)
+    else
+        supervocal = 0;
+    end
+
+    % 4 = 'Multi-tone speaker'
     if sum(select_communication.Value == 2)
+        matlab_speaker_ctrl = 1;    % Multi tone output        
     else
+        matlab_speaker_ctrl = 0;    % Multi tone output        
     end
-    if sum(select_communication.Value == 3)
-    else
-    end
+
+    % 5 = GPT3
     if sum(select_communication.Value == 4)
     else
     end
-    
-    % select_brain
+
+    % 6 = 'Speech2Text';
+    if sum(select_communication.Value == 3)
+    else
+    end
+
+    %% Select brain
     brain_name = brain_string{select_brain.Value};
     
     
@@ -167,13 +187,13 @@ if exist('rak_only', 'var')
         if use_controllers
     
             tuples = zeros(stop_step, 6);
-            
-            load(strcat(data_dir_name, 'livingroom_slam_labels'))
+            load(strcat(rl_dir_name, 'AgentTV'))            
+            load(strcat(rl_dir_name, 'LivingRoomNetLabels'))
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
 
-            load(strcat(data_dir_name, 'torque_data'))
-            load(strcat(data_dir_name, 'actions'))
+            load(strcat(rl_dir_name, 'torque_data'))
+            load(strcat(rl_dir_name, 'actions'))
             n_unique_actions = length(unique(actions));
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions
@@ -183,8 +203,7 @@ if exist('rak_only', 'var')
         end
     
         if use_controllers == 1
-            load(strcat(data_dir_name, 'livingroom_slam_net'))
-            load(strcat(data_dir_name, 'AgentTV'))        
+                 
         elseif use_controllers == 2
             load(strcat(data_dir_name, 'livingroom_slam_net'))
             load(strcat(data_dir_name, 'DeepAgentTV'))

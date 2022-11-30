@@ -83,7 +83,7 @@ select_app.Value = 1:3;
 % Deep net settings
 text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'LivingRoomNet'; 'GoogLeNet'; 'AlexNet';};
+option_vision = {'LivingRoomNet (slam)'; 'GoogLeNet (generic)'; 'AlexNet (custom)';};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_vision.Value = [];
@@ -91,10 +91,10 @@ select_vision.Value = [];
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone'; 'Speech2Text';'Text2Speech'; 'GPT3'};
+option_communication = {'Microphone input'; 'MP3 sounds';'Speak words'; 'Speech-to-text'; 'GPT3'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-text_communication.Value = [];
+text_communication.Value = 1;
 
 % Brain
 if ispc && ~isdeployed
