@@ -167,11 +167,13 @@ set(button_startup_complete, 'Callback', 'runtime_prep', 'FontSize', bfsize + 6,
 button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+set(button_to_library, 'enable', 'off')
 
 % ML button
 button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'ML', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+set(button_to_sleep, 'enable', 'off')
 
 % Quit button
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);

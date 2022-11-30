@@ -1,6 +1,8 @@
 
 if exist('rak_only', 'var')
 
+    set(button_startup_complete, 'enable', 'off')
+
     %% App settings
     % 1 = 'BG Color Scheme'
     if sum(select_app.Value == 1)

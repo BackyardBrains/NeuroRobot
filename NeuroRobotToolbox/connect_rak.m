@@ -153,7 +153,7 @@ elseif ~camera_present
     rak_cam = 0;
     rak_cam_h = 1;
     rak_cam_w = 1;     
-    disp(horzcat('No camera connected in ', num2str(round(toc)), ' s'))  
+    disp(horzcat('Blind connection created'))  
 else
     disp('error: rak_cam created but not running')
     button_camera.BackgroundColor = [1 0.5 0.5];

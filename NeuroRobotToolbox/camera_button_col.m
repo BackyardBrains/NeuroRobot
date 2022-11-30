@@ -1,4 +1,5 @@
-if sum(select_robot.Value == 5) && exist('rak_only', 'var')
+
+if isvalid(select_robot) && sum(select_robot.Value == 5) && exist('rak_cam', 'var')
     this_col = [0.6 0.95 0.6];
 elseif isempty(imaqfind)
     if ~sum(select_robot.Value == 3) && sum(select_robot.Value == [1 2]) && exist('rak_cam', 'var') && (isa(rak_cam, 'NeuroRobot_matlab')) && rak_cam.isRunning()
