@@ -1,47 +1,55 @@
 
 if exist('rak_only', 'var')
 
-    %% Get settings
-    % option_app = {'BG Color Scheme', 'Draw Neuron Numbers'; 'Draw Synapse Weights', 'Record Data', 'Use RL Controllers};
+    %% App settings
+    % 1 = 'BG Color Scheme'
     if sum(select_app.Value == 1)
-        bg_colors = 1;              % Use neuron color to indicate network ID, and neuron flickering to indicate spikes  
+        bg_colors = 1; % Use neuron color to indicate network ID, neuron flickering to indicate spikes  
     else
         bg_colors = 0;
     end
     
+    % 2 = 'Draw Neuron Numbers'   
     if sum(select_app.Value == 2)
         draw_neuron_numbers = 1;
     else
         draw_neuron_numbers = 0;
     end
     
+    % 3 = 'Draw Synapse Weights'    
     if sum(select_app.Value == 3)
         draw_synapse_strengths = 1;
     else
         draw_synapse_strengths = 0;
     end
     
-    
+    % 4 = 'Record Data'
     if sum(select_app.Value == 4)
         save_experiences = 1;
     else
         save_experiences = 0;
     end
-    
+
+    % 5 = 'Use RL Controllers    
     if sum(select_app.Value == 5)
-        use_controllers = 1;        % Switch this so correct nets are loaded with brain selection    
+        use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
     else
         use_controllers = 0;
     end
     
-    % option_vision = {'RandomWalk'; 'AlexNet'; 'Robots'; 'Faces'};
+    %% Deep net settings
+    % 1 = 'livingroom_slam'
     if sum(select_vision.Value == 1)    
     end
+
+    % 2 = 'AlexNet'    
     if sum(select_vision.Value == 2)
         use_cnn = 1;
     else
         use_cnn = 0;
     end
+
+; 'Robots'; 'Faces'    
     if sum(select_vision.Value == 3)
         use_rcnn = 1;
     else

@@ -6,9 +6,9 @@ clc
 
 imdim = 227;
 data_dir_name = 'C:\Users\Christopher Harris\Dataset2\';
-data_dir_name2 = 'C:\Users\Christopher Harris\Dataset2_cyclops\';
+image_dir_name = 'C:\Users\Christopher Harris\Dataset2_cyclops\';
 
-image_ds = imageDatastore(data_dir_name2, 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+image_ds = imageDatastore(image_dir_name, 'FileExtensions', '.png', 'IncludeSubfolders', 1);
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 
 ext_data_dir = dir(fullfile(data_dir_name, '**\*ext_data.mat'));
@@ -153,8 +153,8 @@ end
 %%
 labels = folders2labels(strcat(data_dir_name, 'Classifier\'));
 labels = unique(labels);
-save(strcat(data_dir_name, 'livingroom_slam_labels'), 'labels')
-save('livingroom_slam_labels', 'labels')
+save(strcat(rl_dir_name, 'livingroom_slam_labels'), 'labels')
+
 
 %%
 classifier_ds = imageDatastore(strcat(data_dir_name, 'Classifier\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
@@ -186,8 +186,10 @@ layers = [
 
 lgraph = layerGraph(layers);
 
+
 %% Train net
 disp('Training neural network...')
+
 % options = trainingOptions("sgdm", 'ExecutionEnvironment', 'auto', ...
 %     MaxEpochs=20, Plots="training-progress", Shuffle ='every-epoch', ...
 %     LearnRateSchedule='piecewise', LearnRateDropPeriod = 1, Verbose=1);
@@ -197,8 +199,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
     Verbose=1);
 
 net = trainNetwork(classifier_ds,lgraph,options);
-% save(strcat(data_dir_name, 'livingroom_slam_net'), 'net')
-save('livingroom_slam_net', 'net')
+save(strcat(rl_dir_name, 'livingroom_slam_net'), 'net')
 
 disp('Neural network ready')
 

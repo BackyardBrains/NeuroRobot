@@ -19,9 +19,9 @@ save_data_and_commands = 0;
 bg_brain = 1;
 manual_controls = 0;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Heliomax', 'Deep Agent Heliomax'};
-data_dir_name = '.\Brains\';
-rec_dir_name = '';
-rec_dir_name_2 = 'C:\Users\Christopher Harris\Dataset2\';
+data_dir_name = '.\Data\';
+rec_dir_name = 'Rec1\';
+
 init_motor_block_in_s = 2;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -70,6 +70,7 @@ text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized'
 option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'; 'SpikerBot RAK5206 + Webcam'; 'SpikerBot RAK5270 + Webcam'};
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
+select_robot.Value = 5;
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
@@ -77,20 +78,23 @@ text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normal
 option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'UseController1'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
+select_app.Value = 1:3;
 
-% Vision
-text_vision = uicontrol('Style', 'text', 'String', 'Vision', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
+% Deep net settings
+text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'livingroom-net'; 'AlexNet'; 'Robots'; 'Faces'};
+option_vision = {'LivingRoomNet'; 'GoogLeNet'; 'AlexNet';};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
+select_vision.Value = [];
 
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone'; 'Speech2Text';'Text2Speech'; 'OpenAI'};
+option_communication = {'Microphone'; 'Speech2Text';'Text2Speech'; 'GPT3'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
+text_communication.Value = [];
 
 % Brain
 if ispc && ~isdeployed

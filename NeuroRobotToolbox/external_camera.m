@@ -50,11 +50,6 @@ ext_data.robot_xy = robot_xy;
 ext_data.rblob_xy = rblob_xy;
 ext_data.gblob_xy = gblob_xy;
 
-if save_experiences
-    fname = strcat(rec_dir_name_2, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
-    save(fname, 'ext_data', '-mat');
-end
-
 ext_im.CData = ext_uframe;
 robot_marker.XData = robot_xy(1);
 robot_marker.YData = robot_xy(2);
