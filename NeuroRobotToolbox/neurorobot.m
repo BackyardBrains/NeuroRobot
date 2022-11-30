@@ -97,7 +97,7 @@ select_robot.Value = est_option_robot;
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'UseController1'};
+option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'Use RL Agents'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.2 0.3], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_app.Value = 1:3;

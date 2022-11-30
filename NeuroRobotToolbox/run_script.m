@@ -9,7 +9,8 @@ if rak_only || use_esp32
         just_off
     end
 end
-if sum(script_running == 5:10)
+if sum(script_running == 1:4)
+elseif sum(script_running == 5)
     run_agent    
 else
     disp('Unknown behavior')

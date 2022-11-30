@@ -30,7 +30,7 @@ if exist('rak_only', 'var')
         save_experiences = 0;
     end
 
-    % 5 = 'Use RL agent
+    % 5 = 'Use RL Agent
     if sum(select_app.Value == 5)
         use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
         load(strcat(rl_dir_name, 'LivingRoomAgent'))
