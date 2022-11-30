@@ -67,7 +67,7 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 % Robot
 
 % Guess current setup
-est_option_robot = [];
+est_option_robot = 5;
 if exist('rak_only', 'var') && rak_only
     if exist('use_webcam', 'var') && ~use_webcam
         est_option_robot = 1;
@@ -75,15 +75,15 @@ if exist('rak_only', 'var') && rak_only
             est_option_robot = 2;
         end
     end
-elseif exist('use_esp32', 'var') && use_esp32 && ~use_webcam
+elseif exist('use_esp32', 'var') && use_esp32 && exist('use_webcam', 'var') && ~use_webcam
     est_option_robot = 3;
-elseif use_webcam && ~rak_only
+elseif exist('use_webcam', 'var') && use_webcam && exist('rak_only', 'var') && ~rak_only
     est_option_robot = 4;
-elseif ~use_webcam && ~rak_only
+elseif exist('use_webcam', 'var') && ~use_webcam && exist('rak_only', 'var') && ~rak_only
     est_option_robot = 5;
-elseif rak_only && use_webcam
+elseif exist('rak_only', 'var') && rak_only && exist('use_webcam', 'var') && use_webcam
     est_option_robot = 6;
-elseif use_esp32 && use_webcam
+elseif exist('use_esp32', 'var') && use_esp32 && exist('use_webcam', 'var') && use_webcam
     est_option_robot = 7;
 end
 
@@ -93,7 +93,6 @@ option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Co
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 select_robot.Value = est_option_robot;
-% camera_button_col
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
@@ -157,6 +156,7 @@ button5_pos = [0.79 0.02 0.17 0.05];
 % Camera button
 button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', button1_pos);
 set(button_camera, 'Callback', 'camera_button_callback; camera_button_col', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+camera_button_col
 
 % Start button
 button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 'units', 'normalized', 'position', button2_pos);
