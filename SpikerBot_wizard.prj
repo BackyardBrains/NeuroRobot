@@ -1,19 +1,24 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
   <configuration build-checksum="3071016376" file="C:\Users\Christopher Harris\NeuroRobot\SpikerBot_wizard.prj" location="C:\Users\Christopher Harris\NeuroRobot" name="SpikerBot_wizard" preferred-package-location="C:\Users\Christopher Harris\NeuroRobot\SpikerBot_wizard\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>SpikerBot</param.appname>
-    <param.icon />
-    <param.icons />
+    <param.icon>${PROJECT_ROOT}\SpikerBot_wizard_resources\icon.ico</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}\SpikerBot_wizard_resources\icon_48.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_wizard_resources\icon_32.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_wizard_resources\icon_24.png</file>
+      <file>${PROJECT_ROOT}\SpikerBot_wizard_resources\icon_16.png</file>
+    </param.icons>
     <param.version>1.0</param.version>
     <param.authnamewatermark>Christopher Harris</param.authnamewatermark>
-    <param.email />
-    <param.company />
-    <param.summary />
+    <param.email>christopher@backyardbrains.com</param.email>
+    <param.company>Backyard Brains</param.company>
+    <param.summary>Build brains and have them control neurorobots</param.summary>
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\Gallery\robot.jpg</param.screenshot>
     <param.guid />
-    <param.installpath.string>\SpikerBot\</param.installpath.string>
+    <param.installpath.string>\Backyard Brains\SpikerBot\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
-    <param.logo />
+    <param.logo>${PROJECT_ROOT}\Gallery\strip.jpg</param.logo>
     <param.install.notes />
     <param.target.install.notes />
     <param.intermediate>${PROJECT_ROOT}\SpikerBot_wizard\for_testing</param.intermediate>
@@ -29,7 +34,7 @@
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.web.mcr.name>SpikerBotInstaller</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>false</param.windows.command.prompt>
@@ -45,18 +50,11 @@
 	 -?  print help on how to use the application 
 	 input arguments</param.help.text>
     <unset>
-      <param.icon />
-      <param.icons />
       <param.version />
-      <param.email />
-      <param.company />
-      <param.summary />
       <param.description />
-      <param.screenshot />
       <param.guid />
       <param.installpath.string />
       <param.installpath.combo />
-      <param.logo />
       <param.install.notes />
       <param.target.install.notes />
       <param.intermediate />
@@ -69,7 +67,6 @@
       <param.web.mcr />
       <param.package.mcr />
       <param.no.mcr />
-      <param.web.mcr.name />
       <param.package.mcr.name />
       <param.no.mcr.name />
       <param.native.matlab />

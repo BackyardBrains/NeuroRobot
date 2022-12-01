@@ -123,7 +123,9 @@ text_communication.Value = 1;
 if ispc && ~isdeployed
     available_brains = dir('.\Brains\*.mat');
 elseif ispc && isdeployed
-    available_brains = dir(strcat(ctfroot, '\SpikerBot\Brains\*.mat'));
+    deployed_dir = which(fullfile('SpikerBot.exe'));
+    deployed_dir = deployed_dir(1:end-13);
+    available_brains = dir(horzcat(deployed_dir, 'Brains\*.mat'));
 elseif ismac
     available_brains = dir('./Brains/*.mat');
 end

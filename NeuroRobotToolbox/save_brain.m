@@ -40,7 +40,7 @@ brain.bg_neurons = bg_neurons;
 if ispc && ~isdeployed
     brain_file_name = strcat('.\Brains\', brain_name, '.mat');
 elseif ispc && isdeployed
-    brain_file_name = strcat(ctfroot, '\SpikerBot\Brains\', brain_name, '.mat');
+    brain_file_name = strcat(deployed_dir, 'Brains\', brain_name, '.mat');
 elseif ismac
     brain_file_name = strcat('./Brains/', brain_name, '.mat');
 end

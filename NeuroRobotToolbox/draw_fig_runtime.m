@@ -131,6 +131,7 @@ set(button_save,'Callback', 'run_button = 2;', 'FontSize', bfsize + 4, 'fontname
 
 button_pause = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
 set(button_pause,'Callback', '', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+set(button_pause, 'Enable', 'off')
 
 button_reward = uicontrol('Style', 'pushbutton', 'String', 'Dopamine', 'units', 'normalized', 'position', button4_pos);
 set(button_reward,'Callback', 'run_button = 5;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])

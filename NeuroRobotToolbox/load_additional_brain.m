@@ -5,7 +5,7 @@ brain_name_2 = popup_select_brain.String{popup_select_brain.Value};
 if ispc && ~isdeployed
     load(strcat('.\Brains\', brain_name_2, '.mat'))    
 elseif ispc && isdeployed
-    load(strcat(ctfroot, '\SpikerBot\Brains\', brain_name_2, '.mat'))
+    load(strcat(deployed_dir, 'Brains\', brain_name_2, '.mat'));
 elseif ismac
     load(strcat('./Brains/', brain_name_2, '.mat'))        
 end
