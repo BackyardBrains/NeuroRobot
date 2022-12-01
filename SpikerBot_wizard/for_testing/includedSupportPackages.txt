@@ -1,3 +1,0 @@
-IP Cameras
-OS Generic Video Interface
-Deep Learning Toolbox Model for GoogLeNet Network
