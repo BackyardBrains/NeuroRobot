@@ -24,7 +24,7 @@
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
     <param.support.packages>
-      <item>&lt;package displayname="OS Generic Video Interface" enabled="true" name="OS Generic Video Interface" product="Image Acquisition Toolbox"/&gt;</item>
+      <item>&lt;package displayname="OS Generic Video Interface" enabled="false" name="OS Generic Video Interface" product="Image Acquisition Toolbox"/&gt;</item>
     </param.support.packages>
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>

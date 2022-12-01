@@ -1,7 +1,8 @@
 
-if exist('rak_only', 'var')
+set(button_startup_complete, 'enable', 'off')
+drawnow
 
-    set(button_startup_complete, 'enable', 'off')
+if exist('rak_only', 'var')
 
     %% App settings
     % 1 = 'BG Color Scheme'
