@@ -37,8 +37,8 @@ image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - 
 nimages = length(image_ds.Files);
 disp(horzcat('N images: ', num2str(nimages)))
 
-image_ds_small = subset(image_ds, );
-image_ds_medium = subset(image_ds, );
+image_ds_small = subset(image_ds, 100); % should not be 100
+image_ds_medium = subset(image_ds, 100); % should not be 100
 image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 save(strcat(new_data_dir_name, 'image_ds_small'), 'image_ds_small')

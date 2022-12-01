@@ -3,8 +3,8 @@ if use_esp32
     large_frame = snapshot(rak_cam);
     esp_get_serial
 elseif use_webcam && ~(rak_only || use_esp32)
-    trigger(rak_cam)
-    large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging
+%     trigger(rak_cam) % <<<< COMMENTED OUT FOR COMPILATION
+%     large_frame = getdata(rak_cam, 1); % <<<< COMMENTED OUT FOR COMPILATION
 elseif rak_only
     large_frame = rak_cam.readVideo();
     large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);

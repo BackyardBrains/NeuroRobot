@@ -91,7 +91,9 @@ for ncam = 1:2
         try
             aitic = tic;
             
-            [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, 'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
+%             [bbox, score, label] = detect(trainedDetector, frame, ...
+%                 'NumStrongestRegions', 500, 'threshold', 0, ...
+%                 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128); % <<<< COMMENTED OUT FOR COMPILATION
             [mscore, midx] = max(score);
             mbbox = bbox(midx, :);
 

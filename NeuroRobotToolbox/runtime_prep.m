@@ -35,7 +35,7 @@ if exist('rak_only', 'var')
     % 5 = 'Use RL Agent
     if sum(select_app.Value == 5)
         use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
-        load(strcat(net_dir_name, 'LivingRoomAgent'))
+%         load(strcat(net_dir_name, 'LivingRoomAgent')) % <<<< COMMENTED OUT FOR COMPILATION
     else
         use_controllers = 0;
     end
@@ -44,8 +44,8 @@ if exist('rak_only', 'var')
     %% Deep net settings
     % 1 = 'LivingRoomNet (slam)'
     if sum(select_vision.Value == 1)  
-        load(strcat(net_dir_name, 'LivingRoomNet'))
-        load(strcat(net_dir_name, 'LivingRoomLabels'))
+%         load(strcat(net_dir_name, 'LivingRoomNet')) % <<<< COMMENTED OUT FOR COMPILATION
+%         load(strcat(net_dir_name, 'LivingRoomLabels')) % <<<< COMMENTED OUT FOR COMPILATION
         unique_states = unique(labels);
         n_unique_states = length(unique_states);
     end  
@@ -202,13 +202,6 @@ if exist('rak_only', 'var')
             end
     
         end
-    
-        if use_controllers == 1
-                 
-        elseif use_controllers == 2
-            load(strcat(data_dir_name, 'livingroom_slam_net'))
-            load(strcat(data_dir_name, 'DeepAgentTV'))
-        end
 
         if use_controllers % special
             state_wavs = struct;
@@ -306,13 +299,13 @@ if exist('rak_only', 'var')
     disp(horzcat('Brain name = ', brain_name))
     if ~exist('net', 'var') && use_cnn
         tic
-        g_net = googlenet; %%% <<<<< Commented out for packaging
+%         g_net = googlenet; % <<<< COMMENTED OUT FOR COMPILATION
         net_input_size = g_net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
     elseif ~exist('net', 'var') && use_rcnn
         tic
         net_input_size = [227 227];
-        load('rcnn5heads')
+%         load('rcnn5heads') % <<<< COMMENTED OUT FOR COMPILATION
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
     elseif use_cnn
         net_input_size = [227 227];

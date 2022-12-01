@@ -71,7 +71,7 @@ if use_esp32
         
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
-        rak_cam = ipcam(url);  %%% <<<<< Commented out for packaging
+%         rak_cam = ipcam(url); % <<<< COMMENTED OUT FOR COMPILATION
         rak_cam_h = 240;
         rak_cam_w = 320;   
         
@@ -96,24 +96,24 @@ end
 if use_webcam && ~(rak_only || use_esp32)
     disp('Attempting webcam connect...')
     try
-        delete(imaqfind) %%% <<<<< Commented out for packaging
+%         delete(imaqfind) % <<<< COMMENTED OUT FOR COMPILATION
         if ispc
-            rak_cam = videoinput('winvideo', 1); %%% <<<<< Commented out for packaging
+%             rak_cam = videoinput('winvideo', 1); % <<<< COMMENTED OUT FOR COMPILATION
         elseif ismac
-            rak_cam = videoinput('macvideo', 1); %%% <<<<< Commented out for packaging
+%             rak_cam = videoinput('macvideo', 1); % <<<< COMMENTED OUT FOR COMPILATION
         else
             disp('Unknown OS. Webcam not found.')
         end
     catch
         error('Unable to connect to Webcamera. Plut it in. Install Image Acquisition Support Package for Generic OS Interface.')
     end
-    triggerconfig(rak_cam, 'manual'); %%% <<<<< Commented out for packaging
+%     triggerconfig(rak_cam, 'manual'); % <<<< COMMENTED OUT FOR COMPILATION
     rak_cam.TriggerRepeat = Inf;
     rak_cam.FramesPerTrigger = 1;
     rak_cam.ReturnedColorspace = 'rgb';
-    start(rak_cam)
-    trigger(rak_cam)
-    large_frame = getdata(rak_cam, 1); %%% <<<<< Commented out for packaging       
+%     start(rak_cam) % <<<< COMMENTED OUT FOR COMPILATION
+%     trigger(rak_cam) % <<<< COMMENTED OUT FOR COMPILATION
+%     large_frame = getdata(rak_cam, 1); % <<<< COMMENTED OUT FOR COMPILATION       
     [rak_cam_h, rak_cam_w, ~] = size(large_frame);
     connect_success = 1;
 end
@@ -121,24 +121,24 @@ end
 if rak_only && (use_webcam || use_esp32)
     disp('Attempting webcam connect...')
     try
-        delete(imaqfind) %%% <<<<< Commented out for packaging
+%         delete(imaqfind) % <<<< COMMENTED OUT FOR COMPILATION
         if ispc
-            ext_cam = videoinput('winvideo', 1); %%% <<<<< Commented out for packaging
+%             ext_cam = videoinput('winvideo', 1); % <<<< COMMENTED OUT FOR COMPILATION
         elseif ismac
-            ext_cam = videoinput('macvideo', 1); %%% <<<<< Commented out for packaging
+%             ext_cam = videoinput('macvideo', 1); % <<<< COMMENTED OUT FOR COMPILATION
         else
             disp('Unknown OS. Webcam not found.')
         end
     catch
         error('Unable to connect to Webcamera. Plut it in. Install Image Acquisition Support Package for Generic OS Interface.')
     end
-    triggerconfig(ext_cam, 'manual'); %%% <<<<< Commented out for packaging
+%     triggerconfig(ext_cam, 'manual'); % <<<< COMMENTED OUT FOR COMPILATION
     ext_cam.TriggerRepeat = Inf;
     ext_cam.FramesPerTrigger = 1;
     ext_cam.ReturnedColorspace = 'rgb';
-    start(ext_cam)
-    trigger(ext_cam)
-    ext_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging       
+%     start(ext_cam) % <<<< COMMENTED OUT FOR COMPILATION
+%     trigger(ext_cam) % <<<< COMMENTED OUT FOR COMPILATION
+%     ext_frame = getdata(ext_cam, 1); % <<<< COMMENTED OUT FOR COMPILATION       
 else
     ext_cam = 0;
 end

@@ -4,7 +4,7 @@ clf
 ax1 = axes('position', [0.05 0.07 0.9 0.9]);
 
 % trigger(ext_cam)
-% this_frame = getdata(ext_cam, 1); %%% <<<<< Commented out for packaging        
+% this_frame = getdata(ext_cam, 1);
 % this_frame = imresize(this_frame, [227 404]);
 this_frame = zeros(227, 404, 3, 'uint8');
 
