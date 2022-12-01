@@ -28,7 +28,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% States
-get_states3
+get_states
 save(strcat(net_dir_name, 'states'), 'states')
 save('states', 'states')
 load(strcat(net_dir_name, 'states'))
