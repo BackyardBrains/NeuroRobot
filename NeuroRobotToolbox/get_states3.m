@@ -20,10 +20,9 @@ for ntuple = 1:ntuples
 
     new_im(:, 1:227, :) = left_im;
     new_im(:, 178:404, :) = right_im;
-
     [state, scores] = classify(net, new_im);
     this_state = find(unique_states == state);
-    scores = scores(this_state); % mislabeled and unused?
+    score = scores(this_state); % mislabeled and unused?
 
     states(ntuple) = this_state;
 

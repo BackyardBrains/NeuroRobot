@@ -119,3 +119,12 @@ for ncam = 1:2
 
 end
 
+%% Test state net
+% new_im = zeros(227, 404, 3, 'uint8');    
+% new_im(:, 1:227, :) = prev_left_eye_frame;
+% new_im(:, 178:404, :) = prev_right_eye_frame;
+% [state, scores] = classify(net, new_im);
+% this_state = find(unique_states == state);
+% score = scores(this_state); % mislabeled and unused?    
+% score = (round(score * 100))/100;
+% disp(horzcat('state = ',num2str(this_state), ', score = ', num2str(score)))
