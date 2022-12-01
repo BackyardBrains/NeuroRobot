@@ -1,10 +1,10 @@
 
-%% Basal ganglia
+%% Get action net
 
 clear
 clc
 
-reward_states = 13; % livingroom_net watching tv
+reward_states = 13;
 data_dir_name = '.\Datasets\';
 rec_dir_name = 'Recordings\PreTraining\';
 net_dir_name = '.\Nets\';
@@ -43,7 +43,7 @@ load(strcat(net_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 19;
 actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
@@ -197,15 +197,15 @@ disp('Environment ready')
 %% Agent 1 (Q)
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.1;
+qOptions.LearnRate = 1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 1000;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 50;
+training_opts.ScoreAveragingWindowLength = 10;
 trainingStats_shallow = train(agent,env, training_opts);
 
 
