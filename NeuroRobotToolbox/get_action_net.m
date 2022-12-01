@@ -4,9 +4,10 @@
 clear
 clc
 
-reward_states = 13;
+reward_states = [1 5 9 13];
 data_dir_name = '.\Datasets\';
-rec_dir_name = 'Recordings\PreTraining\';
+% rec_dir_name = 'Recordings\PreTraining\';
+rec_dir_name = 'Recordings\';
 net_dir_name = '.\Nets\';
 
 load(horzcat(net_dir_name, 'LivingRoomNet'))
@@ -197,12 +198,12 @@ disp('Environment ready')
 %% Agent 1 (Q)
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
-qOptions.LearnRate = 1;
+qOptions.LearnRate = 0.1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
+training_opts.MaxEpisodes = 200;
+training_opts.MaxStepsPerEpisode = 200;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 10;
@@ -222,11 +223,11 @@ save(horzcat(net_dir_name, 'LivingRoomAgent'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 100;
+training_opts.MaxEpisodes = 200;
+training_opts.MaxStepsPerEpisode = 200;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 50;
+training_opts.ScoreAveragingWindowLength = 10;
 training_opts.UseParallel = 0;
 trainingStats_deep = train(agent, env, training_opts);
 
