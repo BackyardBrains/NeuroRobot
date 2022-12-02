@@ -1,2 +1,0 @@
-Path	Symbol	Reason
-toolbox\imaq\supportpackages\genericvideo\+matlabshared\+supportpkg\+internal\+sppkglegacy\OSGenericVideoInterface.m	matlabshared.supportpkg.internal.sppkglegacy.SupportPackageRegistryPluginBase	undeployable
