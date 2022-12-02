@@ -1,6 +1,6 @@
 
-% trigger(ext_cam) % <<<< COMMENTED OUT FOR COMPILATION
-% ext_frame = getdata(ext_cam, 1); % <<<< COMMENTED OUT FOR COMPILATION
+trigger(ext_cam)
+ext_frame = getdata(ext_cam, 1); 
 ext_uframe = imresize(ext_frame, [227 404]);
 ext_im.CData = ext_uframe;
 
