@@ -7,9 +7,7 @@ NeuroRobotToolbox/Google_Credentials_Speech2text.json
 
 NeuroRobotToolbox/Datasets
 
-NeuroRobotToolbox/standalone_build
-NeuroRobotToolbox/package_installer
-NeuroRobotToolbox/SpikerBot-cache
+SpikerBot*
 
 OGLdpf.log
 

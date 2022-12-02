@@ -71,7 +71,7 @@ if use_esp32
         
         url = 'http://192.168.4.1:81/stream';%robot is AP
         %url = 'http://192.168.0.14:81/stream';%use local AP
-%         rak_cam = ipcam(url); % <<<< COMMENTED OUT FOR COMPILATION
+        rak_cam = ipcam(url);
         rak_cam_h = 240;
         rak_cam_w = 320;   
         

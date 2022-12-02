@@ -4,7 +4,7 @@ try
         large_frame = rak_cam.readVideo();
         large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);
     elseif use_esp32
-%         large_frame = snapshot(rak_cam); % <<<< COMMENTED OUT FOR COMPILATION
+        large_frame = snapshot(rak_cam);
     elseif ~use_webcam
         large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
     elseif use_webcam
