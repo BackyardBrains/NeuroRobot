@@ -1,7 +1,7 @@
 
 % If no design action is in progress
 
-if fig_design.UserData ~= 6
+if (fig_design.UserData ~= 6) && (fig_design.UserData ~= 1)
     % Disable Design buttons
     delete(button_add_neuron)
     delete(button_add_population)
@@ -273,7 +273,9 @@ elseif fig_design.UserData == 4
 end
 
 % Enable design buttons
-design_buttons
+if fig_design.UserData == 0
+    design_buttons
+end
 
 neuron_or_network = 1; % Default to adding single neuron if click brain directly
 

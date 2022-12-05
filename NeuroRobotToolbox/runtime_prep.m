@@ -77,33 +77,33 @@ if exist('rak_only', 'var')
     end
 
     % 2 = 'Custom sounds'
-    if sum(select_communication.Value == 1)
+    if sum(select_communication.Value == 2)
         vocal = 1; % Use computer microphone to listen
     else
         vocal = 0;
     end
 
     % 3 = 'Speak words'
-    if sum(select_communication.Value == 1)
+    if sum(select_communication.Value == 3)
         supervocal = 1; % Custom word output (text-to-speech - REQUIRES WINDOWS)
     else
         supervocal = 0;
     end
 
     % 4 = 'Multi-tone speaker'
-    if sum(select_communication.Value == 2)
+    if sum(select_communication.Value == 4)
         matlab_speaker_ctrl = 1;    % Multi tone output        
     else
         matlab_speaker_ctrl = 0;    % Multi tone output        
     end
 
     % 5 = GPT3
-    if sum(select_communication.Value == 4)
+    if sum(select_communication.Value == 5)
     else
     end
 
     % 6 = 'Speech2Text';
-    if sum(select_communication.Value == 3)
+    if sum(select_communication.Value == 6)
     else
     end
 

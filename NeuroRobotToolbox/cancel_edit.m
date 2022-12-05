@@ -27,3 +27,7 @@ clear presynaptic_neuron
 set(button_add_neuron, 'enable', 'on')
 set(button_add_network, 'enable', 'on')
 set(button_return_to_runtime, 'enable', 'on')
+
+
+fig_design.UserData = 0;
+design_action = 0;

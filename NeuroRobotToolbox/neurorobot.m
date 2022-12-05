@@ -68,7 +68,7 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 % Robot
 
 % Guess current setup
-est_option_robot = 5;
+est_option_robot = 3;
 if exist('rak_only', 'var') && rak_only
     if exist('use_webcam', 'var') && ~use_webcam
         est_option_robot = 1;

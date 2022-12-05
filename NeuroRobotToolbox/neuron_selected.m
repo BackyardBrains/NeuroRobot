@@ -1,5 +1,5 @@
 
-if ~exist('presynaptic_neuron', 'var')
+if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9
     % Disable Design buttons
     delete(button_add_neuron)
     delete(button_add_population)
@@ -20,12 +20,18 @@ if exist('presynaptic_neuron', 'var') && design_action ~=2 && (~exist('postsynap
     delete(button2)
     delete(button3)
     delete(button4)
+    delete(button5)
     delete(button_cancel)
     drawnow
+
+    fig_design.UserData = 0;
 end
 
 design_action = 0;
 if fig_design.UserData == 0
+
+    fig_design.UserData = 9;
+    design_action = 9;
 
     % Get presynaptic neuron
     mouse_location = get(gca, 'CurrentPoint');
@@ -444,7 +450,7 @@ elseif fig_design.UserData == 6
     
 end
 
-if ~exist('presynaptic_neuron', 'var')
+if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9
     design_buttons
 end
 

@@ -28,6 +28,6 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var') && nneurons
 
 else
 
-    disp('create_sensory_synapse failed to launch')
+    disp('create_sensory_synapse failed to launch - action in progress')
 
 end
