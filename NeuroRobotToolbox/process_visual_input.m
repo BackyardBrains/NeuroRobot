@@ -89,7 +89,7 @@ for ncam = 1:2
 %         vis_pref_vals((n_basic_vis_features+1):n_vis_prefs, ncam) = cnn_out * 50;
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out * 50;
         if ncam == 1
-            label
+%             label
         end
     elseif use_rcnn
         try
