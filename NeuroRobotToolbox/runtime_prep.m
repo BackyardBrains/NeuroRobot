@@ -2,114 +2,130 @@
 set(button_startup_complete, 'enable', 'off')
 drawnow
 
-if exist('rak_only', 'var')
+%% App settings
+% 1 = 'BG Color Scheme'
+if sum(select_app.Value == 1)
+    bg_colors = 1; % Use neuron color to indicate network ID, neuron flickering to indicate spikes  
+else
+    bg_colors = 0;
+end
 
-    %% App settings
-    % 1 = 'BG Color Scheme'
-    if sum(select_app.Value == 1)
-        bg_colors = 1; % Use neuron color to indicate network ID, neuron flickering to indicate spikes  
-    else
-        bg_colors = 0;
-    end
-    
-    % 2 = 'Draw Neuron Numbers'   
-    if sum(select_app.Value == 2)
-        draw_neuron_numbers = 1;
-    else
-        draw_neuron_numbers = 0;
-    end
-    
-    % 3 = 'Draw Synapse Weights'    
-    if sum(select_app.Value == 3)
-        draw_synapse_strengths = 1;
-    else
-        draw_synapse_strengths = 0;
-    end
-    
-    % 4 = 'Record Data'
-    if sum(select_app.Value == 4)
-        save_experiences = 1;
-    else
-        save_experiences = 0;
-    end
+% 2 = 'Draw Neuron Numbers'   
+if sum(select_app.Value == 2)
+    draw_neuron_numbers = 1;
+else
+    draw_neuron_numbers = 0;
+end
 
-    % 5 = 'Use RL Agent
-    if sum(select_app.Value == 5)
-        use_controllers = 1; % Switch this so correct nets are loaded with brain selection    
+% 3 = 'Draw Synapse Weights'    
+if sum(select_app.Value == 3)
+    draw_synapse_strengths = 1;
+else
+    draw_synapse_strengths = 0;
+end
+
+% 4 = 'Record Data'
+if sum(select_app.Value == 4)
+    save_experiences = 1;
+else
+    save_experiences = 0;
+end
+
+% 5 = 'Use RL Agent
+if sum(select_app.Value == 5)
+    use_controllers = 1;    
 %         load(strcat(net_dir_name, 'LivingRoomAgent')) % <<<< COMMENTED OUT FOR COMPILATION
-    else
-        use_controllers = 0;
-    end
+else
+    use_controllers = 0;
+end
 
 
-    %% Deep net settings
-    % 1 = 'LivingRoomNet (slam)'
-    if sum(select_vision.Value == 1)  
+%% Deep net settings
+% 1 = 'LivingRoomNet (slam)'
+if sum(select_vision.Value == 1)  
 %         load(strcat(net_dir_name, 'LivingRoomNet')) % <<<< COMMENTED OUT FOR COMPILATION
 %         load(strcat(net_dir_name, 'LivingRoomLabels')) % <<<< COMMENTED OUT FOR COMPILATION
-        unique_states = unique(labels);
-        n_unique_states = length(unique_states);
-    end  
+    unique_states = unique(labels);
+    n_unique_states = length(unique_states);
+end  
 
-    % 2 = 'GoogLeNet (generic)'    
-    if sum(select_vision.Value == 3)
-        use_cnn = 1;
-    else
-        use_cnn = 0;
-    end
+% 2 = 'GoogLeNet (generic)'    
+if sum(select_vision.Value == 2)
+    use_cnn = 1;
+else
+    use_cnn = 0;
+end
 
-    % 3 = 'AlexNet (custom)'
-    if sum(select_vision.Value == 5)
-        use_rcnn = 1;
-    else
-        use_rcnn = 0;
-    end
-    
-    
-    %% Communication settings
-    audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
-    
-    % 1 = 'Microphone input'
-    if sum(select_communication.Value == 1)
-        matlab_audio_rec = 1; % Use computer microphone to listen
-    else
-        matlab_audio_rec = 0;
-    end
+% 3 = 'AlexNet (custom)'
+if sum(select_vision.Value == 3)
+    use_rcnn = 1;
+else
+    use_rcnn = 0;
+end
 
-    % 2 = 'Custom sounds'
-    if sum(select_communication.Value == 2)
-        vocal = 1; % Use computer microphone to listen
-    else
-        vocal = 0;
-    end
 
-    % 3 = 'Speak words'
-    if sum(select_communication.Value == 3)
-        supervocal = 1; % Custom word output (text-to-speech - REQUIRES WINDOWS)
-    else
-        supervocal = 0;
-    end
+%% Communication settings
+audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
 
-    % 4 = 'Multi-tone speaker'
-    if sum(select_communication.Value == 4)
-        matlab_speaker_ctrl = 1;    % Multi tone output        
-    else
-        matlab_speaker_ctrl = 0;    % Multi tone output        
-    end
+% 1 = 'Microphone input'
+if sum(select_communication.Value == 1)
+    matlab_audio_rec = 1;
+else
+    matlab_audio_rec = 0;
+end
 
-    % 5 = GPT3
-    if sum(select_communication.Value == 5)
-    else
-    end
+% 2 = 'Custom sounds'
+if sum(select_communication.Value == 2)
+    vocal = 1;
+else
+    vocal = 0;
+end
 
-    % 6 = 'Speech2Text';
-    if sum(select_communication.Value == 6)
-    else
-    end
+% 3 = 'Speak words'
+if sum(select_communication.Value == 3)
+    supervocal = 1; % Custom word output (text-to-speech - REQUIRES WINDOWS)
+else
+    supervocal = 0;
+end
 
-    %% Select brain
-    brain_name = brain_string{select_brain.Value};
-    
+% 4 = 'Multi-tone speaker'
+if sum(select_communication.Value == 4)
+    matlab_speaker_ctrl = 1; % Multi tone output        
+else
+    matlab_speaker_ctrl = 0;      
+end
+
+% 5 = GPT3
+if sum(select_communication.Value == 5)
+else
+end
+
+% 6 = 'Speech2Text';
+if sum(select_communication.Value == 6)
+else
+end
+
+%% Clear
+clear presynaptic_neuron
+clear postsynaptic_neuron
+clear postsynaptic_contact
+clear neuron_xys
+clear spikes_step
+
+%% Select brain
+brain_name = brain_string{select_brain.Value};
+
+% Can the app settings support the selected brain?
+load_brain
+if size(vis_prefs, 2) > 7 && ~sum(select_vision.Value == 2)
+    brain_support = 0;
+else
+    brain_support = 1;
+end
+
+
+if exist('rak_only', 'var') && brain_support    
+
     
     %% Clear timers - why is this used?
     if exist('runtime_pulse', 'var')
@@ -142,11 +158,26 @@ if exist('rak_only', 'var')
 	    esp32WebsocketClient = 0;
     end
     spinled = 1;
-    vis_prefs = [];
-    neuron_scripts = [];
+%     vis_prefs = [];
+%     neuron_scripts = [];
     if ~exist('neuron_tones', 'var')
         neuron_tones = 0;
     end
+
+    if use_cnn && ~use_rcnn
+        labels = readcell('alllabels.txt');
+        object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
+        object_strs = labels(object_ns);
+        vis_pref_names = [vis_pref_names, object_strs'];
+        score = zeros(1, 1000);
+        n_vis_prefs = size(vis_pref_names, 2);
+    elseif use_rcnn && ~use_cnn
+        vis_pref_names = [vis_pref_names, 'person1', 'person2', 'person3', 'person4', 'person5'];    
+        object_strs = {'person1', 'person2', 'person3', 'person4', 'person5'};
+        n_vis_prefs = size(vis_pref_names, 2);
+    else
+        n_vis_prefs = size(vis_pref_names, 2);
+    end    
     
     left_torque = 0;
     left_dir = 0;
@@ -276,11 +307,11 @@ if exist('rak_only', 'var')
         audio_out_names = 0;
     end
     
-    if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
-        if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))
-            error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
-        end
-    end
+%     if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
+%         if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))
+%             error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
+%         end
+%     end
     % if ~isempty(neuron_tones) && popup_select_brain.Value ~= 1
     %     if max(neuron_tones) > length(audio_out_fs) && vocal && ~supervocal % This is a mess
     %         error('Brain needs tones. Set vocal to 0.')
@@ -300,7 +331,7 @@ if exist('rak_only', 'var')
     disp(horzcat('Brain name = ', brain_name))
     if ~exist('net', 'var') && use_cnn
         tic
-%         g_net = googlenet; % <<<< COMMENTED OUT FOR COMPILATION
+        g_net = googlenet; % <<<< COMMENTED OUT FOR COMPILATION
         net_input_size = g_net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
     elseif ~exist('net', 'var') && use_rcnn
@@ -330,14 +361,6 @@ if exist('rak_only', 'var')
     clear fig_design
     
     
-    %% Clear
-    clear presynaptic_neuron
-    clear postsynaptic_neuron
-    clear postsynaptic_contact
-    clear neuron_xys
-    clear spikes_step
-    
-    
     %% Prepare
     % if use_profile
     %     profile clear
@@ -362,7 +385,7 @@ if exist('rak_only', 'var')
     prev_right_eye_frame = imresize(right_eye_frame, net_input_size);
     left_uframe = prev_left_eye_frame;
     right_uframe = prev_right_eye_frame;
-    
+
     if dev_mode
         brainless_prepare
     end
@@ -389,7 +412,6 @@ if exist('rak_only', 'var')
     
     
     %% Initialize brain and Runtime figure
-    load_brain
     draw_fig_runtime
     draw_brain
     
@@ -479,12 +501,17 @@ if exist('rak_only', 'var')
         'stopfcn', 'if fig_design.UserData == 10 && run_button ~= 3 runtime_stop_code; end', ...
         'executionmode', 'fixedrate');
     
+    set(button_startup_complete, 'enable', 'on')
+    button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
+    drawnow
+
     start(runtime_pulse)
 
 else
 
     button_startup_complete.BackgroundColor = [1 0.25 0.25];
     pause(0.75)
+    set(button_startup_complete, 'enable', 'on')
     button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
 
 end

@@ -86,7 +86,11 @@ for ncam = 1:2
         cnn_out = sigmoid(score(object_ns), 0.04, 50);
         cnn_out = cnn_out - 0.15;
         cnn_out(cnn_out < 0) = 0;
-        vis_pref_vals((n_basic_vis_features+1):n_vis_prefs, ncam) = cnn_out * 50;
+%         vis_pref_vals((n_basic_vis_features+1):n_vis_prefs, ncam) = cnn_out * 50;
+        vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out * 50;
+        if ncam == 1
+            label
+        end
     elseif use_rcnn
         try
             aitic = tic;

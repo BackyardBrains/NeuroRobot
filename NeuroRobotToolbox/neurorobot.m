@@ -68,7 +68,7 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'unit
 % Robot
 
 % Guess current setup
-est_option_robot = 3;
+est_option_robot = 4;
 if exist('rak_only', 'var') && rak_only
     if exist('use_webcam', 'var') && ~use_webcam
         est_option_robot = 1;
@@ -88,49 +88,57 @@ elseif exist('use_esp32', 'var') && use_esp32 && exist('use_webcam', 'var') && u
     est_option_robot = 7;
 end
 
-text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.2 0.05], ...
+text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_robot = {'SpikerBot RAK5206'; 'SpikerBot RAK5270'; 'SpikerBot ESP32'; 'Computer with Camera'; 'Computer without Camera'; 'SpikerBot RAK5206 + Webcam'; 'SpikerBot RAK5270 + Webcam'};
-select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.2 0.2], ...
+select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.55 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
 select_robot.Value = est_option_robot;
 
 % App Settings
-text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.2 0.05], ...
+text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.435 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'Use RL Agents'};
-select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.2 0.3], ...
+select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_app.Value = 1:3;
 
 % Deep net settings
-text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.2 0.05], ...
+text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'LivingRoomNet (slam)'; 'GoogLeNet (generic)'; 'AlexNet (custom)';};
-select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.2 0.2], ...
+option_vision = {'LivingRoomNet (custom SLAM net)'; 'GoogLeNet (object detection net)';};
+select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_vision.Value = [];
+% select_vision.Value = 2;
 
 % Communication
-text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.2 0.05], ...
+text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone input'; 'MP3 sounds';'Speak words'; 'Speech-to-text'; 'GPT3'};
-select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.2 0.3], ...
+option_communication = {'Microphone input'; 'MP3 sounds';'Speak words'; 'Multi-tone'};
+select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 text_communication.Value = 1;
 
 % Brain
 if ispc && ~isdeployed
-    available_brains = dir('.\Brains\*.mat');
+    brain_dir = '.\Brains';
+    available_brains = dir(strcat(brain_dir, '\*.mat'));
 elseif ispc && isdeployed
-    available_brains = dir('C:\Users\chris\Brains\*.mat');
-    deployed_dir = which(fullfile('SpikerBot.exe'));
-    deployed_dir = 'C:\Users\chris\';
-    deployed_dir = deployed_dir(1:end-13);
-    available_brains = dir(horzcat(deployed_dir, 'Brains\*.mat'));
-elseif ismac
-    available_brains = dir('./Brains/*.mat');
+    brain_dir = strcat(userpath, '\Brains');
+    if ~exist(brain_dir, 'dir')
+        disp('Warning: No brains directory found in userpath')
+        mkdir(brain_dir)
+        disp(horzcat('Created: ', brain_dir))
+    end
+    available_brains = dir(strcat(brain_dir, '\*.mat'));
+elseif ismac && ~isdeployed
+    brain_dir = './Brains';
+    available_brains = dir(strcat(brain_dir, '/*.mat'));
+elseif ismac && isdeployed
+    disp('Error: app compiled for Windows')
 end
+disp(horzcat('Brain dir: ', brain_dir))
 
 clear brain_string
 nbrains = size(available_brains, 1);
@@ -192,17 +200,4 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
 ncontacts = size(contact_xys, 1);
-if exist('use_cnn', 'var') && use_cnn && ~use_rcnn
-    labels = readcell('alllabels.txt');
-    object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
-    object_strs = labels(object_ns);
-    vis_pref_names = [vis_pref_names, object_strs'];
-    score = zeros(1, 1000);
-    n_vis_prefs = size(vis_pref_names, 2);
-elseif exist('use_rcnn', 'var') && use_rcnn && ~use_cnn
-    vis_pref_names = [vis_pref_names, 'ariyana', 'head', 'nour', 'sarah', 'wenbo'];    
-    object_strs = {'ariyana', 'head', 'nour', 'sarah', 'wenbo'};
-    n_vis_prefs = size(vis_pref_names, 2);
-else
-    n_vis_prefs = size(vis_pref_names, 2);
-end
+

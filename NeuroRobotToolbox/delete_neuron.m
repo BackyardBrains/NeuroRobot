@@ -64,6 +64,9 @@ end
 % Clear neurons
 clear presynaptic_neuron
 
+fig_design.UserData = 0;
+design_action = 0;
+
 % Draw brain
 draw_brain
 

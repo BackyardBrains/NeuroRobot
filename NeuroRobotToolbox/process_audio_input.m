@@ -29,9 +29,9 @@ if ~isempty(this_audio) && length(this_audio) >= 1000
     z = abs(y).^2;
     z = z(1:audx)';
 
-    if ~robot_moving
+%     if ~robot_moving
         sound_spectrum(:,nstep) = z;
-    end
+%     end
 end
 
 
