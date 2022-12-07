@@ -120,17 +120,17 @@ select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Positi
 text_communication.Value = 1;
 
 % Brain
-% if ispc && ~isdeployed
-%     available_brains = dir('.\Brains\*.mat');
-% elseif ispc && isdeployed
-%     available_brains = dir('C:\Users\chris\Brains\*.mat');
-%     deployed_dir = which(fullfile('SpikerBot.exe'));
+if ispc && ~isdeployed
+    available_brains = dir('.\Brains\*.mat');
+elseif ispc && isdeployed
+    available_brains = dir('C:\Users\chris\Brains\*.mat');
+    deployed_dir = which(fullfile('SpikerBot.exe'));
     deployed_dir = 'C:\Users\chris\';
     deployed_dir = deployed_dir(1:end-13);
     available_brains = dir(horzcat(deployed_dir, 'Brains\*.mat'));
-% elseif ismac
-%     available_brains = dir('./Brains/*.mat');
-% end
+elseif ismac
+    available_brains = dir('./Brains/*.mat');
+end
 
 clear brain_string
 nbrains = size(available_brains, 1);
