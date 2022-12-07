@@ -1,4 +1,5 @@
 .DS_Store
+OGLdpf.log
 
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
@@ -6,9 +7,8 @@ NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 
 NeuroRobotToolbox/Datasets
-
-SpikerBot*
-
-OGLdpf.log
-
 NeuroRobotToolbox/*.asv
+
+compile_code
+SpikerBot_build
+SpikerBot_installer

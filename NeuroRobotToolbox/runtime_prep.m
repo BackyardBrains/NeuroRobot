@@ -510,8 +510,8 @@ if exist('rak_only', 'var') && brain_support
 else
 
     button_startup_complete.BackgroundColor = [1 0.25 0.25];
-    pause(0.75)
     set(button_startup_complete, 'enable', 'on')
+    pause(0.75)
     button_startup_complete.BackgroundColor = [0.8 0.8 0.8];
 
 end

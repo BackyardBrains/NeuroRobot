@@ -1,5 +1,5 @@
 
-if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9
+if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9 && fig_design.UserData ~= 7
     % Disable Design buttons
     delete(button_add_neuron)
     delete(button_add_population)
@@ -11,7 +11,10 @@ if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9
 end
 
 % Remove any previous highlights
-if exist('presynaptic_neuron', 'var') && design_action ~=2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var')) && fig_design.UserData ~= 1
+if exist('presynaptic_neuron', 'var') && design_action ~=2 && ...
+        (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var')) ...
+        && fig_design.UserData ~= 1 && fig_design.UserData ~= 8
+
     draw_neuron_edge.CData(presynaptic_neuron, :) = [0 0 0];
     draw_neuron_core.CData(presynaptic_neuron, :) = neuron_cols(presynaptic_neuron, :);
     
@@ -450,11 +453,13 @@ elseif fig_design.UserData == 6
     
 end
 
-if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9
+if ~exist('presynaptic_neuron', 'var') && fig_design.UserData ~= 9 && fig_design.UserData ~= 7
     design_buttons
 end
 
 % Design action: add neuron-neuron or neuron-motor synapse
-if (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var')) && fig_design.UserData ~= 1 % ugly hack
+if (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var')) ...
+        && fig_design.UserData ~= 1 && fig_design.UserData ~= 8 % ugly hack
+    
     fig_design.UserData = design_action;
 end

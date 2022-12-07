@@ -1,6 +1,9 @@
 
 if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('postsynaptic_contact', 'var'))
 
+    fig_design.UserData = 8;
+    design_action = 8;
+    
     % Disable Design buttons
     delete(button_add_neuron)
     delete(button_add_population)

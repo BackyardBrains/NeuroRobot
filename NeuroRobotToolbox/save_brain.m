@@ -37,13 +37,7 @@ brain.network_drive = network_drive;
 brain.bg_neurons = bg_neurons;
 
 % Save brain
-if ispc && ~isdeployed
-    brain_file_name = strcat('.\Brains\', brain_name, '.mat');
-elseif ispc && isdeployed
-    brain_file_name = strcat(deployed_dir, 'Brains\', brain_name, '.mat');
-elseif ismac
-    brain_file_name = strcat('./Brains/', brain_name, '.mat');
-end
+brain_file_name = strcat(brain_dir, brain_name, '.mat');
 
 try
     save(brain_file_name, 'brain')

@@ -43,6 +43,17 @@ end
 im = flipud(255 - ((255 - imread(this_workspace_fig))));
 im2 = flipud(255 - ((255 - imread(this_workspace_fig))));
 
+
+%% Prep variables necessary for brain load
+ms_per_step = round(pulse_period * 1000);
+nsteps_per_loop = 100;
+contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
+    -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
+    -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
+ncontacts = size(contact_xys, 1);
+n_vis_prefs = size(vis_pref_names, 2);
+
+
 %% Screensize
 if ismac
     startup_fig_pos = get(0, 'screensize') + [0 149 0 -171];
@@ -51,6 +62,7 @@ else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
 end
+
 
 %% Prepare figure
 fig_startup = figure(1);
@@ -64,11 +76,12 @@ set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
+
 %% Selection
 % Robot
 
 % Guess current setup
-est_option_robot = 4;
+est_option_robot = 3;
 if exist('rak_only', 'var') && rak_only
     if exist('use_webcam', 'var') && ~use_webcam
         est_option_robot = 1;
@@ -122,19 +135,25 @@ text_communication.Value = 1;
 
 % Brain
 if ispc && ~isdeployed
-    brain_dir = '.\Brains';
-    available_brains = dir(strcat(brain_dir, '\*.mat'));
+    brain_dir = '.\Brains\';
+    available_brains = dir(strcat(brain_dir, '*.mat'));
 elseif ispc && isdeployed
-    brain_dir = strcat(userpath, '\Brains');
+    brain_dir = strcat(userpath, '\Brains\');
     if ~exist(brain_dir, 'dir')
-        disp('Warning: No brains directory found in userpath')
         mkdir(brain_dir)
-        disp(horzcat('Created: ', brain_dir))
+        disp(horzcat('Created new directory: ', brain_dir))
     end
-    available_brains = dir(strcat(brain_dir, '\*.mat'));
+    available_brains = dir(strcat(brain_dir, '*.mat'));
+    if size(available_brains, 1) == 0
+        new_brain_vars
+        brain_name = 'Noob';
+        save_brain        
+        disp(horzcat('Created new brain: ', brain_name))
+    end
+    available_brains = dir(strcat(brain_dir, '*.mat'));
 elseif ismac && ~isdeployed
-    brain_dir = './Brains';
-    available_brains = dir(strcat(brain_dir, '/*.mat'));
+    brain_dir = './Brains/';
+    available_brains = dir(strcat(brain_dir, '*.mat'));
 elseif ismac && isdeployed
     disp('Error: app compiled for Windows')
 end
@@ -158,6 +177,7 @@ brain_edit_name = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized'
 button_new_brain = uicontrol('Style', 'pushbutton', 'String', 'Create New Brain', 'units', 'normalized', 'position', [0.6 0.15 0.15 0.05]);
 set(button_new_brain, 'Callback', 'initialize_brain; save_brain; neurorobot', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+
 
 %% Buttons
 button1_pos = [0.03 0.02 0.17 0.05];
@@ -192,12 +212,4 @@ set(button_to_sleep, 'enable', 'off')
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);
 set(button_to_quit, 'Callback', 'closereq', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
-
-%% Prep variables necessary for brain load
-ms_per_step = round(pulse_period * 1000);
-nsteps_per_loop = 100;
-contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
-    -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
-    -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
-ncontacts = size(contact_xys, 1);
 

@@ -1,12 +1,5 @@
 
-
-if ispc && ~isdeployed
-    load(strcat('.\Brains\', brain_name, '.mat'))    
-elseif ispc && isdeployed
-    load(strcat(deployed_dir, 'Brains\', brain_name, '.mat'));
-elseif ismac
-    load(strcat('./Brains/', brain_name, '.mat'))        
-end
+load(strcat(brain_dir, brain_name, '.mat'))
 
 nneurons = brain.nneurons;
 neuron_xys = brain.neuron_xys;
