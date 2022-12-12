@@ -8,7 +8,7 @@ A <b>neurorobot</b> is a robot controlled by a computer model of a biological br
 <br>
 <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/robots.jpg"><br>
 <br>
-<b>Neuroscience</b><br>
+<b>How the app works</b><br>
 Many neurons in the NeuroRobot app are Izhikevich neurons designed to simulate the spiking patterns of biological neurons. These neurons can be quiet, fire regularly or in bursts, and can respond to inputs in different ways. Synaptic connections between neurons have a strength (“weight”) between -100 and 100 mV. Every time a sending (“presynaptic”) neuron fires a spike, the weight of the synapse is applied to the receiving (“postsynaptic”) neuron. To reliably trigger a spike in a neuron, the incomming synapse spike should have a strength of 25 mV or more. To test this, connect a highly active neuron to several quiet neurons, use a range of synaptic weights, and examine the effect on the postsynaptic neurons.<br>
 <br>
 Synaptic connections can be plastic. This means that if a sending and a receiving neuron are active at the same time, a synapse connecting them will grow stronger. In other words, neurons that fire together, wire together. Some synapses are plastic only in the presence of a dopamine reward.<br>
