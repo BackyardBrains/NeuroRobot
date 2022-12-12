@@ -14,10 +14,9 @@ The NeuroRobot app has 3 modes of operation: Startup, Runtime and Design. Startu
 <br>
 The simulated neurons are designed to model the spiking (aka firing) of biological neurons. Thus, they can be quiet or fire regularly or in bursts, and can respond in different ways to different synaptic inputs. Synaptic connections between neurons have a “weight” (-100 to 100 mV) that represents the strength of the synapse. Every time a sending (“presynaptic”) neuron fires a spike, the weight of the synapse is applied to the receiving (“postsynaptic”) neuron’s membrane potential. To reliably trigger a spike, a synapse should have a weight of 25 mV or more. To test this, connect a highly active neuron to several quiet neurons, use different synaptic weights, and examine the different rates of spiking produced.<br>
 <br>
-<img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/ux_runtime.jpg"><br>
+<img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/ux_design.jpg"><br>
 <br>
 Synaptic connections can be plastic. This means that if a sending and a receiving neuron are active at the same time, a synapse connecting them will grow stronger. In other words, neurons that fire together, wire together. Some synapses are plastic only in the presence of a dopamine reward.<br>
-<br>
 <br>
 The NeuroRobot app collects camera and microphone data continuously. Within this data, it can detect simple features such as color and pitch, and complex data such as objects and words. To make a neuron respond to a sensory feature, select the orange square next to the relevant sensor, then select the target neuron. To make a neuron produce movement or sound, select the neuron first, then the orange square of the desired speaker or motor.<br>
 <br>
