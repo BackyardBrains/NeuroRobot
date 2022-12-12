@@ -5,9 +5,4 @@ NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
-
-NeuroRobotToolbox/Datasets
 NeuroRobotToolbox/*.asv
-
-SpikerBot_build
-SpikerBot_installer
