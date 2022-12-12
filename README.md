@@ -10,12 +10,12 @@ A <b>neurorobot</b> is a robot controlled by a computer model of a biological br
 <b>How the app works</b><br>
 The NeuroRobot app has 3 modes of operation: Startup, Runtime and Design. <b>Startup</b> is the main menu. <b>Runtime</b> is the brain simulation engine where you can see what the brain is observing, hearing and doing. This is also where you provide dopamine rewards to modulate its motivation and learning. <b>Design</b> is where you modify the structure of the brain. Click anywhere in the brain-shaped area to add a neuron or synapse. Select the orange box next to the eyes, microphone or whiskers to send sensory information to specific neurons in the brain. Select a neuron and click the ‘Axon’ button to extend an axon to the wheels, the speaker or another neuron.<br>
 <br>
-Runtime:
+<b><center>Runtime</center></b>
 <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/ux_runtime.jpg"><br>
 <br>
 The simulated neurons are designed to model the spiking (aka firing) of biological neurons. Thus, they can be quiet or fire regularly or in bursts, and can respond in different ways to different synaptic inputs. Synaptic connections between neurons have a “weight” (-100 to 100 mV) that represents the strength of the synapse. Every time a sending (“presynaptic”) neuron fires a spike, the weight of the synapse is applied to the receiving (“postsynaptic”) neuron’s membrane potential. To reliably trigger a spike, a synapse should have a weight of 25 mV or more. To test this, connect a highly active neuron to several quiet neurons, use different synaptic weights, and examine the different rates of spiking produced.<br>
 <br>
-Design:
+<b><center>Design</center></b>
 <img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/ux_design.jpg"><br>
 <br>
 Synaptic connections can be plastic. This means that if a sending and a receiving neuron are active at the same time, a synapse connecting them will grow stronger. In other words, neurons that fire together, wire together. Some synapses are plastic only in the presence of a dopamine reward.<br>
