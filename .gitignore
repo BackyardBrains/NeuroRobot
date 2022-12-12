@@ -9,6 +9,5 @@ NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/Datasets
 NeuroRobotToolbox/*.asv
 
-compile_code
 SpikerBot_build
 SpikerBot_installer
