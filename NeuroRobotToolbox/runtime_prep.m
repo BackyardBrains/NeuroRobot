@@ -164,6 +164,8 @@ if exist('rak_only', 'var') && brain_support
         neuron_tones = 0;
     end
 
+    servo_pos = 0.5;
+
     if use_cnn && ~use_rcnn
         labels = readcell('alllabels.txt');
         object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
