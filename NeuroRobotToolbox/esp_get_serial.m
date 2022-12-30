@@ -16,6 +16,11 @@ if ~isempty(serial_receive)
         this_distance = 4000;
     end
 else
-    disp('serial_receive is empty')
+    try
+    if ~rem(nstep, 100)
+        disp('serial_receive is empty')
+    end
+    catch
+    end
     this_distance = 4000;
 end

@@ -229,7 +229,11 @@ if nneurons % This prevents error caused by running script after deleting all ne
         elseif servo_pos > 1
             servo_pos = 1;
         end
-        writePosition(servo_obj, servo_pos);
+        try
+            writePosition(servo_obj, servo_pos);
+        catch
+            keyboard
+        end
     end
         
 
