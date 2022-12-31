@@ -164,7 +164,7 @@ if exist('rak_only', 'var') && brain_support
         neuron_tones = 0;
     end
 
-    servo_pos = 0.5;
+    servo_pos = 90;
 
     if use_cnn && ~use_rcnn
         labels = readcell('alllabels.txt');

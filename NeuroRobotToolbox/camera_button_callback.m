@@ -72,12 +72,12 @@ else
     end
     
     if select_robot.Value == 4 || select_robot.Value == 5
-        if ~exist('arduino_obj', 'var')
-            arduino_obj = arduino();
-        end
-        if ~exist('servo_obj', 'var')
-            servo_obj = servo(arduino_obj, 'D10');
-        end
+%         if ~exist('arduino_obj', 'var')
+%             arduino_obj = arduino();
+%         end
+%         if ~exist('servo_obj', 'var')
+%             servo_obj = servo(arduino_obj, 'D10');
+%         end
     end
     
     [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain);

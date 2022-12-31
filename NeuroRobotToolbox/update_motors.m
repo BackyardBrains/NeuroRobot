@@ -223,18 +223,30 @@ if nneurons % This prevents error caused by running script after deleting all ne
         end
     end
     if select_robot.Value == 4 || select_robot.Value == 5
-        servo_pos = servo_pos + ((l_torque * l_dir) - (r_torque * r_dir))/180;
-        if servo_pos < 0
-            servo_pos = 0;
-        elseif servo_pos > 1
-            servo_pos = 1;
+        if (l_torque * l_dir) > 0
+            esp32WebsocketClient.send('l');
+            pause(0.05)
+            disp('left')
         end
-        try
-            writePosition(servo_obj, servo_pos);
-        catch
-            keyboard
+        if (r_torque * r_dir) > 0
+            esp32WebsocketClient.send('r');
+            pause(0.05)
+            disp('right')
         end
     end
         
+%         servo_pos = servo_pos + (r_torque * r_dir) - (l_torque * l_dir);
+%         if servo_pos < 0
+%             servo_pos = 0;
+%         elseif servo_pos > 180
+%             servo_pos = 180;
+%         end
+%         esp32WebsocketClient.send(num2str(servo_pos));
+
+%         try
+%             writePosition(servo_obj, servo_pos);
+%         catch
+%             keyboard
+%         end     
 
 end
