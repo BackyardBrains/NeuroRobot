@@ -1,7 +1,6 @@
 .DS_Store
 OGLdpf.log
 
-NeuroRobotToolbox/Research
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/rcnn*
