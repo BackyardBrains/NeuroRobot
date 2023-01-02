@@ -8,8 +8,8 @@ else
 % 1.    'SpikerBot RAK5206'
 % 2.    'SpikerBot RAK5270'
 % 3.    'SpikerBot ESP32'
-% 4.    'Eyeball ESP32 (positional)'
-% 5.    'Eyeball ESP32 (continuous)'
+% 4.    'iBall ESP32'
+% 5.    'iBall ESP32'
 % 6.    'Computer without Webcam'
 % 7.    'Computer with Webcam'
 % 8.    'SpikerBot RAK5206 + Webcam'
@@ -70,16 +70,7 @@ else
     if ~exist('esp32WebsocketClient', 'var')
         esp32WebsocketClient = 0;
     end
-    
-    if select_robot.Value == 4 || select_robot.Value == 5
-%         if ~exist('arduino_obj', 'var')
-%             arduino_obj = arduino();
-%         end
-%         if ~exist('servo_obj', 'var')
-%             servo_obj = servo(arduino_obj, 'D10');
-%         end
-    end
-    
+       
     [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain);
     
     if exist('rak_pulse', 'var') && isvalid(rak_pulse)
