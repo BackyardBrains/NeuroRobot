@@ -23,7 +23,7 @@ data_dir_name = '.\Dataset\Recordings\';
 rec_dir_name = 'Rec1\';
 net_dir_name = '.\Nets\';
 
-init_motor_block_in_s = 2;
+init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
