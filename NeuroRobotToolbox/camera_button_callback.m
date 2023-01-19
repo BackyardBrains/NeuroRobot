@@ -1,9 +1,9 @@
 
-if isdeployed && select_robot.Value == 6
-    button_camera.BackgroundColor = [1 0.25 0.25];
-    pause(0.75)
-    button_camera.BackgroundColor = [0.8 0.8 0.8];
-else
+% if isdeployed && select_robot.Value == 6
+%     button_camera.BackgroundColor = [1 0.25 0.25];
+%     pause(0.75)
+%     button_camera.BackgroundColor = [0.8 0.8 0.8];
+% else
 
 % 1.    'SpikerBot RAK5206'
 % 2.    'SpikerBot RAK5270'
@@ -81,4 +81,4 @@ else
     rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'executionmode', 'fixedrate');
     start(rak_pulse)
 
-end
+% end
