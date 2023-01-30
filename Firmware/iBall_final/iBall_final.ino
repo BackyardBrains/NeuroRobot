@@ -46,7 +46,6 @@ void newDataArrivedFromSocket(char* data, int lengthOfData) {
     pos = 0;
   }
 
-  // Serial.println(pos);
 }
 
 
@@ -152,5 +151,6 @@ void loop() {
     sendDataViaSocket(commandBuffer, lengthOfIncommingMessage);
   }
   servo1.write(pos);
+  Serial.println(pos);
   delay(100);
 }
