@@ -4,22 +4,28 @@
 clear
 clc
 
-imdim = 100;
-localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
+imdim = 50;
+localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
 shared_data_dir_name = '.\RL\';
-rec_dir_name = 'PreTraining\';
+rec_dir_name = '';
 
-nsmall = 20000;
-nmedium = 20000;
+nsmall = 500;
+nmedium = 1000;
 
 hippocampus_associator
 
-disp('Re-loading databases and matrices...')
-load(strcat(localdata_dir_name, 'image_ds'))
-load(strcat(localdata_dir_name, 'bag'))
-load(strcat(localdata_dir_name, 'imageIndex'))
+ydata = abs(ydata);
+ydata = ydata/max(ydata(:));
+ydata = 1-ydata;
 
-load(strcat(localdata_dir_name, 'xdata_L1'))
+zdata = xdata .* ydata;
+
+disp('Re-loading databases and matrices...')
+% load(strcat(localdata_dir_name, 'image_ds'))
+% load(strcat(localdata_dir_name, 'bag'))
+% load(strcat(localdata_dir_name, 'imageIndex'))
+% 
+% load(strcat(localdata_dir_name, 'xdata_L1'))
 % load(strcat(localdata_dir_name, 'xdata_cosine'))
 
 
@@ -29,20 +35,20 @@ figure(1)
 clf
 set(gcf, 'color', 'w')
 subplot(1,2,1)
-imagesc(xdata)
+imagesc(zdata)
 colorbar
-title('xdata')
+title('zdata')
 subplot(1,2,2)
-histogram(xdata(:))
+histogram(zdata(:))
 set(gca, 'yscale', 'log')
-title('xdata histogram')
+title('zdata histogram')
 
 % xdata(xdata<0.5) = 0;
 
 
 %% Group images
 disp('Clustering...')
-n_unique_states = 200;
+n_unique_states = 100;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'average');
 group_inds = cluster(links,'MaxClust',n_unique_states);
@@ -64,7 +70,7 @@ disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group)))
 
 %% Optional: Remove small groups and/or noise group
 disp('Prune clusters...')
-min_size = 50;
+min_size = 10;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
