@@ -1,9 +1,11 @@
 .DS_Store
 OGLdpf.log
 
+
+/AI
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/*.asv
-NeuroRobotToolbox/AI
+
