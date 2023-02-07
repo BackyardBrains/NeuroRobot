@@ -1,37 +1,80 @@
     
 %% Hippocampus
 
-clear
-clc
+% close all
+% clear
 
-imdim = 50;
-localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
-shared_data_dir_name = '.\RL\';
-rec_dir_name = '';
 
-nsmall = 500;
-nmedium = 1000;
+imdim = 100;
+localdata_dir_name = 'C:\Users\Christopher Harris\NeuroRobot - Super Hot\Datasets\Recordings\';
+shared_data_dir_name = '.\Brains\';
+rec_dir_name = 'PreTraining\';
+nsmall = 2000;
+nmedium = 5000;
 
-hippocampus_associator
+% image_ds = imageDatastore(strcat(localdata_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+% image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
+% serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
+% torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+% 
+% save(strcat(localdata_dir_name, 'image_ds'), 'image_ds')
+% save(strcat(localdata_dir_name, 'serial_dir'), 'serial_dir')
+% save(strcat(localdata_dir_name, 'torque_dir'), 'torque_dir')
 
-ydata = abs(ydata);
-ydata = ydata/max(ydata(:));
-ydata = 1-ydata;
+nimages = length(image_ds.Files);
+ndists = size(serial_dir, 1);
+ntorques = size(torque_dir, 1);
+ntuples = nimages/2;
+disp(horzcat('nimages: ', num2str(nimages)))
+disp(horzcat('ndists:',  num2str(ndists)))
+disp(horzcat('ntorques:' , num2str(ntorques)))
+disp(horzcat('ntuples: ', num2str(ntuples)))
+
+small_inds = randsample(ntuples, nsmall);
+medium_inds = randsample(ntuples, nmedium);
+image_ds_small = subset(image_ds, small_inds*2);
+image_ds_medium = subset(image_ds, medium_inds*2);
+image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+
+ps = parallel.Settings;
+ps.Pool.AutoCreate = false;
+ps.Pool.IdleTimeout = Inf;
+
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
+imageIndex = indexImages(image_ds_medium, bag);
+
+% save(strcat(localdata_dir_name, 'bag'), 'bag')
+% save(strcat(localdata_dir_name, 'imageIndex'), 'imageIndex')
+
+get_dists
+get_image_crosscorr
+
+% save(strcat(localdata_dir_name, 'xdata_L1'), 'xdata', '-v7.3')
+% save(strcat(localdata_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
+
+ydata = zeros(nmedium, nmedium);
+for ntuple = 1:nmedium
+    dist1 = dists(ntuple);
+    for ntuple2 = 1:nmedium
+        dist2 = dists(ntuple2);
+        if dist1 == 0 && dist2 == 0
+            dist_match = 1;
+        elseif dist1 > 0 && dist2 > 0
+            dist_match = 1;
+        else
+            dist_match = 0;
+        end     
+        ydata(ntuple, ntuple2) = dist_match;
+    end
+end
 
 zdata = xdata .* ydata;
-
-disp('Re-loading databases and matrices...')
-% load(strcat(localdata_dir_name, 'image_ds'))
-% load(strcat(localdata_dir_name, 'bag'))
-% load(strcat(localdata_dir_name, 'imageIndex'))
-% 
-% load(strcat(localdata_dir_name, 'xdata_L1'))
-% load(strcat(localdata_dir_name, 'xdata_cosine'))
 
 
 %% Plot similarity matrix
 disp('Plotting similarity matrix...')
-figure(1)
+figure(2)
 clf
 set(gcf, 'color', 'w')
 subplot(1,2,1)
@@ -141,11 +184,11 @@ for nstate = 1:n_unique_states
         else
             this_dir = strcat('state_00', num2str(nstate));
         end
-        mkdir(strcat(localdata_dir_name, 'Classifier\', this_dir))
+        mkdir(strcat(localdata_dir_name, 'ImDistNet2\', this_dir))
         for nimage = 1:min_size
             this_ind = state_inds(nstate, nimage);
             this_im = imread(imageIndex.ImageLocation{this_ind});
-            fname = strcat(localdata_dir_name, 'Classifier\', this_dir, '\', 'im', num2str(this_ind), '.png');
+            fname = strcat(localdata_dir_name, 'ImDistNet2\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
         state_info(nstate, 1) = 1;

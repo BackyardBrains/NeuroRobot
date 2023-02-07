@@ -1,7 +1,6 @@
 
 disp('Getting similarity matrix (slow, be patient)...')
 xdata = zeros(nmedium, nmedium);
-ydata = zeros(nmedium, nmedium);
 
 for ntuple = 1:nmedium
     
@@ -12,8 +11,5 @@ for ntuple = 1:nmedium
     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'L1', 'NumResults', Inf);
 %     [inds,similarity_scores] = retrieveImages(img, imageIndex, 'Metric', 'cosine', 'NumResults', Inf);
     xdata(ntuple, inds) = similarity_scores;
-
-    % generate similarity matrix for dists
-    ydata(ntuple, :) = dists - dists(ntuple);
 
 end
