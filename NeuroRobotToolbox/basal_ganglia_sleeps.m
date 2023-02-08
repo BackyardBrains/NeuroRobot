@@ -5,7 +5,8 @@ clear
 clc
 
 imdim = 100;
-reward_states = [4 17 29]; % livingroom_net watching tv
+% reward_states = [4 17 29]; % livingroom_net watching tv
+reward_states = [5 6 20 28];
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
 % localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 
@@ -56,7 +57,7 @@ load(strcat(localdata_dir_name, 'torque_data'))
 
 
 %% Actions
-n_unique_actions = 19;
+n_unique_actions = 9;
 actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
@@ -215,8 +216,8 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 200;
-training_opts.MaxStepsPerEpisode = 200;
+training_opts.MaxEpisodes = 100;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 20;
@@ -236,8 +237,8 @@ save(horzcat(localdata_dir_name, 'AgentTV'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 200;
-training_opts.MaxStepsPerEpisode = 200;
+training_opts.MaxEpisodes = 100;
+training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 200;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 50;
