@@ -7,7 +7,7 @@ clc
 
 
 dataset_dir_name = '.\Datasets\';
-rec_dir_name = 'PreTraining\';
+rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 
@@ -16,6 +16,7 @@ image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 nimages = size(image_dir, 1);
 disp(horzcat('nimages: ', num2str(nimages)))
 delete(strcat(dataset_dir_name, rec_dir_name, '*binoc.png'))
+nimages = size(image_dir, 1);
 disp(horzcat('nimages: ', num2str(nimages)))
 
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
@@ -44,7 +45,7 @@ for ntuple = 1:ntuples
 
     this_name = serial_dir(ntuple).name;
     this_name(end-14:end) = [];
-    fname = strcat(serial_dir(ntuple).folder, '\', this_name, num2str(ntuple), 'binoc.png');
+    fname = strcat(serial_dir(ntuple).folder, '\', this_name, num2str(ntuple), '_binoc.png');
     imwrite(new_im, fname);
 
 end
