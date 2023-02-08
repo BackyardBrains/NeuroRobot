@@ -7,26 +7,27 @@
 
 imdim = 227;
 localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
-% localdata_dir_name = 'C:\Users\Christopher Harris\NeuroRobot - Super Hot\Datasets\Recordings\';
-shared_data_dir_name = '.\Brains\';
+localworkspace_dir_name = 'C:\Users\Christopher Harris\Dataset2a_workspace\';
+shared_data_dir_name = '.\Nets\';
 % rec_dir_name = 'PreTraining\';
 rec_dir_name = '';
 nsmall = 5000;
 nmedium = 10000;
 
-image_ds = imageDatastore(strcat(localdata_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
+image_ds = imageDatastore(strcat(localdata_dir_name, rec_dir_name, '*binoc.png'));
+% image_ds = imageDatastore(strcat(localdata_dir_name, rec_dir_name), 'FileExtensions', '.png', 'IncludeSubfolders', 1);
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
 
-save(strcat(localdata_dir_name, 'image_ds'), 'image_ds')
-save(strcat(localdata_dir_name, 'serial_dir'), 'serial_dir')
-save(strcat(localdata_dir_name, 'torque_dir'), 'torque_dir')
+save(strcat(localworkspace_dir_name, 'image_ds'), 'image_ds')
+save(strcat(localworkspace_dir_name, 'serial_dir'), 'serial_dir')
+save(strcat(localworkspace_dir_name, 'torque_dir'), 'torque_dir')
 
 nimages = length(image_ds.Files);
 ndists = size(serial_dir, 1);
 ntorques = size(torque_dir, 1);
-ntuples = nimages/2;
+ntuples = nimages;
 disp(horzcat('nimages: ', num2str(nimages)))
 disp(horzcat('ndists:',  num2str(ndists)))
 disp(horzcat('ntorques:' , num2str(ntorques)))
@@ -34,8 +35,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
-image_ds_small = subset(image_ds, small_inds*2);
-image_ds_medium = subset(image_ds, medium_inds*2);
+image_ds_small = subset(image_ds, small_inds);
+image_ds_medium = subset(image_ds, medium_inds);
 image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
@@ -45,33 +46,12 @@ ps.Pool.IdleTimeout = Inf;
 
 bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 200]);
 imageIndex = indexImages(image_ds_medium, bag);
+get_image_crosscorr
 
 % save(strcat(localdata_dir_name, 'bag'), 'bag')
 % save(strcat(localdata_dir_name, 'imageIndex'), 'imageIndex')
-
-get_dists
-get_image_crosscorr
-
 % save(strcat(localdata_dir_name, 'xdata_L1'), 'xdata', '-v7.3')
 % save(strcat(localdata_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
-
-% ydata = zeros(nmedium, nmedium);
-% for ntuple = 1:nmedium
-%     dist1 = dists(ntuple);
-%     for ntuple2 = 1:nmedium
-%         dist2 = dists(ntuple2);
-%         if dist1 == 0 && dist2 == 0
-%             dist_match = 1;
-%         elseif dist1 > 0 && dist2 > 0
-%             dist_match = 1;
-%         else
-%             dist_match = 0;
-%         end     
-%         ydata(ntuple, ntuple2) = dist_match;
-%     end
-% end
-% 
-% zdata = xdata .* ydata;
 
 
 %% Plot similarity matrix
@@ -97,7 +77,7 @@ n_unique_states = 100;
 dists = pdist(xdata,'euclidean');
 links = linkage(dists,'average');
 group_inds = cluster(links,'MaxClust',n_unique_states);
-save(strcat(localdata_dir_name, 'group_inds'), 'group_inds', '-v7.3')
+save(strcat(localworkspace_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
 figure(2)
 clf
@@ -184,11 +164,11 @@ for nstate = 1:n_unique_states
         else
             this_dir = strcat('state_00', num2str(nstate));
         end
-        mkdir(strcat(localdata_dir_name, 'Net1\', this_dir))
+        mkdir(strcat(localworkspace_dir_name, 'Net1\', this_dir))
         for nimage = 1:min_size
             this_ind = state_inds(nstate, nimage);
             this_im = imread(imageIndex.ImageLocation{this_ind});
-            fname = strcat(localdata_dir_name, 'Net1\', this_dir, '\', 'im', num2str(this_ind), '.png');
+            fname = strcat(localworkspace_dir_name, 'Net1\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
         state_info(nstate, 1) = 1;
@@ -204,16 +184,9 @@ state_info(state_info(:,1) == 0, :) = [];
 n_unique_states = length(state_entropy);
 disp(horzcat('N unique states: ', num2str(n_unique_states)))
 
-% %% Prepare categories
-% labels = folders2labels(strcat(localdata_dir_name, 'Classifier\'));
-% labels = unique(labels);
-% save(strcat(shared_data_dir_name, 'livingroom_labels'), 'labels')
-% n_unique_states = length(labels);
-% disp(horzcat('N unique states: ', num2str(n_unique_states)))
-
 
 %% Train classifier net
-classifier_ds = imageDatastore(strcat(localdata_dir_name, 'Net1\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds = imageDatastore(strcat(localworkspace_dir_name, 'Net1\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
@@ -256,8 +229,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-% save(strcat(shared_data_dir_name, 'Net1_net'), 'net')
-save(strcat(localdata_dir_name, 'Net1_net'), 'net')
+save(strcat(shared_data_dir_name, 'Net1_net'), 'net')
 
 
 

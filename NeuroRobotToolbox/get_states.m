@@ -26,7 +26,12 @@ for ntuple = 1:ntuples
 
     [state, scores] = classify(net, left_im);
     this_state = find(unique_states == state);
-    states(ntuple) = this_state;
+
+    if dists(ntuple) > 0
+        states(ntuple) = this_state;
+    else
+        states(ntuple) = this_state + n_unique_states;
+    end
 
 end
-
+n_unique_states = n_unique_states * 2;

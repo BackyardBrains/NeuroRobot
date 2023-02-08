@@ -26,7 +26,10 @@ for this_state = 1:n_unique_states
             plot([2 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
         end
     end
-    text(1.9, this_state, horzcat(num2str(this_state), '. ', char(labels(this_state))), 'HorizontalAlignment','right')
+    try
+        text(1.9, this_state, horzcat(num2str(this_state), '. ', char(labels(this_state))), 'HorizontalAlignment','right')
+    catch
+    end
     drawnow
 end
 ylim([0 n_unique_states + 1])
