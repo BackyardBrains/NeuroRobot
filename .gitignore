@@ -2,6 +2,9 @@
 OGLdpf.log
 
 
+NeuroRobotToolbox/Datasets
+NeuroRobotToolbox/Workspace
+
 NeuroRobotToolbox/CommsAI
 NeuroRobotToolbox/speech2text
 NeuroRobotToolbox/__pycache__/*
@@ -10,3 +13,4 @@ NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/*.asv
 
+NeuroRobotToolbox/Nets/rcnn5heads.mat
