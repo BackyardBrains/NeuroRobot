@@ -1,17 +1,24 @@
 
+%% Collapser
+
 close all
 clear
 clc
 
-localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
-rec_dir_name = '';
-image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+
+dataset_dir_name = '.\Datasets\';
+rec_dir_name = 'PreTraining\';
+workspace_dir_name = '.\Workspace\';
+nets_dir_name = '.\Nets\';
+
+
+image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 nimages = size(image_dir, 1);
 disp(horzcat('nimages: ', num2str(nimages)))
-delete(strcat(localdata_dir_name, rec_dir_name, '*binoc.png'))
+delete(strcat(dataset_dir_name, rec_dir_name, '*binoc.png'))
 disp(horzcat('nimages: ', num2str(nimages)))
 
-serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
+serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 ntuples = size(serial_dir, 1);
 disp(horzcat('ndists: ', num2str(ntuples)))
 
