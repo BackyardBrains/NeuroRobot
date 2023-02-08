@@ -4,22 +4,29 @@
 clear
 clc
 
-reward_states = [5 6 7 8]; % livingroom_net watching tv
-localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
-shared_data_dir_name = '.\Brains\';
-rec_dir_name = 'PreTraining\';
+imdim = 100;
+reward_states = 4; % livingroom_net watching tv
+localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
+% localdata_dir_name = 'C:\Users\Christopher Harris\Dataset 1\';
 
-load(strcat(shared_data_dir_name, 'livingroom_net'))
-load(strcat(shared_data_dir_name, 'livingroom_labels'))
+shared_data_dir_name = '.\Brains\';
+rec_dir_name = '';
+
+load(strcat(localdata_dir_name, 'Net1_net'), 'net')
+labels = folders2labels(strcat(localdata_dir_name, 'Net1\'));
+labels = unique(labels);
+% load(strcat(shared_data_dir_name, 'livingroom_net'))
+% load(strcat(shared_data_dir_name, 'livingroom_labels'))
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
 
-% image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
-% torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+
 % save(strcat(shared_data_dir_name, 'image_dir'), 'image_dir')
 % save(strcat(shared_data_dir_name, 'torque_dir'), 'torque_dir')
-
-load(strcat(shared_data_dir_name, 'image_dir'))
-load(strcat(shared_data_dir_name, 'torque_dir'))
+% 
+% load(strcat(localdata_dir_name, 'image_dir'))
+% load(strcat(localdata_dir_name, 'torque_dir'))
 
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);

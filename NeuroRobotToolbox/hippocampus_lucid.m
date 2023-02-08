@@ -6,17 +6,19 @@
 
 
 imdim = 100;
-localdata_dir_name = 'C:\Users\Christopher Harris\NeuroRobot - Super Hot\Datasets\Recordings\';
+% localdata_dir_name = 'C:\Users\Christopher Harris\NeuroRobot - Super Hot\Datasets\Recordings\';
+localdata_dir_name = 'C:\Users\Christopher Harris\Dataset2a\';
 shared_data_dir_name = '.\Brains\';
-rec_dir_name = 'PreTraining\';
+% rec_dir_name = 'PreTraining\';
+rec_dir_name = '';
 
-% image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
-% serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
-% torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
-% 
-% save(strcat(localdata_dir_name, 'image_dir'), 'image_dir')
-% save(strcat(localdata_dir_name, 'serial_dir'), 'serial_dir')
-% save(strcat(localdata_dir_name, 'torque_dir'), 'torque_dir')
+image_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*.png'));
+serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial_data.mat'));
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torques.mat'));
+
+save(strcat(localdata_dir_name, 'image_dir'), 'image_dir')
+save(strcat(localdata_dir_name, 'serial_dir'), 'serial_dir')
+save(strcat(localdata_dir_name, 'torque_dir'), 'torque_dir')
 
 % load(strcat(shared_data_dir_name, 'image_dir'))
 % load(strcat(shared_data_dir_name, 'serial_dir'))
@@ -106,3 +108,4 @@ for ii = 1:100
     pause
 
 end
+
