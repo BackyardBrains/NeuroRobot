@@ -18,10 +18,14 @@ save_data_and_commands = 0;
 % use_profile = 0;          % Disabled for compilation
 bg_brain = 1;
 manual_controls = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent', 'Deep RL Agent'};
-data_dir_name = '.\Dataset\Recordings\';
-rec_dir_name = 'Rec1\';
-net_dir_name = '.\Nets\';
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent 1', 'RL Agent 2'};
+
+dataset_dir_name = '.\Datasets\';
+rec_dir_name = '';
+workspace_dir_name = '.\Workspace\';
+nets_dir_name = '.\Nets\';
+net_name = 'net_1';
+agent_name = 'agent_1';
 
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
@@ -138,7 +142,7 @@ select_app.Value = 1:3;
 % Deep net settings
 text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'LivingRoomNet (custom SLAM net)'; 'GoogLeNet (object detection net)';};
+option_vision = {'- empty slot -'; 'GoogLeNet (object detection net)'; '- empty slot -'};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_vision.Value = [];

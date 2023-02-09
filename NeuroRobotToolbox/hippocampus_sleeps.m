@@ -1,28 +1,31 @@
     
 %% Hippocampus
 
-% close all
-% clear
+close all
+clear
+clc
 
 
-imdim = 227;
+tic
+
+profile on
+profile clear
+
+imdim = 100;
 
 dataset_dir_name = '.\Datasets\';
-rec_dir_name = 'PreTraining\';
+rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
+net_name = 'net_1';
 
 nsmall = 5000;
 nmedium = 10000;
 
-image_ds = imageDatastore(strcat(dataset_dir_name, rec_dir_name, '*binoc.png'), 'IncludeSubfolders', 1);
+image_ds = imageDatastore(strcat(dataset_dir_name, rec_dir_name, '*_binoc.png'));
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
-
-save(strcat(workspace_dir_name, 'image_ds'), 'image_ds')
-save(strcat(workspace_dir_name, 'serial_dir'), 'serial_dir')
-save(strcat(workspace_dir_name, 'torque_dir'), 'torque_dir')
 
 nimages = length(image_ds.Files);
 ndists = size(serial_dir, 1);
@@ -44,40 +47,31 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 200]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
 imageIndex = indexImages(image_ds_medium, bag);
 get_image_crosscorr
 
-% save(strcat(localdata_dir_name, 'bag'), 'bag')
-% save(strcat(localdata_dir_name, 'imageIndex'), 'imageIndex')
-% save(strcat(localdata_dir_name, 'xdata_L1'), 'xdata', '-v7.3')
-% save(strcat(localdata_dir_name, 'xdata_cosine'), 'xdata', '-v7.3')
-
 
 %% Plot similarity matrix
-disp('Plotting similarity matrix...')
 figure(2)
 clf
 set(gcf, 'color', 'w')
 subplot(1,2,1)
 imagesc(xdata)
 colorbar
-title('zdata')
+title('xdata')
 subplot(1,2,2)
 histogram(xdata(:))
 set(gca, 'yscale', 'log')
-title('zdata histogram')
-
-% xdata(xdata<0.5) = 0;
+title('Similarity Data (xdata histogram)')
 
 
 %% Group images
 disp('Clustering...')
 n_unique_states = 100;
-dists = pdist(xdata,'euclidean');
+dists = pdist(xdata,'correlation');
 links = linkage(dists,'average');
 group_inds = cluster(links,'MaxClust',n_unique_states);
-save(strcat(workspace_dir_name, 'group_inds'), 'group_inds', '-v7.3')
 
 figure(2)
 clf
@@ -87,15 +81,13 @@ subplot(1,2,2)
 imagesc(xdata(o, o))
 colorbar
 
-load(strcat(dataset_dir_name, 'group_inds'))
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
 
 %% Optional: Remove small groups and/or noise group
-disp('Prune clusters...')
-min_size = 50;
+min_size = 20;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
@@ -110,8 +102,6 @@ end
 
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
-% state_inds(noise_group, :) = [];
-% state_info(noise_group, :) = [];
 
 state_inds(state_info(:,1)==0, :) = [];
 state_info(state_info(:,1)==0, :) = [];
@@ -121,9 +111,7 @@ disp(horzcat('N unique states: ', num2str(n_unique_states)))
 
 figure(3)
 clf
-h = histogram(group_inds, 'binwidth', 0.25);
-hold on
-% plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
+histogram(group_inds, 'binwidth', 0.25);
 title('States')
 xlabel('State')
 ylabel('Count')
@@ -151,6 +139,10 @@ title('Similarity scores')
 
 
 %%
+try
+    rmdir(strcat(workspace_dir_name, net_name, '\'))
+catch
+end
 n_unique_states = sum(state_info(:,1));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 for nstate = 1:n_unique_states
@@ -164,11 +156,11 @@ for nstate = 1:n_unique_states
         else
             this_dir = strcat('state_00', num2str(nstate));
         end
-        mkdir(strcat(workspace_dir_name, 'Net1\', this_dir))
+        mkdir(strcat(workspace_dir_name, net_name, '\', this_dir))
         for nimage = 1:min_size
             this_ind = state_inds(nstate, nimage);
             this_im = imread(imageIndex.ImageLocation{this_ind});
-            fname = strcat(workspace_dir_name, 'Net1\', this_dir, '\', 'im', num2str(this_ind), '.png');
+            fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
             imwrite(this_im, fname);
         end
         state_info(nstate, 1) = 1;
@@ -178,19 +170,16 @@ for nstate = 1:n_unique_states
     end
 end
 
-state_entropy(state_info(:,1) == 0) = [];
-state_info(state_info(:,1) == 0, :) = [];
-
-n_unique_states = length(state_entropy);
-disp(horzcat('N unique states: ', num2str(n_unique_states)))
+n_unique_states = sum(state_info(:,1));
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Train classifier net
-classifier_ds = imageDatastore(strcat(workspace_dir_name, 'Net1\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
-    imageInputLayer([imdim imdim 3])
+    imageInputLayer([imdim round(404*0.44) 3])
     
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
@@ -225,11 +214,12 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=5);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(nets_dir_name, 'Net1_net'), 'net')
+save(strcat(nets_dir_name, net_name), 'net')
 
+disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
 
-
+profile viewer

@@ -34,19 +34,14 @@ end
 % 5 = 'Use RL Agent
 if sum(select_app.Value == 5)
     use_controllers = 1;    
-%         load(strcat(net_dir_name, 'LivingRoomAgent')) % <<<< COMMENTED OUT FOR COMPILATION
 else
     use_controllers = 0;
 end
 
 
 %% Deep net settings
-% 1 = 'LivingRoomNet (slam)'
-if sum(select_vision.Value == 1)  
-%         load(strcat(net_dir_name, 'LivingRoomNet')) % <<<< COMMENTED OUT FOR COMPILATION
-%         load(strcat(net_dir_name, 'LivingRoomLabels')) % <<<< COMMENTED OUT FOR COMPILATION
-    unique_states = unique(labels);
-    n_unique_states = length(unique_states);
+% 1 = '- empty slot -'
+if sum(select_vision.Value == 1)
 end  
 
 % 2 = 'GoogLeNet (generic)'    
@@ -158,8 +153,7 @@ if exist('rak_only', 'var') && brain_support
 	    esp32WebsocketClient = 0;
     end
     spinled = 1;
-%     vis_prefs = [];
-%     neuron_scripts = [];
+
     if ~exist('neuron_tones', 'var')
         neuron_tones = 0;
     end
@@ -226,9 +220,14 @@ if exist('rak_only', 'var') && brain_support
         right_torque_mem = 0;
     
         if use_controllers
-                           
-            load(strcat(net_dir_name, 'torque_data'))
-            load(strcat(net_dir_name, 'actions'))
+                 
+            load(strcat(nets_dir_name, net_name))
+            load(strcat(nets_dir_name, net_name, '_labels'))
+            unique_states = unique(labels);
+            n_unique_states = length(unique_states);            
+            load(strcat(nets_dir_name, agent_name))
+            load(strcat(nets_dir_name, 'torque_data'))
+            load(strcat(nets_dir_name, 'actions'))
             n_unique_actions = length(unique(actions));
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions
@@ -237,7 +236,7 @@ if exist('rak_only', 'var') && brain_support
     
         end
 
-        if use_controllers % special
+        if use_controllers % special % needed??
             state_wavs = struct;
             for nstate = 1:n_unique_states
                 word_name = char(labels(nstate));
@@ -333,7 +332,7 @@ if exist('rak_only', 'var') && brain_support
     disp(horzcat('Brain name = ', brain_name))
     if ~exist('net', 'var') && use_cnn
         tic
-        g_net = googlenet; % <<<< COMMENTED OUT FOR COMPILATION
+        g_net = googlenet;
         net_input_size = g_net.Layers(1).InputSize(1:2);
         disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
     elseif ~exist('net', 'var') && use_rcnn
