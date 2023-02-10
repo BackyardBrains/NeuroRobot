@@ -77,7 +77,7 @@ set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot - Main Menu', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.7', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
