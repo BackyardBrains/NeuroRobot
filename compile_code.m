@@ -1,4 +1,16 @@
 
+
+
+% before compiling, remove these experimental folders:
+
+% BrainGen
+% CommsAI
+% Datasets
+% Nets
+% speech2text
+% Workspace
+
+
 clear
 clc
 
