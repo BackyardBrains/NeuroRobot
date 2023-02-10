@@ -8,8 +8,8 @@ clc
 
 tic
 
-profile on
 profile clear
+profile on
 
 imdim = 100;
 
@@ -19,10 +19,10 @@ workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net_1';
 
-nsmall = 5000;
-nmedium = 10000;
+nsmall = 10000;
+nmedium = 20000;
 
-image_ds = imageDatastore(strcat(dataset_dir_name, rec_dir_name, '*_binoc.png'));
+image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
@@ -47,7 +47,7 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 500]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
 imageIndex = indexImages(image_ds_medium, bag);
 get_image_crosscorr
 
@@ -140,7 +140,7 @@ title('Similarity scores')
 
 %%
 try
-    rmdir(strcat(workspace_dir_name, net_name, '\'))
+    rmdir(strcat(workspace_dir_name, net_name))
 catch
 end
 n_unique_states = sum(state_info(:,1));
@@ -214,7 +214,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
 
 net = trainNetwork(classifier_ds, net, options);
 

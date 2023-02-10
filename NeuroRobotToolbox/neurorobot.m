@@ -167,13 +167,13 @@ elseif ispc && isdeployed
         disp(horzcat('Created new directory: ', brain_dir))
     end
     available_brains = dir(strcat(brain_dir, '*.mat'));
-%     if size(available_brains, 1) == 0
-%         new_brain_vars
-%         brain_name = 'Noob';
-%         save_brain        
-%         disp(horzcat('Created new brain: ', brain_name))
-%     end
-%     available_brains = dir(strcat(brain_dir, '*.mat'));
+    if size(available_brains, 1) == 0
+        new_brain_vars
+        brain_name = 'Noob';
+        save_brain        
+        disp(horzcat('Created new brain: ', brain_name))
+    end
+    available_brains = dir(strcat(brain_dir, '*.mat'));
 elseif ismac && ~isdeployed
     brain_dir = './Brains/';
     available_brains = dir(strcat(brain_dir, '*.mat'));
