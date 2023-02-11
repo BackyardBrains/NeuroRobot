@@ -11,12 +11,7 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 
-
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-
-
-
-
 nimages = size(image_dir, 1);
 disp(horzcat('nimages: ', num2str(nimages)))
 
