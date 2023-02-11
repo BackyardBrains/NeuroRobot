@@ -45,7 +45,7 @@ for ntuple = 1:ntuples
 
     this_name = serial_dir(ntuple).name;
     this_name(end-14:end) = [];
-    fname = strcat(serial_dir(ntuple).folder, '\', this_name, num2str(ntuple), '_binoc.png');
+    fname = strcat(serial_dir(ntuple).folder, '\', this_name, 'binoc.png');
     imwrite(new_im, fname);
     delete(left_im_link)
     delete(right_im_link)
