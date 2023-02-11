@@ -13,9 +13,10 @@ nets_dir_name = '.\Nets\';
 
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-nimages = size(image_dir, 1);
-disp(horzcat('nimages: ', num2str(nimages)))
-delete(strcat(dataset_dir_name, rec_dir_name, '*binoc.png'))
+
+
+
+
 nimages = size(image_dir, 1);
 disp(horzcat('nimages: ', num2str(nimages)))
 
@@ -53,5 +54,5 @@ for ntuple = 1:ntuples
     imwrite(new_im, fname);
     delete(left_im_link)
     delete(right_im_link)
-    
+
 end
