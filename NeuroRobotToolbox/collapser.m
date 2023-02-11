@@ -24,7 +24,7 @@ ntuples = size(serial_dir, 1);
 disp(horzcat('ndists: ', num2str(ntuples)))
 
 %%
-for ntuple = 40024:ntuples
+for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/100))
         disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
@@ -53,4 +53,5 @@ for ntuple = 40024:ntuples
     imwrite(new_im, fname);
     delete(left_im_link)
     delete(right_im_link)
+    
 end
