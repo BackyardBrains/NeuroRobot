@@ -19,8 +19,8 @@ workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net_1';
 
-nsmall = 10000;
-nmedium = 20000;
+nsmall = 2000;
+nmedium = 5000;
 
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
@@ -30,7 +30,7 @@ torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.m
 nimages = length(image_ds.Files);
 ndists = size(serial_dir, 1);
 ntorques = size(torque_dir, 1);
-ntuples = nimages;
+ntuples = nimages/2;
 disp(horzcat('nimages: ', num2str(nimages)))
 disp(horzcat('ndists:',  num2str(ndists)))
 disp(horzcat('ntorques:' , num2str(ntorques)))
@@ -47,7 +47,7 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 500]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
 imageIndex = indexImages(image_ds_medium, bag);
 get_image_crosscorr
 
@@ -70,7 +70,7 @@ title('Similarity Data (xdata histogram)')
 disp('Clustering...')
 n_unique_states = 100;
 dists = pdist(xdata,'correlation');
-links = linkage(dists,'average');
+links = linkage(dists,'weighted');
 group_inds = cluster(links,'MaxClust',n_unique_states);
 
 figure(2)
@@ -85,9 +85,17 @@ noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
 disp(horzcat('frames in noise group: ', num2str(sum(group_inds == noise_group))))
 
+figure(3)
+clf
+histogram(group_inds, 'binwidth', 0.25);
+title('States')
+xlabel('State')
+ylabel('Count')
+set(gca, 'yscale', 'log')
+
 
 %% Optional: Remove small groups and/or noise group
-min_size = 20;
+min_size = 10;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
