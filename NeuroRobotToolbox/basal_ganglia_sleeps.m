@@ -4,8 +4,7 @@
 clear
 clc
 
-imdim = 100;
-reward_states = [8 9 10 32];
+reward_states = [];
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';

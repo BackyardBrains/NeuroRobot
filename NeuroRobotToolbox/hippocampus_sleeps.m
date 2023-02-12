@@ -11,7 +11,6 @@ tic
 profile clear
 profile on
 
-imdim = 100;
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -95,7 +94,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Optional: Remove small groups and/or noise group
-min_size = 10;
+min_size = 25;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
@@ -187,7 +186,7 @@ classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileE
 classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
-    imageInputLayer([imdim round(404*0.44) 3])
+    imageInputLayer([100 100 3])
     
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
@@ -199,18 +198,6 @@ net = [
     batchNormalizationLayer
     reluLayer
 
-    maxPooling2dLayer(2,'Stride',2)
-    
-    convolution2dLayer(3,64,'Padding','same')
-    batchNormalizationLayer
-    reluLayer
-
-    maxPooling2dLayer(2,'Stride',2)
-    
-    convolution2dLayer(3,64,'Padding','same')
-    batchNormalizationLayer
-    reluLayer    
-    
     maxPooling2dLayer(2,'Stride',2)
     
     convolution2dLayer(3,64,'Padding','same')
