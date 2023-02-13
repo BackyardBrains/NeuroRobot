@@ -18,11 +18,11 @@ workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net_1';
 
-nsmall = 2000;
-nmedium = 5000;
+nsmall = 5000;
+nmedium = 10000;
 
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
+% image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
 
@@ -67,7 +67,7 @@ title('Similarity Data (xdata histogram)')
 
 %% Group images
 disp('Clustering...')
-n_unique_states = 100;
+n_unique_states = 200;
 dists = pdist(xdata,'correlation');
 links = linkage(dists,'weighted');
 group_inds = cluster(links,'MaxClust',n_unique_states);
@@ -94,7 +94,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Optional: Remove small groups and/or noise group
-min_size = 25;
+min_size = 10;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
