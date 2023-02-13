@@ -1,5 +1,5 @@
 
-%% Collapser
+%% Data pre-processing
 
 close all
 clear
