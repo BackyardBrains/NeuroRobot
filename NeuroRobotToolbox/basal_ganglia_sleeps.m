@@ -6,7 +6,6 @@ clc
 
 reward_states = [18 35];
 
-
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
@@ -36,6 +35,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 % get_dists
 get_states
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
+save(strcat(workspace_dir_name, 'states'), 'states')
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
