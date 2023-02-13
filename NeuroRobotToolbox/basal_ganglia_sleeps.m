@@ -4,7 +4,8 @@
 clear
 clc
 
-reward_states = [];
+reward_states = [1 13 14];
+
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -18,7 +19,7 @@ labels = unique(labels);
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
 save(strcat(nets_dir_name, net_name, '_labels'), 'labels')
 
-image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_binoc.png'));
+image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
 
@@ -204,7 +205,7 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
+training_opts.MaxEpisodes = 200;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
@@ -225,7 +226,7 @@ save(horzcat(nets_dir_name, 'agent_1'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
+training_opts.MaxEpisodes = 200;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";

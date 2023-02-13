@@ -50,6 +50,8 @@ bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
 imageIndex = indexImages(image_ds_medium, bag);
 get_image_crosscorr
 
+save(strcat(workspace_dir_name, 'xdata'), 'xdata', '-v7.3')
+
 
 %% Plot similarity matrix
 figure(2)
@@ -94,7 +96,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Optional: Remove small groups and/or noise group
-min_size = 10;
+min_size = 20;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
@@ -147,7 +149,7 @@ title('Similarity scores')
 
 %%
 try
-    rmdir(strcat(workspace_dir_name, net_name))
+    rmdir(strcat(workspace_dir_name, net_name), 's')
 catch
 end
 n_unique_states = sum(state_info(:,1));
@@ -183,7 +185,7 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
-classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 net = [
     imageInputLayer([100 100 3])
@@ -209,7 +211,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=15);
 
 net = trainNetwork(classifier_ds, net, options);
 
