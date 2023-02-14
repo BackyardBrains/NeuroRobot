@@ -1,10 +1,18 @@
 
 %% Basal ganglia
 
+close all
 clear
 clc
 
-reward_states = [18 35];
+
+tic
+
+profile clear
+profile on
+
+
+reward_states = [13 14];
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -16,7 +24,6 @@ load(strcat(nets_dir_name, net_name))
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
 labels = unique(labels);
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
-save(strcat(nets_dir_name, net_name, '_labels'), 'labels')
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
@@ -242,3 +249,6 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, 'agent_2'), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, 'agent_2'), 'agent')
 
+disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
+
+profile viewer

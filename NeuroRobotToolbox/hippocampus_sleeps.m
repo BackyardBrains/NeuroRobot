@@ -16,7 +16,7 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net_2';
+net_name = 'net_1';
 
 nsmall = 5000;
 nmedium = 10000;
@@ -179,8 +179,14 @@ for nstate = 1:n_unique_states
     end
 end
 
-n_unique_states = sum(state_info(:,1));
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
+%% Get labels
+% n_unique_states = sum(state_info(:,1));
+% disp(horzcat('n unique states: ', num2str(n_unique_states)))
+labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
+labels = unique(labels);
+n_unique_states = length(labels);
+disp(horzcat('Recognizing ', num2str(n_unique_states), ' states'))
+save(strcat(nets_dir_name, net_name, '_labels'), 'labels')
 
 
 %% Train classifier net
@@ -190,13 +196,13 @@ classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileE
 net = [
     imageInputLayer([100 100 3])
     
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer(3,64,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,64,'Padding','same')
+    convolution2dLayer(3,128,'Padding','same')
     batchNormalizationLayer
     reluLayer
 
@@ -211,7 +217,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=15);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
 
 net = trainNetwork(classifier_ds, net, options);
 
