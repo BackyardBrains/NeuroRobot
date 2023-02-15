@@ -148,6 +148,11 @@ disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 save(strcat(workspace_dir_name, net_name, '-rmdp'), 'mdp')
 disp('Rewards ready')
 
+env = rlMDPEnv(mdp);
+save(strcat(workspace_dir_name, net_name, '-env'), 'env')
+validateEnvironment(env)
+disp('Environment ready')
+
 
 %% Plot mdp
 figure(8)
@@ -181,11 +186,9 @@ ylabel('State')
 xlabel('Next State')
 export_fig(horzcat(workspace_dir_name, net_name, -'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
-env = rlMDPEnv(mdp);
-save(strcat(workspace_dir_name, net_name, '-env'), 'env')
 
-%% Train agents
-validateEnvironment(env)
+%% Unpack environment
+
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
@@ -193,10 +196,10 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
-disp('Environment ready')
 
 
-%% Agent 1 (Q)
+
+%% Train Agent 1
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
 % qOptions.LearnRate = 0.1;
@@ -211,16 +214,16 @@ training_opts.ScoreAveragingWindowLength = 20;
 trainingStats_shallow = train(agent,env, training_opts);
 
 
-%%
+%% Show Agent 1
 figure(11)
 scan_agent
-title(horzcat('agent 1'))
+title(horzcat('Agent 1'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, 'agent_1'), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, 'agent_1'), 'agent')
 
 
-%% Agent 2 (Deep Q)
+%% Train Agent 2
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
@@ -232,14 +235,16 @@ training_opts.ScoreAveragingWindowLength = 100;
 training_opts.UseParallel = 0;
 trainingStats_deep = train(agent, env, training_opts);
 
-%%
+%% Show Agent 2
 figure(12)
 scan_agent
-title(horzcat('agent 2'))
+title(horzcat('Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, 'agent_2'), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, 'agent_2'), 'agent')
 
-disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
-
-profile viewer
+try
+    disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
+catch
+    disp('No start tic')
+end
