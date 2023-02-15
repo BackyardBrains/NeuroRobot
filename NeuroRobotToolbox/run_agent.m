@@ -5,13 +5,31 @@ if use_controllers
     left_uframe = imresize(left_uframe, [imdim imdim]);
     right_uframe = imresize(right_uframe, [imdim imdim]);
 
-    new_im = zeros(imdim, 178, 3, 'uint8');
-    new_im(:, 1:imdim, :) = right_uframe;
-    new_im(:, 79:178, :) = left_uframe;
+    left_state = NaN;
+    right_state = NaN;
+    this_state = NaN;
 
-    [state, scores] = classify(net, new_im);
-    scores = scores(unique_states == state);
-    this_state = find(unique_states == state);
+    [left_state, left_score] = classify(net, left_uframe);
+    [right_state, right_score] = classify(net, right_uframe);        
+
+    left_state = find(unique_states == left_state);
+    right_state = find(unique_states == right_state);
+
+    left_score = left_score(left_state);
+    right_score = right_score(right_state);
+
+    if ~isempty(left_score) && ~isempty(right_score)
+        if left_state == right_state
+            this_state = left_state;
+        elseif left_score >= right_score
+            this_state = left_state;
+        else
+            this_state = right_state;
+        end
+    else
+        this_state = nan;
+        disp('state detection error')
+    end
 
     disp('----')
     disp(horzcat('xstep: ', num2str(xstep)))

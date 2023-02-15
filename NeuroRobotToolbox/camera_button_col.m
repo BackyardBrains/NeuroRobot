@@ -13,6 +13,8 @@ elseif isempty(imaqfind)
     end
 elseif sum(select_robot.Value == 6) && ~isdeployed
     this_col = [0.6 0.95 0.6];
+elseif sum(select_robot.Value == 7)
+    this_col = [0.6 0.95 0.6];
 else
     this_col = [0.8 0.8 0.8];
 end

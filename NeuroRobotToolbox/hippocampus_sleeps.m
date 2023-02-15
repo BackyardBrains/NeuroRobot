@@ -186,7 +186,7 @@ labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
 labels = unique(labels);
 n_unique_states = length(labels);
 disp(horzcat('Recognizing ', num2str(n_unique_states), ' states'))
-save(strcat(nets_dir_name, net_name, '_labels'), 'labels')
+save(strcat(nets_dir_name, net_name, '-labels'), 'labels')
 
 
 %% Train classifier net

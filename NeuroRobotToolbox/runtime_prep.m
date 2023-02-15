@@ -222,12 +222,12 @@ if exist('rak_only', 'var') && brain_support
         if use_controllers
                  
             load(strcat(nets_dir_name, net_name))
-            load(strcat(nets_dir_name, net_name, '_labels'))
+            load(strcat(nets_dir_name, net_name, '-labels'))
             unique_states = unique(labels);
             n_unique_states = length(unique_states);            
             load(strcat(nets_dir_name, agent_name))
-            load(strcat(nets_dir_name, 'torque_data'))
-            load(strcat(nets_dir_name, 'actions'))
+            load(strcat(nets_dir_name, net_name, '-torque_data'))
+            load(strcat(nets_dir_name, net_name, '-actions'))
             n_unique_actions = length(unique(actions));
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions

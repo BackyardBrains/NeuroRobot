@@ -42,14 +42,14 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 % get_dists
 get_states
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
-save(strcat(workspace_dir_name, 'states'), 'states')
+save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
 get_torques
-save(horzcat(workspace_dir_name, 'torque_data'), 'torque_data')
+save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
 
 
 %% Actions
@@ -58,9 +58,7 @@ actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
-save(strcat(workspace_dir_name, 'actions'), 'actions')
-
-load(strcat(workspace_dir_name, 'actions'))
+save(strcat(nets_dir_name, '-actions'), 'actions')
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
@@ -127,8 +125,7 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(workspace_dir_name, 'mdp'), 'mdp')
-load(strcat(workspace_dir_name, 'mdp'))
+save(strcat(workspace_dir_name, net_name, '-mdp'), 'mdp')
 disp('Markov ready')
 
 %% Get rewards
@@ -151,8 +148,7 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-save(strcat(workspace_dir_name, 'rmdp'), 'mdp')
-load(strcat(workspace_dir_name, 'rmdp'))
+save(strcat(workspace_dir_name, net_name, '-rmdp'), 'mdp')
 disp('Rewards ready')
 
 
@@ -186,13 +182,12 @@ colorbar
 title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
-export_fig(horzcat(workspace_dir_name, 'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(workspace_dir_name, net_name, -'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
 
 %% Train agents
 env = rlMDPEnv(mdp);
-save(strcat(workspace_dir_name, 'env'), 'env')
-load(strcat(workspace_dir_name, 'env'))
+save(strcat(workspace_dir_name, net_name, '-env'), 'env')
 
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
