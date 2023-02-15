@@ -15,9 +15,9 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net1b-net';
+net_name = 'net1';
 
-load(strcat(nets_dir_name, net_name))
+load(strcat(nets_dir_name, net_name, '-net'))
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
 labels = unique(labels);
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
@@ -122,7 +122,6 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(workspace_dir_name, net_name, '-mdp'), 'mdp')
 disp('Markov ready')
 
 %% Get rewards
@@ -145,11 +144,10 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-save(strcat(workspace_dir_name, net_name, '-rmdp'), 'mdp')
 disp('Rewards ready')
 
 env = rlMDPEnv(mdp);
-save(strcat(workspace_dir_name, net_name, '-env'), 'env')
+save(strcat(nets_dir_name, net_name, '-env'), 'env')
 validateEnvironment(env)
 disp('Environment ready')
 
@@ -210,7 +208,7 @@ training_opts.MaxEpisodes = 1000;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 20;
+training_opts.ScoreAveragingWindowLength = 100;
 trainingStats_shallow = train(agent,env, training_opts);
 
 
