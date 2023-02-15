@@ -8,15 +8,12 @@ clc
 
 tic
 
-profile clear
-profile on
-
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net_1';
+net_name = 'net_1b';
 
 nsmall = 5000;
 nmedium = 10000;
@@ -196,13 +193,13 @@ classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileE
 net = [
     imageInputLayer([100 100 3])
     
-    convolution2dLayer(3,64,'Padding','same')
+    convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,128,'Padding','same')
+    convolution2dLayer(3,64,'Padding','same')
     batchNormalizationLayer
     reluLayer
 
@@ -217,7 +214,7 @@ net = [
     classificationLayer];
 
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
+    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=10);
 
 net = trainNetwork(classifier_ds, net, options);
 
@@ -225,4 +222,3 @@ save(strcat(nets_dir_name, net_name), 'net')
 
 disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
 
-profile viewer
