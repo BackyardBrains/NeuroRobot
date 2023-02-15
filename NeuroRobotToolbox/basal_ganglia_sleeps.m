@@ -8,11 +8,8 @@ clc
 
 tic
 
-profile clear
-profile on
 
-
-reward_states = [13 14];
+reward_states = [1 2];
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -184,11 +181,10 @@ ylabel('State')
 xlabel('Next State')
 export_fig(horzcat(workspace_dir_name, net_name, -'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
 
-
-%% Train agents
 env = rlMDPEnv(mdp);
 save(strcat(workspace_dir_name, net_name, '-env'), 'env')
 
+%% Train agents
 validateEnvironment(env)
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
