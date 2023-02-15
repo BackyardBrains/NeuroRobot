@@ -55,7 +55,7 @@ actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
-save(strcat(nets_dir_name, '-actions'), 'actions')
+save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
@@ -184,7 +184,7 @@ colorbar
 title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
-export_fig(horzcat(workspace_dir_name, net_name, -'mdp_', num2str(date)), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(workspace_dir_name, net_name, '-mdp'), '-r150', '-jpg', '-nocrop')
 
 
 %% Unpack environment

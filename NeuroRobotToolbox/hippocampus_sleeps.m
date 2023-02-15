@@ -13,7 +13,7 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net1b';
+net_name = 'net1';
 
 nsmall = 5000;
 nmedium = 10000;
