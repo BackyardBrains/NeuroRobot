@@ -217,8 +217,8 @@ figure(11)
 scan_agent
 title(horzcat('Agent 1'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, 'agent_1'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, 'agent_1'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-agent1'), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, '-agent1'), 'agent')
 
 
 %% Train Agent 2
@@ -238,8 +238,8 @@ figure(12)
 scan_agent
 title(horzcat('Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, 'agent_2'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, 'agent_2'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-agent2'), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, net_name, '-agent2'), 'agent')
 
 try
     disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))

@@ -24,8 +24,8 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net_1b';
-agent_name = 'agent_1b';
+net_name = 'net1';
+agent_name = 'agent1';
 
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
