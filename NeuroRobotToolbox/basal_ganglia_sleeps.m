@@ -188,7 +188,7 @@ export_fig(horzcat(workspace_dir_name, net_name, -'mdp_', num2str(date)), '-r150
 
 
 %% Unpack environment
-
+% load(strcat(workspace_dir_name, net_name, '-env'))
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
