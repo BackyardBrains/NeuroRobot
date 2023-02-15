@@ -13,7 +13,7 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net_1b';
+net_name = 'net1b';
 
 nsmall = 5000;
 nmedium = 10000;
@@ -218,7 +218,10 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(nets_dir_name, net_name), 'net')
+save(strcat(nets_dir_name, net_name, '-net'), 'net')
 
-disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
-
+try
+    disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
+catch
+    disp('No start tic')
+end

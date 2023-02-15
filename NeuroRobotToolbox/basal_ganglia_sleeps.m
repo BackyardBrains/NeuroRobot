@@ -15,7 +15,7 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net_1';
+net_name = 'net1b-net';
 
 load(strcat(nets_dir_name, net_name))
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
