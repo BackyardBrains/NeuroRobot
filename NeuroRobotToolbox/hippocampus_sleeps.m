@@ -13,7 +13,7 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net1';
+net_name = 'net2';
 
 nsmall = 5000;
 nmedium = 10000;
@@ -65,6 +65,9 @@ title('Similarity Data (xdata histogram)')
 
 
 %% Group images
+n_unique_states = 100;
+group_inds = kmeans(xdata, n_unique_states);
+
 disp('Clustering...')
 n_unique_states = 200;
 dists = pdist(xdata,'correlation');

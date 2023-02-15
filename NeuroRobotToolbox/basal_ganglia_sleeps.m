@@ -9,13 +9,13 @@ clc
 tic
 
 
-reward_states = [1 2];
+reward_states = [20 21 42 46];
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net1';
+net_name = 'net2';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
