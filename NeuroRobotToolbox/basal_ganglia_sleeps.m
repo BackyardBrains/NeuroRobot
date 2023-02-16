@@ -215,7 +215,7 @@ trainingStats_shallow = train(agent,env, training_opts);
 %% Show Agent 1
 figure(11)
 scan_agent
-title(horzcat('Agent 1'))
+title(horzcat(net_name, ' - Agent 1'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, net_name, '-agent1'), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, net_name, '-agent1'), 'agent')
@@ -236,7 +236,7 @@ trainingStats_deep = train(agent, env, training_opts);
 %% Show Agent 2
 figure(12)
 scan_agent
-title(horzcat('Agent 2'))
+title(horzcat(net_name, ' - Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, net_name, '-agent2'), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, net_name, net_name, '-agent2'), 'agent')

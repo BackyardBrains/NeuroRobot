@@ -68,11 +68,11 @@ title('Similarity Data (xdata histogram)')
 n_unique_states = 100;
 group_inds = kmeans(xdata, n_unique_states);
 
-disp('Clustering...')
-n_unique_states = 200;
-dists = pdist(xdata,'correlation');
-links = linkage(dists,'weighted');
-group_inds = cluster(links,'MaxClust',n_unique_states);
+% disp('Clustering...')
+% n_unique_states = 200;
+% dists = pdist(xdata,'correlation');
+% links = linkage(dists,'weighted');
+% group_inds = cluster(links,'MaxClust',n_unique_states);
 
 figure(2)
 clf
@@ -126,6 +126,7 @@ xlabel('State')
 ylabel('Count')
 set(gca, 'yscale', 'log')
 
+
 %% Entropy quality check
 state_entropy = zeros(n_unique_states, 1);
 for nstate = 1:n_unique_states
@@ -147,7 +148,7 @@ plot([th th], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
 title('Similarity scores')
 
 
-%%
+%% Create datasets for training nets
 try
     rmdir(strcat(workspace_dir_name, net_name), 's')
 catch
