@@ -13,15 +13,16 @@ tic
 % reward_states = [20 21 42 46];
 bookshelf = [5 13 14 17 25 28 29 32 35 38 40 41 43];
 tv = [4 7 8 19 22 26 34 36 53];
-reward_states = bookshelf;
-% reward_states = tv;
+% reward_states = bookshelf;
+reward_states = tv;
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-agent_name = 'agent-bookshelf';
+% agent_name = 'agent-bookshelf';
+agent_name = 'agent-tv';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
@@ -42,8 +43,8 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 %% States
 % get_dists
-get_states
-save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+% get_states
+% save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states'))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
@@ -51,8 +52,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-get_torques
-save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
+% get_torques
+% save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
 
 
