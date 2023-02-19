@@ -23,8 +23,7 @@ nets_dir_name = '.\Nets\';
 net_name = 'net2';
 
 load(strcat(nets_dir_name, net_name, '-net'))
-labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
-labels = unique(labels);
+load(strcat(nets_dir_name, net_name, '-labels'))
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
