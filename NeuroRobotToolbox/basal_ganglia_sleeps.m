@@ -41,8 +41,8 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 %% States
 % get_dists
-% get_states
-% save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+get_states
+save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states'))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
@@ -50,18 +50,18 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
+get_torques
+save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
 
 
 %% Actions
-% n_unique_actions = 9;
-% actions = kmeans(torque_data, n_unique_actions);
-% still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
-% disp(horzcat('n still actions: ', num2str(sum(still))))
-% actions(still) = n_unique_actions + 1;
-% save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
+n_unique_actions = 9;
+actions = kmeans(torque_data, n_unique_actions);
+still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
+disp(horzcat('n still actions: ', num2str(sum(still))))
+actions(still) = n_unique_actions + 1;
+save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
