@@ -9,7 +9,12 @@ clc
 tic
 
 
-reward_states = [20 21 42 46];
+% reward_states = [1 2];
+% reward_states = [20 21 42 46];
+bookshelf = [5 14 15 18 27 30 31 34 37 40 42 43 45];
+tv = [4 8 9 21 24 28 36 38 55];
+reward_states = bookshelf;
+% reward_states = tv;
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -122,7 +127,9 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
+save(strcat(nets_dir_name, net_name, '-mdp'), 'mdp')
 disp('Markov ready')
+
 
 %% Get rewards
 disp('Getting reward...')
@@ -196,7 +203,6 @@ n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
 
 
-
 %% Train Agent 1
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
@@ -233,6 +239,7 @@ training_opts.ScoreAveragingWindowLength = 100;
 training_opts.UseParallel = 0;
 trainingStats_deep = train(agent, env, training_opts);
 
+
 %% Show Agent 2
 figure(12)
 scan_agent
@@ -246,3 +253,4 @@ try
 catch
     disp('No start tic')
 end
+

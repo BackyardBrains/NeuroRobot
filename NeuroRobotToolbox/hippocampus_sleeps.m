@@ -68,11 +68,11 @@ title('Similarity Data (xdata histogram)')
 n_unique_states = 100;
 group_inds = kmeans(xdata, n_unique_states);
 
-% disp('Clustering...')
-% n_unique_states = 200;
-% dists = pdist(xdata,'correlation');
-% links = linkage(dists,'weighted');
-% group_inds = cluster(links,'MaxClust',n_unique_states);
+disp('Clustering...')
+n_unique_states = 200;
+dists = pdist(xdata,'correlation');
+links = linkage(dists,'weighted');
+group_inds = cluster(links,'MaxClust',n_unique_states);
 
 figure(2)
 clf
