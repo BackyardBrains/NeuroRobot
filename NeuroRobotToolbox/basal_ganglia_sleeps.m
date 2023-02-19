@@ -21,6 +21,7 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
+agent_name = 'agent-bookshelf';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
@@ -42,8 +43,8 @@ disp(horzcat('n unique states: ', num2str(n_unique_states)))
 %% States
 % get_dists
 get_states
-save(horzcat(nets_dir_name, net_name, '-states'), 'states')
-load(horzcat(nets_dir_name, net_name, '-states'))
+save(horzcat(nets_dir_name, net_name, '-', agent_name, '-states'), 'states')
+load(horzcat(nets_dir_name, net_name, '-', agent_name, '-states'))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
@@ -51,8 +52,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 %% Torques
 get_torques
-save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
-load(horzcat(nets_dir_name, net_name, '-torque_data'))
+save(horzcat(nets_dir_name, net_name, '-', agent_name, '-torque_data'), 'torque_data')
+load(horzcat(nets_dir_name, net_name, '-', agent_name, '-torque_data'))
 
 
 %% Actions
@@ -61,8 +62,8 @@ actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
-save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
-load(strcat(nets_dir_name, net_name, '-actions'))
+save(strcat(nets_dir_name, net_name, '-', agent_name, '-actions'), 'actions')
+load(strcat(nets_dir_name, net_name, '-', agent_name, '-actions'))
 figure(7)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
@@ -129,7 +130,6 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
-save(strcat(nets_dir_name, net_name, '-mdp'), 'mdp')
 disp('Markov ready')
 
 
@@ -153,10 +153,11 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
+save(strcat(nets_dir_name, net_name, '-', agent_name, '-mdp'), 'mdp')
 disp('Rewards ready')
 
 env = rlMDPEnv(mdp);
-save(strcat(nets_dir_name, net_name, '-env'), 'env')
+save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
 validateEnvironment(env)
 disp('Environment ready')
 
@@ -191,7 +192,7 @@ colorbar
 title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
-export_fig(horzcat(workspace_dir_name, net_name, '-mdp'), '-r150', '-jpg', '-nocrop')
+export_fig(horzcat(workspace_dir_name, net_name, '-', agent_name, '-mdp'), '-r150', '-jpg', '-nocrop')
 
 
 %% Unpack environment
@@ -225,8 +226,8 @@ figure(11)
 scan_agent
 title(horzcat(net_name, ' - Agent 1'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, net_name, '-agent1-tv'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, '-agent1-tv'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-RL-', agent_name), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, '-RL-', agent_name), 'agent')
 
 
 %% Train Agent 2
@@ -247,8 +248,8 @@ figure(12)
 scan_agent
 title(horzcat(net_name, ' - Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, net_name, '-agent2-tv'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, net_name, '-agent2-tv'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, net_name, '-DRL-', agent_name), 'agent')
 
 try
     disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
