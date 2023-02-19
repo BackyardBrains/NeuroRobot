@@ -13,8 +13,8 @@ tic
 % reward_states = [20 21 42 46];
 bookshelf = [5 13 14 17 25 28 29 32 35 38 40 41 43];
 tv = [4 7 8 19 22 26 34 36 53];
-reward_states = bookshelf;
-% reward_states = tv;
+% reward_states = bookshelf;
+reward_states = tv;
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
@@ -225,8 +225,8 @@ figure(11)
 scan_agent
 title(horzcat(net_name, ' - Agent 1'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, net_name, '-agent1-bookshelf'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, '-agent1-bookshelf'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-agent1-tv'), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, '-agent1-tv'), 'agent')
 
 
 %% Train Agent 2
@@ -247,8 +247,8 @@ figure(12)
 scan_agent
 title(horzcat(net_name, ' - Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-export_fig(horzcat(workspace_dir_name, net_name, '-agent2-bookshelf'), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, net_name, '-agent2-bookshelf'), 'agent')
+export_fig(horzcat(workspace_dir_name, net_name, '-agent2-tv'), '-r150', '-jpg', '-nocrop')
+save(horzcat(nets_dir_name, net_name, net_name, '-agent2-tv'), 'agent')
 
 try
     disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
