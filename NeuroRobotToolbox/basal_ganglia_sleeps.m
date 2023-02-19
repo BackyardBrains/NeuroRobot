@@ -21,7 +21,7 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-agent_name = 'agent-bookshelf';
+agent_name = 'agent-tv';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
