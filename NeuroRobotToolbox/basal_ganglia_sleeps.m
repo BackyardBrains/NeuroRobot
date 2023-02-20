@@ -21,12 +21,14 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-agent_name = 'agent-bookshelf';
-% agent_name = 'agent-tv';
+% agent_name = 'agent-bookshelf';
+agent_name = 'agent-tv';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
 disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
+n_unique_states = length(labels);
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
@@ -36,9 +38,6 @@ ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
 ntuples = size(torque_dir, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
-unique_states = unique(labels);
-n_unique_states = length(unique_states);
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% States
@@ -215,7 +214,7 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 2000;
+training_opts.MaxEpisodes = 5000;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
