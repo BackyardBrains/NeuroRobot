@@ -21,8 +21,8 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-% agent_name = 'agent-bookshelf';
-agent_name = 'agent-tv';
+agent_name = 'agent-bookshelf';
+% agent_name = 'agent-tv';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
@@ -66,7 +66,7 @@ disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
-figure(7)
+figure(17)
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*0.75, torque_data(:,2)+randn(size(torque_data(:,2)))*0.75, actions)
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))

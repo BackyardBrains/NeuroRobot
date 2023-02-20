@@ -18,14 +18,14 @@ save_data_and_commands = 0;
 % use_profile = 0;          % Disabled for compilation
 bg_brain = 1;
 manual_controls = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'Agent Bookshelf', 'Agent TV'};
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-agent_name = 'RL-agent-bookshelf';
+agent_names = {'RL-agent-bookshelf', 'RL-agent-tv'};
 
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';

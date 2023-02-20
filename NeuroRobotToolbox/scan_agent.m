@@ -1,4 +1,10 @@
 
+
+% n = 1;
+% agent = agents(n).agent;
+% reward_states = agents(n).reward_states;
+% figure(n)
+
 clf
 set(gcf, 'color', 'w')
 set(gcf, 'position', [100 50 900 700])

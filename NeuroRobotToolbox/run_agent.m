@@ -35,8 +35,29 @@ if use_controllers
     disp(horzcat('xstep: ', num2str(xstep)))
     disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
     
-    this_action = getAction(agent, this_state);
+    this_action = getAction(agents(this_agent).agent, this_state);
     this_action = cell2mat(this_action);
+
+%     if this_action == 10
+%         just_green
+%     else
+%         just_off
+%     end
+    if this_agent == 1
+        send_this = 'd:131;d:231;d:331;d:431;d:531;d:631;d:120;d:220;d:320;d:420;d:520;d:620;';
+        if rak_only
+            rak_cam.writeSerial(send_this)
+        elseif use_esp32
+            esp32WebsocketClient.send(send_this);
+        end
+    elseif this_agent == 2
+        send_this = 'd:121;d:221;d:321;d:421;d:521;d:621;d:130;d:230;d:330;d:430;d:530;d:630;';
+        if rak_only
+            rak_cam.writeSerial(send_this)
+        elseif use_esp32
+            esp32WebsocketClient.send(send_this);
+        end
+    end
 
 %     soundsc(state_wavs(this_state).wav, 16000);
 

@@ -224,8 +224,14 @@ if exist('rak_only', 'var') && brain_support
             load(strcat(nets_dir_name, net_name, '-net'))
             load(strcat(nets_dir_name, net_name, '-labels'))
             unique_states = unique(labels);
-            n_unique_states = length(unique_states);       
-            load(horzcat(nets_dir_name, net_name, '-', agent_name))
+            n_unique_states = length(unique_states);  
+            nagents = length(agent_names);
+            agents = struct;
+            for nagent = 1:nagents
+                load(horzcat(nets_dir_name, net_name, '-', agent_names{nagent}))
+                agents(nagent).agent = agent;
+                clear agent
+            end
             load(strcat(nets_dir_name, net_name, '-torque_data'))
             load(strcat(nets_dir_name, net_name, '-actions'))
             n_unique_actions = length(unique(actions));
