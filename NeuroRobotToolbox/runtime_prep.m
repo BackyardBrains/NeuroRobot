@@ -218,6 +218,8 @@ if exist('rak_only', 'var') && brain_support
         
         left_torque_mem = 0;
         right_torque_mem = 0;
+        ai_flag = 1;
+        ai_count = 0;
     
         if use_controllers
                  

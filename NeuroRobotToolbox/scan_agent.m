@@ -1,8 +1,9 @@
 
 
-% n = 1;
+% n = 2;
 % agent = agents(n).agent;
-% reward_states = agents(n).reward_states;
+% % reward_states = [5 13 14 17 25 28 29 32 35 38 40 41 43]; % bookshelf
+% reward_states = [4 7 8 19 22 26 34 36 53]; % tv
 % figure(n)
 
 clf
@@ -42,3 +43,7 @@ ylim([0 n_unique_states + 1])
 xlim([1.5 5.5])
 set(gca, 'ydir', 'reverse')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+
+% title(horzcat(net_name, ' - ', agent_names{n}))
+% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+% export_fig(horzcat(workspace_dir_name, net_name, agent_names{n}), '-r150', '-jpg', '-nocrop')
