@@ -251,7 +251,7 @@ scan_agent
 title(horzcat(net_name, ' - Agent 2'))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, net_name, '-DRL-', agent_name), 'agent')
+save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
 
 try
     disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))

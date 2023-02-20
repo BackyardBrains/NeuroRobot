@@ -25,7 +25,7 @@ rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net2';
-agent_name = 'agent1';
+agent_name = 'RL-agent-bookshelf';
 
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
