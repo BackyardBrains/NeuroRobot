@@ -215,12 +215,12 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
+training_opts.MaxEpisodes = 2000;
 training_opts.MaxStepsPerEpisode = 500;
 training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
-trainingStats_shallow = train(agent,env, training_opts);
+trainingStats_shallow = train(agent, env, training_opts);
 
 
 %% Show Agent 1
