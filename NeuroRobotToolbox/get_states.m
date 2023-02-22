@@ -21,8 +21,8 @@ for ntuple = 1:ntuples
     [left_state, left_score] = classify(net, left_im);
     [right_state, right_score] = classify(net, right_im);        
         
-    left_state = find(unique_states == left_state);
-    right_state = find(unique_states == right_state);
+    left_state = find(labels == left_state);
+    right_state = find(labels == right_state);
 
     left_score = left_score(left_state);
     right_score = right_score(right_state);
