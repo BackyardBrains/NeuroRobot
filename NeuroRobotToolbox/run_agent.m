@@ -42,10 +42,10 @@ if use_controllers
 
     if this_action == 10
         ai_count = ai_count + 1;
-        if ai_count == 20
+        if ai_count == 10
             ai_count = 0;
             while ai_count == 0
-                new_flag = randsample(3, 1);
+                new_flag = randsample([1 3], 1);
                 if new_flag ~= ai_flag
                     ai_flag = new_flag;
                     ai_count = ai_count + 1;
