@@ -44,25 +44,27 @@ if use_controllers
         ai_count = ai_count + 1;
         if ai_count == 20
             ai_count = 0;
-            ai_flag = 3 - ai_flag;
-            just_off
+            while ai_count == 0
+                new_flag = randsample(3, 1);
+                if new_flag ~= ai_flag
+                    ai_flag = new_flag;
+                    ai_count = ai_count + 1;
+                end
+                just_off
+                just_off
+                just_off
+            end
         end
-    end    
+    else    
+        ai_count = 0;
+        if ai_flag == 1
+            just_green
+        elseif ai_flag == 2
+            just_red
+        elseif ai_flag == 3
+            just_blue
+        end
 
-    if ai_flag == 1
-        send_this = 'd:131;d:231;d:331;d:431;d:531;d:631;d:120;d:220;d:320;d:420;d:520;d:620;';
-        if rak_only
-            rak_cam.writeSerial(send_this)
-        elseif use_esp32
-            esp32WebsocketClient.send(send_this);
-        end
-    elseif ai_flag == 2
-        send_this = 'd:121;d:221;d:321;d:421;d:521;d:621;d:130;d:230;d:330;d:430;d:530;d:630;';
-        if rak_only
-            rak_cam.writeSerial(send_this)
-        elseif use_esp32
-            esp32WebsocketClient.send(send_this);
-        end
     end
 
 %     soundsc(state_wavs(this_state).wav, 16000);
