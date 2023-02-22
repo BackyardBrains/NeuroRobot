@@ -24,7 +24,11 @@ if use_controllers
         elseif left_score >= right_score
             this_state = left_state;
         else
-            this_state = right_state;
+            if rand < 0.5
+                this_state = left_state;
+            else
+                this_state = right_state;
+            end
         end
     else
         this_state = nan;
@@ -42,11 +46,7 @@ if use_controllers
 
     if this_action == 10
         ai_count = ai_count + 1;
-        if ai_count == 2
-            just_off
-            pause(0.05)
-            just_off
-            pause(0.05)
+        if ai_count < 5
             just_off
         else
             just_green
@@ -60,9 +60,9 @@ if use_controllers
                     ai_count = ai_count + 1;
                 end
                 just_off
-                pause(0.05)
+                pause(0.02)
                 just_off
-                pause(0.05)
+                pause(0.02)
                 just_off
             end
         end

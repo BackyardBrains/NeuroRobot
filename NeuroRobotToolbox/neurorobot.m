@@ -18,7 +18,7 @@ save_data_and_commands = 0;
 % use_profile = 0;          % Disabled for compilation
 bg_brain = 1;
 manual_controls = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent', 'RL Agent 2'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent(s)'};
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
