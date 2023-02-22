@@ -24,11 +24,11 @@ if use_controllers
         elseif left_score >= right_score
             this_state = left_state;
         else
-            if rand < 0.5
-                this_state = left_state;
-            else
+%             if rand < 0.5
+%                 this_state = left_state;
+%             else
                 this_state = right_state;
-            end
+%             end
         end
     else
         this_state = nan;
@@ -46,12 +46,7 @@ if use_controllers
 
     if this_action == 10
         ai_count = ai_count + 1;
-        if ai_count < 5
-            just_off
-        else
-            just_green
-        end
-        if ai_count == 10
+        if ai_count == 20
             ai_count = 0;
             while ai_count == 0
                 new_flag = randsample(nagents, 1);
@@ -60,9 +55,9 @@ if use_controllers
                     ai_count = ai_count + 1;
                 end
                 just_off
-                pause(0.02)
                 just_off
-                pause(0.02)
+                just_off
+                just_off
                 just_off
             end
         end
