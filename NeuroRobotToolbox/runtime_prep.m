@@ -219,7 +219,8 @@ if exist('rak_only', 'var') && brain_support
         left_torque_mem = 0;
         right_torque_mem = 0;
         ai_flag = 1;
-        ai_count = 0;
+        ai_count = 1;
+        nagents = length(agent_names);
     
         if use_controllers
                  
@@ -227,7 +228,6 @@ if exist('rak_only', 'var') && brain_support
             load(strcat(nets_dir_name, net_name, '-labels'))
             unique_states = unique(labels);
             n_unique_states = length(unique_states);  
-            nagents = length(agent_names);
             agents = struct;
             for nagent = 1:nagents
                 load(horzcat(nets_dir_name, net_name, '-', agent_names{nagent}))
