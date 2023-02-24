@@ -46,7 +46,7 @@ if use_controllers
 
     if this_action == 10
         ai_count = ai_count + 1;
-        if ai_count == 20
+        if ai_count >= 20
             ai_count = 0;
             while ai_count == 0
                 new_flag = randsample(nagents, 1);
@@ -55,16 +55,24 @@ if use_controllers
                     ai_count = ai_count + 1;
                 end
                 just_off
+                pause(0.02)
                 just_off
+                pause(0.02)
                 just_off
+                pause(0.02)
                 just_off
+                pause(0.02)
                 just_off
+                pause(0.02)
+                just_off
+                pause(0.02)
+                just_off                
             end
         end
     else    
         ai_count = 0;
         if ai_flag == 1
-            just_blue
+            just_green
         elseif ai_flag == 2
             just_red
         end
