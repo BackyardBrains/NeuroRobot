@@ -13,10 +13,10 @@ dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net2';
+net_name = 'net3';
 
-nsmall = 5000;
-nmedium = 10000;
+nsmall = 2000;
+nmedium = 5000;
 
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 % image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small
@@ -43,11 +43,11 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 200]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [1 100]);
 imageIndex = indexImages(image_ds_medium, bag);
 get_image_crosscorr
 
-save(strcat(workspace_dir_name, 'xdata'), 'xdata', '-v7.3')
+% save(strcat(workspace_dir_name, 'xdata'), 'xdata', '-v7.3')
 
 
 %% Plot similarity matrix
@@ -65,22 +65,23 @@ title('Similarity Data (xdata histogram)')
 
 
 %% Group images
+disp('Clustering...')
+
 n_unique_states = 100;
 group_inds = kmeans(xdata, n_unique_states);
 
-disp('Clustering...')
-n_unique_states = 200;
-dists = pdist(xdata,'correlation');
-links = linkage(dists,'weighted');
-group_inds = cluster(links,'MaxClust',n_unique_states);
-
-figure(2)
-clf
-subplot(1,2,1)
-[~, ~, o] = dendrogram(links, 0);
-subplot(1,2,2)
-imagesc(xdata(o, o))
-colorbar
+% n_unique_states = 50;
+% dists = pdist(xdata,'correlation');
+% links = linkage(dists,'weighted');
+% group_inds = cluster(links,'MaxClust',n_unique_states);
+% 
+% figure(2)
+% clf
+% subplot(1,2,1)
+% [~, ~, o] = dendrogram(links, 0);
+% subplot(1,2,2)
+% imagesc(xdata(o, o))
+% colorbar
 
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
@@ -96,7 +97,7 @@ set(gca, 'yscale', 'log')
 
 
 %% Optional: Remove small groups and/or noise group
-min_size = 20;
+min_size = 10;
 n_unique_states = length(unique(group_inds));
 state_info = zeros(n_unique_states, 3);
 state_inds = zeros(n_unique_states, min_size);
