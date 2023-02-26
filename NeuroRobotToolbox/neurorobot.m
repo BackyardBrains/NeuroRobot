@@ -142,7 +142,7 @@ select_app.Value = 1:3;
 % Deep net settings
 text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'- empty slot -'; 'GoogLeNet (object detection net)'; '- empty slot -'};
+option_vision = {'Generic object detection GoogLeNet'; 'Custom object detection AlexNet'};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_vision.Value = [];

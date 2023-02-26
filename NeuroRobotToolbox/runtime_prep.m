@@ -40,19 +40,15 @@ end
 
 
 %% Deep net settings
-% 1 = '- empty slot -'
+% 1 = 'GoogLeNet object detection'
 if sum(select_vision.Value == 1)
-end  
-
-% 2 = 'GoogLeNet (generic)'    
-if sum(select_vision.Value == 2)
     use_cnn = 1;
 else
     use_cnn = 0;
 end
 
-% 3 = 'AlexNet (custom)'
-if sum(select_vision.Value == 3)
+% 2 = 'Custom object detection with AlexNet'
+if sum(select_vision.Value == 2)
     use_rcnn = 1;
 else
     use_rcnn = 0;
@@ -112,7 +108,7 @@ brain_name = brain_string{select_brain.Value};
 
 % Can the app settings support the selected brain?
 load_brain
-if size(vis_prefs, 2) > 7 && ~sum(select_vision.Value == 2)
+if size(vis_prefs, 2) > 7 && ~sum(select_vision.Value == 1) % Bad hack to check that detector net is loaded
     brain_support = 0;
 else
     brain_support = 1;
@@ -338,7 +334,7 @@ if exist('rak_only', 'var') && brain_support
     
     % Nothing prevents overwriting an existing brain
     disp(horzcat('Brain name = ', brain_name))
-    if ~exist('net', 'var') && use_cnn
+    if use_cnn
         tic
         g_net = googlenet;
         net_input_size = g_net.Layers(1).InputSize(1:2);
@@ -348,8 +344,6 @@ if exist('rak_only', 'var') && brain_support
         net_input_size = [227 227];
 %         load('rcnn5heads') % <<<< COMMENTED OUT FOR COMPILATION
         disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
-    elseif use_cnn
-        net_input_size = [227 227];
     elseif use_rcnn
         net_input_size = [224 224];
     end
