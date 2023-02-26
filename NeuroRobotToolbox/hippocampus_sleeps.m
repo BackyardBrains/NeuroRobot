@@ -15,8 +15,8 @@ workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
 net_name = 'net3';
 
-nsmall = 2000;
-nmedium = 5000;
+nsmall = 1000;
+nmedium = 2000;
 
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 % image_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually - This is where some images get saved small

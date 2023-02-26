@@ -8,25 +8,14 @@ clc
 
 tic
 
-
-for ii = 1:3
-
-    if ii == 1
-        reward_states = [5 13 14 17 25 28 29 32 35 38 40 41 43]; % bookshelf
-        agent_name = 'agent-bookshelf';
-    elseif ii == 2
-        reward_states = [4 7 8 19 22 26 34 36 53]; % tv
-        agent_name = 'agent-tv';
-    elseif ii == 3
-        reward_states = [2 11 18 20 21 24 27 31 33 42 46 47 48 49 50]; % sofa
-        agent_name = 'agent-sofa';
-    end
+reward_states = [2 3 13];
+agent_name = 'agent-weird-sofa';
 
 dataset_dir_name = '.\Datasets\';
 rec_dir_name = '';
 workspace_dir_name = '.\Workspace\';
 nets_dir_name = '.\Nets\';
-net_name = 'net2';
+net_name = 'net3';
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
@@ -46,8 +35,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 %% States
 % get_dists
-% get_states
-% save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+get_states
+save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states'))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
@@ -55,8 +44,8 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Torques
-% get_torques
-% save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
+get_torques
+save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
 
 
@@ -256,7 +245,6 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
 
-end
 
 try
     disp(horzcat('Sleep duration: ', num2str(round(toc/60)), ' min'))
