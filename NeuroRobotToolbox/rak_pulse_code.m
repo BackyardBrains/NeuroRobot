@@ -11,7 +11,3 @@ elseif rak_only
     this_audio = double(rak_cam.readAudio());
     serial_receive = rak_cam.readSerial();
 end
-
-if exist('dev_mode', 'var') && dev_mode
-    brainless
-end

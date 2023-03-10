@@ -24,12 +24,6 @@ elseif use_esp32
 end
 
 
-%% Save brain figure
-if save_brain_jpg
-    print_brain
-end
-
-
 %% Save data and command log
 if save_data_and_commands
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
@@ -60,11 +54,6 @@ end
 step_duration_in_ms = round(median(step_times * 1000));
 disp(horzcat('Step time = ', num2str(step_duration_in_ms), ' ms'))
 disp('Run complete')
-
-% if use_profile
-%     profile off
-%     profile viewer
-% end
 
 if rak_fail
     disp('RAK connection lost')

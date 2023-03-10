@@ -10,23 +10,13 @@
 
 %% Settings
 pulse_period = 0.1;         % Step time in seconds
-dev_mode = 0;               % Run brainless_first_visual_line once & brainless persistantly in rak_pulse_code
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
-save_brain_jpg = 0;         % Needs export_fig
 save_data_and_commands = 0;
-% use_profile = 0;          % Disabled for compilation
 bg_brain = 1;
-manual_controls = 0;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent(s)'};
-
-dataset_dir_name = '.\Datasets\';
-rec_dir_name = '';
-workspace_dir_name = '.\Workspace\';
-nets_dir_name = '.\Nets\';
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
 net_name = 'net2';
 agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
-
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -35,8 +25,7 @@ vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (s
 
 
 %% Background
-% Grey background (1) or white background (0)
-grey_background = 1;        
+grey_background = 1; % Grey background (1) or white background (0)    
 if grey_background
     fig_bg_col = [0.94 0.94 0.94];
     this_workspace_fig = 'workspace2.jpg';
@@ -77,7 +66,7 @@ set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.7', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.8', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
@@ -164,7 +153,7 @@ elseif ispc && isdeployed
     brain_dir = strcat(userpath, '\Brains\');
     if ~exist(brain_dir, 'dir')
         mkdir(brain_dir)
-        disp(horzcat('Created new directory: ', brain_dir))
+        disp(horzcat('Created new brain directory: ', brain_dir))
     end
     available_brains = dir(strcat(brain_dir, '*.mat'));
     if size(available_brains, 1) == 0

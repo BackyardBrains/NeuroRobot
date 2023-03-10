@@ -61,23 +61,6 @@ if bg_brain
     ylim([0 255])
     set(drive_bar_ax, 'xtick', 1:nnetworks-1, 'xticklabels', letters(2:nnetworks), 'ytick', [], 'ycolor', fig_bg_col)
     box off
-elseif manual_controls
-    left_pos = [0.75 0.37 0.07 0.05];
-    right_pos = [0.91 0.37 0.07 0.05];
-    forward_pos =[0.81 0.44 0.11 0.05];
-    backward_pos = [0.81 0.3 0.11 0.05];
-    hold_pos = [0.83 0.37 0.07 0.05];
-    button_left = uicontrol('Style', 'pushbutton', 'String', 'Left', 'units', 'normalized', 'position', left_pos);
-    set(button_left, 'Callback', 'manual_control = 1;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    button_right = uicontrol('Style', 'pushbutton', 'String', 'Right', 'units', 'normalized', 'position', right_pos);
-    set(button_right, 'Callback', 'manual_control = 2;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    button_forward = uicontrol('Style', 'pushbutton', 'String', 'Forward', 'units', 'normalized', 'position', forward_pos);
-    set(button_forward, 'Callback', 'manual_control = 3;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    button_backward = uicontrol('Style', 'pushbutton', 'String', 'Backward', 'units', 'normalized', 'position', backward_pos);
-    set(button_backward, 'Callback', 'manual_control = 4;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    button_hold = uicontrol('Style', 'pushbutton', 'String', 'Hold', 'units', 'normalized', 'position', hold_pos);
-    set(button_hold, 'Callback', 'manual_control = 5;', 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.9 0.9 0.9])
-    manual_control_title = uicontrol('style', 'text', 'string', 'Manual control', 'units', 'normalized', 'position', [0.75 0.5 0.23 0.05], 'FontSize', bfsize+ 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'horizontalalignment', 'center', 'backgroundcolor', fig_bg_col);
 end
 
 % Activity axes

@@ -70,8 +70,8 @@ if xstep == nsteps_per_loop
 end
 
 %% Save sensory data and tuples
-if save_experiences
-    record_data
+if record_data
+    record_data_code
 end
 
 
