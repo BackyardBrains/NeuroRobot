@@ -6,7 +6,6 @@
 % BrainGen
 % CommsAI
 % Datasets
-% Nets
 % speech2text
 % Workspace
 
