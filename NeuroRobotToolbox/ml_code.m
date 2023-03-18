@@ -1,9 +1,11 @@
 
 if ~exist('dataset_dir_name', 'var')
+    disp('Running record data prep...')
     record_data_prep_code
 end
 
 if ~exist('workspace_dir_name', 'var')
+    disp('Running controller prep...')
     controller_prep_code
 end
 
@@ -128,3 +130,4 @@ im_ax2_colb_pos = [0.91 0.08 0.02 0.35];
 im_ax2 = axes('position', im_ax2_pos);
 set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 
+disp('Ready to train')

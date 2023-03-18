@@ -34,6 +34,7 @@ else
     this_str = 'training-progress';
 end
 training_opts.Plots = this_str;
+training_opts.Verbose = 1;
 trainingStats_shallow = train(agent, env, training_opts);
 
 tx10.String = horzcat(net_name, '-RL-', agent_name, ' trained successfully. training DRL agent...');
@@ -74,6 +75,7 @@ else
     this_str = 'training-progress';
 end
 training_opts.Plots = this_str;
+training_opts.Verbose = 1;
 trainingStats_deep = train(agent, env, training_opts);
 
 
