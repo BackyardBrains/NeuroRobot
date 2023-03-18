@@ -15,8 +15,8 @@ use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
 bg_brain = 1;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
-net_name = 'net1';
-agent_name = 'agent1';
+net_name = 'net1'; % note: also assigned in ml_code.m
+agent_name = 'agent1'; % note: also assigned in ml_set_rewards.m
 % agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
@@ -219,11 +219,6 @@ set(button_to_library, 'Enable', 'off')
 button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Learning', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', 'ml_code', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
-if exist('dataset_dir_name', 'var')
-    set(button_to_sleep, 'Enable', 'on')
-else
-    set(button_to_sleep, 'Enable', 'off')
-end
 
 % Quit button
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);

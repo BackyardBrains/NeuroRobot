@@ -72,3 +72,8 @@ set(gca, 'xtick', [], 'ytick', [])
 xlabel('')
 ylabel('')
 title('')
+
+hFig=findall(gcf);
+hLeg=findobj(hFig(1,1),'type','legend');
+set(hLeg,'visible','off')
+axis auto

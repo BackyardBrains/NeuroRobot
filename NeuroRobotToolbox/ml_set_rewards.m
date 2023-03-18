@@ -1,8 +1,8 @@
 
 
 %% Set rewards
-reward_states = [19];
-agent_name = 'agent1';
+reward_states = [3 10 16];
+agent_name = 'agent1'; % note: also assigned in neurorobot.m
 
 
 %% Process rewards

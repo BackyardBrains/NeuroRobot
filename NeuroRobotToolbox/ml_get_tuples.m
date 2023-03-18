@@ -49,7 +49,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 2;
+n_unique_actions = 4;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
 drawnow
@@ -66,9 +66,12 @@ cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*5, torque_data(:,2)+randn(size(torque_data(:,2)))*5, actions)
 axis padded
 set(gca, 'yscale', 'linear')
+title('Actions')
+xlabel('Torque 1')
+ylabel('Torque 2')
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
-pause(3)
+pause(5)
 
 
 %% Get tuples
@@ -97,15 +100,15 @@ title('States')
 xlabel('State')
 ylabel('Count (ntuples)')
 
-axes(im_ax2)
-cla
-histogram(tuples(:,3), 'binwidth', .25)
-set(gca, 'yscale', 'linear')
-title('Actions')
-xlabel('Action')
-ylabel('Count (ntuples)')
+% axes(im_ax2)
+% cla
+% histogram(tuples(:,3), 'binwidth', .25)
+% set(gca, 'yscale', 'linear')
+% title('Actions')
+% xlabel('Action')
+% ylabel('Count (ntuples)')
 
-hFig=findall(gcf);
-hLeg=findobj(hFig(1,1),'type','legend');
-set(hLeg,'visible','off')
-axis auto
+% hFig=findall(gcf);
+% hLeg=findobj(hFig(1,1),'type','legend');
+% set(hLeg,'visible','off')
+% axis auto

@@ -213,27 +213,9 @@ if exist('rak_only', 'var') && brain_support
     rblob_xy = [0 0];
     gblob_xy = [0 0];    
     
-    if record_data || use_controllers
+    if record_data
 
-        % Get dataset directory
-        if ispc && ~isdeployed
-            dataset_dir_name = '.\Datasets\';
-        elseif ispc && isdeployed        
-            dataset_dir_name = strcat(userpath, '\Datasets\');
-            if ~exist(dataset_dir_name, 'dir')
-                mkdir(dataset_dir_name)
-                disp(horzcat('Created new dataset directory: ', dataset_dir_name))
-            end
-        elseif ismac && ~isdeployed
-            dataset_dir_name = './Datasets/';
-        elseif ismac && isdeployed
-            disp('Error: app compiled for Windows')
-        end
-        disp(horzcat('Dataset dir: ', dataset_dir_name))            
-
-        % Get recording directory
-        available_rec_dirs = dir(strcat(dataset_dir_name, 'Rec*'));
-        nrecs = length(available_rec_dirs);
+        record_data_prep_code
 
         if record_data
             if ispc
@@ -248,76 +230,7 @@ if exist('rak_only', 'var') && brain_support
     end
 
     if use_controllers
-        % Get workspace directory
-        if ispc && ~isdeployed
-            workspace_dir_name = '.\Workspace\';
-        elseif ispc && isdeployed          
-            workspace_dir_name = strcat(userpath, '\Workspace\');
-            if ~exist(workspace_dir_name, 'dir')
-                mkdir(workspace_dir_name)
-                disp(horzcat('Created new workspace directory: ', workspace_dir_name))
-            end
-        elseif ismac && ~isdeployed
-            workspace_dir_name = './Workspace/';
-        elseif ismac && isdeployed
-            disp('Error: app compiled for Windows')
-        end
-        disp(horzcat('Workspace dir: ', workspace_dir_name))   
-
-        % Get nets directory
-        if ispc && ~isdeployed
-            nets_dir_name = '.\Nets\';
-        elseif ispc && isdeployed        
-            nets_dir_name = strcat(userpath, '\Nets\');
-            if ~exist(nets_dir_name, 'dir')
-                mkdir(nets_dir_name)
-                disp(horzcat('Created new nets directory: ', nets_dir_name))
-            end
-        elseif ismac && ~isdeployed
-            nets_dir_name = './Nets/';
-        elseif ismac && isdeployed
-            disp('Error: app compiled for Windows')
-        end
-        disp(horzcat('Nets dir: ', nets_dir_name))
-        
-%         ai_flag = 1;
-%         ai_count = 1;
-%         nagents = length(agent_names);
-                 
-        load(strcat(nets_dir_name, net_name, '-net'))
-        load(strcat(nets_dir_name, net_name, '-labels'))
-        unique_states = unique(labels);
-        n_unique_states = length(unique_states);  
-        
-        load(horzcat(nets_dir_name, net_name, '-RL-', agent_name))
-%         agents = struct;
-%         for nagent = 1:nagents
-%             load(horzcat(nets_dir_name, net_name, '-', agent_names{nagent}))
-%             agents(nagent).agent = agent;
-%             clear agent
-%         end
-        load(strcat(nets_dir_name, net_name, '-torque_data'))
-        load(strcat(nets_dir_name, net_name, '-actions'))
-        n_unique_actions = length(unique(actions));
-        motor_combs = zeros(n_unique_actions, 2);
-        for naction = 1:n_unique_actions
-            motor_combs(naction, :) = mean(torque_data(actions == naction, :), 1);
-        end
-
-        state_wavs = struct;
-        for nstate = 1:n_unique_states
-            word_name = char(labels(nstate));
-            word_name(word_name == '-') = ' ';
-            this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
-            this_wav_f = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
-            if length(this_wav_m) > length(this_wav_f)
-                this_wav_m = this_wav_m(1:length(this_wav_f));
-            else
-                this_wav_f = this_wav_f(1:length(this_wav_m));
-            end
-            this_wav = this_wav_f + this_wav_m;
-            state_wavs(nstate).wav = this_wav;
-        end
+        controller_runtime_code
     end
     
     
