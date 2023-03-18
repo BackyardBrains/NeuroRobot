@@ -99,3 +99,5 @@ save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
 
 tx10.String = horzcat(net_name, '-DRL-', agent_name, ' trained successfully. Deep Learning Experiment complete!');
 drawnow
+
+disp('Deep learning experiment complete!')
