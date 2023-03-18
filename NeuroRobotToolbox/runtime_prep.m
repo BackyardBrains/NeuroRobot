@@ -230,7 +230,7 @@ if exist('rak_only', 'var') && brain_support
     end
 
     if use_controllers
-        controller_runtime_code
+        controller_prep_code
     end
     
     

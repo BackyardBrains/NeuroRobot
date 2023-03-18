@@ -41,8 +41,13 @@ net = [
     softmaxLayer
     classificationLayer];
 
+if isdeployed
+    this_str = 'none';
+else
+    this_str = 'training-progress';
+end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots="training-progress", Shuffle ='every-epoch', MaxEpochs=20);
+    Plots=this_str, Shuffle ='every-epoch', MaxEpochs=20);
 
 net = trainNetwork(classifier_ds, net, options);
 
