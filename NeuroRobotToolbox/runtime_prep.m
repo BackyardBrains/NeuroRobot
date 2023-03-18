@@ -31,15 +31,8 @@ else
     record_data = 0;
 end
 
-% 5 = 'Use RL Agent
-if sum(select_app.Value == 5)
-    use_controllers = 1;    
-else
-    use_controllers = 0;
-end
 
-
-%% Deep net settings
+%% Trained Nets settings
 % 1 = 'GoogLeNet object detection'
 if sum(select_vision.Value == 1)
     use_cnn = 1;
@@ -49,9 +42,16 @@ end
 
 % 2 = 'Custom object detection with AlexNet'
 if sum(select_vision.Value == 2)
-    use_rcnn = 1;
+    use_controller = 1;
 else
     use_rcnn = 0;
+end
+
+% 3 = 'Custom state and action nets'
+if sum(select_vision.Value == 3)
+    use_controllers = 1;
+else
+    use_controllers = 0;
 end
 
 
@@ -178,6 +178,9 @@ if exist('rak_only', 'var') && brain_support
     robot_moving = 0;
     base_weight = max_w;
     
+    left_torque_mem = 0;
+    right_torque_mem = 0;
+
     ltp_recency_th_in_steps = round(ltp_recency_th_in_sec / ms_per_step);
     speaker_selected = 0;
     vocal_buffer = 0;
@@ -275,8 +278,6 @@ if exist('rak_only', 'var') && brain_support
         end
         disp(horzcat('Nets dir: ', nets_dir_name))
         
-        left_torque_mem = 0;
-        right_torque_mem = 0;
         ai_flag = 1;
         ai_count = 1;
         nagents = length(agent_names);

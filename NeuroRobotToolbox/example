@@ -1,0 +1,203 @@
+diary on;
+%COMMANDS YOU WANT TO BE SHOWN IN THE COMMAND WINDOW
+disp(array);
+{'array' requires <a href="matlab:matlab.internal.addons.launchers.showExplorer('ErrorRecovery', 'identifier', 'AA', 'focused', 'array');">Antenna Toolbox</a>.
+} 
+ml_draw_fig
+ml_draw_fig
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('matlab.graphics.axis.Axes/set')" style="font-weight:bold">matlab.graphics.axis.Axes/set</a>
+Invalid or deleted object.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ml_draw_fig', 'C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m', 41)" style="font-weight:bold">ml_draw_fig</a> (<a href="matlab: opentoline('C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m',41,0)">line 41</a>)
+set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+} 
+    fig_bg_col = [0.94 0.94 0.94];
+ml_draw_fig
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('matlab.graphics.axis.Axes/set')" style="font-weight:bold">matlab.graphics.axis.Axes/set</a>
+Invalid or deleted object.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ml_draw_fig', 'C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m', 41)" style="font-weight:bold">ml_draw_fig</a> (<a href="matlab: opentoline('C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m',41,0)">line 41</a>)
+set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+} 
+fig_bg_col
+
+fig_bg_col =
+
+    0.9400    0.9400    0.9400
+
+ml_draw_fig
+if system_dependent('IsDebugMode')==1, dbstep; end
+if system_dependent('IsDebugMode')==1, dbstep; end
+if system_dependent('IsDebugMode')==1, dbstep; end
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('matlab.graphics.axis.Axes/set')" style="font-weight:bold">matlab.graphics.axis.Axes/set</a>
+Invalid or deleted object.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ml_draw_fig', 'C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m', 41)" style="font-weight:bold">ml_draw_fig</a> (<a href="matlab: opentoline('C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_draw_fig.m',41,0)">line 41</a>)
+set(brain_ax, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+} 
+ml_draw_fig
+if system_dependent('IsDebugMode')==1, dbcont; end
+ml_draw_fig
+ml_draw_fig
+neurorobot
+Brain dir: .\Brains\
+Connecting...
+may23 connect_rak error
+Attempting RAK connect...
+rak_cam created
+rak_cam is running
+Camera connected in 5 s
+---------
+Dataset dir: .\Datasets\
+Created new rec directory: Rec2\
+Brain name = Aineko
+Data recording is on
+xstep:100
+Step time = 55 ms (pulse period = 100 ms), xstep = 100, fig_design size (current/baseline): 1
+Data recording is on
+xstep:200
+Step time = 54 ms (pulse period = 100 ms), xstep = 200, fig_design size (current/baseline): 1
+[Warning: Error occurred while executing the listener callback for event WindowMouseMotion defined for
+class matlab.ui.Figure:
+Operands to the logical AND (&&) and OR (||) operators must be convertible to logical scalar values.
+Use the ANY or ALL functions to reduce operands to logical scalar values.
+
+Error in matlab.graphics.interaction.uiaxes.EditInteraction/figureMotionFcn
+
+Error in matlab.graphics.interaction.uiaxes.EditInteraction>@(~,e)this.figureMotionFcn(e)] 
+Brain saved
+Data recording is on
+xstep:100
+Step time = 69 ms (pulse period = 100 ms), xstep = 100, fig_design size (current/baseline): 1
+Data recording is on
+xstep:200
+Step time = 75 ms (pulse period = 100 ms), xstep = 200, fig_design size (current/baseline): 1
+Data recording is on
+xstep:300
+Step time = 76 ms (pulse period = 100 ms), xstep = 300, fig_design size (current/baseline): 1
+Data recording is on
+xstep:400
+Step time = 74 ms (pulse period = 100 ms), xstep = 400, fig_design size (current/baseline): 1
+dataset_dir_name
+
+dataset_dir_name =
+
+    '.\Datasets\'
+
+Data recording is on
+xstep:500
+Step time = 69 ms (pulse period = 100 ms), xstep = 500, fig_design size (current/baseline): 1
+Data recording is on
+xstep:600
+Step time = 69 ms (pulse period = 100 ms), xstep = 600, fig_design size (current/baseline): 1
+rec_dir_name
+
+rec_dir_name =
+
+    'Rec2\'
+
+Data recording is on
+xstep:700
+Step time = 71 ms (pulse period = 100 ms), xstep = 700, fig_design size (current/baseline): 1
+Data recording is on
+xstep:800
+Step time = 74 ms (pulse period = 100 ms), xstep = 800, fig_design size (current/baseline): 1
+Data recording is on
+xstep:900
+Step time = 73 ms (pulse period = 100 ms), xstep = 900, fig_design size (current/baseline): 1
+Brain saved
+Data recording is on
+xstep:100
+Step time = 70 ms (pulse period = 100 ms), xstep = 100, fig_design size (current/baseline): 1
+Data recording is on
+xstep:200
+Step time = 69 ms (pulse period = 100 ms), xstep = 200, fig_design size (current/baseline): 1
+Data recording is on
+xstep:300
+Step time = 62 ms (pulse period = 100 ms), xstep = 300, fig_design size (current/baseline): 1
+Data recording is on
+xstep:400
+Step time = 68 ms (pulse period = 100 ms), xstep = 400, fig_design size (current/baseline): 1
+Data recording is on
+xstep:500
+Step time = 74 ms (pulse period = 100 ms), xstep = 500, fig_design size (current/baseline): 1
+Data recording is on
+xstep:600
+Step time = 74 ms (pulse period = 100 ms), xstep = 600, fig_design size (current/baseline): 1
+Data recording is on
+xstep:700
+Step time = 73 ms (pulse period = 100 ms), xstep = 700, fig_design size (current/baseline): 1
+Data recording is on
+xstep:800
+Step time = 70 ms (pulse period = 100 ms), xstep = 800, fig_design size (current/baseline): 1
+Data recording is on
+xstep:900
+Step time = 71 ms (pulse period = 100 ms), xstep = 900, fig_design size (current/baseline): 1
+Data recording is on
+xstep:1000
+Step time = 75 ms (pulse period = 100 ms), xstep = 1000, fig_design size (current/baseline): 1
+Data recording is on
+xstep:1100
+Step time = 75 ms (pulse period = 100 ms), xstep = 1100, fig_design size (current/baseline): 1
+Data recording is on
+xstep:1200
+Step time = 71 ms (pulse period = 100 ms), xstep = 1200, fig_design size (current/baseline): 1
+Data recording is on
+xstep:1300
+Step time = 69 ms (pulse period = 100 ms), xstep = 1300, fig_design size (current/baseline): 1
+Stop time: 17-Mar-2023 10:03:26
+Life time = 8 min
+Step time = 76 ms
+Run complete
+Brain dir: .\Brains\
+image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+ml_button_callback
+nimages: 5034
+ml_button_callback
+{Unrecognized function or variable 'ml_get_stats'.
+} 
+Error while evaluating UIControl Callback.
+
+neurorobot
+Brain dir: .\Brains\
+neurorobot
+Brain dir: .\Brains\
+neurorobot
+Brain dir: .\Brains\
+neurorobot
+Brain dir: .\Brains\
+{Unrecognized function or variable 'ml_get_stats'.
+} 
+Error while evaluating UIControl Callback.
+
+neurorobot
+Brain dir: .\Brains\
+neurorobot
+Brain dir: .\Brains\
+ml_draw_fig
+ml_draw_fig
+ml_draw_fig
+ml_draw_fig
+{Unable to resolve the name 'parallel.Settings'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ml_get_similarity', 'C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_get_similarity.m', 12)" style="font-weight:bold">ml_get_similarity</a> (<a href="matlab: opentoline('C:\Users\chris\NeuroRobot\NeuroRobotToolbox\ml_get_similarity.m',12,0)">line 12</a>)
+ps = parallel.Settings;
+} 
+Error while evaluating UIControl Callback.
+
+ps = parallel.Settings;
+{Unable to resolve the name 'parallel.Settings'.
+} 
+hippocampus_sleeps
+Error while evaluating TimerFcn for timer 'timer-2'
+
+Unrecognized function or variable 'use_esp32'.
+nimages: 5036
+ndists:2517
+ntorques:2517
+ntuples: 2518
+{Unable to resolve the name 'parallel.Settings'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('hippocampus_sleeps', 'C:\Users\chris\NeuroRobot\NeuroRobotToolbox\hippocampus_sleeps.m', 42)" style="font-weight:bold">hippocampus_sleeps</a> (<a href="matlab: opentoline('C:\Users\chris\NeuroRobot\NeuroRobotToolbox\hippocampus_sleeps.m',42,0)">line 42</a>)
+ps = parallel.Settings;
+} 

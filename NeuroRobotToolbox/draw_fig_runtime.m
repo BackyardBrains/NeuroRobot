@@ -3,7 +3,7 @@
 %% Prepare figure
 fig_design = figure(2);
 clf
-set(fig_design, 'NumberTitle', 'off', 'Name', 'SpikerBot Runtime')
+set(fig_design, 'NumberTitle', 'off', 'Name', 'SpikerBot - Runtime')
 set(fig_design, 'menubar', 'none', 'toolbar', 'none')
 set(fig_design, 'position', fig_pos, 'color', fig_bg_col) 
 fig_design.UserData = 10; % This indicates runtime mode

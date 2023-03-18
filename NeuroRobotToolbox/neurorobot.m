@@ -15,7 +15,7 @@ use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
 bg_brain = 1;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
-net_name = 'net2';
+net_name = 'net1';
 agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
@@ -60,13 +60,13 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Main Menu')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Startup')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.8', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.9', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
@@ -123,15 +123,15 @@ select_robot.Value = est_option_robot;
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.335 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'Use RL Agents'};
+option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_app.Value = 1:3;
 
-% Deep net settings
-text_vision = uicontrol('Style', 'text', 'String', 'Deep nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
+% Trained nets settings
+text_vision = uicontrol('Style', 'text', 'String', 'Large Neural Nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'Generic object detection GoogLeNet'; 'Custom object detection AlexNet'};
+option_vision = {'GoogLeNet (object detection)'; 'AlexNet (robot detection)'; 'Custom state and action nets'};
 select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_vision.Value = [];
@@ -208,17 +208,15 @@ button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 
 set(button_startup_complete, 'Callback', 'runtime_prep', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Library button
+% ML button
 button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
-set(button_to_library, 'enable', 'off')
 
 % ML button
-button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'ML', 'units', 'normalized', 'position', button4_pos);
-set(button_to_sleep, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Learning', 'units', 'normalized', 'position', button4_pos);
+set(button_to_sleep, 'Callback', 'ml_code', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
-set(button_to_sleep, 'enable', 'off')
 
 % Quit button
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);

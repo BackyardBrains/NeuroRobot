@@ -6,10 +6,10 @@
 % reward_states = [4 7 8 19 22 26 34 36 53]; % tv
 % figure(n)
 
-clf
-set(gcf, 'color', 'w')
-set(gcf, 'position', [100 50 900 700])
-hold on
+% clf
+% set(gcf, 'color', 'w')
+% set(gcf, 'position', [100 50 900 700])
+% hold on
 
 data = zeros(n_unique_states, 2);
 motor_combs = zeros(n_unique_actions, 2);

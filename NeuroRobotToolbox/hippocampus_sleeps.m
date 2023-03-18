@@ -67,21 +67,21 @@ title('Similarity Data (xdata histogram)')
 %% Group images
 disp('Clustering...')
 
-n_unique_states = 100;
-group_inds = kmeans(xdata, n_unique_states);
+% n_unique_states = 100;
+% group_inds = kmeans(xdata, n_unique_states);
 
-% n_unique_states = 50;
-% dists = pdist(xdata,'correlation');
-% links = linkage(dists,'weighted');
-% group_inds = cluster(links,'MaxClust',n_unique_states);
-% 
-% figure(2)
-% clf
-% subplot(1,2,1)
-% [~, ~, o] = dendrogram(links, 0);
-% subplot(1,2,2)
-% imagesc(xdata(o, o))
-% colorbar
+n_unique_states = 10;
+dists = pdist(xdata,'correlation');
+links = linkage(dists,'weighted');
+group_inds = cluster(links,'MaxClust',n_unique_states);
+
+figure(2)
+clf
+subplot(1,2,1)
+[~, ~, o] = dendrogram(links, 0);
+subplot(1,2,2)
+imagesc(xdata(o, o))
+colorbar
 
 noise_group = mode(group_inds);
 disp(horzcat('noise group: ', num2str(noise_group)))
