@@ -7,7 +7,6 @@ if ~exist('workspace_dir_name', 'var')
     controller_prep_code
 end
 
-disp('initializing deep learning interface ...')
 %% ML Code
 n_unique_states = 30;
 min_size = 20;
@@ -129,4 +128,3 @@ im_ax2_colb_pos = [0.91 0.08 0.02 0.35];
 im_ax2 = axes('position', im_ax2_pos);
 set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 
-disp('ready to run deep learning experiment')
