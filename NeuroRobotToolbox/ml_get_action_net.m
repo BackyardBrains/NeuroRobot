@@ -1,7 +1,7 @@
 
 axes(ax10)
 cla
-tx10 = text(0.03, 0.5, horzcat('training action net...'));
+tx10 = text(0.03, 0.5, horzcat('training action nets...'));
 drawnow
 
 
@@ -30,7 +30,7 @@ training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
 trainingStats_shallow = train(agent, env, training_opts);
 
-tx10.String = 'action net 1 of 2 trained successfully';
+tx10.String = horzcat(agent1_name, ' trained successfully');
 drawnow
 
 %% Show Agent 1
@@ -83,5 +83,5 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
 
-tx10.String = 'action net 2 of 2 trained successfully';
+tx10.String = horzcat(agent2_name, ' trained successfully');
 drawnow

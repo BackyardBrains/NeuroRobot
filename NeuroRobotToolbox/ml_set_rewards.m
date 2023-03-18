@@ -1,13 +1,14 @@
 
 
+%% Set rewards
 reward_states = [6 7 18];
 agent_name = 'agent1';
 
 
-%% Get rewards
+%% Process rewards
 axes(ax9)
 cla
-tx9 = text(0.03, 0.5, horzcat('creating reward environnment...'));
+tx9 = text(0.03, 0.5, horzcat('creating environnment for rewards ', num2str(reward_states), ' ...'));
 drawnow
 
 

@@ -16,7 +16,8 @@ save_data_and_commands = 0;
 bg_brain = 1;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
 net_name = 'net1';
-agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
+agent_name = 'agent1';
+% agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -208,15 +209,21 @@ button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 
 set(button_startup_complete, 'Callback', 'runtime_prep', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% ML button
+% Library button
 button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
 set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+set(button_to_library, 'Enable', 'off')
 
 % ML button
 button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Learning', 'units', 'normalized', 'position', button4_pos);
 set(button_to_sleep, 'Callback', 'ml_code', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
+if exist('dataset_dir_name', 'var')
+    set(button_to_sleep, 'Enable', 'on')
+else
+    set(button_to_sleep, 'Enable', 'off')
+end
 
 % Quit button
 button_to_quit = uicontrol('Style', 'pushbutton', 'String', 'Quit', 'units', 'normalized', 'position', button5_pos);

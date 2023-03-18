@@ -213,7 +213,7 @@ if exist('rak_only', 'var') && brain_support
     rblob_xy = [0 0];
     gblob_xy = [0 0];    
     
-    if record_data
+    if record_data || use_controllers
 
         % Get dataset directory
         if ispc && ~isdeployed
@@ -235,14 +235,16 @@ if exist('rak_only', 'var') && brain_support
         available_rec_dirs = dir(strcat(dataset_dir_name, 'Rec*'));
         nrecs = length(available_rec_dirs);
 
-        if ispc
-            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
-        elseif ismac
-            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
+        if record_data
+            if ispc
+                rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
+            elseif ismac
+                rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
+            end
+            mkdir(strcat(dataset_dir_name, rec_dir_name))
+            disp(horzcat('Created new directory for recording: ', rec_dir_name))            
         end
 
-        mkdir(strcat(dataset_dir_name, rec_dir_name))
-        disp(horzcat('Created new rec directory: ', rec_dir_name))
     end
 
     if use_controllers
@@ -278,20 +280,22 @@ if exist('rak_only', 'var') && brain_support
         end
         disp(horzcat('Nets dir: ', nets_dir_name))
         
-        ai_flag = 1;
-        ai_count = 1;
-        nagents = length(agent_names);
+%         ai_flag = 1;
+%         ai_count = 1;
+%         nagents = length(agent_names);
                  
         load(strcat(nets_dir_name, net_name, '-net'))
         load(strcat(nets_dir_name, net_name, '-labels'))
         unique_states = unique(labels);
         n_unique_states = length(unique_states);  
-        agents = struct;
-        for nagent = 1:nagents
-            load(horzcat(nets_dir_name, net_name, '-', agent_names{nagent}))
-            agents(nagent).agent = agent;
-            clear agent
-        end
+        
+        load(horzcat(nets_dir_name, net_name, '-RL-', agent_name))
+%         agents = struct;
+%         for nagent = 1:nagents
+%             load(horzcat(nets_dir_name, net_name, '-', agent_names{nagent}))
+%             agents(nagent).agent = agent;
+%             clear agent
+%         end
         load(strcat(nets_dir_name, net_name, '-torque_data'))
         load(strcat(nets_dir_name, net_name, '-actions'))
         n_unique_actions = length(unique(actions));

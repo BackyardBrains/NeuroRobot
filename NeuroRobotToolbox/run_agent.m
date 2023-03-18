@@ -1,7 +1,7 @@
 
 if use_controllers
 
-    imdim = 100;
+    imdim = 227;
     left_uframe = imresize(left_uframe, [imdim imdim]);
     right_uframe = imresize(right_uframe, [imdim imdim]);
 
@@ -37,47 +37,48 @@ if use_controllers
 
     disp('----')
     disp(horzcat('xstep: ', num2str(xstep)))
-    disp(horzcat('ai flag: ', num2str(ai_flag)))
+%     disp(horzcat('ai flag: ', num2str(ai_flag)))
     disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
     
-    this_action = getAction(agents(ai_flag).agent, this_state);
+%     this_action = getAction(agents(ai_flag).agent, this_state);
+    this_action = getAction(agent, this_state);
     this_action = cell2mat(this_action);
 
 
-    if this_action == 10
-        ai_count = ai_count + 1;
-        if ai_count >= 20
-            ai_count = 0;
-            while ai_count == 0
-                new_flag = randsample(nagents, 1);
-                if new_flag ~= ai_flag
-                    ai_flag = new_flag;
-                    ai_count = ai_count + 1;
-                end
-                just_off
-                pause(0.02)
-                just_off
-                pause(0.02)
-                just_off
-                pause(0.02)
-                just_off
-                pause(0.02)
-                just_off
-                pause(0.02)
-                just_off
-                pause(0.02)
-                just_off                
-            end
-        end
-    else    
-        ai_count = 0;
-        if ai_flag == 1
-            just_green
-        elseif ai_flag == 2
-            just_red
-        end
-
-    end
+%     if this_action == 10
+%         ai_count = ai_count + 1;
+%         if ai_count >= 20
+%             ai_count = 0;
+%             while ai_count == 0
+%                 new_flag = randsample(nagents, 1);
+%                 if new_flag ~= ai_flag
+%                     ai_flag = new_flag;
+%                     ai_count = ai_count + 1;
+%                 end
+%                 just_off
+%                 pause(0.02)
+%                 just_off
+%                 pause(0.02)
+%                 just_off
+%                 pause(0.02)
+%                 just_off
+%                 pause(0.02)
+%                 just_off
+%                 pause(0.02)
+%                 just_off
+%                 pause(0.02)
+%                 just_off                
+%             end
+%         end
+%     else    
+%         ai_count = 0;
+%         if ai_flag == 1
+%             just_green
+%         elseif ai_flag == 2
+%             just_red
+%         end
+% 
+%     end
 
 %     soundsc(state_wavs(this_state).wav, 16000);
 

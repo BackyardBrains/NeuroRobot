@@ -1,12 +1,12 @@
 
 
 
-% before compiling, remove these experimental folders:
+% before compiling, remove or empty these experimental folders:
 
 % BrainGen
 % CommsAI
 % Datasets
-% speech2text
+% speech2text5
 % Workspace
 
 

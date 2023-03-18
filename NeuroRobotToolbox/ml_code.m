@@ -1,26 +1,17 @@
 
 %% ML Code
-
-%temporary
-fig_pos = get(0, 'screensize') + [0 49 0 -128];
-fig_bg_col = [0.94 0.94 0.94];
-% fig_bg_col = [1 1 1];
-bfsize = 8;
-gui_font_name = 'Comic Book';
-gui_font_weight = 'normal';
-dataset_dir_name = '.\Datasets\';
-rec_dir_name = '';
-workspace_dir_name = '.\Workspace\';
-nets_dir_name = '.\Nets\';
 n_unique_states = 30;
 min_size = 20;
 net_name = 'net1';
+
+rec_dir_name = '';
 
 
 %% Prepare figure
 fig_ml = figure(3);
 clf
 set(fig_ml, 'NumberTitle', 'off', 'Name', 'SpikerBot - Deep Learning')
+set(fig_ml, 'menubar', 'none', 'toolbar', 'none')
 set(fig_ml, 'position', fig_pos, 'color', fig_bg_col) 
 
 
@@ -61,7 +52,7 @@ button_get_mdp = uicontrol('Style', 'pushbutton', 'String', 'Get Markov Decision
 set(button_get_mdp,'Callback', 'ml_get_mdp', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 button_set_goals = uicontrol('Style', 'pushbutton', 'String', 'Set goals', 'units', 'normalized', 'position', button9_pos);
-set(button_set_goals,'Callback', 'ml_set_goals', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+set(button_set_goals,'Callback', 'ml_set_rewards', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 button_get_agent = uicontrol('Style', 'pushbutton', 'String', 'Train action net', 'units', 'normalized', 'position', button10_pos);
 set(button_get_agent,'Callback', 'ml_get_action_net', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
