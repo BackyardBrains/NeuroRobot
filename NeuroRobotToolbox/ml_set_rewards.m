@@ -1,7 +1,7 @@
 
 
 %% Set rewards
-reward_states = [6 7 18];
+reward_states = [19];
 agent_name = 'agent1';
 
 
@@ -41,7 +41,7 @@ disp('Environment ready')
 
 
 %% Output
-tx9.String = 'Environment ready';
+tx9.String = horzcat('Ready to train action nets. Rewards: ', num2str(reward_states));
 drawnow
 
 axes(im_ax2)

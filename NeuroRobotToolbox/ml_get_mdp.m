@@ -66,5 +66,9 @@ title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
 
-
-
+axes(im_ax2)
+cla
+set(gca, 'xtick', [], 'ytick', [])
+xlabel('')
+ylabel('')
+title('')
