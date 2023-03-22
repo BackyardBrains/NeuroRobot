@@ -1,14 +1,18 @@
 
 
 %% Set rewards
-reward_states = [3 10 16];
+% reward_states = [9 10];
+reward_states = str2num(ax9_edit.String);
+if isempty(reward_states)
+    error('No rewards!')
+end
 agent_name = 'agent1'; % note: also assigned in neurorobot.m
 
 
 %% Process rewards
 axes(ax9)
 cla
-tx9 = text(0.03, 0.5, horzcat('creating environnment for rewards ', num2str(reward_states), ' ...'));
+tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
 
@@ -41,7 +45,7 @@ disp('Environment ready')
 
 
 %% Output
-tx9.String = horzcat('Ready to train action nets. Rewards: ', num2str(reward_states));
+tx9.String = 'Ready to train';
 drawnow
 
 axes(im_ax2)

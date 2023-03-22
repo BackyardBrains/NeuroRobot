@@ -6,8 +6,8 @@ axes(ax2)
 tx2 = text(0.03, 0.5, horzcat('preparing to find features...'));
 drawnow
 
-nsmall = 500;
-nmedium = 1000;
+nsmall = 200;
+nmedium = 500;
 
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
@@ -22,7 +22,7 @@ ps.Pool.IdleTimeout = Inf;
 
 tx2.String = 'finding features...';
 drawnow
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 100]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 50]);
 
 tx2.String = 'creating image index...';
 drawnow

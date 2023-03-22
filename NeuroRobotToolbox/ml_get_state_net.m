@@ -1,4 +1,5 @@
 
+imdim = 100;
 
 %% Save labels
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
@@ -16,10 +17,10 @@ drawnow
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
-% classifier_ds.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+classifier_ds.ReadFcn = @customReadFcn; % imdim = 100
 
 net = [
-    imageInputLayer([227 227 3])
+    imageInputLayer([imdim imdim 3])
     
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer

@@ -8,6 +8,7 @@ tx1 = text(0.03, 0.5, horzcat('finding recorded data...'));
 drawnow
 
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+image_ds.ReadFcn = @customReadFcn; % imdim = 100
 nimages = length(image_ds.Files);
 
 tx1.String = horzcat('nimages = ', num2str(nimages), ', still processing...');

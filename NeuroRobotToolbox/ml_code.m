@@ -1,4 +1,17 @@
 
+%% Lock
+disp('Preparing ML interface...')
+button_to_sleep.BackgroundColor = [0.94 0.78 0.62];
+set(button_camera, 'enable', 'off')
+set(button_startup_complete, 'enable', 'off')
+set(button_to_library, 'enable', 'off')
+set(button_to_sleep, 'enable', 'off')
+set(button_to_quit, 'enable', 'off')
+set(button_new_brain, 'enable', 'off')
+drawnow
+
+
+%%
 if ~exist('dataset_dir_name', 'var')
     disp('Running record data prep...')
     record_data_prep_code
@@ -70,52 +83,69 @@ set(button_get_agent,'Callback', 'ml_get_action_net', 'FontSize', bfsize + 4, 'f
 %% Text Fields
 ax1_pos = [0.26 0.87 0.31 0.05];
 ax1 = axes('position', ax1_pos);
-set(ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax1, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax2_pos = [0.26 0.8 0.31 0.05];
 ax2 = axes('position', ax2_pos);
-set(ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax2, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax3_pos = [0.26 0.73 0.31 0.05];
 ax3 = axes('position', ax3_pos);
-set(ax3, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax3, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax4_pos = [0.26 0.66 0.31 0.05];
 ax4 = axes('position', ax4_pos);
-set(ax4, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax4, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax5_pos = [0.26 0.59 0.31 0.05];
 ax5 = axes('position', ax5_pos);
-set(ax5, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax5, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax6_pos = [0.26 0.52 0.31 0.05];
 ax6 = axes('position', ax6_pos);
-set(ax6, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax6, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax7_pos = [0.26 0.45 0.31 0.05];
 ax7 = axes('position', ax7_pos);
-set(ax7, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax7, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax8_pos = [0.26 0.38 0.31 0.05];
 ax8 = axes('position', ax8_pos);
-set(ax8, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax8, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
-ax9_pos = [0.26 0.31 0.31 0.05];
+ax9_edit_pos = [0.26 0.31 0.12 0.05];
+ax9_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ax9_edit_pos);
+ax10 = axes('position', ax10_pos);
+set(ax10, 'xtick', [], 'ytick', [])
+box on
+axis([0 1 0 1])
+
+ax9_pos = [0.4 0.31 0.17 0.05];
 ax9 = axes('position', ax9_pos);
-set(ax9, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax9, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 ax10_pos = [0.26 0.24 0.31 0.05];
 ax10 = axes('position', ax10_pos);
-set(ax10, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+set(ax10, 'xtick', [], 'ytick', [])
+box on
 axis([0 1 0 1])
 
 
@@ -131,3 +161,11 @@ im_ax2 = axes('position', im_ax2_pos);
 set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 
 disp('Ready to train')
+
+%% Unlock
+set(button_camera, 'enable', 'on')
+set(button_startup_complete, 'enable', 'on')
+set(button_to_library, 'enable', 'off')
+set(button_to_sleep, 'enable', 'on')
+set(button_to_quit, 'enable', 'on')
+set(button_new_brain, 'enable', 'on')

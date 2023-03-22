@@ -23,9 +23,9 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 200;
-training_opts.StopTrainingValue = 200;
+training_opts.MaxEpisodes = 100;
+training_opts.MaxStepsPerEpisode = 100;
+training_opts.StopTrainingValue = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
 if isdeployed
@@ -63,9 +63,9 @@ save(horzcat(nets_dir_name, net_name, '-RL-', agent_name), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 500;
-training_opts.MaxStepsPerEpisode = 200;
-training_opts.StopTrainingValue = 200;
+training_opts.MaxEpisodes = 100;
+training_opts.MaxStepsPerEpisode = 100;
+training_opts.StopTrainingValue = 100;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = 100;
 training_opts.UseParallel = 0;
@@ -97,7 +97,7 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
 save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
 
-tx10.String = horzcat(net_name, '-DRL-', agent_name, ' trained successfully. Deep Learning Experiment complete!');
+tx10.String = horzcat(net_name, '-DRL-', agent_name, ' trained successfully. Learning complete.');
 drawnow
 
-disp('Deep learning experiment complete!')
+disp('Learning complete')

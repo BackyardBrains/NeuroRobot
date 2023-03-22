@@ -1,4 +1,6 @@
 
+imdim = 100;
+
 states = zeros(ntuples, 1);
 disp(horzcat('Getting ', num2str(ntuples), ' states from camera frames (slow)'))
 
@@ -14,9 +16,11 @@ for ntuple = 1:ntuples
 
     this_ind = ntuple*2-1;    
     left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    left_im = imresize(left_im, [imdim imdim]);
 
     this_ind = ntuple*2;
     right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    right_im = imresize(right_im, [imdim imdim]);
 
     [left_state, left_score] = classify(net, left_im);
     [right_state, right_score] = classify(net, right_im);        

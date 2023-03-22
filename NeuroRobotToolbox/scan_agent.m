@@ -18,23 +18,23 @@ for naction = 1:n_unique_actions
     plot(4.5, y, 'marker', '.', 'markersize', 50, 'color', [0.8 0.8 0.8])
     motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
     mvec = motor_combs(naction, :);    
-    text(4.6, y, strcat(num2str(naction), '.  L: ', num2str(mvec(1)), ...
+    text(4.7, y, strcat(num2str(naction), '.  L: ', num2str(mvec(1)), ...
         ',  R: ', num2str(mvec(2))), 'HorizontalAlignment','left')    
 end
 for this_state = 1:n_unique_states
     this_action = getAction(agent, this_state);
     this_action = cell2mat(this_action);
     y = this_action * (n_unique_states/n_unique_actions);
-    plot(2, this_state, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
+    plot(2.5, this_state, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
     plot(4.5, y, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
-    plot([2 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 30, 'color', 'k', 'linewidth', 1);
+    plot([2.5 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 30, 'color', 'k', 'linewidth', 1);
     if sum(this_state == reward_states)
         if this_action == mode(actions)
-            plot([2 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
+            plot([2.5 4.5], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
         end
     end
     try
-        text(1.9, this_state, horzcat(num2str(this_state), '. ', char(labels(this_state))), 'HorizontalAlignment','right')
+        text(2.3, this_state, horzcat('state ', num2str(this_state)), 'HorizontalAlignment','right')
     catch
     end
     drawnow
@@ -47,3 +47,4 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % title(horzcat(net_name, ' - ', agent_names{n}))
 % set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % export_fig(horzcat(workspace_dir_name, net_name, agent_names{n}), '-r150', '-jpg', '-nocrop')
+
