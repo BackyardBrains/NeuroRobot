@@ -130,6 +130,7 @@ box on
 axis([0 1 0 1])
 
 ax9_edit_pos = [0.26 0.31 0.12 0.05];
+ax10_pos = [0.26 0.24 0.31 0.05];
 ax9_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ax9_edit_pos);
 ax10 = axes('position', ax10_pos);
 set(ax10, 'xtick', [], 'ytick', [])
@@ -142,11 +143,6 @@ set(ax9, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
-ax10_pos = [0.26 0.24 0.31 0.05];
-ax10 = axes('position', ax10_pos);
-set(ax10, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
 
 
 %% Image Panels
