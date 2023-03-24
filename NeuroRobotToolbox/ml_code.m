@@ -2,7 +2,7 @@
 
 %% ML settings
 n_unique_states = 30;
-min_size = 20;
+min_size = 10;
 rec_dir_name = '';
 
 
