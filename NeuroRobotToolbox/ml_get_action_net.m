@@ -1,4 +1,15 @@
 
+
+%% 
+agent_name = ax10_edit.String;
+if isempty(agent_name) || strcmp(agent_name, 'Enter action net name here')
+    ax10_edit.BackgroundColor = [1 0 0];
+    pause(0.5)
+    ax10_edit.BackgroundColor = [0.94 0.94 0.94];
+    error('Set action net name')
+end
+
+%%
 axes(ax10)
 cla
 tx10 = text(0.03, 0.5, horzcat('training action nets...'));
@@ -6,7 +17,7 @@ drawnow
 
 
 %% Unpack environment
-load(strcat(nets_dir_name, net_name, '-', agent_name, '-env'))
+% load(strcat(nets_dir_name, net_name, '-', agent_name, '-env'))
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);
@@ -37,7 +48,7 @@ training_opts.Plots = this_str;
 training_opts.Verbose = 1;
 trainingStats_shallow = train(agent, env, training_opts);
 
-tx10.String = horzcat(net_name, '-RL-', agent_name, ' trained successfully. training DRL agent...');
+tx10.String = 'Shallow training done. Training deep...';
 drawnow
 
 %% Show Agent 1
@@ -56,7 +67,7 @@ scan_agent
 title(horzcat(net_name, ' -RL- ', agent_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % export_fig(horzcat(workspace_dir_name, net_name, '-RL-', agent_name), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, '-RL-', agent_name), 'agent')
+save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 
 
 %% Train Agent 2
@@ -95,9 +106,9 @@ scan_agent
 title(horzcat(net_name, ' -DRL- ', agent_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 % export_fig(horzcat(workspace_dir_name, net_name, '-DRL-', agent_name), '-r150', '-jpg', '-nocrop')
-save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name), 'agent')
+save(horzcat(nets_dir_name, net_name, '-DRL-', agent_name, '-ml'), 'agent')
 
-tx10.String = horzcat(net_name, '-DRL-', agent_name, ' trained successfully. Learning complete.');
+tx10.String = horzcat('Shallow and deep training complete');
 drawnow
 
 disp('Learning complete')

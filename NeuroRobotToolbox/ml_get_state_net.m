@@ -1,5 +1,9 @@
 
+
+
+%% Hardcoded image size
 imdim = 100;
+
 
 %% Save labels
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));

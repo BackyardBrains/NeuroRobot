@@ -1,7 +1,7 @@
 
 if use_controllers
 
-    imdim = 227;
+    imdim = 100;
     left_uframe = imresize(left_uframe, [imdim imdim]);
     right_uframe = imresize(right_uframe, [imdim imdim]);
 

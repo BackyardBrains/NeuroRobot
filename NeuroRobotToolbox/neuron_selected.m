@@ -67,7 +67,7 @@ if fig_design.UserData == 0
     button4 = uicontrol('Style', 'pushbutton', 'String', 'Delete', 'units', 'normalized', 'position', [0.02 0.61 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     set(button4, 'Callback', 'delete_neuron', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
     % Type 5 button
-    button5 = uicontrol('Style', 'pushbutton', 'String', 'Lights', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    button5 = uicontrol('Style', 'pushbutton', 'String', 'Specials', 'units', 'normalized', 'position', [0.02 0.53 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     set(button5, 'Callback', 'attach_script', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]) 
     % Cancel button
     button_cancel = uicontrol('Style', 'pushbutton', 'String', 'Cancel', 'units', 'normalized', 'position', [0.02 0.45 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);

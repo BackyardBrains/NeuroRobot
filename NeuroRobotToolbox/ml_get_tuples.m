@@ -1,4 +1,6 @@
 
+
+%%
 axes(ax7)
 
 cla
@@ -49,7 +51,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 4;
+n_unique_actions = 3;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
 drawnow
@@ -58,6 +60,9 @@ actions = kmeans(torque_data, n_unique_actions);
 still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
 disp(horzcat('n still actions: ', num2str(sum(still))))
 actions(still) = n_unique_actions + 1;
+if ~sum(actions == 1)
+    actions = actions - 1;
+end
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 

@@ -15,14 +15,15 @@ use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
 bg_brain = 1;
 script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
-net_name = 'net1'; % note: also assigned in ml_code.m
-agent_name = 'agent1'; % note: also assigned in ml_set_rewards.m
-% agent_names = {'RL-agent-bookshelf', 'RL-agent-sofa'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
 vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
+
+
+%% Directory setup
+dir_setup
 
 
 %% Background
@@ -67,59 +68,24 @@ set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 % set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 1.9', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.0', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
 %% Selection
 % Robot
-
-% Guess current setup
-est_option_robot = 3;
-if exist('rak_only', 'var') && rak_only
-    if exist('use_webcam', 'var') && ~use_webcam
-        est_option_robot = 1;
-        if exist('hd_camera', 'var') && hd_camera
-            est_option_robot = 2;
-        end
-    end
-elseif exist('use_esp32', 'var') && use_esp32 && exist('use_webcam', 'var') && ~use_webcam
-    est_option_robot = 3;
-elseif exist('use_webcam', 'var') && use_webcam && exist('rak_only', 'var') && ~rak_only
-    est_option_robot = 4;
-elseif exist('use_webcam', 'var') && ~use_webcam && exist('rak_only', 'var') && ~rak_only
-    est_option_robot = 5;
-elseif exist('rak_only', 'var') && rak_only && exist('use_webcam', 'var') && use_webcam
-    est_option_robot = 6;
-elseif exist('use_esp32', 'var') && use_esp32 && exist('use_webcam', 'var') && use_webcam
-    est_option_robot = 7;
-end
-
-if ~isdeployed
-    option_robot = {...
-        'SpikerBot RAK5206'; ...
-        'SpikerBot RAK5270'; ...
-        'SpikerBot ESP32'; ...
-        'iBall ESP32'; ...
-        'iBall ESP32'; ...
-        'Computer without Webcam'; ...
-        'Computer with Webcam'; ...
-        'SpikerBot RAK5206 + Webcam'};
-else
-    option_robot = {...
-        'SpikerBot RAK5206'; ...
-        'SpikerBot RAK5270'; ...
-        'SpikerBot ESP32'; ...
-        'iBall ESP32'; ...
-        'iBall ESP32'; ...
-        'Computer without Webcam'};
-end
+option_robot = {...
+    'SpikerBot RAK5206'; ...
+    'SpikerBot RAK5270'; ...
+    'SpikerBot ESP32'; ...
+    'Computer without Webcam'; ...
+    'Computer with Webcam'};
 
 text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized', 'position', [0.05 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.45 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
-select_robot.Value = est_option_robot;
+select_robot.Value = 4;
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App Settings', 'units', 'normalized', 'position', [0.05 0.335 0.25 0.05], ...
@@ -130,13 +96,18 @@ select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 
 select_app.Value = 1:3;
 
 % Trained nets settings
-text_vision = uicontrol('Style', 'text', 'String', 'Large Neural Nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
+option_nets = {'GoogLeNet (object detection)'; 'AlexNet (robot detection)'}; % Imported nets
+nimported = length(option_nets);
+available_nets = dir(strcat(nets_dir_name, '*-ml.mat'));
+nnets = length(available_nets); % Trained nets
+for nnet = 1:nnets
+    option_nets{nimported + nnet} = available_nets(nnet).name(1:end-7);
+end
+text_nets = uicontrol('Style', 'text', 'String', 'Large Neural Nets', 'units', 'normalized', 'position', [0.325 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_vision = {'GoogLeNet (object detection)'; 'AlexNet (robot detection)'; horzcat(net_name, ' and ', agent_name, ' (deep learning experiment)')};
-select_vision = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
-    'fontsize', bfsize + 4, 'string', option_vision, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-select_vision.Value = [];
-% select_vision.Value = 2;
+select_nets = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.55 0.25 0.2], ...
+    'fontsize', bfsize + 4, 'string', option_nets, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
+select_nets.Value = [];
 
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.25 0.05], ...
@@ -146,32 +117,7 @@ select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Positi
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 text_communication.Value = 1;
 
-% Brain
-if ispc && ~isdeployed
-    brain_dir = '.\Brains\';
-    available_brains = dir(strcat(brain_dir, '*.mat'));
-elseif ispc && isdeployed
-    brain_dir = strcat(userpath, '\Brains\');
-    if ~exist(brain_dir, 'dir')
-        mkdir(brain_dir)
-        disp(horzcat('Created new brain directory: ', brain_dir))
-    end
-    available_brains = dir(strcat(brain_dir, '*.mat'));
-    if size(available_brains, 1) == 0
-        new_brain_vars
-        brain_name = 'Noob';
-        save_brain        
-        disp(horzcat('Created new brain: ', brain_name))
-    end
-    available_brains = dir(strcat(brain_dir, '*.mat'));
-elseif ismac && ~isdeployed
-    brain_dir = './Brains/';
-    available_brains = dir(strcat(brain_dir, '*.mat'));
-elseif ismac && isdeployed
-    disp('Error: app compiled for Windows')
-end
-disp(horzcat('Brain dir: ', brain_dir))
-
+% Brains
 clear brain_string
 nbrains = size(available_brains, 1);
 for nbrain = 1:nbrains

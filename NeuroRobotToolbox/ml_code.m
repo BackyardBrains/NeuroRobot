@@ -1,4 +1,11 @@
 
+
+%% ML settings
+n_unique_states = 30;
+min_size = 20;
+rec_dir_name = '';
+
+
 %% Lock
 disp('Preparing ML interface...')
 button_to_sleep.BackgroundColor = [0.94 0.78 0.62];
@@ -21,12 +28,6 @@ if ~exist('workspace_dir_name', 'var')
     disp('Running controller prep...')
     controller_prep_code
 end
-
-%% ML Code
-n_unique_states = 30;
-min_size = 20;
-net_name = 'net1'; % note: also assigned in neurorobot.m
-rec_dir_name = '';
 
 
 %% Prepare figure
@@ -105,7 +106,9 @@ set(ax4, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
-ax5_pos = [0.26 0.59 0.31 0.05];
+ax5_edit_pos = [0.26 0.59 0.12 0.05];
+ax5_pos = [0.4 0.59 0.17 0.05];
+ax5_edit = uicontrol('Style', 'edit', 'String', 'Enter state net name here', 'units', 'normalized', 'position', ax5_edit_pos);
 ax5 = axes('position', ax5_pos);
 set(ax5, 'xtick', [], 'ytick', [])
 box on
@@ -130,19 +133,26 @@ box on
 axis([0 1 0 1])
 
 ax9_edit_pos = [0.26 0.31 0.12 0.05];
-ax10_pos = [0.26 0.24 0.31 0.05];
-ax9_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ax9_edit_pos);
-ax10 = axes('position', ax10_pos);
-set(ax10, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
 ax9_pos = [0.4 0.31 0.17 0.05];
+ax9_edit = uicontrol('Style', 'edit', 'String', 'Enter goal states here', 'units', 'normalized', 'position', ax9_edit_pos);
 ax9 = axes('position', ax9_pos);
 set(ax9, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
+ax10_edit_pos = [0.26 0.24 0.12 0.05];
+ax10_pos = [0.4 0.24 0.17 0.05];
+ax10_edit = uicontrol('Style', 'edit', 'String', 'Enter action net name here', 'units', 'normalized', 'position', ax10_edit_pos);
+ax10 = axes('position', ax10_pos);
+set(ax10, 'xtick', [], 'ytick', [])
+box on
+axis([0 1 0 1])
+
+
+%% Exit button
+button_exit_ml_pos = [0.03 0.08 0.2 0.05];
+button_exit_ml = uicontrol('Style', 'pushbutton', 'String', 'Exit ML', 'units', 'normalized', 'position', button_exit_ml_pos);
+set(button_exit_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
 %% Image Panels
@@ -158,10 +168,3 @@ set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col
 
 disp('Ready to train')
 
-%% Unlock
-set(button_camera, 'enable', 'on')
-set(button_startup_complete, 'enable', 'on')
-set(button_to_library, 'enable', 'off')
-set(button_to_sleep, 'enable', 'on')
-set(button_to_quit, 'enable', 'on')
-set(button_new_brain, 'enable', 'on')

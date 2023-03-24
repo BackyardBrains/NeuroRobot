@@ -1,4 +1,15 @@
 
+
+%% Get net name
+net_name = ax5_edit.String;
+if isempty(net_name) || strcmp(net_name, 'Enter state net name here')
+    ax5_edit.BackgroundColor = [1 0 0];
+    pause(0.5)
+    ax5_edit.BackgroundColor = [0.94 0.94 0.94];
+    error('Set state net name')
+end
+
+
 %% Create datasets for training nets
 axes(ax5)
 cla

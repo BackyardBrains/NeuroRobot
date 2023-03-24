@@ -1,12 +1,13 @@
 
 
 %% Set rewards
-% reward_states = [9 10];
 reward_states = str2num(ax9_edit.String);
-if isempty(reward_states)
-    error('No rewards!')
+if isempty(reward_states) || sum(isnan(reward_states))
+    ax9_edit.BackgroundColor = [1 0 0];
+    pause(0.5)
+    ax9_edit.BackgroundColor = [0.94 0.94 0.94];
+    error('Enter at least one goal state')
 end
-agent_name = 'agent1'; % note: also assigned in neurorobot.m
 
 
 %% Process rewards
@@ -35,11 +36,11 @@ reward_counter = zeros(size(mdp.R)) - 1;
 reward_counter(:,reward_states, mode(actions)) = 1;
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-save(strcat(nets_dir_name, net_name, '-', agent_name, '-mdp'), 'mdp')
+% save(strcat(nets_dir_name, net_name, '-', agent_name, '-mdp'), 'mdp')
 disp('Rewards ready')
 
 env = rlMDPEnv(mdp);
-save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
+% save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
 validateEnvironment(env)
 disp('Environment ready')
 

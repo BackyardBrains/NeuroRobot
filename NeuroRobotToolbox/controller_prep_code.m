@@ -1,39 +1,9 @@
-% Get workspace directory
-if ispc && ~isdeployed
-    workspace_dir_name = '.\Workspace\';
-elseif ispc && isdeployed          
-    workspace_dir_name = strcat(userpath, '\Workspace\');
-    if ~exist(workspace_dir_name, 'dir')
-        mkdir(workspace_dir_name)
-        disp(horzcat('Created new workspace directory: ', workspace_dir_name))
-    end
-elseif ismac && ~isdeployed
-    workspace_dir_name = './Workspace/';
-elseif ismac && isdeployed
-    disp('Error: app compiled for Windows')
-end
-disp(horzcat('Workspace dir: ', workspace_dir_name))   
 
-% Get nets directory
-if ispc && ~isdeployed
-    nets_dir_name = '.\Nets\';
-elseif ispc && isdeployed        
-    nets_dir_name = strcat(userpath, '\Nets\');
-    if ~exist(nets_dir_name, 'dir')
-        mkdir(nets_dir_name)
-        disp(horzcat('Created new nets directory: ', nets_dir_name))
-    end
-elseif ismac && ~isdeployed
-    nets_dir_name = './Nets/';
-elseif ismac && isdeployed
-    disp('Error: app compiled for Windows')
-end
-disp(horzcat('Nets dir: ', nets_dir_name))                 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
 unique_states = unique(labels);
 n_unique_states = length(unique_states);
-load(horzcat(nets_dir_name, net_name, '-RL-', agent_name))
+load(horzcat(nets_dir_name, net_name, '-', rl_type, '-', agent_name, '-ml'))
 load(strcat(nets_dir_name, net_name, '-torque_data'))
 load(strcat(nets_dir_name, net_name, '-actions'))
 n_unique_actions = length(unique(actions));

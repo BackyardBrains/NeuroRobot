@@ -2,6 +2,11 @@
 set(button_startup_complete, 'enable', 'off')
 drawnow
 
+
+%% Robot settings
+update_robot_select
+
+
 %% App settings
 % 1 = 'BG Color Scheme'
 if sum(select_app.Value == 1)
@@ -34,21 +39,21 @@ end
 
 %% Trained Nets settings
 % 1 = 'GoogLeNet object detection'
-if sum(select_vision.Value == 1)
+if sum(select_nets.Value == 1)
     use_cnn = 1;
 else
     use_cnn = 0;
 end
 
 % 2 = 'Custom object detection with AlexNet'
-if sum(select_vision.Value == 2)
-    use_controller = 1;
+if sum(select_nets.Value == 2)
+    use_rcnn = 1;
 else
     use_rcnn = 0;
 end
 
 % 3 = 'Custom state and action nets'
-if sum(select_vision.Value == 3)
+if sum(select_nets.Value >= nimported)
     use_controllers = 1;
 else
     use_controllers = 0;
@@ -108,7 +113,7 @@ brain_name = brain_string{select_brain.Value};
 
 % Can the app settings support the selected brain?
 load_brain
-if size(vis_prefs, 2) > 7 && ~sum(select_vision.Value == 1) % Bad hack to check that detector net is loaded
+if size(vis_prefs, 2) > 7 && ~sum(select_nets.Value == 1) % Bad hack to check that detector net is loaded
     brain_support = 0;
 else
     brain_support = 1;
@@ -214,22 +219,23 @@ if exist('rak_only', 'var') && brain_support
     gblob_xy = [0 0];    
     
     if record_data
-
-        record_data_prep_code
-
-        if record_data
-            if ispc
-                rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
-            elseif ismac
-                rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
-            end
-            mkdir(strcat(dataset_dir_name, rec_dir_name))
-            disp(horzcat('Created new directory for recording: ', rec_dir_name))            
+        if ispc
+            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
+        elseif ismac
+            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
         end
-
+        mkdir(strcat(dataset_dir_name, rec_dir_name))
+        disp(horzcat('Created new recording directory: ', rec_dir_name))            
     end
 
     if use_controllers
+        this_val = select_nets.Value;
+        this_val(this_val <= nimported) = [];
+        full_net_name = option_nets{this_val};
+        temp = strfind(full_net_name, '-');
+        net_name = full_net_name(1:temp(1)-1);
+        rl_type = full_net_name(temp(1)+1:temp(2)-1);
+        agent_name = full_net_name(temp(2)+1:end);
         controller_prep_code
     end
     
