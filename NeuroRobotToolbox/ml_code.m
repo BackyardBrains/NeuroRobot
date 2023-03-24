@@ -156,13 +156,13 @@ set(button_exit_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'font
 
 
 %% Image Panels
-im_ax1_pos = [0.63 0.54 0.27 0.35];
-im_ax1_colb_pos = [0.91 0.54 0.02 0.35];
+im_ax1_pos = [0.63 0.54 0.3 0.35];
+im_ax1_colb_pos = [0.94 0.54 0.02 0.35];
 im_ax1 = axes('position', im_ax1_pos);
 set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 
-im_ax2_pos = [0.63 0.08 0.27 0.35];
-im_ax2_colb_pos = [0.91 0.08 0.02 0.35];
+im_ax2_pos = [0.63 0.08 0.3 0.35];
+im_ax2_colb_pos = [0.94 0.08 0.02 0.35];
 im_ax2 = axes('position', im_ax2_pos);
 set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 

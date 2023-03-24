@@ -51,7 +51,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 3;
+n_unique_actions = 9;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
 drawnow
