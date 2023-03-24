@@ -1,4 +1,6 @@
 
+imdim = 100;
+
 if record_data > 0
 
     if ~rem(xstep, 500)
@@ -10,8 +12,10 @@ if record_data > 0
 
     % Save eye frames
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');    
+    left_uframe = imresize(left_uframe, imdim);
     imwrite(left_uframe, fname);
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-right_uframe.png');
+    right_uframe = imresize(right_uframe, imdim);
     imwrite(right_uframe, fname);    
     
     % Save torques
