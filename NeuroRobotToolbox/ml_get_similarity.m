@@ -3,8 +3,10 @@
 
 axes(ax2)
 
-tx2 = text(0.03, 0.5, horzcat('preparing to find features...'));
+this_msg = horzcat('preparing to find features...');
+tx2 = text(0.03, 0.5, this_msg);
 drawnow
+disp(this_msg)
 
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
@@ -17,20 +19,28 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-tx2.String = 'finding features...';
+this_msg = 'finding features...';
+tx2.String = this_msg;
 drawnow
+disp(this_msg)
 bag = bagOfFeatures(image_ds_small, 'treeproperties', treeprops);
 
-tx2.String = 'creating image index...';
+this_msg = 'creating image index...';
+tx2.String = this_msg;
 drawnow
+disp(this_msg)
 imageIndex = indexImages(image_ds_medium, bag);
 
-tx2.String = 'getting similarity matrix...';
+this_msg = 'getting similarity matrix...';
+tx2.String = this_msg;
 drawnow
+disp(this_msg)
 get_image_crosscorr
 
+this_msg = 'avg. similarity = ', num2str(avg_sim);
 avg_sim = mean(xdata(:));
-tx2.String = horzcat('avg. similarity = ', num2str(avg_sim));
+disp(this_msg)
+tx2.String = horzcat(this_msg);
 drawnow
 
 
