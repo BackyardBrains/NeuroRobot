@@ -34,11 +34,11 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 100;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 500;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
+training_opts.ScoreAveragingWindowLength = 200;
 if isdeployed
     this_str = 'none';
 else
@@ -74,11 +74,11 @@ save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 100;
-training_opts.MaxStepsPerEpisode = 100;
-training_opts.StopTrainingValue = 100;
+training_opts.MaxEpisodes = 500;
+training_opts.MaxStepsPerEpisode = 500;
+training_opts.StopTrainingValue = 500;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 100;
+training_opts.ScoreAveragingWindowLength = 200;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';
