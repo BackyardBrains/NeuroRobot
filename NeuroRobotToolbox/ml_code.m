@@ -1,18 +1,14 @@
 
 
-% y = [1000 5000]; % nsmall = = 0.01527 * ntuples + 694.7
-% y = [2000 10000]; % nmedium = 0.03053 * ntuples + 1389
-% y = [100 500]; % treeproperties = = 0.001527 * ntuples + 69.47
-% y = [100 300]; % init_n_unique_states = 0.0007634 * ntuples + 84.73
-% y = [20 33]; % min_size = 0.00005 * ntuples + 19; 
+
 
 
 %% ML settings
-nsmall = 5000;
-nmedium = 10000;
-treeprops = [2 500];
-n_unique_states = 300;
-min_size = 33;
+% nsmall = 5000;
+% nmedium = 10000;
+% treeprops = [2 500];
+% n_unique_states = 300;
+% min_size = 33;
 rec_dir_name = '';
 
 

@@ -23,7 +23,7 @@ this_msg = 'finding features...';
 tx2.String = this_msg;
 drawnow
 disp(this_msg)
-bag = bagOfFeatures(image_ds_small, 'treeproperties', treeprops);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching]);
 
 this_msg = 'creating image index...';
 tx2.String = this_msg;
