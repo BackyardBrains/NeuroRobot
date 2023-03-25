@@ -214,7 +214,8 @@ if nneurons % This prevents error caused by running script after deleting all ne
         catch
             disp('Cannot send RAK serial')
         end
-    elseif use_esp32 && ~(select_robot.Value == 4 || select_robot.Value == 5)
+    elseif use_esp32        
+%     elseif use_esp32 && ~(select_robot.Value == 4 || select_robot.Value == 5)
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         try
             esp32WebsocketClient.send(send_this);
@@ -222,17 +223,17 @@ if nneurons % This prevents error caused by running script after deleting all ne
             disp('Cannot send ESP32 serial')
         end
     end
-    if select_robot.Value == 4 || select_robot.Value == 5
-        if (l_torque * l_dir) > 0
-            esp32WebsocketClient.send('l');
-%             pause(0.05)
-%             disp('left')
-        end
-        if (r_torque * r_dir) > 0
-            esp32WebsocketClient.send('r');
-%             pause(0.05)
-%             disp('right')
-        end
-    end
+%     if select_robot.Value == 4 || select_robot.Value == 5
+%         if (l_torque * l_dir) > 0
+%             esp32WebsocketClient.send('l');
+% %             pause(0.05)
+% %             disp('left')
+%         end
+%         if (r_torque * r_dir) > 0
+%             esp32WebsocketClient.send('r');
+% %             pause(0.05)
+% %             disp('right')
+%         end
+%     end
 end
 

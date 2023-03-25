@@ -6,6 +6,7 @@ nmedium = 2000;
 n_unique_states = 100;
 min_size = 20;
 rec_dir_name = '';
+treeprops = [2 100];
 
 
 %% Lock

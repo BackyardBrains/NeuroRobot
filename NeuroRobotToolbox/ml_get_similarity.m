@@ -19,7 +19,7 @@ ps.Pool.IdleTimeout = Inf;
 
 tx2.String = 'finding features...';
 drawnow
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 50]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', treeprops);
 
 tx2.String = 'creating image index...';
 drawnow
