@@ -10,3 +10,6 @@ set(button_new_brain, 'enable', 'on')
 
 %% Close figure
 closereq
+
+%%
+neurorobot

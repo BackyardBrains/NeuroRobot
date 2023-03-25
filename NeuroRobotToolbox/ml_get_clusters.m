@@ -1,6 +1,6 @@
 
 %% Cluster on similarity
-
+n_unique_states = init_n_unique_states;
 axes(ax3)
 
 cla
@@ -10,9 +10,9 @@ drawnow
 % n_unique_states = 100;
 % group_inds = kmeans(xdata, n_unique_states);
 
-dists = pdist(xdata,'correlation');
-links = linkage(dists,'weighted');
-group_inds = cluster(links,'MaxClust',n_unique_states);
+dists = pdist(xdata, 'correlation');
+links = linkage(dists, 'weighted');
+group_inds = cluster(links,'MaxClust', n_unique_states);
 
 figure(10)
 [~, ~, o] = dendrogram(links, 0);

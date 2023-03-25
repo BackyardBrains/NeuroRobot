@@ -1,7 +1,9 @@
 
 
 %% ML settings
-n_unique_states = 30;
+nsmall = 500;
+nmedium = 1000;
+n_unique_states = 50;
 min_size = 10;
 rec_dir_name = '';
 
@@ -18,7 +20,9 @@ set(button_new_brain, 'enable', 'off')
 drawnow
 
 
-%%
+%% Prepare
+init_n_unique_states = n_unique_states;
+
 if ~exist('dataset_dir_name', 'var')
     disp('Running record data prep...')
     record_data_prep_code

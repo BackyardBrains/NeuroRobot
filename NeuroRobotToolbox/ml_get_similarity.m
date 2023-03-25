@@ -6,9 +6,6 @@ axes(ax2)
 tx2 = text(0.03, 0.5, horzcat('preparing to find features...'));
 drawnow
 
-nsmall = 200;
-nmedium = 500;
-
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
 image_ds_small = subset(image_ds, small_inds);
