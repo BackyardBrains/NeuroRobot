@@ -25,17 +25,16 @@ drawnow
 
 
 %% Prepare
-init_n_unique_states = n_unique_states;
 
-if ~exist('dataset_dir_name', 'var')
-    disp('Running record data prep...')
-    record_data_prep_code
-end
+% if ~exist('dataset_dir_name', 'var')
+%     disp('Running record data prep...')
+%     record_data_prep_code
+% end
 
-if ~exist('workspace_dir_name', 'var')
-    disp('Running controller prep...')
-    controller_prep_code
-end
+% if ~exist('workspace_dir_name', 'var')
+%     disp('Running controller prep...')
+%     controller_prep_code
+% end
 
 
 %% Prepare figure
