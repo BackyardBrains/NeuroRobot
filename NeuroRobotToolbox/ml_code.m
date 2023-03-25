@@ -1,17 +1,5 @@
 
 
-
-
-
-%% ML settings
-% nsmall = 5000;
-% nmedium = 10000;
-% treeprops = [2 500];
-% n_unique_states = 300;
-% min_size = 33;
-rec_dir_name = '';
-
-
 %% Lock
 disp('Preparing ML interface...')
 button_to_sleep.BackgroundColor = [0.94 0.78 0.62];
@@ -25,7 +13,7 @@ drawnow
 
 
 %% Prepare
-
+rec_dir_name = '';
 % if ~exist('dataset_dir_name', 'var')
 %     disp('Running record data prep...')
 %     record_data_prep_code
