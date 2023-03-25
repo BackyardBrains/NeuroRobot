@@ -35,10 +35,10 @@ drawnow
 disp(this_msg)
 
 %% Set ML parameters
-nsmall = round(0.01527 * ntuples + 694.7);
+nsmall = round(0.0152 * ntuples + 704);
+bof_branching = round(0.0007634 * ntuples + 84.73);
 nmedium = round(0.03053 * ntuples + 1389);
-bof_branching = round(0.001527 * ntuples + 69.47);
-init_n_unique_states = round(0.001527 * ntuples + 69.47);
+init_n_unique_states = round(0.00152 * ntuples + 70);
 min_size = round(0.00005 * ntuples + 19);
 
 disp('')
