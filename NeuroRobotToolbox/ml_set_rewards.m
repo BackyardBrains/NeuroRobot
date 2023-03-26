@@ -9,7 +9,7 @@ if isempty(list_of_states) || sum(isnan(list_of_states))
     error('Enter at least one goal state')
 end
 reward_states = list_of_states(sign(list_of_states) == 1);
-bad_states = list_of_states(sign(list_of_states) == -1);
+% bad_states = list_of_states(sign(list_of_states) == -1);
 disp(horzcat('n reward states = ', num2str(length(reward_states))))
 disp(horzcat('n reward states = ', num2str(length(bad_states))))
 
