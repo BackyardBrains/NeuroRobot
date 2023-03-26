@@ -29,7 +29,7 @@ for this_state = 1:n_unique_states
     plot(4, y, 'marker', '.', 'markersize', 50, 'color', [0.2 0.4 0.8])
     plot([2.5 4], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 30, 'color', 'k', 'linewidth', 1);
     if sum(this_state == reward_states)
-        if this_action == mode(actions)
+        if this_action == n_unique_actions
             plot([2.5 4], [this_state y], 'linestyle', '-', 'marker', '.', 'markersize', 20, 'color', 'g', 'linewidth', 1);
         end
     end
