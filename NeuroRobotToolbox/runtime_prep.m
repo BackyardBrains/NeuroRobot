@@ -73,11 +73,6 @@ end
 % 2 = 'Custom sounds'
 if sum(select_communication.Value == 2)
     vocal = 1;
-    if isempty(audio_out_names)
-        error(horzcat('No mp3s in ', sounds_dir_name))
-    else
-        disp(horzcat(num2str(n_out_sounds), ' mp3s found ♩♬♪'))
-    end
 else
     vocal = 0;
 end
@@ -265,6 +260,11 @@ if exist('rak_only', 'var') && brain_support
     
     if vocal
 
+        if n_out_sounds == 0
+            error(horzcat('No mp3s in ', sounds_dir_name))
+        else
+            disp(horzcat(num2str(n_out_sounds), ' mp3s found ♩♬♪'))
+        end
         audio_out_names = [];
         audio_out_durations = [];
         audio_out_wavs = struct;  %% Need ability to save these for brains and add 
