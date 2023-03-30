@@ -110,8 +110,9 @@ brain_name = brain_string{select_brain.Value};
 
 % Can the app settings support the selected brain?
 load_brain
-if size(vis_prefs, 2) > 7 && ~sum(select_nets.Value == 1) % Bad hack to check that detector net is loaded
+if size(vis_prefs, 2) > 7 && sum(select_nets.Value == 1) % Bad hack to check that a detector or state net is loaded
     brain_support = 0;
+    disp('Error: Brain requires detector or state net to see')
 else
     brain_support = 1;
 end

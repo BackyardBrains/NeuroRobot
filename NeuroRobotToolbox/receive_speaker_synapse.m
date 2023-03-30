@@ -132,6 +132,8 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         disp('Speaker input out of range.')
     end
     speaker_selected = 0;
+
+    % Update brain
     neuron_tones(presynaptic_neuron, 1) = this_input;
     
     if supervocal
