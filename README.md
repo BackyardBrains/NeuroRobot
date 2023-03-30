@@ -1,5 +1,6 @@
 # NeuroRobot app by Backyard Brains
 <b>Updates</b><br>
+<b>2023-03-30</b>. SpikerBot 2.1. Support for custom sounds and words (incl. training data folder names). User-added words or phrases are not saved across sessions.<br>
 <b>2023-03-24</b>. SpikerBot 2.0. ML Experiment support. Webcam support. Requires Windows or Matlab.<br>
 <b>2022-12-12</b>. The NeuroRobot app <b>Windows Installer</b> is now (somewhat) stable! To use it, download the repo, unpack SpikerBot_Installer.zip (several layers deep), and install the SpikerBot app on your Windows machine. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. Please note that webcam mode/Computer with Camera is not supported in the compiled app.<br>
 <br>
