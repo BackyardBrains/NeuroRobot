@@ -2,10 +2,6 @@
 OGLdpf.log
 
 
-NeuroRobotToolbox/Datasets
-NeuroRobotToolbox/Workspace
-
-NeuroRobotToolbox/CommsAI
 NeuroRobotToolbox/speech2text
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py

@@ -2,10 +2,8 @@
 %% Brains
 if ispc
     brain_dir = strcat(userpath, '\Brains\');
-elseif ismac && ~isdeployed
+elseif ismac
     brain_dir = strcat(userpath, '/Brains/');
-elseif ismac && isdeployed
-    disp('Error: app is compiled for Windows')
 end
 
 if ~exist(brain_dir, 'dir')
@@ -30,10 +28,8 @@ end
 %% Datasets
 if ispc
     dataset_dir_name = strcat(userpath, '\Datasets\');
-elseif ismac && ~isdeployed
+elseif ismac
     dataset_dir_name = strcat(userpath, './Datasets/');
-elseif ismac && isdeployed
-    disp('Error: app is compiled for Windows')
 end
 
 if ~exist(dataset_dir_name, 'dir')
@@ -51,10 +47,8 @@ nrecs = length(available_rec_dirs);
 %% Workspace
 if ispc
     workspace_dir_name = strcat(userpath, '\Workspace\');
-elseif ismac && ~isdeployed
+elseif ismac
     workspace_dir_name = strcat(userpath, './Workspace/');
-elseif ismac && isdeployed
-    disp('Error: app is compiled for Windows')
 end
 
 if ~exist(workspace_dir_name, 'dir')
@@ -69,10 +63,8 @@ end
 %% Nets
 if ispc
     nets_dir_name = strcat(userpath, '\Nets\');
-elseif ismac && ~isdeployed
+elseif ismac
     nets_dir_name = strcat(userpath, './Nets/');
-elseif ismac && isdeployed
-    disp('Error: app is compiled for Windows')
 end
 
 if ~exist(nets_dir_name, 'dir')
@@ -82,3 +74,22 @@ else
     disp(horzcat('Nets dir: ', nets_dir_name))
 end
 
+
+%% Sounds
+if ispc
+    sounds_dir_name = strcat(userpath, '\Sounds\');
+elseif ismac
+    sounds_dir_name = strcat(userpath, './Sounds/');
+end
+
+if ~exist(sounds_dir_name, 'dir')
+    mkdir(sounds_dir_name)
+    disp('Sounds directory not found')
+    disp(horzcat('Created new sounds directory: ', sounds_dir_name))
+else
+    disp(horzcat('Sounds dir: ', sounds_dir_name))
+end
+
+available_sounds = dir(strcat(sounds_dir_name, '*.mp3'));
+n_out_sounds = size(available_sounds, 1);
+        

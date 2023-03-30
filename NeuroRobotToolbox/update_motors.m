@@ -30,7 +30,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
                 end
                 nsound = neuron_tones(these_speaker_neurons, 1);
                 if rak_only && nsound <= length(n_out_sounds)
-                    audio_file_name = strcat('.\Sounds\', audio_out_names{nsound}, '.mp3');
+                    audio_file_name = strcat(sounds_dir_name, audio_out_names{nsound}, '.mp3');
                     rak_cam.sendAudio(audio_file_name);
         %         elseif rak_only
         %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')

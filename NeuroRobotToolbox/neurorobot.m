@@ -112,7 +112,7 @@ select_nets.Value = [];
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.325 0.435 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone input'; 'MP3 sounds';'Speak words'; 'Multi-tone'};
+option_communication = {'Microphone'; 'Mp3s';'Words'; 'Multi-tone'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.325 0.15 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 text_communication.Value = 1;
