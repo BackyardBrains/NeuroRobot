@@ -41,11 +41,11 @@ bg_neurons = brain.bg_neurons;
 try
     vision_net_lock = brain.vision_net_lock;
 catch
-    vision_net_lock = [];
+    vision_net_lock = '';
 end
 try
-    audio_out_lock = brain.vision_net_lock;
+    audio_out_lock = brain.audio_out_lock;
 catch
-    audio_out_lock = [];
+    audio_out_lock = '';
 end
 

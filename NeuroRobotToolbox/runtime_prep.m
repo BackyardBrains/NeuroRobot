@@ -104,21 +104,30 @@ clear postsynaptic_contact
 clear neuron_xys
 clear spikes_step
 
+%% ML vars
+if select_nets.Value > nimported
+    full_net_name = option_nets{select_nets.Value};
+    temp = strfind(full_net_name, '-');
+    net_name = full_net_name(1:temp(1)-1);
+    rl_type = full_net_name(temp(1)+1:temp(2)-1);
+    agent_name = full_net_name(temp(2)+1:end);
+else
+    net_name = '';
+end
+
 
 %% Select brain
 brain_name = brain_string{select_brain.Value};
-
-% Can the app settings support the selected brain?
 load_brain
-
-
-if size(vis_prefs, 2) > 7 && sum(select_nets.Value == 1) % Bad hack to check that a detector or state net is loaded
-    brain_support = 0;
-    disp('Error: Brain requires detector or state net to see')
-else
-    brain_support = 1;
+brain_support = 1;
+if ~isempty(vision_net_lock)
+    if (strcmp(vision_net_lock, 'GoogLeNet') && ~use_cnn) || ...
+            (strcmp(vision_net_lock, 'AlexNet') && ~use_rcnn) || ...
+            (~strcmp(vision_net_lock, 'GoogLeNet') && ~strcmp(vision_net_lock, 'AlexNet') && ~strcmp(vision_net_lock, net_name))
+        disp(horzcat('Brain needs this net to see: ', vision_net_lock))
+        brain_support = 0;
+    end
 end
-
 
 if exist('rak_only', 'var') && brain_support    
 
@@ -181,11 +190,6 @@ if exist('rak_only', 'var') && brain_support
         vis_pref_names = [vis_pref_names, 'person1', 'person2', 'person3', 'person4', 'person5'];    
         object_strs = {'person1', 'person2', 'person3', 'person4', 'person5'};        
     elseif use_controllers
-        full_net_name = option_nets{select_nets.Value};
-        temp = strfind(full_net_name, '-');
-        net_name = full_net_name(1:temp(1)-1);
-        rl_type = full_net_name(temp(1)+1:temp(2)-1);
-        agent_name = full_net_name(temp(2)+1:end);
         controller_prep_code
         vis_pref_names = [vis_pref_names, labels'];
     end
@@ -193,14 +197,12 @@ if exist('rak_only', 'var') && brain_support
 
 
     %% Prep
-
     left_state = 1;
     right_state = 1;
     this_state = 1;
     left_score = 0;
     right_score = 0;
     this_score = 0;
-
 
     left_torque = 0;
     left_dir = 0;
@@ -303,17 +305,6 @@ if exist('rak_only', 'var') && brain_support
         audio_out_fs = 0;
         audio_out_names = 0;
     end
-    
-%     if size(vis_prefs, 2) > n_basic_vis_features && ~(use_cnn || use_rcnn)
-%         if sum(sum(sum(vis_prefs(:, (n_basic_vis_features+1):end, :))))
-%             error('Brain needs AI. Set use_cnn or use_rcnn to 1.')
-%         end
-%     end
-    % if ~isempty(neuron_tones) && popup_select_brain.Value ~= 1
-    %     if max(neuron_tones) > length(audio_out_fs) && vocal && ~supervocal % This is a mess
-    %         error('Brain needs tones. Set vocal to 0.')
-    %     end
-    % end
         
     if rak_only
         rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
