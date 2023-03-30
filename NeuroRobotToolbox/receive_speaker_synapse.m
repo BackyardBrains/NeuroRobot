@@ -90,8 +90,9 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         else
             
             % Sound effects
-            current_sound = neuron_tones(presynaptic_neuron, 1);  
-            popup_select_sound = uicontrol('Style', 'popup', 'String', [audio_out_names], 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+%             current_sound = neuron_tones(presynaptic_neuron, 1);  
+            current_sound = 1;
+            popup_select_sound = uicontrol('Style', 'popup', 'String', audio_out_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if current_sound
                 popup_select_sound.Value = current_sound;
             end        

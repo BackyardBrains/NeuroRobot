@@ -29,16 +29,16 @@ if nneurons % This prevents error caused by running script after deleting all ne
                     disp('Too many custom sound neurons: playing first sound only')
                 end
                 nsound = neuron_tones(these_speaker_neurons, 1);
-                if rak_only && nsound <= length(n_out_sounds)
-                    audio_file_name = strcat(sounds_dir_name, audio_out_names{nsound}, '.mp3');
-                    rak_cam.sendAudio(audio_file_name);
-        %         elseif rak_only
-        %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
-        %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
-        %             rak_cam.sendAudio(audio_file_name);            
-                elseif nsound && audio_out_fs(nsound) % so for now...
+%                 if rak_only && nsound <= length(n_out_sounds)
+%                     audio_file_name = strcat(sounds_dir_name, audio_out_names{nsound}, '.mp3'); % Dont load every time!
+%                     rak_cam.sendAudio(audio_file_name);
+%         %         elseif rak_only
+%         %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
+%         %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
+%         %             rak_cam.sendAudio(audio_file_name);            
+%                 elseif nsound && audio_out_fs(nsound) % so for now...
                     soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
-                end
+%                 end
 
                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
             elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)

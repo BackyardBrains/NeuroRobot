@@ -9,7 +9,11 @@ tx1 = text(0.03, 0.5, this_msg);
 drawnow
 disp(this_msg)
 
-image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+try
+    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+catch
+    error('Datasets folder is missing or empty')
+end
 image_ds.ReadFcn = @customReadFcn; % imdim = 100
 nimages = length(image_ds.Files);
 

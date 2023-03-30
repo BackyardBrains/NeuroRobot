@@ -90,6 +90,13 @@ else
     disp(horzcat('Sounds dir: ', sounds_dir_name))
 end
 
-available_sounds = dir(strcat(sounds_dir_name, '*.mp3'));
+available_sounds = dir(strcat(sounds_dir_name, '*.wav'));
 n_out_sounds = size(available_sounds, 1);
-        
+
+if n_out_sounds == 0
+    disp('no wavs found in sounds dir, creating ...')
+    load handel
+    audiowrite(strcat(sounds_dir_name, 'handel.wav'), y, 16000);
+    available_sounds = dir(strcat(sounds_dir_name, '*.wav'));
+    n_out_sounds = size(available_sounds, 1);
+end

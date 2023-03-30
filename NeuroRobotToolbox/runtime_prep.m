@@ -79,27 +79,19 @@ end
 
 % 3 = 'Speak words'
 if sum(select_communication.Value == 3)
-    supervocal = 1; % Custom word output (text-to-speech - REQUIRES WINDOWS)
+    supervocal = 1; % Custom word output (text-to-speech - windows tested)
+    vocal = 1; % Hack, needed for indexing
 else
     supervocal = 0;
 end
 
 % 4 = 'Multi-tone speaker'
 if sum(select_communication.Value == 4)
-    matlab_speaker_ctrl = 1; % Multi tone output        
+    matlab_speaker_ctrl = 1; % Multi tone output, fixes tone colission error but introduces step cuts  
 else
     matlab_speaker_ctrl = 0;      
 end
 
-% 5 = GPT3
-if sum(select_communication.Value == 5)
-else
-end
-
-% 6 = 'Speech2Text';
-if sum(select_communication.Value == 6)
-else
-end
 
 %% Clear
 clear presynaptic_neuron
@@ -107,6 +99,7 @@ clear postsynaptic_neuron
 clear postsynaptic_contact
 clear neuron_xys
 clear spikes_step
+
 
 %% Select brain
 brain_name = brain_string{select_brain.Value};
@@ -260,11 +253,7 @@ if exist('rak_only', 'var') && brain_support
     
     if vocal
 
-        if n_out_sounds == 0
-            error(horzcat('No mp3s in ', sounds_dir_name))
-        else
-            disp(horzcat(num2str(n_out_sounds), ' mp3s found ♩♬♪'))
-        end
+        disp(horzcat(num2str(n_out_sounds), ' wavs found'))
         audio_out_names = [];
         audio_out_durations = [];
         audio_out_wavs = struct;  %% Need ability to save these for brains and add 
@@ -277,6 +266,8 @@ if exist('rak_only', 'var') && brain_support
             audio_out_wavs(nsound).y = audio_y;
             audio_out_fs(nsound) = audio_fs;
         end
+
+
         
         if supervocal
             for nsound = 1:n_vis_prefs
@@ -290,6 +281,18 @@ if exist('rak_only', 'var') && brain_support
                 audio_out_fs(n_out_sounds + nsound) = 16000;        
             end
         end
+
+        if exist('state_wavs', 'var')
+            n_also_these = size(brain.audio_out_wavs, 2);
+            if n_also_these > (n_out_sounds + n_vis_prefs)
+                for n_also_this = n_out_sounds + n_vis_prefs +1:n_also_these
+                    audio_out_wavs(n_also_this).y = brain.audio_out_wavs(n_also_this).y;
+                    audio_out_fs(n_also_this, 1) = 16000;
+                    audio_out_names{n_also_this} = brain.audio_out_names{n_also_this};
+                    audio_out_durations = [audio_out_durations length(audio_out_wavs(n_also_this).y)/audio_out_fs(n_also_this)];
+                end
+            end
+        end        
     
     else
         n_out_sounds = 0;
@@ -384,11 +387,11 @@ if exist('rak_only', 'var') && brain_support
         end
     end
     
-    if use_speech2text
-        disp('Initiating Google speech-to-text engine...')
-        mic_fs = 16000; % rem
-        speechObject = speechClient('Google','languageCode','en-US');
-    end
+%     if use_speech2text
+%         disp('Initiating Google speech-to-text engine...')
+%         mic_fs = 16000; % rem
+%         speechObject = speechClient('Google','languageCode','en-US');
+%     end
     
     
     %% Initialize brain and Runtime figure
@@ -433,18 +436,6 @@ if exist('rak_only', 'var') && brain_support
     if ~exist('rak_cam_h', 'var')
         rak_cam_h = 720;
         rak_cam_w = 1280; 
-    end
-    
-    if supervocal && isfield(brain, 'audio_out_wavs')
-        n_also_these = size(brain.audio_out_wavs, 2);
-        if n_also_these > (n_out_sounds + n_vis_prefs)
-            for n_also_this = n_out_sounds + n_vis_prefs +1:n_also_these
-                audio_out_wavs(n_also_this).y = brain.audio_out_wavs(n_also_this).y;
-                audio_out_fs(n_also_this, 1) = 16000;
-                audio_out_names{n_also_this} = brain.audio_out_names{n_also_this};
-                audio_out_durations = [audio_out_durations length(audio_out_wavs(n_also_this).y)/audio_out_fs(n_also_this)];
-            end
-        end
     end
     
     
