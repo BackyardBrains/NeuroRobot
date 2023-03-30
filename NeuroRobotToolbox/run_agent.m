@@ -1,34 +1,15 @@
 
 if use_controllers
 
-    imdim = 100;
-    left_uframe = imresize(left_uframe, [imdim imdim]);
-    right_uframe = imresize(right_uframe, [imdim imdim]);
-
-    left_state = NaN;
-    right_state = NaN;
-    this_state = NaN;
-
-    [left_state, left_score] = classify(net, left_uframe);
-    [right_state, right_score] = classify(net, right_uframe);        
-
-    left_state = find(unique_states == left_state);
-    right_state = find(unique_states == right_state);
-
-    left_score = left_score(left_state);
-    right_score = right_score(right_state);
-
+    % Get single state (expecting state net output from
+    % process_visual_input.m)
     if ~isempty(left_score) && ~isempty(right_score)
         if left_state == right_state
             this_state = left_state;
         elseif left_score >= right_score
             this_state = left_state;
         else
-%             if rand < 0.5
-%                 this_state = left_state;
-%             else
-                this_state = right_state;
-%             end
+            this_state = right_state;
         end
     else
         this_state = nan;

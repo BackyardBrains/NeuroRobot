@@ -38,15 +38,19 @@ end
 
 
 %% Trained Nets settings
-% 1 = 'GoogLeNet object detection'
+% 1 = '-none-' % popup menu requires selection
 if sum(select_nets.Value == 1)
+end
+
+% 2 = 'GoogLeNet (generic objects)'
+if sum(select_nets.Value == 2)
     use_cnn = 1;
 else
     use_cnn = 0;
 end
 
-% 2 = 'Custom object detection with AlexNet'
-if sum(select_nets.Value == 2)
+% 3 = 'AlexNet (custom objects)'
+if sum(select_nets.Value == 3)
     use_rcnn = 1;
 else
     use_rcnn = 0;
@@ -152,23 +156,49 @@ if exist('rak_only', 'var') && brain_support
         neuron_tones = 0;
     end
 
-    servo_pos = 90;
+    %% Record data
+    if record_data
+        if ispc
+            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
+        elseif ismac
+            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
+        end
+        mkdir(strcat(dataset_dir_name, rec_dir_name))
+        disp(horzcat('Created new recording directory: ', rec_dir_name))            
+    end
 
-    if use_cnn && ~use_rcnn
+    %% Visual features
+    n_basic_vis_features = size(vis_pref_names, 2); % Clumsy hack, remove
+    if use_cnn
         labels = readcell('alllabels.txt');
         object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
         object_strs = labels(object_ns);
         vis_pref_names = [vis_pref_names, object_strs'];
-        score = zeros(1, 1000);
-        n_vis_prefs = size(vis_pref_names, 2);
-    elseif use_rcnn && ~use_cnn
+    elseif use_rcnn
         vis_pref_names = [vis_pref_names, 'person1', 'person2', 'person3', 'person4', 'person5'];    
-        object_strs = {'person1', 'person2', 'person3', 'person4', 'person5'};
-        n_vis_prefs = size(vis_pref_names, 2);
-    else
-        n_vis_prefs = size(vis_pref_names, 2);
-    end    
-    
+        object_strs = {'person1', 'person2', 'person3', 'person4', 'person5'};        
+    elseif use_controllers
+        full_net_name = option_nets{select_nets.Value};
+        temp = strfind(full_net_name, '-');
+        net_name = full_net_name(1:temp(1)-1);
+        rl_type = full_net_name(temp(1)+1:temp(2)-1);
+        agent_name = full_net_name(temp(2)+1:end);
+        controller_prep_code
+        vis_pref_names = [vis_pref_names, labels'];
+    end
+    n_vis_prefs = size(vis_pref_names, 2);
+
+
+    %% Prep
+
+    left_state = 1;
+    right_state = 1;
+    this_state = 1;
+    left_score = 0;
+    right_score = 0;
+    this_score = 0;
+
+
     left_torque = 0;
     left_dir = 0;
     right_torque = 0;
@@ -188,7 +218,6 @@ if exist('rak_only', 'var') && brain_support
     design_action = 0;
     network_colors(1, :) = [1 0.9 0.8];
     
-    n_basic_vis_features = length(vis_pref_names);
     serial_data = [];
     sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];
     encoding_pattern = ones(size(sens_thresholds));
@@ -209,30 +238,9 @@ if exist('rak_only', 'var') && brain_support
 
     robot_xy = [0 0];
     rblob_xy = [0 0];
-    gblob_xy = [0 0];    
-    
-    if record_data
-        if ispc
-            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
-        elseif ismac
-            rec_dir_name = strcat('Rec', num2str(nrecs + 1), '/');
-        end
-        mkdir(strcat(dataset_dir_name, rec_dir_name))
-        disp(horzcat('Created new recording directory: ', rec_dir_name))            
-    end
+    gblob_xy = [0 0];
 
-    if use_controllers
-        this_val = select_nets.Value;
-        this_val(this_val <= nimported) = [];
-        full_net_name = option_nets{this_val};
-        temp = strfind(full_net_name, '-');
-        net_name = full_net_name(1:temp(1)-1);
-        rl_type = full_net_name(temp(1)+1:temp(2)-1);
-        agent_name = full_net_name(temp(2)+1:end);
-        controller_prep_code
-    end
-    
-    
+        
     %% Audio
     audx = 250;
     sound_spectrum = zeros(audx, nsteps_per_loop);
@@ -266,33 +274,26 @@ if exist('rak_only', 'var') && brain_support
             audio_out_wavs(nsound).y = audio_y;
             audio_out_fs(nsound) = audio_fs;
         end
-
-
         
         if supervocal
             for nsound = 1:n_vis_prefs
-                this_word = vis_pref_names{nsound};
+                this_word = char(vis_pref_names(nsound));
                 audio_out_names{n_out_sounds + nsound} = this_word;
-                this_wav = tts(this_word,'Microsoft David Desktop - English (United States)',[],16000);
-        %         this_wav = tts(this_word,'Microsoft Zira Desktop - English (United States)',[],16000);
-                this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
+
+                this_wav_m = tts(this_word,'Microsoft David Desktop - English (United States)',[],16000);
+                this_wav_f = tts(this_word,'Microsoft Zira Desktop - English (United States)',[],16000);
+                if length(this_wav_m) > length(this_wav_f)
+                    this_wav_m = this_wav_m(1:length(this_wav_f));
+                else
+                    this_wav_f = this_wav_f(1:length(this_wav_m));
+                end
+                this_wav = this_wav_f + this_wav_m;                
+                
                 audio_out_durations = [audio_out_durations length(this_wav)/16000];
                 audio_out_wavs(n_out_sounds + nsound).y = this_wav;
                 audio_out_fs(n_out_sounds + nsound) = 16000;        
             end
         end
-
-        if exist('state_wavs', 'var')
-            n_also_these = size(brain.audio_out_wavs, 2);
-            if n_also_these > (n_out_sounds + n_vis_prefs)
-                for n_also_this = n_out_sounds + n_vis_prefs +1:n_also_these
-                    audio_out_wavs(n_also_this).y = brain.audio_out_wavs(n_also_this).y;
-                    audio_out_fs(n_also_this, 1) = 16000;
-                    audio_out_names{n_also_this} = brain.audio_out_names{n_also_this};
-                    audio_out_durations = [audio_out_durations length(audio_out_wavs(n_also_this).y)/audio_out_fs(n_also_this)];
-                end
-            end
-        end        
     
     else
         n_out_sounds = 0;

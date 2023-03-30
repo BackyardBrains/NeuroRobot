@@ -97,7 +97,7 @@ select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 
 select_app.Value = 1:3;
 
 % Nets
-option_nets = {'GoogLeNet (object detection)'; 'AlexNet (robot detection)'}; % Imported nets
+option_nets = {'-- none --', 'GoogLeNet (generic objects)', 'AlexNet (custom objects)'}; % Imported nets
 nimported = length(option_nets);
 available_nets = dir(strcat(nets_dir_name, '*-ml.mat'));
 nnets = length(available_nets); % Trained nets
@@ -107,13 +107,13 @@ end
 text_nets = uicontrol('Style', 'text', 'String', 'Nets', 'units', 'normalized', 'position', [0.35 0.735 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 select_nets = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.35 0.45 0.25 0.3], ...
-    'fontsize', bfsize + 4, 'string', option_nets, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-select_nets.Value = [];
+    'fontsize', bfsize + 4, 'string', option_nets, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 0);
+select_nets.Value = 1;
 
 % Communication
 text_communication = uicontrol('Style', 'text', 'String', 'Communication', 'units', 'normalized', 'position', [0.35 0.335 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_communication = {'Microphone'; 'Mp3s'; 'Words'; 'Multi-tone'};
+option_communication = {'Microphone'; 'Custom sounds'; 'Speech'; 'Multi-tone'};
 select_communication = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.35 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_communication, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 text_communication.Value = 1;

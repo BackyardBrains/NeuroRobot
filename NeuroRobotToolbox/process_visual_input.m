@@ -80,17 +80,13 @@ for ncam = 1:2
 
     vis_pref_vals(7, ncam) = this_score;
     
-    % Get object classification scores
+    % Get complex features
     if use_cnn
         [label, score] = classify(g_net, frame);  
         cnn_out = sigmoid(score(object_ns), 0.04, 50);
         cnn_out = cnn_out - 0.15;
         cnn_out(cnn_out < 0) = 0;
-%         vis_pref_vals((n_basic_vis_features+1):n_vis_prefs, ncam) = cnn_out * 50;
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out * 50;
-        if ncam == 1
-%             label
-        end
     elseif use_rcnn
         try
             aitic = tic;
@@ -114,6 +110,34 @@ for ncam = 1:2
             
         catch
             disp('visual processing rcnn break')
+        end
+    elseif use_controllers
+        if ncam == 1
+            imdim = 100;
+            left_uframe = imresize(left_uframe, [imdim imdim]);
+            [left_state, left_score] = classify(net, left_uframe);
+            left_state = find(unique_states == left_state);
+            left_score = left_score(left_state);
+            for nobject = n_basic_vis_features + 1:n_vis_prefs
+                if nobject - n_basic_vis_features == left_state
+                    vis_pref_vals(nobject, ncam) = 50 * left_score;
+                else
+                    vis_pref_vals(nobject, ncam) = 0;
+                end
+            end
+        elseif ncam == 2
+            imdim = 100;
+            right_uframe = imresize(right_uframe, [imdim imdim]);
+            [right_state, right_score] = classify(net, right_uframe);
+            right_state = find(unique_states == right_state);
+            right_score = right_score(right_state);
+            for nobject = n_basic_vis_features + 1:n_vis_prefs
+                if nobject - n_basic_vis_features == right_state
+                    vis_pref_vals(nobject, ncam) = 50 * right_score;
+                else
+                    vis_pref_vals(nobject, ncam) = 0;
+                end
+            end
         end
     end
     
