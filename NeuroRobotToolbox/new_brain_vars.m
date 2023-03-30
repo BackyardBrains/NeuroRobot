@@ -28,3 +28,5 @@ network_drive = zeros(1, 3);
 nnetworks = 0;
 bg_neurons = [];
 neuron_scripts = [];
+vision_net_lock = [];
+audio_out_lock = [];

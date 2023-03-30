@@ -34,9 +34,18 @@ da_rew_neurons = brain.da_rew_neurons;
 neuron_tones = brain.neuron_tones;
 neuron_scripts = brain.neuron_scripts;
 nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
-if isfield(brain, 'network')
-    brain = rmfield(brain, 'network');
-end
 
 network_drive = zeros(nnetworks, 3); 
 bg_neurons = brain.bg_neurons;
+
+try
+    vision_net_lock = brain.vision_net_lock;
+catch
+    vision_net_lock = [];
+end
+try
+    audio_out_lock = brain.vision_net_lock;
+catch
+    audio_out_lock = [];
+end
+

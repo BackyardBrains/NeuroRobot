@@ -29,7 +29,6 @@ for ncam = 1:2
         if blob.NumObjects
             [i, j] = max(cellfun(@numel,blob.PixelIdxList));
             npx = i;
-%             disp(horzcat('ncam = ', num2str(ncam), ', ncol = ', num2str(ncol), ', epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
             [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
             this_score = sigmoid(npx, 1000, 0.0075) * 50;
             this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
@@ -39,16 +38,6 @@ for ncam = 1:2
             this_score = 0;
             this_left_score = 0;
             this_right_score = 0;
-        end
-%         vis_pref_vals(((ncol - 1) * 3) + 1, ncam) = this_score;
-%         vis_pref_vals(((ncol - 1) * 3) + 2, ncam) = this_left_score;
-%         vis_pref_vals(((ncol - 1) * 3) + 3, ncam) = this_right_score;
-
-        if ncol == 1 && ncam == 1
-%             disp(horzcat('the left cam - red - x is: ', num2str(mean(x))))
-%             disp(horzcat('the left cam - red - score is: ', num2str(this_score)))
-%             disp(horzcat('the left cam - red - left score is: ', num2str(this_left_score)))
-%             disp(horzcat('the left cam - red - right score is: ', num2str(this_right_score)))            
         end
 
         vis_pref_vals(ncol * 2 - 1, ncam) = this_score;
@@ -66,7 +55,6 @@ for ncam = 1:2
     if blob.NumObjects
         [i, j] = max(cellfun(@numel,blob.PixelIdxList));
         npx = i;
-    %     disp(horzcat(this_col, ' epsp = ', num2str(sigmoid(npx, 1000, 0.0075) * 50)))
         [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
         this_score = sigmoid(npx, 1000, 0.0075) * 50;
         this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
@@ -148,13 +136,3 @@ for ncam = 1:2
     end
 
 end
-
-%% Test state net
-% new_im = zeros(227, 404, 3, 'uint8');    
-% new_im(:, 1:227, :) = prev_left_eye_frame;
-% new_im(:, 178:404, :) = prev_right_eye_frame;
-% [state, scores] = classify(net, new_im);
-% this_state = find(unique_states == state);
-% score = scores(this_state); % mislabeled and unused?    
-% score = (round(score * 100))/100;
-% disp(horzcat('state = ',num2str(this_state), ', score = ', num2str(score)))

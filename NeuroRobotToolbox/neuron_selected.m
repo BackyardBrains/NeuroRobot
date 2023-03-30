@@ -152,10 +152,6 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
 
         % Manual weight
         current_weight = num2str(connectome(presynaptic_neuron, postsynaptic_neuron));
-        if current_weight == 0 % What is this?
-            current_weight = 30; % What???
-            disp('Weirdness at ln 143 neuron_selected.m') % Probably never happens
-        end
         text_w = uicontrol('Style', 'text', 'String', 'Weight (-100 to 100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
@@ -328,13 +324,30 @@ elseif fig_design.UserData == 6
         delete(button_confirm)
         delete(growth_cone)
         delete(button_stop)
+
+        %% Modify brain
+        % Apply vision net lock
+        if popup_select_preference.Value > size(vis_prefs, 2)
+            if isempty(vision_net_lock)
+                if use_cnn
+                    vision_net_lock = 'GooLeNet';
+                elseif use_rcnn
+                    vision_net_lock = 'AlexNet';
+                else
+                    vision_net_lock = net_name;
+                end
+            else
+                delete_synapspe = 1;
+                disp('vision net lock already applied:')
+                vision_net_lock
+            end
+        end
+        vis_prefs(postsynaptic_neuron, :, presynaptic_contact) = 0; % Clear all visual preferences - only one preference per eye-neuron pair
+        vis_prefs(postsynaptic_neuron, popup_select_preference.Value, presynaptic_contact) = 1 - delete_synapse;
+
         if delete_synapse
             neuron_contacts(postsynaptic_neuron, presynaptic_contact) = 0;
         end
-
-        % Update variables
-        vis_prefs(postsynaptic_neuron, :, presynaptic_contact) = 0; % Clear all visual preferences - only one preference per eye-neuron pair
-        vis_prefs(postsynaptic_neuron, popup_select_preference.Value, presynaptic_contact) = 1 - delete_synapse;
 
         % Remove menu
         delete(text_heading)
