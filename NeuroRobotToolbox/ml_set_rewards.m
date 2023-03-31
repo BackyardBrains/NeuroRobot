@@ -14,33 +14,21 @@ disp(horzcat('n reward states = ', num2str(length(reward_states))))
 disp(horzcat('n reward states = ', num2str(length(bad_states))))
 
 
-%% Process rewards
+%% Create reward landscape
+disp('Creating reward landscape...')
 axes(ax9)
 cla
 tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
-% disp('Getting reward...')
-% rcount = 0;
-% rewards = zeros(ntuples, 1) - 1;
-% for ntuple = 1:ntuples
-%     if ~rem(ntuple, round(ntuples/5))
-%         disp(num2str(ntuple/ntuples))
-%     end
-%     if sum(tuples(ntuple, 1) == reward_states) && sum(tuples(ntuple, 3) == mode(actions))
-%         rewards(ntuple) = 1;
-%         rcount = rcount + 1;
-%     end
-% end
-% disp(horzcat('Total reward count: ', num2str(sum(rcount))))
-% disp(horzcat('Rewards per step: ', num2str(sum(rewards)/ntuples)))
+reward_action = n_unique_actions; % Stand still
 
 reward_counter = zeros(size(mdp.R));
 if ~isempty(reward_states)
-    reward_counter(:, reward_states, n_unique_actions) = 1;
+    reward_counter(:, reward_states, reward_action) = 1;
 end
 if ~isempty(bad_states)
-    reward_counter(:, -bad_states, n_unique_actions) = -1;
+    reward_counter(:, -bad_states, reward_action) = -1;
 end
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
