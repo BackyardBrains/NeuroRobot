@@ -336,8 +336,7 @@ elseif fig_design.UserData == 6
                 else
                     vision_net_lock = net_name;
                 end
-                disp(horzcat('new vision lock:'))
-                vision_net_lock
+                disp(horzcat('new vision net lock: ', vision_net_lock))
             end
         end
 
