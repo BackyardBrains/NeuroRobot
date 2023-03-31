@@ -1,3 +1,4 @@
+
 brain = struct;
 nneurons = 0;
 neuron_xys = [];
