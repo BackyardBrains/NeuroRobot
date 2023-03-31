@@ -26,11 +26,17 @@ end
 
 
 %% Datasets
-if ispc
-    dataset_dir_name = strcat(userpath, '\Datasets\');
-elseif ismac
-    dataset_dir_name = strcat(userpath, './Datasets/');
+if isdeployed
+    if ispc
+        dataset_dir_name = strcat(userpath, '\Datasets\');
+    elseif ismac
+        dataset_dir_name = strcat(userpath, './Datasets/');
+    end
+else
+    dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+    disp(horzcat('Not deployed so using custom Datasets dir: ', dataset_dir_name))
 end
+    
 
 if ~exist(dataset_dir_name, 'dir')
     mkdir(dataset_dir_name)
