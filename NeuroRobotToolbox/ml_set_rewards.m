@@ -11,7 +11,13 @@ end
 reward_states = list_of_states(sign(list_of_states) == 1);
 bad_states = list_of_states(sign(list_of_states) == -1);
 disp(horzcat('n reward states = ', num2str(length(reward_states))))
-disp(horzcat('n reward states = ', num2str(length(bad_states))))
+disp(horzcat('n bad states = ', num2str(length(bad_states))))
+
+
+%% Manually set reward action
+% reward_action = n_unique_actions; % stand still
+reward_action = 3; % forward
+disp(horzcat('reward action = ', num2str(reward_action)))
 
 
 %% Create reward landscape
@@ -20,11 +26,6 @@ axes(ax9)
 cla
 tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% reward_action = n_unique_actions; % Stand still %
-reward_action = 8; % 32 45 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 reward_counter = zeros(size(mdp.R));
 if ~isempty(reward_states)
@@ -35,13 +36,14 @@ if ~isempty(bad_states)
 end
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
-% save(strcat(nets_dir_name, net_name, '-', agent_name, '-mdp'), 'mdp')
 disp('Rewards ready')
 
 env = rlMDPEnv(mdp);
-% save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
 validateEnvironment(env)
 disp('Environment ready')
+
+% Save environment
+save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
 
 
 %% Output
