@@ -39,7 +39,7 @@ drawnow
 disp(this_msg)
 
 %% Set ML parameters
-adj = 0.1;
+adj = 1;
 nsmall = round(adj * 0.0152 * ntuples + 704);
 bof_branching = round(adj * 0.0007634 * ntuples + 84.73);
 nmedium = round(adj * 0.03053 * ntuples + 1389);
