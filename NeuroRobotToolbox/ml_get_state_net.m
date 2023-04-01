@@ -5,13 +5,16 @@
 imdim = 100;
 
 
-%% Save labels
+%% Get labels
 labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
 labels = unique(labels);
 n_unique_states = length(labels);
-disp(horzcat('Training detector of ', num2str(n_unique_states), ' states'))
+disp(horzcat('Training detector net for ', num2str(n_unique_states), ' states'))
+
+%% Save labels
 save(strcat(nets_dir_name, net_name, '-labels'), 'labels')
 
+%%
 axes(ax6)
 cla
 tx6 = text(0.03, 0.5, horzcat('training convnet on ', num2str(n_unique_states), ...

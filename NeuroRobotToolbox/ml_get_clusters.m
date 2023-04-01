@@ -6,6 +6,7 @@ axes(ax3)
 cla
 tx3 = text(0.03, 0.5, horzcat('clustering...'));
 drawnow
+disp('Clustering... ')
 
 % n_unique_states = 100;
 % group_inds = kmeans(xdata, n_unique_states);

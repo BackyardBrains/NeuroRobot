@@ -6,14 +6,14 @@ axes(ax7)
 cla
 tx7 = text(0.03, 0.5, horzcat('loading net...'));
 drawnow
+disp('Loading state net...')
 
 load(strcat(nets_dir_name, net_name, '-net'))
 load(strcat(nets_dir_name, net_name, '-labels'))
-disp(horzcat('Recognizing ', num2str(length(labels)), ' states'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-tx7.String = 'get all data..';
+tx7.String = 'indexing all data..';
 drawnow
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));

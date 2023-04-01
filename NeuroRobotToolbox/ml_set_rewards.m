@@ -21,7 +21,9 @@ cla
 tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
-reward_action = n_unique_actions; % Stand still
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+reward_action = n_unique_actions; % Stand still %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 reward_counter = zeros(size(mdp.R));
 if ~isempty(reward_states)
