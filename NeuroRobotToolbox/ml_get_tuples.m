@@ -51,7 +51,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 5;
+n_unique_actions = 9;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
 drawnow
@@ -104,17 +104,4 @@ set(gca, 'yscale', 'linear')
 title('States')
 xlabel('State')
 ylabel('Count (ntuples)')
-
-% axes(im_ax2)
-% cla
-% histogram(tuples(:,3), 'binwidth', .25)
-% set(gca, 'yscale', 'linear')
-% title('Actions')
-% xlabel('Action')
-% ylabel('Count (ntuples)')
-
-% hFig=findall(gcf);
-% hLeg=findobj(hFig(1,1),'type','legend');
-% set(hLeg,'visible','off')
-% axis auto
 

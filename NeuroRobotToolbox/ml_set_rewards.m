@@ -16,6 +16,7 @@ disp(horzcat('n bad states = ', num2str(length(bad_states))))
 
 %% Manually set reward action
 % reward_action = n_unique_actions; % stand still
+mean(torque_data(actions==3, :))
 reward_action = 3; % forward
 disp(horzcat('reward action = ', num2str(reward_action)))
 
@@ -43,7 +44,7 @@ validateEnvironment(env)
 disp('Environment ready')
 
 % Save environment
-save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
+% save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
 
 
 %% Output

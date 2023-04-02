@@ -18,7 +18,7 @@ drawnow
 
 
 %% Unpack environment
-load(strcat(nets_dir_name, net_name, '-', agent_name, '-env'))
+% load(strcat(nets_dir_name, net_name, '-', agent_name, '-env'))
 obsInfo = getObservationInfo(env);
 actInfo = getActionInfo(env);
 qTable = rlTable(obsInfo, actInfo);

@@ -30,6 +30,7 @@ cla
 histogram(group_inds, 'binwidth', 0.4);
 hold on
 plot([0 n_unique_states + 1], [min_size min_size], 'color', 'r')
+axis tight
 title('States')
 xlabel('State')
 ylabel('Count')
