@@ -29,20 +29,12 @@ if nneurons % This prevents error caused by running script after deleting all ne
                     disp('Too many custom sound neurons: playing first sound only')
                 end
                 nsound = neuron_tones(these_speaker_neurons, 1);
-%                 if rak_only && nsound <= length(n_out_sounds)
-%                     audio_file_name = strcat(sounds_dir_name, audio_out_names{nsound}, '.mp3'); % Dont load every time!
-%                     rak_cam.sendAudio(audio_file_name);
-%         %         elseif rak_only
-%         %             disp('RAK cannot play visual objects yet, try, wants mp3 maybe')
-%         %             audio_file_name = strcat('.\Words\', audio_out_names{nsound}, '.mp3');
-%         %             rak_cam.sendAudio(audio_file_name);            
-%                 elseif nsound && audio_out_fs(nsound) % so for now...
-                    soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
-%                 end
+
+                % Insert robot speaker out here
+                soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
 
                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
-            elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)
-                speaker_tone = these_tones(1);
+
             elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~(rak_only || use_esp32)        
         
                 if matlab_speaker_ctrl
@@ -95,7 +87,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
     if vocal_buffer
         vocal_buffer = vocal_buffer - 1;
     end
-    
     
     % Behavior scripts
     if ~isempty(neuron_scripts)
@@ -202,9 +193,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
         contact_h(11).MarkerFaceColor = [0.9 0.6 0.3];     
         contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
         contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
-    end    
-    
-    % disp('6')
+    end
     
     %% Sending serial to RAK
     if rak_only      
@@ -215,7 +204,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
             disp('Cannot send RAK serial')
         end
     elseif use_esp32        
-%     elseif use_esp32 && ~(select_robot.Value == 4 || select_robot.Value == 5)
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         try
             esp32WebsocketClient.send(send_this);
@@ -223,17 +211,5 @@ if nneurons % This prevents error caused by running script after deleting all ne
             disp('Cannot send ESP32 serial')
         end
     end
-%     if select_robot.Value == 4 || select_robot.Value == 5
-%         if (l_torque * l_dir) > 0
-%             esp32WebsocketClient.send('l');
-% %             pause(0.05)
-% %             disp('left')
-%         end
-%         if (r_torque * r_dir) > 0
-%             esp32WebsocketClient.send('r');
-% %             pause(0.05)
-% %             disp('right')
-%         end
-%     end
 end
 

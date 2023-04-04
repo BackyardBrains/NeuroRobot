@@ -1,7 +1,7 @@
 
 
 %% Set parameter scaling factor
-adj = 0.01;
+adj = 1;
 
 
 %% Get all recorded data and display summary stats

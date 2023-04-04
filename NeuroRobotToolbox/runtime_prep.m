@@ -298,6 +298,8 @@ if exist('rak_only', 'var') && brain_support
                 audio_out_wavs(n_out_sounds + nsound).y = this_wav;
                 audio_out_fs(n_out_sounds + nsound) = 16000;        
             end
+
+            % Add custom sound phrases to lists here?
         end
     
     else

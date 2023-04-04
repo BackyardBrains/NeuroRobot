@@ -148,7 +148,8 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             % THIS IS NOT SAVED ACROSS SESSIONS
             brain.audio_out_wavs = audio_out_wavs;
             brain.audio_out_names = audio_out_names;
-            
+            brain.audio_out_fs = audio_out_fs;
+
         elseif popup_select_sound.Value > 1
             neuron_tones(presynaptic_neuron, 1) = popup_select_sound.Value - 1;
         end
