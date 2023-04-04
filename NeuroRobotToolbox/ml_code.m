@@ -14,15 +14,6 @@ drawnow
 
 %% Prepare
 rec_dir_name = '';
-% if ~exist('dataset_dir_name', 'var')
-%     disp('Running record data prep...')
-%     record_data_prep_code
-% end
-
-% if ~exist('workspace_dir_name', 'var')
-%     disp('Running controller prep...')
-%     controller_prep_code
-% end
 
 
 %% Prepare figure
@@ -55,7 +46,7 @@ button_cluster = uicontrol('Style', 'pushbutton', 'String', 'Cluster similar dat
 set(button_cluster,'Callback', 'ml_get_clusters', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 button_prune = uicontrol('Style', 'pushbutton', 'String', 'Quality control', 'units', 'normalized', 'position', button4_pos);
-set(button_prune,'Callback', 'ml_prune', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+set(button_prune,'Callback', 'ml_quality', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 button_training_data = uicontrol('Style', 'pushbutton', 'String', 'Finalize training data', 'units', 'normalized', 'position', button5_pos);
 set(button_training_data,'Callback', 'ml_finalize_training_data', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
@@ -128,8 +119,10 @@ box on
 axis([0 1 0 1])
 
 ax9_edit_pos = [0.26 0.31 0.12 0.05];
-ax9_pos = [0.4 0.31 0.17 0.05];
+ax9_edit2_pos = [0.4 0.31 0.07 0.05];
+ax9_pos = [0.49 0.31 0.08 0.05];
 ax9_edit = uicontrol('Style', 'edit', 'String', 'Enter goal states here', 'units', 'normalized', 'position', ax9_edit_pos);
+ax9_edit2 = uicontrol('Style', 'edit', 'String', 'Enter goal action here', 'units', 'normalized', 'position', ax9_edit2_pos);
 ax9 = axes('position', ax9_pos);
 set(ax9, 'xtick', [], 'ytick', [])
 box on

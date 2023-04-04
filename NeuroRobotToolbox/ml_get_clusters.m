@@ -21,7 +21,7 @@ close(10)
 
 axes(im_ax1)
 cla
-imagesc(xdata(o, o))
+imagesc(xdata(o, o), [0 0.5])
 c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
 title('Similarity matrix (sorted)')
 

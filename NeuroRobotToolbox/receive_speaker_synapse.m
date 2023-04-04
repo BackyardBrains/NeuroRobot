@@ -27,7 +27,6 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Activate speaker contact
     contact_h(4).MarkerFaceColor = sel_col_core;  
     speaker_selected = 1;
-%     this_val = 1000; % 2020-07-30 rem
     
     % Text
     text_heading = uicontrol('Style', 'text', 'String', 'Set or delete sound output', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -78,11 +77,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             word_edit_name = uicontrol('Style', 'edit', 'String', current_word, 'units', 'normalized', 'position', [0.02 0.61 0.26 0.05], 'fontsize', bfsize + 4, ....
                 'FontName', gui_font_name, 'fontweight', gui_font_weight);   
             
-            % Plastic
+            % Male voice
             text_m = uicontrol('Style', 'text', 'String', 'Male voice', 'units', 'normalized', 'position', [0.02 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             check_m = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.12 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);        
 
-            % Dopamine-modulated
+            % Female voice
             text_f = uicontrol('Style', 'text', 'String', 'Female voice', 'units', 'normalized', 'position', [0.14 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             check_f = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.24 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);           
 
@@ -140,20 +139,15 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         if popup_select_sound.Value == 1
             neuron_tones(presynaptic_neuron, 1) = length(audio_out_fs) + 1;  
             
-            if check_m.Value && ~check_f.Value
-                this_wav = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
-            elseif check_m.Value && check_f.Value
-                this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
-                this_wav_f = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
-                if length(this_wav_m) > length(this_wav_f)
-                    this_wav_m = this_wav_m(1:length(this_wav_f));
-                else
-                    this_wav_f = this_wav_f(1:length(this_wav_m));
-                end
-                this_wav = this_wav_f + this_wav_m;
+            this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
+            this_wav_f = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
+            
+            if length(this_wav_m) > length(this_wav_f)
+                this_wav_m = this_wav_m(1:length(this_wav_f));
             else
-                this_wav = tts(word_name,'Microsoft Zira Desktop - English (United States)',[],16000);
+                this_wav_f = this_wav_f(1:length(this_wav_m));
             end
+            this_wav = this_wav_f + this_wav_m;
 
             this_wav = this_wav(find(this_wav,1,'first'):find(this_wav,1,'last'));
             audio_out_durations = [audio_out_durations length(this_wav)/16000];
@@ -162,6 +156,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             
             audio_out_fs(length(audio_out_fs) + 1) = 16000; % This is also a counter
             
+            % THIS IS NOT SAVED ACROSS SESSIONS
             brain.audio_out_wavs = audio_out_wavs;
             brain.audio_out_names = audio_out_names;
             

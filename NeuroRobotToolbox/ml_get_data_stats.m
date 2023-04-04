@@ -1,6 +1,10 @@
 
-%% Get all recorded data and display summary stats
 
+%% Set parameter scaling factor
+adj = 0.01;
+
+
+%% Get all recorded data and display summary stats
 axes(ax1)
 
 this_msg = 'finding recorded data...';
@@ -38,8 +42,8 @@ tx1.String = this_msg;
 drawnow
 disp(this_msg)
 
+
 %% Set ML parameters
-adj = 1;
 nsmall = round(adj * 0.0152 * ntuples + 704);
 bof_branching = round(adj * 0.0007634 * ntuples + 84.73);
 nmedium = round(adj * 0.03053 * ntuples + 1389);
@@ -55,3 +59,4 @@ disp(horzcat('bof_branching = ', num2str(bof_branching)))
 disp(horzcat('init_n_unique_states = ', num2str(init_n_unique_states)))
 disp(horzcat('min_size = ', num2str(min_size)))
 disp('')
+

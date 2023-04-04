@@ -21,31 +21,26 @@ try
 catch
     disp(horzcat('Could not find or delete any previous training data for ', net_name))
 end
+
 n_unique_states = sum(state_info(:,1));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
+
 for nstate = 1:n_unique_states
-    
-%     if state_entropy(nstate) > th
-        disp(horzcat('Processing state ', num2str(nstate)))
-        if nstate >= 100
-            this_dir = strcat('state_', num2str(nstate));
-        elseif nstate >= 10
-            this_dir = strcat('state_0', num2str(nstate));
-        else
-            this_dir = strcat('state_00', num2str(nstate));
-        end
-        mkdir(strcat(workspace_dir_name, net_name, '\', this_dir))
-        for nimage = 1:min_size
-            this_ind = state_inds(nstate, nimage);
-            this_im = imread(imageIndex.ImageLocation{this_ind});
-            fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
-            imwrite(this_im, fname);
-        end
-%         state_info(nstate, 1) = 1;
-%     else
-%         disp(horzcat('Skipping state ', num2str(nstate)))
-%         state_info(nstate, 1) = 0;
-%     end
+    disp(horzcat('Processing state ', num2str(nstate)))
+    if nstate >= 100
+        this_dir = strcat('state_', num2str(nstate));
+    elseif nstate >= 10
+        this_dir = strcat('state_0', num2str(nstate));
+    else
+        this_dir = strcat('state_00', num2str(nstate));
+    end
+    mkdir(strcat(workspace_dir_name, net_name, '\', this_dir))
+    for nimage = 1:min_size
+        this_ind = state_inds(nstate, nimage);
+        this_im = imread(imageIndex.ImageLocation{this_ind});
+        fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
+        imwrite(this_im, fname);
+    end
 end
 
 

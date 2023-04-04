@@ -22,7 +22,7 @@ end
 
 axes(im_ax1)
 cla
-imagesc(inter_state_similarity)
+imagesc(inter_state_similarity, [0 0.5])
 xlabel('State')
 ylabel('State')
 c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);

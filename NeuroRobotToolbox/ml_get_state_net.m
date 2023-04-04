@@ -11,8 +11,10 @@ labels = unique(labels);
 n_unique_states = length(labels);
 disp(horzcat('Training detector net for ', num2str(n_unique_states), ' states'))
 
+
 %% Save labels
 save(strcat(nets_dir_name, net_name, '-labels'), 'labels')
+
 
 %%
 axes(ax6)
@@ -65,3 +67,4 @@ save(strcat(nets_dir_name, net_name, '-net'), 'net')
 %% End message
 tx6.String = horzcat(net_name, ' trained successfully');
 drawnow
+

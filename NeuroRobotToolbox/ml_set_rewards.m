@@ -13,11 +13,13 @@ bad_states = list_of_states(sign(list_of_states) == -1);
 disp(horzcat('n reward states = ', num2str(length(reward_states))))
 disp(horzcat('n bad states = ', num2str(length(bad_states))))
 
-
-%% Manually set reward action
-% reward_action = n_unique_actions; % stand still
-mean(torque_data(actions==3, :))
-reward_action = 3; % forward
+reward_action = str2num(ax9_edit2.String);
+if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1
+    ax9_edit2.BackgroundColor = [1 0 0];
+    pause(0.5)
+    ax9_edit2.BackgroundColor = [0.94 0.94 0.94];
+    error('Enter one goal action')
+end
 disp(horzcat('reward action = ', num2str(reward_action)))
 
 

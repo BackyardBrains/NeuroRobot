@@ -1,5 +1,8 @@
 
 
+% Should have the ability to start ML processing from here. Will require
+% initializing dir names and net name
+
 %%
 axes(ax7)
 
@@ -22,7 +25,7 @@ torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.m
 
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
-ntuples = size(torque_dir, 1);
+ntuples = ntorques;
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
@@ -63,20 +66,27 @@ actions(still) = n_unique_actions + 1;
 if ~sum(actions == 1)
     actions = actions - 1;
 end
+n_unique_actions = length(unique(actions));
+disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
+
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 
+
+%% Plot torque data with action IDs
 axes(im_ax2)
 cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*5, torque_data(:,2)+randn(size(torque_data(:,2)))*5, actions)
+hold on
+for naction = 1:n_unique_actions
+    mean_torque = mean(torque_data(actions == naction, :));
+    text(mean_torque(1), mean_torque(2), num2str(naction))
+end
 axis padded
 set(gca, 'yscale', 'linear')
 title('Actions')
 xlabel('Torque 1')
 ylabel('Torque 2')
-n_unique_actions = length(unique(actions));
-disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
-pause(5)
 
 
 %% Get tuples
