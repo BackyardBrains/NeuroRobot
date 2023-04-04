@@ -86,11 +86,8 @@ steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;
 neuron_tones(nneurons + 1 : nneurons + n, 1) = 0;
 neuron_scripts(nneurons + 1 : nneurons + n, 1) = 0;
 nneurons = nneurons + n;
-if ext_cam_id
-    save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
-end
-disp('Population created')
 
+disp('Population created')
 
 delete(text_heading)
 delete(text_w1)

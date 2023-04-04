@@ -146,8 +146,6 @@ if exist('rak_only', 'var') && brain_support
     computer_name = getenv('COMPUTERNAME');
     user_name = getenv('USERNAME');
     user_name(user_name == ' ') = '_';
-    ext_cam_id = 0;
-    ext_cam_nsteps = 100; % check this
     max_w = 100;
     ltp_recency_th_in_sec = 2000; % must be >= pulse_period
     permanent_memory_th = 24;
@@ -408,13 +406,6 @@ if exist('rak_only', 'var') && brain_support
     manual_control = 0;
     nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
     
-    if ext_cam_id
-        save_ext_cam = zeros(720, 1280, 3, ext_cam_nsteps, 'uint8');
-        save_firing = zeros(nneurons, ext_cam_nsteps, 'logical');
-        save_left_cam = zeros(left_yx(1), left_yx(2), 3, ext_cam_nsteps, 'uint8');
-        save_right_cam = zeros(right_yx(1), right_yx(2), 3, ext_cam_nsteps, 'uint8');
-        save_time = zeros(1, ext_cam_nsteps);
-    end
     step_times = zeros(nsteps_per_loop, 1) + 0.1;
     steps_since_last_spike = nan(nneurons, 1);
     

@@ -65,7 +65,6 @@ clf
 set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Startup')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
-% set(fig_design, 'CloseRequestFcn', 'stop(runtime_pulse); closereq')
 
 % Title
 text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.1', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
