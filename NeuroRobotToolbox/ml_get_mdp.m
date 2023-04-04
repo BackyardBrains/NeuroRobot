@@ -66,14 +66,14 @@ title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
 
-axes(im_ax2)
-cla
-set(gca, 'xtick', [], 'ytick', [])
-xlabel('')
-ylabel('')
-title('')
-
-hFig=findall(gcf);
-hLeg=findobj(hFig(1,1),'type','legend');
-set(hLeg,'visible','off')
-axis auto
+% axes(im_ax2)
+% cla
+% set(gca, 'xtick', [], 'ytick', [])
+% xlabel('')
+% ylabel('')
+% title('')
+% 
+% hFig=findall(gcf);
+% hLeg=findobj(hFig(1,1),'type','legend');
+% set(hLeg,'visible','off')
+% axis auto
