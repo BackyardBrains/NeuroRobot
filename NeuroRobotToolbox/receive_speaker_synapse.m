@@ -77,27 +77,15 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
             word_edit_name = uicontrol('Style', 'edit', 'String', current_word, 'units', 'normalized', 'position', [0.02 0.61 0.26 0.05], 'fontsize', bfsize + 4, ....
                 'FontName', gui_font_name, 'fontweight', gui_font_weight);   
             
-            % Male voice
-            text_m = uicontrol('Style', 'text', 'String', 'Male voice', 'units', 'normalized', 'position', [0.02 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            check_m = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.12 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);        
-
-            % Female voice
-            text_f = uicontrol('Style', 'text', 'String', 'Female voice', 'units', 'normalized', 'position', [0.14 0.53 0.1 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            check_f = uicontrol('Style', 'checkbox', 'units', 'normalized', 'position', [0.24 0.54 0.02 0.05], 'BackgroundColor', fig_bg_col);           
-
-     
         else
-            
             % Sound effects
 %             current_sound = neuron_tones(presynaptic_neuron, 1);  
             current_sound = 1;
             popup_select_sound = uicontrol('Style', 'popup', 'String', audio_out_names, 'units', 'normalized', 'position', [0.02 0.85 0.16 0.06], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if current_sound
                 popup_select_sound.Value = current_sound;
-            end        
-            
+            end         
         end
-        
 
         % Wait for OK        
         button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.48 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -137,6 +125,7 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     
     if supervocal
         if popup_select_sound.Value == 1
+            
             neuron_tones(presynaptic_neuron, 1) = length(audio_out_fs) + 1;  
             
             this_wav_m = tts(word_name,'Microsoft David Desktop - English (United States)',[],16000);
@@ -167,10 +156,6 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
         delete(text_load)
         delete(word_text_name)
         delete(word_edit_name)
-        delete(check_m)
-        delete(text_m)
-        delete(check_f)
-        delete(text_f)
 
     end
     

@@ -1,8 +1,5 @@
 
 
-% Should have the ability to start ML processing from here. Will require
-% initializing dir names and net name
-
 %%
 axes(ax7)
 
