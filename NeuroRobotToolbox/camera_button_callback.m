@@ -12,6 +12,7 @@ end
 
 if exist('rak_pulse', 'var') && isvalid(rak_pulse)
     stop(rak_pulse)
+    pause(1)
     delete(rak_pulse)
 end
 

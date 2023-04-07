@@ -21,6 +21,7 @@ draw_brain
 if rak_only
     if exist('rak_pulse', 'var') && isvalid(rak_pulse)
         stop(rak_pulse)
+        pause(1)
         delete(rak_pulse)
     end  
 end

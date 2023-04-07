@@ -10,6 +10,7 @@ if (exist('rak_only', 'var') && rak_only) ...
         || (exist('use_webcam', 'var') && use_webcam)
     if exist('rak_pulse', 'var') && isvalid(rak_pulse) % Why do this?
         stop(rak_pulse)
+        pause(1)
         delete(rak_pulse)
     end
     rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'executionmode', 'fixedrate');    
