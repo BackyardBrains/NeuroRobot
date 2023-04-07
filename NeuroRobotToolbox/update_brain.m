@@ -40,7 +40,14 @@ if nneurons
     for t = 1:ms_per_step
 
         % Add noise
-        I = 5 * randn(nneurons, 1);       
+        I = 5 * randn(nneurons, 1);      
+
+%         % 
+%         if t == ms_per_step && ~rem(xstep, 20)
+%            I(:,:) = 50;
+%         else
+%             I(:,:) = 0;
+%         end
 
          % Find spiking neurons
         fired_now = v >= 30;
