@@ -8,10 +8,8 @@ if isempty(list_of_states) || sum(isnan(list_of_states))
     ax9_edit.BackgroundColor = [0.94 0.94 0.94];
     error('Enter at least one goal state')
 end
-reward_states = list_of_states(sign(list_of_states) == 1);
-bad_states = list_of_states(sign(list_of_states) == -1);
-disp(horzcat('n reward states = ', num2str(length(reward_states))))
-disp(horzcat('n bad states = ', num2str(length(bad_states))))
+reward_states = list_of_states(sign(list_of_states) == 1)
+bad_states = list_of_states(sign(list_of_states) == -1)
 
 reward_action = str2num(ax9_edit2.String);
 if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1

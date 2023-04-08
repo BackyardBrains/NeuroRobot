@@ -40,7 +40,7 @@ for ii_state = 1:n_unique_states
                 end
             end
         end
-        if naction == 1
+        if naction == n_unique_actions
             transition_counter(ii_state, :, naction) = 0;
             transition_counter(ii_state, ii_state, naction) = 1;
         else
@@ -66,14 +66,4 @@ title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')
 
-% axes(im_ax2)
-% cla
-% set(gca, 'xtick', [], 'ytick', [])
-% xlabel('')
-% ylabel('')
-% title('')
-% 
-% hFig=findall(gcf);
-% hLeg=findobj(hFig(1,1),'type','legend');
-% set(hLeg,'visible','off')
-% axis auto
+ml_visualize_mdp

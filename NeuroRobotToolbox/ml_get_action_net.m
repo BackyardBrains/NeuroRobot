@@ -1,5 +1,10 @@
 
 
+
+%% scaling factor
+scale_f = round(adj * 0.0007634 * ntuples + 84.73);
+
+
 %% 
 agent_name = ax10_edit.String;
 if isempty(agent_name) || strcmp(agent_name, 'Enter action net name here')
@@ -35,11 +40,11 @@ qOptions = rlOptimizerOptions;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
-training_opts.StopTrainingValue = 500;
+training_opts.MaxEpisodes = scale_f;
+training_opts.MaxStepsPerEpisode = scale_f;
+training_opts.StopTrainingValue = scale_f;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 200;
+training_opts.ScoreAveragingWindowLength = scale_f/10;
 if isdeployed
     this_str = 'none';
 else
@@ -73,11 +78,11 @@ save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = 1000;
-training_opts.MaxStepsPerEpisode = 500;
-training_opts.StopTrainingValue = 500;
+training_opts.MaxEpisodes = scale_f;
+training_opts.MaxStepsPerEpisode = scale_f;
+training_opts.StopTrainingValue = scale_f;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = 200;
+training_opts.ScoreAveragingWindowLength = scale_f/10;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';
