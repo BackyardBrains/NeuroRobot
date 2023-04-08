@@ -3,6 +3,7 @@
 
 %% scaling factor
 scale_f = round(adj * 0.0007634 * ntuples + 84.73);
+disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
 %% 
