@@ -9,5 +9,5 @@ load(strcat(nets_dir_name, net_name, '-actions'))
 n_unique_actions = length(unique(actions));
 motor_combs = zeros(n_unique_actions, 2);
 for naction = 1:n_unique_actions
-    motor_combs(naction, :) = mean(torque_data(actions == naction, :), 1);
+    motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
 end

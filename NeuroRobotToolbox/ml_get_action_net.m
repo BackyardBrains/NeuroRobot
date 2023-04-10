@@ -37,7 +37,7 @@ n_unique_actions = size(actInfo.Elements, 1);
 %% Train Agent 1
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
-qOptions.LearnRate = 0.1;
+% qOptions.LearnRate = 0.01;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
@@ -59,14 +59,20 @@ tx10.String = 'Shallow training done. Training deep...';
 drawnow
 
 %% Show Agent 1
+delete(im_ax1)
+im_ax1_pos = [0.63 0.54 0.3 0.35];
+im_ax1_colb_pos = [0.94 0.54 0.02 0.35];
+im_ax1 = axes('position', im_ax1_pos);
+set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+
 axes(im_ax1)
 cla
 
-hFig=findall(gcf);
-hLeg=findobj(hFig(1,1),'type','colorbar');
-set(hLeg,'visible','off')
-xlabel('')
-ylabel('')
+% hFig=findall(gcf);
+% hLeg=findobj(hFig(1,1),'type','colorbar');
+% set(hLeg,'visible','off')
+% xlabel('')
+% ylabel('')
 
 hold on
 scan_agent
@@ -96,14 +102,20 @@ trainingStats_deep = train(agent, env, training_opts);
 
 
 %% Show Agent 2
+delete(im_ax2)
+im_ax2_pos = [0.63 0.08 0.3 0.35];
+im_ax2_colb_pos = [0.94 0.08 0.02 0.35];
+im_ax2 = axes('position', im_ax2_pos);
+set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+
 axes(im_ax2)
 cla
 
-hFig=findall(gcf);
-hLeg=findobj(hFig(1,1),'type','colorbar');
-set(hLeg,'visible','off')
-xlabel('')
-ylabel('')
+% hFig=findall(gcf);
+% hLeg=findobj(hFig(1,1),'type','colorbar');
+% set(hLeg,'visible','off')
+% xlabel('')
+% ylabel('')
 
 hold on
 scan_agent

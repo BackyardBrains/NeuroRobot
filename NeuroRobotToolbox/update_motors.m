@@ -88,6 +88,12 @@ if nneurons % This prevents error caused by running script after deleting all ne
         vocal_buffer = vocal_buffer - 1;
     end
     
+    % Scale
+    left_forward = left_forward * 2.5;
+    right_forward = right_forward * 2.5;
+    left_backward = left_backward * 2.5;
+    right_backward = right_backward * 2.5;
+    
     % Behavior scripts
     if ~isempty(neuron_scripts)
         this_script = find(neuron_scripts & firing, 1);
@@ -100,13 +106,8 @@ if nneurons % This prevents error caused by running script after deleting all ne
     if script_running
         run_script
     end
-    
+
     % Prepare to send
-    left_forward = left_forward * 2.5;
-    right_forward = right_forward * 2.5;
-    left_backward = left_backward * 2.5;
-    right_backward = right_backward * 2.5;
-    
     left_torque = left_forward - left_backward;
     left_torque_mem = left_torque;
     left_dir = max([1 - sign(left_torque) 1]);
@@ -125,23 +126,8 @@ if nneurons % This prevents error caused by running script after deleting all ne
     
     motor_command(1,5) = speaker_tone;
     
-    % Manual control exceptions
-    if ~sum(motor_command(1, [1 3]))
-        if manual_control == 1
-            motor_command = [90 1 90 2 speaker_tone];
-        elseif manual_control == 2
-            motor_command = [90 2 90 1 speaker_tone];
-        elseif manual_control == 3
-            motor_command = [150 1 150 1 speaker_tone];
-        elseif manual_control == 4 
-            motor_command = [150 2 150 2 speaker_tone];
-        elseif manual_control == 5
-            motor_command = [0 0 0 0 speaker_tone];
-        end
-    end
-    
     if (nstep * pulse_period) < init_motor_block_in_s
-        motor_command = [0 0 0 0 speaker_tone];
+        motor_command = [0 0 0 0 1000];
     end
 
     % Repackage

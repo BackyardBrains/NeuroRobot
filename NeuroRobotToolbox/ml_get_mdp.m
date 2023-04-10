@@ -40,12 +40,13 @@ for ii_state = 1:n_unique_states
                 end
             end
         end
-        if naction == n_unique_actions
-            transition_counter(ii_state, :, naction) = 0;
-            transition_counter(ii_state, ii_state, naction) = 1;
-        else
-            transition_counter(ii_state, :, naction) = this_val;
-        end
+%         if naction == mode(actions)
+%             transition_counter(ii_state, :, naction) = 0;
+%             transition_counter(ii_state, ii_state, naction) = 1;
+%         else
+%             transition_counter(ii_state, :, naction) = this_val;
+%         end
+        transition_counter(ii_state, :, naction) = this_val;
     end
 end
 

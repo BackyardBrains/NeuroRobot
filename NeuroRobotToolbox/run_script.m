@@ -17,7 +17,8 @@ elseif sum(script_running == 5:6)
         this_agent = 2;
     end
 
-    run_agent    
+    run_agent   
+    
 else
     disp('Unknown behavior')
 end
