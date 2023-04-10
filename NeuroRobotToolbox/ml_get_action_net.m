@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 500;
+scale_f = 300;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -37,7 +37,7 @@ n_unique_actions = size(actInfo.Elements, 1);
 %% Train Agent 1
 agent_opt = rlQAgentOptions;
 qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.1;
+qOptions.LearnRate = 0.1;
 agentOpts.CriticOptimizerOptions = qOptions;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;

@@ -17,7 +17,17 @@ load(strcat(nets_dir_name, net_name, '-labels'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-load(strcat(nets_dir_name, net_name, '-actions'))
+n_unique_actions = 9;
+rng(1)
+actions = kmeans(torque_data, n_unique_actions);
+still = abs(torque_data(:,1)) < 10 & abs(torque_data(:,2)) < 10;
+disp(horzcat('n still actions: ', num2str(sum(still))))
+actions(still) = n_unique_actions + 1;
+if ~sum(actions == 1)
+    actions = actions - 1;
+end
+
+% load(strcat(nets_dir_name, net_name, '-actions'))
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 
