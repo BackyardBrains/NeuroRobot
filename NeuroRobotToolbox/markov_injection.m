@@ -1,7 +1,7 @@
 
 % markov injection (assumes you already ran neurorobot.m)
 
-net_name = 'livingroom'
+net_name = 'livingroom3000'
 % tv = [4 8 16 18 19 32 40 48]
 % bookshelf = [7 13 14 17 22 26 27 28 29 31 33 38 39 47 54]
 % hallway = [4 20 36 46]
@@ -17,29 +17,15 @@ load(strcat(nets_dir_name, net_name, '-labels'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-n_unique_actions = 9;
+n_unique_actions = 8;
 rng(1)
 actions = kmeans(torque_data, n_unique_actions);
-
-% gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions)
-% n_unique_actions = length(unique(actions));
-% motor_combs = zeros(n_unique_actions, 2);
-% for naction = 1:n_unique_actions
-%     motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
-% end
-
-% still = abs(torque_data(:,1)) < 10 & abs(torque_data(:,2)) < 10;
-% disp(horzcat('n still actions: ', num2str(sum(still))))
-% actions(still) = n_unique_actions + 1;
-% if ~sum(actions == 1)
-%     actions = actions - 1;
-% end
 
 disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(mode(actions), :), 1)))))
 
-% save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
-% load(strcat(nets_dir_name, net_name, '-actions'))
+save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
+load(strcat(nets_dir_name, net_name, '-actions'))
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 
