@@ -53,7 +53,7 @@ drawnow
 %% Actions
 n_unique_actions = 10;
 rng(1)
-tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
+tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
 actions = kmeans(torque_data, n_unique_actions);
 % still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
