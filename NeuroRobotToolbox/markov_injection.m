@@ -1,11 +1,7 @@
 
 % markov injection (assumes you already ran neurorobot.m)
 
-net_name = 'livingroom3000'
-% tv = [4 8 16 18 19 32 40 48]
-% bookshelf = [7 13 14 17 22 26 27 28 29 31 33 38 39 47 54]
-% hallway = [4 20 36 46]
-% fix the motor less than 10 issue too
+net_name = 'livingroom3000';
 
 load(horzcat(nets_dir_name, net_name, '-states'))
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
