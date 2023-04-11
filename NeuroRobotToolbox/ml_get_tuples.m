@@ -51,21 +51,21 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 10;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions + 1), ' unique actions...');
 drawnow
-
 actions = kmeans(torque_data, n_unique_actions);
-still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
-disp(horzcat('n still actions: ', num2str(sum(still))))
-actions(still) = n_unique_actions + 1;
-if ~sum(actions == 1)
-    actions = actions - 1;
-end
+% still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
+% disp(horzcat('n still actions: ', num2str(sum(still))))
+% actions(still) = n_unique_actions + 1;
+% if ~sum(actions == 1)
+%     actions = actions - 1;
+% end
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
-
+disp(horzcat('mode action: ', num2str(mode(actions))))
+disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(mode(actions), :), 1)))))
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 
@@ -94,6 +94,7 @@ for ntuple = 6:ntuples - 1
     tuples(ntuple - 5, 3) = actions(ntuple - 5);
 end
 ntuples = size(tuples, 1);
+disp('Tuples assembled successfully')
 
 
 %% Lucid sleep?

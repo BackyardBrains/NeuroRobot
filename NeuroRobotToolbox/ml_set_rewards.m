@@ -8,8 +8,8 @@ if isempty(list_of_states) || sum(isnan(list_of_states))
     ax9_edit.BackgroundColor = [0.94 0.94 0.94];
     error('Enter at least one goal state')
 end
-reward_states = list_of_states(sign(list_of_states) == 1)
-bad_states = list_of_states(sign(list_of_states) == -1)
+reward_states = list_of_states(sign(list_of_states) == 1);
+bad_states = list_of_states(sign(list_of_states) == -1);
 
 reward_action = str2num(ax9_edit2.String);
 if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1
@@ -43,20 +43,8 @@ env = rlMDPEnv(mdp);
 validateEnvironment(env)
 disp('Environment ready')
 
-% Save environment
-% save(strcat(nets_dir_name, net_name, '-', agent_name, '-env'), 'env')
-
 
 %% Output
 tx9.String = 'Ready to train';
 drawnow
-
-% axes(im_ax2)
-% cla
-% plot(rewards)
-% axis tight
-% title('Rewards')
-% xlabel('Time (steps)')
-% ylabel('Reward value')
-
 
