@@ -1,6 +1,6 @@
 
 % state injection (assumes you already ran neurorobot.m)
 
-net_name = 'livingroom';
+net_name = 'livingroom-mini';
 
 

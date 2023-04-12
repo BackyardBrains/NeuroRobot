@@ -1,7 +1,7 @@
 
 % markov injection (assumes you already ran neurorobot.m)
 
-net_name = 'livingroom3000';
+net_name = 'livingroom-mini';
 
 load(horzcat(nets_dir_name, net_name, '-states'))
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
@@ -13,7 +13,7 @@ load(strcat(nets_dir_name, net_name, '-labels'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-n_unique_actions = 8;
+n_unique_actions = 6;
 rng(1)
 actions = kmeans(torque_data, n_unique_actions);
 
