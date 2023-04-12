@@ -1,7 +1,7 @@
 
 % markov injection (assumes you already ran neurorobot.m)
 
-net_name = 'livingroom-mini';
+net_name = 'livingroommini';
 
 load(horzcat(nets_dir_name, net_name, '-states'))
 load(horzcat(nets_dir_name, net_name, '-torque_data'))
