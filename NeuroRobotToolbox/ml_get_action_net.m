@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 200;
+scale_f = 300;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -36,7 +36,7 @@ n_unique_actions = size(actInfo.Elements, 1);
 
 %% Train Agent 1
 agent_opt = rlQAgentOptions;
-agent_opt.DiscountFactor = 0.2;
+agent_opt.DiscountFactor = 0.1;
 % agent_opt.EpsilonGreedyExploration = 0.0005;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
@@ -82,7 +82,7 @@ save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 
 %% Train Agent 2
 agent_opt = rlDQNAgentOptions;
-agent_opt.DiscountFactor = 0.2;
+agent_opt.DiscountFactor = 0.1;
 % agent_opt.EpsilonGreedyExploration = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
