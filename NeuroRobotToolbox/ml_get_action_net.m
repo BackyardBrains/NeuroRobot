@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 500;
+scale_f = 200;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -36,16 +36,15 @@ n_unique_actions = size(actInfo.Elements, 1);
 
 %% Train Agent 1
 agent_opt = rlQAgentOptions;
-qOptions = rlOptimizerOptions;
-% qOptions.LearnRate = 0.01;
-agentOpts.CriticOptimizerOptions = qOptions;
+agent_opt.DiscountFactor = 0.2;
+% agent_opt.EpsilonGreedyExploration = 0.0005;
 agent = rlQAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = scale_f;
 training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = scale_f/10;
+training_opts.ScoreAveragingWindowLength = scale_f/5;
 if isdeployed
     this_str = 'none';
 else
@@ -83,13 +82,15 @@ save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 
 %% Train Agent 2
 agent_opt = rlDQNAgentOptions;
+agent_opt.DiscountFactor = 0.2;
+% agent_opt.EpsilonGreedyExploration = 0.0005;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = scale_f;
 training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = scale_f/10;
+training_opts.ScoreAveragingWindowLength = scale_f/5;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';
