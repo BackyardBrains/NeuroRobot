@@ -43,13 +43,13 @@ if nneurons
         I = 5 * randn(nneurons, 1);      
 
         % rl ticker
-        if t == ms_per_step && ~rem(xstep, 4)
-           I(1) = 50;
+        if ~isdeployed && t == ms_per_step && ~rem(xstep, 4)
+            I(1) = 50;
         else
             I(1) = 0;
         end
 
-         % Find spiking neurons
+        % Find spiking neurons
         fired_now = v >= 30;
         spikes_step(fired_now, t) = 1;
 
