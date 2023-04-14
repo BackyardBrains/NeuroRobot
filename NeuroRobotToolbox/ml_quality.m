@@ -14,7 +14,7 @@ for nstate = 1:n_unique_states
     for nstate2 = 1:n_unique_states
         these_inds2 = state_inds(nstate2, :);
         vals = xdata(these_inds,these_inds2);
-        vals(vals == 1) = nan;
+%         vals(vals == 1) = nan;
         inter_state_similarity(nstate, nstate2) = mean(vals(:), 'omitnan');
     end
 
@@ -39,7 +39,7 @@ for nstate = 1:n_unique_states
     these_inds = state_inds(nstate, :);
 
     vals = xdata(these_inds,these_inds);
-    vals(vals == 1) = nan;
+%     vals(vals == 1) = nan;
     intra_state_similarity(nstate) = mean(vals(:), 'omitnan');
 
 end
