@@ -9,7 +9,7 @@
 
 
 %% Settings
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.1;         % Step time in seconds
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
@@ -62,12 +62,12 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot - Startup')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 2.2')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.1', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.2', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
