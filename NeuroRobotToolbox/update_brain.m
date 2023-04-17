@@ -43,7 +43,7 @@ if nneurons
         I = 5 * randn(nneurons, 1);      
 
         % rl ticker
-        if ~isdeployed && t == ms_per_step && ~rem(xstep, 4)
+        if ~isdeployed && t == ms_per_step && ~rem(xstep, 2)
             I(1) = 50;
         end
 
