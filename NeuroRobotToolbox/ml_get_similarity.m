@@ -37,6 +37,8 @@ drawnow
 disp(this_msg)
 get_image_crosscorr
 
+% ml_dist_adjust
+
 avg_sim = mean(xdata(:));
 this_msg = horzcat('avg. similarity = ', num2str(avg_sim));
 disp(this_msg)
