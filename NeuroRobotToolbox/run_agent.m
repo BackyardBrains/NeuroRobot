@@ -18,6 +18,10 @@ if use_controllers
         disp('state detection error')
     end
 
+    if this_distance > 0
+        this_state = n_unique_states + 1;
+    end
+
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
     disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
