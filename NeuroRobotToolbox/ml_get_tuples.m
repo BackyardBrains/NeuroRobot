@@ -29,8 +29,11 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 %% States
 tx7.String = 'getting states..';
 drawnow
+
 % get_dists
 get_states
+
+
 save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states'))
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
