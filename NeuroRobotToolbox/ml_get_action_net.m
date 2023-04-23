@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 400;
+scale_f = 100;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 

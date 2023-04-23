@@ -13,8 +13,9 @@ load(strcat(nets_dir_name, net_name, '-labels'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
-tx7.String = 'indexing all data..';
+tx7.String = 'indexing data..';
 drawnow
+disp('indexing data...')
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
@@ -29,13 +30,15 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 %% States
 tx7.String = 'getting states..';
 drawnow
+disp('assembling tuples...')
 
 % get_dists
-get_states
+% get_states
+% states(dists > 0) = n_unique_states + 1;
+% save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 
-
-save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states'))
+n_unique_states = length(unique(states));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
