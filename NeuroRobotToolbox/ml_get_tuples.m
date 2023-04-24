@@ -36,10 +36,13 @@ get_dists
 save(horzcat(nets_dir_name, net_name, '-dists'), 'dists')
 get_states
 save(horzcat(nets_dir_name, net_name, '-states'), 'states')
-
-for n_new_state = 1:5
-    states(dists > n_new_state*700 & dists ~= 4000) = n_unique_states + n_new_state;
-end
+load(horzcat(nets_dir_name, net_name, '-states'))
+states_mod = states;
+states_mod(dists > 0 & dists <= 1000) = n_unique_states + 1;
+states_mod(dists > 1000 & dists <= 2000) = n_unique_states + 2;
+states_mod(dists > 2000 & dists <= 3000) = n_unique_states + 3;
+states_mod(dists > 3000 & dists ~= 4000) = n_unique_states + 4;
+states = states_mod;
 save(horzcat(nets_dir_name, net_name, '-states_mod'), 'states')
 load(horzcat(nets_dir_name, net_name, '-states_mod'))
 
