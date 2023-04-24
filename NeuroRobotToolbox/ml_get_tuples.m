@@ -32,10 +32,10 @@ tx7.String = 'getting states..';
 drawnow
 disp('assembling tuples...')
 
-% get_dists
-% get_states
-% states(dists > 0) = n_unique_states + 1;
-% save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+get_dists
+get_states
+states(dists > 0 & dists ~= 4000) = n_unique_states + 1;
+save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 
 load(horzcat(nets_dir_name, net_name, '-states'))
 n_unique_states = length(unique(states));

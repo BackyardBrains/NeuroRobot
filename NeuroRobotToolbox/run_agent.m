@@ -18,14 +18,15 @@ if use_controllers
         disp('state detection error')
     end
 
-    if this_distance > 0
+    if this_distance > 0 && this_distance ~= 4000
         this_state = n_unique_states + 1;
     end
 
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
-    disp(horzcat('state: ', num2str(this_state), ' (', char(labels(this_state)), ')'))
-
+    disp(horzcat('state: ', num2str(this_state)))
+    disp(horzcat('dist: ', num2str(this_distance)))
+    
     % Get action
     this_action = getAction(agent, this_state);
     this_action = cell2mat(this_action);
