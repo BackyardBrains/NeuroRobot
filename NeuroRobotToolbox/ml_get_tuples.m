@@ -33,11 +33,16 @@ drawnow
 disp('assembling tuples...')
 
 get_dists
+save(horzcat(nets_dir_name, net_name, '-dists'), 'dists')
 get_states
-states(dists > 0 & dists ~= 4000) = n_unique_states + 1;
 save(horzcat(nets_dir_name, net_name, '-states'), 'states')
 
-load(horzcat(nets_dir_name, net_name, '-states'))
+for n_new_state = 1:5
+    states(dists > n_new_state*700 & dists ~= 4000) = n_unique_states + n_new_state;
+end
+save(horzcat(nets_dir_name, net_name, '-states_mod'), 'states')
+load(horzcat(nets_dir_name, net_name, '-states_mod'))
+
 n_unique_states = length(unique(states));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 ntuples = size(states, 1);
