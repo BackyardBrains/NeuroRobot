@@ -17,15 +17,16 @@ if use_controllers
         this_state = nan;
         disp('state detection error')
     end
-
+    
     if this_distance > 0 && this_distance ~= 4000
-        this_state = n_unique_states + 1;
+        this_state = n_unique_states + this_state;
     end
 
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
     disp(horzcat('state: ', num2str(this_state)))
     disp(horzcat('dist: ', num2str(this_distance)))
+    disp('')
     
     % Get action
     this_action = getAction(agent, this_state);

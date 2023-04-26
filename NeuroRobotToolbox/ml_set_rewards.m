@@ -29,7 +29,7 @@ tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
 reward_counter = zeros(size(mdp.R));
-reward_counter(:, :, reward_action) = -1;
+reward_counter(:, :, reward_action) = -1; % Skip this?
 if ~isempty(reward_states)
     reward_counter(:, reward_states, reward_action) = 1;
 end

@@ -14,6 +14,6 @@ for ntuple = 1:ntuples
     this_distance(this_distance == Inf) = 0;
     this_distance(this_distance == 4000) = 0;
 
-    dists(ntuple, :) = this_distance;
+    dists(ntuple) = this_distance;
 
 end

@@ -4,7 +4,7 @@ n_unique_states = init_n_unique_states;
 axes(ax3)
 
 cla
-tx3 = text(0.03, 0.5, horzcat('clustering...'));
+tx3 = text(0.03, 0.5, horzcat('Clustering...'));
 drawnow
 disp('Clustering... ')
 

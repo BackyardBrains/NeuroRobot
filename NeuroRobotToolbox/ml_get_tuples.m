@@ -34,24 +34,41 @@ disp('assembling tuples...')
 
 get_dists
 save(horzcat(nets_dir_name, net_name, '-dists'), 'dists')
+
 get_states
 save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+
+
+%% State expansion by dist
+load(horzcat(nets_dir_name, net_name, '-dists'))
 load(horzcat(nets_dir_name, net_name, '-states'))
-states_mod = states;
-states_mod(dists > 0 & dists <= 1000) = n_unique_states + 1;
-states_mod(dists > 1000 & dists <= 2000) = n_unique_states + 2;
-states_mod(dists > 2000 & dists <= 3000) = n_unique_states + 3;
-states_mod(dists > 3000 & dists ~= 4000) = n_unique_states + 4;
-states = states_mod;
-save(horzcat(nets_dir_name, net_name, '-states_mod'), 'states')
-load(horzcat(nets_dir_name, net_name, '-states_mod'))
 
 n_unique_states = length(unique(states));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
-ntuples = size(states, 1);
 disp(horzcat('ntuples: ', num2str(ntuples)))
+
 tx7.String = horzcat('nstates loaded: ', num2str(ntuples), ', ...');
 drawnow
+
+touches_per_state = zeros(n_unique_states, 1);
+for ntuple = 1:ntuples
+    if dists(ntuple) > 0 && dists(ntuple) ~= 4000
+        touches_per_state(states(ntuple)) = touches_per_state(states(ntuple)) + 1;
+    end
+end
+
+touch_states = find(touches_per_state > 3000);
+
+counter = 0;
+for ntuple = 1:ntuples
+    if sum(states(ntuple) == touch_states) && dists(ntuple) > 0 && dists(ntuple) ~= 4000
+        ind = find(states(ntuple) == touch_states);
+        states(ntuple) = n_unique_states + ind;
+    end
+end
+
+n_unique_states = n_unique_states + length(touch_states);
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Torques
@@ -70,12 +87,6 @@ rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
 actions = kmeans(torque_data, n_unique_actions);
-% still = torque_data(:,1) == 0 & torque_data(:,2) == 0;
-% disp(horzcat('n still actions: ', num2str(sum(still))))
-% actions(still) = n_unique_actions + 1;
-% if ~sum(actions == 1)
-%     actions = actions - 1;
-% end
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))

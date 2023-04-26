@@ -1,13 +1,13 @@
 
 
 %% Set parameter scaling factor
-adj = 0.5;
+adj = 0.4;
 
 
 %% Get all recorded data and display summary stats
 axes(ax1)
 
-this_msg = 'finding recorded data...';
+this_msg = 'Finding recorded data...';
 cla
 tx1 = text(0.03, 0.5, this_msg);
 drawnow
