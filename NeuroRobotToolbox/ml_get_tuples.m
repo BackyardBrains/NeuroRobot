@@ -58,6 +58,7 @@ for ntuple = 1:ntuples
 end
 
 touch_states = find(touches_per_state > 3000);
+save(horzcat(nets_dir_name, net_name, '-touch_states'), 'touch_states')
 
 counter = 0;
 for ntuple = 1:ntuples

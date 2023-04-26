@@ -18,8 +18,9 @@ if use_controllers
         disp('state detection error')
     end
     
-    if this_distance > 0 && this_distance ~= 4000
-        this_state = n_unique_states + this_state;
+    if sum(this_state == touch_states) && this_distance > 0 && this_distance ~= 4000
+        ind = find(this_state == touch_states);
+        this_state = n_unique_states + ind;
     end
 
     disp('')
