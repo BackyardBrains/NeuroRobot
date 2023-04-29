@@ -18,10 +18,10 @@ if use_controllers
         disp('state detection error')
     end
     
-    if sum(this_state == touch_states) && this_distance > 0 && this_distance ~= 4000
-        ind = find(this_state == touch_states);
-        this_state = n_unique_states + ind;
-    end
+%     if sum(this_state == touch_states) && this_distance > 0 && this_distance ~= 4000
+%         ind = find(this_state == touch_states);
+%         this_state = n_unique_states + ind;
+%     end
 
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
@@ -34,12 +34,6 @@ if use_controllers
     this_action = cell2mat(this_action);
     this_motor_vector = motor_combs(this_action, :);
     disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
-    
-    if this_action == 4
-        just_green
-    else
-        just_off
-    end
     
     if this_motor_vector(1) > 0
         left_forward = this_motor_vector(1);
