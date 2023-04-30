@@ -9,7 +9,7 @@
 
 
 %% Settings
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.1;         % Step time in seconds
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;

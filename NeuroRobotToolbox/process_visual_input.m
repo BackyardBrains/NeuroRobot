@@ -107,7 +107,7 @@ for ncam = 1:2
             left_state = find(unique_states == left_state);
             left_score = left_score(left_state);
             for nobject = n_basic_vis_features + 1:n_vis_prefs
-                if nobject - n_basic_vis_features == left_state
+                if nobject - n_basic_vis_features == left_state && left_score > 0.25
                     vis_pref_vals(nobject, ncam) = 50 * left_score;
                 else
                     vis_pref_vals(nobject, ncam) = 0;
@@ -120,13 +120,15 @@ for ncam = 1:2
             right_state = find(unique_states == right_state);
             right_score = right_score(right_state);
             for nobject = n_basic_vis_features + 1:n_vis_prefs
-                if nobject - n_basic_vis_features == right_state
+                if nobject - n_basic_vis_features == right_state && right_score > 0.25
                     vis_pref_vals(nobject, ncam) = 50 * right_score;
                 else
                     vis_pref_vals(nobject, ncam) = 0;
                 end
             end
         end
+        disp(horzcat('Left state: ', num2str(left_state), ', Right state: ', num2str(right_state)))
+        disp(horzcat('Left score: ', num2str(left_score), ', Right score: ', num2str(right_score)))
     end
     
     if ncam == 1
