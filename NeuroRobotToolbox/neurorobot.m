@@ -9,12 +9,12 @@
 
 
 %% Settings
-pulse_period = 0.1;         % Step time in seconds
+pulse_period = 0.2;         % Step time in seconds
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
 bg_brain = 1;
-script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent'};
+script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'LEDs off', 'RL Agent', 'Explore'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';

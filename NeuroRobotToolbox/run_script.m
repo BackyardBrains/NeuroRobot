@@ -1,3 +1,4 @@
+
 if rak_only || use_esp32
     if script_running == 1
         just_red
@@ -9,16 +10,36 @@ if rak_only || use_esp32
         just_off
     end
 end
+
 if sum(script_running == 1:4)
 elseif sum(script_running == 5:6)
-    if script_running == 5
+    if script_running == 5 % Agent
         this_agent = 1;
-    elseif script_running == 6
-        this_agent = 2;
-    end
+        run_agent
+    elseif script_running == 6 % Explore
+        
+        left_forward = 0;
+        left_backward = 0;
+        right_forward = 0;
+        right_backward = 0;
 
-    run_agent   
-    
+        this_val = randsample([-30 30 50 70], 1);
+
+        if this_val > 0
+            left_forward = this_val;
+        else
+            left_backward = -this_val;
+        end
+        
+        this_val = randsample([-30 30 50 70], 1);
+
+        if this_val > 0
+            right_forward = this_val;
+        else
+            right_backward = -this_val;
+        end
+
+    end    
 else
     disp('Unknown behavior')
 end

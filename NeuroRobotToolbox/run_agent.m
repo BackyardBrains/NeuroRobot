@@ -35,6 +35,11 @@ if use_controllers
     this_motor_vector = motor_combs(this_action, :);
     disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
     
+    left_forward = 0;
+    left_backward = 0;
+    right_forward = 0;
+    right_backward = 0;
+
     if this_motor_vector(1) > 0
         left_forward = this_motor_vector(1);
     else
