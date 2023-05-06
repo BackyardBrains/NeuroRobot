@@ -380,7 +380,7 @@ if exist('rak_only', 'var') && brain_support
     right_uframe = prev_right_eye_frame;
 
     if matlab_audio_rec
-        mic_fs = 16000;
+        mic_fs = 44100;
         if exist('mic_obj', 'var')
             clear mic_obj
         end

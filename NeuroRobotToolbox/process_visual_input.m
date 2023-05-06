@@ -127,8 +127,8 @@ for ncam = 1:2
                 end
             end
         end
-        disp(horzcat('Left state: ', num2str(left_state), ', Right state: ', num2str(right_state)))
-        disp(horzcat('Left score: ', num2str(left_score), ', Right score: ', num2str(right_score)))
+%         disp(horzcat('Left state: ', num2str(left_state), ', Right state: ', num2str(right_state)))
+%         disp(horzcat('Left score: ', num2str(left_score), ', Right score: ', num2str(right_score)))
     end
     
     if ncam == 1
