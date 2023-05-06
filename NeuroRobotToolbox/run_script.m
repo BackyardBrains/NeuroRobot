@@ -23,7 +23,7 @@ elseif sum(script_running == 5:6)
         right_forward = 0;
         right_backward = 0;
 
-        this_val = randsample([-30 30 50 70], 1);
+        this_val = randsample(-30:70, 1);
 
         if this_val > 0
             left_forward = this_val;
@@ -31,7 +31,7 @@ elseif sum(script_running == 5:6)
             left_backward = -this_val;
         end
         
-        this_val = randsample([-30 30 50 70], 1);
+        this_val = randsample(-30:70, 1);
 
         if this_val > 0
             right_forward = this_val;

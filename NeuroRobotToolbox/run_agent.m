@@ -26,6 +26,7 @@ if use_controllers
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
     disp(horzcat('state: ', num2str(this_state)))
+    disp(horzcat('score: ', num2str(max([left_score right_score]))))
     disp(horzcat('dist: ', num2str(this_distance)))
     disp('')
     

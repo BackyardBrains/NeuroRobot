@@ -6,7 +6,6 @@ drawnow
 %% Robot settings
 update_robot_select
 
-disp('0')
 
 %% App settings
 % 1 = 'BG Color Scheme'
@@ -273,8 +272,6 @@ if exist('rak_only', 'var') && brain_support
         audio_out_wavs = struct;  %% Need ability to save these for brains and add 
         audio_out_fs = zeros(n_out_sounds, 1);    
         
-        disp('1')
-
         for nsound = 1:n_out_sounds
             audio_out_names{nsound} = available_sounds(nsound).name(1:end-4);
             [audio_y,audio_fs] = audioread(horzcat(sounds_dir_name, available_sounds(nsound).name(1:end)));
@@ -283,8 +280,6 @@ if exist('rak_only', 'var') && brain_support
             audio_out_fs(nsound) = audio_fs;
         end
         
-        disp('2')
-
         if supervocal
             for nsound = 1:n_vis_prefs
                 this_word = char(vis_pref_names(nsound));
@@ -306,9 +301,7 @@ if exist('rak_only', 'var') && brain_support
 
             % Add custom sound phrases to lists here?
         end
-
-        disp('3')
-    
+  
     else
         n_out_sounds = 0;
         audio_out_fs = 0;
@@ -321,8 +314,6 @@ if exist('rak_only', 'var') && brain_support
         esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;');
     end
     
-    disp('4')
-
     button_startup_complete.BackgroundColor = [0.94 0.78 0.62];
     drawnow
     
