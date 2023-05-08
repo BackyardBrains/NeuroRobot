@@ -376,7 +376,11 @@ if exist('rak_only', 'var') && brain_support
             clear mic_obj
         end
         try
-            mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
+            mic_obj = audioDeviceReader;
+            mic_fs = mic_obj.SampleRate;
+            mic_obs.SamplesPerFrame = mic_fs * pulse_period;
+%             mic_obj.SamplesPerFrame = (mic_fs*0.1)*0.8)
+%             mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
             setup(mic_obj)
         catch
             disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')

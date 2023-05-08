@@ -22,10 +22,6 @@ bfsize = 8;
 vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
 
 
-%% Directory setup
-dir_setup
-
-
 %% Background
 grey_background = 1; % Grey background (1) or white background (0)    
 if grey_background
@@ -47,6 +43,10 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
 ncontacts = size(contact_xys, 1);
 n_vis_prefs = size(vis_pref_names, 2);
+
+
+%% Directory setup
+dir_setup
 
 
 %% Screensize
