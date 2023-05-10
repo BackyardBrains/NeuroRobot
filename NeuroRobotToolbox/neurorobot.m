@@ -9,7 +9,7 @@
 
 
 %% Settings
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.1;         % Step time in seconds
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
@@ -85,7 +85,7 @@ text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized'
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.45 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
-select_robot.Value = 5;
+select_robot.Value = 3;
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App', 'units', 'normalized', 'position', [0.05 0.335 0.25 0.05], ...
