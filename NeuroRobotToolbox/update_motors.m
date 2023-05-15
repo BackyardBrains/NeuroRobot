@@ -28,12 +28,22 @@ if nneurons % This prevents error caused by running script after deleting all ne
                     these_speaker_neurons = these_speaker_neurons(1);
                     disp('Too many custom sound neurons: playing first sound only')
                 end
-                nsound = neuron_tones(these_speaker_neurons, 1);
+                nsound = neuron_tones(these_speaker_neurons);
 
                 % Insert robot speaker out here
                 soundsc(audio_out_wavs(nsound).y, audio_out_fs(nsound));
 
                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
+            
+            elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)  
+                
+                if length(these_speaker_neurons) > 1
+                    these_speaker_neurons = these_speaker_neurons(1);
+                    disp('Too many custom sound neurons: playing first sound only')
+                end
+                speaker_tone = neuron_tones(these_speaker_neurons);
+
+%                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
 
             elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && ~(rak_only || use_esp32)        
         
