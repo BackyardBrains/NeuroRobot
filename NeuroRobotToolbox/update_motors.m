@@ -38,10 +38,12 @@ if nneurons % This prevents error caused by running script after deleting all ne
             elseif ~vocal_buffer && max(neuron_tones) > length(audio_out_fs) && (rak_only || use_esp32)  
                 
                 if length(these_speaker_neurons) > 1
-                    these_speaker_neurons = these_speaker_neurons(1);
-                    disp('Too many custom sound neurons: playing first sound only')
+                    speaker_tone = round(mean(neuron_tones(these_speaker_neurons)));
+%                     these_speaker_neurons = these_speaker_neurons(1);
+                    disp('Too many notes: playing mean note')
+                else
+                    speaker_tone = neuron_tones(these_speaker_neurons);
                 end
-                speaker_tone = neuron_tones(these_speaker_neurons);
 
 %                 vocal_buffer = round((audio_out_durations(nsound) / pulse_period) + 1);
 
