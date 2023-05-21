@@ -1,9 +1,10 @@
 # NeuroRobot app by Backyard Brains
 <b>Updates</b><br>
+<b>2023-05-19</b>. SpikerBot 2.3. Settings changes.<br>
 <b>2023-04-29</b>. SpikerBot 2.2. Parameters fine-tuned.<br>
 <b>2023-03-30</b>. SpikerBot 2.1. Support for custom sounds and words. User-added output phrases are not saved across sessions. State-preference enabled for neurons in Design.<br>
 <b>2023-03-24</b>. SpikerBot 2.0. ML Experiment support. Webcam support. Requires Windows or Matlab.<br>
-<b>2022-12-12</b>. The NeuroRobot app <b>Windows Installer</b> is now (somewhat) stable! To use it, download the repo, unpack SpikerBot_Installer.zip (several layers deep), and install the SpikerBot app on your Windows machine. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. Please note that webcam mode/Computer with Camera is not supported in the compiled app.<br>
+<b>2022-12-12</b>. The NeuroRobot app <b>Windows Installer</b> is now (somewhat) stable! To use it, download the repo, unpack SpikerBot_Installer.zip (several layers deep), and install the SpikerBot app on your Windows machine. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. <br>
 <br>
 <b>Summary</b><br>
 A <b>neurorobot</b> is a robot controlled by a computer model of a biological brain. <a href="https://github.com/BackyardBrains">Backyard Brains</a> is developing a neurorobot for education that enables students to perform computational neuroscience investigations by designing brains and observing their behavior (<a href="https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006/full">Harris et al., 2020</a>). Students use the <b>NeuroRobot app</b> to design and simulate biologically-based neural networks connected to mobile robots with sensors (camera, microphone, distance sensor) and actuators (speaker, motors, lights).<br>
