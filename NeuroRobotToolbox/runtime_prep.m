@@ -65,7 +65,7 @@ end
 
 
 %% Communication settings
-audio_th = 1;             % Audio threshold (increase if sound spectrum looks too crowded)
+audio_th = 5;             % Audio threshold (increase if sound spectrum looks too crowded)
 
 % 1 = 'Microphone input'
 if sum(select_communication.Value == 1)
@@ -378,9 +378,7 @@ if exist('rak_only', 'var') && brain_support
         try
             mic_obj = audioDeviceReader;
             mic_fs = mic_obj.SampleRate;
-            mic_obs.SamplesPerFrame = mic_fs * pulse_period;
-%             mic_obj.SamplesPerFrame = (mic_fs*0.1)*0.8)
-%             mic_obj = audioDeviceReader('SampleRate',mic_fs,'SamplesPerFrame',(mic_fs*0.1)*0.8); % ms per step should come in here
+            mic_obj.SamplesPerFrame = mic_fs * pulse_period * 0.8;
             setup(mic_obj)
         catch
             disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')

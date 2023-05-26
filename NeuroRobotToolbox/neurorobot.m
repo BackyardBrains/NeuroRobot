@@ -62,7 +62,7 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 2.2')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 2.3')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 

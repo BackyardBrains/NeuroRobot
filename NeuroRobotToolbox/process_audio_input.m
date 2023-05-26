@@ -13,25 +13,13 @@ elseif matlab_audio_rec
     end
 end
 
-% if ~isempty(this_audio) && length(this_audio) < 1000
-%     while length(this_audio) < 1000
-%         this_audio = [this_audio this_audio];
-%     end
-% end
-    
-% if ~isempty(this_audio) && length(this_audio) >= 500
-if ~isempty(this_audio) && length(this_audio) >= 1000
-
-%     x = this_audio(1:500);
-    x = this_audio(1:1000);
+if ~isempty(this_audio) && length(this_audio) >= mic_fs * pulse_period * 0.8
+    x = this_audio;
     x(isnan(x)) = 0;        
     y = fft(x);
     z = abs(y).^2;
     z = z(1:audx)';
-
-%     if ~robot_moving
-        sound_spectrum(:,nstep) = z;
-%     end
+    sound_spectrum(:,nstep) = z;
 end
 
 
