@@ -19,7 +19,7 @@ rec_dir_name = '';
 %% Prepare figure
 fig_ml = figure(3);
 clf
-set(fig_ml, 'NumberTitle', 'off', 'Name', 'SpikerBot - Deep Learning')
+set(fig_ml, 'NumberTitle', 'off', 'Name', 'SpikerBot - Learning')
 set(fig_ml, 'menubar', 'none', 'toolbar', 'none')
 set(fig_ml, 'position', fig_pos, 'color', fig_bg_col) 
 

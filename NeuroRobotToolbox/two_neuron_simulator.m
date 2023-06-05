@@ -32,9 +32,9 @@
 
 
 %% Close and clear
-delete(timerfind)
-close all
-clear
+% delete(timerfind)
+% close all
+% clear
 
 
 %% Settings
@@ -68,16 +68,16 @@ intended_timer_period = ms_per_step/1000;
 
 
 %% Prepare figure
-fig1 = figure(1);
+fig_2ns = figure(5);
 clf
 fig_bg_col = [0.94 0.94 0.94];
 % fig_bg_col = [1 1 1];
-fig1.UserData = [a_init b_init c_init d_init noise_init w_init a_init b_init c_init d_init noise_init w_init];
+fig_2ns.UserData = [a_init b_init c_init d_init noise_init w_init a_init b_init c_init d_init noise_init w_init];
 screen_dims = get(0, 'screensize');
 screen_size_constant = round(screen_dims(3)/96);
-set(fig1, 'NumberTitle', 'off', 'Name', 'Two Neuron Simulator')
-set(fig1, 'menubar', 'none', 'toolbar', 'none')
-set(fig1, 'position', [screen_dims(1) screen_dims(2) + 40 screen_dims(3) screen_dims(4) - 63], 'color', fig_bg_col) 
+set(fig_2ns, 'NumberTitle', 'off', 'Name', 'Two Neuron Simulator')
+set(fig_2ns, 'menubar', 'none', 'toolbar', 'none')
+set(fig_2ns, 'position', [screen_dims(1) screen_dims(2) + 40 screen_dims(3) screen_dims(4) - 63], 'color', fig_bg_col) 
 
 % Positions
 title_pos = [0.02 0.92 0.96 0.06];
@@ -153,7 +153,7 @@ a1_title = uicontrol('Style', 'text', 'String', a_str, 'units', 'normalized', 'p
 a1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', a1_pos);
 a1_slider.Value = a_init / 0.15;
 a1_jslider = findjobj(a1_slider);
-a1_jslider.AdjustmentValueChangedCallback = {@a1, fig1, a1_val};
+a1_jslider.AdjustmentValueChangedCallback = {@a1, fig_2ns, a1_val};
 
 % B1
 b1_val = uicontrol('Style', 'text', 'String', num2str(b_init), 'units', 'normalized', 'position', [b1_pos(1) + b1_pos(3) b1_pos(2) 0.04 b1_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -161,7 +161,7 @@ b1_title = uicontrol('Style', 'text', 'String', b_str, 'units', 'normalized', 'p
 b1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', b1_pos);
 b1_slider.Value = b_init / 0.5;
 b1_jslider = findjobj(b1_slider);
-b1_jslider.AdjustmentValueChangedCallback = {@b1, fig1, b1_val};
+b1_jslider.AdjustmentValueChangedCallback = {@b1, fig_2ns, b1_val};
 
 % C1
 c1_val = uicontrol('Style', 'text', 'String', num2str(c_init), 'units', 'normalized', 'position', [c1_pos(1) + c1_pos(3) c1_pos(2) 0.04 c1_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -169,7 +169,7 @@ c1_title = uicontrol('Style', 'text', 'String', c_str, 'units', 'normalized', 'p
 c1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', c1_pos);
 c1_slider.Value = 0.35;
 c1_jslider = findjobj(c1_slider);
-c1_jslider.AdjustmentValueChangedCallback = {@c1, fig1, c1_val};
+c1_jslider.AdjustmentValueChangedCallback = {@c1, fig_2ns, c1_val};
 
 % D1
 d1_val = uicontrol('Style', 'text', 'String', num2str(d_init), 'units', 'normalized', 'position', [d1_pos(1) + d1_pos(3) d1_pos(2) 0.04 d1_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -177,7 +177,7 @@ d1_title = uicontrol('Style', 'text', 'String', d_str, 'units', 'normalized', 'p
 d1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', d1_pos);
 d1_slider.Value = 0.2;
 d1_jslider = findjobj(d1_slider);
-d1_jslider.AdjustmentValueChangedCallback = {@d1, fig1, d1_val};
+d1_jslider.AdjustmentValueChangedCallback = {@d1, fig_2ns, d1_val};
 
 % I1
 i1_val = uicontrol('Style', 'text', 'String', num2str(noise_init), 'units', 'normalized', 'position', [i1_pos(1) + i1_pos(3) i1_pos(2) 0.04 i1_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -185,7 +185,7 @@ i1_title = uicontrol('Style', 'text', 'String', i_str, 'units', 'normalized', 'p
 i1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', i1_pos);
 i1_slider.Value = 0.25;
 i1_jslider = findjobj(i1_slider);
-i1_jslider.AdjustmentValueChangedCallback = {@i1, fig1, i1_val};
+i1_jslider.AdjustmentValueChangedCallback = {@i1, fig_2ns, i1_val};
 
 % W1
 w1_val = uicontrol('Style', 'text', 'String', num2str(w_init), 'units', 'normalized', 'position', [w1_pos(1) + w1_pos(3) w1_pos(2) 0.04 w1_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -193,7 +193,7 @@ w1_title = uicontrol('Style', 'text', 'String', w_str, 'units', 'normalized', 'p
 w1_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', w1_pos);
 w1_slider.Value = 2/30;
 w1_jslider = findjobj(w1_slider);
-w1_jslider.AdjustmentValueChangedCallback = {@w1, fig1, w1_val};
+w1_jslider.AdjustmentValueChangedCallback = {@w1, fig_2ns, w1_val};
 
 % A2
 a2_val = uicontrol('Style', 'text', 'String', num2str(a_init), 'units', 'normalized', 'position', [a2_pos(1) - 0.04 a2_pos(2) 0.04 a2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -201,7 +201,7 @@ a2_title = uicontrol('Style', 'text', 'String', a_str, 'units', 'normalized', 'p
 a2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', a2_pos);
 a2_slider.Value = a_init / 0.15;
 a2_jslider = findjobj(a2_slider);
-a2_jslider.AdjustmentValueChangedCallback = {@a2, fig1, a2_val};
+a2_jslider.AdjustmentValueChangedCallback = {@a2, fig_2ns, a2_val};
 
 % B2
 b2_val = uicontrol('Style', 'text', 'String', num2str(b_init), 'units', 'normalized', 'position', [b2_pos(1) - 0.04 b2_pos(2) 0.04 b2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -209,7 +209,7 @@ b2_title = uicontrol('Style', 'text', 'String', b_str, 'units', 'normalized', 'p
 b2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', b2_pos);
 b2_slider.Value = b_init / 0.5;
 b2_jslider = findjobj(b2_slider);
-b2_jslider.AdjustmentValueChangedCallback = {@b2, fig1, b2_val};
+b2_jslider.AdjustmentValueChangedCallback = {@b2, fig_2ns, b2_val};
 
 % C2
 c2_val = uicontrol('Style', 'text', 'String', num2str(c_init), 'units', 'normalized', 'position', [c2_pos(1) - 0.04 c2_pos(2) 0.04 c2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -217,7 +217,7 @@ c2_title = uicontrol('Style', 'text', 'String', c_str, 'units', 'normalized', 'p
 c2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', c2_pos);
 c2_slider.Value = 0.35;
 c2_jslider = findjobj(c2_slider);
-c2_jslider.AdjustmentValueChangedCallback = {@c2, fig1, c2_val};
+c2_jslider.AdjustmentValueChangedCallback = {@c2, fig_2ns, c2_val};
 
 % D2
 d2_val = uicontrol('Style', 'text', 'String', num2str(d_init), 'units', 'normalized', 'position', [d2_pos(1) - 0.04 d2_pos(2) 0.04 d2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -225,7 +225,7 @@ d2_title = uicontrol('Style', 'text', 'String', d_str, 'units', 'normalized', 'p
 d2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', d2_pos);
 d2_slider.Value = 0.2;
 d2_jslider = findjobj(d2_slider);
-d2_jslider.AdjustmentValueChangedCallback = {@d2, fig1, d2_val};
+d2_jslider.AdjustmentValueChangedCallback = {@d2, fig_2ns, d2_val};
 
 % I2
 i2_val = uicontrol('Style', 'text', 'String', num2str(noise_init), 'units', 'normalized', 'position', [i2_pos(1) - 0.04 i2_pos(2) 0.04 i2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -233,7 +233,7 @@ i2_title = uicontrol('Style', 'text', 'String', i_str, 'units', 'normalized', 'p
 i2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', i2_pos);
 i2_slider.Value = 0.25;
 i2_jslider = findjobj(i2_slider);
-i2_jslider.AdjustmentValueChangedCallback = {@i2, fig1, i2_val};
+i2_jslider.AdjustmentValueChangedCallback = {@i2, fig_2ns, i2_val};
 
 % W2
 w2_val = uicontrol('Style', 'text', 'String', num2str(w_init), 'units', 'normalized', 'position', [w2_pos(1) - 0.04 w2_pos(2) 0.04 w2_pos(4)], 'FontName', special_font, 'backgroundcolor', fig_bg_col, 'fontsize', screen_size_constant - 5, 'horizontalalignment', 'center');
@@ -241,7 +241,7 @@ w2_title = uicontrol('Style', 'text', 'String', w_str, 'units', 'normalized', 'p
 w2_slider = uicontrol('style', 'slider', 'units', 'normalized', 'position', w2_pos);
 w2_slider.Value = 2/30;
 w2_jslider = findjobj(w2_slider);
-w2_jslider.AdjustmentValueChangedCallback = {@w2, fig1, w2_val};
+w2_jslider.AdjustmentValueChangedCallback = {@w2, fig_2ns, w2_val};
 
 % Pause button
 button_pause = uicontrol('Style', 'pushbutton', 'String', 'Pause', 'units', 'normalized', 'position', pause_button_pos);

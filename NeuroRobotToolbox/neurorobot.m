@@ -155,11 +155,11 @@ button_startup_complete = uicontrol('Style', 'pushbutton', 'String', 'Runtime', 
 set(button_startup_complete, 'Callback', 'runtime_prep', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
 
-% Library button
-button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Library', 'units', 'normalized', 'position', button3_pos);
-set(button_to_library, 'Callback', '', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
+% Simulator button
+button_to_library = uicontrol('Style', 'pushbutton', 'String', 'Simulator', 'units', 'normalized', 'position', button3_pos);
+set(button_to_library, 'Callback', 'callback_2ns', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, ...
     'BackgroundColor', [0.8 0.8 0.8])
-set(button_to_library, 'Enable', 'off')
+% set(button_to_library, 'Enable', 'off')
 
 % ML button
 button_to_sleep = uicontrol('Style', 'pushbutton', 'String', 'Learning', 'units', 'normalized', 'position', button4_pos);

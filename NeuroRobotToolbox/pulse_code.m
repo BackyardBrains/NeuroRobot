@@ -4,13 +4,13 @@
 nstep = nstep + 1;
 v_step = zeros(nneurons, ms_per_step);
 spikes_step = zeros(nneurons, ms_per_step);
-a = [fig1.UserData(1) fig1.UserData(7)]';
-b = [fig1.UserData(2) fig1.UserData(8)]';
-c = [fig1.UserData(3) fig1.UserData(9)]';
-d = [fig1.UserData(4) fig1.UserData(10)]';
-i_noise = [fig1.UserData(5) fig1.UserData(11)]';
-connectome(1,2) = fig1.UserData(6);
-connectome(2,1) = fig1.UserData(12);
+a = [fig_2ns.UserData(1) fig_2ns.UserData(7)]';
+b = [fig_2ns.UserData(2) fig_2ns.UserData(8)]';
+c = [fig_2ns.UserData(3) fig_2ns.UserData(9)]';
+d = [fig_2ns.UserData(4) fig_2ns.UserData(10)]';
+i_noise = [fig_2ns.UserData(5) fig_2ns.UserData(11)]';
+connectome(1,2) = fig_2ns.UserData(6);
+connectome(2,1) = fig_2ns.UserData(12);
 
 
 %% Run one brain simulation step
