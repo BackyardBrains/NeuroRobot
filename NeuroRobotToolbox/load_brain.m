@@ -1,6 +1,4 @@
 
-load(strcat(brain_dir, brain_name, '.mat'))
-
 nneurons = brain.nneurons;
 neuron_xys = brain.neuron_xys;
 neuron_cols = brain.neuron_cols;

@@ -118,7 +118,10 @@ end
 
 %% Select brain
 brain_name = brain_string{select_brain.Value};
+
+load(strcat(brain_dir, brain_name, '.mat'))
 load_brain
+
 brain_support = 1;
 if ~isempty(vision_net_lock)
     if (strcmp(vision_net_lock, 'GoogLeNet') && ~use_cnn) || ...

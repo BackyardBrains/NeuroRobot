@@ -18,19 +18,32 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 if size(available_brains, 1) == 0
 
     disp('Brain directory is empty')
-    lesson_brains = dir('Lesson*.mat');
-    for ii = 1:size(lesson_brains, 1)
-        brain_name = lesson_brains(ii).name(1:end-4);
-        brain_dir = '';
-        load_brain
-        if ispc
-            brain_dir = strcat(userpath, '\Brains\');
-        elseif ismac
-            brain_dir = strcat(userpath, '/Brains/');
-        end        
-        save_brain
-    end
-    
+
+    load('Lesson1A.mat')
+    brain_name = 'Lesson1A';
+    load_brain
+    save_brain
+    load('Lesson1B.mat')
+    brain_name = 'Lesson1B';
+    load_brain
+    save_brain
+    load('Lesson2A.mat')
+    brain_name = 'Lesson2A';
+    load_brain
+    save_brain
+    load('Lesson2B.mat')
+    brain_name = 'Lesson2B';
+    load_brain
+    save_brain
+    load('Lesson3A.mat')
+    brain_name = 'Lesson3A';
+    load_brain
+    save_brain
+    load('Lesson3B.mat')
+    brain_name = 'Lesson3B';
+    load_brain
+    save_brain
+
 %     new_brain_vars
 %     brain_name = 'Noob';
 %     save_brain
