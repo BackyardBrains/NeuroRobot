@@ -16,11 +16,19 @@ end
 
 available_brains = dir(strcat(brain_dir, '*.mat'));
 if size(available_brains, 1) == 0
-    new_brain_vars
-    brain_name = 'Noob';
-    save_brain
+
     disp('Brain directory is empty')
-    disp(horzcat('Created new brain: ', brain_name))
+    lesson_brains = dir('Lesson*.mat');
+    for ii = 1:size(available_brains, 1)
+        load(lesson_brains(ii).name)
+        save_brain
+    end
+    
+%     new_brain_vars
+%     brain_name = 'Noob';
+%     save_brain
+
+    disp(horzcat('Created ', num2str(size(available_brains, 1)), ' new brains'))
     available_brains = dir(strcat(brain_dir, '*.mat'));
 end
 

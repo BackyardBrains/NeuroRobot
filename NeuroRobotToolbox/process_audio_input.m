@@ -13,7 +13,7 @@ elseif matlab_audio_rec
     end
 end
 
-if ~isempty(this_audio) && length(this_audio) >= mic_fs * pulse_period * 0.8
+if length(this_audio) >= round(mic_fs * pulse_period * 0.8) % Why this check? Try/catch instead
     x = this_audio;
     x(isnan(x)) = 0;        
     y = fft(x);
