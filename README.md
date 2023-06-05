@@ -1,5 +1,6 @@
 # NeuroRobot app by Backyard Brains
 <b>Updates</b><br>
+<b>2023-06-05</b>. SpikerBot 2.4. Lesson-specific pre-configured brains generate if brain directory is empty. Two Neuron Simulator available from the Startup Menu (ignore error messages). Synapses default to sensible values.<br>
 <b>2023-05-19</b>. SpikerBot 2.3. Settings changes.<br>
 <b>2023-04-29</b>. SpikerBot 2.2. Parameters fine-tuned.<br>
 <b>2023-03-30</b>. SpikerBot 2.1. Support for custom sounds and words. User-added output phrases are not saved across sessions. State-preference enabled for neurons in Design.<br>
