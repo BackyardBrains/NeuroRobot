@@ -19,8 +19,15 @@ if size(available_brains, 1) == 0
 
     disp('Brain directory is empty')
     lesson_brains = dir('Lesson*.mat');
-    for ii = 1:size(available_brains, 1)
-        load(lesson_brains(ii).name)
+    for ii = 1:size(lesson_brains, 1)
+        brain_name = lesson_brains(ii).name(1:end-4);
+        brain_dir = '';
+        load_brain
+        if ispc
+            brain_dir = strcat(userpath, '\Brains\');
+        elseif ismac
+            brain_dir = strcat(userpath, '/Brains/');
+        end        
         save_brain
     end
     
@@ -28,8 +35,9 @@ if size(available_brains, 1) == 0
 %     brain_name = 'Noob';
 %     save_brain
 
-    disp(horzcat('Created ', num2str(size(available_brains, 1)), ' new brains'))
     available_brains = dir(strcat(brain_dir, '*.mat'));
+    disp(horzcat('Created ', num2str(size(available_brains, 1)), ' new brains'))
+    
 end
 
 
