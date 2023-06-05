@@ -34,6 +34,11 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     if ~vocal && ~supervocal
         % Manual weight
         current_tone = neuron_tones(presynaptic_neuron, 1);
+
+        if current_tone == 0
+            current_tone = 400;
+        end
+
         text_w = uicontrol('Style', 'text', 'String', 'Hz (31 to 4978):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         edit_w = uicontrol('Style', 'edit', 'String', num2str(current_tone), 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
  
@@ -114,9 +119,19 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     else
         this_input = popup_select_sound.Value;
     end
-    if ~vocal && (isnan(this_input) || this_input < 0 || this_input > 4978)
+    if ~vocal && isnan(this_input)
         this_input = 0;
-        disp('Speaker input out of range.')
+        disp('Speaker input not a positive number. Automatically set to 0.')
+    end
+
+    if ~vocal && this_input < 31
+        this_input = 31;
+        disp('Speaker input out of range. Automatically set to 4978.')
+    end
+
+    if ~vocal && this_input > 4978
+        this_input = 4978;
+        disp('Speaker input out of range. Automatically set to 4978.')
     end
     speaker_selected = 0;
 

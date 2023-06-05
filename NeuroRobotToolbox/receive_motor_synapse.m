@@ -32,9 +32,9 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     % Manual weight
     current_weight = neuron_contacts(presynaptic_neuron, postsynaptic_contact);
     if current_weight == 0
-        current_weight = 100;
+        current_weight = 20;
     end
-    text_w = uicontrol('Style', 'text', 'String', 'Weight (1-100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    text_w = uicontrol('Style', 'text', 'String', 'Weight:', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     edit_w = uicontrol('Style', 'edit', 'String', num2str(current_weight), 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize + 4 - 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);    
 
     % Wait for OK        
@@ -45,10 +45,16 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     
     % Update variables
     this_input = str2double(edit_w.String);
-    if ~isa(this_input, 'double') || this_input < 0 || this_input > 100
+    if ~isa(this_input, 'double') || this_input < 0
         this_input = 0;
-        disp('Motor input out of range. Automatically set to zero.')
-    end     
+        disp('Motor synapse weight not a positive number. Automatically set to 0.')
+    end
+
+    if this_input > 100
+        this_input = 100;
+        disp('Motor synapse out of range. Automatically set to 100.')
+    end
+
     neuron_contacts(presynaptic_neuron, postsynaptic_contact) = this_input;
     if  postsynaptic_contact == 6
         neuron_contacts(presynaptic_neuron, 8) = this_input;

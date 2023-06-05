@@ -151,8 +151,13 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
         set(button_w2, 'Callback', 'set_synapse_type', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
         % Manual weight
-        current_weight = num2str(connectome(presynaptic_neuron, postsynaptic_neuron));
-        text_w = uicontrol('Style', 'text', 'String', 'Weight (-100 to 100):', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+        current_weight = connectome(presynaptic_neuron, postsynaptic_neuron);
+        if current_weight == 0
+            current_weight = 30;
+        end
+        current_weight = num2str(current_weight);
+
+        text_w = uicontrol('Style', 'text', 'String', 'Weight:', 'units', 'normalized', 'position', [0.02 0.69 0.16 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
         edit_w = uicontrol('Style', 'edit', 'String', current_weight, 'units', 'normalized', 'position', [0.18 0.69 0.09 0.05], 'fontsize', bfsize + 2, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
         % Plastic
@@ -176,11 +181,21 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
 
         % Update variables
         this_input = str2double(edit_w.String);
-        if ~isa(this_input, 'double') || this_input < -100 || this_input > 100
+        if ~isa(this_input, 'double')
             this_input = 0;
-            disp('Synapse weight out of range. Automatically set to zero.')
+            disp('Synapse weight not a number. Automatically set to 0.')
         end        
-        
+
+        if this_input < -100
+            this_input = -100;
+            disp('Synapse weight too inhibitory. Automatically set to -100.')
+        end
+
+        if this_input > 100
+            this_input = 100;
+            disp('Synapse weight too excitatory. Automatically set to 100.')
+        end
+
         connectome(presynaptic_neuron, postsynaptic_neuron) = this_input;
         if check_mod.Value && ~check_dmod.Value
             da_connectome(presynaptic_neuron, postsynaptic_neuron, 1) = 1;
