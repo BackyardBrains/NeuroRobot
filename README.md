@@ -1,5 +1,6 @@
 # SpikerBot app by Backyard Brains
 <b>Updates</b><br>
+2023-06-05. SpikerBot 2.5. Pre-configured brains updated.
 2023-06-05. SpikerBot 2.4. Lesson-specific pre-configured brains generate if brain directory is empty. Two Neuron Simulator available from the Startup Menu (ignore error messages). Synapses default to sensible values.<br>
 2023-05-19. SpikerBot 2.3. Settings changes.<br>
 2023-04-29. SpikerBot 2.2. Parameters fine-tuned.<br>
