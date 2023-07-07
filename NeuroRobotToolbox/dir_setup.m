@@ -15,43 +15,44 @@ else
 end
 
 available_brains = dir(strcat(brain_dir, '*.mat'));
-if size(available_brains, 1) == 0
+disp(horzcat('Found ', num2str(size(available_brains, 1)), ' brains'))
 
-    disp('Brain directory is empty')
+cq = 0;
 
-    load('Lesson1A.mat')
-    brain_name = 'Lesson1A';
+brain_name = 'Lesson1A';
+if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
+    cq = cq + 1;
+    load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
-    load('Lesson1B.mat')
-    brain_name = 'Lesson1B';
-    load_brain
-    save_brain
-    load('Lesson2A.mat')
-    brain_name = 'Lesson2A';
-    load_brain
-    save_brain
-    load('Lesson2B.mat')
-    brain_name = 'Lesson2B';
-    load_brain
-    save_brain
-    load('Lesson3A.mat')
-    brain_name = 'Lesson3A';
-    load_brain
-    save_brain
-    load('Lesson3B.mat')
-    brain_name = 'Lesson3B';
-    load_brain
-    save_brain
-
-%     new_brain_vars
-%     brain_name = 'Noob';
-%     save_brain
-
-    available_brains = dir(strcat(brain_dir, '*.mat'));
-    disp(horzcat('Created ', num2str(size(available_brains, 1)), ' new brains'))
-    
 end
+
+brain_name = 'Lesson2A';
+if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
+    cq = cq + 1;    
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
+
+brain_name = 'Lesson2B';
+if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
+    cq = cq + 1;    
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
+
+brain_name = 'Lesson2C';
+if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
+    cq = cq + 1;    
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
+
+available_brains = dir(strcat(brain_dir, '*.mat'));
+disp(horzcat('Created ', num2str(cq), ' new brain(s)'))
 
 
 %% Datasets
@@ -63,9 +64,7 @@ if isdeployed
     end
 else
     dataset_dir_name = 'C:\SpikerBot ML Datasets\';
-    disp(horzcat('Not deployed so using custom Datasets dir: ', dataset_dir_name))
 end
-    
 
 if ~exist(dataset_dir_name, 'dir')
     mkdir(dataset_dir_name)
@@ -91,7 +90,7 @@ if ~exist(workspace_dir_name, 'dir')
     disp('Workspace directory not found')
     disp(horzcat('Created new workspace directory: ', workspace_dir_name))
 else
-    disp(horzcat('Workspace directory: ', workspace_dir_name))
+%     disp(horzcat('Workspace directory: ', workspace_dir_name))
 end
   
 
@@ -106,7 +105,7 @@ if ~exist(nets_dir_name, 'dir')
     mkdir(nets_dir_name)
     disp(horzcat('Created new nets directory: ', nets_dir_name))
 else
-    disp(horzcat('Nets dir: ', nets_dir_name))
+%     disp(horzcat('Nets dir: ', nets_dir_name))
 end
 
 
@@ -122,7 +121,7 @@ if ~exist(sounds_dir_name, 'dir')
     disp('Sounds directory not found')
     disp(horzcat('Created new sounds directory: ', sounds_dir_name))
 else
-    disp(horzcat('Sounds dir: ', sounds_dir_name))
+%     disp(horzcat('Sounds dir: ', sounds_dir_name))
 end
 
 available_sounds = dir(strcat(sounds_dir_name, '*.wav'));
