@@ -1,6 +1,6 @@
+
 #include "esp_camera.h"
 #include <WiFi.h>
-
 
 #define CAMERA_MODEL_AI_THINKER  // Has PSRAM
 #include "camera_pins.h"
@@ -16,14 +16,12 @@ const char* ssid = "bfd52a";
 const char* password = "282875063";
 #endif
 
-// Select camera model
-
 #define SIZE_OF_COMMAND_BUFFER 256
 char commandBuffer[256];
 
-
 void startCameraServer();
 void sendDataViaSocket(char* dataToSend, int lengthOfData);
+
 
 void newDataArrivedFromSocket(char* data, int lengthOfData) {
   Serial.println(data);
@@ -43,10 +41,6 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
-
-
-
-
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -83,7 +77,6 @@ void setup() {
   sensor_t* s = esp_camera_sensor_get();
   // drop down frame size for higher initial frame rate
   s->set_framesize(s, FRAMESIZE_QVGA);
-
   s->set_brightness(s, 1);     // -2 to 2
   s->set_contrast(s, 2);       // -2 to 2
   // s->set_saturation(s, 0);     // -2 to 2
@@ -108,19 +101,13 @@ void setup() {
   // s->set_colorbar(s, 0);       // 0 = disable , 1 = enable
 
 
-
-
-
 #if defined(MAKE_AP)
-
   tempNameOfAP = String(ROBOT_NAME_AP);
   nameOfAP = tempNameOfAP + "_" + getUniqueNumber();
-
   int channel = DEFAULT_WIFI_CHANNEL;
 #if defined(RANDOMIZE_WIFI_CHANNEL)
   channel = random(13) + 1;
 #endif
-
   WiFi.softAP(nameOfAP.c_str(), NULL, channel);
   IPAddress IP = WiFi.softAPIP();
   Serial.print("Use 'http://");
@@ -134,7 +121,6 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
-
   Serial.print("Use 'http://")
     Serial.print(WiFi.localIP());
   Serial.println("' to connect");
@@ -145,8 +131,6 @@ void setup() {
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
 
   if (Serial.available() > 0) {
     // read untill \n from the serial port:
