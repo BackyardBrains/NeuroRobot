@@ -21,7 +21,7 @@ for ncam = 1:2
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.3 & uframe(:,:,2) > uframe(:,:,3) * 1.3;
             colframe(uframe(:,:,2) < 75) = 0;
         elseif ncol == 3     
-            colframe = uframe(:,:,3) > uframe(:,:,2) * 1.4 & uframe(:,:,3) > uframe(:,:,1) * 1.4;
+            colframe = uframe(:,:,3) > uframe(:,:,2) * 1 & uframe(:,:,3) > uframe(:,:,1) * 1;
             colframe(uframe(:,:,3) < 75) = 0;
         end
     
@@ -136,5 +136,9 @@ for ncam = 1:2
     elseif ncam == 2
         prev_right_eye_frame = uframe;
     end
+
+    disp(num2str(vis_pref_vals'))
+    disp('----')
+
 
 end
