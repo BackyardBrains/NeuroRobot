@@ -16,13 +16,13 @@ for ncam = 1:2
     for ncol = 1:3
         if ncol == 1
             colframe = uframe(:,:,1) > uframe(:,:,2) * 1.5 & uframe(:,:,1) > uframe(:,:,3) * 1.5;
-            colframe(uframe(:,:,1) < 75) = 0;
+            colframe(uframe(:,:,1) < 50) = 0;
         elseif ncol == 2
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.3 & uframe(:,:,2) > uframe(:,:,3) * 1.3;
-            colframe(uframe(:,:,2) < 75) = 0;
+            colframe(uframe(:,:,2) < 50) = 0;
         elseif ncol == 3     
             colframe = uframe(:,:,3) > uframe(:,:,2) * 1 & uframe(:,:,3) > uframe(:,:,1) * 1;
-            colframe(uframe(:,:,3) < 75) = 0;
+            colframe(uframe(:,:,3) < 50) = 0;
         end
     
         blob = bwconncomp(colframe);
