@@ -137,8 +137,8 @@ for ncam = 1:2
         prev_right_eye_frame = uframe;
     end
 
-    disp(num2str(vis_pref_vals'))
-    disp('----')
+%     disp(num2str(vis_pref_vals'))
+%     disp('----')
 
 
 end

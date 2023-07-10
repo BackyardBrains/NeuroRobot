@@ -9,6 +9,7 @@ if ~isempty(serial_receive)
     try       
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == 0) = 4000;
+        
 %         disp(num2str(this_distance))
        
     catch
