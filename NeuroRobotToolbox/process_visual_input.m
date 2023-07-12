@@ -76,7 +76,7 @@ for ncam = 1:2
         cnn_out(cnn_out < 0) = 0;
         cnn_out = cnn_out * 50;
 %         if ncam == 1
-%             disp(horzcat('Score: ', num2str(i), ', synaptic: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
+%             disp(horzcat('Score: ', num2str(i), ', cnn out: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
 %         end
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out;
     elseif use_rcnn

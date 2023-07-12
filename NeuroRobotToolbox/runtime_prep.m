@@ -110,7 +110,7 @@ esp_get_serial
 if this_distance < 1000
     dist_short = 4;
     dist_med = 7;
-    dist_long = 9;
+    dist_long = 10;
 else
     dist_short = 200;
     dist_med = 900;
