@@ -71,10 +71,12 @@ for ncam = 1:2
     % Get complex features
     if use_cnn
         [label, score] = classify(g_net, frame);  
-        cnn_out = sigmoid(score(object_ns), 0.04, 50);
-%         cnn_out = cnn_out - 0.15;
+        [i, j] = max(score);
+        cnn_out = sigmoid(i, 0.04, 50);
         cnn_out(cnn_out < 0) = 0;
-        vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out * 50;
+        cnn_out = cnn_out * 50;
+        sdisp(horzcat('Score: ', num2str(i), ', synaptic: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
+        vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out;
     elseif use_rcnn
         try
             aitic = tic;
@@ -137,7 +139,7 @@ for ncam = 1:2
         prev_right_eye_frame = uframe;
     end
 
-%     disp(num2str(vis_pref_vals'))
+%     disp(num2str(vis_pref_vals([1 3 5], :)'))
 %     disp('----')
 
 
