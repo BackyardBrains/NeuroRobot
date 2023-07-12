@@ -21,7 +21,7 @@ for ncam = 1:2
             colframe = uframe(:,:,2) > uframe(:,:,1) * 1.3 & uframe(:,:,2) > uframe(:,:,3) * 1.3;
             colframe(uframe(:,:,2) < 50) = 0;
         elseif ncol == 3     
-            colframe = uframe(:,:,3) > uframe(:,:,2) * 1 & uframe(:,:,3) > uframe(:,:,1) * 1;
+            colframe = uframe(:,:,3) > uframe(:,:,2) * 1.2 & uframe(:,:,3) > uframe(:,:,1) * 1.2;
             colframe(uframe(:,:,3) < 50) = 0;
         end
     
@@ -72,10 +72,12 @@ for ncam = 1:2
     if use_cnn
         [label, score] = classify(g_net, frame);  
         [i, j] = max(score);
-        cnn_out = sigmoid(i, 0.04, 50);
+        cnn_out = sigmoid(i, 0.5, 50);
         cnn_out(cnn_out < 0) = 0;
         cnn_out = cnn_out * 50;
-        sdisp(horzcat('Score: ', num2str(i), ', synaptic: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
+        if ncam == 1
+            disp(horzcat('Score: ', num2str(i), ', synaptic: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
+        end
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out;
     elseif use_rcnn
         try
@@ -139,8 +141,9 @@ for ncam = 1:2
         prev_right_eye_frame = uframe;
     end
 
-%     disp(num2str(vis_pref_vals([1 3 5], :)'))
-%     disp('----')
-
+    if ncam == 1
+        disp(num2str(vis_pref_vals([1 3 5], 1)'))
+        disp('----')
+    end
 
 end
