@@ -16,9 +16,9 @@ if nneurons
     
     % Calculate distance sensor input current
     dist_I = zeros(nneurons, 1);
-    dist_I(dist_prefs == 1) = sigmoid(this_distance, 200, -0.8) * 50;
-    dist_I(dist_prefs == 2) = sigmoid(this_distance, 900, -0.8) * 50;
-    dist_I(dist_prefs == 3) = sigmoid(this_distance, 1400, -0.8) * 50;
+    dist_I(dist_prefs == 1) = sigmoid(this_distance, dist_short, -0.8) * 50;
+    dist_I(dist_prefs == 2) = sigmoid(this_distance, dist_med, -0.8) * 50;
+    dist_I(dist_prefs == 3) = sigmoid(this_distance, dist_long, -0.8) * 50;
 
     % Calculate microphone input current
     audio_I = zeros(nneurons, 1);

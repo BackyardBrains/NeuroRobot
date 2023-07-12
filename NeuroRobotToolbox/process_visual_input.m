@@ -72,7 +72,7 @@ for ncam = 1:2
     if use_cnn
         [label, score] = classify(g_net, frame);  
         [i, j] = max(score);
-        cnn_out = sigmoid(i, 0.5, 50);
+        cnn_out = sigmoid(i, 0.6, 50);
         cnn_out(cnn_out < 0) = 0;
         cnn_out = cnn_out * 50;
 %         if ncam == 1
@@ -96,7 +96,7 @@ for ncam = 1:2
             end
             
             for nobject = 1:n_vis_prefs-n_basic_vis_features
-                cnn_out = sigmoid(object_scores(nobject), 0.4, 40) * 50;
+                cnn_out = sigmoid(object_scores(nobject), 0.5, 40) * 50;
                 vis_pref_vals(nobject + n_basic_vis_features, ncam) = cnn_out;
             end
             

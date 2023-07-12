@@ -104,6 +104,19 @@ clear postsynaptic_contact
 clear neuron_xys
 clear spikes_step
 
+
+%% Calibrate distance sensor
+esp_get_serial
+if this_distance < 1000
+    dist_short = 4;
+    dist_med = 7;
+    dist_long = 9;
+else
+    dist_short = 200;
+    dist_med = 900;
+    dist_long = 1400;
+end
+
 %% ML vars
 if select_nets.Value > nimported
     full_net_name = option_nets{select_nets.Value};
