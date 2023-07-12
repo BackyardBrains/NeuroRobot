@@ -72,7 +72,7 @@ for ncam = 1:2
     if use_cnn
         [label, score] = classify(g_net, frame);  
         cnn_out = sigmoid(score(object_ns), 0.04, 50);
-        cnn_out = cnn_out - 0.15;
+%         cnn_out = cnn_out - 0.15;
         cnn_out(cnn_out < 0) = 0;
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out * 50;
     elseif use_rcnn
