@@ -199,7 +199,7 @@ if exist('rak_only', 'var') && brain_support
     n_basic_vis_features = size(vis_pref_names, 2); % Clumsy hack, remove
     if use_cnn
         labels = readcell('alllabels.txt');
-        object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 771, 847, 951, 955];
+        object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 739, 771, 847, 951, 955, 969];
         object_strs = labels(object_ns);
         vis_pref_names = [vis_pref_names, object_strs'];
     elseif use_rcnn

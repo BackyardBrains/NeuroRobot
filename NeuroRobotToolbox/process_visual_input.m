@@ -70,13 +70,13 @@ for ncam = 1:2
     
     % Get complex features
     if use_cnn
-        [label, score] = classify(g_net, frame);  
-        [i, j] = max(score);
-        cnn_out = sigmoid(i, 0.6, 50);
-        cnn_out(cnn_out < 0) = 0;
-        cnn_out = cnn_out * 50;
+        [~, scores] = classify(g_net, frame);
+        scores = scores / max([scores, 0.2]);
+        scores = scores / max([scores, 0.2]);
+        cnn_out = scores(object_ns);
+        cnn_out = sigmoid(cnn_out, 0.6, 50) * 50;
 %         if ncam == 1
-%             disp(horzcat('Score: ', num2str(i), ', cnn out: ', num2str(cnn_out), ', ncam = ', num2str(ncam)))
+%             disp(horzcat('cnn out: ', num2str(cnn_out(11)), ', ncam = ', num2str(ncam)))
 %         end
         vis_pref_vals(8:n_vis_prefs, ncam) = cnn_out;
     elseif use_rcnn
