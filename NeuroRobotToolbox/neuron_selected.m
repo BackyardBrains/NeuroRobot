@@ -346,12 +346,10 @@ elseif fig_design.UserData == 6
             if isempty(vision_net_lock)
                 if use_cnn
                     vision_net_lock = 'GoogLeNet';
-                elseif use_rcnn
-                    vision_net_lock = 'AlexNet';
                 else
                     vision_net_lock = net_name;
                 end
-                disp(horzcat('new vision net lock: ', vision_net_lock))
+                disp(horzcat('New vision net lock: ', vision_net_lock))
             end
         end
 

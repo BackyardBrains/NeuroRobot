@@ -42,25 +42,18 @@ end
 if sum(select_nets.Value == 1)
 end
 
-% 2 = 'GoogLeNet (generic objects)'
+% 2 = 'GoogLeNet'
 if sum(select_nets.Value == 2)
     use_cnn = 1;
 else
     use_cnn = 0;
 end
 
-% 3 = 'AlexNet (custom objects)'
-if sum(select_nets.Value == 3)
-    use_rcnn = 1;
-else
-    use_rcnn = 0;
-end
-
-% 3 = 'Custom state and action nets'
+% 3 = 'Custom net'
 if sum(select_nets.Value >= nimported)
-    use_controllers = 1;
+    use_custom_net = 1;
 else
-    use_controllers = 0;
+    use_custom_net = 0;
 end
 
 
@@ -118,12 +111,18 @@ else
 end
 
 %% ML vars
-if select_nets.Value > nimported
-    full_net_name = option_nets{select_nets.Value};
-    temp = strfind(full_net_name, '-');
-    net_name = full_net_name(1:temp(1)-1);
-    rl_type = full_net_name(temp(1)+1:temp(2)-1);
-    agent_name = full_net_name(temp(2)+1:end);
+if select_nets.Value > nimported % If a custom net was selected
+    full_net_name = option_nets{select_nets.Value}; % Get its name
+    cnet_temp = strfind(full_net_name, '-');
+    if length(cnet_temp) == 1
+        net_name = full_net_name(1:cnet_temp(1)-1);
+    elseif length(cnet_temp) == 2
+        net_name = full_net_name(1:cnet_temp(1)-1);
+        rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
+        agent_name = full_net_name(cnet_temp(2)+1:end);
+    else
+        error('Bad custom net name')
+    end
 else
     net_name = '';
 end
@@ -137,9 +136,8 @@ load_brain
 
 brain_support = 1;
 if ~isempty(vision_net_lock)
-    if (strcmp(vision_net_lock, 'GoogLeNet') && ~use_cnn) || ...
-            (strcmp(vision_net_lock, 'AlexNet') && ~use_rcnn) || ...
-            (~strcmp(vision_net_lock, 'GoogLeNet') && ~strcmp(vision_net_lock, 'AlexNet') && ~strcmp(vision_net_lock, net_name))
+    if (use_cnn && ~strcmp(vision_net_lock, 'GoogLeNet')) || ...
+            (use_custom_net && ~strcmp(vision_net_lock, net_name))
         disp(horzcat('Brain needs this net to see: ', vision_net_lock))
         brain_support = 0;
     end
@@ -198,16 +196,30 @@ if exist('rak_only', 'var') && brain_support
     %% Visual features
     n_basic_vis_features = size(vis_pref_names, 2); % Clumsy hack, remove
     if use_cnn
+        g_net = googlenet;
+        net_input_size = g_net.Layers(1).InputSize(1:2);
         labels = readcell('alllabels.txt');
         object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 739, 771, 847, 951, 955, 969];
         object_strs = labels(object_ns);
-        vis_pref_names = [vis_pref_names, object_strs'];
-    elseif use_rcnn
-        vis_pref_names = [vis_pref_names, 'person1', 'person2', 'person3', 'person4', 'person5'];    
-        object_strs = {'person1', 'person2', 'person3', 'person4', 'person5'};        
-    elseif use_controllers
-        controller_prep_code
+        vis_pref_names = [vis_pref_names, object_strs'];     
+    elseif use_custom_net
+        load(strcat(nets_dir_name, net_name, '-net-ml'))
+        load(strcat(nets_dir_name, net_name, '-labels'))
+        unique_states = unique(labels);
+        n_unique_states = length(unique_states);
         vis_pref_names = [vis_pref_names, labels'];
+        
+        if length(cnet_temp) == 2
+            load(horzcat(nets_dir_name, net_name, '-', rl_type, '-', agent_name, '-ml'))
+            load(strcat(nets_dir_name, net_name, '-torque_data'))
+            load(strcat(nets_dir_name, net_name, '-actions'))
+            n_unique_actions = length(unique(actions));        
+            motor_combs = zeros(n_unique_actions, 2);
+            for naction = 1:n_unique_actions
+                motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
+            end
+        end
+
     end
     n_vis_prefs = size(vis_pref_names, 2);
 
@@ -335,19 +347,6 @@ if exist('rak_only', 'var') && brain_support
     
     % Nothing prevents overwriting an existing brain
     disp(horzcat('Brain name = ', brain_name))
-    if use_cnn
-        tic
-        g_net = googlenet;
-        net_input_size = g_net.Layers(1).InputSize(1:2);
-        disp(horzcat('googlenet loaded in ', num2str(round(toc)), ' s'))
-    elseif ~exist('net', 'var') && use_rcnn
-        tic
-        net_input_size = [227 227];
-%         load('rcnn5heads') % <<<< COMMENTED OUT FOR COMPILATION
-        disp(horzcat('rcnn loaded in ', num2str(round(toc)), ' s'))
-    elseif use_rcnn
-        net_input_size = [224 224];
-    end
     
     button_startup_complete.BackgroundColor = [0.6 0.95 0.6];
     
