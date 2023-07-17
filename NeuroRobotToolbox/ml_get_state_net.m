@@ -2,7 +2,7 @@
 
 
 %% Hardcoded image size
-imdim = 100;
+imdim = 227;
 
 
 %% Get labels
@@ -60,7 +60,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(nets_dir_name, net_name, '-net'), 'net')
+save(strcat(nets_dir_name, net_name, '-net-ml'), 'net')
 
 
 %% End message

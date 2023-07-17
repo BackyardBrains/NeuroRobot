@@ -1,7 +1,7 @@
 
 
 %% Set parameter scaling factor
-adj = 0.4;
+adj = 1;
 
 
 %% Get all recorded data and display summary stats
@@ -18,7 +18,7 @@ try
 catch
     error('Datasets folder is missing or empty')
 end
-image_ds.ReadFcn = @customReadFcn; % imdim = 100
+image_ds.ReadFcn = @customReadFcn; % imdim = 227
 nimages = length(image_ds.Files);
 
 this_msg = horzcat('nimages = ', num2str(nimages), ', still processing...');
