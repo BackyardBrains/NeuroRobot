@@ -73,10 +73,10 @@ for ncam = 1:2
         if use_cnn
             scores = scores(object_ns);
         end
-        scores = scores / max([scores, 0.2]);
-        scores = scores / max([scores, 0.2]);
-        scores = sigmoid(scores, 0.6, 50) * 50;
-        vis_pref_vals(8:n_vis_prefs, ncam) = scores;
+%         scores = scores / max([scores, 0.2]);
+%         scores = scores / max([scores, 0.2]);
+%         scores = sigmoid(scores, 0.6, 50) * 50;
+        vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
     end
     
     if ncam == 1
