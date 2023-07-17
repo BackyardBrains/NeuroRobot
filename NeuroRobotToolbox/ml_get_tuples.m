@@ -8,7 +8,7 @@ tx7 = text(0.03, 0.5, horzcat('loading net...'));
 drawnow
 disp('Loading state net...')
 
-load(strcat(nets_dir_name, net_name, '-net'))
+load(strcat(nets_dir_name, net_name, '-net-ml'))
 load(strcat(nets_dir_name, net_name, '-labels'))
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
