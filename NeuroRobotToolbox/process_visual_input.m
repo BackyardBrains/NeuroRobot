@@ -64,10 +64,10 @@ for ncam = 1:2
     vis_pref_vals(7, ncam) = this_score;
     
     % Get complex features
-    if use_custom_net % Lets stop doing this
-        imdim = 100;
-        frame = imresize(frame, [imdim imdim]);
-    end
+%     if use_custom_net % Lets stop doing this
+%         imdim = 100;
+%         frame = imresize(frame, [imdim imdim]);
+%     end
     if use_cnn || use_custom_net
         [~, scores] = classify(net, frame);
         if use_cnn
