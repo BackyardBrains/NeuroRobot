@@ -1,5 +1,5 @@
 
-imdim = 100;
+imdim = 227;
 
 if record_data > 0
 
