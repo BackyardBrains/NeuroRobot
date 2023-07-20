@@ -48,6 +48,10 @@ right_eye_frame = large_frame(right_cut(1):right_cut(2), right_cut(3):right_cut(
 show_left_eye.CData = left_eye_frame;
 show_right_eye.CData = right_eye_frame;
 
+if sum(select_robot.Value == 6) && exist('draw_ext_frame', 'var')
+    draw_ext_frame.CData = ext_frame;
+end
+
 %% Serial
 if rak_only
     rak_get_serial

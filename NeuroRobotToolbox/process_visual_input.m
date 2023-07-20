@@ -97,3 +97,5 @@ for ncam = 1:2
 %     end
 
 end
+
+external_camera

@@ -361,8 +361,8 @@ if exist('rak_only', 'var') && brain_support
         large_frame = zeros(720, 1280, 3, 'uint8');          
     end
     if use_webcam && (rak_only || use_esp32)
-        large_frame = zeros(720, 1280, 3, 'uint8');
-        prev_ext_uframe = imresize(large_frame, [227 404]);
+        ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
+        prev_ext_frame = ext_frame;
     end
     
     drawnow

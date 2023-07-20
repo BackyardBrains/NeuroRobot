@@ -1,0 +1,30 @@
+
+% run this after connenct camera but before runtime
+% dock it
+
+ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
+robot_xy = [300 244];
+
+figure(5)
+clf
+
+subplot(2,1,1)
+
+draw_ext1 = image(ext_frame);
+hold on
+draw_ext1b = plot(5, 5, 'marker', '+', 'markersize', 15, 'Color', [0.8 0.4 0.2]);
+
+padding = 40;
+xx = max([robot_xy(1) padding]);
+xx = min([xx ext_cam_w - padding]);
+yy = max([robot_xy(2) padding]);
+yy = min([yy ext_cam_h - padding]);
+
+xpadding = padding-1;
+ext_frame_zoom = ext_frame(yy-xpadding:yy+xpadding,xx-xpadding:xx+xpadding,:);
+
+subplot(2,1,2)
+draw_ext2 = image(ext_frame_zoom);
+hold on
+draw_ext2b = plot(5, 5, 'marker', '+', 'markersize', 15, 'Color', [0.8 0.4 0.2]);
+

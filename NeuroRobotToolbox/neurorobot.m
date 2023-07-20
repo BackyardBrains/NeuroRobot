@@ -71,6 +71,11 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.8', 'units', 'nor
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
+%%
+robot_xy = [234 53];
+prev_robot_xy = [66 343];
+
+
 %% Selection
 % Robot
 option_robot = {...
@@ -91,7 +96,7 @@ select_robot.Value = 3;
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App', 'units', 'normalized', 'position', [0.05 0.335 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'; 'External Camera'};
+option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
 select_app.Value = 1:3;
