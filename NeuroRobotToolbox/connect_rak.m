@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
 
 connect_success = 0;
 
@@ -93,7 +93,7 @@ if use_esp32
     end
 end
 
-if use_webcam
+if use_webcam && ~use_esp32
     disp('Attempting webcam connect...')
     try
         rak_cam = webcam;
@@ -103,6 +103,20 @@ if use_webcam
     large_frame = snapshot(rak_cam);   
     [rak_cam_h, rak_cam_w, ~] = size(large_frame);
     connect_success = 1;
+end
+
+if use_webcam && use_esp32
+    disp('Attempting ext webcam connect...')
+    try
+        ext_cam = webcam;
+    catch
+        error('Cannot connect ext webcam')
+    end
+    large_frame = snapshot(ext_cam);   
+    [rak_cam_h, rak_cam_w, ~] = size(large_frame);
+    connect_success = 1;
+else
+    ext_cam = 0;
 end
 
 if connect_success

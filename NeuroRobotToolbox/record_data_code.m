@@ -38,11 +38,11 @@ if record_data > 0
 %         save(fname, 'this_audio', '-mat');
 %     end
 
-%     % Save external camera image
-%     if (rak_only || use_esp32) && use_webcam
-%         external_camera
-%         fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
-%         save(fname, 'ext_data', '-mat');      
-%     end
+    % Save external camera image
+    if use_esp32 && use_webcam
+        external_camera
+        fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-ext_data.mat');        
+        save(fname, 'ext_data', '-mat');      
+    end
 
 end

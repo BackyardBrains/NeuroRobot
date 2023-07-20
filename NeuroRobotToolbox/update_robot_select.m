@@ -35,4 +35,10 @@ elseif select_robot.Value == 5
     use_webcam = 0;
     hd_camera = 0;
     use_esp32 = 0;       
+elseif select_robot.Value == 6    
+    rak_only = 0;
+    camera_present = 1;
+    use_webcam = 1;
+    hd_camera = 0;
+    use_esp32 = 1;       
 end

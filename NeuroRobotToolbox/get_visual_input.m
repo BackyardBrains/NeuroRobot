@@ -7,13 +7,9 @@ try
         large_frame = snapshot(rak_cam);
     elseif use_webcam && ~(rak_only || use_esp32)
         large_frame = snapshot(rak_cam);
-    elseif use_webcam && (rak_only || use_esp32)
-        if rak_only 
-            large_frame = rak_cam.readVideo();
-            large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);            
-        elseif use_esp32
-            large_frame = snapshot(rak_cam);
-        end
+    elseif use_esp32 && use_webcam
+        large_frame = snapshot(rak_cam);
+        ext_frame = snapshot(ext_cam);
     else
         large_frame = zeros(rak_cam_h, rak_cam_w, 3, 'uint8');
     end
