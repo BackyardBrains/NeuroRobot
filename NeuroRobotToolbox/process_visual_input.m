@@ -98,4 +98,6 @@ for ncam = 1:2
 
 end
 
-external_camera
+if use_esp32 && use_webcam
+    external_camera
+end

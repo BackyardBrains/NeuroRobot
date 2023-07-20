@@ -1,6 +1,6 @@
 
 
-[i, j] = sort(thetas, 'descend')
+[i, j] = sort(thetas, 'descend');
 
 figure(2)
 clf

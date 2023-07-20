@@ -11,7 +11,8 @@ y1 = 0;
 x2 = 1;
 y2 = 1;
 
-thetas = zeros(ntuples, 1) ;
+thetas = zeros(ntuples, 1);
+thetas2 = zeros(ntuples * 2, 1);
 states = zeros(ntuples, 1);
 disp(horzcat('Getting ', num2str(ntuples), ' states from xyos'))
 
@@ -38,6 +39,7 @@ for ntuple = 1:ntuples
 
     theta = mod(atan2d(sepy,sepx),360); 
     thetas(ntuple) = theta;
+    thetas2(ntuple * 2 - 1 : ntuple * 2) = [theta theta];
 
 %     this_n = 7;
 %     this_range = linspace(0, 360, this_n);
@@ -123,7 +125,7 @@ end
 % classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 % imds = imageDatastore(strcat(workspace_dir_name, net_name, '\'),'FileExtensions','.png','IncludeSubfolders', true);
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-tds = arrayDatastore(thetas);
+tds = arrayDatastore(thetas2);
 ds = combine(image_ds,tds);
 % imds.ReadFcn = @customReadFcn; % imdim = 100
 
@@ -148,11 +150,11 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-%     fullyConnectedLayer(500)
-%     reluLayer
-% 
-%     fullyConnectedLayer(200)
-%     reluLayer
+    fullyConnectedLayer(200)
+    reluLayer
+
+    fullyConnectedLayer(200)
+    reluLayer
     
 %     fullyConnectedLayer(n_unique_states)
 %     softmaxLayer
