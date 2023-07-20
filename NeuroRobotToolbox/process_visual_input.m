@@ -69,7 +69,13 @@ for ncam = 1:2
 %         frame = imresize(frame, [imdim imdim]);
 %     end
     if use_cnn || use_custom_net
-        [~, scores] = classify(net, frame);
+        if ~regress
+            [~, scores] = classify(net, frame);
+        elseif ncam == 1
+            scores = predict(net, frame);
+            disp(horzcat('Theta = ', num2str(scores)))
+            scores = scores / 360;
+        end
         if use_cnn
             scores = scores(object_ns);
         end

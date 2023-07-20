@@ -2,6 +2,7 @@
 xys = zeros(2, ntuples);
 rblob = zeros(2, ntuples);
 gblob = zeros(2, ntuples);
+angs = zeros(1, ntuples);
 
 disp(horzcat('getting ', num2str(ntuples), ' xyos'))
 
@@ -22,5 +23,11 @@ for ntuple = 1:ntuples
     rblob(:, ntuple) = rblob_xy;
     gblob(:, ntuple) = gblob_xy;
 
+    x1 = rblob_xy(1);
+    y1 = rblob_xy(2);
+    x2 = gblob_xy(1);
+    y2 = gblob_xy(2);
+
+    angs(:, ntuple) = atan2d(x1*y2-y1*x2,x1*x2+y1*y2);
 
 end

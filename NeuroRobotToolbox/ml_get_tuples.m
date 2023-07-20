@@ -18,7 +18,6 @@ drawnow
 disp('indexing data...')
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
 
 ntorques = size(torque_dir, 1);
@@ -32,44 +31,8 @@ tx7.String = 'getting states..';
 drawnow
 disp('assembling tuples...')
 
-get_dists
-save(horzcat(nets_dir_name, net_name, '-dists'), 'dists')
-
 get_states
 save(horzcat(nets_dir_name, net_name, '-states'), 'states')
-
-
-%% State expansion by dist
-load(horzcat(nets_dir_name, net_name, '-dists'))
-load(horzcat(nets_dir_name, net_name, '-states'))
-
-n_unique_states = length(unique(states));
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
-disp(horzcat('ntuples: ', num2str(ntuples)))
-
-tx7.String = horzcat('nstates loaded: ', num2str(ntuples), ', ...');
-drawnow
-
-% touches_per_state = zeros(n_unique_states, 1);
-% for ntuple = 1:ntuples
-%     if dists(ntuple) > 0 && dists(ntuple) ~= 4000
-%         touches_per_state(states(ntuple)) = touches_per_state(states(ntuple)) + 1;
-%     end
-% end
-% 
-% touch_states = find(touches_per_state > 3000);
-% save(horzcat(nets_dir_name, net_name, '-touch_states'), 'touch_states')
-% 
-% counter = 0;
-% for ntuple = 1:ntuples
-%     if sum(states(ntuple) == touch_states) && dists(ntuple) > 0 && dists(ntuple) ~= 4000
-%         ind = find(states(ntuple) == touch_states);
-%         states(ntuple) = n_unique_states + ind;
-%     end
-% end
-% 
-% n_unique_states = n_unique_states + length(touch_states);
-% disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
 %% Torques
@@ -91,7 +54,7 @@ actions = kmeans(torque_data, n_unique_actions);
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
-disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(mode(actions), :), 1)))))
+disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 

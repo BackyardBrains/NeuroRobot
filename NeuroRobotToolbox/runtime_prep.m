@@ -204,10 +204,16 @@ if exist('rak_only', 'var') && brain_support
         vis_pref_names = [vis_pref_names, object_strs'];     
     elseif use_custom_net
         load(strcat(nets_dir_name, net_name, '-net-ml'))
-        load(strcat(nets_dir_name, net_name, '-labels'))
-        unique_states = unique(labels);
-        n_unique_states = length(unique_states);
-        vis_pref_names = [vis_pref_names, labels'];
+        try
+            load(strcat(nets_dir_name, net_name, '-labels'))
+            regress = 0;
+            unique_states = unique(labels);
+            n_unique_states = length(unique_states);
+            vis_pref_names = [vis_pref_names, labels'];
+        catch
+            regress = 1;
+            vis_pref_names = [vis_pref_names, 'scalar'];
+        end
         
         if length(cnet_temp) == 2
             load(horzcat(nets_dir_name, net_name, '-', rl_type, '-', agent_name, '-ml'))
