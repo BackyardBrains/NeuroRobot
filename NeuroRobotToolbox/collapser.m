@@ -20,6 +20,8 @@ disp(horzcat('nimages: ', num2str(nimages)))
 disp(horzcat('ndists: ', num2str(ntuples)))
 
 %%
+imdim = 227;
+
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/100))
@@ -29,13 +31,13 @@ for ntuple = 1:ntuples
     this_ind = ntuple*2-1;    
     left_im_link = strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name);
     left_im = imread(left_im_link);
-    left_im = imresize(left_im, [100 100]);
+    left_im = imresize(left_im, [imdim imdim]);
     imwrite(left_im, left_im_link);
     
     this_ind = ntuple*2;
     right_im_link = strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name);
     right_im = imread(right_im_link);
-    right_im = imresize(right_im, [100 100]);
+    right_im = imresize(right_im, [imdim imdim]);
     imwrite(right_im, right_im_link);
 
 %     new_im = zeros(227, 302, 3, 'uint8');
