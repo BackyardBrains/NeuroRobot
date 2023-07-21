@@ -109,6 +109,7 @@ else
     dist_med = 900;
     dist_long = 1400;
 end
+scores = 0;
 
 %% ML vars
 if select_nets.Value > nimported % If a custom net was selected

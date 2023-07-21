@@ -16,28 +16,20 @@ elseif sum(script_running == 5:6)
     if script_running == 5 % Agent
         this_agent = 1;
         run_agent
-    elseif script_running == 6 % Explore
+    elseif script_running == 6 % Compass
         
         left_forward = 0;
         left_backward = 0;
         right_forward = 0;
         right_backward = 0;
 
-        this_val = randsample(-30:70, 1);
+        this_val = double(scores) - 180;
 
-        if this_val > 0
-            left_forward = this_val;
-        else
-            left_backward = -this_val;
-        end
-        
-        this_val = randsample(-30:70, 1);
-
-        if this_val > 0
-            right_forward = this_val;
-        else
-            right_backward = -this_val;
-        end
+        left_forward = this_val;
+        right_backward = this_val;
+        disp(horzcat('Theta = ', num2str(this_val), ...
+            ', left = ', num2str(left_forward), ...
+            ', right = ', num2str(right_backward)))
 
     end    
 else

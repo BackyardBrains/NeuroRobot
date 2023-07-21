@@ -1,8 +1,6 @@
 
 minmin = 100;
 
-% image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
 ext_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*ext_data.mat'));
 ntuples = size(ext_dir, 1);
 
@@ -66,15 +64,11 @@ for ntuple = 1:ntuples
 end
 
 
-% 1
-
-
-
 % n_unique_states = length(unique(states));
 % disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 
-% %%
+%%
 % try
 %     rmdir(strcat(workspace_dir_name, net_name), 's')
 %     disp('Removed previous net')
@@ -117,7 +111,7 @@ end
 % end
 
 
-% %% Get labels
+%% Get labels
 % labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
 % labels = unique(labels);
 % n_unique_states = length(labels);
@@ -127,23 +121,23 @@ end
 %% Train classifier net
 % classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 % imds = imageDatastore(strcat(workspace_dir_name, net_name, '\'),'FileExtensions','.png','IncludeSubfolders', true);
-image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
-tds = arrayDatastore(thetas2);
+image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\large_frame*.png'));
+tds = arrayDatastore(thetas);
 ds = combine(image_ds,tds);
 % imds.ReadFcn = @customReadFcn; % imdim = 100
 
 imdim = 227;
 
 net = [
-    imageInputLayer([imdim imdim 3])
+    imageInputLayer([imdim 302 3])
     
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer(3,16,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer(3,16,'Padding','same')
     batchNormalizationLayer
     reluLayer
 
@@ -163,7 +157,7 @@ net = [
 %     softmaxLayer
 %     classificationLayer];
 
-    dropoutLayer(0.2)
+%     dropoutLayer(0.2)
     fullyConnectedLayer(1)
     regressionLayer];
 
