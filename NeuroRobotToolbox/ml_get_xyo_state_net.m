@@ -14,6 +14,7 @@ y2 = 1;
 thetas = zeros(ntuples, 1);
 thetas2 = zeros(ntuples * 2, 1);
 states = zeros(ntuples, 1);
+robot_xys = zeros(ntuples, 2);
 disp(horzcat('Getting ', num2str(ntuples), ' states from xyos'))
 
 for ntuple = 1:ntuples
@@ -33,6 +34,8 @@ for ntuple = 1:ntuples
     y1 = rblob_xy(2);
     x2 = gblob_xy(1);
     y2 = gblob_xy(2);
+
+    robot_xys(ntuple, :) = robot_xy;
 
     sepx = x1-x2;
     sepy = y1-y2;
@@ -63,7 +66,7 @@ for ntuple = 1:ntuples
 end
 
 
-1
+% 1
 
 
 
@@ -140,7 +143,7 @@ net = [
     
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,16,'Padding','same')
+    convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
     reluLayer
 
@@ -150,17 +153,17 @@ net = [
     batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(200)
-    reluLayer
+%     fullyConnectedLayer(200)
+%     reluLayer
 
-    fullyConnectedLayer(200)
-    reluLayer
+%     fullyConnectedLayer(200)
+%     reluLayer
     
 %     fullyConnectedLayer(n_unique_states)
 %     softmaxLayer
 %     classificationLayer];
 
-%     dropoutLayer(0.2)
+    dropoutLayer(0.2)
     fullyConnectedLayer(1)
     regressionLayer];
 

@@ -10,9 +10,9 @@ clf
 
 subplot(2,1,1)
 
-draw_ext1 = image(ext_frame);
+draw_ext = image(ext_frame);
 hold on
-draw_ext1b = plot(5, 5, 'marker', '+', 'markersize', 15, 'Color', [0.8 0.4 0.2]);
+robot_marker = plot(0, 0, 'marker', 'o', 'markersize', 50, 'color', 'k', 'linewidth', 3);
 
 padding = 100;
 xx = max([robot_xy(1) padding]);
@@ -26,6 +26,5 @@ ext_frame_zoom = ext_frame(yy-xpadding:yy+xpadding,xx-xpadding:xx+xpadding,:);
 subplot(2,1,2)
 draw_ext_zoom = image(ext_frame_zoom);
 hold on
-robot_marker = plot(0, 0, 'marker', 'o', 'markersize', 50, 'color', 'w', 'linewidth', 3);
 rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'r', 'linewidth', 2);
 gblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'g', 'linewidth', 2);

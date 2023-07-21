@@ -1,6 +1,6 @@
 
 
-draw_ext1.CData = ext_frame;
+draw_ext.CData = ext_frame;
 
 xframe = imsubtract(rgb2gray(ext_frame), rgb2gray(prev_ext_frame));
 bwframe = xframe > 50;
@@ -12,8 +12,8 @@ if ext_blob.NumObjects
     robot_xy = round([mean(blob_x), mean(blob_y)]);
 end
 
-draw_ext1b.XData = robot_xy(1);
-draw_ext1b.YData = robot_xy(2);
+robot_marker.XData = robot_xy(1);
+robot_marker.YData = robot_xy(2);
 
 padding = 100;
 xx = max([robot_xy(1) padding]);
