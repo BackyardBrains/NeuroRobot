@@ -50,7 +50,7 @@ else
 end
 
 % 3 = 'Custom net'
-if sum(select_nets.Value >= nimported)
+if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
     use_custom_net = 0;
@@ -138,6 +138,7 @@ load_brain
 brain_support = 1;
 if ~isempty(vision_net_lock)
     if (use_cnn && ~strcmp(vision_net_lock, 'GoogLeNet')) || ...
+            (~use_cnn && strcmp(vision_net_lock, 'GoogLeNet')) || ...
             (use_custom_net && ~strcmp(vision_net_lock, net_name))
         disp(horzcat('Brain needs this net to see: ', vision_net_lock))
         brain_support = 0;
@@ -149,7 +150,10 @@ if exist('rak_only', 'var') && brain_support
     
     %% Clear timers - why is this used?
     if exist('runtime_pulse', 'var')
-        stop(runtime_pulse)
+        try
+            stop(runtime_pulse)
+        catch
+        end
         pause(1)
         delete(runtime_pulse)
     end
@@ -207,12 +211,12 @@ if exist('rak_only', 'var') && brain_support
         load(strcat(nets_dir_name, net_name, '-net-ml'))
         try
             load(strcat(nets_dir_name, net_name, '-labels'))
-            regress = 0;
+            regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
             vis_pref_names = [vis_pref_names, labels'];
         catch
-            regress = 1;
+            regression_flag = 1;
             vis_pref_names = [vis_pref_names, 'scalar'];
         end
         

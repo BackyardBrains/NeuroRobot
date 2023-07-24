@@ -69,7 +69,7 @@ for ncam = 1:2
 %         frame = imresize(frame, [imdim imdim]);
 %     end
     if use_cnn || use_custom_net
-        if ~regress
+        if ~regression_flag
             [~, scores] = classify(net, frame);
         elseif ncam == 1
             lframe = imresize(large_frame, [227 302]);
