@@ -34,8 +34,7 @@ brain.neuron_tones = neuron_tones;
 brain.neuron_scripts = neuron_scripts;
 brain.network_drive = network_drive;
 brain.bg_neurons = bg_neurons;
-brain.vision_net_lock = vision_net_lock;
-brain.audio_out_lock = audio_out_lock;
+brain.trained_nets = trained_nets;
 
 % Save brain
 brain_file_name = strcat(brain_dir, brain_name, '.mat');

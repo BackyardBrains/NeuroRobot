@@ -63,5 +63,5 @@ bg_neurons = [bg_neurons; bg_neurons_2];
 
 steps_since_last_spike = nan(nneurons, 1); % this resets
 
-disp('Combo brain created')
+disp('Brain imported')
 
