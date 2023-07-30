@@ -136,11 +136,11 @@ load(strcat(brain_dir, brain_name, '.mat'))
 load_brain
 
 brain_support = 1;
-if ~isempty(vision_net_lock)
-    if (use_cnn && ~strcmp(vision_net_lock, 'GoogLeNet')) || ...
-            (~use_cnn && strcmp(vision_net_lock, 'GoogLeNet')) || ...
-            (use_custom_net && ~strcmp(vision_net_lock, net_name))
-        disp(horzcat('Brain needs this net to see: ', vision_net_lock))
+if ~isempty(trained_nets)
+    if (use_cnn && ~strcmp(trained_nets, 'GoogLeNet')) || ...
+            (~use_cnn && strcmp(trained_nets, 'GoogLeNet')) || ...
+            (use_custom_net && ~strcmp(trained_nets, net_name))
+        disp(horzcat('Brain needs this net to see: ', trained_nets))
         brain_support = 0;
     end
 end

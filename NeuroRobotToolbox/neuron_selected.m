@@ -342,21 +342,18 @@ elseif fig_design.UserData == 6
 
         %% Modify brain
         % Apply net lock
-%         if popup_select_preference.Value > size(vis_prefs, 2)
-%             
-%             if isempty(trained_nets)
-%                 keyboard
-%             else
-%                 if isempty(vision_net_lock)
-%                     if use_cnn
-%                         vision_net_lock = 'GoogLeNet';
-%                     else
-%                         vision_net_lock = net_name;
-%                     end
-%                     disp(horzcat('New vision net lock: ', vision_net_lock))
-%                 end
-%             end
-%         end
+        if popup_select_preference.Value > size(vis_prefs, 2)            
+            if isempty(trained_nets)
+                if use_cnn
+                    trained_nets = 'GoogLeNet';
+                else
+                    trained_nets = net_name;
+                end
+                disp(horzcat('New vision net lock: ', vision_net_lock))
+            else
+                error('Unable to integrate second trained net. How did you get here? Should be impossible.')
+            end
+        end
 
         vis_prefs(postsynaptic_neuron, :, presynaptic_contact) = 0; % Clear all visual preferences - only one preference per eye-neuron pair
         vis_prefs(postsynaptic_neuron, popup_select_preference.Value, presynaptic_contact) = 1 - delete_synapse;
