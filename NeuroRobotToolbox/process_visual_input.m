@@ -64,25 +64,16 @@ for ncam = 1:2
     vis_pref_vals(7, ncam) = this_score;
     
     % Get complex features
-%     if use_custom_net % Lets stop doing this
-%         imdim = 100;
-%         frame = imresize(frame, [imdim imdim]);
-%     end
     if use_cnn || use_custom_net
         if ~regression_flag
             [~, scores] = classify(net, frame);
         elseif ncam == 1
             lframe = imresize(large_frame, [227 302]);
             scores = predict(net, lframe);
-%             disp(horzcat('Theta = ', num2str(scores)))
-%             scores = scores / 360;
         end
         if use_cnn
             scores = scores(object_ns);
         end
-%         scores = scores / max([scores, 0.2]);
-%         scores = scores / max([scores, 0.2]);
-%         scores = sigmoid(scores, 0.6, 50) * 50;
         vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
     end
     

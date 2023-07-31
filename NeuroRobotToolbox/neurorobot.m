@@ -20,6 +20,7 @@ gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
 vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
+n_basic_vis_features = size(vis_pref_names, 2);
 
 
 %% Background
