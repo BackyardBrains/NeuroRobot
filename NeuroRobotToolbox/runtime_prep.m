@@ -137,11 +137,11 @@ load_brain
 
 brain_support = 1;
 if ~isempty(trained_nets)
-    if (use_cnn && ~strcmp(trained_nets, 'GoogLeNet')) || ...
-            (~use_cnn && strcmp(trained_nets, 'GoogLeNet')) || ...
-            (use_custom_net && ~strcmp(trained_nets, net_name))
-        disp(horzcat('Brain needs this net to see: ', trained_nets))
-        brain_support = 0;
+    brain_support = 0;
+    if (use_cnn && strcmp(trained_nets, 'GoogLeNet')) || (use_custom_net && strcmp(trained_nets, net_name))
+        brain_support = 1;
+    else
+        disp(horzcat('Error: Brain needs this trained net to see: ', trained_nets))
     end
 end
 
