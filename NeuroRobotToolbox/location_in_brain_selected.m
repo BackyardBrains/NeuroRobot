@@ -221,7 +221,11 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 create_from_agent
             elseif multi_neuron_opt == 4 % Brain
                 load_additional_brain
-                create_combo_brain
+                if isempty(trained_nets) || isempty(trained_nets_2) || strcmp(trained_nets, trained_nets_2)
+                    create_combo_brain
+                else
+                    disp('Cannot merge brain: different trained nets required')
+                end
                 delete(text_heading)
                 delete(text_w1)
                 delete(popup_select_brain)                

@@ -28,11 +28,11 @@ set(button_add_agents, 'enable', 'off')
 % Brain 2 Circuit
 button_add_brain = uicontrol('Style', 'pushbutton', 'String', 'Brain', 'units', 'normalized', 'position', button5_pos, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_add_brain, 'Callback', 'if fig_design.UserData == 0 button_add_brain.BackgroundColor = [0.6 0.95 0.6]; button_add_neuron.BackgroundColor = [0.8 0.8 0.8]; neuron_or_network = 2; multi_neuron_opt = 4; end;', 'FontSize', bfsize + 4, 'BackgroundColor', [0.8 0.8 0.8])
-% if nneurons == 0
+if nneurons == 0
     set(button_add_brain, 'enable', 'off')
-% else
-%     set(button_add_brain, 'enable', 'on')
-% end
+else
+    set(button_add_brain, 'enable', 'on')
+end
 
 % Save brain
 button_save = uicontrol('Style', 'pushbutton', 'String', 'Save', 'units', 'normalized', 'position', button6_pos);

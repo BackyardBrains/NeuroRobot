@@ -1,3 +1,5 @@
+
+
 %% Brain to append as CPG / BG net
 brain_name_2 = popup_select_brain.String{popup_select_brain.Value};
 
@@ -49,7 +51,7 @@ catch
 end
 try
     network_drive_2 = brain.network_drive;
-    if isempty(network_drive_2) || size(network_drive_2, 1) < nnetwork_2 || size(network_drive_2, 2) == 2
+    if isempty(network_drive_2) || size(network_drive_2, 1) < nnetworks_2 || size(network_drive_2, 2) == 2
         network_drive_2 = zeros(nnetworks_2, 3); 
     end
 catch
@@ -60,6 +62,14 @@ try
 catch
     bg_neurons_2 = zeros(nneurons_2, 1);
 end
+
+try
+    trained_nets_2 = brain.trained_nets;
+catch
+    trained_nets_2 = [];
+end
+
+
 
 %% Get new XYs
 n = nneurons_2;

@@ -349,7 +349,7 @@ elseif fig_design.UserData == 6
                 else
                     trained_nets = net_name;
                 end
-                disp(horzcat('New vision net lock: ', vision_net_lock))
+                disp(horzcat('Brain now requires this trained net to load: ', trained_nets))
             else
                 error('Unable to integrate second trained net. How did you get here? Should be impossible.')
             end

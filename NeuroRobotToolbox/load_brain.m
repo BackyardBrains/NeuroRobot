@@ -34,17 +34,6 @@ nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, remo
 network_drive = zeros(nnetworks, 3); 
 bg_neurons = brain.bg_neurons;
 
-% vision_net_lock = brain.vision_net_lock;
-% audio_out_lock = brain.audio_out_lock;
-
-if isfield(brain, 'vision_net_lock')
-    brain = rmfield(brain, 'vision_net_lock');
-end
-
-if isfield(brain, 'audio_out_lock')
-    brain = rmfield(brain, 'audio_out_lock');
-end
-
 if ~isfield(brain, 'trained_nets')
     brain.trained_nets = [];
 end

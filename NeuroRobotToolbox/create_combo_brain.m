@@ -1,6 +1,5 @@
 
 
-
 %% Merge brains
 nneurons = nneurons + nneurons_2;
 neuron_xys = [neuron_xys; neuron_xys_2];
