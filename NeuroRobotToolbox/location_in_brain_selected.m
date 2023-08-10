@@ -127,9 +127,6 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             network_drive = zeros(nnetworks, 3);
             
             if bg_colors
-                if nnetworks > size(network_colors, 1)
-                    error('Too many basal ganglia networks. Need to initialize more network colors in runtime prep.')
-                end
                 if bg_neurons(nneurons)
                     neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);
                 else

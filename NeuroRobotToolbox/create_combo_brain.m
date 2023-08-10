@@ -52,7 +52,6 @@ network_ids_2 = network_ids_2 + max([max(network_ids) 1]);
 network_ids = [network_ids; network_ids_2];
 nnetworks = length(unique(network_ids));
 network_drive = zeros(nnetworks, 3);
-network_colors = linspecer(length(unique(network_ids)));
 
 da_rew_neurons = [da_rew_neurons; da_rew_neurons_2];
 neuron_tones = [neuron_tones; neuron_tones_2];

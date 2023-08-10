@@ -72,9 +72,13 @@ text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 2.9', 'units', 'nor
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
-%%
+%% Miscellaneous
 robot_xy = [234 53];
 prev_robot_xy = [66 343];
+network_colors = [1 0.9 0.8; 0.4940 0.1840 0.5560; ...
+    0.8500 0.3250 0.0980; 1 0 1; 1 1 0; 1 0 1; ...
+    0.4660 0.6740 0.1880; 0 1 1; 0.6350 0.0780 0.1840; ...
+    0, 0.75, 0.75; 0, 0, 0.5];
 
 
 %% Selection

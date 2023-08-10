@@ -260,10 +260,6 @@ if exist('rak_only', 'var') && brain_support
     n_dist_prefs = size(dist_pref_names, 2);
     load('brainim_xy')
     design_action = 0;
-    network_colors = [1 0.9 0.8; 0.4940 0.1840 0.5560; ...
-        0.8500 0.3250 0.0980; 1 0 1; 1 1 0; 1 0 1; ...
-        0.4660 0.6740 0.1880; 0 1 1; 0.6350 0.0780 0.1840; ...
-        0, 0.75, 0.75; 0, 0, 0.5];
     
     serial_data = [];
     sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];

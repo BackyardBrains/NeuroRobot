@@ -75,9 +75,6 @@ nnetworks = length(unique(network_ids));
 network_drive = zeros(nnetworks, 3);
 
 if bg_colors
-    if nnetworks > size(network_colors, 1)
-        network_colors = linspecer(length(unique(network_ids)));
-    end
     neuron_cols(nneurons + 1 : nneurons + n, 1:3) = repmat([1 0.9 0.8], [n, 1]);
 end
 

@@ -23,9 +23,6 @@ dist_prefs = brain.dist_prefs;
 audio_prefs = brain.audio_prefs;
 network_ids = brain.network_ids;
 
-network_colors = linspecer(length(unique(network_ids)));
-network_colors(1, :) = [1 0.9 0.8];
-
 da_rew_neurons = brain.da_rew_neurons;
 neuron_tones = brain.neuron_tones;
 neuron_scripts = brain.neuron_scripts;

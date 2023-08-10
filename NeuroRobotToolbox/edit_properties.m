@@ -93,9 +93,6 @@ nnetworks = length(unique(network_ids));
 network_drive = zeros(nnetworks, 3);
 
 if bg_colors
-    if nnetworks > size(network_colors, 1)
-        network_colors = linspecer(length(unique(network_ids)));
-    end
     if bg_neurons(presynaptic_neuron)
         neuron_cols(presynaptic_neuron, :) = network_colors(network_ids(nneurons), :);
     else
