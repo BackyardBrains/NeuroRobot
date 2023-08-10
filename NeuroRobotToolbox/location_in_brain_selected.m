@@ -104,8 +104,9 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             edit_d = uicontrol('Style', 'edit', 'String', num2str(d_init), 'units', 'normalized', 'position', [0.18 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             % ID
             text_id = uicontrol('Style', 'text', 'String', 'id', 'units', 'normalized', 'position', [0.23 0.48 0.02 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            edit_id = uicontrol('Style', 'edit', 'String', num2str(max([max(network_ids) 1])), 'units', 'normalized', 'position', [0.25 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-            
+            edit_id = uicontrol('Style', 'popup', 'String', letters(1:nnetworks+1), 'units', 'normalized', 'position', [0.25 0.48 0.03 0.05], 'fontsize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            edit_id.Value = 1;
+
             % Wait for OK
             button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.4 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             set(button_confirm, 'Callback', 'fig_design.UserData = 0;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [1 0.6 0.2])
@@ -119,7 +120,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             d(nneurons, 1) = str2double(edit_d.String);
             v(nneurons, 1) = c(nneurons, 1) + 5 * randn;
             u = b .* v;
-            network_ids(nneurons, 1) = str2double(edit_id.String);
+            network_ids(nneurons, 1) = edit_id.Value;
             steps_since_last_spike(nneurons, 1) = nan;
             neuron_tones(nneurons, 1) = 0;
             nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
@@ -127,8 +128,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             
             if bg_colors
                 if nnetworks > size(network_colors, 1)
-                    network_colors = linspecer(length(unique(network_ids)));
-                    %                     neuron_cols(nneurons, :) = [1 0.9 0.8];
+                    error('Too many basal ganglia networks. Need to initialize more network colors in runtime prep.')
                 end
                 if bg_neurons(nneurons)
                     neuron_cols(nneurons, :) = network_colors(network_ids(nneurons), :);

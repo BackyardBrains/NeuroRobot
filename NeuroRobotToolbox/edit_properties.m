@@ -53,23 +53,6 @@ set(button_n6, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname
 button_n7 = uicontrol('Style', 'pushbutton', 'String', 'Striatal', 'units', 'normalized', 'position', [0.02 0.54 0.26 0.05], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 set(button_n7, 'Callback', 'set_neuron_type;', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-
-% % Indicate neuron type
-% if isequal(col, [1 0.9 0.8]) % If quiet
-%     set(button_n1, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [1 0.8 0.6])
-%     set(button_n2, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [1 0.8 0.8])
-%     set(button_n3, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [1 0.6 0.6])
-%     set(button_n4, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [0.9 0.7 1])
-%     set(button_n5, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [0.8 0.8 1])
-%     set(button_n6, 'BackgroundColor', [0.6 0.95 0.6])
-% elseif isequal(col, [0.95 0.95 1])
-%     set(button_n7, 'BackgroundColor', [0.6 0.95 0.6])    
-% end
     
 % A
 text_a = uicontrol('Style', 'text', 'String', 'a', 'units', 'normalized', 'position', [0.02 0.46 0.01 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
@@ -85,7 +68,8 @@ text_d = uicontrol('Style', 'text', 'String', 'd', 'units', 'normalized', 'posit
 edit_d = uicontrol('Style', 'edit', 'String', num2str(this_d), 'units', 'normalized', 'position', [0.18 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 % ID
 text_id = uicontrol('Style', 'text', 'String', 'id', 'units', 'normalized', 'position', [0.23 0.46 0.02 0.05], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
-edit_id = uicontrol('Style', 'edit', 'String', num2str(this_id), 'units', 'normalized', 'position', [0.25 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_id = uicontrol('Style', 'popup', 'String', letters(1:nnetworks+1), 'units', 'normalized', 'position', [0.25 0.46 0.03 0.05], 'fontsize', bfsize, 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+edit_id.Value = this_id;
 
 % Wait for OK
 button_confirm = uicontrol('Style', 'pushbutton', 'String', 'Confirm', 'units', 'normalized', 'position', [0.02 0.38 0.26 0.06]);
@@ -100,8 +84,12 @@ b(presynaptic_neuron) = str2double(edit_b.String);
 c(presynaptic_neuron) = str2double(edit_c.String);
 d(presynaptic_neuron) = str2double(edit_d.String);
 neuron_cols(presynaptic_neuron, 1:3) = col;
-network_ids(presynaptic_neuron) = str2double(edit_id.String);
-nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, removing, testing..
+this_id = edit_id.Value;
+if bg_neurons(presynaptic_neurons) && this_id == 1
+    this_id = 2;
+end
+network_ids(presynaptic_neuron) = this_id;
+nnetworks = length(unique(network_ids));
 network_drive = zeros(nnetworks, 3);
 
 if bg_colors
@@ -148,3 +136,6 @@ clear presynaptic_neuron
 if ~exist('presynaptic_neuron', 'var')
     design_buttons
 end
+
+% Redraw brain
+draw_brain

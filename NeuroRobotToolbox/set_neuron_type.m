@@ -93,12 +93,12 @@ elseif button_n6.Value == 1 % Dopaminergic
     button_n7.BackgroundColor = [0.8 0.8 0.8];
     da_rew_neurons(presynaptic_neuron, 1) = 1;
     bg_neurons(presynaptic_neuron, 1) = 0;
-elseif button_n7.Value == 1 % Medium spiny
+elseif button_n7.Value == 1 % Striatal
     edit_a.String = '0.02';
     edit_b.String = '0.1';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = [1 0.9 0.8];
+    col = network_colors(:,max([nnetworks 2]));
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];
@@ -111,9 +111,8 @@ elseif button_n7.Value == 1 % Medium spiny
     other_bgs = find(bg_neurons);
     connectome(other_bgs, presynaptic_neuron) = -1;
     connectome(presynaptic_neuron, other_bgs) = -1;
-    if strcmp(edit_id.String, '1')
-        edit_id.String = '2';
-        disp('Network ID changed to 2 (network 1 is always on and cannot contain basal ganglia neurons)')
+    if edit_id.Value == 1
+        edit_id.Value = max([nnetworks 2]);
     end
 end    
 
