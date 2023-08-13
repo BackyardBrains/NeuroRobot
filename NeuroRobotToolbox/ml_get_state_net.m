@@ -2,7 +2,7 @@
 
 
 %% Hardcoded image size
-imdim = 227;
+imdim = 224;
 
 
 %% Get labels
@@ -56,7 +56,7 @@ else
     this_str = 'training-progress';
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots=this_str, Shuffle ='every-epoch', MaxEpochs=5);
+    Plots=this_str, Shuffle ='every-epoch', MaxEpochs=10);
 
 net = trainNetwork(classifier_ds, net, options);
 

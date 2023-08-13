@@ -176,7 +176,7 @@ if exist('rak_only', 'var') && brain_support
         'F', 'G', 'H', 'I', 'J',...
         'K', 'L', 'M', 'N', 'O', ...
         'P', 'Q'};
-    net_input_size = [227 227];
+    net_input_size = [224 224];
     brain_view_tiled = 0;
     if ~exist('esp32WebsocketClient', 'var')
 	    esp32WebsocketClient = 0;
@@ -200,13 +200,7 @@ if exist('rak_only', 'var') && brain_support
 
     %% Visual features
     if use_cnn
-        net = googlenet;
-        net_input_size = net.Layers(1).InputSize(1:2);
-        labels = readcell('alllabels.txt');
-        object_ns = [47, 292, 418, 419, 441, 447, 479, 505, 527, 606, 621, 739, 771, 847, 951, 955, 969];
-        object_strs = labels(object_ns);
-        vis_pref_names = [vis_pref_names, object_strs'];  
-        regression_flag = 0;
+        use_cnn_code
     elseif use_custom_net
         load(strcat(nets_dir_name, net_name, '-net-ml'))
         try

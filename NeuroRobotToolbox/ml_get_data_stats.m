@@ -18,7 +18,7 @@ try
 catch
     error('Datasets folder is missing or empty')
 end
-image_ds.ReadFcn = @customReadFcn; % imdim = 227
+image_ds.ReadFcn = @customReadFcn; % imdim = 224
 nimages = length(image_ds.Files);
 
 this_msg = horzcat('nimages = ', num2str(nimages), ', still processing...');

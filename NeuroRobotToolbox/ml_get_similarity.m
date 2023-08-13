@@ -60,7 +60,7 @@ drawnow
 %% Plot similarity matrix
 
 axes(im_ax1)
-imagesc(xdata, [0 0.5])
+imagesc(xdata, [0 0.75])
 xlabel('Image')
 ylabel('Image')
 c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);

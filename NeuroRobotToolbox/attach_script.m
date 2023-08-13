@@ -59,3 +59,5 @@ clear presynaptic_neuron
 if ~exist('presynaptic_neuron', 'var')
     design_buttons
 end
+
+draw_brain

@@ -62,11 +62,11 @@ load(strcat(nets_dir_name, net_name, '-actions'))
 %% Plot torque data with action IDs
 axes(im_ax2)
 cla
-gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
 for naction = 1:n_unique_actions
     mean_torque = mean(torque_data(actions == naction, :));
-    text(mean_torque(1), mean_torque(2), num2str(naction))
+    text(mean_torque(1), mean_torque(2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
 end
 axis padded
 set(gca, 'yscale', 'linear')

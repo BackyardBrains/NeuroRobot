@@ -98,7 +98,7 @@ elseif button_n7.Value == 1 % Striatal
     edit_b.String = '0.1';
     edit_c.String = '-65';
     edit_d.String = '2';
-    col = network_colors(:,max([nnetworks 2]));
+    col = network_colors(max([nnetworks 2]), :);
     button_n1.BackgroundColor = [0.8 0.8 0.8];
     button_n2.BackgroundColor = [0.8 0.8 0.8];
     button_n3.BackgroundColor = [0.8 0.8 0.8];

@@ -117,6 +117,8 @@ if nneurons % This prevents error caused by running script after deleting all ne
     
     if script_running
         run_script
+    else
+        just_off
     end
 
     % Prepare to send

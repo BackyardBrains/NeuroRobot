@@ -85,7 +85,7 @@ c(presynaptic_neuron) = str2double(edit_c.String);
 d(presynaptic_neuron) = str2double(edit_d.String);
 neuron_cols(presynaptic_neuron, 1:3) = col;
 this_id = edit_id.Value;
-if bg_neurons(presynaptic_neurons) && this_id == 1
+if presynaptic_neurons && bg_neurons(presynaptic_neurons) && this_id == 1
     this_id = 2;
 end
 network_ids(presynaptic_neuron) = this_id;
