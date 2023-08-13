@@ -72,7 +72,9 @@ for ncam = 1:2
             scores = predict(net, lframe);
         end
         if use_cnn
+            cup_score = max(scores([505 739 969]));
             scores = scores(object_ns);
+            scores(4) = cup_score;
         end
         vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
     end

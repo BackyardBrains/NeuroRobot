@@ -44,7 +44,7 @@
 "frilled lizard"
 "alligator lizard"
 "Gila monster"
-"green lizard"
+"lizard"
 "African chameleon"
 "Komodo dragon"
 "African crocodile"
