@@ -5,3 +5,4 @@ object_ns = [47, 292, 418, 969, 447, 479, 527, 606, 621, 771, 847, 951, 955];
 object_strs = labels(object_ns);
 vis_pref_names = [vis_pref_names, object_strs'];  
 regression_flag = 0;
+n_vis_prefs = size(vis_pref_names, 2);

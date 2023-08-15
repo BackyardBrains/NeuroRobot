@@ -43,6 +43,14 @@ if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
     save_brain
 end
 
+brain_name = 'L2C3';
+if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
+    cq = cq + 1;    
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
+
 % brain_name = 'Lesson2C';
 % if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
 %     cq = cq + 1;    
