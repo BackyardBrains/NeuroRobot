@@ -14,53 +14,27 @@ else
     disp(horzcat('Brain directory: ', brain_dir))
 end
 
-available_brains = dir(strcat(brain_dir, '*.mat'));
-disp(horzcat('Found ', num2str(size(available_brains, 1)), ' brains'))
-
-cq = 0;
-
 brain_name = 'L1C1';
-if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
-    cq = cq + 1;
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
 
 brain_name = 'L1C5';
-if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
-    cq = cq + 1;    
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
 
 brain_name = 'L1C6';
-if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
-    cq = cq + 1;    
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
 
 brain_name = 'L2C3';
-if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
-    cq = cq + 1;    
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
-
-% brain_name = 'Lesson2C';
-% if ~sum(strcmp(horzcat(brain_name, '.mat'), {available_brains.name}))
-%     cq = cq + 1;    
-%     load(horzcat(brain_name, '.mat'))
-%     load_brain
-%     save_brain
-% end
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
 
 available_brains = dir(strcat(brain_dir, '*.mat'));
-disp(horzcat('Created ', num2str(cq), ' new brain(s)'))
 
 
 %% Datasets

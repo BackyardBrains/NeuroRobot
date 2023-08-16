@@ -20,7 +20,7 @@ if button_n1.Value == 1 % Quiet
     bg_neurons(presynaptic_neuron, 1) = 0;
 elseif button_n2.Value == 1 % Occasionally active
     edit_a.String = '0.02';
-    edit_b.String = '0.15';
+    edit_b.String = '0.16';
     edit_c.String = '-65';
     edit_d.String = '2';
     col = [1 0.9 0.8];
@@ -35,7 +35,7 @@ elseif button_n2.Value == 1 % Occasionally active
     bg_neurons(presynaptic_neuron, 1) = 0;
 elseif button_n3.Value == 1 % Highly active
     edit_a.String = '0.02';
-    edit_b.String = '0.5';
+    edit_b.String = '0.2';
     edit_c.String = '-65';
     edit_d.String = '2';
     col = [1 0.9 0.8];
