@@ -242,7 +242,7 @@ if exist('rak_only', 'var') && brain_support
     right_torque = 0;
     right_dir = 0;
     robot_moving = 0;
-    base_weight = max_w;
+    base_weight = 25;
     
     left_torque_mem = 0;
     right_torque_mem = 0;

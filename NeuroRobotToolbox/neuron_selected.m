@@ -153,7 +153,7 @@ elseif fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exi
         % Manual weight
         current_weight = connectome(presynaptic_neuron, postsynaptic_neuron);
         if current_weight == 0
-            current_weight = 30;
+            current_weight = base_weight;
         end
         current_weight = num2str(current_weight);
 
