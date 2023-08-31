@@ -19,8 +19,9 @@ init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
-vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
-n_basic_vis_features = size(vis_pref_names, 2);
+basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
+n_basic_vis_features = size(basic_vis_pref_names, 2);
+vis_pref_names = basic_vis_pref_names;
 
 
 %% Background
@@ -63,12 +64,12 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 3.2')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 3.3')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 3.2', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 3.3', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 

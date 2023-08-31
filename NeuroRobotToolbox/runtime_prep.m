@@ -224,7 +224,7 @@ if exist('rak_only', 'var') && brain_support
                 motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
             end
         end
-
+        
     end
     n_vis_prefs = size(vis_pref_names, 2);
 
