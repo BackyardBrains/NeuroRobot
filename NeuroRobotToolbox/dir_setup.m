@@ -19,6 +19,11 @@ load(horzcat(brain_name, '.mat'))
 load_brain
 save_brain
 
+brain_name = 'L1C4';
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
+
 brain_name = 'L1C5';
 load(horzcat(brain_name, '.mat'))
 load_brain
@@ -30,6 +35,16 @@ load_brain
 save_brain
 
 brain_name = 'L2C3';
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
+
+brain_name = 'L3C1';
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
+
+brain_name = 'L3C4';
 load(horzcat(brain_name, '.mat'))
 load_brain
 save_brain
