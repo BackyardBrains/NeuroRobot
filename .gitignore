@@ -1,9 +1,9 @@
 .DS_Store
 OGLdpf.log
 
-NeuroRobotToolbox/Nets/rcnn5heads.mat
-NeuroRobotToolbox/__pycache__/*
-NeuroRobotToolbox/ai.py
-NeuroRobotToolbox/rcnn*
-NeuroRobotToolbox/Google_Credentials_Speech2text.json
-NeuroRobotToolbox/*.asv
+legacy/NeuroRobotToolbox/Nets/rcnn5heads.mat
+legacy/NeuroRobotToolbox/__pycache__/*
+legacy/NeuroRobotToolbox/ai.py
+legacy/NeuroRobotToolbox/rcnn*
+legacy/NeuroRobotToolbox/Google_Credentials_Speech2text.json
+legacy/NeuroRobotToolbox/*.asv
