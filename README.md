@@ -1,5 +1,5 @@
 # SpikerBot app by Backyard Brains
-<b>Updates</b><br>
+
 2023-09-05. SpikerBot 4.0  Flutter Version. Previous MATLAB version moved to legacy folder. See legacy README for more info
 <br>
 <b>Installation</b><br>
