@@ -1,0 +1,17 @@
+FLAGS = -Os -I.. -L..
+LIBS = -lbass
+OUTDIR = ..\bin
+
+CC = gcc
+RM = del
+RES = windres
+
+%.exe: %.c %.rc
+	$(RES) -i $*.rc -o rsrc.obj
+	$(CC) $(FLAGS) $*.c rsrc.obj $(LIBS) -o $(OUTDIR)\$@
+	$(RM) rsrc.obj
+
+%.exe: %.c
+	$(CC) $(FLAGS) $*.c $(LIBS) -o $(OUTDIR)\$@
+
+.PHONY: all clean

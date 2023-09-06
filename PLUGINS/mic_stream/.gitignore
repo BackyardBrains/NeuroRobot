@@ -1,0 +1,14 @@
+.DS_Store
+.dart_tool/
+
+.idea
+.packages
+.pub/
+*.lock
+
+build/
+
+/.idea/*
+/.gradle/*
+
+mic_stream.iml
