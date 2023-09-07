@@ -95,7 +95,7 @@ clear presynaptic_neuron
 clear postsynaptic_neuron
 clear postsynaptic_contact
 clear neuron_xys
-clear spikes_step
+spikes_step = zeros(nneurons, ms_per_step);
 
 
 %% Calibrate distance sensor
