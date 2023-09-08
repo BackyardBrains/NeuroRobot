@@ -103,9 +103,11 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
       // path.lineTo(x, y);
       // path.moveTo(x, y);
       final shiftedPath = path.shift(Offset(0, levelMedian));
+      final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+      canvas.clipRect(rect, doAntiAlias:false);
       canvas.drawPath(shiftedPath, mypaint);
 
-      if (channelIdx == 0){
+      // if (channelIdx == 0){
         final evX = eventMarkersPosition[0] * sampleWidth;
         final offset1 = new Offset(evX, 0);
         final offset2 = new Offset(evX, 200);
@@ -127,7 +129,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
         //   myCurrentBarPaint,
         // );        
 
-      }
+      // }
 
     } catch (err) {
       print("errx");

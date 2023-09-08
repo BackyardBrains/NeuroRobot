@@ -1,49 +1,51 @@
 import 'dart:async';
-import 'dart:ffi' as ffi;
-import 'dart:io';
-import 'dart:isolate';
-// import 'dart:js' as js;
+import 'dart:convert';
+// import 'dart:ffi' as ffi;
+// import 'dart:io';
+// import 'dart:isolate';
+import 'dart:js' as js;
 import 'dart:math';
-import 'dart:typed_data';
+// import 'dart:typed_data';
+// import 'dart:typed_data';
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:async/async.dart';
-import 'package:auto_orientation/auto_orientation.dart';
+// import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
-import 'package:mic_stream/mic_stream.dart';
-// import 'package:nativec/nativec.dart';
 
 import 'package:flutter/material.dart';
-import 'package:nativec/allocation.dart';
-import 'package:nativec/nativec.dart';
-import 'package:neurorobot/bloc/bloc.dart';
 import 'package:neurorobot/utils/Debouncers.dart';
 import 'package:neurorobot/utils/NeuronCircle.dart';
-import 'package:winaudio/winaudio.dart';
-import 'package:window_manager/window_manager.dart';
+// import 'package:mic_stream/mic_stream.dart';
+// import 'package:nativec/allocation.dart';
+// import 'package:nativec/nativec.dart';
+// import 'package:neurorobot/bloc/bloc.dart';
+// import 'package:winaudio/winaudio.dart';
+// import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux){
-    await windowManager.ensureInitialized();
+  // if (Platform.isMacOS || Platform.isWindows || Platform.isLinux){
+  //   await windowManager.ensureInitialized();
 
-    WindowOptions windowOptions = const WindowOptions(
-      minimumSize: Size(800, 600),
-      size: Size(1200, 800),
-      center: true,
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
+  //   WindowOptions windowOptions = const WindowOptions(
+  //     minimumSize: Size(800, 600),
+  //     size: Size(1200, 800),
+  //     center: true,
+  //     backgroundColor: Colors.transparent,
+  //     skipTaskbar: false,
+  //     titleBarStyle: TitleBarStyle.hidden,
+  //   );
+  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //     await windowManager.show();
+  //     await windowManager.focus();
+  //   });
 
-  }else{
-    AutoOrientation.landscapeLeftMode();
-  }
+  // }else{
+  //   AutoOrientation.landscapeLeftMode();
+  // }
 
   runApp(const MyApp());
 }
@@ -72,28 +74,14 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-void sampleBufferingEntryPoint(List<dynamic> values) {
-  final iReceivePort = ReceivePort();
-  SendPort sendPort = values[0];
-  iReceivePort.listen((Object? message) async {});
-  // sendPort.send([buffers, arrHeads[0], eventPositionResultInt]);
-}
+// void sampleBufferingEntryPoint(List<dynamic> values) {
+//   final iReceivePort = ReceivePort();
+//   SendPort sendPort = values[0];
+//   iReceivePort.listen((Object? message) async {});
+//   // sendPort.send([buffers, arrHeads[0], eventPositionResultInt]);
+// }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // int _counter = 0;
-  // ReceivePort _receivePort = ReceivePort();
-  // ReceivePort _receiveAudioPort = ReceivePort();
-  // ReceivePort iReceiveDeviceInfoPort = ReceivePort();
-  // ReceivePort iReceiveExpansionDeviceInfoPort = ReceivePort();
-  // late SendPort iSendPort;
-  // late SendPort iSendAudioPort;
-  // late var _isolate;
-  // late StreamQueue _receiveAudioQueue = StreamQueue(_receiveAudioPort);
-  // late CustomPaint neuronActive0;
-  // late CustomPaint neuronActive1;
-  // late CustomPaint neuronActive2;
-  // late CustomPaint neuronActive12;
-
     CustomPaint neuronActive0=CustomPaint(
       willChange: true,
       isComplex: true,
@@ -116,9 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
   Debouncer debouncerScroll = Debouncer(milliseconds: 300);  
+  static int neuronSize = 2;
+  /* Flutter Native
   StreamSubscription<dynamic>? winAudioSubscription;
   late Nativec nativec;
-  static int neuronSize = 2;
   static ffi.Pointer<ffi.Uint16> positionsBuf = allocate<ffi.Uint16>(
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Uint16>());
   late Uint16List positionsBufView  = Uint16List(0);
@@ -148,17 +137,26 @@ class _MyHomePageState extends State<MyHomePage> {
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
   late Int16List wBufView  = Int16List(0);
   
+*/  
+  List<double> aBufView  = List<double>.filled(neuronSize, 0);
+  List<double> bBufView  = List<double>.filled(neuronSize, 0);
+  List<int> cBufView  = List<int>.filled(neuronSize, 0);
+  List<int> dBufView  = List<int>.filled(neuronSize, 0);
+  List<int> iBufView  = List<int>.filled(neuronSize, 0);
+  List<int> wBufView  = List<int>.filled(neuronSize, 0);
+  List<int> positionsBufView  = List<int>.filled(neuronSize, 0);
+
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
   List<int> varC = List<int>.filled(neuronSize, -65);
   List<int> varD = List<int>.filled(neuronSize, 2);
   List<int> varI = List<int>.filled(neuronSize, 5);
   List<int> varW = List<int>.filled(neuronSize, 2);
-  
+
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
   ValueNotifier<int> spikingFlags = ValueNotifier(0);
 
-  Float64List canvasBufferBytes = Float64List(3000);
+  List<Float64List> canvasBufferBytes = [Float64List(0),Float64List(0)];
   
   int isPlaying = 1;
   double levelMedian = 20;
@@ -169,7 +167,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //   canvasBufferBytes[i] = Random().nextDouble() * 100;
     // }
     // canvasBufferBytes.fillRange(0, 3000,-2);
-    nativec = Nativec();
     const a = 0.02;
     const b = 0.18;
     const c = -65;
@@ -178,6 +175,22 @@ class _MyHomePageState extends State<MyHomePage> {
     const w = 2;
     
     int neuronSizeType = neuronSize;
+
+    aBufView.fillRange(0, neuronSize, a);
+    bBufView.fillRange(0, neuronSize, b);
+    cBufView.fillRange(0, neuronSize, c);
+    dBufView.fillRange(0, neuronSize, d);
+    iBufView.fillRange(0, neuronSize, i);
+    wBufView.fillRange(0, neuronSize, w);
+    // aBufView.fillRange(0, neuronSize, a);
+    // bBufView.fillRange(0, neuronSize, b);
+    // cBufView.fillRange(0, neuronSize, c);
+    // dBufView.fillRange(0, neuronSize, d);
+    // iBufView.fillRange(0, neuronSize, i);
+    // wBufView.fillRange(0, neuronSize, w);
+    // positionsBufView.fillRange(0, neuronSize, 0);
+
+/*    nativec = Nativec();
     aBufView = aBuf.asTypedList(neuronSizeType);
     bBufView = bBuf.asTypedList(neuronSizeType);
     cBufView = cBuf.asTypedList(neuronSizeType);
@@ -242,77 +255,63 @@ class _MyHomePageState extends State<MyHomePage> {
 
       }
     });    
+*/
   }
 
-  bool canvasDraw(params){
+  canvasDraw(params){
+    // print(params);
+    canvasBufferBytes[0] = Float64List.fromList((params[0]).toList().cast<double>());
+    canvasBufferBytes[1] = Float64List.fromList((params[1]).toList().cast<double>());
+    positionsBufView[0] = (params[2]).toList().cast<double>()[0];
+    // canvasBufferBytes[0] = params[0];
+    // canvasBufferBytes[1] = params[1];
+    setState((){});
+  }
 
-    return true;
+  neuronTrigger(params){
+    int firingFlags=0;
+    List<int> arr = (params).toList().cast<int>();
+
+    if (arr[0]==1 && arr[1]==1){
+      firingFlags = 3000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else
+    if (arr[0]==1 ){
+      firingFlags = 1000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else
+    if (arr[1]==1){
+      firingFlags = 2000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else{
+      firingFlags = 0 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+    }
   }
 
   void initState(){
     super.initState();
     initNativeC();
-    // if (kIsWeb){
-    //   js.context['canvasDraw'] = canvasDraw;
-    //   js.context.callMethod("initializeModels",[]);
-    // }
+    if (kIsWeb){
+      js.context['canvasDraw'] = canvasDraw;
+      js.context['neuronTrigger'] = neuronTrigger;
+      js.context.callMethod("initializeModels",[]);
+    }
 
 
-    Timer.periodic(Duration(milliseconds: 50), (timer) { 
-      // print(Nativec.canvasBufferBytes1.sublist(0,5));
-      setState(()=>{
+    // Timer.periodic(Duration(milliseconds: 50), (timer) { 
+    //   // print(Nativec.canvasBufferBytes1.sublist(0,5));
+    //   setState(()=>{
 
-      });
-    });
+    //   });
+    // });
   }
 
   void _incrementCounter() async {
-    print("Nativec.canvasBufferBytes1");
-    print(Nativec.canvasBufferBytes1);
-    // flutter: [-67.69547283578389, -65.88836155290805, 2.22009137e-314, 6.9486051849013e-310, 6.95325024256085e-310]
-    // flutter: [-70.23360574903995, -70.59600013808426, -2.315841784762842e+77, -2.3203618251475037e+77, 6.95325024256085e-310]
 
-    // nativec.getThresholdHitProcess();
-    // if (Platform.isWindows || Platform.isMacOS) {
-    //   if (Platform.isMacOS) {
-    //     Stream<List<int>>? stream = await MicStream.microphone(
-    //         audioSource: AudioSource.DEFAULT,
-    //         sampleRate: 44100,
-    //         channelConfig: ChannelConfig.CHANNEL_IN_MONO,
-    //         audioFormat: AudioFormat.ENCODING_PCM_16BIT);
-    //     MicStream.stopListening();
-    //   }
-
-    //   try {
-    //     await (Winaudio()).initBassAudio(44100);
-    //     Future.delayed(Duration(milliseconds: 300), () {
-    //       (Winaudio()).startRecording();
-    //     });
-    //   } catch (err) {
-    //     print('init bass audio');
-    //   }
-
-    //   // _receiveAudioPort = ReceivePort();
-    //   // _receiveAudioQueue = StreamQueue(_receiveAudioPort);
-
-    //   // _isolate = await Isolate.spawn<List<dynamic>>(sampleBufferingEntryPoint, [
-    //   //   _receiveAudioPort.sendPort,
-    //   //   [197]
-    //   // ]);
-    //   // iSendAudioPort = await _receiveAudioQueue.next;
-
-    //   // _receiveAudioQueue.rest.listen((curSamples) {
-    //   //   // insertIntoNativeC();
-    //   // });
-
-    //   winAudioSubscription?.cancel();
-    //   nativec.getThresholdHitProcess();
-    //   winAudioSubscription = Winaudio.audioData().listen((samples) {
-    //     // insertIntoNativeC();
-    //   });
-
-    //   return;
-    // }
   }
 
   List<Widget> sideWidget(int idx, double screenWidth){
@@ -331,6 +330,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -365,6 +378,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -400,6 +427,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -434,6 +475,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20, 
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -467,6 +522,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -500,6 +569,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20, 
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -526,6 +609,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.title),
@@ -533,7 +617,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           const Center(
-            child: Text("Two Neuron Simulator", style: TextStyle(fontSize: 25),),
+            child: Text("Two Neuron Simulator", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold ),),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -547,10 +631,12 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(
                 width: screenWidth *0.4,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
                       width: 400,
-                      height: 400,
+                      height: 300,
                       child: ValueListenableBuilder(
                         valueListenable: spikingFlags,
                         builder: (context, value, child) {
@@ -578,6 +664,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(
                       width:screenWidth * 0.4,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           ElevatedButton(
                             onPressed: (){
@@ -586,7 +674,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               }else{
                                 isPlaying = 1;
                               }
-                              nativec.changeIsPlayingProcess(isPlaying);
+                              js.context.callMethod('setIsPlaying',[isPlaying]);
+                              // nativec.changeIsPlayingProcess(isPlaying);
                             }, 
                             child: isPlaying==-1?const Text("Play"):const Text("Pause"),
                           ),
@@ -635,43 +724,47 @@ class _MyHomePageState extends State<MyHomePage> {
             decoration: BoxDecoration(border: Border.all(color:Colors.black)),
             margin: EdgeInsets.all(10),
             width: screenWidth,
-            height: 200,
+            height: screenHeight/2,
             child: Column(
               children: [
                 PolygonWaveform(
                   width:screenWidth-21,
                   activeColor: Colors.black,
                   inactiveColor: Colors.black,
-                  height:99, 
+                  height:screenHeight/4, 
                   gain:chartGain,
                   channelIdx: 0,
                   channelActive: 0,
                   levelMedian:levelMedian,
                   strokeWidth: 1.0,
                   // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
-                  samples: Nativec.canvasBufferBytes1, 
+                  // samples: Nativec.canvasBufferBytes1, 
+                  // samples: Float64List(0), 
                   // samples: Nativec.canvasBufferBytes2, 
-                  // samples: canvasBufferBytes, 
+                  samples: canvasBufferBytes[0], 
                   maxDuration: const Duration(seconds: 10), 
                   elapsedDuration: const Duration(seconds: 10), 
                   eventMarkersPosition: [positionsBufView[0].toDouble()],
+                  // eventMarkersPosition: [0],
                 ),
                 PolygonWaveform(
                   width:screenWidth-21,
                   activeColor: Colors.black,
                   inactiveColor: Colors.black,
-                  height:99, 
+                  height:screenHeight/4, 
                   gain:chartGain,
                   channelIdx: 1,
                   channelActive: 0,
                   levelMedian:levelMedian,
                   strokeWidth: 1.0,
-                  // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
-                  samples: Nativec.canvasBufferBytes2, 
                   // samples: Nativec.canvasBufferBytes2, 
-                  // samples: canvasBufferBytes, 
+                  // samples: Float64List(0), 
+                  // samples: Nativec.canvasBufferBytes2, 
+                  samples: canvasBufferBytes[1], 
                   maxDuration: const Duration(seconds: 10), 
                   elapsedDuration: const Duration(seconds: 10), 
+                  eventMarkersPosition: [positionsBufView[0].toDouble()],
+
                 ),
             
               ],
@@ -693,11 +786,14 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-      // if (kIsWeb){
-      //   js.context.callMethod('setIzhikevichParameters', [aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,positionsBuf,level, neuronSize,envelopeSize,bufferSize,1]);
-      // }else{
-        nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,level, neuronSize, envelopeSize, bufferSize, 1);
-      // }
+      if (kIsWeb){
+        print("changeNeuronSimulatorParameters");
+        js.context.callMethod('setIzhikevichParameters', 
+          [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView,level, neuronSize,envelopeSize,bufferSize,isPlaying])]
+        );
+      }else{
+        // nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,level, neuronSize, envelopeSize, bufferSize, 1);
+      }
     });
 
   }
