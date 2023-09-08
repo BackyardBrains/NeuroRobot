@@ -120,6 +120,7 @@ double matrixMultiply(){
 
 EMSCRIPTEN_KEEPALIVE int main()
 {
+    srand((unsigned) time(NULL));
     // v0[0]= 3.0;
     // v0[1]= 7.0;
     // EM_ASM({
@@ -289,11 +290,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
             int32_t currentStep = 0;
             short isSpiking[totalNumOfNeurons];
             short isStepSpiking[totalNumOfNeurons];
-            int connectome[totalNumOfNeurons][totalNumOfNeurons];
-            connectome[0][0] = 0; // w_init = 2
-            connectome[0][1] = 2; // w_init = 2
-            connectome[1][0] = 2; // w_init = 2
-            connectome[1][1] = 0; // w_init = 2
+            double connectome[totalNumOfNeurons][totalNumOfNeurons];
+            connectome[0][0] = 0.0; // w_init = 2
+            connectome[0][1] = 2.02; // w_init = 2
+            connectome[1][0] = 2.20; // w_init = 2
+            connectome[1][1] = 0.0; // w_init = 2
             
             while(true){
                 double tI[totalNumOfNeurons];
@@ -344,7 +345,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
         
                     
                     //Add spiking synaptic weights to neuronal inputs
-                    int *sumConnectome = new int[totalNumOfNeurons]();                    
+                    double *sumConnectome = new double[totalNumOfNeurons]();
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         short spikingNeuronIndex = spikingNow[idx];
 
