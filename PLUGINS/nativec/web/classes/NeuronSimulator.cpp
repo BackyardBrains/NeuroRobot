@@ -87,7 +87,7 @@ EMSCRIPTEN_KEEPALIVE short ms_per_step = 30;
 EMSCRIPTEN_KEEPALIVE short steps_per_loop = 200;
 EMSCRIPTEN_KEEPALIVE short intended_timer_period = ms_per_step/1000;
 
-EMSCRIPTEN_KEEPALIVE int32_t lvl,len, envSize,bufSize;
+EMSCRIPTEN_KEEPALIVE int32_t lvl,totalNumOfNeurons, envSize,bufSize;
 EMSCRIPTEN_KEEPALIVE double *a,*b, *v, *u;
 EMSCRIPTEN_KEEPALIVE short *c,*d,*i,*w, isPlaying=-1;
 EMSCRIPTEN_KEEPALIVE uint16_t *positions;
@@ -199,8 +199,8 @@ EXTERNC FUNCTION_ATTRIBUTE uint16_t getCurrentPosition(short _channel){
     
     return positions[_channel];
 }
-// EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, short *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,short _level, int32_t _length, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
-EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, const val &__b, const val &__c, const val &__d, const val &__i, const val &__w, const val &__positions, const val &__canvasPointers, short _level, int32_t _length, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
+// EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, short *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
+EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, const val &__b, const val &__c, const val &__d, const val &__i, const val &__w, const val &__positions, const val &__canvasPointers, short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 // EXTERNC FUNCTION_ATTRIBUTE auto applyLowPassFilter(int16_t channelIdx, const val &data, int32_t sampleCount){
     std::vector<double> _a = convertJSArrayToNumberVector<double>(__a); 
     std::vector<double> _b = convertJSArrayToNumberVector<double>(__b); 
@@ -225,19 +225,19 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
 //     }
 
     // debug_print("changeNeuronSimulatorProcess 0");
-    a=new double[_length];
-    b=new double[_length];
-    c=new short[_length];
-    d=new short[_length];
-    i=new short[_length];
-    w=new short[_length];
-    v=new double[_length];
-    u=new double[_length];
-    canvasPointers = new int[_length];
-    neuronCircles = new int[_length];
+    a=new double[_neuronLength];
+    b=new double[_neuronLength];
+    c=new short[_neuronLength];
+    d=new short[_neuronLength];
+    i=new short[_neuronLength];
+    w=new short[_neuronLength];
+    v=new double[_neuronLength];
+    u=new double[_neuronLength];
+    canvasPointers = new int[_neuronLength];
+    neuronCircles = new int[_neuronLength];
     
     double rand = 1;
-    for (short ch = 0 ; ch < _length; ch++){
+    for (short ch = 0 ; ch < _neuronLength; ch++){
         positions[ch] = _positions[ch];
         a[ch]=_a[ch];
         b[ch]=_b[ch];
@@ -267,16 +267,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     }, d[0], d[1]);
 
     lvl = _level;
-    len = _length;
+    totalNumOfNeurons = _neuronLength;
     envSize = _envelopeSize;
     bufSize = _bufferSize;
     isPlaying = _isPlaying;
     // debug_print(std::to_string(a[0]).c_str());
     if (isThreadCreated==-1){
         // debug_print("v_traces");
-        v_traces = new double*[_length];
+        v_traces = new double*[_neuronLength];
 
-        for (short idx = 0; idx<_length; idx++){
+        for (short idx = 0; idx<_neuronLength; idx++){
             v_traces[idx] = new double[bigBufferLength];
         }       
         // v_traces1 = canvasBuffer1;
@@ -287,16 +287,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
         std::thread simulatorThread([&]() {
             double rand;
             int32_t currentStep = 0;
-            short isSpiking[len];
-            short isStepSpiking[len];
-            int connectome[len][len];
+            short isSpiking[totalNumOfNeurons];
+            short isStepSpiking[totalNumOfNeurons];
+            int connectome[totalNumOfNeurons][totalNumOfNeurons];
             connectome[0][0] = 0; // w_init = 2
             connectome[0][1] = 2; // w_init = 2
             connectome[1][0] = 2; // w_init = 2
             connectome[1][1] = 0; // w_init = 2
             
             while(true){
-                double tI[len];
+                double tI[totalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     continue;
@@ -307,14 +307,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
 
                 std::vector<double*> v_step = std::vector<double*>();
 
-                for (short neuronIndex = 0; neuronIndex < len; neuronIndex++) {
+                for (short neuronIndex = 0; neuronIndex < totalNumOfNeurons; neuronIndex++) {
                     isStepSpiking[neuronIndex] = 0;
                 }
 
                 for (short t = 0; t < ms_per_step; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
-                    // double tempV[len];
-                    for (short neuronIndex = 0; neuronIndex < len; neuronIndex++) {
+                    // double tempV[totalNumOfNeurons];
+                    for (short neuronIndex = 0; neuronIndex < totalNumOfNeurons; neuronIndex++) {
                         tI[neuronIndex] = i[neuronIndex] * (1.3 * randoms());
                         
                         //find spiking neurons
@@ -326,40 +326,41 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                         }
                     }
                     // insert old data in timeline
-                    double *copyV = new double[len];
-                    std::copy(v, v+len, copyV);
+                    double *copyV = new double[totalNumOfNeurons];
+                    std::copy(v, v+totalNumOfNeurons, copyV);
                     v_step.push_back(copyV);
-                    short n = spikingNow.size();
-                    for (short idx = 0; idx < n; idx++){
+
+                    short numberOfSpikingNow = spikingNow.size();
+                    for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         short neuronIndex = spikingNow[idx];
                         //Reset spiking v to c
                         v[neuronIndex] = c[neuronIndex];
                         //Adjust spiking u to d
                         u[neuronIndex] = u[neuronIndex] + d[neuronIndex];
                     }
-                    // double *copyV = new double[len];
-                    // std::copy(v, v+len, copyV);
+                    // double *copyV = new double[totalNumOfNeurons];
+                    // std::copy(v, v+totalNumOfNeurons, copyV);
                     // v_step.push_back(copyV);
         
                     
                     //Add spiking synaptic weights to neuronal inputs
-                    int *sumConnectome = new int[len]();                    
-                    for (short idx = 0; idx < n; idx++){
+                    int *sumConnectome = new int[totalNumOfNeurons]();                    
+                    for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         short spikingNeuronIndex = spikingNow[idx];
 
-                        for ( short j=0; j < len ; j++ ){
+                        for ( short j=0; j < totalNumOfNeurons ; j++ ){
                             sumConnectome[j] += connectome[spikingNeuronIndex][j];
                         }
                         // short neuronIndex = spikingNow[idx];
-                        // short inverseNeuronIndex = len - 1 - neuronIndex;
+                        // short inverseNeuronIndex = totalNumOfNeurons - 1 - neuronIndex;
                         // tI[inverseNeuronIndex] += w[inverseNeuronIndex];
                     }
-                    for (short idx = 0; idx < len; idx++){
+                    for (short idx = 0; idx < totalNumOfNeurons; idx++){
                         tI[idx] += sumConnectome[idx];
                     }
                     free(sumConnectome);
 
-                    for (short neuronIndex = 0; neuronIndex < len; neuronIndex++) {
+                    for (short neuronIndex = 0; neuronIndex < totalNumOfNeurons; neuronIndex++) {
                         // v[neuronIndex] += 0.5 * randoms();  
 
                         // Propagate v  
@@ -380,11 +381,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                     }
                         // tempV[neuronIndex] = v[neuronIndex];
                 }
+
                 if (isStepSpiking[0]==1 && isStepSpiking[1]==1){
                     std::string str = "S|1|1";
-                    // for (unsigned idx=0; idx<len; idx++){
+                    // for (unsigned idx=0; idx<totalNumOfNeurons; idx++){
                     //     str.append(std::to_string(isSpiking[idx]).c_str());
-                    //     if (idx < len-1) str.append("|");
+                    //     if (idx < totalNumOfNeurons-1) str.append("|");
                     // }
                     neuronCircles[0]=1;
                     neuronCircles[1]=1;
@@ -451,11 +453,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                 // debug_print(std::to_string(startPos).c_str());
 
                 for (int idx = 0; idx < v_step.size(); idx++) {
-                    for (short neuronIndex = 0; neuronIndex < len; neuronIndex++) {
+                    for (short neuronIndex = 0; neuronIndex < totalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
                 }
-                for (short neuronIndex = 0; neuronIndex < len; neuronIndex++) {
+                for (short neuronIndex = 0; neuronIndex < totalNumOfNeurons; neuronIndex++) {
                     positions[neuronIndex] = startPos + v_step.size();
                 }
 
