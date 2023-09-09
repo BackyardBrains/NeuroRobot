@@ -110,7 +110,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
       // if (channelIdx == 0){
         final evX = eventMarkersPosition[0] * sampleWidth;
         final offset1 = new Offset(evX, 0);
-        final offset2 = new Offset(evX, 200);
+        final offset2 = new Offset(evX, 300);
         // final spikingLine1 = new Offset(0, -30/gain + levelMedian);
         // final spikingLine2 = new Offset(1200, -30/gain + levelMedian);
 

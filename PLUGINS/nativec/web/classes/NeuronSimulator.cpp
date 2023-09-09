@@ -238,21 +238,21 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     neuronCircles = new int[_neuronLength];
     
     double rand = 1;
-    for (short ch = 0 ; ch < _neuronLength; ch++){
-        positions[ch] = _positions[ch];
-        a[ch]=_a[ch];
-        b[ch]=_b[ch];
-        c[ch]=_c[ch];
-        d[ch]=_d[ch];
-        i[ch]=_i[ch];
-        w[ch]=_w[ch];
-        canvasPointers[ch] = _canvasPointers[ch];
-        neuronCircles[ch] = 0;
+    for (short neuronIndex = 0 ; neuronIndex < _neuronLength; neuronIndex++){
+        positions[neuronIndex] = _positions[neuronIndex];
+        a[neuronIndex]=_a[neuronIndex];
+        b[neuronIndex]=_b[neuronIndex];
+        c[neuronIndex]=_c[neuronIndex];
+        d[neuronIndex]=_d[neuronIndex];
+        i[neuronIndex]=_i[neuronIndex];
+        w[neuronIndex]=_w[neuronIndex];
+        canvasPointers[neuronIndex] = _canvasPointers[neuronIndex];
+        neuronCircles[neuronIndex] = 0;
         rand = i_rand * randoms();
 
-        v[ch]= c[ch] + rand;
+        v[neuronIndex]= c[neuronIndex] + rand;
         // v[ch]= c[ch] +  (double) (i_rand * rand() / RAND_MAX);
-        u[ch]= b[ch] * v[ch];
+        u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
     }
     EM_ASM({
         console.log('a : ',  $0 , ', ' , ($1));
@@ -291,12 +291,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
             short isSpiking[totalNumOfNeurons];
             short isStepSpiking[totalNumOfNeurons];
             double connectome[totalNumOfNeurons][totalNumOfNeurons];
-            connectome[0][0] = 0.0; // w_init = 2
-            connectome[0][1] = 2.02; // w_init = 2
-            connectome[1][0] = 2.20; // w_init = 2
-            connectome[1][1] = 0.0; // w_init = 2
             
             while(true){
+                if (w[0] != connectome[0][1] || w[1] != connectome[1][0]){
+                    connectome[0][0] = 0.0; // w_init = 2
+                    connectome[0][1] = w[0]; // w_init = 2
+                    connectome[1][0] = w[1]; // w_init = 2
+                    connectome[1][1] = 0.0; // w_init = 2
+                }
+
                 double tI[totalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
                     std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -1,4 +1,4 @@
-import 'dart:async';
+// import 'dart:async';
 import 'dart:convert';
 // import 'dart:ffi' as ffi;
 // import 'dart:io';
@@ -10,7 +10,7 @@ import 'dart:math';
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
-import 'package:async/async.dart';
+// import 'package:async/async.dart';
 // import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
@@ -142,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<double> bBufView  = List<double>.filled(neuronSize, 0);
   List<int> cBufView  = List<int>.filled(neuronSize, 0);
   List<int> dBufView  = List<int>.filled(neuronSize, 0);
-  List<int> iBufView  = List<int>.filled(neuronSize, 0);
+  List<double> iBufView  = List<double>.filled(neuronSize, 0);
   List<int> wBufView  = List<int>.filled(neuronSize, 0);
   List<int> positionsBufView  = List<int>.filled(neuronSize, 0);
 
@@ -150,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<double> varB = List<double>.filled(neuronSize, 0.18);
   List<int> varC = List<int>.filled(neuronSize, -65);
   List<int> varD = List<int>.filled(neuronSize, 2);
-  List<int> varI = List<int>.filled(neuronSize, 5);
+  List<double> varI = List<double>.filled(neuronSize, 5);
   List<int> varW = List<int>.filled(neuronSize, 2);
 
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
@@ -160,7 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
   
   int isPlaying = 1;
   double levelMedian = 20;
-  double chartGain = 2;
+  double chartGain = 1;
 
   void initNativeC(){
     // for (int i = 0;i<3000;i++){
@@ -171,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const b = 0.18;
     const c = -65;
     const d = 2;
-    const i = 5;
+    const i = 5.0;
     const w = 2;
     
     int neuronSizeType = neuronSize;
@@ -720,55 +720,63 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          Container(
-            decoration: BoxDecoration(border: Border.all(color:Colors.black)),
-            margin: EdgeInsets.all(10),
-            width: screenWidth,
-            height: screenHeight/2,
-            child: Column(
-              children: [
-                PolygonWaveform(
-                  width:screenWidth-21,
-                  activeColor: Colors.black,
-                  inactiveColor: Colors.black,
-                  height:screenHeight/4, 
-                  gain:chartGain,
-                  channelIdx: 0,
-                  channelActive: 0,
-                  levelMedian:levelMedian,
-                  strokeWidth: 1.0,
-                  // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
-                  // samples: Nativec.canvasBufferBytes1, 
-                  // samples: Float64List(0), 
-                  // samples: Nativec.canvasBufferBytes2, 
-                  samples: canvasBufferBytes[0], 
-                  maxDuration: const Duration(seconds: 10), 
-                  elapsedDuration: const Duration(seconds: 10), 
-                  eventMarkersPosition: [positionsBufView[0].toDouble()],
-                  // eventMarkersPosition: [0],
-                ),
-                PolygonWaveform(
-                  width:screenWidth-21,
-                  activeColor: Colors.black,
-                  inactiveColor: Colors.black,
-                  height:screenHeight/4, 
-                  gain:chartGain,
-                  channelIdx: 1,
-                  channelActive: 0,
-                  levelMedian:levelMedian,
-                  strokeWidth: 1.0,
-                  // samples: Nativec.canvasBufferBytes2, 
-                  // samples: Float64List(0), 
-                  // samples: Nativec.canvasBufferBytes2, 
-                  samples: canvasBufferBytes[1], 
-                  maxDuration: const Duration(seconds: 10), 
-                  elapsedDuration: const Duration(seconds: 10), 
-                  eventMarkersPosition: [positionsBufView[0].toDouble()],
-
-                ),
-            
-              ],
-            )
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(10.0),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return Container(
+                    decoration: BoxDecoration(border: Border.all(color:Colors.black)),
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: Column(
+                      children: [
+                        PolygonWaveform(
+                          width:constraints.maxWidth,
+                          activeColor: Colors.black,
+                          inactiveColor: Colors.black,
+                          height:constraints.maxHeight/2, 
+                          gain:chartGain,
+                          channelIdx: 0,
+                          channelActive: 0,
+                          levelMedian:levelMedian,
+                          strokeWidth: 1.0,
+                          // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
+                          // samples: Nativec.canvasBufferBytes1, 
+                          // samples: Float64List(0), 
+                          // samples: Nativec.canvasBufferBytes2, 
+                          samples: canvasBufferBytes[0], 
+                          maxDuration: const Duration(seconds: 10), 
+                          elapsedDuration: const Duration(seconds: 10), 
+                          eventMarkersPosition: [positionsBufView[0].toDouble()],
+                          // eventMarkersPosition: [0],
+                        ),
+                        PolygonWaveform(
+                          width:constraints.maxWidth,
+                          activeColor: Colors.black,
+                          inactiveColor: Colors.black,
+                          height:constraints.maxHeight/2, 
+                          gain:chartGain,
+                          channelIdx: 1,
+                          channelActive: 0,
+                          levelMedian:levelMedian,
+                          strokeWidth: 1.0,
+                          // samples: Nativec.canvasBufferBytes2, 
+                          // samples: Float64List(0), 
+                          // samples: Nativec.canvasBufferBytes2, 
+                          samples: canvasBufferBytes[1], 
+                          maxDuration: const Duration(seconds: 10), 
+                          elapsedDuration: const Duration(seconds: 10), 
+                          eventMarkersPosition: [positionsBufView[0].toDouble()],
+              
+                        ),
+                    
+                      ],
+                    )
+                  );
+                }
+              ),
+            ),
           )
         
         ],

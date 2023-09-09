@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:js' as js;
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:async/async.dart';
 import 'package:auto_orientation/auto_orientation.dart';
@@ -252,10 +252,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState(){
     super.initState();
     initNativeC();
-    if (kIsWeb){
-      js.context['canvasDraw'] = canvasDraw;
-      js.context.callMethod("initializeModels",[]);
-    }
 
 
     Timer.periodic(Duration(milliseconds: 50), (timer) { 
@@ -331,6 +327,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -365,6 +375,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -400,6 +424,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -434,6 +472,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20, 
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -467,6 +519,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20,
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -500,6 +566,20 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(
             width:screenWidth*0.23,
             child: FlutterSlider(
+              handlerWidth: 20,
+              handlerHeight: 20, 
+              handler: FlutterSliderHandler(
+                decoration: BoxDecoration(),
+                child: Material(
+                  type: MaterialType.canvas,
+                  color: Colors.green,
+                  elevation: 3,
+                  child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(Icons.adjust, size: 7,)),
+                ),
+              ),              
+
               tooltip: FlutterSliderTooltip(
                 disabled: true,
               ),              
@@ -578,6 +658,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(
                       width:screenWidth * 0.4,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
                             onPressed: (){
@@ -631,51 +712,63 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          Container(
-            decoration: BoxDecoration(border: Border.all(color:Colors.black)),
-            margin: EdgeInsets.all(10),
-            width: screenWidth,
-            height: 200,
-            child: Column(
-              children: [
-                PolygonWaveform(
-                  width:screenWidth-21,
-                  activeColor: Colors.black,
-                  inactiveColor: Colors.black,
-                  height:99, 
-                  gain:chartGain,
-                  channelIdx: 0,
-                  channelActive: 0,
-                  levelMedian:levelMedian,
-                  strokeWidth: 1.0,
-                  // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
-                  samples: Nativec.canvasBufferBytes1, 
-                  // samples: Nativec.canvasBufferBytes2, 
-                  // samples: canvasBufferBytes, 
-                  maxDuration: const Duration(seconds: 10), 
-                  elapsedDuration: const Duration(seconds: 10), 
-                  eventMarkersPosition: [positionsBufView[0].toDouble()],
-                ),
-                PolygonWaveform(
-                  width:screenWidth-21,
-                  activeColor: Colors.black,
-                  inactiveColor: Colors.black,
-                  height:99, 
-                  gain:chartGain,
-                  channelIdx: 1,
-                  channelActive: 0,
-                  levelMedian:levelMedian,
-                  strokeWidth: 1.0,
-                  // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
-                  samples: Nativec.canvasBufferBytes2, 
-                  // samples: Nativec.canvasBufferBytes2, 
-                  // samples: canvasBufferBytes, 
-                  maxDuration: const Duration(seconds: 10), 
-                  elapsedDuration: const Duration(seconds: 10), 
-                ),
-            
-              ],
-            )
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(10.0),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return Container(
+                    decoration: BoxDecoration(border: Border.all(color:Colors.black)),
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: Column(
+                      children: [
+                        PolygonWaveform(
+                          width:constraints.maxWidth,
+                          activeColor: Colors.black,
+                          inactiveColor: Colors.black,
+                          height:constraints.maxHeight/2-1, 
+                          gain:chartGain,
+                          channelIdx: 0,
+                          channelActive: 0,
+                          levelMedian:levelMedian,
+                          strokeWidth: 1.0,
+                          // samples: Nativec.canvasBufferBytes1.sublist(0,600), 
+                          samples: Nativec.canvasBufferBytes1, 
+                          // samples: Float64List(0), 
+                          // samples: Nativec.canvasBufferBytes2, 
+                          // samples: canvasBufferBytes[0], 
+                          maxDuration: const Duration(seconds: 10), 
+                          elapsedDuration: const Duration(seconds: 10), 
+                          eventMarkersPosition: [positionsBufView[0].toDouble()],
+                          // eventMarkersPosition: [0],
+                        ),
+                        PolygonWaveform(
+                          width:constraints.maxWidth,
+                          activeColor: Colors.black,
+                          inactiveColor: Colors.black,
+                          height:constraints.maxHeight/2-1, 
+                          gain:chartGain,
+                          channelIdx: 1,
+                          channelActive: 0,
+                          levelMedian:levelMedian,
+                          strokeWidth: 1.0,
+                          // samples: Nativec.canvasBufferBytes2, 
+                          // samples: Float64List(0), 
+                          samples: Nativec.canvasBufferBytes2, 
+                          // samples: canvasBufferBytes[1], 
+                          maxDuration: const Duration(seconds: 10), 
+                          elapsedDuration: const Duration(seconds: 10), 
+                          eventMarkersPosition: [positionsBufView[0].toDouble()],
+              
+                        ),
+                    
+                      ],
+                    )
+                  );
+                }
+              ),
+            ),
           )
         
         ],
@@ -693,11 +786,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-      if (kIsWeb){
-        js.context.callMethod('setIzhikevichParameters', [aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,positionsBuf,level, neuronSize,envelopeSize,bufferSize,1]);
-      }else{
         nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,level, neuronSize, envelopeSize, bufferSize, 1);
-      }
     });
 
   }
