@@ -9,8 +9,12 @@ import 'dart:ffi' as ffi;
 // import 'package:ffi/ffi.dart';
 
 
+typedef stop_thread_func = ffi.Int16 Function(ffi.Int16);
+typedef StopThreadProcess = int Function(int);
 typedef change_is_playing_func = ffi.Int16 Function(ffi.Int16);
 typedef ChangeIsPlayingProcess = int Function(int);
+typedef change_idx_selected_func = ffi.Int16 Function(ffi.Int16);
+typedef ChangeIdxSelectedProcess = int Function(int);
 
 typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
@@ -18,15 +22,18 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
-  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Uint16>,
+  ffi.Pointer<ffi.Double>,
+
   ffi.Int16,
   ffi.Uint32,    
   ffi.Uint32,    
   ffi.Uint32,    
   ffi.Int16,    
+
 );
 typedef ChangeNeuronSimulatorProcess = double Function(
     ffi.Pointer<ffi.Double>, // a
@@ -34,16 +41,18 @@ typedef ChangeNeuronSimulatorProcess = double Function(
     ffi.Pointer<ffi.Int16>, // c
     ffi.Pointer<ffi.Int16>, // d
     ffi.Pointer<ffi.Int16>, // i
-    ffi.Pointer<ffi.Int16>, // w
+    ffi.Pointer<ffi.Double>, // w
 
     ffi.Pointer<ffi.Double>, // canvas buffer neuron 1
     ffi.Pointer<ffi.Double>, // canvas buffer neuron 2
     ffi.Pointer<ffi.Uint16>, // position
+    ffi.Pointer<ffi.Double>, //connectome
     int, // level
     int, // neuron length
     int, // envelope size
     int, // buffer size
     int, // isPlaying
+    
     ); 
 
 typedef set_threshold_dart_port_func = ffi.Double Function(ffi.Int64);
@@ -61,6 +70,8 @@ class Nativec {
   
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
+  late ChangeIdxSelectedProcess _changeIdxSelectedProcess;
+  late StopThreadProcess _stopThreadProcess;
 
   static int totalBytes = 200*30;
 
@@ -91,6 +102,14 @@ class Nativec {
         .lookup<ffi.NativeFunction<change_is_playing_func>>(
             'changeIsPlayingProcess')
         .asFunction();
+    _changeIdxSelectedProcess = nativeLrsLib
+        .lookup<ffi.NativeFunction<change_is_playing_func>>(
+            'changeIdxSelectedProcess')
+        .asFunction();
+    _stopThreadProcess = nativeLrsLib
+        .lookup<ffi.NativeFunction<stop_thread_func>>(
+            'stopThreadProcess')
+        .asFunction();
     // C++ to Flutter
     final initializeApi = nativeLrsLib.lookupFunction<
         ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
@@ -120,19 +139,27 @@ class Nativec {
     canvasBufferBytes1 = _canvasBuffer1.asTypedList(totalBytes);
     canvasBufferBytes2 = _canvasBuffer2.asTypedList(totalBytes);
     
-    canvasBufferBytes1.fillRange(0, totalBytes,0);
-    canvasBufferBytes2.fillRange(0, totalBytes,0);
+    canvasBufferBytes1.fillRange(0, totalBytes,0.0);
+    canvasBufferBytes2.fillRange(0, totalBytes,0.0);
   }
 
   double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
-    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Int16> w, ffi.Pointer<ffi.Uint16> position,
-    int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying) {
+    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
+    int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
+      print("connectome");
+      // return 0;
       return _changeNeuronSimulatorProcess(
-        a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,
+        a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
         level, neuronLength, envelopeSize, bufferSize, isPlaying);
   }
 
   int changeIsPlayingProcess(int isPlaying){
     return _changeIsPlayingProcess(isPlaying);
+  }
+  int changeIdxSelected(int idxSelected){
+    return _changeIdxSelectedProcess(idxSelected);
+  }
+  int stopThreadProcess(int idxSelected){
+    return _stopThreadProcess(idxSelected);
   }
 }

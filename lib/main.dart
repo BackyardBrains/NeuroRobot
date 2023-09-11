@@ -113,6 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
   static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
   late Float64List wBufView  = Float64List(0);
+
+
+  static ffi.Pointer<ffi.Double> connectomeBuf = allocate<ffi.Double>(
+      count: neuronSize * neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+  late Float64List connectomeBufView  = Float64List(0);
+
   
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
@@ -124,17 +130,73 @@ class _MyHomePageState extends State<MyHomePage> {
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
   ValueNotifier<int> spikingFlags = ValueNotifier(0);
 
-  Float64List canvasBufferBytes = Float64List(3000);
+  // Float64List canvasBufferBytes = Float64List(6000);
   
   int isPlaying = 1;
   double levelMedian = 20;
-  double chartGain = 2;
+  double chartGain = 1;
 
   bool isInitialized = false;
   
   late ProtoCircle protoCircle;
-  ValueNotifier<int> redrawNeuron = ValueNotifier(0);
+  ValueNotifier<int> redrawNeuronLine = ValueNotifier(0);
+  
+  TextEditingController neuronInputController = TextEditingController(text:"25");
 
+  void resetNeuronParameters(){
+    free(positionsBuf);
+    free(aBuf);
+    free(bBuf);
+    free(cBuf);
+    free(dBuf);
+    free(iBuf);
+    free(wBuf);
+    free(connectomeBuf);
+
+    const a = 0.02;
+    const b = 0.18;
+    const c = -65;
+    const d = 2;
+    const i = 5;
+    const w = 2.0;   
+    
+    positionsBuf = allocate<ffi.Uint16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Uint16>());
+    aBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+    bBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+    cBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    dBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    iBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    wBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());   
+    connectomeBuf = allocate<ffi.Double>(count: neuronSize * neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+
+    aBufView = aBuf.asTypedList(neuronSize);
+    bBufView = bBuf.asTypedList(neuronSize);
+    cBufView = cBuf.asTypedList(neuronSize);
+    dBufView = dBuf.asTypedList(neuronSize);
+    iBufView = iBuf.asTypedList(neuronSize);
+    wBufView = wBuf.asTypedList(neuronSize);
+    positionsBufView = positionsBuf.asTypedList(neuronSize);
+    connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
+
+    aBufView.fillRange(0, neuronSize, a);
+    bBufView.fillRange(0, neuronSize, b);
+    cBufView.fillRange(0, neuronSize, c);
+    dBufView.fillRange(0, neuronSize, d);
+    iBufView.fillRange(0, neuronSize, i);
+    wBufView.fillRange(0, neuronSize, w);
+    positionsBufView.fillRange(0, neuronSize, 0);
+    connectomeBufView.fillRange(0, neuronSize * neuronSize, 0);
+
+    
+    varA = List<double>.filled(neuronSize, 0.02);
+    varB = List<double>.filled(neuronSize, 0.18);
+    varC = List<int>.filled(neuronSize, -65);
+    varD = List<int>.filled(neuronSize, 2);
+    varI = List<int>.filled(neuronSize, 5);
+    varW = List<double>.filled(neuronSize, 2.0);
+    firingFlags = List<bool>.filled(neuronSize, false);    
+    
+  }
   void initNativeC(){
     // for (int i = 0;i<3000;i++){
     //   canvasBufferBytes[i] = Random().nextDouble() * 100;
@@ -156,6 +218,8 @@ class _MyHomePageState extends State<MyHomePage> {
     iBufView = iBuf.asTypedList(neuronSize);
     wBufView = wBuf.asTypedList(neuronSize);
     positionsBufView = positionsBuf.asTypedList(neuronSize);
+    connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
+
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
     cBufView.fillRange(0, neuronSize, c);
@@ -163,43 +227,64 @@ class _MyHomePageState extends State<MyHomePage> {
     iBufView.fillRange(0, neuronSize, i);
     wBufView.fillRange(0, neuronSize, w);
     positionsBufView.fillRange(0, neuronSize, 0);
+    connectomeBufView.fillRange(0, neuronSize * neuronSize, 0);
 
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, level, neuronSize, envelopeSize, bufferSize, 1);    
+    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
     Nativec.cPublicationStream!.listen((message) {
       if (message.indexOf("S|")>-1){
         List<String> arr = message.split("|");
-        int firingFlags=0;
-        // List<int> firingFlags= [0,0];
-        if (arr[1]=="1" && arr[2]=="1"){
-          // firingFlags[0] = 1;
-          // firingFlags[1] = 1;
-          firingFlags = 3000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else
-        if (arr[1]=="1" ){
-          // firingFlags[0] = 1;
-          // firingFlags[1] = 0;
-          firingFlags = 1000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else
-        if (arr[2]=="1"){
-          // firingFlags[0] = 0;
-          // firingFlags[1] = 1;
-          firingFlags = 2000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else{
-          // firingFlags[0] = 0;
-          // firingFlags[1] = 0;
-          firingFlags = 0 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
+        bool needRedraw = false;
+        for (int i = 1; i < arr.length ; i++){
+          int neuronIndex = i - 1;
+          if (arr[i] == '1'){
+            if (protoCircle.circles[neuronIndex].isSpiking != 1){
+              needRedraw = true;
+            }
+            protoCircle.circles[neuronIndex].isSpiking = 1;
+          }else{
+            if (protoCircle.circles[neuronIndex].isSpiking != 0){
+              needRedraw = true;
+            }
+            protoCircle.circles[neuronIndex].isSpiking = -1;
+          }
         }
+        // print(needRedraw);
+        // if (needRedraw) {
+          redrawNeuronLine.value=Random().nextInt(1000);
+        // }
+
+        // int firingFlags=0;
+        // List<int> firingFlags= [0,0];
+        // if (arr[1]=="1" && arr[2]=="1"){
+        //   // firingFlags[0] = 1;
+        //   // firingFlags[1] = 1;
+        //   firingFlags = 3000 + Random().nextInt(1000);
+        //   spikingFlags.value = firingFlags;
+        //   // mainBloc.refreshNow(firingFlags);
+        // }else
+        // if (arr[1]=="1" ){
+        //   // firingFlags[0] = 1;
+        //   // firingFlags[1] = 0;
+        //   firingFlags = 1000 + Random().nextInt(1000);
+        //   spikingFlags.value = firingFlags;
+        //   // mainBloc.refreshNow(firingFlags);
+        // }else
+        // if (arr[2]=="1"){
+        //   // firingFlags[0] = 0;
+        //   // firingFlags[1] = 1;
+        //   firingFlags = 2000 + Random().nextInt(1000);
+        //   spikingFlags.value = firingFlags;
+        //   // mainBloc.refreshNow(firingFlags);
+        // }else{
+        //   // firingFlags[0] = 0;
+        //   // firingFlags[1] = 0;
+        //   firingFlags = 0 + Random().nextInt(1000);
+        //   spikingFlags.value = firingFlags;
+        //   // mainBloc.refreshNow(firingFlags);
+        // }
 
       }else{
         print("PRINT C++ MESSAGE222 : ");
@@ -219,12 +304,12 @@ class _MyHomePageState extends State<MyHomePage> {
     initNativeC();
 
 
-    // Timer.periodic(Duration(milliseconds: 50), (timer) { 
-    //   // print(Nativec.canvasBufferBytes1.sublist(0,5));
-    //   setState(()=>{
+    Timer.periodic(Duration(milliseconds: 50), (timer) { 
+      // print(Nativec.canvasBufferBytes1.sublist(0,5));
+      setState(()=>{
 
-    //   });
-    // });
+      });
+    });
   }
 
   void _incrementCounter() async {
@@ -530,8 +615,13 @@ class _MyHomePageState extends State<MyHomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
     if (!isInitialized){
       isInitialized = true;
-      protoCircle = ProtoCircle(notifier:redrawNeuron, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
-        aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView);
+      protoCircle = ProtoCircle(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
+        aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
+      const level = 1;
+      const envelopeSize = 200;
+      const bufferSize = 2000;
+
+      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
       // protoCircle.setNeuronParameters(aBufView,bBufView,cBufView,dBufView,iBufView,wBufView);
       // print(wBufView);
     }
@@ -552,24 +642,25 @@ class _MyHomePageState extends State<MyHomePage> {
             top: 0,
             left: 0,
             child: SizedBox(
-              width: screenWidth,
-              height: screenHeight-29,
+              width: screenWidth * 2 / 3 + 50,
+              height: screenHeight * 0.5 +50,
               child: GestureDetector(
                 onTapUp: (TapUpDetails tapUp){
-                  // print("protoCircle.isSelected");
+                  print("protoCircle.isSelected");
                   // print(protoCircle.isSelected);
                   // print(protoCircle.idxSelected);
                   bool flag = protoCircle.testHit(tapUp.globalPosition);
                   if (flag){
-                    // setState(() {});
-                    redrawNeuron.value=Random().nextInt(100);
+                    nativec.changeIdxSelected(protoCircle.idxSelected);
+                    setState(() {});
                   }
+                  redrawNeuronLine.value=Random().nextInt(100);
                 },
                 child :CustomPaint(
                   painter:protoCircle,
                   willChange: true,
                   isComplex: true,
-                  child:Container(),
+                  // child:Container(),
                 ),
                 // child: ValueListenableBuilder(
                 //   valueListenable: redrawNeuron,
@@ -587,6 +678,97 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
           ),
+
+          Positioned(
+            top: 50,
+            right:20,
+            child: SizedBox(
+              width:150,
+              height:50,
+              child: TextField(controller: neuronInputController,keyboardType: TextInputType.number)
+            )
+          ),
+
+          Positioned(
+            top: 120,
+            right:20,
+            child: SizedBox(
+                width:150,
+                height:30,
+                child: ElevatedButton(
+                  child:const Text("Update"),
+                  onPressed:(){
+                    // pause the thread
+                    // nativec.changeIsPlayingProcess(-1);
+                    nativec.stopThreadProcess(0);
+                    protoCircle.isSelected = false;
+                    protoCircle.idxSelected = -1;
+                    neuronSize = int.parse(neuronInputController.text);
+                    resetNeuronParameters();
+
+                    protoCircle = ProtoCircle(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
+                      aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
+                    // nativec.changeIsPlayingProcess(-1);
+
+                    // update the parameters
+                    Future.delayed(const Duration(milliseconds: 300), (){
+                      const level = 1;
+                      const envelopeSize = 200;
+                      const bufferSize = 2000;
+
+                      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+
+                    });
+                  },
+                )
+            )
+          ),
+
+          if (isInitialized && protoCircle.isSelected)...{
+            Positioned(
+              top: 220,
+              right:20,
+              child:SizedBox(
+                width:250,
+                height:250,
+                child:Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: getMatrixData(protoCircle.idxSelected),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child:Container(
+                margin: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(border: Border.all(color:Colors.black)),
+
+                // color:Colors.red,
+                height:screenHeight/2-150,
+                width: screenWidth-20,
+                child: PolygonWaveform(
+                  activeColor: Colors.black,
+                  inactiveColor: Colors.black,
+                  gain:chartGain,
+                  channelIdx: 0,
+                  channelActive: 0,
+                  levelMedian:levelMedian,
+                  // levelMedian:0,
+                  strokeWidth: 1.0,
+
+                  height: screenHeight/2-150,
+                  width: screenWidth-20, 
+                  samples: Nativec.canvasBufferBytes1, 
+                  // samples: Float64List(0), 
+                  maxDuration: const Duration(seconds:3), 
+                  elapsedDuration: const Duration(seconds:1),
+                  eventMarkersPosition: [positionsBufView[0].toDouble()],
+                )
+              )
+            ),
+
+          },
         ],
       ),
       // floatingActionButton: FloatingActionButton(
@@ -602,8 +784,20 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-        nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,level, neuronSize, envelopeSize, bufferSize, 1);
+      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf,level, neuronSize, envelopeSize, bufferSize, 1);
     });
 
+  }
+  
+  List<Widget> getMatrixData(int idxSelected) {
+    List<Widget> widgets = [];
+    int idxSelected = protoCircle.idxSelected;
+    widgets.add( Text("Neuron : ${idxSelected.toString()}" , style: TextStyle(fontWeight: FontWeight.bold)) );
+    widgets.add( Text("Neuron Type : ${protoCircle.circles[idxSelected].neuronType.toString()}" , style: TextStyle(fontWeight: FontWeight.bold)) );
+    widgets.add( const Text("Incoming" , style: TextStyle(fontWeight: FontWeight.bold)) );
+    widgets.add( Text(protoCircle.matrixTranspose[idxSelected].toList().toString()) );
+    widgets.add( const Text("Outwards : " , style: TextStyle(fontWeight: FontWeight.bold)) );
+    widgets.add( Text(protoCircle.matrix[idxSelected].toList().toString()) );
+    return widgets;
   }
 }

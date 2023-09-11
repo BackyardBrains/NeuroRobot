@@ -4,21 +4,27 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class ProtoCircle extends CustomPainter{
-  Color myColor = Color(0xff00FF00);
+  Color activeColor = Colors.green.shade700;
+  Color inactiveColor = Colors.grey;
+
   int neuronSize = 25;
   double screenWidth = 1000;
   double screenHeight = 800;
   List<SingleCircle> circles = [];
   List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
   late List<List<double>> matrix;
-  late Paint myCurrentBarPaint;
+  late List<List<double>> matrixTranspose;
 
-  double circleRadius = 15.0;
+  final double circleRadius = 15.0;
+  final double arrowSize = 15.0;
+  final double arrowMultiplier = 1.0;
+  final arrowAngle=  25 * pi / 180;
   
   int idxSelected = -1;
   bool isSelected = false;
   bool isSpiking = false;
   late Paint boxPaint;
+  late Paint arrowPaint;
 
   late Float64List aBufList;
   late Float64List bBufList;
@@ -26,16 +32,17 @@ class ProtoCircle extends CustomPainter{
   late Int16List dBufList;
   late Int16List iBufList;
   late Float64List wBufList;
+  late Float64List connectomeBufList;
 
 
   ProtoCircle({
     required ValueNotifier<int> notifier, required this.neuronSize, required this.screenWidth, required this.screenHeight,
-    required aBufView, required bBufView,required cBufView,required dBufView,required iBufView,required wBufView
+    required aBufView, required bBufView,required cBufView,required dBufView,required iBufView,required wBufView, required connectomeBufView,
   }):super(repaint:notifier){
 
-    myCurrentBarPaint = Paint()
+    arrowPaint = Paint()
           ..style = PaintingStyle.stroke
-          ..color = Color.fromARGB(255, 255, 80, 0)
+          ..color = Colors.black
           ..strokeWidth = 1;
 
     aBufList = aBufView;
@@ -44,9 +51,11 @@ class ProtoCircle extends CustomPainter{
     dBufList = dBufView;
     iBufList = iBufView;
     wBufList = wBufView;
+    connectomeBufList = connectomeBufView;
 
     // matrix = List<List<double>>.generate(neuronSize, ()=>List<double>.generate()=> []);
     matrix = List.generate(neuronSize, (_) => List<double>.generate(neuronSize, (_)=> 0));
+    matrixTranspose = List.generate(neuronSize, (_) => List<double>.generate(neuronSize, (_)=> 0));
     generateSparseMatrix(neuronSize);
     generateCircle(neuronSize);
   }
@@ -54,9 +63,10 @@ class ProtoCircle extends CustomPainter{
   @override
   void paint(Canvas canvas, Size size) {
 
-    drawArrow(canvas);
     for (int i = neuronSize - 1 ; i >= 0  ; i--){
       SingleCircle circle = circles[i];
+      // canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
+
       if (isSelected && i == idxSelected){
         Rect r = Rect.fromCenter(center: circle.centerPos, width: 32, height: 37);
         if (circle.isSpiking == -1){
@@ -73,6 +83,7 @@ class ProtoCircle extends CustomPainter{
         }
       }
     }
+    drawArrow(canvas);
 
     // if (isSpiking == -1 && isSelected == false) return false;
     // else return true;
@@ -95,16 +106,19 @@ class ProtoCircle extends CustomPainter{
 
     for (int i = 0;i<neuronSize;i++){
       SingleCircle circle = SingleCircle();
-      var tempPaint = Paint()
-        ..color = myColor
+      final inactivePaint = Paint()
+        ..color = inactiveColor
+        ..style = PaintingStyle.fill;
+      final activePaint = Paint()
+        ..color = activeColor
         ..style = PaintingStyle.fill;
       circle.neuronType = randomNeuronType();
       fillNeuronType(circle, i, aBufList,bBufList,cBufList,dBufList,iBufList,wBufList);
 
-      circle.activePaint = (tempPaint);
-      circle.inactivePaint = (tempPaint);
-      double x = Random().nextDouble() * screenWidth * 2/3 + 100;
-      double y = Random().nextDouble() * screenHeight* 2/3 + 50;
+      circle.activePaint = (activePaint);
+      circle.inactivePaint = (inactivePaint);
+      double x = Random().nextDouble() * screenWidth * 2/3 + 50;
+      double y = Random().nextDouble() * screenHeight* 0.5 + 50;
       circle.centerPos = Offset(x, y);
       circle.zIndex = 0;
       circles.add(circle);
@@ -112,14 +126,18 @@ class ProtoCircle extends CustomPainter{
   }
   
   void generateSparseMatrix(int neuronSize) {
+    int ctr = 0;
     for (int i = 0; i < neuronSize ; i++){
       for (int j = 0; j < neuronSize ; j++){
         int r = (Random().nextInt(10)+1);
         if (r % 3 == 0){
           matrix[i][j] = Random().nextDouble() * 3;
+          matrixTranspose[j][i] = matrix[i][j];
         }else{
           matrix[i][j] = 0;
+          matrixTranspose[j][i] = 0;
         }
+        connectomeBufList[ctr++] = matrix[i][j];
       }
     }
 
@@ -152,6 +170,8 @@ class ProtoCircle extends CustomPainter{
     }
     isSelected = _isSelected;
     idxSelected = _idxSelected;
+    print(isSelected);
+    print(idxSelected);
     return isSelected;
   }
   
@@ -203,17 +223,42 @@ class ProtoCircle extends CustomPainter{
     neuron.w = wBufList[idx];
 
   }
-  //https://stackoverflow.com/questions/72714333/flutter-how-do-i-make-arrow-lines-with-canvas
+  
   void drawArrow(canvas) {
+    if (!isSelected) return;
+
     for (int i = 0; i < neuronSize ; i++){
       for (int j = 0; j < neuronSize ; j++){
-        if (i != j){
-          if (matrix[i][j] != 0){
+        if (i != j ){
+          if (matrix[i][j] != 0 && ( i == idxSelected || j == idxSelected) ){
+
+            final dX = circles[j].centerPos.dx - circles[i].centerPos.dx;
+            final dY = circles[j].centerPos.dy - circles[i].centerPos.dy;
+            final angle = atan2(dY, dX);
+            final path = Path();
+            final p2= circles[j].centerPos;
+
+
+            final rx1 = arrowSize * cos(angle - arrowAngle);
+            final ry1 = arrowSize * sin(angle - arrowAngle);
+            final rx2 = arrowSize * cos(angle + arrowAngle);
+            final ry2 = arrowSize * sin(angle + arrowAngle);
+
+            final x1 = p2.dx - rx1 * arrowMultiplier;
+            final y1 = p2.dy - ry1 * arrowMultiplier;
+
+            path.moveTo(x1, y1);
+            path.lineTo(p2.dx, p2.dy);
+            path.lineTo(p2.dx - rx2, p2.dy - ry2);
+            path.close();
+            canvas.drawPath(path, arrowPaint);
+
             canvas.drawLine(
               circles[i].centerPos,
               circles[j].centerPos,
-              myCurrentBarPaint,
+              arrowPaint,
             );
+
           }
         }
       }
