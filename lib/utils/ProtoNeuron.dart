@@ -3,15 +3,16 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-class ProtoCircle extends CustomPainter{
+class ProtoNeuron extends CustomPainter{
   Color activeColor = Colors.green.shade700;
   Color inactiveColor = Colors.grey;
 
-  int neuronSize = 25;
+  int neuronSize = 1;
   double screenWidth = 1000;
   double screenHeight = 800;
-  List<SingleCircle> circles = [];
-  List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
+  List<SingleNeuron> circles = [];
+  List<String> neuronFixedType = ["RS", "RS","RS","RS", "RS", "RS","RS"];
+  // List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
   late List<List<double>> matrix;
   late List<List<double>> matrixTranspose;
 
@@ -35,7 +36,7 @@ class ProtoCircle extends CustomPainter{
   late Float64List connectomeBufList;
 
 
-  ProtoCircle({
+  ProtoNeuron({
     required ValueNotifier<int> notifier, required this.neuronSize, required this.screenWidth, required this.screenHeight,
     required aBufView, required bBufView,required cBufView,required dBufView,required iBufView,required wBufView, required connectomeBufView,
   }):super(repaint:notifier){
@@ -62,27 +63,33 @@ class ProtoCircle extends CustomPainter{
 
   @override
   void paint(Canvas canvas, Size size) {
-
-    for (int i = neuronSize - 1 ; i >= 0  ; i--){
-      SingleCircle circle = circles[i];
-      // canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
-
-      if (isSelected && i == idxSelected){
-        Rect r = Rect.fromCenter(center: circle.centerPos, width: 32, height: 37);
-        if (circle.isSpiking == -1){
-          canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
-        }else{
-          canvas.drawCircle(circle.centerPos, circleRadius, circle.activePaint);
-        }
-        canvas.drawRect(r, boxPaint);
-      }else{
-        if (circle.isSpiking == -1){
-          canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
-        }else{
-          canvas.drawCircle(circle.centerPos, circleRadius, circle.activePaint);
-        }
-      }
+    if (idxSelected > -1){
+      SingleNeuron circle = circles[idxSelected];
+      Rect r = Rect.fromCenter(center: circle.centerPos, width: 32, height: 37);
+      canvas.drawRect(r, boxPaint);
     }
+
+    // for (int i = neuronSize - 1 ; i >= 0  ; i--){
+    //   SingleNeuron circle = circles[i];
+    //   // canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
+
+    //   if (isSelected && i == idxSelected){
+    //     Rect r = Rect.fromCenter(center: circle.centerPos, width: 32, height: 37);
+    //     // if (circle.isSpiking == -1){
+    //     //   canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
+    //     // }else{
+    //     //   canvas.drawCircle(circle.centerPos, circleRadius, circle.activePaint);
+    //     // }
+    //     canvas.drawRect(r, boxPaint);
+    //   }else{
+    //     // canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
+    //     // if (circle.isSpiking == -1){
+    //     //   canvas.drawCircle(circle.centerPos, circleRadius, circle.inactivePaint);
+    //     // }else{
+    //     //   canvas.drawCircle(circle.centerPos, circleRadius, circle.activePaint);
+    //     // }
+    //   }
+    // }
     drawArrow(canvas);
 
     // if (isSpiking == -1 && isSelected == false) return false;
@@ -105,7 +112,7 @@ class ProtoCircle extends CustomPainter{
       ..style = PaintingStyle.stroke;
 
     for (int i = 0;i<neuronSize;i++){
-      SingleCircle circle = SingleCircle();
+      SingleNeuron circle = SingleNeuron();
       final inactivePaint = Paint()
         ..color = inactiveColor
         ..style = PaintingStyle.fill;
@@ -141,8 +148,8 @@ class ProtoCircle extends CustomPainter{
       }
     }
 
-    print("matrix");
-    print(matrix);
+    // print("matrix");
+    // print(matrix);
   }
 
   // void setNeuronParameters(aBufView,bBufView,cBufView,dBufView,iBufView,wBufView){
@@ -159,7 +166,7 @@ class ProtoCircle extends CustomPainter{
     bool _isSelected = false;
     int _idxSelected = -1;
     for (int i = neuronSize - 1 ; i >= 0; i--){
-      SingleCircle circle = circles[i];
+      SingleNeuron circle = circles[i];
       
       double distance = (circle.centerPos - globalPosition).distance;
       if (distance < circleRadius){
@@ -175,7 +182,7 @@ class ProtoCircle extends CustomPainter{
     return isSelected;
   }
   
-  void fillNeuronType(SingleCircle neuron, int idx, Float64List aBufList, Float64List bBufList, Int16List cBufList, Int16List dBufList, Int16List iBufList, Float64List wBufList) {
+  void fillNeuronType(SingleNeuron neuron, int idx, Float64List aBufList, Float64List bBufList, Int16List cBufList, Int16List dBufList, Int16List iBufList, Float64List wBufList) {
     switch(neuron.neuronType){
       case "RS":
         aBufList[idx] = 0.02;
@@ -267,7 +274,7 @@ class ProtoCircle extends CustomPainter{
   }
 }
 
-class SingleCircle{
+class SingleNeuron{
   late Paint inactivePaint;
   late Paint activePaint;
   late Offset centerPos;

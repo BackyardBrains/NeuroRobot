@@ -146,7 +146,7 @@ class Nativec {
   double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
     ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
     int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
-      print("connectome");
+      // print("connectome");
       // return 0;
       return _changeNeuronSimulatorProcess(
         a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,

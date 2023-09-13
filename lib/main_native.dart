@@ -144,16 +144,16 @@ class _MyHomePageState extends State<MyHomePage> {
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
   late Int16List iBufView  = Int16List(0);
   
-  static ffi.Pointer<ffi.Int16> wBuf = allocate<ffi.Int16>(
-      count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List wBufView  = Int16List(0);
+  static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
+      count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+  late Float64List wBufView  = Float64List(0);
   
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
   List<int> varC = List<int>.filled(neuronSize, -65);
   List<int> varD = List<int>.filled(neuronSize, 2);
   List<int> varI = List<int>.filled(neuronSize, 5);
-  List<int> varW = List<int>.filled(neuronSize, 2);
+  List<double> varW = List<double>.filled(neuronSize, 2.0);
   
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
   ValueNotifier<int> spikingFlags = ValueNotifier(0);
@@ -175,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const c = -65;
     const d = 2;
     const i = 5;
-    const w = 2;
+    const w = 2.0;
     
     int neuronSizeType = neuronSize;
     aBufView = aBuf.asTypedList(neuronSizeType);
@@ -197,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, level, neuronSize, envelopeSize, bufferSize, 1);    
+    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, wBuf,level, neuronSize, envelopeSize, bufferSize, 1);    
     Nativec.cPublicationStream!.listen((message) {
       if (message.indexOf("S|")>-1){
         List<String> arr = message.split("|");
@@ -587,7 +587,7 @@ class _MyHomePageState extends State<MyHomePage> {
               max: 300000,
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
-                varW[idx] = (lowerValue/10000).floor();
+                varW[idx] = (lowerValue/10000);
                 wBufView[idx] = varW[idx];
                 changeNeuronSimulatorParameters();
 
@@ -786,7 +786,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-        nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,level, neuronSize, envelopeSize, bufferSize, 1);
+        nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, wBuf,level, neuronSize, envelopeSize, bufferSize, 1);
     });
 
   }

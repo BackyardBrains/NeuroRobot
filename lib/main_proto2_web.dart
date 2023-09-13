@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:js' as js;
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:another_xlider/another_xlider.dart';
@@ -86,53 +88,62 @@ class _MyHomePageState extends State<MyHomePage> {
   Debouncer debouncerScroll = Debouncer(milliseconds: 300);  
   StreamSubscription<dynamic>? winAudioSubscription;
   late Nativec nativec;
-  static int neuronSize = 10;
-  static final int maxPosBuffer = 11;
+  static int neuronSize = 2000;
+  static final int maxPosBuffer = 2001;
 
-  static ffi.Pointer<ffi.Uint16> positionsBuf = allocate<ffi.Uint16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Uint16>());
-  late Uint16List positionsBufView  = Uint16List(0);
+  // static ffi.Pointer<ffi.Uint16> positionsBuf = allocate<ffi.Uint16>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Uint16>());
+  // late Uint16List positionsBufView  = Uint16List(0);
 
-  static ffi.Pointer<ffi.Double> aBuf = allocate<ffi.Double>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-  late Float64List aBufView  = Float64List(0);
+  // static ffi.Pointer<ffi.Double> aBuf = allocate<ffi.Double>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+  // late Float64List aBufView  = Float64List(0);
 
-  static ffi.Pointer<ffi.Double> bBuf = allocate<ffi.Double>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-  late Float64List bBufView  = Float64List(0);
+  // static ffi.Pointer<ffi.Double> bBuf = allocate<ffi.Double>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+  // late Float64List bBufView  = Float64List(0);
 
   
-  static ffi.Pointer<ffi.Int16> cBuf = allocate<ffi.Int16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List cBufView  = Int16List(0);
+  // static ffi.Pointer<ffi.Int16> cBuf = allocate<ffi.Int16>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+  // late Int16List cBufView  = Int16List(0);
   
-  static ffi.Pointer<ffi.Int16> dBuf = allocate<ffi.Int16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List dBufView  = Int16List(0);
+  // static ffi.Pointer<ffi.Int16> dBuf = allocate<ffi.Int16>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+  // late Int16List dBufView  = Int16List(0);
 
-  static ffi.Pointer<ffi.Int16> iBuf = allocate<ffi.Int16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List iBufView  = Int16List(0);
+  // static ffi.Pointer<ffi.Int16> iBuf = allocate<ffi.Int16>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+  // late Int16List iBufView  = Int16List(0);
   
-  static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-  late Float64List wBufView  = Float64List(0);
+  // static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
+  //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+  // late Float64List wBufView  = Float64List(0);
 
 
-  static ffi.Pointer<ffi.Double> connectomeBuf = allocate<ffi.Double>(
-      count: maxPosBuffer * maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-  late Float64List connectomeBufView  = Float64List(0);
-
+  // static ffi.Pointer<ffi.Double> connectomeBuf = allocate<ffi.Double>(
+  //     count: maxPosBuffer * maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+  // late Float64List connectomeBufView  = Float64List(0);
+  List<double> aBufView  = List<double>.filled(neuronSize, 0);
+  List<double> bBufView  = List<double>.filled(neuronSize, 0);
+  List<int> cBufView  = List<int>.filled(neuronSize, 0);
+  List<int> dBufView  = List<int>.filled(neuronSize, 0);
+  List<double> iBufView  = List<double>.filled(neuronSize, 0);
+  List<double> wBufView  = List<double>.filled(neuronSize, 0);
+  // List<int> positionsBufView  = List<int>.filled(neuronSize, 0);
+  Uint16List positionsBufView  = Uint16List(neuronSize);
+  Float64List connectomeBufView  = Float64List(neuronSize*neuronSize);
   
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
   List<int> varC = List<int>.filled(neuronSize, -65);
   List<int> varD = List<int>.filled(neuronSize, 2);
-  List<int> varI = List<int>.filled(neuronSize, 5);
+  List<double> varI = List<double>.filled(neuronSize, 5);
   List<double> varW = List<double>.filled(neuronSize, 2.0);
   
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
   ValueNotifier<int> spikingFlags = ValueNotifier(0);
+  List<Float64List> canvasBufferBytes = [Float64List(0)];
   
   List<ValueNotifier<int>> neuronSpikeFlags = [];
   List<GlobalKey> neuronCircleKeys = [];
@@ -159,27 +170,9 @@ class _MyHomePageState extends State<MyHomePage> {
     const b = 0.18;
     const c = -65;
     const d = 2;
-    const i = 5;
+    const i = 5.0;
     const w = 2.0;   
     
-    // positionsBuf = allocate<ffi.Uint16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Uint16>());
-    // aBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
-    // bBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
-    // cBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // dBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // iBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // wBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());   
-    // connectomeBuf = allocate<ffi.Double>(count: neuronSize * neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
-
-    aBufView = aBuf.asTypedList(neuronSize);
-    bBufView = bBuf.asTypedList(neuronSize);
-    cBufView = cBuf.asTypedList(neuronSize);
-    dBufView = dBuf.asTypedList(neuronSize);
-    iBufView = iBuf.asTypedList(neuronSize);
-    wBufView = wBuf.asTypedList(neuronSize);
-    // positionsBufView = positionsBuf.asTypedList(neuronSize);
-    connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
-
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
     cBufView.fillRange(0, neuronSize, c);
@@ -194,13 +187,12 @@ class _MyHomePageState extends State<MyHomePage> {
     varB = List<double>.filled(neuronSize, 0.18);
     varC = List<int>.filled(neuronSize, -65);
     varD = List<int>.filled(neuronSize, 2);
-    varI = List<int>.filled(neuronSize, 5);
+    varI = List<double>.filled(neuronSize, 5.0);
     varW = List<double>.filled(neuronSize, 2.0);
     firingFlags = List<bool>.filled(neuronSize, false);    
     neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
     neuronCircleKeys = List<GlobalKey>.generate(neuronSize, (i)=>GlobalKey(debugLabel:"neuronWidget${i.toString()}"));
     neuronActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx){
-      // return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: true);
       return CustomPaint(
         painter: SingleCircle( isActive: true),
         willChange: false,
@@ -209,20 +201,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     neuronInactiveCircles = List<CustomPaint>.generate(neuronSize, (int idx){
-      // return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: false);
       return CustomPaint(
         painter: SingleCircle( isActive: false),
         willChange: false,
         isComplex: false,
       );
     });
-    // neuronActiveCircles = List<SingleCircle>.generate(neuronSize, (int idx){
-    //   return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: true);
-    // });
-
-    // neuronInactiveCircles = List<SingleCircle>.generate(neuronSize, (int idx){
-    //   return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: false);
-    // });
     
   }
   void initNativeC(){
@@ -236,19 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
     const b = 0.18;
     const c = -65;
     const d = 2;
-    const i = 5;
+    const i = 5.0;
     const w = 2.0;
     
     // int neuronSizeType = neuronSize;
-    aBufView = aBuf.asTypedList(neuronSize);
-    bBufView = bBuf.asTypedList(neuronSize);
-    cBufView = cBuf.asTypedList(neuronSize);
-    dBufView = dBuf.asTypedList(neuronSize);
-    iBufView = iBuf.asTypedList(neuronSize);
-    wBufView = wBuf.asTypedList(neuronSize);
-    positionsBufView = positionsBuf.asTypedList(maxPosBuffer);
-    connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
-
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
     cBufView.fillRange(0, neuronSize, c);
@@ -257,11 +232,10 @@ class _MyHomePageState extends State<MyHomePage> {
     wBufView.fillRange(0, neuronSize, w);
     positionsBufView.fillRange(0, maxPosBuffer, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0);
-    // neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
+
     neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
     neuronCircleKeys = List<GlobalKey>.generate(neuronSize, (i)=>GlobalKey(debugLabel:"neuronWidget${i.toString()}"));
     neuronActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx){
-      // return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: true);
       return CustomPaint(
         painter: SingleCircle( isActive: true),
         willChange: false,
@@ -270,87 +244,128 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     neuronInactiveCircles = List<CustomPaint>.generate(neuronSize, (int idx){
-      // return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: false);
       return CustomPaint(
         painter: SingleCircle( isActive: false),
         willChange: false,
         isComplex: false,
       );
     });
-    // neuronActiveCircles = List<SingleCircle>.generate(neuronSize, (int idx){
-    //   return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: true);
-    // });
-
-    // neuronInactiveCircles = List<SingleCircle>.generate(neuronSize, (int idx){
-    //   return SingleCircle(notifier: neuronSpikeFlags[idx], isActive: false);
-    // });
 
 
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
-    Nativec.cPublicationStream!.listen((message) {
-      // print("message");
-      // print(message);
-      // if (message.indexOf("S|")>-1){
-      //   List<String> arr = message.split("|");
-      //   // bool needRedraw = false;
-      //   try{
-      //     for (int i = 1; i < arr.length ; i++){
-      //       int neuronIndex = i - 1;
-      //       if (arr[i] == '1'){
-      //         // if (protoNeuron.circles[neuronIndex].isSpiking != 1){
-      //         //   needRedraw = true;
-      //         // }
-      //         protoNeuron.circles[neuronIndex].isSpiking = 1;
-      //         neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-      //       }else{
-      //         // if (protoNeuron.circles[neuronIndex].isSpiking != 0){
-      //         //   needRedraw = true;
-      //         // }
-      //         protoNeuron.circles[neuronIndex].isSpiking = -1;
-      //         neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-      //       }
-      //     }
-      //   }catch(ex){
+    js.context.callMethod('setIzhikevichParameters', 
+      [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1])]
+    );
 
-      //   }
-      //   // print(needRedraw);
-      //   // if (needRedraw) {
-      //     // redrawNeuronLine.value=Random().nextInt(1000);
-      //   // }
-      // }else{
-        print("PRINT C++ MESSAGE222 : ");
-        print(message);
+    // nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+    // Nativec.cPublicationStream!.listen((message) {
+    //   // print("message");
+    //   // print(message);
+    //   if (message.indexOf("S|")>-1){
+    //     List<String> arr = message.split("|");
+    //     // bool needRedraw = false;
+    //     try{
+    //       for (int i = 1; i < arr.length ; i++){
+    //         int neuronIndex = i - 1;
+    //         if (arr[i] == '1'){
+    //           // if (protoNeuron.circles[neuronIndex].isSpiking != 1){
+    //           //   needRedraw = true;
+    //           // }
+    //           protoNeuron.circles[neuronIndex].isSpiking = 1;
+    //           neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+    //         }else{
+    //           // if (protoNeuron.circles[neuronIndex].isSpiking != 0){
+    //           //   needRedraw = true;
+    //           // }
+    //           protoNeuron.circles[neuronIndex].isSpiking = -1;
+    //           neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+    //         }
+    //       }
+    //     }catch(ex){
 
-      // }
-    });    
+    //     }
+    //     // print(needRedraw);
+    //     // if (needRedraw) {
+    //       // redrawNeuronLine.value=Random().nextInt(1000);
+    //     // }
+    //   }else{
+    //     print("PRINT C++ MESSAGE222 : ");
+    //     print(message);
+
+    //   }
+    // });    
   }
 
-  bool canvasDraw(params){
+  // bool canvasDraw(params){
 
-    return true;
+  //   return true;
+  // }
+  canvasDraw(params){
+    // print(params);
+    canvasBufferBytes[0] = Float64List.fromList((params[0]).toList().cast<double>());
+    // canvasBufferBytes[1] = Float64List.fromList((params[1]).toList().cast<double>());
+    positionsBufView[0] = (params[1]).toList().cast<double>()[0];
+    // canvasBufferBytes[0] = params[0];
+    // canvasBufferBytes[1] = params[1];
+    setState((){});
   }
-  @override
+
+  neuronTrigger(params){
+    int firingFlags=0;
+    List<int> arr = (params).toList().cast<int>();
+
+    if (arr[0]==1 && arr[1]==1){
+      firingFlags = 3000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else
+    if (arr[0]==1 ){
+      firingFlags = 1000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else
+    if (arr[1]==1){
+      firingFlags = 2000 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+      // mainBloc.refreshNow(firingFlags);
+    }else{
+      firingFlags = 0 + Random().nextInt(1000);
+      spikingFlags.value = firingFlags;
+    }
+  }
+
+
   void initState(){
     super.initState();
     initNativeC();
+    if (kIsWeb){
+      js.context['canvasDraw'] = canvasDraw;
+      js.context['neuronTrigger'] = neuronTrigger;
 
-    Future.delayed(const Duration(milliseconds: 300), (){
-      setState(()=>{
+      const level = 1;
+      const envelopeSize = 200;
+      const bufferSize = 2000;
+      js.context.callMethod("initializeModels",
+        [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1]) ]
+      );
+    }
 
-      });
-    });
-    Timer.periodic(const Duration(milliseconds: 50), (timer) { 
-      // print(Nativec.canvasBufferBytes1.sublist(0,5));
-      if (protoNeuron.idxSelected !=-1){
-        waveRedraw.value = Random().nextInt(10000);
-        // setState(()=>{
+    // Future.delayed(const Duration(milliseconds: 300), (){
+    //   setState(()=>{
 
-        // });
-      }
-    });
+    //   });
+    // });
+    // Timer.periodic(const Duration(milliseconds: 50), (timer) { 
+    //   // print(Nativec.canvasBufferBytes1.sublist(0,5));
+    //   if (protoNeuron.idxSelected !=-1){
+    //     waveRedraw.value = Random().nextInt(10000);
+    //     // setState(()=>{
+
+    //     // });
+    //   }
+    // });
   }
 
   void _incrementCounter() async {
@@ -587,7 +602,7 @@ class _MyHomePageState extends State<MyHomePage> {
               max: 200000,
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
-                varI[idx] = (lowerValue/10000).floor();
+                varI[idx] = (lowerValue/10000);
                 iBufView[idx] = varI[idx];
                 changeNeuronSimulatorParameters();
 
@@ -664,23 +679,17 @@ class _MyHomePageState extends State<MyHomePage> {
       const level = 1;
       const envelopeSize = 200;
       const bufferSize = 2000;
+      // js.context.callMethod('changeNeuronSimulatorProcess', [aBufView, bBufView, cBufView, dBufView, iBufView, wBufView, positionsBufView, connectomeBufView,level, neuronSize, envelopeSize, bufferSize, 1] );
+      js.context.callMethod('setIzhikevichParameters', 
+        [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1])]
+      );
 
       // nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
-      // protoNeuron.setNeuronParameters(aBufView,bBufView,cBufView,dBufView,iBufView,wBufView);
-      // print(wBufView);
     }
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      // ),
       body: Stack(
         children: getAllWidgets(screenWidth,screenHeight),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
   
@@ -689,7 +698,12 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf,level, neuronSize, envelopeSize, bufferSize, 1);
+      js.context.callMethod('setIzhikevichParameters', 
+        [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1])]
+      );
+
+      // js.context.callMethod('changeNeuronSimulatorProcess', [aBufView, bBufView, cBufView, dBufView, iBufView, wBufView, positionsBufView, connectomeBufView,level, neuronSize, envelopeSize, bufferSize, 1] );
+      // nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf,level, neuronSize, envelopeSize, bufferSize, 1);
     });
 
   }
@@ -765,11 +779,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 int inputNumber = 0;
                 try{
                   inputNumber = int.parse(input);
-                  // if (inputNumber > 200){
-                  //   await _showMyDialog('Please decrease the neuron size to be at least below or equal to 200');
-                  //   neuronInputController.text = "200";
-                  //   return;
-                  // }
+                  if (inputNumber > 200){
+                    await _showMyDialog('Please decrease the neuron size to be at least below or equal to 200');
+                    neuronInputController.text = "200";
+                    return;
+                  }
                 }catch(ex){
                   print(ex);
                   await _showMyDialog('Please only insert valid number');
@@ -777,10 +791,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   return;
                 }
                 
-                
                 // pause the thread
-                // nativec.changeIsPlayingProcess(-1);
-                nativec.stopThreadProcess(0);
+                // nativec.stopThreadProcess(0);
+                js.context.callMethod("stopThreadProcess", [0]);
                 protoNeuron.isSelected = false;
                 protoNeuron.idxSelected = -1;
                 neuronSize = int.parse(input);
@@ -788,16 +801,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 protoNeuron = ProtoNeuron(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
                   aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
-                // nativec.changeIsPlayingProcess(-1);
                 setState(() {});
 
-                // update the parameters
                 Future.delayed(const Duration(milliseconds: 300), (){
                   const level = 1;
                   const envelopeSize = 200;
                   const bufferSize = 2000;
+                  // js.context.callMethod('changeNeuronSimulatorProcess', [aBufView, bBufView, cBufView, dBufView, iBufView, wBufView, positionsBufView, connectomeBufView,level, neuronSize, envelopeSize, bufferSize, 1] );
+                  js.context.callMethod('setIzhikevichParameters', 
+                    [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1])]
+                  );
 
-                  nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+
+                  // nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
 
                 });
               },
@@ -824,28 +840,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child:Container(
             margin: const EdgeInsets.all(10.0),
             decoration: BoxDecoration(border: Border.all(color:Colors.black)),
-
-            // color:Colors.red,
             height:screenHeight/2-150,
             width: screenWidth-20,
-            // child:PolygonWaveform(
-            //   activeColor: Colors.black,
-            //   inactiveColor: Colors.black,
-            //   gain:chartGain,
-            //   channelIdx: 0,
-            //   channelActive: 0,
-            //   levelMedian:levelMedian,
-            //   // levelMedian:0,
-            //   strokeWidth: 1.0,
-
-            //   height: screenHeight/2-130,
-            //   width: screenWidth-20, 
-            //   samples: Nativec.canvasBufferBytes1, 
-            //   // samples: Float64List(0), 
-            //   maxDuration: const Duration(seconds:3), 
-            //   elapsedDuration: const Duration(seconds:1),
-            //   eventMarkersPosition: [positionsBufView[0].toDouble()],
-            // )
             child: waveWidget
           )
         ),
@@ -855,10 +851,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // protoNeuron.
     for (int i = 0; i < neuronSize ;i++){
       SingleNeuron neuron = protoNeuron.circles[i];
-      // print("-------");
-      // print("neuronSpikeFlags[i]");
-      // print(neuron.centerPos.dx);
-      // print(neuron.centerPos.dy);
       widgets.add(
         Positioned(
           top:neuron.centerPos.dy-15,
@@ -869,20 +861,9 @@ class _MyHomePageState extends State<MyHomePage> {
               valueListenable: neuronSpikeFlags[i],
               builder: ((context, value, child) {
                 if (protoNeuron.circles[i].isSpiking == -1){
-                  // print( DateTime.now().millisecondsSinceEpoch);
-                  // return CustomPaint(
-                  //   painter: neuronInactiveCircles[i],
-                  //   willChange: true,
-                  //   isComplex: true,
-                  // );
                   return neuronInactiveCircles[i];
                 }else{
                   return neuronActiveCircles[i];
-                  // return CustomPaint(
-                  //   painter: neuronActiveCircles[i],
-                  //   willChange: true,
-                  //   isComplex: true,
-                  // );
                 }
               }),
             ),
@@ -915,20 +896,7 @@ class _MyHomePageState extends State<MyHomePage> {
               painter:protoNeuron,
               willChange: true,
               isComplex: true,
-              // child:Container(),
             ),
-            // child: ValueListenableBuilder(
-            //   valueListenable: redrawNeuron,
-            //   builder: (BuildContext context, value, child) {
-            //     print("redraw");
-            //     return CustomPaint(
-            //       painter:protoNeuron,
-            //       willChange: true,
-            //       isComplex: true,
-            //       child:Container(),
-            //     );
-            //   }
-            // ),
           ),
         ),
 

@@ -7,6 +7,7 @@ let sabD;
 let sabI;
 let sabW;
 let sabPos;
+let sabConnectome;
 let sabCom;
 let sabNeuronCircle;
 let sabIsPlaying;
@@ -18,6 +19,7 @@ let sabNumD;
 let sabNumI;
 let sabNumW;
 let sabNumPos;
+let sabNumConnectome;
 let sabNumCom;
 let sabNumNeuronCircle;
 let sabNumIsPlaying;
@@ -48,6 +50,7 @@ self.onmessage = async function( eventFromMain ) {
         sabI = eventFromMain.data.sabI;
         sabW = eventFromMain.data.sabW;
         sabPos = eventFromMain.data.sabPos;
+        sabConnectome = eventFromMain.data.sabConnectome;
         sabCanvas = eventFromMain.data.sabCanvas;
         sabCom = eventFromMain.data.sabCom;
         sabNeuronCircle = eventFromMain.data.sabNeuronCircle;
@@ -61,6 +64,7 @@ self.onmessage = async function( eventFromMain ) {
         sabNumI = new Float64Array(sabI);
         sabNumW = new Float64Array(sabW);
         sabNumPos = new Uint32Array(sabPos);            
+        sabNumConnectome = new Float64Array(sabConnectome);
         sabNumCom = new Int16Array(sabCom);
         sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
         sabNumIsPlaying = new Int16Array(sabIsPlaying);
@@ -91,7 +95,7 @@ self.onmessage = async function( eventFromMain ) {
             if (sabNumCom[0]==1){
                 console.log("Instruction coming in!");
                 sabNumCom[0] = -1;
-                Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, sabNumPos, canvasBuffers,level, neuronSize,envelopeSize,bufferSize,isPlaying);
+                Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, sabNumPos, sabNumConnectome, canvasBuffers,level, neuronSize,envelopeSize,bufferSize,isPlaying);
             }
             if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
                 Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
@@ -133,7 +137,7 @@ self.onmessage = async function( eventFromMain ) {
 
 
 
-self.importScripts("neuronsimulator.js"); 
+self.importScripts("neuronprototype.js"); 
 self.Module.onRuntimeInitialized = async _ => {
     console.log("Runtime Initialized");
     // let sabA = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
