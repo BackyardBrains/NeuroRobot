@@ -1,10 +1,12 @@
 
 
 if length(cnet_temp) == 2
-    this_fix = 0.7;
+    this_fix = 0.85;
 else
     this_fix = 0;
 end
+presyn = [];
+postsyn = [];
 
 %% Create state net
 n = n_vis_prefs - n_basic_vis_features;
@@ -31,6 +33,7 @@ counter = n_basic_vis_features;
 for presynaptic_neuron = nneurons + 1:nneurons + n
 
     counter = counter + 1;
+    presyn = [presyn presynaptic_neuron];
 
     % Neuron-neuron synapses
     for postsynaptic_neuron = nneurons + 1:nneurons + n
@@ -75,7 +78,7 @@ nneurons = nneurons + n;
 %% Create action net
 if length(cnet_temp) == 2
 
-    n = 10;
+    n = n_unique_actions;
 
     % Get equally distributed points
     xx = 0.005 * n + 0.4;
@@ -103,6 +106,7 @@ if length(cnet_temp) == 2
     for presynaptic_neuron = nneurons + 1:nneurons + n
     
         counter = counter + 1;
+        postsyn = [postsyn presynaptic_neuron];
 
         % Neuron-neuron synapses
         for postsynaptic_neuron = nneurons + 1:nneurons + n
@@ -153,6 +157,14 @@ if length(cnet_temp) == 2
     neuron_scripts(nneurons + 1 : nneurons + n, 1) = 0;
     nneurons = nneurons + n;
 
+    counter = 0;
+    for ii = presyn
+        counter = counter + 1;
+        this_action = getAction(agent, counter);
+        this_action = cell2mat(this_action);
+        this_neuron = postsyn(this_action);
+        connectome(ii, this_neuron) = 40;
+    end
 end
 
 disp('Network created')
