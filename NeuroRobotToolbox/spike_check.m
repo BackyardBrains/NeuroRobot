@@ -13,10 +13,25 @@ these_neurons = 14:18;
 
 %%
 for nstep = 1:nsteps
+    if ~rem(nstep, nsteps/10)
+        disp(horzcat(num2str((100*nstep)/nsteps), '%'))
+    end
     load(horzcat(spike_dir(nstep).folder, '\', spike_dir(nstep).name))
     data(nstep) = sum(sum(spikes_step(these_neurons, :)));
 end
+
+%%
+data2 = smoothdata(data);
+[vals, inds] = findpeaks(data2, 'MinPeakDistance', 50, 'MinPeakProminence', 2);
+this_mean = round(mean(diff(inds)/10));
+this_std = round(std(diff(inds)/10));
+horzcat('Avg. inter-peak interval = ', num2str(this_mean), ' ± ', num2str(this_std), ' s')
+
 figure(1)
 clf
-plot(data)
-title('Spikes per step')
+plot(data2)
+hold on
+plot(inds, vals, 'marker', 'v', 'linestyle', 'none')
+title(horzcat('Spikes per step (peak interval = ', num2str(this_mean), ' ± ', num2str(this_std), ' s)'))
+
+

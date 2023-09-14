@@ -19,17 +19,17 @@ load(horzcat(brain_name, '.mat'))
 load_brain
 save_brain
 
+brain_name = 'L1C2';
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
+
+brain_name = 'L1C3';
+load(horzcat(brain_name, '.mat'))
+load_brain
+save_brain
+
 brain_name = 'L1C4';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
-
-brain_name = 'L1C5';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
-
-brain_name = 'L1C6';
 load(horzcat(brain_name, '.mat'))
 load_brain
 save_brain
