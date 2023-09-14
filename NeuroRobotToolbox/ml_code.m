@@ -13,8 +13,8 @@ drawnow
 
 
 %% Prepare
-rec_dir_name = 'Rec3';
-% rec_dir_name = '';
+% rec_dir_name = 'Rec3';
+rec_dir_name = '';
 
 
 %% Prepare figure
@@ -26,114 +26,61 @@ set(fig_ml, 'position', fig_pos, 'color', fig_bg_col)
 
 
 %% Buttons
-button1_pos = [0.03 0.87 0.2 0.05];
-button2_pos = [0.03 0.8 0.2 0.05];
-button3_pos = [0.03 0.73 0.2 0.05];
-button4_pos = [0.03 0.66 0.2 0.05];
-button5_pos = [0.03 0.59 0.2 0.05];
-button6_pos = [0.03 0.52 0.2 0.05];
-button7_pos = [0.03 0.45 0.2 0.05];
-button8_pos = [0.03 0.38 0.2 0.05];
-button9_pos = [0.03 0.31 0.2 0.05];
-button10_pos = [0.03 0.24 0.2 0.05];
+unsup_title_pos = [0.03 0.86 0.2 0.05];
+unsup_button1_pos = [0.03 0.8 0.2 0.05];
+unsup_out1_pos = [0.26 0.8 0.31 0.05];
+unsup_button2_pos = [0.03 0.73 0.2 0.05];
+unsup_edit2_pos = [0.26 0.73 0.14 0.05];
+unsup_out2_pos = [0.43 0.73 0.14 0.05];
 
-button_data = uicontrol('Style', 'pushbutton', 'String', 'Get data', 'units', 'normalized', 'position', button1_pos);
-set(button_data,'Callback', 'ml_get_data_stats', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+rl_title_pos = [0.03 0.58 0.2 0.05];
+rl_button1_pos = [0.03 0.52 0.2 0.05];
+rl_out1_pos = [0.26 0.52 0.31 0.05];
+rl_button2_pos = [0.03 0.45 0.2 0.05];
+rl_edit2_goal_pos = [0.4 0.45 0.07 0.05];
+rl_edit2_name_pos = [0.26 0.45 0.12 0.05];
+rl_out2_pos = [0.49 0.45 0.08 0.05];
 
-button_similarity = uicontrol('Style', 'pushbutton', 'String', 'Get similarity scores', 'units', 'normalized', 'position', button2_pos);
-set(button_similarity,'Callback', 'ml_get_similarity', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+unsup_title = uicontrol('Style', 'text', 'String', 'Unsupervised Learning', 'units', 'normalized', 'position', unsup_title_pos, ...
+    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
-button_cluster = uicontrol('Style', 'pushbutton', 'String', 'Cluster similar data', 'units', 'normalized', 'position', button3_pos);
-set(button_cluster,'Callback', 'ml_get_clusters', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_data_unsup = uicontrol('Style', 'pushbutton', 'String', 'Prepare Data', 'units', 'normalized', 'position', unsup_button1_pos);
+set(button_data_unsup,'Callback', 'ml_get_data_unsup', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_prune = uicontrol('Style', 'pushbutton', 'String', 'Quality control', 'units', 'normalized', 'position', button4_pos);
-set(button_prune,'Callback', 'ml_quality', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_train_unsup = uicontrol('Style', 'pushbutton', 'String', 'Train Network', 'units', 'normalized', 'position', unsup_button2_pos);
+set(button_train_unsup,'Callback', 'ml_train_net_unsup', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_training_data = uicontrol('Style', 'pushbutton', 'String', 'Finalize training data', 'units', 'normalized', 'position', button5_pos);
-set(button_training_data,'Callback', 'ml_finalize_training_data', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+rl_title = uicontrol('Style', 'text', 'String', 'Reinforcement Learning', 'units', 'normalized', 'position', rl_title_pos, ...
+    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
-button_get_net = uicontrol('Style', 'pushbutton', 'String', 'Train state net', 'units', 'normalized', 'position', button6_pos);
-set(button_get_net,'Callback', 'ml_get_state_net', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_data_rl = uicontrol('Style', 'pushbutton', 'String', 'Prepare data', 'units', 'normalized', 'position', rl_button1_pos);
+set(button_data_rl,'Callback', 'ml_get_data_rl', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_get_tuples = uicontrol('Style', 'pushbutton', 'String', 'Get tuples', 'units', 'normalized', 'position', button7_pos);
-set(button_get_tuples,'Callback', 'ml_get_tuples', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-button_get_mdp = uicontrol('Style', 'pushbutton', 'String', 'Get Markov Decision Process', 'units', 'normalized', 'position', button8_pos);
-set(button_get_mdp,'Callback', 'ml_get_mdp', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-button_set_goals = uicontrol('Style', 'pushbutton', 'String', 'Set goals', 'units', 'normalized', 'position', button9_pos);
-set(button_set_goals,'Callback', 'ml_set_rewards', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-button_get_agent = uicontrol('Style', 'pushbutton', 'String', 'Train action net', 'units', 'normalized', 'position', button10_pos);
-set(button_get_agent,'Callback', 'ml_get_action_net', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_train_rl = uicontrol('Style', 'pushbutton', 'String', 'Train Network', 'units', 'normalized', 'position', button7_pos);
+set(button_train_rl,'Callback', 'ml_train_net_rl', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
 %% Text Fields
-ax1_pos = [0.26 0.87 0.31 0.05];
-ax1 = axes('position', ax1_pos);
-set(ax1, 'xtick', [], 'ytick', [])
+unsup_out1_ax = axes('position', unsup_out1_pos);
+set(unsup_out1_ax, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
-ax2_pos = [0.26 0.8 0.31 0.05];
-ax2 = axes('position', ax2_pos);
-set(ax2, 'xtick', [], 'ytick', [])
+unsup_edit2 = uicontrol('Style', 'edit', 'String', 'Enter state net name here', 'units', 'normalized', 'position', unsup_edit2_pos);
+unsup_out2 = axes('position', unsup_out2_pos);
+set(unsup_out2, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
-ax3_pos = [0.26 0.73 0.31 0.05];
-ax3 = axes('position', ax3_pos);
-set(ax3, 'xtick', [], 'ytick', [])
+rl_out1 = axes('position', rl_out1_pos);
+set(rl_out1, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 
-ax4_pos = [0.26 0.66 0.31 0.05];
-ax4 = axes('position', ax4_pos);
-set(ax4, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax5_edit_pos = [0.26 0.59 0.12 0.05];
-ax5_pos = [0.4 0.59 0.17 0.05];
-ax5_edit = uicontrol('Style', 'edit', 'String', 'Enter state net name here', 'units', 'normalized', 'position', ax5_edit_pos);
-ax5 = axes('position', ax5_pos);
-set(ax5, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax6_pos = [0.26 0.52 0.31 0.05];
-ax6 = axes('position', ax6_pos);
-set(ax6, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax7_pos = [0.26 0.45 0.31 0.05];
-ax7 = axes('position', ax7_pos);
-set(ax7, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax8_pos = [0.26 0.38 0.31 0.05];
-ax8 = axes('position', ax8_pos);
-set(ax8, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax9_edit_pos = [0.26 0.31 0.12 0.05];
-ax9_edit2_pos = [0.4 0.31 0.07 0.05];
-ax9_pos = [0.49 0.31 0.08 0.05];
-ax9_edit = uicontrol('Style', 'edit', 'String', 'Enter goal states here', 'units', 'normalized', 'position', ax9_edit_pos);
-ax9_edit2 = uicontrol('Style', 'edit', 'String', 'Enter goal action here', 'units', 'normalized', 'position', ax9_edit2_pos);
-ax9 = axes('position', ax9_pos);
-set(ax9, 'xtick', [], 'ytick', [])
-box on
-axis([0 1 0 1])
-
-ax10_edit_pos = [0.26 0.24 0.12 0.05];
-ax10_pos = [0.4 0.24 0.17 0.05];
-ax10_edit = uicontrol('Style', 'edit', 'String', 'Enter action net name here', 'units', 'normalized', 'position', ax10_edit_pos);
-ax10 = axes('position', ax10_pos);
-set(ax10, 'xtick', [], 'ytick', [])
+rl_edit2_goal = uicontrol('Style', 'edit', 'String', 'Enter goal states here', 'units', 'normalized', 'position', rl_edit2_goal_pos);
+rl_edit2_name = uicontrol('Style', 'edit', 'String', 'Enter action net name here', 'units', 'normalized', 'position', rl_edit2_name_pos);
+rl_out2 = axes('position', rl_out2_pos);
+set(rl_out2, 'xtick', [], 'ytick', [])
 box on
 axis([0 1 0 1])
 

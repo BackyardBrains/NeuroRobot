@@ -196,7 +196,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             elseif multi_neuron_opt == 2 % Algorithm
                 design_algorithm
             elseif multi_neuron_opt == 3 % Agent
-                design_agent
+                design_net
             elseif multi_neuron_opt == 4 % Brain
                 design_brain
             end
@@ -214,8 +214,14 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             elseif multi_neuron_opt == 2 % Algorithm
                 create_from_algorithm
                 create_combo_brain
-            elseif multi_neuron_opt == 3 % Agent
-                create_from_agent
+            elseif multi_neuron_opt == 3 % Trained Net
+                if ~strcmp(popup_select_nets.String, '--')
+                    create_from_net
+                    trained_nets = full_net_name;
+                end
+                delete(text_heading)
+                delete(text_w1)
+                delete(popup_select_nets)                  
             elseif multi_neuron_opt == 4 % Brain
                 load_additional_brain
                 if isempty(trained_nets_2) || strcmp(trained_nets, trained_nets_2)

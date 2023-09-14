@@ -1,7 +1,8 @@
 
 %% Get features and similarity scores
 
-axes(ax2)
+axes(unsup_out1_ax)
+cla
 
 this_msg = horzcat('Preparing to find features...');
 tx2 = text(0.03, 0.5, this_msg);
@@ -73,3 +74,4 @@ xlabel('Similarity score')
 ylabel('Count')
 title('Similarity data histogram')
 
+drawnow

@@ -117,6 +117,8 @@ if select_nets.Value > nimported % If a custom net was selected
     cnet_temp = strfind(full_net_name, '-');
     if length(cnet_temp) == 1
         net_name = full_net_name(1:cnet_temp(1)-1);
+        rl_type = '';
+        agent_name = '';        
     elseif length(cnet_temp) == 2
         net_name = full_net_name(1:cnet_temp(1)-1);
         rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
@@ -124,8 +126,16 @@ if select_nets.Value > nimported % If a custom net was selected
     else
         error('Bad custom net name')
     end
-else
-    net_name = '';
+elseif select_nets.Value == nimported
+    full_net_name = 'GoogLeNet';
+    rl_type = '';
+    agent_name = '';
+    cnet_temp = 0;
+else    
+    full_net_name = '--';
+    rl_type = '';
+    agent_name = '';
+    cnet_temp = -1;
 end
 
 
@@ -138,7 +148,7 @@ load_brain
 brain_support = 1;
 if ~isempty(trained_nets)
     brain_support = 0;
-    if (use_cnn && strcmp(trained_nets, 'GoogLeNet')) || (use_custom_net && strcmp(trained_nets, net_name))
+    if (use_cnn && strcmp(trained_nets, 'GoogLeNet')) || (use_custom_net && strcmp(trained_nets, full_net_name))
         brain_support = 1;
     else
         disp(horzcat('Error: Brain needs this trained net to see: ', trained_nets))

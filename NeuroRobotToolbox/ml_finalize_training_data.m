@@ -1,17 +1,17 @@
 
 
 %% Get net name
-net_name = ax5_edit.String;
+net_name = unsup_edit2.String;
 if isempty(net_name) || strcmp(net_name, 'Enter state net name here')
-    ax5_edit.BackgroundColor = [1 0 0];
+    unsup_edit2.BackgroundColor = [1 0 0];
     pause(0.5)
-    ax5_edit.BackgroundColor = [0.94 0.94 0.94];
+    unsup_edit2.BackgroundColor = [0.94 0.94 0.94];
     error('Set state net name')
 end
 
 
 %% Create datasets for training nets
-axes(ax5)
+axes(unsup_out2)
 cla
 tx5 = text(0.03, 0.5, horzcat('creating training datasets...'));
 drawnow
@@ -87,6 +87,6 @@ pause(2)
 
 
 %% Output
-axes(ax5)
+axes(unsup_out2)
 tx5.String = horzcat(num2str(n_unique_states), ' state folders created and visualized');
 drawnow

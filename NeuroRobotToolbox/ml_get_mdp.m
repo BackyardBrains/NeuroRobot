@@ -2,7 +2,7 @@
 
 %% Get Markov Decision Process
 
-axes(ax8)
+axes(rl_out1)
 cla
 tx8 = text(0.03, 0.5, horzcat('creating world model (MDP)...'));
 drawnow

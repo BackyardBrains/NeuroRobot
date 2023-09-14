@@ -1,7 +1,7 @@
 
 
 %%
-axes(ax7)
+axes(rl_out1)
 
 cla
 tx7 = text(0.03, 0.5, horzcat('loading net...'));

@@ -17,7 +17,7 @@ save(strcat(nets_dir_name, net_name, '-labels'), 'labels')
 
 
 %%
-axes(ax6)
+axes(unsup_out2)
 cla
 tx6 = text(0.03, 0.5, horzcat('training convnet on ', num2str(n_unique_states), ' states'));
 drawnow

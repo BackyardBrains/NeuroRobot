@@ -1,9 +1,9 @@
 
 
 %% Get inter-state similarity
-
-axes(ax4)
+axes(unsup_out1_ax)
 cla
+
 tx4 = text(0.03, 0.5, horzcat('getting inter-state similarities...'));
 drawnow
 
@@ -46,12 +46,12 @@ end
 
 prc25 = prctile(intra_state_similarity, 25);
 
-axes(im_ax2)
-cla
-bar(intra_state_similarity)
-xlabel('State')
-ylabel('Score')
-title('Intra-state similarity')
+% axes(im_ax2)
+% cla
+% bar(intra_state_similarity)
+% xlabel('State')
+% ylabel('Score')
+% title('Intra-state similarity')
 
 % axes(im_ax2)
 % cla

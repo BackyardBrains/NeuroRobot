@@ -7,17 +7,17 @@ disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
 %% 
-agent_name = ax10_edit.String;
+agent_name = rl_edit2_name.String;
 if isempty(agent_name) || strcmp(agent_name, 'Enter action net name here')
-    ax10_edit.BackgroundColor = [1 0 0];
+    rl_edit2_name.BackgroundColor = [1 0 0];
     pause(0.5)
-    ax10_edit.BackgroundColor = [0.94 0.94 0.94];
+    rl_edit2_name.BackgroundColor = [0.94 0.94 0.94];
     error('Set action net name')
 end
 
 
 %%
-axes(ax10)
+axes(rl_out2)
 cla
 tx10 = text(0.03, 0.5, horzcat('training action nets...'));
 drawnow
@@ -54,7 +54,7 @@ training_opts.Verbose = 1;
 trainingStats_shallow = train(agent, env, training_opts);
 save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
 
-tx10.String = 'Shallow training done. Training deep...';
+tx10.String = 'Training deep...';
 drawnow
 
 %% Show Agent 1

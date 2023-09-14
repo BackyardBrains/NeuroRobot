@@ -1,11 +1,11 @@
 
 
 %% Set parameter scaling factor
-adj = 0.4;
+adj = 0.2;
 
 
 %% Get all recorded data and display summary stats
-axes(ax1)
+axes(unsup_out1_ax)
 
 this_msg = 'Finding recorded data...';
 cla

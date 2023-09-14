@@ -1,9 +1,9 @@
 
 %% Cluster on similarity
 n_unique_states = init_n_unique_states;
-axes(ax3)
-
+axes(unsup_out1_ax)
 cla
+
 tx3 = text(0.03, 0.5, horzcat('Clustering...'));
 drawnow
 disp('Clustering... ')
@@ -25,22 +25,22 @@ imagesc(xdata(o, o), [0 0.75])
 c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
 title('Similarity matrix (sorted)')
 
-axes(im_ax2)
-cla
-histogram(group_inds, 'binwidth', 0.4);
-hold on
-plot([0 n_unique_states + 1], [min_size min_size], 'color', 'r')
-axis tight
-title('States')
-xlabel('State')
-ylabel('Count')
-set(gca, 'yscale', 'linear')
-title('Group sizes')
+% axes(im_ax2)
+% cla
+% histogram(group_inds, 'binwidth', 0.4);
+% hold on
+% plot([0 n_unique_states + 1], [min_size min_size], 'color', 'r')
+% axis tight
+% title('States')
+% xlabel('State')
+% ylabel('Count')
+% set(gca, 'yscale', 'linear')
+% title('Group sizes')
 
 
 %% Remove small groups
 
-axes(ax3)
+axes(unsup_out1_ax)
 cla
 tx3 = text(0.03, 0.5, horzcat('removing small clusters...'));
 drawnow

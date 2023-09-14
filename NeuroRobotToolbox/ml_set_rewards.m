@@ -1,29 +1,30 @@
 
 
 %% Set rewards
-list_of_states = str2num(ax9_edit.String);
+list_of_states = str2num(rl_edit2_goal.String);
 if isempty(list_of_states) || sum(isnan(list_of_states))
-    ax9_edit.BackgroundColor = [1 0 0];
+    rl_edit2_goal.BackgroundColor = [1 0 0];
     pause(0.5)
-    ax9_edit.BackgroundColor = [0.94 0.94 0.94];
+    rl_edit2_goal.BackgroundColor = [0.94 0.94 0.94];
     error('Enter at least one goal state')
 end
 reward_states = list_of_states(sign(list_of_states) == 1);
 bad_states = list_of_states(sign(list_of_states) == -1);
 
-reward_action = str2num(ax9_edit2.String);
-if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1
-    ax9_edit2.BackgroundColor = [1 0 0];
-    pause(0.5)
-    ax9_edit2.BackgroundColor = [0.94 0.94 0.94];
-    error('Enter one goal action')
-end
+% reward_action = str2num(ax9_edit2.String);
+reward_action = 1;
+% if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1
+%     ax9_edit2.BackgroundColor = [1 0 0];
+%     pause(0.5)
+%     ax9_edit2.BackgroundColor = [0.94 0.94 0.94];
+%     error('Enter one goal action')
+% end
 disp(horzcat('reward action = ', num2str(reward_action)))
 
 
 %% Create reward landscape
 disp('Creating reward landscape...')
-axes(ax9)
+axes(rl_out2)
 cla
 tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
