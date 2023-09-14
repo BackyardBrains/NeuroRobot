@@ -142,6 +142,7 @@ EXTERNC FUNCTION_ATTRIBUTE uint16_t getCurrentPosition(short _channel){
 //     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 
 // EXTERNC FUNCTION_ATTRIBUTE auto applyLowPassFilter(int16_t channelIdx, const val &data, int32_t sampleCount){
+// EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess2(const val &__a, const val &__b, const val &__c, const val &__d, const val &__i, const val &__w, const val &__canvasPointers, const val &__positions, const val &__connectome, 
 EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, const val &__b, const val &__c, const val &__d, const val &__i, const val &__w, const val &__canvasPointers, const val &__positions, const val &__connectome, 
     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
     std::vector<double> _a = convertJSArrayToNumberVector<double>(__a); 
@@ -154,7 +155,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     std::vector<double> _connectome = convertJSArrayToNumberVector<double>(__connectome); 
     // std::vector<int> _canvasPointers = convertJSArrayToNumberVector<int>(__canvasPointers); 
     
-    mtx.lock();
+    // mtx.lock();
     a=new double[_neuronLength];
     b=new double[_neuronLength];
     c=new short[_neuronLength];
@@ -163,6 +164,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     w=new short[_neuronLength];
     v=new double[_neuronLength];
     u=new double[_neuronLength];
+    if (isThreadCreated==-1){
+        positions = new uint16_t[_neuronLength];
+    }
+
     // canvasPointers = new int[_neuronLength];
     neuronCircles = new int[_neuronLength];
     connectome = new double*[_neuronLength];
@@ -198,7 +203,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     envSize = _envelopeSize;
     bufSize = _bufferSize;
     isPlaying = _isPlaying;
-    mtx.unlock();
+    // mtx.unlock();
 
     if (isThreadCreated==-1){
         isThreadCreated=1;
@@ -214,7 +219,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             
             while(isThreadRunning){
-                mtx.lock();
+                // mtx.lock();
 
                 int32_t threadTotalNumOfNeurons = totalNumOfNeurons;
                 short isSpiking[threadTotalNumOfNeurons];
@@ -312,7 +317,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                     }
                         // tempV[neuronIndex] = v[neuronIndex];
                 }
-                mtx.unlock();
+                // mtx.unlock();
 
                 // std::string str = "S|";
                 // short isFlagSpikingNow = 0;
@@ -355,6 +360,24 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                 // }
 
             }
+            if (!isThreadRunning){
+                delete[] (a);
+                delete[] (b);
+                delete[] (c);
+                delete[] (d);
+                delete[] (i);
+                delete[] (w);
+                delete[] (v);
+                delete[] (u);
+                delete[] (connectome);
+                delete[] (positions);
+                for (unsigned idx=0; idx<threadInitialTotalNumOfNeurons; idx++){
+                    delete[] (v_traces[idx]);
+                }
+                delete[] v_traces;
+
+                std::terminate();
+            }            
         });        
         simulatorThread.detach();
     }
@@ -367,6 +390,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("getCanvasBuffer", &getCanvasBuffer);
     function("getCurrentPosition", &getCurrentPosition);
     function("getNeuronCircles", &getNeuronCircles);
+    function("stopThreadProcess", &stopThreadProcess);
+    function("changeIdxSelectedProcess", &changeIdxSelectedProcess);
     // function("applyLowPassFilter", &applyLowPassFilter);
     // register_vector<short>("vector<short>");
     // register_vector<short>("LowPassList");

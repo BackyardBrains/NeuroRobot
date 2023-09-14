@@ -11,8 +11,8 @@ class ProtoNeuron extends CustomPainter{
   double screenWidth = 1000;
   double screenHeight = 800;
   List<SingleNeuron> circles = [];
-  List<String> neuronFixedType = ["RS", "RS","RS","RS", "RS", "RS","RS"];
-  // List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
+  // List<String> neuronFixedType = ["RS", "RS","RS","RS", "RS", "RS","RS","RS"];
+  List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
   late List<List<double>> matrix;
   late List<List<double>> matrixTranspose;
 
@@ -31,7 +31,7 @@ class ProtoNeuron extends CustomPainter{
   late Float64List bBufList;
   late Int16List cBufList;
   late Int16List dBufList;
-  late Int16List iBufList;
+  late Float64List iBufList;
   late Float64List wBufList;
   late Float64List connectomeBufList;
 
@@ -46,13 +46,13 @@ class ProtoNeuron extends CustomPainter{
           ..color = Colors.black
           ..strokeWidth = 1;
 
-    aBufList = aBufView;
-    bBufList = bBufView;
-    cBufList = cBufView;
-    dBufList = dBufView;
-    iBufList = iBufView;
-    wBufList = wBufView;
-    connectomeBufList = connectomeBufView;
+    aBufList = (aBufView);
+    bBufList = (bBufView);
+    cBufList = (cBufView);
+    dBufList = (dBufView);
+    iBufList = (iBufView);
+    wBufList = (wBufView);
+    connectomeBufList = (connectomeBufView);
 
     // matrix = List<List<double>>.generate(neuronSize, ()=>List<double>.generate()=> []);
     matrix = List.generate(neuronSize, (_) => List<double>.generate(neuronSize, (_)=> 0));
@@ -120,6 +120,7 @@ class ProtoNeuron extends CustomPainter{
         ..color = activeColor
         ..style = PaintingStyle.fill;
       circle.neuronType = randomNeuronType();
+
       fillNeuronType(circle, i, aBufList,bBufList,cBufList,dBufList,iBufList,wBufList);
 
       circle.activePaint = (activePaint);
@@ -182,46 +183,50 @@ class ProtoNeuron extends CustomPainter{
     return isSelected;
   }
   
-  void fillNeuronType(SingleNeuron neuron, int idx, Float64List aBufList, Float64List bBufList, Int16List cBufList, Int16List dBufList, Int16List iBufList, Float64List wBufList) {
-    switch(neuron.neuronType){
-      case "RS":
-        aBufList[idx] = 0.02;
-        bBufList[idx] = 0.2;
-      break;
-      case "IB":
-        bBufList[idx] = 0.19;
+  void fillNeuronType(SingleNeuron neuron, int idx, Float64List aBufList, Float64List bBufList, Int16List cBufList, Int16List dBufList, Float64List iBufList, Float64List wBufList) {
+    try{
+      switch(neuron.neuronType){
+        case "RS":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.2;
+        break;
+        case "IB":
+          bBufList[idx] = 0.19;
 
-        cBufList[idx] = -55;
-        dBufList[idx] = 4;
-      break;
-      case "CH":
-        bBufList[idx] = 0.19;
+          cBufList[idx] = -55;
+          dBufList[idx] = 4;
+        break;
+        case "CH":
+          bBufList[idx] = 0.19;
 
-        cBufList[idx] = -50;
-        dBufList[idx] = 2;
-      break;
-      case "FS": 
-        aBufList[idx] = 0.1;
-        bBufList[idx] = 0.2;
-      break;
+          cBufList[idx] = -50;
+          dBufList[idx] = 2;
+        break;
+        case "FS": 
+          aBufList[idx] = 0.1;
+          bBufList[idx] = 0.2;
+        break;
 
-      case "TC": 
-        bBufList[idx] = 0.19;
-        cBufList[idx] = -65;
-        // dBufList[idx] = 0.05;
-        dBufList[idx] = 0;
-      break;      
-      case "RZ":
-        aBufList[idx] = 0.1;
-        bBufList[idx] = 0.3;
-      break;      
+        case "TC": 
+          bBufList[idx] = 0.19;
+          cBufList[idx] = -65;
+          // dBufList[idx] = 0.05;
+          dBufList[idx] = 0;
+        break;      
+        case "RZ":
+          aBufList[idx] = 0.1;
+          bBufList[idx] = 0.3;
+        break;      
 
-      case "LTS":
-        aBufList[idx] = 0.02;
-        bBufList[idx] = 0.25;
-      break;      
+        case "LTS":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.25;
+        break;      
+      }
+
+    }catch(ex){
+
     }
-
     neuron.a = aBufList[idx];
     neuron.b = bBufList[idx];
     neuron.c = cBufList[idx];
@@ -283,7 +288,7 @@ class SingleNeuron{
   double b = 0;
   int c = 0;
   int d = 0;
-  int i = 0;
+  double i = 0;
   double w = 0;
   // double x = 0; //center posX
   // double y = 0; //center posY

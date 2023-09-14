@@ -286,8 +286,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     isStepSpiking[neuronIndex] = 0;
                 }
 
-                // neuronsCount+=threadTotalNumOfNeurons;
-                for (short t = 0; t < ms_per_step; t++) {
+                // auto neuronsCount+=threadTotalNumOfNeurons;
+                // auto start = std::chrono::steady_clock::now();
+                for (uint32_t t = 0; t < ms_per_step; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     // double tempV[threadTotalNumOfNeurons];
 
@@ -354,10 +355,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                         // tempV[neuronIndex] = v[neuronIndex];
                 }
-                // elapsed = std::chrono::steady_clock::now() - start;
-                // milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+                // auto elapsed = std::chrono::steady_clock::now() - start;
+                // long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
                 // // totalSecond += milliseconds;
-                // // debug_print(std::to_string(totalSecond/1000).c_str());
+                // debug_print("std::to_string(milliseconds).c_str()");
+                // debug_print(std::to_string(milliseconds).c_str());
+                // return;
 
                 // if (milliseconds>1000){
                 //     prevTotalSecond = totalSecond;
@@ -414,7 +417,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 //     // debug_print("test");
                 // }        
 
-                /*
                 std::string str = "S|";
                 short isFlagSpikingNow = 0;
                 for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
@@ -432,7 +434,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     prevFlagSpiking = isFlagSpikingNow;
                     debug_print(str.c_str());
                 }
-    */
                 short startPos = (currentStep) * ms_per_step ;
                 // debug_print(std::to_string(startPos).c_str());
 

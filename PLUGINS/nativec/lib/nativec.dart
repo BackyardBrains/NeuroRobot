@@ -143,15 +143,15 @@ class Nativec {
     canvasBufferBytes2.fillRange(0, totalBytes,0.0);
   }
 
-  double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
-    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
-    int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
-      // print("connectome");
-      // return 0;
-      return _changeNeuronSimulatorProcess(
-        a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
-        level, neuronLength, envelopeSize, bufferSize, isPlaying);
-  }
+  // double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
+  //   ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
+  //   int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
+  //     // print("connectome");
+  //     // return 0;
+  //     return _changeNeuronSimulatorProcess(
+  //       a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
+  //       level, neuronLength, envelopeSize, bufferSize, isPlaying);
+  // }
 
   int changeIsPlayingProcess(int isPlaying){
     return _changeIsPlayingProcess(isPlaying);

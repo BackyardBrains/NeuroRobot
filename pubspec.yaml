@@ -15,13 +15,14 @@ dependencies:
     path: ./PLUGINS/mic_stream
   flutter_audio_waveforms: 
     path: ./PLUGINS/flutter_audio_waveforms1.1.1.3/
-  winaudio: 
-    path: ./PLUGINS/winaudio
-  nativec: 
-    path: ./PLUGINS/nativec/
+  # winaudio: 
+  #   path: ./PLUGINS/winaudio
+  # window_manager: 0.3.6
+  # nativec: 
+  #   path: ./PLUGINS/nativec/
+  # auto_orientation: 2.3.1
+
   another_xlider: 3.0.1
-  window_manager: 0.3.6
-  auto_orientation: 2.3.1
 
 dev_dependencies:
   flutter_test:

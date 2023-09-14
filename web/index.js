@@ -1,30 +1,33 @@
 var izhikevichWorker;
-const neuronSize = 2;
+let neuronSize = 2;
 const windowSize = 200*30;
-let sabA = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
-let sabB = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
-let sabC = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
-let sabD = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
-let sabI = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
-let sabW = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
-let sabPos = new SharedArrayBuffer( neuronSize * Uint32Array.BYTES_PER_ELEMENT );
-let sabConnectome = new SharedArrayBuffer( neuronSize * neuronSize * Float64Array.BYTES_PER_ELEMENT );
-let sabCom = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
-let sabNeuronCircle = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
-let sabIsPlaying = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
+let sabA;
+let sabB;
+let sabC;
+let sabD;
+let sabI;
+let sabW;
+let sabPos;
+let sabConnectome;
+let sabCom;
+let sabNeuronCircle;
+let sabIsPlaying;
+let sabConfig;
 
-let sabNumA = new Float64Array(sabA);
-let sabNumB = new Float64Array(sabB);
-let sabNumC = new Int16Array(sabC);
-let sabNumD = new Int16Array(sabD);
-let sabNumI = new Float64Array(sabI);
-let sabNumW = new Float64Array(sabW);
-let sabNumPos = new Uint32Array(sabPos);
-let sabNumConnectome = new Float64Array(sabConnectome);
-let sabNumCom = new Int16Array(sabCom);
-let sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
-let sabNumIsPlaying = new Int16Array(sabIsPlaying);
-let simulationWorkerChannel = new MessageChannel();
+let sabNumA;
+let sabNumB;
+let sabNumC;
+let sabNumD;
+let sabNumI;
+let sabNumW;
+let sabNumPos;
+let sabNumConfig;
+let sabNumConnectome;
+let sabNumCom;
+let sabNumNeuronCircle;
+let sabNumIsPlaying;
+let simulationWorkerChannel;
+let initializeChannel;
 
 let sabCanvas=[];
 let canvasBuffer=[];
@@ -34,8 +37,43 @@ function initializeModels(jsonRawData){
     }catch(ex){
     }
 
-    let jsonData = JSON.parse(jsonRawData);    
+    let jsonData = JSON.parse(jsonRawData);
+    neuronSize = jsonData[9];
+    // console.log("jsonData : ", jsonData);
+
+    sabA = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
+    sabB = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
+    sabC = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
+    sabD = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
+    sabI = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
+    sabW = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
+    sabPos = new SharedArrayBuffer( neuronSize * Uint32Array.BYTES_PER_ELEMENT );
+    sabConfig = new SharedArrayBuffer( 10 * Uint32Array.BYTES_PER_ELEMENT );
+    
+    sabConnectome = new SharedArrayBuffer( neuronSize * neuronSize * Float64Array.BYTES_PER_ELEMENT );
+    sabCom = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
+    sabNeuronCircle = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
+    sabIsPlaying = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
+    
+    sabNumA = new Float64Array(sabA);
+    sabNumB = new Float64Array(sabB);
+    sabNumC = new Int16Array(sabC);
+    sabNumD = new Int16Array(sabD);
+    sabNumI = new Float64Array(sabI);
+    sabNumW = new Float64Array(sabW);
+    sabNumPos = new Uint16Array(sabPos);
+    sabNumConfig = new Uint32Array(sabConfig);
+    sabNumConnectome = new Float64Array(sabConnectome);
+    sabNumCom = new Int16Array(sabCom);
+    sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
+    sabNumIsPlaying = new Int16Array(sabIsPlaying);
+    
+    simulationWorkerChannel = new MessageChannel();
+    initializeChannel = new MessageChannel();
+
     izhikevichWorker = new Worker('build/web/workerSimulation.js');
+    sabCanvas = [];
+    canvasBuffer = [];
     for (let i = 0;i<1;i++){
         let sab = new SharedArrayBuffer( windowSize * Float64Array.BYTES_PER_ELEMENT )        
         sabCanvas.push(sab);
@@ -54,17 +92,17 @@ function initializeModels(jsonRawData){
             aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,
             positionsBuf,connectomeBuf, level, neuronSize,envelopeSize,bufferSize,isPlaying){
     */
-   
-    for (let neuronIndex = 0; neuronIndex<neuronSize; neuronIndex++){
-        sabNumA[neuronIndex] = (jsonData[0][neuronIndex]);
-        sabNumB[neuronIndex] = (jsonData[1][neuronIndex]);
-        sabNumC[neuronIndex] = (jsonData[2][neuronIndex]);
-        sabNumD[neuronIndex] = (jsonData[3][neuronIndex]);
-        sabNumI[neuronIndex] = (jsonData[4][neuronIndex]);
-        sabNumW[neuronIndex] = (jsonData[5][neuronIndex]); 
-        sabNumConnectome[neuronIndex] = (jsonData[6][neuronIndex]); 
-    }
 
+    sabNumA.set(jsonData[0]);
+    sabNumB.set(jsonData[1]);
+    sabNumC.set(jsonData[2]);
+    sabNumD.set(jsonData[3]);
+    sabNumI.set(jsonData[4]);
+    sabNumW.set(jsonData[5]);
+    // sabNumPos.set(jsonData[6]);
+    sabNumPos.set(0);
+    sabNumConnectome.set(jsonData[7]);
+    sabNumConfig.fill(0);
     sabNumCom.fill(-1);
     sabNumNeuronCircle.fill(0);
     sabNumIsPlaying.fill(0);
@@ -80,13 +118,19 @@ function initializeModels(jsonRawData){
         sabI:sabI,
         sabW:sabW,
         sabPos:sabPos,
+        sabConfig:sabConfig,
         sabConnectome:sabConnectome,
         sabCanvas:sabCanvas,
         sabCom:sabCom,
         sabNeuronCircle:sabNeuronCircle,
         sabIsPlaying:sabIsPlaying,
         simulationWorkerChannelPort:simulationWorkerChannel.port1,
-    },[simulationWorkerChannel.port1]);
+        initializeChannelPort:initializeChannel.port1,
+    },[simulationWorkerChannel.port1, initializeChannel.port1]);
+
+    initializeChannel.port2.onmessage = function(event){
+    };
+
     simulationWorkerChannel.port2.onmessage = function(event){
         // console.log("event main thread");
         // console.log(event);
@@ -101,16 +145,33 @@ function setIsPlaying(flag){
 // function setIzhikevichParameters(aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,positionsBuf,connectomeBuf, level, neuronSize,envelopeSize,bufferSize,isPlaying){
 function setIzhikevichParameters(jsonRawData){
     let jsonData = JSON.parse(jsonRawData);
-    for (let neuronIndex = 0; neuronIndex<neuronSize; neuronIndex++){
-        sabNumA[neuronIndex] = (jsonData[0][neuronIndex]);
-        sabNumB[neuronIndex] = (jsonData[1][neuronIndex]);
-        sabNumC[neuronIndex] = (jsonData[2][neuronIndex]);
-        sabNumD[neuronIndex] = (jsonData[3][neuronIndex]);
-        sabNumI[neuronIndex] = (jsonData[4][neuronIndex]);
-        sabNumW[neuronIndex] = (jsonData[5][neuronIndex]); 
-    }
+    sabNumA.set(jsonData[0]);
+    sabNumB.set(jsonData[1]);
+    sabNumC.set(jsonData[2]);
+    sabNumD.set(jsonData[3]);
+    sabNumI.set(jsonData[4]);
+    sabNumW.set(jsonData[5]);
+    sabNumPos.set(jsonData[6]);
+    sabNumConnectome.set(jsonData[7]);    
+    // for (let neuronIndex = 0; neuronIndex<neuronSize; neuronIndex++){
+    //     sabNumA[neuronIndex] = (jsonData[0][neuronIndex]);
+    //     sabNumB[neuronIndex] = (jsonData[1][neuronIndex]);
+    //     sabNumC[neuronIndex] = (jsonData[2][neuronIndex]);
+    //     sabNumD[neuronIndex] = (jsonData[3][neuronIndex]);
+    //     sabNumI[neuronIndex] = (jsonData[4][neuronIndex]);
+    //     sabNumW[neuronIndex] = (jsonData[5][neuronIndex]); 
+    // }
     sabNumCom[0] = 1;
-    console.log("jsonData : ", sabNumCom, jsonData);
+    // console.log("jsonData : ", sabNumCom, jsonData);
+}
+
+function stopThreadProcess(isStop){
+    sabNumConfig[1]=1;
+}
+function changeSelectedIdx(selectedIdx){
+    if (selectedIdx!=-1){
+        sabNumConfig[0]=selectedIdx;
+    }
 }
 
 // window.canvasDraw(canvasBuffer);
