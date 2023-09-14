@@ -56,7 +56,7 @@ rl_title = uicontrol('Style', 'text', 'String', 'Reinforcement Learning', 'units
 button_data_rl = uicontrol('Style', 'pushbutton', 'String', 'Prepare data', 'units', 'normalized', 'position', rl_button1_pos);
 set(button_data_rl,'Callback', 'ml_get_data_rl', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_train_rl = uicontrol('Style', 'pushbutton', 'String', 'Train Network', 'units', 'normalized', 'position', button7_pos);
+button_train_rl = uicontrol('Style', 'pushbutton', 'String', 'Train Network', 'units', 'normalized', 'position', rl_button2_pos);
 set(button_train_rl,'Callback', 'ml_train_net_rl', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
