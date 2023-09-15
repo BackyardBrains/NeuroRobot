@@ -163,6 +163,8 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController neuronInputController = TextEditingController(text:"25");
   
   late WaveWidget waveWidget;
+  
+  Int16List neuronCircleBridge = Int16List(0);
 
   void resetNeuronParameters(){
     double a = 0.02;
@@ -312,12 +314,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //   return true;
   // }
-  canvasDraw(params){
+  setCanvasBuffer(buffer, positionsBuf, neuronBridge){
+    WaveWidget.canvasBufferBytes1 = buffer;
+    WaveWidget.positionsBufView = positionsBuf;
+    neuronCircleBridge = neuronBridge;
+  }
+
+  canvasDraw(){
     // print(params);
-    WaveWidget.canvasBufferBytes1 = Float64List.fromList((params[0]).toList().cast<double>());
+    // WaveWidget.canvasBufferBytes1 = Float64List.fromList((params[0]).toList().cast<double>());
     // canvasBufferBytes[1] = Float64List.fromList((params[1]).toList().cast<double>());
-    positionsBufView[0] = (params[1]).toList().cast<double>()[0];
-    WaveWidget.positionsBufView = positionsBufView;
+    // positionsBufView[0] = (params[1]).toList().cast<double>()[0];
+    // WaveWidget.positionsBufView = positionsBufView;
     // canvasBufferBytes[0] = params[0];
     // canvasBufferBytes[1] = params[1];
     setState((){});
@@ -325,12 +333,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   neuronTrigger(params){
     int firingFlags=0;
-    List<int> arr = (params).toList().cast<int>();
-
+    // List<int> arr = (params).toList().cast<int>();
     try{
-      for (int i = 1; i < arr.length ; i++){
+      for (int i = 1; i < neuronCircleBridge.length ; i++){
         int neuronIndex = i - 1;
-        if (arr[i] == 1){
+        if (neuronCircleBridge[i] == 1){
           // if (protoNeuron.circles[neuronIndex].isSpiking != 1){
           //   needRedraw = true;
           // }
@@ -354,6 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     initNativeC();
     if (kIsWeb){
+      js.context['setCanvasBuffer'] = setCanvasBuffer;
       js.context['canvasDraw'] = canvasDraw;
       js.context['neuronTrigger'] = neuronTrigger;
 
@@ -398,14 +406,14 @@ class _MyHomePageState extends State<MyHomePage> {
               handlerHeight: 20,
 
               handler: FlutterSliderHandler(
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Material(
                   type: MaterialType.canvas,
                   color: Colors.green,
                   elevation: 3,
                   child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.adjust, size: 7,)),
+                      padding: const EdgeInsets.all(5),
+                      child: const Icon(Icons.adjust, size: 7,)),
                 ),
               ),              
               tooltip: FlutterSliderTooltip(
@@ -445,14 +453,14 @@ class _MyHomePageState extends State<MyHomePage> {
               handlerWidth: 20,
               handlerHeight: 20,
               handler: FlutterSliderHandler(
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Material(
                   type: MaterialType.canvas,
                   color: Colors.green,
                   elevation: 3,
                   child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.adjust, size: 7,)),
+                      padding: const EdgeInsets.all(5),
+                      child: const Icon(Icons.adjust, size: 7,)),
                 ),
               ),              
 
@@ -542,14 +550,14 @@ class _MyHomePageState extends State<MyHomePage> {
               handlerWidth: 20,
               handlerHeight: 20, 
               handler: FlutterSliderHandler(
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Material(
                   type: MaterialType.canvas,
                   color: Colors.green,
                   elevation: 3,
                   child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.adjust, size: 7,)),
+                      padding: const EdgeInsets.all(5),
+                      child: const Icon(Icons.adjust, size: 7,)),
                 ),
               ),              
 
@@ -589,14 +597,14 @@ class _MyHomePageState extends State<MyHomePage> {
               handlerWidth: 20,
               handlerHeight: 20,
               handler: FlutterSliderHandler(
-                decoration: BoxDecoration(),
+                decoration: const BoxDecoration(),
                 child: Material(
                   type: MaterialType.canvas,
                   color: Colors.green,
                   elevation: 3,
                   child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.adjust, size: 7,)),
+                      padding: const EdgeInsets.all(5),
+                      child: const Icon(Icons.adjust, size: 7,)),
                 ),
               ),              
 
@@ -685,6 +693,7 @@ class _MyHomePageState extends State<MyHomePage> {
       const envelopeSize = 200;
       const bufferSize = 2000;
       // js.context.callMethod('changeNeuronSimulatorProcess', [aBufView, bBufView, cBufView, dBufView, iBufView, wBufView, positionsBufView, connectomeBufView,level, neuronSize, envelopeSize, bufferSize, 1] );
+
       js.context.callMethod("initializeModels",
         [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1]) ]
       );
@@ -875,16 +884,17 @@ class _MyHomePageState extends State<MyHomePage> {
           left:neuron.centerPos.dx-15,
           child: SizedBox(
             key:neuronCircleKeys[i],
-            child: ValueListenableBuilder(
-              valueListenable: neuronSpikeFlags[i],
-              builder: ((context, value, child) {
-                if (protoNeuron.circles[i].isSpiking == -1){
-                  return neuronInactiveCircles[i];
-                }else{
-                  return neuronActiveCircles[i];
-                }
-              }),
-            ),
+            child: neuronCircleBridge[i] == 0? neuronInactiveCircles[i]:neuronActiveCircles[i],
+            // child: ValueListenableBuilder(
+            //   valueListenable: neuronSpikeFlags[i],
+            //   builder: ((context, value, child) {
+            //     if (protoNeuron.circles[i].isSpiking == -1){
+            //       return neuronInactiveCircles[i];
+            //     }else{
+            //       return neuronActiveCircles[i];
+            //     }
+            //   }),
+            // ),
           ),
         )
       );

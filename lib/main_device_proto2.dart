@@ -86,8 +86,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Debouncer debouncerScroll = Debouncer(milliseconds: 300);  
   StreamSubscription<dynamic>? winAudioSubscription;
   late Nativec nativec;
-  static int neuronSize = 25;
-  static final int maxPosBuffer = 26;
+  static int neuronSize = 200;
+  static final int maxPosBuffer = 200;
+  int epochs = 30;
+
+  static ffi.Pointer<ffi.Int32> npsBuf = allocate<ffi.Int32>(
+      count: 2, sizeOfType: ffi.sizeOf<ffi.Uint32>());
+  late Int32List npsBufView  = Int32List(0);
 
   static ffi.Pointer<ffi.Uint16> positionsBuf = allocate<ffi.Uint16>(
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Uint16>());
@@ -110,9 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
   late Int16List dBufView  = Int16List(0);
 
-  static ffi.Pointer<ffi.Int16> iBuf = allocate<ffi.Int16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List iBufView  = Int16List(0);
+  static ffi.Pointer<ffi.Double> iBuf = allocate<ffi.Double>(
+      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+  late Float64List iBufView  = Float64List(0);
   
   static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
@@ -128,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<double> varB = List<double>.filled(neuronSize, 0.18);
   List<int> varC = List<int>.filled(neuronSize, -65);
   List<int> varD = List<int>.filled(neuronSize, 2);
-  List<int> varI = List<int>.filled(neuronSize, 5);
+  List<double> varI = List<double>.filled(neuronSize, 5.0);
   List<double> varW = List<double>.filled(neuronSize, 2.0);
   
   List<bool> firingFlags = List<bool>.filled(neuronSize, false);
@@ -148,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isInitialized = false;
   
   late ProtoNeuron protoNeuron;
+  bool isSelected = false;
   ValueNotifier<int> redrawNeuronLine = ValueNotifier(0);
   
   TextEditingController neuronInputController = TextEditingController(text:"25");
@@ -159,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const b = 0.18;
     const c = -65;
     const d = 2;
-    const i = 5;
+    const i = 5.0;
     const w = 2.0;   
     
     // positionsBuf = allocate<ffi.Uint16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Uint16>());
@@ -194,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
     varB = List<double>.filled(neuronSize, 0.18);
     varC = List<int>.filled(neuronSize, -65);
     varD = List<int>.filled(neuronSize, 2);
-    varI = List<int>.filled(neuronSize, 5);
+    varI = List<double>.filled(neuronSize, 5.0);
     varW = List<double>.filled(neuronSize, 2.0);
     firingFlags = List<bool>.filled(neuronSize, false);    
     neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
@@ -236,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const b = 0.18;
     const c = -65;
     const d = 2;
-    const i = 5;
+    const i = 5.0;
     const w = 2.0;
     
     // int neuronSizeType = neuronSize;
@@ -246,6 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
     dBufView = dBuf.asTypedList(neuronSize);
     iBufView = iBuf.asTypedList(neuronSize);
     wBufView = wBuf.asTypedList(neuronSize);
+    npsBufView = npsBuf.asTypedList(2);
     positionsBufView = positionsBuf.asTypedList(maxPosBuffer);
     connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
 
@@ -289,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, npsBuf, level, neuronSize, envelopeSize, bufferSize, 1);
     Nativec.cPublicationStream!.listen((message) {
       // print("message");
       // print(message);
@@ -342,9 +349,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
       });
     });
-    Timer.periodic(const Duration(milliseconds: 50), (timer) { 
+    Timer.periodic(const Duration(milliseconds: 70), (timer) { 
       // print(Nativec.canvasBufferBytes1.sublist(0,5));
-      if (protoNeuron.idxSelected !=-1){
+      if (isSelected){
         waveRedraw.value = Random().nextInt(10000);
         // setState(()=>{
 
@@ -587,7 +594,7 @@ class _MyHomePageState extends State<MyHomePage> {
               max: 200000,
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
-                varI[idx] = (lowerValue/10000).floor();
+                varI[idx] = (lowerValue/10000);
                 iBufView[idx] = varI[idx];
                 changeNeuronSimulatorParameters();
 
@@ -656,8 +663,9 @@ class _MyHomePageState extends State<MyHomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
     if (!isInitialized){
       isInitialized = true;
+      WaveWidget.positionsBufView = positionsBufView;
       waveWidget = WaveWidget(valueNotifier: waveRedraw,
-        chartGain:chartGain,levelMedian: levelMedian,positionsBufView: positionsBufView,screenHeight: screenHeight,screenWidth: screenWidth);
+        chartGain:chartGain,levelMedian: levelMedian,screenHeight: screenHeight,screenWidth: screenWidth);
 
       protoNeuron = ProtoNeuron(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
         aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
@@ -665,7 +673,7 @@ class _MyHomePageState extends State<MyHomePage> {
       const envelopeSize = 200;
       const bufferSize = 2000;
 
-      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf,connectomeBuf, npsBuf, level, neuronSize, envelopeSize, bufferSize, 1);
       // protoNeuron.setNeuronParameters(aBufView,bBufView,cBufView,dBufView,iBufView,wBufView);
       // print(wBufView);
     }
@@ -689,7 +697,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const envelopeSize = 200;
     const bufferSize = 2000;
     debouncerScroll.run(() { 
-      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf,level, neuronSize, envelopeSize, bufferSize, 1);
+      nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf,npsBuf, level, neuronSize, envelopeSize, bufferSize, 1);
     });
 
   }
@@ -697,12 +705,17 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> getMatrixData(int idxSelected) {
     List<Widget> widgets = [];
     int idxSelected = protoNeuron.idxSelected;
-    widgets.add( Text("Neuron : ${idxSelected.toString()}" , style: TextStyle(fontWeight: FontWeight.bold)) );
-    widgets.add( Text("Neuron Type : ${protoNeuron.circles[idxSelected].neuronType.toString()}" , style: TextStyle(fontWeight: FontWeight.bold)) );
-    widgets.add( const Text("Incoming" , style: TextStyle(fontWeight: FontWeight.bold)) );
-    widgets.add( Text(protoNeuron.matrixTranspose[idxSelected].toList().toString()) );
-    widgets.add( const Text("Outwards : " , style: TextStyle(fontWeight: FontWeight.bold)) );
-    widgets.add( Text(protoNeuron.matrix[idxSelected].toList().toString()) );
+    widgets.add( Text("Neuron : ${idxSelected.toString()}", textAlign: TextAlign.end , style: const TextStyle(fontWeight: FontWeight.bold)) );
+    widgets.add( Text("Neuron Type : ${protoNeuron.circles[idxSelected].neuronType.toString()}", textAlign: TextAlign.end , style: const TextStyle(fontWeight: FontWeight.bold)) );
+    
+    double oneNeuronXMicroSecond = npsBufView[0]/epochs/neuronSize;
+    double secondXNeurons = 1/oneNeuronXMicroSecond * 1000000;
+    widgets.add( Text("Neurons / second : ${secondXNeurons.toString()}", textAlign: TextAlign.end , style: const TextStyle(fontWeight: FontWeight.bold)) );
+
+    // widgets.add( const Text("Incoming" , style: TextStyle(fontWeight: FontWeight.bold)) );
+    // widgets.add( Text(protoNeuron.matrixTranspose[idxSelected].toList().toString()) );
+    // widgets.add( const Text("Outwards : " , style: TextStyle(fontWeight: FontWeight.bold)) );
+    // widgets.add( Text(protoNeuron.matrix[idxSelected].toList().toString()) );
     return widgets;
   }
   
@@ -797,7 +810,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   const envelopeSize = 200;
                   const bufferSize = 2000;
 
-                  nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+                  nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, connectomeBuf, npsBuf, level, neuronSize, envelopeSize, bufferSize, 1);
 
                 });
               },
@@ -813,7 +826,6 @@ class _MyHomePageState extends State<MyHomePage> {
             width:250,
             height:250,
             child:ListView(
-              // crossAxisAlignment: CrossAxisAlignment.start,
               children: getMatrixData(protoNeuron.idxSelected),
             ),
           ),
@@ -905,6 +917,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // print(protoNeuron.isSelected);
               // print(protoNeuron.idxSelected);
               bool flag = protoNeuron.testHit(tapUp.globalPosition);
+              isSelected = flag;
               if (flag){
                 nativec.changeIdxSelected(protoNeuron.idxSelected);
               }

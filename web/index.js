@@ -29,8 +29,8 @@ let sabNumIsPlaying;
 let simulationWorkerChannel;
 let initializeChannel;
 
-let sabCanvas=[];
-let canvasBuffer=[];
+// let sabCanvas=[];
+// let canvasBuffers=[];
 function initializeModels(jsonRawData){
     try{
         izhikevichWorker.terminate();
@@ -72,14 +72,14 @@ function initializeModels(jsonRawData){
     initializeChannel = new MessageChannel();
 
     izhikevichWorker = new Worker('build/web/workerSimulation.js');
-    sabCanvas = [];
-    canvasBuffer = [];
-    for (let i = 0;i<1;i++){
-        let sab = new SharedArrayBuffer( windowSize * Float64Array.BYTES_PER_ELEMENT )        
-        sabCanvas.push(sab);
-        canvasBuffer.push(new Float64Array(sab));
-    }
-    canvasBuffer.push(sabNumPos)
+    // sabCanvas = [];
+    // canvasBuffers = [];
+    // for (let i = 0;i<1;i++){
+    //     let sab = new SharedArrayBuffer( windowSize * Float64Array.BYTES_PER_ELEMENT )        
+    //     sabCanvas.push(sab);
+    //     canvasBuffer.push(new Float64Array(sab));
+    // }
+    // canvasBuffer.push(sabNumPos)
 
     // sabNumA.fill(0.02);
     // sabNumB.fill(0.18);
@@ -107,6 +107,7 @@ function initializeModels(jsonRawData){
     sabNumNeuronCircle.fill(0);
     sabNumIsPlaying.fill(0);
     // canvasBuffer.push(sabNumNeuronCircle);
+    // canvasBuffer[0].fill(1);
     
     izhikevichWorker.postMessage({
         message:'INITIALIZE_WORKER',
@@ -120,7 +121,7 @@ function initializeModels(jsonRawData){
         sabPos:sabPos,
         sabConfig:sabConfig,
         sabConnectome:sabConnectome,
-        sabCanvas:sabCanvas,
+        // sabCanvas:sabCanvas,
         sabCom:sabCom,
         sabNeuronCircle:sabNeuronCircle,
         sabIsPlaying:sabIsPlaying,
@@ -129,12 +130,15 @@ function initializeModels(jsonRawData){
     },[simulationWorkerChannel.port1, initializeChannel.port1]);
 
     initializeChannel.port2.onmessage = function(event){
+        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,event.data.sabNumNeuronCircle);
+        window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,sabNumNeuronCircle);
+
     };
 
     simulationWorkerChannel.port2.onmessage = function(event){
         // console.log("event main thread");
         // console.log(event);
-        window.neuronTrigger(sabNumNeuronCircle);
+        // window.neuronTrigger(sabNumNeuronCircle);
     
     }
 }
@@ -178,7 +182,7 @@ function changeSelectedIdx(selectedIdx){
 function repaint(timestamp){
     try{
         // console.log(canvasBuffer[1]);
-        window.canvasDraw(canvasBuffer);
+        window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );
     //   console.log("exc");
@@ -188,3 +192,10 @@ function repaint(timestamp){
     window.requestAnimationFrame(repaint);    
 }  
 window.requestAnimationFrame(repaint);
+
+
+// function sendBufferReferences(buf){
+//     // alert(213);
+//     // canvasBuffer = [buf];
+//     // console.log(ab, typeof ab);
+// }

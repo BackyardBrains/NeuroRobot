@@ -1,3 +1,6 @@
+let ptrCanvasBuffer;
+let ptrNeuronCircle;
+let allocatedCanvasBuffer;
 let selectedIdx=-1;
 let neuronSize = 2;
 let windowSize = 200 * 30;
@@ -56,7 +59,7 @@ self.onmessage = async function( eventFromMain ) {
         sabPos = eventFromMain.data.sabPos;
         sabConfig = eventFromMain.data.sabConfig;
         sabConnectome = eventFromMain.data.sabConnectome;
-        sabCanvas = eventFromMain.data.sabCanvas;
+        // sabCanvas = eventFromMain.data.sabCanvas;
         sabCom = eventFromMain.data.sabCom;
         sabNeuronCircle = eventFromMain.data.sabNeuronCircle;
         sabIsPlaying = eventFromMain.data.sabIsPlaying;
@@ -73,7 +76,7 @@ self.onmessage = async function( eventFromMain ) {
         sabNumPos = new Uint16Array(sabPos);            
         sabNumConnectome = new Float64Array(sabConnectome);
         sabNumCom = new Int16Array(sabCom);
-        sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
+        // sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
         sabNumIsPlaying = new Int16Array(sabIsPlaying);
         sabNumConfig = new Uint32Array(sabConfig);
         simulationWorkerChannelPort.postMessage(200);
@@ -85,22 +88,33 @@ self.onmessage = async function( eventFromMain ) {
 
         while (true){
             // console.log("init end con" )
-            selectedIdx=sabNumConfig[0];
-
-            for (let ch = 0; ch<neuronSize;ch++){
-                // try{
-                    // temp.fill(Math.random(1000));
-                    // console.log(canvasBuffersNum);
-                    if (selectedIdx!=-1 && ch==selectedIdx) {
-                        let temp = Module.getCanvasBuffer(ch);
-                        canvasBuffersNum[0].set(temp);
-                        let temp2 = Module.getCurrentPosition(0);
-                        sabNumPos.fill(temp2);
-                    }
-                // }catch(ex){
-                //     // console.log("canvasBuffers", canvasBuffers);
-                // }
+            if (sabNumConfig[0] != 0){
+                selectedIdx = sabNumConfig[0];
+                sabNumConfig[0] = 0;
+                Module.changeIdxSelectedProcess(selectedIdx);
+                // console.log("sabNumNeuronCircle");
+                // console.log(sabNumNeuronCircle);
             }
+            // selectedIdx=sabNumConfig[0];
+            let temp2 = Module.getCurrentPosition(0);
+            sabNumPos.fill(temp2);
+
+            // for (let ch = 0; ch<neuronSize;ch++){
+            //     // try{
+            //         // temp.fill(Math.random(1000));
+            //         // console.log(canvasBuffersNum);
+            //         if (selectedIdx!=-1 && ch==selectedIdx) {
+            //             // let temp = Module.getCanvasBuffer(ch);
+            //             // allocatedCanvasBuffer.set(temp);
+            //             // canvasBuffersNum[0].set(temp);
+            //             let temp2 = Module.getCurrentPosition(0);
+            //             sabNumPos.fill(temp2);
+
+            //         }
+            //     // }catch(ex){
+            //     //     // console.log("canvasBuffers", canvasBuffers);
+            //     // }
+            // }
             if (sabNumConfig[1]==1){
                 Module.stopThreadProcess(0)
                 sabNumConfig[1] = 0;
@@ -111,7 +125,7 @@ self.onmessage = async function( eventFromMain ) {
                 sabNumCom[0] = -1;
                 // changeNeuronSimulatorProcess(const val &__a, const val &__b, const val &__c, const val &__d, const val &__i, const val &__w, const val &__canvasPointers, const val &__positions, const val &__connectome, 
                 //     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
-                Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
+                // Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
             }
             if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
                 Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
@@ -119,30 +133,30 @@ self.onmessage = async function( eventFromMain ) {
             }
             // if (sabNumConfig[0]!=-1){
             // }
-            
-            let circles = Module.getNeuronCircles(neuronSize);
-            let circleFlag = false;
-            for (let neuronIndex = 0; neuronIndex < neuronSize; neuronIndex++){
-                sabNumNeuronCircle[neuronIndex] = circles[neuronIndex];
-                if (sabNumNeuronCircle[neuronIndex] != abPrevNumNeuronCircle[neuronIndex]){
-                    circleFlag = true;
-                }
-            }
-            // abPrevNumNeuronCircle.set(sabNumNeuronCircle);
-            if (circleFlag){
-                simulationWorkerChannelPort.postMessage(1);
-                prevCircleFlag = circleFlag;
-            }else{
-                if (prevCircleFlag != circleFlag){
-                    for (let neuronIndex = 0; neuronIndex < neuronSize; neuronIndex++){
-                        sabNumNeuronCircle[neuronIndex] = 0;
-                        circleFlag = true;
-                    }
+
+            // let circles = Module.getNeuronCircles(neuronSize);
+            // let circleFlag = false;
+            // for (let neuronIndex = 0; neuronIndex < neuronSize; neuronIndex++){
+            //     sabNumNeuronCircle[neuronIndex] = circles[neuronIndex];
+            //     if (sabNumNeuronCircle[neuronIndex] != abPrevNumNeuronCircle[neuronIndex]){
+            //         circleFlag = true;
+            //     }
+            // }
+            // // abPrevNumNeuronCircle.set(sabNumNeuronCircle);
+            // if (circleFlag){
+            //     simulationWorkerChannelPort.postMessage(1);
+            //     prevCircleFlag = circleFlag;
+            // }else{
+            //     if (prevCircleFlag != circleFlag){
+            //         for (let neuronIndex = 0; neuronIndex < neuronSize; neuronIndex++){
+            //             sabNumNeuronCircle[neuronIndex] = 0;
+            //             circleFlag = true;
+            //         }
         
-                    simulationWorkerChannelPort.postMessage(1);
-                    prevCircleFlag = 0;
-                }
-            }
+            //         simulationWorkerChannelPort.postMessage(1);
+            //         prevCircleFlag = 0;
+            //     }
+            // }
 
             
             // console.log(canvasBuffersNum[0].subarray(0,10));
@@ -186,18 +200,47 @@ self.Module.onRuntimeInitialized = async _ => {
     //     let sab = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT )        
     //     sabCanvas.push(sab);
     // }
-    await sleep(700)
-    canvasBuffers = sabCanvas;
+    await sleep(700);
+    ptrCanvasBuffer = Module._malloc(windowSize * Module.HEAPF64.BYTES_PER_ELEMENT);
+    // allocatedCanvasBuffer=Module.HEAPF64.subarray(ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT, ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT + windowSize);
+    const start = ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT;
+    allocatedCanvasBuffer = Module.HEAPF64.subarray( start, (start + windowSize ));
 
-    canvasBuffersNum = [];
+    ptrNeuronCircle = Module._malloc(neuronSize * Module.HEAP16.BYTES_PER_ELEMENT);
+    const startNeuron = ptrNeuronCircle/Module.HEAP16.BYTES_PER_ELEMENT;
+    sabNumNeuronCircle = Module.HEAP16.subarray( startNeuron, (startNeuron + neuronSize ));
+    // let tempSabNumNeuronCircle = Module.HEAP16.subarray( startNeuron, (startNeuron + neuronSize ));
+
+    initializeChannelPort.postMessage({
+        allocatedCanvasbuffer: allocatedCanvasBuffer,
+        sabNumNeuronCircle: sabNumNeuronCircle,
+        // sabNumNeuronCircle: tempSabNumNeuronCircle,
+    });
+
+
+    const test = Module.ccall(
+        'passPointer',
+        'number',
+        ['number', 'number'],
+        [ptrCanvasBuffer, ptrNeuronCircle]
+    );
+    // console.log("test");
+    // console.log(test);
     
-    for (let i=0;i<1;i++){
-        canvasBuffersNum.push(new Float64Array(canvasBuffers[i]));
-    //     // var buf = Module._malloc(bufferSize * Float64Array.BYTES_PER_ELEMENT);
-    //     var buf = i*bufferSize;
-    //     canvasBuffers.push(buf)
-    }
-    console.log("buf");
+    // Module.ccall();
+    // Module.HEAPF64.set(list2  , maloc/Module.HEAPF64.BYTES_PER_ELEMENT);
+
+    // canvasBuffers = sabCanvas;
+
+    // canvasBuffersNum = [];
+    
+    // for (let i=0;i<1;i++){
+    //     canvasBuffersNum.push(new Float64Array(canvasBuffers[i]));
+    // //     // var buf = Module._malloc(bufferSize * Float64Array.BYTES_PER_ELEMENT);
+    // //     var buf = i*bufferSize;
+    // //     canvasBuffers.push(buf)
+    // }
+    // console.log("buf");
     // console.log(canvasBuffersNum);
     // console.log(Module);
     

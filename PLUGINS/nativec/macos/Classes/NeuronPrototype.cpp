@@ -79,8 +79,9 @@ short steps_per_loop = 200;
 short intended_timer_period = ms_per_step/1000;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
-double *a,*b, *v, *u;
-short *c,*d,*i,*w, isPlaying=-1, idxSelected;
+double *a,*b, *v, *u,*i,*w;
+// short *c,*d,*i,*w,isPlaying=-1, idxSelected;
+short *c,*d,isPlaying=-1, idxSelected;
 uint16_t *positions;
 int32_t lvl,totalNumOfNeurons, prevTotalNumOfNeurons, envSize,bufSize;
 const uint32_t bigBufferLength = 30 * 200;
@@ -89,6 +90,10 @@ const uint32_t bigBufferLength = 30 * 200;
 double **v_traces;
 double *canvasBuffer;
 double **connectome;
+int *nps;
+
+// double **v_step;
+int epochs = ms_per_step;
 
 short prevFlagSpiking = 0;
 short isThreadCreated=-1;
@@ -143,10 +148,10 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 }
 
 
-EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
-    short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
+EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
+    int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
     
-    debug_print("changeNeuronSimulatorProcess 0");
+    // debug_print("changeNeuronSimulatorProcess 0");
 
     // int32_t length = _neuronLength;
     //Free variable;
@@ -182,10 +187,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     b=new double[_neuronLength];
     c=new short[_neuronLength];
     d=new short[_neuronLength];
-    i=new short[_neuronLength];
-    w=new short[_neuronLength];
+    i=new double[_neuronLength];
+    w=new double[_neuronLength];
     v=new double[_neuronLength];
     u=new double[_neuronLength];
+    nps = _nps;
+    // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
     short ctr = 0;
     for (short i = 0; i < _neuronLength; i++){
@@ -252,7 +259,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             // auto start = std::chrono::steady_clock::now();
             // auto elapsed = std::chrono::steady_clock::now() - start;
             // long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-
+            auto start = std::chrono::high_resolution_clock::now();
+            auto elapsed = std::chrono::high_resolution_clock::now() - start;
+            long long microseconds = 0;
+            bool isNeuronPerSecond = true;
             while(isThreadRunning){
                 // mtx.lock();
 
@@ -288,7 +298,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 // auto neuronsCount+=threadTotalNumOfNeurons;
                 // auto start = std::chrono::steady_clock::now();
-                for (uint32_t t = 0; t < ms_per_step; t++) {
+                start = std::chrono::high_resolution_clock::now();
+                for (uint32_t t = 0; t < epochs; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     // double tempV[threadTotalNumOfNeurons];
 
@@ -309,6 +320,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     double *copyV = new double[threadTotalNumOfNeurons];
                     std::copy(v, v+threadTotalNumOfNeurons, copyV);
                     v_step.push_back(copyV);
+                    // v_step[t] = copyV;
                     
                     short numberOfSpikingNow = spikingNow.size();
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
@@ -355,6 +367,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                         // tempV[neuronIndex] = v[neuronIndex];
                 }
+                // if (isNeuronPerSecond){
+                //     isNeuronPerSecond = false;
+                    elapsed = std::chrono::high_resolution_clock::now() - start;
+                    microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                    // int microtime = microseconds;
+                    nps[0] = microseconds;
+                // }
+                // debug_print( (std::to_string(microseconds)+" microseconds" ).c_str());
+                
                 // auto elapsed = std::chrono::steady_clock::now() - start;
                 // long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
                 // // totalSecond += milliseconds;
@@ -437,7 +458,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 short startPos = (currentStep) * ms_per_step ;
                 // debug_print(std::to_string(startPos).c_str());
 
-                for (int idx = 0; idx < v_step.size(); idx++) {
+                // for (int idx = 0; idx < v_step.size(); idx++) {
+                for (int idx = 0; idx < epochs; idx++) {
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                         // if (neuronIndex % 2 == 0){
@@ -448,7 +470,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                 }
                 for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
-                    positions[neuronIndex] = startPos + v_step.size();
+                    // positions[neuronIndex] = startPos + v_step.size();
+                    positions[neuronIndex] = startPos + epochs;
                 }
                 currentStep++;
                 if (currentStep >= steps_per_loop){

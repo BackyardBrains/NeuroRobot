@@ -61,9 +61,10 @@ EMSCRIPTEN_KEEPALIVE uint16_t *positions;
 
 EMSCRIPTEN_KEEPALIVE uint32_t bigBufferLength = 30 * 200;
 EMSCRIPTEN_KEEPALIVE double **v_traces;
+EMSCRIPTEN_KEEPALIVE double *canvasBuffer;
 EMSCRIPTEN_KEEPALIVE double **connectome;
 EMSCRIPTEN_KEEPALIVE int *canvasPointers;
-EMSCRIPTEN_KEEPALIVE int *neuronCircles;
+EMSCRIPTEN_KEEPALIVE short *neuronCircles;
 
 EMSCRIPTEN_KEEPALIVE short prevFlagSpiking = -1;
 EMSCRIPTEN_KEEPALIVE short isThreadCreated=-1;
@@ -137,6 +138,18 @@ EXTERNC FUNCTION_ATTRIBUTE uint16_t getCurrentPosition(short _channel){
     
     return positions[_channel];
 }
+
+EXTERNC FUNCTION_ATTRIBUTE uint16_t passPointer(double *_canvasBuffer, short *neuronCircle){
+    // EM_ASM({
+    //     console.log('pos: ');
+    //     console.log('Idx: ',  $0 , ', ' , ($1));
+    // }, positions[_channel], 4);
+
+    canvasBuffer = _canvasBuffer;
+    neuronCircles = neuronCircle;
+
+    return 0;
+}
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, short *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer1, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
 //     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
@@ -155,6 +168,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     std::vector<double> _connectome = convertJSArrayToNumberVector<double>(__connectome); 
     // std::vector<int> _canvasPointers = convertJSArrayToNumberVector<int>(__canvasPointers); 
     
+
     // mtx.lock();
     a=new double[_neuronLength];
     b=new double[_neuronLength];
@@ -169,7 +183,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     }
 
     // canvasPointers = new int[_neuronLength];
-    neuronCircles = new int[_neuronLength];
+    // neuronCircles = new int[_neuronLength];
     connectome = new double*[_neuronLength];
     short ctr = 0;
     for (short i = 0; i < _neuronLength; i++){
@@ -354,11 +368,19 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                     currentStep = 0;            
                 }
 
-                // if (isSelected){
-                //     // debug_print("COPY");
-                //     std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
-                // }
+                if (isSelected){
+                    // for (short i = 0; i < bigBufferLength; i++) {
+                    //     canvasBuffer[i]=v_traces[idxSelected][i];
+                    //     // positions[neuronIndex] = startPos + v_step.size();
+                    // }
 
+                    std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
+                    canvasBuffer[0] = 123456;
+                    // EM_ASM({
+                    //     console.log("C++ read", $0, $1);
+                    //     console.log( HEAPF64.subarray($1 >> 3, ($1+80)>>3));
+                    // }, 1, canvasBuffer);
+                }
             }
             if (!isThreadRunning){
                 delete[] (a);

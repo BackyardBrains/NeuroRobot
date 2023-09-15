@@ -21,13 +21,14 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
-  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Uint16>,
   ffi.Pointer<ffi.Double>,
 
+  ffi.Pointer<ffi.Int32>,
   ffi.Int16,
   ffi.Uint32,    
   ffi.Uint32,    
@@ -40,13 +41,15 @@ typedef ChangeNeuronSimulatorProcess = double Function(
     ffi.Pointer<ffi.Double>, // b
     ffi.Pointer<ffi.Int16>, // c
     ffi.Pointer<ffi.Int16>, // d
-    ffi.Pointer<ffi.Int16>, // i
+    ffi.Pointer<ffi.Double>, // i
     ffi.Pointer<ffi.Double>, // w
 
     ffi.Pointer<ffi.Double>, // canvas buffer neuron 1
     ffi.Pointer<ffi.Double>, // canvas buffer neuron 2
     ffi.Pointer<ffi.Uint16>, // position
     ffi.Pointer<ffi.Double>, //connectome
+
+    ffi.Pointer<ffi.Int32>,
     int, // level
     int, // neuron length
     int, // envelope size
@@ -143,15 +146,15 @@ class Nativec {
     canvasBufferBytes2.fillRange(0, totalBytes,0.0);
   }
 
-  // double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
-  //   ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Int16> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
-  //   int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
-  //     // print("connectome");
-  //     // return 0;
-  //     return _changeNeuronSimulatorProcess(
-  //       a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
-  //       level, neuronLength, envelopeSize, bufferSize, isPlaying);
-  // }
+  double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
+    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Double> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
+    ffi.Pointer<ffi.Int32> nps,int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
+      // print("connectome");
+      // return 0;
+      return _changeNeuronSimulatorProcess(
+        a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
+        nps,level, neuronLength, envelopeSize, bufferSize, isPlaying);
+  }
 
   int changeIsPlayingProcess(int isPlaying){
     return _changeIsPlayingProcess(isPlaying);
