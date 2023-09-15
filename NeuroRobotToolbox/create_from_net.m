@@ -1,6 +1,6 @@
 
 
-if length(cnet_temp) == 2
+if length(cnet_temp) >= 2
     this_fix = 0.85;
 else
     this_fix = 0;
@@ -12,19 +12,20 @@ postsyn = [];
 n = n_vis_prefs - n_basic_vis_features;
 
 % Get equally distributed points
-xx = 0.005 * n + 0.4;
-npoints = round(2*sqrt(n));
-phi = (sqrt(5)+1)/2;
+% xx = 0.005 * n + 0.4;
+% npoints = round(2*sqrt(n));
+% phi = (sqrt(5)+1)/2;
 for nneuron = 1:n
-    if nneuron > n - npoints
-        r = 1;
-    else
-        r = sqrt(nneuron-1/2)/sqrt(n-(npoints+1)/2);
-    end
-    theta = 2*pi*nneuron/phi^2;
-    xys = [r*cos(theta), r*sin(theta)];
-    xys = xys * xx;
-    xys(:,2) = xys(:,2) + this_fix;
+%     if nneuron > n - npoints
+%         r = 1;
+%     else
+%         r = sqrt(nneuron-1/2)/sqrt(n-(npoints+1)/2);
+%     end
+%     theta = 2*pi*nneuron/phi^2;
+%     xys = [r*cos(theta), r*sin(theta)];
+%     xys = xys * xx;
+%     xys(:,2) = xys(:,2) + this_fix;
+    xys = [-0.5 ((nneuron/n)-0.5)*3];
     neuron_xys(nneurons + nneuron, :) = xys + mouse_location(1,1:2);
 end
 
@@ -76,24 +77,25 @@ nneurons = nneurons + n;
 
 
 %% Create action net
-if length(cnet_temp) == 2
+if length(cnet_temp) >= 2
 
     n = n_unique_actions;
 
     % Get equally distributed points
-    xx = 0.005 * n + 0.4;
-    npoints = round(2*sqrt(n));
-    phi = (sqrt(5)+1)/2;
+%     xx = 0.005 * n + 0.4;
+%     npoints = round(2*sqrt(n));
+%     phi = (sqrt(5)+1)/2;
     for nneuron = 1:n
-        if nneuron > n - npoints
-            r = 1;
-        else
-            r = sqrt(nneuron-1/2)/sqrt(n-(npoints+1)/2);
-        end
-        theta = 2*pi*nneuron/phi^2;
-        xys = [r*cos(theta), r*sin(theta)];
-        xys = xys * xx;
-        xys(:,2) = xys(:,2) - this_fix;
+%         if nneuron > n - npoints
+%             r = 1;
+%         else
+%             r = sqrt(nneuron-1/2)/sqrt(n-(npoints+1)/2);
+%         end
+%         theta = 2*pi*nneuron/phi^2;
+%         xys = [r*cos(theta), r*sin(theta)];
+%         xys = xys * xx;
+%         xys(:,2) = xys(:,2) - this_fix;
+        xys = [0.5 ((nneuron/n)-0.5)*3];
         neuron_xys(nneurons + nneuron, :) = xys + mouse_location(1,1:2);
     end
     

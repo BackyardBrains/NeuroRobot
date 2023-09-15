@@ -119,10 +119,14 @@ if select_nets.Value > nimported % If a custom net was selected
         net_name = full_net_name(1:cnet_temp(1)-1);
         rl_type = '';
         agent_name = '';        
-    elseif length(cnet_temp) == 2
+    elseif length(cnet_temp) >= 2
         net_name = full_net_name(1:cnet_temp(1)-1);
         rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
         agent_name = full_net_name(cnet_temp(2)+1:end);
+    elseif strcmp(full_net_name, 'GoogleNet')
+        net_name = 'GoogLeNet';
+        rl_type = '';
+        agent_name = '';
     else
         error('Bad custom net name')
     end
@@ -224,7 +228,7 @@ if exist('rak_only', 'var') && brain_support
             vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
-        if length(cnet_temp) == 2
+        if length(cnet_temp) >= 2
             load(horzcat(nets_dir_name, net_name, '-', rl_type, '-', agent_name, '-ml'))
             load(strcat(nets_dir_name, net_name, '-torque_data'))
             load(strcat(nets_dir_name, net_name, '-actions'))
