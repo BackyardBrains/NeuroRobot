@@ -30,7 +30,11 @@ for nneuron = 1:n
 end
 
 % Update parameters
-counter = n_basic_vis_features;
+if use_cnn
+    counter = n_basic_vis_features + 13;
+else
+    counter = n_basic_vis_features;
+end
 for presynaptic_neuron = nneurons + 1:nneurons + n
 
     counter = counter + 1;

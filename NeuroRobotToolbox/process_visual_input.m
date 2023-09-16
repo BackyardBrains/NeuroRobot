@@ -64,19 +64,25 @@ for ncam = 1:2
     vis_pref_vals(7, ncam) = this_score;
     
     % Get complex features
-    if use_cnn || use_custom_net
+    if use_cnn
+        [~, scores] = classify(gnet, frame);
+        cup_score = max(scores([505 739 969]));
+        scores = scores(object_ns);
+        scores(4) = cup_score;
+        vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
+    end
+    if use_custom_net
         if ~regression_flag
             [~, scores] = classify(net, frame);
         elseif ncam == 1
             lframe = imresize(large_frame, [227 302]);
             scores = predict(net, lframe);
         end
-        if use_cnn
-            cup_score = max(scores([505 739 969]));
-            scores = scores(object_ns);
-            scores(4) = cup_score;
+        if ~use_cnn
+            vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
+        else
+            vis_pref_vals(8+13:n_vis_prefs, ncam) = scores * 50;
         end
-        vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
     end
     
     if ncam == 1
@@ -84,11 +90,6 @@ for ncam = 1:2
     elseif ncam == 2
         prev_right_eye_frame = uframe;
     end
-
-%     if ncam == 1
-%         disp(num2str(vis_pref_vals(7 + [3 10], 1)'))
-%         disp('----')
-%     end
 
 end
 

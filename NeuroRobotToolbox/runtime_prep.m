@@ -38,18 +38,14 @@ end
 
 
 %% Trained Nets settings
-% 1 = '-none-' % popup menu requires selection
+% 1 = 'GoogLeNet'
 if sum(select_nets.Value == 1)
-end
-
-% 2 = 'GoogLeNet'
-if sum(select_nets.Value == 2)
     use_cnn = 1;
 else
     use_cnn = 0;
 end
 
-% 3 = 'Custom net'
+% 2 = 'Custom net'
 if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
@@ -111,36 +107,36 @@ else
 end
 scores = 0;
 
-%% ML vars
-if select_nets.Value > nimported % If a custom net was selected
-    full_net_name = option_nets{select_nets.Value}; % Get its name
-    cnet_temp = strfind(full_net_name, '-');
-    if length(cnet_temp) == 1
-        net_name = full_net_name(1:cnet_temp(1)-1);
-        rl_type = '';
-        agent_name = '';        
-    elseif length(cnet_temp) >= 2
-        net_name = full_net_name(1:cnet_temp(1)-1);
-        rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
-        agent_name = full_net_name(cnet_temp(2)+1:end);
-    elseif strcmp(full_net_name, 'GoogleNet')
-        net_name = 'GoogLeNet';
-        rl_type = '';
-        agent_name = '';
-    else
-        error('Bad custom net name')
-    end
-elseif select_nets.Value == nimported
-    full_net_name = 'GoogLeNet';
-    rl_type = '';
-    agent_name = '';
-    cnet_temp = 0;
-else    
-    full_net_name = '--';
-    rl_type = '';
-    agent_name = '';
-    cnet_temp = -1;
-end
+% %% ML vars
+% if select_nets.Value > nimported % If a custom net was selected
+%     full_net_name = option_nets{select_nets.Value}; % Get its name
+%     cnet_temp = strfind(full_net_name, '-');
+%     if length(cnet_temp) == 1
+%         net_name = full_net_name(1:cnet_temp(1)-1);
+%         rl_type = '';
+%         agent_name = '';        
+%     elseif length(cnet_temp) >= 2
+%         net_name = full_net_name(1:cnet_temp(1)-1);
+%         rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
+%         agent_name = full_net_name(cnet_temp(2)+1:end);
+%     elseif strcmp(full_net_name, 'GoogleNet')
+%         net_name = 'GoogLeNet';
+%         rl_type = '';
+%         agent_name = '';
+%     else
+%         error('Bad custom net name')
+%     end
+% elseif select_nets.Value == nimported
+%     full_net_name = 'GoogLeNet';
+%     rl_type = '';
+%     agent_name = '';
+%     cnet_temp = 0;
+% else    
+%     full_net_name = '--';
+%     rl_type = '';
+%     agent_name = '';
+%     cnet_temp = -1;
+% end
 
 
 %% Select brain
@@ -150,17 +146,21 @@ load(strcat(brain_dir, brain_name, '.mat'))
 load_brain
 
 brain_support = 1;
-if ~isempty(trained_nets)
+if ~isempty(trained_nets) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn
     brain_support = 0;
-    if (use_cnn && strcmp(trained_nets, 'GoogLeNet')) || (use_custom_net && strcmp(trained_nets, full_net_name))
-        brain_support = 1;
-    else
-        disp(horzcat('Error: Brain needs this trained net to see: ', trained_nets))
+    disp(horzcat('Error: Brain needs GoogLeNet'))
+end
+if ~isempty(trained_nets) && sum(~strcmp(trained_nets, 'GoogLeNet'))
+    these_nets = option_nets(select_nets.Value);        
+    this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
+    full_net_name = option_nets{select_nets.Value(this_ind)};
+    if ~sum(strcmp(full_net_name, trained_nets))
+        brain_support = 0;
+         disp(horzcat('Error: Brain needs ', trained_nets))
     end
 end
 
-if exist('rak_only', 'var') && brain_support    
-
+if exist('rak_only', 'var') && brain_support
     
     %% Clear timers - why is this used?
     if exist('runtime_pulse', 'var')
@@ -214,11 +214,34 @@ if exist('rak_only', 'var') && brain_support
 
     %% Visual features
     if use_cnn
-        use_cnn_code
-    elseif use_custom_net
-        load(strcat(nets_dir_name, net_name, '-net-ml'))
+        gnet = googlenet;
+        net_input_size = gnet.Layers(1).InputSize(1:2);
+        labels = readcell('alllabels.txt');
+        object_ns = [47, 292, 418, 969, 447, 479, 527, 606, 621, 771, 847, 951, 955];
+        object_strs = labels(object_ns);
+        vis_pref_names = [basic_vis_pref_names, object_strs'];  
+        regression_flag = 0;
+        n_vis_prefs = size(vis_pref_names, 2);
+        trained_nets{1} = 'GoogLeNet';
+    end
+    if use_custom_net
+        these_nets = option_nets(select_nets.Value);        
+        this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
+        full_net_name = option_nets{select_nets.Value(this_ind)};        
+        trained_nets{2} = full_net_name;
+        cnet_temp = strfind(full_net_name, '-');
+        if length(cnet_temp) == 1
+            state_net_name = full_net_name(1:cnet_temp(1)-1);
+            rl_type = '';
+            action_net_name = '';        
+        elseif length(cnet_temp) >= 2
+            state_net_name = full_net_name(1:cnet_temp(1)-1);
+            rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
+            action_net_name = full_net_name(cnet_temp(2)+1:end);
+        end
+        load(strcat(nets_dir_name, state_net_name, '-net-ml'))
         try
-            load(strcat(nets_dir_name, net_name, '-labels'))
+            load(strcat(nets_dir_name, state_net_name, '-labels'))
             regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
@@ -229,9 +252,9 @@ if exist('rak_only', 'var') && brain_support
         end
         
         if length(cnet_temp) >= 2
-            load(horzcat(nets_dir_name, net_name, '-', rl_type, '-', agent_name, '-ml'))
-            load(strcat(nets_dir_name, net_name, '-torque_data'))
-            load(strcat(nets_dir_name, net_name, '-actions'))
+            load(horzcat(nets_dir_name, state_net_name, '-', rl_type, '-', action_net_name, '-ml'))
+            load(strcat(nets_dir_name, state_net_name, '-torque_data'))
+            load(strcat(nets_dir_name, state_net_name, '-actions'))
             n_unique_actions = length(unique(actions));        
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions
