@@ -69,7 +69,7 @@ for ncam = 1:2
         cup_score = max(scores([505 739 969]));
         scores = scores(object_ns);
         scores(4) = cup_score;
-        vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
+        vis_pref_vals(8:8+12, ncam) = scores * 50;
     end
     if use_custom_net
         if ~regression_flag
