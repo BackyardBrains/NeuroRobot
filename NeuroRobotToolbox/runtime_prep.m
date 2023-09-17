@@ -213,17 +213,9 @@ if exist('rak_only', 'var') && brain_support
     end
 
     %% Visual features
-    if use_cnn
-        gnet = googlenet;
-        net_input_size = gnet.Layers(1).InputSize(1:2);
-        labels = readcell('alllabels.txt');
-        object_ns = [47, 292, 418, 969, 447, 479, 527, 606, 621, 771, 847, 951, 955];
-        object_strs = labels(object_ns);
-        vis_pref_names = [basic_vis_pref_names, object_strs'];  
-        regression_flag = 0;
-        n_vis_prefs = size(vis_pref_names, 2);
-        trained_nets{1} = 'GoogLeNet';
-    end
+    basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
+    n_basic_vis_features = size(basic_vis_pref_names, 2);
+    vis_pref_names = basic_vis_pref_names;
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
@@ -239,6 +231,7 @@ if exist('rak_only', 'var') && brain_support
             rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
             action_net_name = full_net_name(cnet_temp(2)+1:end);
         end
+
         load(strcat(nets_dir_name, state_net_name, '-net-ml'))
         try
             load(strcat(nets_dir_name, state_net_name, '-labels'))
@@ -263,6 +256,9 @@ if exist('rak_only', 'var') && brain_support
         end
         
     end
+    if use_cnn
+        use_cnn_code
+    end    
     n_vis_prefs = size(vis_pref_names, 2);
 
 

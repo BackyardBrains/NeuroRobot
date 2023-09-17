@@ -5,8 +5,13 @@ if use_custom_net
     % (expecting state net output 
     % from process_visual_input.m)
 
-    [left_score, left_state] = max(vis_pref_vals(8:n_vis_prefs, 1));
-    [right_score, right_state] = max(vis_pref_vals(8:n_vis_prefs, 2));
+    if use_cnn
+        [left_score, left_state] = max(vis_pref_vals(8+13:n_vis_prefs, 1));
+        [right_score, right_state] = max(vis_pref_vals(8+13:n_vis_prefs, 2));
+    else
+        [left_score, left_state] = max(vis_pref_vals(8:n_vis_prefs, 1));
+        [right_score, right_state] = max(vis_pref_vals(8:n_vis_prefs, 2));
+    end
 
     if ~isempty(left_score) && ~isempty(right_score)
         if left_state == right_state
@@ -33,7 +38,7 @@ if use_custom_net
     disp(horzcat('dist: ', num2str(this_distance)))
     disp('')
    
-    if length(cnet_temp) == 2
+    if length(cnet_temp) >= 2
         % Get action
         this_action = getAction(agent, this_state);
         this_action = cell2mat(this_action);

@@ -224,9 +224,18 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 delete(popup_select_nets)                  
             elseif multi_neuron_opt == 4 % Brain
                 load_additional_brain
-                if isempty(trained_nets_2) || strcmp(trained_nets, trained_nets_2)
+                if isempty(trained_nets_2) || sum(strcmp(trained_nets, 'GoogLeNet'))
+                    use_cnn = 1;
+                    use_cnn_code
+                    if use_custom_net % Cant handle regression nets
+                        load(strcat(nets_dir_name, state_net_name, '-labels'))
+                        unique_states = unique(labels);
+                        n_unique_states = length(unique_states);
+                        vis_pref_names = [vis_pref_names, labels'];
+                    end
                     create_combo_brain
-                elseif isempty(trained_nets) && strcmp(trained_nets_2, 'GoogLeNet')
+                    trained_nets = trained_nets_2;                    
+                elseif isempty(trained_nets) && sum(strcmp(trained_nets_2, 'GoogLeNet')) % Cant handle imported brain with custom net
                     use_cnn = 1;
                     use_cnn_code
                     create_combo_brain

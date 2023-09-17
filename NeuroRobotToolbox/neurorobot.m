@@ -19,9 +19,6 @@ init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
 bfsize = 8;
-basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
-n_basic_vis_features = size(basic_vis_pref_names, 2);
-vis_pref_names = basic_vis_pref_names;
 
 
 %% Background
@@ -44,7 +41,7 @@ contact_xys = [-1.2, 2.05; 1.2, 2.1; -2.08, -0.38; 2.14, -0.38; ...
     -0.05, 2.45; -1.9, 1.45; -1.9, 0.95; -1.9, -1.78; ...
     -1.9, -2.28; 1.92, 1.49; 1.92, 0.95; 1.92, -1.82; 1.92, -2.29];
 ncontacts = size(contact_xys, 1);
-n_vis_prefs = size(vis_pref_names, 2);
+
 
 
 %% Directory setup
