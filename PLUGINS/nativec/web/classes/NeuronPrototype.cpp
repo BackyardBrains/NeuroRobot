@@ -63,6 +63,8 @@ EMSCRIPTEN_KEEPALIVE uint32_t bigBufferLength = 30 * 200;
 EMSCRIPTEN_KEEPALIVE double **v_traces;
 EMSCRIPTEN_KEEPALIVE double *canvasBuffer;
 EMSCRIPTEN_KEEPALIVE double **connectome;
+int *nps;
+
 EMSCRIPTEN_KEEPALIVE int *canvasPointers;
 EMSCRIPTEN_KEEPALIVE short *neuronCircles;
 
@@ -139,14 +141,15 @@ EXTERNC FUNCTION_ATTRIBUTE uint16_t getCurrentPosition(short _channel){
     return positions[_channel];
 }
 
-EXTERNC FUNCTION_ATTRIBUTE uint16_t passPointer(double *_canvasBuffer, short *neuronCircle){
+EXTERNC FUNCTION_ATTRIBUTE uint16_t passPointer(double *_canvasBuffer, short *neuronCircle,int *_nps){
     // EM_ASM({
     //     console.log('pos: ');
     //     console.log('Idx: ',  $0 , ', ' , ($1));
-    // }, positions[_channel], 4);
+    // }, 0, 4);
 
     canvasBuffer = _canvasBuffer;
     neuronCircles = neuronCircle;
+    nps = _nps;
 
     return 0;
 }
@@ -170,6 +173,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     
 
     // mtx.lock();
+    // EM_ASM({
+    //     console.log('starting neuron simulator ', $0);
+    // }, 1);
+
     a=new double[_neuronLength];
     b=new double[_neuronLength];
     c=new short[_neuronLength];
@@ -181,6 +188,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
     if (isThreadCreated==-1){
         positions = new uint16_t[_neuronLength];
     }
+
+
+    // EM_ASM({
+    //     console.log('starting neuron simulator ', $0);
+    // }, 2);
 
     // canvasPointers = new int[_neuronLength];
     // neuronCircles = new int[_neuronLength];
@@ -232,6 +244,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
             int32_t currentStep = 0;
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             
+            auto start = std::chrono::high_resolution_clock::now();
+            auto elapsed = std::chrono::high_resolution_clock::now() - start;
+            long long microseconds = 0;
+            bool isNeuronPerSecond = true;
             while(isThreadRunning){
                 // mtx.lock();
 
@@ -261,6 +277,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                     isStepSpiking[neuronIndex] = 0;
                 }
 
+
+                start = std::chrono::high_resolution_clock::now();
                 for (short t = 0; t < ms_per_step; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     // double tempV[threadTotalNumOfNeurons];
@@ -331,6 +349,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(const val &__a, c
                     }
                         // tempV[neuronIndex] = v[neuronIndex];
                 }
+
+                if (isNeuronPerSecond){
+                    isNeuronPerSecond = false;
+                    elapsed = std::chrono::high_resolution_clock::now() - start;
+                    microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                    // int microtime = microseconds;
+                    nps[0] = microseconds;
+                }
+
+                
                 // mtx.unlock();
 
                 // std::string str = "S|";

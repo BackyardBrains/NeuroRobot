@@ -1,5 +1,8 @@
+let isConnectedAllocateBuffer = false;
 let ptrCanvasBuffer;
 let ptrNeuronCircle;
+let ptrNps;
+let sabNumNps;
 let allocatedCanvasBuffer;
 let selectedIdx=-1;
 let neuronSize = 2;
@@ -15,6 +18,7 @@ let sabConnectome;
 let sabCom;
 let sabNeuronCircle;
 let sabIsPlaying;
+let sabConfig;
 
 let sabNumA;
 let sabNumB;
@@ -47,6 +51,8 @@ let isPlaying = 1;
 var vm = self;
 var tempOnMessage = self.onmessage;
 self.onmessage = async function( eventFromMain ) {
+    console.log("eventFromMain.data.message");
+    console.log(eventFromMain.data.message);
     if (eventFromMain.data.message === 'INITIALIZE_WORKER') {
         console.log("Initialize Worker")
         neuronSize = eventFromMain.data.neuronSize;
@@ -79,11 +85,31 @@ self.onmessage = async function( eventFromMain ) {
         // sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
         sabNumIsPlaying = new Int16Array(sabIsPlaying);
         sabNumConfig = new Uint32Array(sabConfig);
-        simulationWorkerChannelPort.postMessage(200);
+        await sleep(1500);
+        if(!isConnectedAllocateBuffer){
+            console.log("isConnectedAllocateBuffer");
+            console.log(isConnectedAllocateBuffer);
+            await sleep(2500);
+        }
+        if(!isConnectedAllocateBuffer){
+            console.log("isConnectedAllocateBuffer");
+            console.log(isConnectedAllocateBuffer);
+            await sleep(2500);
+        }
+        if(!isConnectedAllocateBuffer){
+            console.log("isConnectedAllocateBuffer");
+            console.log(isConnectedAllocateBuffer);
+            await sleep(2500);
+        }
 
-        await sleep(1000);
-
+        simulationWorkerChannelPort.postMessage({
+            message:'INITIALIZED_WORKER'
+        });
         console.log("init end")
+    }else
+    if (eventFromMain.data.message === 'CONNECT_SIMULATION') {
+        console.log("connect simulation")
+
         let prevCircleFlag = false;
 
         while (true){
@@ -92,8 +118,6 @@ self.onmessage = async function( eventFromMain ) {
                 selectedIdx = sabNumConfig[0];
                 sabNumConfig[0] = 0;
                 Module.changeIdxSelectedProcess(selectedIdx);
-                // console.log("sabNumNeuronCircle");
-                // console.log(sabNumNeuronCircle);
             }
             // selectedIdx=sabNumConfig[0];
             let temp2 = Module.getCurrentPosition(0);
@@ -173,7 +197,8 @@ self.onmessage = async function( eventFromMain ) {
 
 self.importScripts("neuronprototype.js"); 
 self.Module.onRuntimeInitialized = async _ => {
-    console.log("Runtime Initialized");
+    console.log("WASM Runtime Initialized");
+    // isConnectedAllocateBuffer = false;
     // let sabA = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
     // let sabB = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT );
     // let sabC = new SharedArrayBuffer( neuronSize * Int16Array.BYTES_PER_ELEMENT );
@@ -200,7 +225,9 @@ self.Module.onRuntimeInitialized = async _ => {
     //     let sab = new SharedArrayBuffer( neuronSize * Float64Array.BYTES_PER_ELEMENT )        
     //     sabCanvas.push(sab);
     // }
-    await sleep(700);
+    await sleep(1700);
+    console.log("Before ptr canvas buffer");
+
     ptrCanvasBuffer = Module._malloc(windowSize * Module.HEAPF64.BYTES_PER_ELEMENT);
     // allocatedCanvasBuffer=Module.HEAPF64.subarray(ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT, ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT + windowSize);
     const start = ptrCanvasBuffer/Module.HEAPF64.BYTES_PER_ELEMENT;
@@ -210,20 +237,35 @@ self.Module.onRuntimeInitialized = async _ => {
     const startNeuron = ptrNeuronCircle/Module.HEAP16.BYTES_PER_ELEMENT;
     sabNumNeuronCircle = Module.HEAP16.subarray( startNeuron, (startNeuron + neuronSize ));
     // let tempSabNumNeuronCircle = Module.HEAP16.subarray( startNeuron, (startNeuron + neuronSize ));
+    console.log("after ptr sabNumNeuronCircle");
 
-    initializeChannelPort.postMessage({
-        allocatedCanvasbuffer: allocatedCanvasBuffer,
-        sabNumNeuronCircle: sabNumNeuronCircle,
-        // sabNumNeuronCircle: tempSabNumNeuronCircle,
-    });
-
+    ptrNps = Module._malloc(1 * Module.HEAP32.BYTES_PER_ELEMENT);
+    const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
+    sabNumNps = Module.HEAP32.subarray( startNps, (startNps + 1 ));
 
     const test = Module.ccall(
         'passPointer',
         'number',
-        ['number', 'number'],
-        [ptrCanvasBuffer, ptrNeuronCircle]
+        ['number', 'number','number'],
+        [ptrCanvasBuffer, ptrNeuronCircle, ptrNps]
     );
+    console.log("after pass ptr");
+    console.log(sabNumA,isPlaying);
+    // console.log(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
+    let running = Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
+
+    console.log("Neuron", running);
+    // await sleep(700);
+    initializeChannelPort.postMessage({
+        allocatedCanvasbuffer: allocatedCanvasBuffer,
+        sabNumNeuronCircle: sabNumNeuronCircle,
+        sabNumNps: sabNumNps,
+        // sabNumNeuronCircle: tempSabNumNeuronCircle,
+    });
+    isConnectedAllocateBuffer = true;
+
+
+
     // console.log("test");
     // console.log(test);
     
@@ -245,7 +287,7 @@ self.Module.onRuntimeInitialized = async _ => {
     // console.log(Module);
     
     // console.log(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
-    console.log("Neuron", Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying));
+    // console.log("Neuron", Module.changeNeuronSimulatorProcess(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying));
     // while(true){
     //     callMe();
     // }

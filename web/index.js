@@ -14,6 +14,7 @@ let sabNeuronCircle;
 let sabIsPlaying;
 let sabConfig;
 
+let sabNumNps;
 let sabNumA;
 let sabNumB;
 let sabNumC;
@@ -130,12 +131,19 @@ function initializeModels(jsonRawData){
     },[simulationWorkerChannel.port1, initializeChannel.port1]);
 
     initializeChannel.port2.onmessage = function(event){
-        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,event.data.sabNumNeuronCircle);
-        window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,sabNumNeuronCircle);
+        sabNumNps = event.data.sabNumNps;
+        window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
+        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, sabNumPos,sabNumNeuronCircle);
 
     };
 
     simulationWorkerChannel.port2.onmessage = function(event){
+        if (event.data.message == 'INITIALIZED_WORKER'){
+            izhikevichWorker.postMessage({
+                message:'CONNECT_SIMULATION',
+            });
+        
+        }
         // console.log("event main thread");
         // console.log(event);
         // window.neuronTrigger(sabNumNeuronCircle);
@@ -181,7 +189,7 @@ function changeSelectedIdx(selectedIdx){
 // window.canvasDraw(canvasBuffer);
 function repaint(timestamp){
     try{
-        // console.log(canvasBuffer[1]);
+        // console.log(sabNumNps);
         window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );
