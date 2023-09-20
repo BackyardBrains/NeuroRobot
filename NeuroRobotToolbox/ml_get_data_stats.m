@@ -1,7 +1,7 @@
 
 
 %% Set parameter scaling factor
-adj = 0.2;
+adj = 1;
 
 
 %% Get all recorded data and display summary stats
@@ -48,7 +48,7 @@ nsmall = round(adj * 0.0152 * ntuples + 704);
 bof_branching = round(adj * 0.0007634 * ntuples + 84.73);
 nmedium = round(adj * 0.03053 * ntuples + 1389);
 init_n_unique_states = round(adj * 0.00152 * ntuples + 70);
-min_size = round(adj * 0.000035 * ntuples + 10);
+min_size = round(adj * 0.00035 * ntuples + 10);
 
 disp('')
 disp('ML parameters')

@@ -146,11 +146,11 @@ load(strcat(brain_dir, brain_name, '.mat'))
 load_brain
 
 brain_support = 1;
-if ~isempty(trained_nets) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn
+if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn
     brain_support = 0;
     disp(horzcat('Error: Brain needs GoogLeNet'))
 end
-if ~isempty(trained_nets) && sum(~strcmp(trained_nets, 'GoogLeNet'))
+if length(trained_nets) > 1 && ~isempty(trained_nets{2})
     these_nets = option_nets(select_nets.Value);        
     this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
     full_net_name = option_nets{select_nets.Value(this_ind)};
@@ -213,8 +213,6 @@ if exist('rak_only', 'var') && brain_support
     end
 
     %% Visual features
-    basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
-    n_basic_vis_features = size(basic_vis_pref_names, 2);
     vis_pref_names = basic_vis_pref_names;
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        

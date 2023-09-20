@@ -32,3 +32,6 @@ network_drive = zeros(nnetworks, 3);
 bg_neurons = brain.bg_neurons;
 
 trained_nets = brain.trained_nets;
+if isempty(trained_nets)
+    trained_nets = cell(1);
+end

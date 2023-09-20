@@ -66,7 +66,7 @@ end
 try
     trained_nets_2 = brain.trained_nets;
 catch
-    trained_nets_2 = [];
+    trained_nets_2 = cell(1);
 end
 
 
