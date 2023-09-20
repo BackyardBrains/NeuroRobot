@@ -12,14 +12,14 @@ reward_states = list_of_states(sign(list_of_states) == 1);
 bad_states = list_of_states(sign(list_of_states) == -1);
 
 % reward_action = str2num(ax9_edit2.String);
-reward_action = 1;
+reward_action = mode(actions);
 % if isempty(reward_action) || isnan(reward_action) || length(reward_action) > 1
 %     ax9_edit2.BackgroundColor = [1 0 0];
 %     pause(0.5)
 %     ax9_edit2.BackgroundColor = [0.94 0.94 0.94];
 %     error('Enter one goal action')
 % end
-disp(horzcat('reward action = ', num2str(reward_action)))
+disp(horzcat('reward action (mode) = ', num2str(reward_action)))
 
 
 %% Create reward landscape
