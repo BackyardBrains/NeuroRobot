@@ -1,6 +1,6 @@
 
 
-if length(cnet_temp) >= 2
+if length(cnet_temp) == 1
     this_fix = 0.85;
 else
     this_fix = 0;
@@ -81,7 +81,7 @@ nneurons = nneurons + n;
 
 
 %% Create action net
-if length(cnet_temp) >= 2
+if length(cnet_temp) >= 1
 
     n = n_unique_actions;
 

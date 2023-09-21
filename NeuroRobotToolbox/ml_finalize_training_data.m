@@ -2,13 +2,6 @@
 
 %% Get net name
 net_name = 'statenet';
-% unsup_edit2.String
-% if isempty(net_name) || strcmp(net_name, 'Enter state net name here')
-%     unsup_edit2.BackgroundColor = [1 0 0];
-%     pause(0.5)
-%     unsup_edit2.BackgroundColor = [0.94 0.94 0.94];
-%     error('Set state net name')
-% end
 
 
 %% Create datasets for training nets
@@ -84,7 +77,7 @@ for nstate = 1:n_unique_states
     data(nstate) = mean_score;
 end
 drawnow
-pause(2)
+saveas(fig_ml, horzcat(nets_dir_name, net_name, '-examples.fig'))
 
 
 %% Output

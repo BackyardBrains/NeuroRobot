@@ -15,7 +15,7 @@ these_neurons = find(neuron_tones);
 
 %%
 for nstep = 1:nsteps
-    if ~rem(nstep, nsteps/10)
+    if ~rem(nstep, round(nsteps/10))
         disp(horzcat(num2str((100*nstep)/nsteps), '%'))
     end
     load(horzcat(spike_dir(nstep).folder, '\', spike_dir(nstep).name))

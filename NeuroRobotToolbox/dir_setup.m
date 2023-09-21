@@ -49,11 +49,6 @@ load(horzcat(brain_name, '.mat'))
 load_brain
 save_brain
 
-brain_name = 'L3C4';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
-
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
 

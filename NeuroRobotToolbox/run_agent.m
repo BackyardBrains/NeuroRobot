@@ -38,7 +38,7 @@ if use_custom_net
     disp(horzcat('dist: ', num2str(this_distance)))
     disp('')
    
-    if length(cnet_temp) >= 2
+    if length(cnet_temp) >= 1
         % Get action
         this_action = getAction(agent, this_state);
         this_action = cell2mat(this_action);

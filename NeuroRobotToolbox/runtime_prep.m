@@ -107,37 +107,6 @@ else
 end
 scores = 0;
 
-% %% ML vars
-% if select_nets.Value > nimported % If a custom net was selected
-%     full_net_name = option_nets{select_nets.Value}; % Get its name
-%     cnet_temp = strfind(full_net_name, '-');
-%     if length(cnet_temp) == 1
-%         net_name = full_net_name(1:cnet_temp(1)-1);
-%         rl_type = '';
-%         agent_name = '';        
-%     elseif length(cnet_temp) >= 2
-%         net_name = full_net_name(1:cnet_temp(1)-1);
-%         rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
-%         agent_name = full_net_name(cnet_temp(2)+1:end);
-%     elseif strcmp(full_net_name, 'GoogleNet')
-%         net_name = 'GoogLeNet';
-%         rl_type = '';
-%         agent_name = '';
-%     else
-%         error('Bad custom net name')
-%     end
-% elseif select_nets.Value == nimported
-%     full_net_name = 'GoogLeNet';
-%     rl_type = '';
-%     agent_name = '';
-%     cnet_temp = 0;
-% else    
-%     full_net_name = '--';
-%     rl_type = '';
-%     agent_name = '';
-%     cnet_temp = -1;
-% end
-
 
 %% Select brain
 brain_name = brain_string{select_brain.Value};
@@ -215,14 +184,12 @@ if exist('rak_only', 'var') && brain_support
         full_net_name = option_nets{select_nets.Value(this_ind)};        
         trained_nets{2} = full_net_name;
         cnet_temp = strfind(full_net_name, '-');
-        if length(cnet_temp) == 1
+        if cnet_temp >= 1
             state_net_name = full_net_name(1:cnet_temp(1)-1);
-            rl_type = '';
+            action_net_name = full_net_name(cnet_temp(1)+1:end);            
+        else
+            state_net_name = full_net_name;
             action_net_name = '';        
-        elseif length(cnet_temp) >= 2
-            state_net_name = full_net_name(1:cnet_temp(1)-1);
-            rl_type = full_net_name(cnet_temp(1)+1:cnet_temp(2)-1);
-            action_net_name = full_net_name(cnet_temp(2)+1:end);
         end
 
         load(strcat(nets_dir_name, state_net_name, '-net-ml'))
@@ -237,8 +204,8 @@ if exist('rak_only', 'var') && brain_support
             vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
-        if length(cnet_temp) >= 2
-            load(horzcat(nets_dir_name, state_net_name, '-', rl_type, '-', action_net_name, '-ml'))
+        if length(cnet_temp) >= 1
+            load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
             load(strcat(nets_dir_name, state_net_name, '-torque_data'))
             load(strcat(nets_dir_name, state_net_name, '-actions'))
             n_unique_actions = length(unique(actions));        
