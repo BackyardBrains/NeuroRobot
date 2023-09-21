@@ -150,14 +150,9 @@ if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_c
     brain_support = 0;
     disp(horzcat('Error: Brain needs GoogLeNet'))
 end
-if length(trained_nets) > 1 && ~isempty(trained_nets{2})
-    these_nets = option_nets(select_nets.Value);        
-    this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
-    full_net_name = option_nets{select_nets.Value(this_ind)};
-    if ~sum(strcmp(full_net_name, trained_nets))
-        brain_support = 0;
-         disp(horzcat('Error: Brain needs ', trained_nets))
-    end
+if length(trained_nets) > 1 && isempty(trained_nets{2})
+    brain_support = 0;
+    disp(horzcat('Error: Brain needs ', trained_nets{1}))
 end
 
 if exist('rak_only', 'var') && brain_support

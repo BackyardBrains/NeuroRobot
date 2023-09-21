@@ -1,18 +1,13 @@
 
 
 %%
-axes(rl_out1)
+axes(ml_out1)
 
 cla
 tx7 = text(0.03, 0.5, horzcat('loading net...'));
 drawnow
 disp('Loading state net...')
 
-if ~exist('net_name', 'var') && ~strcmp(unsup_edit2.String, 'Enter state net name here')
-    net_name = unsup_edit2.String;
-else
-    error('No state net available for RL')
-end
 load(strcat(nets_dir_name, net_name, '-net-ml'))
 load(strcat(nets_dir_name, net_name, '-labels'))
 

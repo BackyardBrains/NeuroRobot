@@ -1,7 +1,7 @@
 
 
 %% Get inter-state similarity
-axes(unsup_out1_ax)
+axes(ml_out1)
 cla
 
 tx4 = text(0.03, 0.5, horzcat('getting inter-state similarities...'));

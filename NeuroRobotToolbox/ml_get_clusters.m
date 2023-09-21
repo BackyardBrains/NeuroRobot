@@ -1,7 +1,7 @@
 
 %% Cluster on similarity
 n_unique_states = init_n_unique_states;
-axes(unsup_out1_ax)
+axes(ml_out1)
 cla
 
 tx3 = text(0.03, 0.5, horzcat('Clustering...'));
@@ -40,7 +40,7 @@ title('Similarity matrix (sorted)')
 
 %% Remove small groups
 
-axes(unsup_out1_ax)
+axes(ml_out1)
 cla
 tx3 = text(0.03, 0.5, horzcat('removing small clusters...'));
 drawnow

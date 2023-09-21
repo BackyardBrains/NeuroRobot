@@ -5,7 +5,7 @@ adj = 1;
 
 
 %% Get all recorded data and display summary stats
-axes(unsup_out1_ax)
+axes(ml_out1)
 
 this_msg = 'Finding recorded data...';
 cla
@@ -50,13 +50,9 @@ nmedium = round(adj * 0.2 * ntuples + 2000);
 init_n_unique_states = round(adj * 0.001 * ntuples + 10);
 min_size = round(adj * 0.001 * ntuples + 10);
 
-disp('')
-disp('ML parameters')
-disp('-------------')
 disp(horzcat('nsmall = ', num2str(nsmall)))
 disp(horzcat('nmedium = ', num2str(nmedium)))
 disp(horzcat('bof_branching = ', num2str(bof_branching)))
 disp(horzcat('init_n_unique_states = ', num2str(init_n_unique_states)))
 disp(horzcat('min_size = ', num2str(min_size)))
-disp('')
 

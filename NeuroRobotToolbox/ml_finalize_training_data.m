@@ -1,17 +1,18 @@
 
 
 %% Get net name
-net_name = unsup_edit2.String;
-if isempty(net_name) || strcmp(net_name, 'Enter state net name here')
-    unsup_edit2.BackgroundColor = [1 0 0];
-    pause(0.5)
-    unsup_edit2.BackgroundColor = [0.94 0.94 0.94];
-    error('Set state net name')
-end
+net_name = 'statenet';
+% unsup_edit2.String
+% if isempty(net_name) || strcmp(net_name, 'Enter state net name here')
+%     unsup_edit2.BackgroundColor = [1 0 0];
+%     pause(0.5)
+%     unsup_edit2.BackgroundColor = [0.94 0.94 0.94];
+%     error('Set state net name')
+% end
 
 
 %% Create datasets for training nets
-axes(unsup_out2)
+axes(ml_out1)
 cla
 tx5 = text(0.03, 0.5, horzcat('creating training datasets...'));
 drawnow
@@ -87,6 +88,6 @@ pause(2)
 
 
 %% Output
-axes(unsup_out2)
+axes(ml_out1)
 tx5.String = horzcat(num2str(n_unique_states), ' state folders created and visualized');
 drawnow

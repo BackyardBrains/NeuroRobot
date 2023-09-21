@@ -7,17 +7,17 @@ disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
 %% 
-agent_name = rl_edit2_name.String;
+agent_name = ml_edit3_name.String;
 if isempty(agent_name) || strcmp(agent_name, 'Enter action net name here')
-    rl_edit2_name.BackgroundColor = [1 0 0];
+    ml_edit3_name.BackgroundColor = [1 0 0];
     pause(0.5)
-    rl_edit2_name.BackgroundColor = [0.94 0.94 0.94];
+    ml_edit3_name.BackgroundColor = [0.94 0.94 0.94];
     error('Set action net name')
 end
 
 
 %%
-axes(rl_out2)
+axes(ml_out3)
 cla
 tx10 = text(0.03, 0.5, horzcat('training action nets...'));
 drawnow

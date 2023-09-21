@@ -1,7 +1,7 @@
 
 %% Get features and similarity scores
 
-axes(unsup_out1_ax)
+axes(ml_out1)
 cla
 
 this_msg = horzcat('Preparing to find features...');

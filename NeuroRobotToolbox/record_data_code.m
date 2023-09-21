@@ -40,9 +40,7 @@ if record_data > 0
 
     % Save brain state
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-spikes_step.mat');
-    if rak_only || use_esp32
-        save(fname, 'spikes_step', '-mat');
-    end
+    save(fname, 'spikes_step', '-mat');
 
     % Save external camera image
     if use_esp32 && use_webcam

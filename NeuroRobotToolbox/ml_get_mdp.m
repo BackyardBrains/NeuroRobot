@@ -2,7 +2,7 @@
 
 %% Get Markov Decision Process
 
-axes(rl_out1)
+axes(ml_out1)
 cla
 tx8 = text(0.03, 0.5, horzcat('creating world model (MDP)...'));
 drawnow
@@ -56,6 +56,7 @@ for ii_state = 1:n_unique_states
 end
 
 mdp.T = transition_counter;
+save(strcat(nets_dir_name, net_name, '-mdp'), 'mdp')
 disp('Markov ready')
 
 

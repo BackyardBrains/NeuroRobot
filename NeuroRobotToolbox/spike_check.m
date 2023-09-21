@@ -1,8 +1,6 @@
 
 %%
-rec_dir_name = 'Rec5';
-% these_neurons = 14:18;
-these_neurons = 1:2;
+rec_dir_name = 'Rec7';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 
 spike_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*spikes_step.mat'));
@@ -12,6 +10,8 @@ nneurons = size(spikes_step, 1);
 ms_per_step = size(spikes_step, 2);
 spikes_step = zeros(nneurons, ms_per_step);
 data = zeros(nsteps, 1);
+
+these_neurons = find(neuron_tones);
 
 %%
 for nstep = 1:nsteps
