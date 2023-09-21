@@ -13,6 +13,6 @@ load(horzcat(nets_dir_name, net_name, '-torque_data'))
 load(strcat(nets_dir_name, net_name, '-actions'))
 load(strcat(nets_dir_name, net_name, '-mdp'))
 
-load(strcat(nets_dir_name, net_name, '-examples.fig'))
+openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
 
 txx.String = 'Done';

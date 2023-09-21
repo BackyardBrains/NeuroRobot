@@ -13,7 +13,7 @@ drawnow
 
 
 %% Prepare
-% rec_dir_name = 'Rec7';
+% rec_dir_name = 'Rec3';
 rec_dir_name = '';
 
 

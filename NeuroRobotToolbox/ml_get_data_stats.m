@@ -44,9 +44,9 @@ disp(this_msg)
 
 
 %% Set ML parameters
-nsmall = round(adj * 0.1 * ntuples + 1000);
-bof_branching = round(adj * 0.01 * ntuples + 100);
-nmedium = round(adj * 0.2 * ntuples + 2000);
+nsmall = round((adj * 0.1 * ntuples + 1000) * 1);
+bof_branching = round((adj * 0.01 * ntuples + 100) * 1);
+nmedium = round((adj * 0.2 * ntuples + 2000) * 1);
 init_n_unique_states = round(adj * 0.001 * ntuples + 10);
 min_size = round(adj * 0.001 * ntuples + 10);
 

@@ -19,7 +19,7 @@ end
 %%
 axes(ml_out3)
 cla
-tx10 = text(0.03, 0.5, horzcat('training action net...'));
+tx10 = text(0.03, 0.5, horzcat('Training action net...'));
 drawnow
 
 
@@ -111,7 +111,7 @@ scan_agent
 title(horzcat(net_name, '- ', agent_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
-tx10.String = horzcat('Shallow and deep training complete');
+tx10.String = horzcat('Learning complete');
 drawnow
 
 disp('Learning complete')
