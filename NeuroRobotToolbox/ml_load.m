@@ -8,11 +8,15 @@ net_name = 'statenet';
 
 load(strcat(nets_dir_name, net_name, '-net-ml'))
 load(strcat(nets_dir_name, net_name, '-labels'))
-load(horzcat(nets_dir_name, net_name, '-states'))
-load(horzcat(nets_dir_name, net_name, '-torque_data'))
-load(strcat(nets_dir_name, net_name, '-actions'))
-load(strcat(nets_dir_name, net_name, '-mdp'))
 
 openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
 
+load(horzcat(nets_dir_name, net_name, '-states'))
+load(horzcat(nets_dir_name, net_name, '-torque_data'))
+load(strcat(nets_dir_name, net_name, '-actions'))
+
+load(strcat(nets_dir_name, net_name, '-mdp'))
+
+
 txx.String = 'Done';
+
