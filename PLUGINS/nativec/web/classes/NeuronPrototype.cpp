@@ -124,7 +124,7 @@ short isThreadCreated=-1;
 double i_rand = 5;
 
 double randoms(){
-    // srand((unsigned) time(NULL));    
+    srand((unsigned) time(NULL));    
     return (double) rand() / RAND_MAX * 1;
     // short negative = 1;
     // float randomNumber = rand() / (RAND_MAX + 1.0);

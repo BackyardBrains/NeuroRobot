@@ -18,12 +18,12 @@ dependencies:
   intl: 0.18.1
   another_xlider: 3.0.1
   #native
-  # winaudio: 
-  #   path: ./PLUGINS/winaudio
-  # window_manager: 0.3.6
-  # nativec: 
-  #   path: ./PLUGINS/nativec/
-  # auto_orientation: 2.3.1
+  winaudio: 
+    path: ./PLUGINS/winaudio
+  window_manager: 0.3.6
+  nativec: 
+    path: ./PLUGINS/nativec/
+  auto_orientation: 2.3.1
 
 
 dev_dependencies:

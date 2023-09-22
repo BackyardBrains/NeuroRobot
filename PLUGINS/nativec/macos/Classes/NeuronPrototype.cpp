@@ -44,42 +44,42 @@
 #ifdef __EMSCRIPTEN__
 #else
 
-static Dart_Port_DL dart_port = 0;
-char* debug_print(const char *message)
-{
-    if (!dart_port)
-        return (char*) "wrong port"; 
+// static Dart_Port_DL dart_port = 0;
+// char* debug_print(const char *message)
+// {
+//     if (!dart_port)
+//         return (char*) "wrong port"; 
 
-    Dart_CObject msg ;
-    msg.type = Dart_CObject_kString;
-    msg.value.as_string = (char *) message;
-    // Dart_CObject c_event_code;
-    // c_event_code.type = Dart_CObject_kInt32;
-    // c_event_code.value.as_int32 = 1;
-    // Dart_CObject* c_request_arr[] = {&c_event_code};
-    // c_request.type = Dart_CObject_kArray;
-    // c_request.value.as_array.values = c_request_arr;
-    // c_request.value.as_array.length = sizeof(c_request_arr) / sizeof(c_request_arr[0]);
+//     Dart_CObject msg ;
+//     msg.type = Dart_CObject_kString;
+//     msg.value.as_string = (char *) message;
+//     // Dart_CObject c_event_code;
+//     // c_event_code.type = Dart_CObject_kInt32;
+//     // c_event_code.value.as_int32 = 1;
+//     // Dart_CObject* c_request_arr[] = {&c_event_code};
+//     // c_request.type = Dart_CObject_kArray;
+//     // c_request.value.as_array.values = c_request_arr;
+//     // c_request.value.as_array.length = sizeof(c_request_arr) / sizeof(c_request_arr[0]);
 
-    try{
-        Dart_PostCObject_DL(dart_port, &msg);
-        return (char *) "success";
-    }catch(...){
-        return (char *) "failed";
-    }   
+//     try{
+//         Dart_PostCObject_DL(dart_port, &msg);
+//         return (char *) "success";
+//     }catch(...){
+//         return (char *) "failed";
+//     }   
     
-}
+// }
 
-// C++ to Flutter
-EXTERNC FUNCTION_ATTRIBUTE void set_dart_port(Dart_Port_DL port)
-{
-    dart_port = port;
-}
-// C++ to Flutter
-EXTERNC FUNCTION_ATTRIBUTE intptr_t InitDartApiDL(void* data) {
-  return Dart_InitializeApiDL(data);
-// return 1;
-}
+// // C++ to Flutter
+// EXTERNC FUNCTION_ATTRIBUTE void set_dart_port(Dart_Port_DL port)
+// {
+//     dart_port = port;
+// }
+// // C++ to Flutter
+// EXTERNC FUNCTION_ATTRIBUTE intptr_t InitDartApiDL(void* data) {
+//   return Dart_InitializeApiDL(data);
+// // return 1;
+// }
 #endif         
 
 
@@ -124,18 +124,18 @@ short isThreadCreated=-1;
 double i_rand = 5;
 
 double randoms(){
-    srand((unsigned) time(NULL));    
-    return (double) rand() / RAND_MAX * 1;
-    // short negative = 1;
-    // float randomNumber = rand() / (RAND_MAX + 1.0);
-    // // Multiply the random number by 2 and subtract 1.
-    // int randomNegativeOrPositiveNumber = 2 * randomNumber - 1;    
-    // if (randomNegativeOrPositiveNumber < 0) {
-    //     negative = -1;
-    // } else {
-    //     negative = 1;
-    // }    
-    // return (double) rand() / RAND_MAX * negative;    
+    // srand((unsigned) time(NULL));    
+    // return (double) rand() / RAND_MAX * 1;
+    short negative = 1;
+    float randomNumber = rand() / (RAND_MAX + 1.0);
+    // Multiply the random number by 2 and subtract 1.
+    int randomNegativeOrPositiveNumber = 2 * randomNumber - 1;    
+    if (randomNegativeOrPositiveNumber < 0) {
+        negative = -1;
+    } else {
+        negative = 1;
+    }    
+    return (double) rand() / RAND_MAX * negative;    
 }
 
 double matrixMultiply(){
@@ -279,9 +279,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         #ifdef __EMSCRIPTEN__
-                            tI[neuronIndex] = i[neuronIndex] * (1.5 *randoms());
-                        #else
                             tI[neuronIndex] = i[neuronIndex] * (1.3 *randoms());
+                        #else
+                            tI[neuronIndex] = i[neuronIndex] * (1.5 *randoms());
 
                         #endif                        
                         //find spiking neurons
@@ -342,34 +342,38 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 std::string str = "S|";
                 short isFlagSpikingNow = 0;
-                #ifdef __EMSCRIPTEN__
-                    for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
-                        neuronCircles[idx] = isStepSpiking[idx];
-                    }
-                #else
-                    for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
-                        str.append(std::to_string(isStepSpiking[idx]).c_str());
-                        if (idx < threadTotalNumOfNeurons-1) str.append("|");
-                        if (isStepSpiking[idx] == 1){
-                            isFlagSpikingNow = 1;
-                        }
-                    }
-                    if (prevFlagSpiking == 0 && isFlagSpikingNow == 0){
-                    }else
-                    if (prevFlagSpiking == 1 && isFlagSpikingNow == 1){
-                        #ifdef __EMSCRIPTEN__
-                        #else
-                            debug_print(str.c_str());
-                        #endif                        
-                    }else{
-                        prevFlagSpiking = isFlagSpikingNow;
-                        #ifdef __EMSCRIPTEN__
-                        #else
-                            debug_print(str.c_str());
-                        #endif                        
-                    }
+                for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
+                    neuronCircles[idx] = isStepSpiking[idx];
+                }
 
-                #endif                
+                // #ifdef __EMSCRIPTEN__
+                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
+                //         neuronCircles[idx] = isStepSpiking[idx];
+                //     }
+                // #else
+                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
+                //         str.append(std::to_string(isStepSpiking[idx]).c_str());
+                //         if (idx < threadTotalNumOfNeurons-1) str.append("|");
+                //         if (isStepSpiking[idx] == 1){
+                //             isFlagSpikingNow = 1;
+                //         }
+                //     }
+                //     if (prevFlagSpiking == 0 && isFlagSpikingNow == 0){
+                //     }else
+                //     if (prevFlagSpiking == 1 && isFlagSpikingNow == 1){
+                //         #ifdef __EMSCRIPTEN__
+                //         #else
+                //             debug_print(str.c_str());
+                //         #endif                        
+                //     }else{
+                //         prevFlagSpiking = isFlagSpikingNow;
+                //         #ifdef __EMSCRIPTEN__
+                //         #else
+                //             debug_print(str.c_str());
+                //         #endif                        
+                //     }
+
+                // #endif                
                 short startPos = (currentStep) * ms_per_step ;
                 // for (int idx = 0; idx < v_step.size(); idx++) {
                 for (int idx = 0; idx < epochs; idx++) {

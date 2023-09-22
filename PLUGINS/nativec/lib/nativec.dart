@@ -136,7 +136,10 @@ class Nativec {
         .lookup<ffi.NativeFunction<stop_thread_func>>(
             'stopThreadProcess')
         .asFunction();
+    
+    
     // C++ to Flutter
+    /*
     final initializeApi = nativeLrsLib.lookupFunction<
         ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
         int Function(ffi.Pointer<ffi.Void>)>("InitDartApiDL");
@@ -155,6 +158,7 @@ class Nativec {
       //   // print(_canvasBufferBytes2);
       // });
     _setDartPort(thresholdPublication!.sendPort.nativePort);
+    */
     // END C++ to Flutter
 
     // if (_data == null) {
