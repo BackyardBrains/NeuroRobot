@@ -11,8 +11,8 @@ class ProtoNeuron extends CustomPainter{
   double screenWidth = 1000;
   double screenHeight = 800;
   List<SingleNeuron> circles = [];
-  List<String> neuronFixedType = ["RS", "RS","RS","RS", "RS", "RS","RS","RS"];
-  // List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
+  // List<String> neuronFixedType = ["RS", "RS","RS","RS", "RS", "RS","RS","RS"];
+  List<String> neuronFixedType = ["RS", "IB","CH","FS", "TC", "RZ","LTS"];
   late List<List<double>> matrix;
   late List<List<double>> matrixTranspose;
 

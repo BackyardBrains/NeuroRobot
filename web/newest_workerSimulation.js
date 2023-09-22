@@ -161,20 +161,7 @@ self.onmessage = async function( eventFromMain ) {
         const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
         sabNumNps = Module.HEAP32.subarray( startNps, (startNps + 1 ));
 
-    
-        console.log("b4 pass ptr");        
-        const test = Module.ccall(
-            'passPointers',
-            'number',
-            [
-                'number', 'number' ,'number','number',
-            ],
-            [
-                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps,
-            ]
-        );
-        console.log("after pass ptr", test);        
-        
+
         initializeChannelPort.postMessage({
             message:'ALLOCATED_BUFFER',
             allocatedCanvasbuffer: allocatedCanvasBuffer,
@@ -194,7 +181,7 @@ self.onmessage = async function( eventFromMain ) {
             sabNumCom : sabNumCom,
             sabNumIsPlaying : sabNumIsPlaying,            
         });
-        await sleep(1700);
+        // await sleep(700);
 
         // console.log(sabNumA,isPlaying);
         console.log(sabNumA,sabNumB,sabNumC, sabNumD, sabNumI, sabNumW, canvasBuffers, sabNumPos, sabNumConnectome, level, neuronSize,envelopeSize,bufferSize,isPlaying);
@@ -203,18 +190,33 @@ self.onmessage = async function( eventFromMain ) {
     }else
     if (eventFromMain.data.message === 'RUN_WORKER') {
         let running = 0;
-        try{
-            await sleep(1700);
-            Module.ccall(
-                'changeNeuronSimulatorProcess',
-                'number',
-                ['number', 'number' ,'number','number',  'number', 'number' ,'number',
-                    'number', 'number' ,'number','number','number'],
-                [ sabNumAPtr, sabNumBPtr, sabNumCPtr, sabNumDPtr,   sabNumIPtr, sabNumWPtr, sabNumConnectomePtr,
-                    level, neuronSize, envelopeSize, bufferSize, isPlaying]
-            );
 
-            // running = Module.changeNeuronSimulatorProcess(level, neuronSize,envelopeSize,bufferSize,isPlaying);
+    
+        console.log("b4 pass ptr");        
+        const test = Module.ccall(
+            'passPointers',
+            'number',
+            [
+                'number', 'number' ,'number','number',
+                'number', 'number' ,'number','number','number', 'number' ,'number','number',
+            ],
+            [
+                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps,
+                sabNumAPtr, sabNumBPtr, sabNumCPtr, sabNumDPtr,   sabNumIPtr, sabNumWPtr, sabNumConnectomePtr,neuronSize
+            ]
+        );
+        console.log("after pass ptr", test);        
+        
+        
+        try{
+            // Module.ccall(
+            //     'changeNeuronSimulatorProcess',
+            //     'number',
+            //     ['number', 'number' ,'number','number',  'number', 'number' ,'number','number',  'number', 'number' ,'number','number'],
+            //     [ level, neuronSize, envelopeSize, bufferSize, isPlaying]
+            // );
+    
+            running = Module.changeNeuronSimulatorProcess(level, neuronSize,envelopeSize,bufferSize,isPlaying);
         }catch(ex){
             console.log(ex);
         }

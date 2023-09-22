@@ -23,12 +23,13 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
-  ffi.Pointer<ffi.Double>,
-  ffi.Pointer<ffi.Double>,
-  ffi.Pointer<ffi.Uint16>,
+  // ffi.Pointer<ffi.Double>,
+  // ffi.Pointer<ffi.Double>,
+  // ffi.Pointer<ffi.Uint16>,
   ffi.Pointer<ffi.Double>,
 
-  ffi.Pointer<ffi.Int32>,
+  // ffi.Pointer<ffi.Int16>,
+  // ffi.Pointer<ffi.Int32>,
   ffi.Int16,
   ffi.Uint32,    
   ffi.Uint32,    
@@ -44,12 +45,13 @@ typedef ChangeNeuronSimulatorProcess = double Function(
     ffi.Pointer<ffi.Double>, // i
     ffi.Pointer<ffi.Double>, // w
 
-    ffi.Pointer<ffi.Double>, // canvas buffer neuron 1
-    ffi.Pointer<ffi.Double>, // canvas buffer neuron 2
-    ffi.Pointer<ffi.Uint16>, // position
+    // ffi.Pointer<ffi.Double>, // canvas buffer neuron 1
+    // ffi.Pointer<ffi.Double>, // canvas buffer neuron 2
+    // ffi.Pointer<ffi.Uint16>, // position
     ffi.Pointer<ffi.Double>, //connectome
 
-    ffi.Pointer<ffi.Int32>,
+    // ffi.Pointer<ffi.Int16>, // neuroncircle
+    // ffi.Pointer<ffi.Int32>, //nps
     int, // level
     int, // neuron length
     int, // envelope size
@@ -62,6 +64,22 @@ typedef set_threshold_dart_port_func = ffi.Double Function(ffi.Int64);
 typedef SetThresholdDartPortFunc = double Function(int);
 
 
+typedef pass_pointers_func = ffi.Double Function(
+  ffi.Pointer<ffi.Double>, 
+  ffi.Pointer<ffi.Int16>, 
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Uint32>,
+);
+typedef PassPointers = double Function(
+  ffi.Pointer<ffi.Double>, 
+  ffi.Pointer<ffi.Int16>, 
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Uint32>,
+); 
+
+
+
+
 
 // Low Pass filter sample https://www.youtube.com/watch?v=X8JD8hHkBMc
 class Nativec {
@@ -71,6 +89,7 @@ class Nativec {
           ? ffi.DynamicLibrary.open("nativec_plugin.dll")
           : ffi.DynamicLibrary.process();
   
+  late PassPointers _passPointers;
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
   late ChangeIdxSelectedProcess _changeIdxSelectedProcess;
@@ -78,9 +97,9 @@ class Nativec {
 
   static int totalBytes = 200*30;
 
-  static ffi.Pointer<ffi.Double> _canvasBuffer1 = allocate<ffi.Double>(
+  static ffi.Pointer<ffi.Double> canvasBuffer1 = allocate<ffi.Double>(
       count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
-  static ffi.Pointer<ffi.Double> _canvasBuffer2 = allocate<ffi.Double>(
+  static ffi.Pointer<ffi.Double> canvasBuffer2 = allocate<ffi.Double>(
       count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
 
   static Float64List canvasBufferBytes1  = Float64List(0);
@@ -97,6 +116,10 @@ class Nativec {
   static ffi.Pointer<ffi.Void>? cookie;
 
   Nativec() {
+    _passPointers = nativeLrsLib
+        .lookup<ffi.NativeFunction<pass_pointers_func>>(
+            'passPointers')
+        .asFunction();
     _changeNeuronSimulatorProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<change_neuron_simulator_func>>(
             'changeNeuronSimulatorProcess')
@@ -139,21 +162,38 @@ class Nativec {
     // }
     // // int byteCount = Nativec.totalBytes;
     // _bytes = _data.asTypedList(Nativec.totalBytes);
-    canvasBufferBytes1 = _canvasBuffer1.asTypedList(totalBytes);
-    canvasBufferBytes2 = _canvasBuffer2.asTypedList(totalBytes);
+    canvasBufferBytes1 = canvasBuffer1.asTypedList(totalBytes);
+    canvasBufferBytes2 = canvasBuffer2.asTypedList(totalBytes);
     
     canvasBufferBytes1.fillRange(0, totalBytes,0.0);
     canvasBufferBytes2.fillRange(0, totalBytes,0.0);
   }
 
+  // double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
+  //   ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Double> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
+  //   ffi.Pointer<ffi.Int16> neuronCircle,ffi.Pointer<ffi.Int32> nps,int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
+  //     return _changeNeuronSimulatorProcess(
+  //       a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
+  //       neuronCircle,nps,level, neuronLength, envelopeSize, bufferSize, isPlaying);
+  // }
   double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
-    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Double> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Uint16> position, ffi.Pointer<ffi.Double> connectome,
-    ffi.Pointer<ffi.Int32> nps,int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
-      // print("connectome");
-      // return 0;
+    ffi.Pointer<ffi.Int16> d, ffi.Pointer<ffi.Double> i, ffi.Pointer<ffi.Double> w, ffi.Pointer<ffi.Double> connectome,
+    int level,int neuronLength, int envelopeSize, int bufferSize, int isPlaying ) {
       return _changeNeuronSimulatorProcess(
-        a,b,c,d,i,w, _canvasBuffer1, _canvasBuffer2, position,connectome,
-        nps,level, neuronLength, envelopeSize, bufferSize, isPlaying);
+        a,b,c,d,i,w, connectome, level, neuronLength, envelopeSize, bufferSize, isPlaying);
+  }
+
+  // double *_canvasBuffer1, double *_canvasBuffer2, uint16_t *_positions,short *_neuronCircle, int *_nps,
+  double passPointers(ffi.Pointer<ffi.Double> pCanvasbuffer1, ffi.Pointer<ffi.Int16> pPositions, ffi.Pointer<ffi.Int16> pNeuronCircle,ffi.Pointer<ffi.Uint32> pNps){
+    var test = _passPointers(
+      pCanvasbuffer1,
+      pPositions,
+      pNeuronCircle,
+      pNps,
+    );
+    print("pPositions.asTypedList(20)");
+    print(pPositions.asTypedList(20));
+    return test;
   }
 
   int changeIsPlayingProcess(int isPlaying){

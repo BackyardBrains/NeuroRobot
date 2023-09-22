@@ -124,7 +124,7 @@ short isThreadCreated=-1;
 double i_rand = 5;
 
 double randoms(){
-    srand((unsigned) time(NULL));    
+    // srand((unsigned) time(NULL));    
     return (double) rand() / RAND_MAX * 1;
     // short negative = 1;
     // float randomNumber = rand() / (RAND_MAX + 1.0);
@@ -187,18 +187,13 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps,
+    double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,int32_t _neuronLength){
+
     canvasBuffer = _canvasBuffer;
     positions = _positions;
     neuronCircles = _neuronCircle;        
     nps = _nps;    
-    return 1.0;
-}
-// EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
-//     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
-EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
-    short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){      
-    // debug_print("changeNeuronSimulatorProcess 0");
 
     a=_a;
     b=_b;
@@ -206,10 +201,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     d=_d;
     i=_i;
     w=_w;
-    v=new double[_neuronLength];
-    u=new double[_neuronLength];
 
-    // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
     int ctr = 0;
     for (int i = 0; i < _neuronLength; i++){
@@ -218,7 +210,40 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             connectome[i][j] = _connectome[ctr++];
         }
 
-    }
+    }    
+
+    return 0.0;
+}
+// EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
+//     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
+#ifdef __EMSCRIPTEN__
+  EMSCRIPTEN_KEEPALIVE
+#endif    
+EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(
+    short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){      
+    // debug_print("changeNeuronSimulatorProcess 0");
+
+    v=new double[_neuronLength];
+    u=new double[_neuronLength];
+
+    #ifdef __EMSCRIPTEN__
+        EM_ASM({
+            console.log('a : ',  $0 , ', ' , ($1));
+        }, a[0], a[1]);
+        EM_ASM({
+            console.log('b : ',  $0 , ', ' , ($1));
+        }, b[0], b[2]);
+        EM_ASM({
+            console.log('c : ',  $0 , ', ' , ($1));
+        }, c[0], c[2]);
+        EM_ASM({
+            console.log('d : ',  $0 , ', ' , ($1));
+        }, d[0], d[2]);
+
+    #endif
+
+    // v_step = new double*[_neuronLength];
+
 
     double rand = 1;
     for (short neuronIndex = 0 ; neuronIndex < _neuronLength; neuronIndex++){
@@ -235,18 +260,39 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
     if (isThreadCreated==-1){
         isThreadCreated=1;
+
+        #ifdef __EMSCRIPTEN__
+            EM_ASM({
+                console.log('thread0: ', $0);
+            },0);
+        #endif        
         // debug_print("v_traces");
         v_traces = new double*[_neuronLength];
+        #ifdef __EMSCRIPTEN__
+            EM_ASM({
+                console.log('thread 123: ', $0);
+            },-100);
+        #endif        
 
-        for (short idx = 0; idx<_neuronLength; idx++){
+        for (int idx = 0; idx<_neuronLength; idx++){
             v_traces[idx] = new double[bigBufferLength]();
         }
+        #ifdef __EMSCRIPTEN__
+            EM_ASM({
+                console.log('thread 123: ', $0);
+            },-10);
+        #endif        
 
         // debug_print("t detach 0");
         simulatorThread = std::thread([&]() {
             double rand;
             int32_t currentStep = 0;
             // debug_print("t created");
+            #ifdef __EMSCRIPTEN__
+                EM_ASM({
+                    console.log('thread: ', $0);
+                },1);
+            #endif        
 
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             auto start = std::chrono::high_resolution_clock::now();
@@ -273,13 +319,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                     isStepSpiking[neuronIndex] = 0;
                 }
+                #ifdef __EMSCRIPTEN__
+                    EM_ASM({
+                        console.log('thread: ', $0);
+                    },2);
+                #endif        
 
                 start = std::chrono::high_resolution_clock::now();
                 for (uint32_t t = 0; t < epochs; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         #ifdef __EMSCRIPTEN__
-                            tI[neuronIndex] = i[neuronIndex] * (1.5 *randoms());
+                            tI[neuronIndex] = i[neuronIndex] * (1.3 *randoms());
                         #else
                             tI[neuronIndex] = i[neuronIndex] * (1.3 *randoms());
 
@@ -369,7 +420,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         #endif                        
                     }
 
-                #endif                
+                #endif  
+                #ifdef __EMSCRIPTEN__
+                    EM_ASM({
+                        console.log('thread: ', $0);
+                    },3);
+                #endif        
+
                 short startPos = (currentStep) * ms_per_step ;
                 // for (int idx = 0; idx < v_step.size(); idx++) {
                 for (int idx = 0; idx < epochs; idx++) {
@@ -378,7 +435,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
                 }
+
                 positions[0] = startPos + epochs;
+
+
                 // debug_print( (std::to_string(positions[0])+" | " ).c_str());
 
                 // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
@@ -391,9 +451,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 if (isSelected){
                     // debug_print( (std::to_string(idxSelected) + " | " +std::to_string(threadTotalNumOfNeurons)).c_str());
-                    if (idxSelected < threadTotalNumOfNeurons){
+                    // if (idxSelected < threadTotalNumOfNeurons){
                         std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
-                    }
+                    // }
                 }
 
             }
@@ -423,13 +483,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         // debug_print("t detach");
 
     }
-    return 1.0;
+    return 0.0;
 }
 
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_BINDINGS(my_module) {
     function("changeIsPlayingProcess", &changeIsPlayingProcess);
-//     function("changeNeuronSimulatorProcess", &changeNeuronSimulatorProcess);
+    function("changeNeuronSimulatorProcess", &changeNeuronSimulatorProcess);
 //     // function("getCanvasBuffer", &getCanvasBuffer);
 //     // function("getCurrentPosition", &getCurrentPosition);
 //     // function("getNeuronCircles", &getNeuronCircles);

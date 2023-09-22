@@ -3,11 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  nativec
   permission_handler_windows
-  screen_retriever
-  winaudio
-  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

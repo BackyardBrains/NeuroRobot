@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Float64List bBufView  = Float64List(neuronSize);
   Int16List cBufView  = Int16List(neuronSize);
   Int16List dBufView  = Int16List(neuronSize);
-  Float64List iBufView  = Float64List(neuronSize);
+  Int16List iBufView  = Int16List(neuronSize);
   Float64List wBufView  = Float64List(neuronSize);
   // List<int> positionsBufView  = List<int>.filled(neuronSize, 0);
   Uint16List positionsBufView  = Uint16List(neuronSize);
@@ -154,8 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
   ValueNotifier<int> waveRedraw = ValueNotifier(0);
   
   int isPlaying = 1;
-  double levelMedian = 20;
-  double chartGain = 1;
+  double levelMedian = 30;
+  double chartGain = 0.67;
 
   bool isInitialized = false;
   
@@ -185,14 +185,14 @@ class _MyHomePageState extends State<MyHomePage> {
     bBufView  = Float64List(neuronSize);
     cBufView  = Int16List(neuronSize);
     dBufView  = Int16List(neuronSize);
-    iBufView  = Float64List(neuronSize);
+    iBufView  = Int16List(neuronSize);
     wBufView  = Float64List(neuronSize);
     
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
     cBufView.fillRange(0, neuronSize, c);
     dBufView.fillRange(0, neuronSize, d);
-    iBufView.fillRange(0, neuronSize, i);
+    iBufView.fillRange(0, neuronSize, i.floor());
     wBufView.fillRange(0, neuronSize, w);
     
     positionsBufView  = Uint16List(neuronSize);
@@ -239,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
     double b = 0.18;
     int c = -65;
     int d = 2;
-    double i = 5.0;
+    int i = 5;
     double w = 2.0;   
     
     // int neuronSizeType = neuronSize;
@@ -271,9 +271,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
 
-    const level = 1;
-    const envelopeSize = 200;
-    const bufferSize = 2000;
+    // const level = 1;
+    // const envelopeSize = 200;
+    // const bufferSize = 2000;
     // js.context.callMethod('setIzhikevichParameters', 
     //   [jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1])]
     // );
@@ -624,7 +624,7 @@ class _MyHomePageState extends State<MyHomePage> {
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
                 varI[idx] = (lowerValue/10000);
-                iBufView[idx] = varI[idx];
+                iBufView[idx] = varI[idx].floor();
                 changeNeuronSimulatorParameters();
 
                 setState(() {});

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 // import 'package:nativec/nativec.dart';
-// import 'package:nativec/nativec.dart';
 //https://stackoverflow.com/questions/54797911/flutter-where-to-add-listeners-in-statelesswidget
 class WaveWidget extends StatefulWidget {
   WaveWidget({ super.key, required this.valueNotifier,required this.chartGain, required this.screenWidth, required this.screenHeight, 
@@ -13,7 +12,7 @@ class WaveWidget extends StatefulWidget {
   double screenWidth;
   double screenHeight;
   double levelMedian;
-  static Uint16List positionsBufView = Uint16List(0);
+  static Int16List positionsBufView = Int16List(0);
   static Float64List canvasBufferBytes1 = Float64List(0);
   // ValueListenable<int> valueListenable;
   ValueNotifier<int> valueNotifier;
