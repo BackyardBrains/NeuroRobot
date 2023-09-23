@@ -213,8 +213,10 @@ if exist('rak_only', 'var') && brain_support
             for naction = 1:n_unique_actions
                 motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
             end
-        end
-        
+        end 
+    else
+        state_net_name = '';
+        action_net_name = '';
     end
     if use_cnn
         use_cnn_code

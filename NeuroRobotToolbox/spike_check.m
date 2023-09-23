@@ -1,6 +1,8 @@
 
 %%
-rec_dir_name = 'Rec5';
+% rec_dir_name = 'Rec5';
+rec_dir_name = '';
+
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 
 spike_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*spikes_step.mat'));
