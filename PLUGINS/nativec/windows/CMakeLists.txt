@@ -23,11 +23,7 @@ list(APPEND PLUGIN_SOURCES
 add_library(${PLUGIN_NAME} SHARED
   "include/nativec/nativec_plugin_c_api.h"
   "nativec_plugin_c_api.cpp"
-  "../macos/Classes/FilterBase.cpp"
-  "../macos/Classes/HighPassFilter.cpp"
-  "../macos/Classes/LowPassFilter.cpp"
-  "../macos/Classes/NotchPassFilter.cpp"
-  "../macos/Classes/GainFilter.cpp"
+  "../macos/Classes/NeuronPrototype.cpp"
   "nativec_plugin_c_api.cpp"
   ${PLUGIN_SOURCES}
 )

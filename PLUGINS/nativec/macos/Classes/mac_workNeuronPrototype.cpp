@@ -125,17 +125,17 @@ double i_rand = 5;
 
 double randoms(){
     // srand((unsigned) time(NULL));    
-    return (double) rand() / RAND_MAX * 1;
-    // short negative = 1;
-    // double randomNumber = rand() / (RAND_MAX + 1.0);
-    // // Multiply the random number by 2 and subtract 1.
-    // int randomNegativeOrPositiveNumber = 2 * static_cast<int>(randomNumber) - 1;    
-    // if (randomNegativeOrPositiveNumber < 0) {
-    //     negative = -1;
-    // } else {
-    //     negative = 1;
-    // }    
-    // return (double) rand() / RAND_MAX * negative;    
+    // return (double) rand() / RAND_MAX * 1;
+    short negative = 1;
+    float randomNumber = rand() / (RAND_MAX + 1.0);
+    // Multiply the random number by 2 and subtract 1.
+    int randomNegativeOrPositiveNumber = 2 * randomNumber - 1;    
+    if (randomNegativeOrPositiveNumber < 0) {
+        negative = -1;
+    } else {
+        negative = 1;
+    }    
+    return (double) rand() / RAND_MAX * negative;    
 }
 
 double matrixMultiply(){
@@ -212,10 +212,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
     int ctr = 0;
-    for (int ii = 0; ii < _neuronLength; ii++){
-        connectome[ii] = new double[_neuronLength]();
+    for (int i = 0; i < _neuronLength; i++){
+        connectome[i] = new double[_neuronLength]();
         for (int j = 0; j < _neuronLength; j++){
-            connectome[ii][j] = _connectome[ctr++];
+            connectome[i][j] = _connectome[ctr++];
         }
 
     }
@@ -244,7 +244,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
         // debug_print("t detach 0");
         simulatorThread = std::thread([&]() {
-            // double rand;
+            double rand;
             int32_t currentStep = 0;
             // debug_print("t created");
 
@@ -257,10 +257,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // mtx.lock();
 
                 int32_t threadTotalNumOfNeurons = totalNumOfNeurons;
-                short *isSpiking = new short[threadTotalNumOfNeurons];
-                short *isStepSpiking = new short[threadTotalNumOfNeurons];
+                short isSpiking[threadTotalNumOfNeurons];
+                short isStepSpiking[threadTotalNumOfNeurons];
 
-                double *tI = new double[threadTotalNumOfNeurons];
+                double tI[threadTotalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     continue;
@@ -275,7 +275,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 }
 
                 start = std::chrono::high_resolution_clock::now();
-                for (int t = 0; t < epochs; t++) {
+                for (uint32_t t = 0; t < epochs; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         #ifdef __EMSCRIPTEN__
@@ -298,9 +298,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::copy(v, v+threadTotalNumOfNeurons, copyV);
                     v_step.push_back(copyV);
                     
-                    short numberOfSpikingNow = static_cast<short>(spikingNow.size());
+                    short numberOfSpikingNow = spikingNow.size();
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
-                        int neuronIndex = spikingNow[idx];
+                        short neuronIndex = spikingNow[idx];
                         //Reset spiking v to c
                         v[neuronIndex] = c[neuronIndex];
                         //Adjust spiking u to d
@@ -309,7 +309,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                     double *sumConnectome = new double[threadTotalNumOfNeurons]();
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
-                        short spikingNeuronIndex = static_cast<short>(spikingNow[idx]);
+                        short spikingNeuronIndex = spikingNow[idx];
 
                         for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
                             sumConnectome[j] += connectome[spikingNeuronIndex][j];
@@ -335,14 +335,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     elapsed = std::chrono::high_resolution_clock::now() - start;
                     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
                     // int microtime = microseconds;
-                    nps[0] = static_cast<int>(microseconds);
+                    nps[0] = microseconds;
                 }
                 // debug_print( (std::to_string(microseconds)+" microseconds" ).c_str());
                 // mtx.unlock();
 
                 std::string str = "S|";
-                // short isFlagSpikingNow = 0;
-                for (int idx=0; idx<threadTotalNumOfNeurons; idx++){
+                short isFlagSpikingNow = 0;
+                for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
                     neuronCircles[idx] = isStepSpiking[idx];
                 }
 
@@ -374,16 +374,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 //     }
 
                 // #endif                
-                short startPos = static_cast<short>( (currentStep) * ms_per_step );
+                short startPos = (currentStep) * ms_per_step ;
                 // for (int idx = 0; idx < v_step.size(); idx++) {
-
-                for (short idx = 0; idx < static_cast<short>(epochs); idx++) {
+                for (int idx = 0; idx < epochs; idx++) {
                     // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
                 }
-                positions[0] = startPos + static_cast<short>(epochs);
+                positions[0] = startPos + epochs;
                 // debug_print( (std::to_string(positions[0])+" | " ).c_str());
 
                 // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
@@ -400,9 +399,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
                     }
                 }
-                delete[] isSpiking;
-                delete[] isStepSpiking;
-                delete[] tI;
 
             }
             if (!isThreadRunning){
@@ -415,7 +411,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] (v);
                 delete[] (u);
                 delete[] (connectome);
-                for (int32_t idx=0; idx <threadInitialTotalNumOfNeurons; idx++){
+                for (unsigned idx=0; idx<threadInitialTotalNumOfNeurons; idx++){
                     delete[] (v_traces[idx]);
                 }
                 delete[] v_traces;

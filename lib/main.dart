@@ -775,9 +775,15 @@ class _MyHomePageState extends State<MyHomePage> {
       if (!kIsWeb){
         WaveWidget.positionsBufView = positionsBufView;
       }
-      if (screenWidth < screenHeight) {
-        screenWidth = MediaQuery.of(context).size.height;
-        screenHeight = MediaQuery.of(context).size.width;
+      if (Platform.isAndroid || Platform.isIOS){
+        if (screenWidth < screenHeight) {
+          screenWidth = MediaQuery.of(context).size.height;
+          screenHeight = MediaQuery.of(context).size.width;
+        }
+      }else
+      if (Platform.isWindows || Platform.isMacOS){
+        screenWidth = 800;
+        screenHeight = 600;
       }
       waveWidget = WaveWidget(valueNotifier: waveRedraw,
         chartGain:chartGain,levelMedian: levelMedian,screenHeight: screenHeight,screenWidth: screenWidth);
