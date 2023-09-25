@@ -11,6 +11,7 @@ import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 import 'package:intl/intl.dart';
 
@@ -51,13 +52,21 @@ void main() async {
         await windowManager.show();
         await windowManager.focus();
       });
+      runApp(const MyApp());
 
     }else{
-      AutoOrientation.landscapeLeftMode();
+      Future.delayed(const Duration(milliseconds: 300),(){
+        // AutoOrientation.landscapeRightMode();
+        AutoOrientation.landscapeLeftMode();
+      });
+      runApp(const MyApp());
+      // SystemChrome.setPreferredOrientations([
+      //   // DeviceOrientation.landscapeLeft,
+      //   DeviceOrientation.landscapeRight,
+      // ]).then((value) => runApp(MyApp()));      
     }
   }
 
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -94,8 +103,8 @@ void sampleBufferingEntryPoint(List<dynamic> values) {
 class _MyHomePageState extends State<MyHomePage> {
   Debouncer debouncerScroll = Debouncer(milliseconds: 300);  
   StreamSubscription<dynamic>? winAudioSubscription;
-  static int neuronSize = 20;
-  static final int maxPosBuffer = 220;
+  static int neuronSize = 25;
+  static const int maxPosBuffer = 220;
   int epochs = 30;
 
   // NATIVE
@@ -106,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
 
   static ffi.Pointer<ffi.Int16> positionsBuf = allocate<ffi.Int16>(
-      count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+      count: 1, sizeOfType: ffi.sizeOf<ffi.Int16>());
 
   static ffi.Pointer<ffi.Double> aBuf = allocate<ffi.Double>(
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
@@ -177,7 +186,9 @@ class _MyHomePageState extends State<MyHomePage> {
   NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
       decimalDigits: 2,
-  );  
+  );
+  
+  late Orientation deviceOrientation;  
 
   void resetNeuronParameters(){
     const a = 0.02;
@@ -187,14 +198,6 @@ class _MyHomePageState extends State<MyHomePage> {
     const i = 5.0;
     const w = 2.0;   
     
-    // positionsBuf = allocate<ffi.Uint16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Uint16>());
-    // aBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
-    // bBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
-    // cBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // dBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // iBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    // wBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());   
-    // connectomeBuf = allocate<ffi.Double>(count: neuronSize * neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
 
     if (kIsWeb){
       // aBufView  = Float64List(neuronSize);
@@ -207,6 +210,25 @@ class _MyHomePageState extends State<MyHomePage> {
       // connectomeBufView  = Float64List(neuronSize*neuronSize);
     }else{
 
+      // free(positionsBuf);
+      free(aBuf);
+      free(bBuf);
+      free(cBuf);
+      free(dBuf);
+      free(iBuf);
+      free(wBuf);
+      free(connectomeBuf);
+      free(neuronCircleBuf);
+      neuronCircleBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());      
+      // positionsBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+      aBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+      bBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+      cBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+      dBuf = allocate<ffi.Int16>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
+      iBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+      wBuf = allocate<ffi.Double>(count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());   
+      connectomeBuf = allocate<ffi.Double>(count: neuronSize * neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+
       aBufView = aBuf.asTypedList(neuronSize);
       bBufView = bBuf.asTypedList(neuronSize);
       cBufView = cBuf.asTypedList(neuronSize);
@@ -215,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
       wBufView = wBuf.asTypedList(neuronSize);
       npsBufView = npsBuf.asTypedList(2);
       neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
-      positionsBufView = positionsBuf.asTypedList(neuronSize);
+      positionsBufView = positionsBuf.asTypedList(1);
       connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
     }
 
@@ -227,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
     dBufView.fillRange(0, neuronSize, d);
     iBufView.fillRange(0, neuronSize, i);
     wBufView.fillRange(0, neuronSize, w);
-    positionsBufView.fillRange(0, neuronSize, 100);
+    positionsBufView.fillRange(0, 1, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0);
 
     
@@ -303,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
       wBufView = wBuf.asTypedList(neuronSize);
       npsBufView = npsBuf.asTypedList(2);
       neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
-      positionsBufView = positionsBuf.asTypedList(neuronSize);
+      positionsBufView = positionsBuf.asTypedList(1);
       connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
     }
     aBufView.fillRange(0, neuronSize, a);
@@ -312,7 +334,7 @@ class _MyHomePageState extends State<MyHomePage> {
     dBufView.fillRange(0, neuronSize, d);
     iBufView.fillRange(0, neuronSize, i);
     wBufView.fillRange(0, neuronSize, w);
-    positionsBufView.fillRange(0, neuronSize, 0);
+    positionsBufView.fillRange(0, 1, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0);
     // neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
     neuronSpikeFlags = List<ValueNotifier<int>>.generate(neuronSize, (_)=>ValueNotifier(0));
@@ -770,12 +792,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    if (!isInitialized){
+    if (!isInitialized && (screenWidth > 0 && screenHeight>0) ){
       isInitialized = true;
       if (!kIsWeb){
         WaveWidget.positionsBufView = positionsBufView;
       }
       if (Platform.isAndroid || Platform.isIOS){
+        deviceOrientation = MediaQuery.of(context).orientation;
         if (screenWidth < screenHeight) {
           screenWidth = MediaQuery.of(context).size.height;
           screenHeight = MediaQuery.of(context).size.width;
@@ -804,6 +827,17 @@ class _MyHomePageState extends State<MyHomePage> {
       // protoNeuron.setNeuronParameters(aBufView,bBufView,cBufView,dBufView,iBufView,wBufView);
       // print(wBufView);
     }
+    if (Platform.isAndroid || Platform.isIOS){  
+      if ( (screenWidth > 0 && screenHeight>0) && deviceOrientation != MediaQuery.of(context).orientation ){
+        deviceOrientation = MediaQuery.of(context).orientation;
+        screenWidth = MediaQuery.of(context).size.width;
+        screenHeight = MediaQuery.of(context).size.height;
+        waveWidget = WaveWidget(valueNotifier: waveRedraw,
+          chartGain:chartGain,levelMedian: levelMedian,screenHeight: screenHeight,screenWidth: screenWidth);
+
+      }
+    }
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.title),
@@ -936,10 +970,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 protoNeuron.isSelected = false;
                 protoNeuron.idxSelected = -1;
                 neuronSize = int.parse(input);
-                resetNeuronParameters();
 
-                protoNeuron = ProtoNeuron(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
-                  aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
                 // nativec.changeIsPlayingProcess(-1);
 
                 // update the parameters
@@ -955,6 +986,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     //       level, neuronSize,envelopeSize,bufferSize,1]) ]
                     // );                    
                   }else{
+                    resetNeuronParameters();
+                    nativec.passPointers(Nativec.canvasBuffer1, positionsBuf, neuronCircleBuf, npsBuf);
+                    protoNeuron = ProtoNeuron(notifier:redrawNeuronLine, neuronSize:neuronSize, screenWidth:screenWidth, screenHeight:screenHeight, 
+                      aBufView:aBufView,bBufView:bBufView,cBufView:cBufView,dBufView:dBufView,iBufView:iBufView,wBufView:wBufView, connectomeBufView:connectomeBufView);
+
                     nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
                   }
                   setState(() {});
@@ -1012,7 +1048,9 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     ];
     // protoNeuron.
-    for (int i = 0; i < neuronSize ;i++){
+    int neuronLength = protoNeuron.circles.length;
+    for (int i = 0; i < neuronLength ;i++){
+
       SingleNeuron neuron = protoNeuron.circles[i];
       // print("-------");
       // print("neuronSpikeFlags[i]");

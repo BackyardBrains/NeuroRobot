@@ -131,6 +131,10 @@ class ProtoNeuron extends CustomPainter{
       circle.zIndex = 0;
       circles.add(circle);
     }
+    print("circles.length");
+    print(screenWidth);
+    print(screenHeight);
+    print(circles.length);
   }
   
   void generateSparseMatrix(int neuronSize) {
