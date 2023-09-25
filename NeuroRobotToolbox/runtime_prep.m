@@ -392,7 +392,7 @@ if exist('rak_only', 'var') && brain_support
         try
             mic_obj = audioDeviceReader;
             mic_fs = mic_obj.SampleRate;
-            mic_obj.SamplesPerFrame = round(mic_fs * pulse_period * 0.8);
+            mic_obj.SamplesPerFrame = round(mic_fs * pulse_period * 0.8); % Too much? Blocking?
             setup(mic_obj)
         catch
             disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')
