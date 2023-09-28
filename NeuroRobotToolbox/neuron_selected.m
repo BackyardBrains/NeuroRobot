@@ -55,7 +55,7 @@ if fig_design.UserData == 0
     text_heading = uicontrol('Style', 'text', 'String', 'Select an action', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
     % Type 1 button
-    button1 = uicontrol('Style', 'pushbutton', 'String', 'Axon', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+    button1 = uicontrol('Style', 'pushbutton', 'String', 'Synapse', 'units', 'normalized', 'position', [0.02 0.85 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
     set(button1, 'Callback', 'extend_axon', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
     % Type 2 button
     button2 = uicontrol('Style', 'pushbutton', 'String', 'Properties', 'units', 'normalized', 'position', [0.02 0.77 0.26 0.06], 'fontname', gui_font_name, 'fontweight', gui_font_weight);
