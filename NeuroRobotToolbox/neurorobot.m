@@ -96,15 +96,15 @@ text_robot = uicontrol('Style', 'text', 'String', 'Robot', 'units', 'normalized'
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
 select_robot = uicontrol('Style', 'list', 'Callback', 'camera_button_col', 'units', 'normalized', 'Position', [0.05 0.45 0.25 0.3], ...
     'fontsize', bfsize + 4, 'string', option_robot, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 1, 'min', 1);
-select_robot.Value = 5;
+select_robot.Value = 3;
 
 % App Settings
 text_app = uicontrol('Style', 'text', 'String', 'App', 'units', 'normalized', 'position', [0.05 0.335 0.25 0.05], ...
     'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'left', 'fontweight', gui_font_weight, 'FontName', gui_font_name);
-option_app = {'Basal Ganglia Colors'; 'Draw Neuron Numbers'; 'Draw Synapse Weights'; 'Record Data'};
+option_app = {'Record Data'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-select_app.Value = 1:3;
+select_app.Value = [];
 
 % Nets
 option_nets = {'GoogLeNet'}; % Imported nets

@@ -8,34 +8,16 @@ update_robot_select
 
 
 %% App settings
-% 1 = 'BG Color Scheme'
+bg_colors = 1;
+draw_neuron_numbers = 1;
+draw_synapse_strengths = 1;
+
+% 1 = 'Record Data'
 if sum(select_app.Value == 1)
-    bg_colors = 1; % Use neuron color to indicate network ID, neuron flickering to indicate spikes  
-else
-    bg_colors = 0;
-end
-
-% 2 = 'Draw Neuron Numbers'   
-if sum(select_app.Value == 2)
-    draw_neuron_numbers = 1;
-else
-    draw_neuron_numbers = 0;
-end
-
-% 3 = 'Draw Synapse Weights'    
-if sum(select_app.Value == 3)
-    draw_synapse_strengths = 1;
-else
-    draw_synapse_strengths = 0;
-end
-
-% 4 = 'Record Data'
-if sum(select_app.Value == 4)
     record_data = 1;
 else
     record_data = 0;
 end
-
 
 %% Trained Nets settings
 % 1 = 'GoogLeNet'
