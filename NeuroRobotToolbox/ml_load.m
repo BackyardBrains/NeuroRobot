@@ -16,5 +16,5 @@ catch
     error('Cannot find prepared training data')
 end
 
-txx.String = 'Ready to train';
+txx.String = 'Ready to train decision-making network';
 

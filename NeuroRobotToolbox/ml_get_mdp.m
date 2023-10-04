@@ -60,7 +60,7 @@ disp('Markov ready')
 
 
 %% Output
-tx8.String = 'Ready to train';
+tx8.String = 'Ready to train decision-making network';
 drawnow
 
 axes(im_ax1)
