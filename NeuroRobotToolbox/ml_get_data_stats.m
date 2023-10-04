@@ -1,7 +1,7 @@
 
 
 %% Set parameter scaling factor
-alearn_speed = 0.1;
+alearn_speed = 1;
 
 
 %% Get all recorded data and display summary stats
