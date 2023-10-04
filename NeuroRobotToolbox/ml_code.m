@@ -39,13 +39,13 @@ ml_edit3_name_pos = [0.26 0.38 0.12 0.05];
 ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_title_pos, ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
-button_data_ml = uicontrol('Style', 'pushbutton', 'String', 'Get state net and MDP', 'units', 'normalized', 'position', ml_button1_pos);
+button_data_ml = uicontrol('Style', 'pushbutton', 'String', 'Get pattern recognition net', 'units', 'normalized', 'position', ml_button1_pos);
 set(button_data_ml,'Callback', 'ml_step1', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_load_ml = uicontrol('Style', 'pushbutton', 'String', 'Load state net and MDP', 'units', 'normalized', 'position', ml_button2_pos);
+button_load_ml = uicontrol('Style', 'pushbutton', 'String', 'Load pattern recognition net', 'units', 'normalized', 'position', ml_button2_pos);
 set(button_load_ml,'Callback', 'ml_load', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
-button_train_ml = uicontrol('Style', 'pushbutton', 'String', 'Train action net', 'units', 'normalized', 'position', ml_button3_pos);
+button_train_ml = uicontrol('Style', 'pushbutton', 'String', 'Train decision-making net', 'units', 'normalized', 'position', ml_button3_pos);
 set(button_train_ml,'Callback', 'ml_step2', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
