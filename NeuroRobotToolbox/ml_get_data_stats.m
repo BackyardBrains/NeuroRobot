@@ -1,7 +1,7 @@
 
 
 %% Set parameter scaling factor
-alearn_speed = 1;
+alearn_speed = 1.5;
 
 
 %% Get all recorded data and display summary stats
@@ -45,10 +45,10 @@ disp(this_msg)
 
 %% Set ML parameters
 nsmall = round((0.01 * ntuples + 1000) * alearn_speed);
-bof_branching = round((0.01 * ntuples + 100) * alearn_speed);
+bof_branching = round((0.001 * ntuples + 200) * alearn_speed);
 nmedium = round((0.02 * ntuples + 2000) * alearn_speed);
-init_n_unique_states = round(0.0001 * ntuples * alearn_speed) + 10;
-min_size = round(0.0001 * ntuples * alearn_speed) + 10;
+init_n_unique_states = round(0.001 * ntuples * alearn_speed) + 10;
+min_size = round(0.0002 * ntuples * alearn_speed) + 10;
 
 disp(horzcat('nsmall = ', num2str(nsmall)))
 disp(horzcat('nmedium = ', num2str(nmedium)))
