@@ -20,13 +20,13 @@ for nstate = 1:n_unique_states
 
 end
 
-axes(im_ax1)
-cla
-imagesc(inter_state_similarity, [0 0.5])
-xlabel('State')
-ylabel('State')
-c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
-title('Inter-state similarity')
+% axes(im_ax1)
+% cla
+% imagesc(inter_state_similarity, [0 0.5])
+% xlabel('State')
+% ylabel('State')
+% c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
+% title('Inter-state similarity')
 
 avg_inter = mean(inter_state_similarity(:));
 tx4.String = horzcat('avg. inter-state = ', num2str(avg_inter), ', getting intra-state...');
@@ -44,25 +44,7 @@ for nstate = 1:n_unique_states
 
 end
 
-prc25 = prctile(intra_state_similarity, 25);
-
-% axes(im_ax2)
-% cla
-% bar(intra_state_similarity)
-% xlabel('State')
-% ylabel('Score')
-% title('Intra-state similarity')
-
-% axes(im_ax2)
-% cla
-% h = histogram(intra_state_similarity, 'binwidth', 0.005);
-% hold on
-% plot([prc25 prc25], [0 max(h.Values)], 'linewidth', 2, 'color', 'r')
-% title('Intra-state similarity (histogram)')
-
 avg_intra = mean(intra_state_similarity);
-tx4.String = horzcat('avg. inter-state = ', num2str(avg_inter), ...
-    ', avg. intra-state = ', num2str(avg_intra));
+tx4.String = horzcat('Similarity: between groups = ', num2str(avg_inter), ', within groups = ', num2str(avg_intra));
 drawnow
-
 

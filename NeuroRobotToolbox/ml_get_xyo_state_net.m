@@ -187,5 +187,5 @@ options = trainingOptions('adam', ...
 %     Plots="training-progress")
 
 net = trainNetwork(ds, net, options);
-save(strcat(nets_dir_name, net_name, '-net-ml'), 'net')
+save(strcat(nets_dir_name, net_name, '-ml'), 'net')
 

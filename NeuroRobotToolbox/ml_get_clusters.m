@@ -21,25 +21,11 @@ close(10)
 
 axes(im_ax1)
 cla
-imagesc(xdata(o, o), [0 0.75])
-c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
+imagesc(xdata(o, o), [0 1])
 title('Similarity matrix (sorted)')
-
-% axes(im_ax2)
-% cla
-% histogram(group_inds, 'binwidth', 0.4);
-% hold on
-% plot([0 n_unique_states + 1], [min_size min_size], 'color', 'r')
-% axis tight
-% title('States')
-% xlabel('State')
-% ylabel('Count')
-% set(gca, 'yscale', 'linear')
-% title('Group sizes')
 
 
 %% Remove small groups
-
 axes(ml_out1)
 cla
 tx3 = text(0.03, 0.5, horzcat('removing small clusters...'));

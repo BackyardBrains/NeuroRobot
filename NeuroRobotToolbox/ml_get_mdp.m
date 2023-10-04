@@ -1,7 +1,6 @@
 
 
 %% Get Markov Decision Process
-
 axes(ml_out1)
 cla
 tx8 = text(0.03, 0.5, horzcat('creating world model (MDP)...'));
@@ -61,14 +60,12 @@ disp('Markov ready')
 
 
 %% Output
-
-tx8.String = 'Markov ready';
+tx8.String = 'Ready to train';
 drawnow
 
 axes(im_ax1)
 cla
-imagesc(mean(transition_counter, 3), [0 0.3])
-colorbar('location', 'manual', 'position', im_ax1_colb_pos);
+imagesc(mean(transition_counter, 3), [0 1])
 title('Transition probabilities (avg across actions)')
 ylabel('State')
 xlabel('Next State')

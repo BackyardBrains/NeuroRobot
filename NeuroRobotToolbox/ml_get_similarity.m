@@ -60,18 +60,16 @@ drawnow
 
 %% Plot similarity matrix
 
-axes(im_ax1)
-imagesc(xdata, [0 0.75])
-xlabel('Image')
-ylabel('Image')
-c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
-title('Similarity scores')
+% axes(im_ax1)
+% imagesc(xdata, [0 0.75])
+% xlabel('Image')
+% ylabel('Image')
+% c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
+% title('Similarity scores')
 
-axes(im_ax2)
+axes(im_ax1)
 histogram(xdata(:))
 set(gca, 'yscale', 'log')
-xlabel('Similarity score')
-ylabel('Count')
-title('Similarity data histogram')
+title('Similarity scores')
 
 drawnow

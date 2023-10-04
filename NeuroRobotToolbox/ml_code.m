@@ -69,6 +69,13 @@ ml_edit3_goal = uicontrol('Style', 'edit', 'String', 'Enter goal states here', '
 ml_edit3_name = uicontrol('Style', 'edit', 'String', 'Enter action net name here', 'units', 'normalized', 'position', ml_edit3_name_pos);
 
 
+%% Image Panels
+im_ax1_pos = [0.63 0.25 0.3 0.5];
+im_ax1 = axes('position', im_ax1_pos);
+set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
+
+disp('Ready to train')
+
 
 %% Exit button
 button_exit_ml_pos = [0.03 0.08 0.2 0.05];
@@ -76,16 +83,7 @@ button_exit_ml = uicontrol('Style', 'pushbutton', 'String', 'Exit ML', 'units', 
 set(button_exit_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
-%% Image Panels
-im_ax1_pos = [0.63 0.54 0.3 0.35];
-im_ax1_colb_pos = [0.94 0.54 0.02 0.35];
-im_ax1 = axes('position', im_ax1_pos);
-set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
-
-im_ax2_pos = [0.63 0.08 0.3 0.35];
-im_ax2_colb_pos = [0.94 0.08 0.02 0.35];
-im_ax2 = axes('position', im_ax2_pos);
-set(im_ax2, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
-
-disp('Ready to train')
-
+%% Exit button
+button_advanced_ml_pos = [0.77 0.08 0.2 0.05];
+button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Advanced Settings', 'units', 'normalized', 'position', button_advanced_ml_pos);
+set(button_advanced_ml,'Callback', 'ml_interface', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])

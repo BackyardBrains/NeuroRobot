@@ -174,7 +174,7 @@ if exist('rak_only', 'var') && brain_support
             action_net_name = '';        
         end
 
-        load(strcat(nets_dir_name, state_net_name, '-net-ml'))
+        load(strcat(nets_dir_name, state_net_name, '-ml'))
         try
             load(strcat(nets_dir_name, state_net_name, '-labels'))
             regression_flag = 0;

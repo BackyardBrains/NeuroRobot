@@ -4,19 +4,17 @@ cla
 txx = text(0.03, 0.5, 'Loading...');
 drawnow
 
-net_name = 'statenet';
+net_name = 'patternrecognizer';
 
-load(strcat(nets_dir_name, net_name, '-net-ml'))
-load(strcat(nets_dir_name, net_name, '-labels'))
+try
+    openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
+    load(strcat(nets_dir_name, net_name, '-mdp'))
+catch
+    button_load_ml.BackgroundColor = [1 0 0];
+    pause(0.5)
+    button_load_ml.BackgroundColor = [0.94 0.94 0.94];
+    error('Cannot find prepared training data')
+end
 
-openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
-
-load(horzcat(nets_dir_name, net_name, '-states'))
-load(horzcat(nets_dir_name, net_name, '-torque_data'))
-load(strcat(nets_dir_name, net_name, '-actions'))
-
-load(strcat(nets_dir_name, net_name, '-mdp'))
-
-
-txx.String = 'Done';
+txx.String = 'Ready to train';
 

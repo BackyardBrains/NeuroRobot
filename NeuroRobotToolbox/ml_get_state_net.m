@@ -60,7 +60,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(nets_dir_name, net_name, '-net-ml'), 'net')
+save(strcat(nets_dir_name, net_name, '-ml'), 'net')
 
 
 %% End message

@@ -1,7 +1,7 @@
 
 
 %% Get net name
-net_name = 'statenet';
+net_name = 'patternrecognizer';
 
 
 %% Create datasets for training nets
