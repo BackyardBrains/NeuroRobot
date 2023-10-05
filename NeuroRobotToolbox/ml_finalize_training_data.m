@@ -5,9 +5,9 @@ net_name = 'patternrecognizer';
 
 
 %% Create datasets for training nets
-axes(ml_out1)
+axes(ml_train1_status)
 cla
-tx5 = text(0.03, 0.5, horzcat('creating training datasets...'));
+tx5 = text(0.03, 0.5, horzcat('Creating training datasets...'));
 drawnow
 
 try
@@ -46,7 +46,7 @@ disp(horzcat('n unique states = ', num2str(n_unique_states)))
 
 
 %% Output
-tx5.String = horzcat('created ', num2str(n_unique_states), ' state folders. visualizing...');
+tx5.String = horzcat('Created ', num2str(n_unique_states), ' state folders. visualizing...');
 drawnow
 
 
@@ -81,6 +81,6 @@ saveas(fig_ml, horzcat(nets_dir_name, net_name, '-examples.fig'))
 
 
 %% Output
-axes(ml_out1)
+axes(ml_train1_status)
 tx5.String = horzcat(num2str(n_unique_states), ' state folders created and visualized');
 drawnow

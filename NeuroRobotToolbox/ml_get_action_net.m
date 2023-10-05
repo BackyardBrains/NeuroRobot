@@ -2,24 +2,24 @@
 
 
 %% scaling factor
-scale_f = 300;
+scale_f = 300 * learn_speed;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
 %% 
-agent_name = ml_edit3_name.String;
-if isempty(agent_name) || strcmp(agent_name, 'Enter action net name here')
-    ml_edit3_name.BackgroundColor = [1 0 0];
+agent_name = ml_name2_edit.String;
+if isempty(agent_name)
+    ml_name2_edit.BackgroundColor = [1 0 0];
     pause(0.5)
-    ml_edit3_name.BackgroundColor = [0.94 0.94 0.94];
-    error('Set action net name')
+    ml_name2_edit.BackgroundColor = [0.94 0.94 0.94];
+    error('Name your decision network')
 end
 
 
 %%
-axes(ml_out3)
+axes(ml_train2_status)
 cla
-tx10 = text(0.03, 0.5, horzcat('Training action net...'));
+tx10 = text(0.03, 0.5, horzcat('Training decision net...'));
 drawnow
 
 
@@ -31,46 +31,6 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
-
-
-% %% Train Agent 1
-% agent_opt = rlQAgentOptions;
-% % agent_opt.DiscountFactor = 0.1;
-% agent = rlQAgent(critic, agent_opt);
-% training_opts = rlTrainingOptions;
-% training_opts.MaxEpisodes = scale_f;
-% training_opts.MaxStepsPerEpisode = scale_f;
-% training_opts.StopTrainingValue = scale_f;
-% training_opts.StopTrainingCriteria = "AverageReward";
-% training_opts.ScoreAveragingWindowLength = scale_f/5;
-% if isdeployed
-%     this_str = 'none';
-% else
-%     this_str = 'training-progress';
-% end
-% training_opts.Plots = this_str;
-% training_opts.Verbose = 1;
-% 
-% trainingStats_shallow = train(agent, env, training_opts);
-% save(horzcat(nets_dir_name, net_name, '-RL-', agent_name, '-ml'), 'agent')
-
-% tx10.String = 'Training deep...';
-% drawnow
-
-% %% Show Agent 1
-% delete(im_ax1)
-% im_ax1_pos = [0.63 0.54 0.3 0.35];
-% im_ax1_colb_pos = [0.94 0.54 0.02 0.35];
-% im_ax1 = axes('position', im_ax1_pos);
-% set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
-% 
-% axes(im_ax1)
-% cla
-% 
-% hold on
-% scan_agent
-% title(horzcat(net_name, ' -RL- ', agent_name))
-% set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
 
 %% Train Agent 2

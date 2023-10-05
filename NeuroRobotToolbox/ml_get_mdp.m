@@ -1,9 +1,9 @@
 
 
 %% Get Markov Decision Process
-axes(ml_out1)
+axes(ml_train1_status)
 cla
-tx8 = text(0.03, 0.5, horzcat('creating world model (MDP)...'));
+tx8 = text(0.03, 0.5, horzcat('Creating world model (MDP)...'));
 drawnow
 
 mdp = createMDP(n_unique_states, n_unique_actions);
@@ -60,14 +60,7 @@ disp('Markov ready')
 
 
 %% Output
-tx8.String = 'Ready to train decision-making network';
+tx8.String = 'Ready to train decision network';
 drawnow
-
-axes(im_ax1)
-cla
-imagesc(mean(transition_counter, 3), [0 1])
-title('Transition probabilities (avg across actions)')
-ylabel('State')
-xlabel('Next State')
 
 ml_visualize_mdp

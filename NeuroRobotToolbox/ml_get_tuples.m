@@ -1,7 +1,7 @@
 
 
 %%
-axes(ml_out1)
+axes(ml_train1_status)
 
 cla
 tx7 = text(0.03, 0.5, horzcat('loading net...'));
@@ -95,11 +95,3 @@ disp('Tuples assembled successfully')
 tx7.String = 'tuples aquired successfully';
 drawnow
 
-axes(im_ax1)
-cla
-histogram(tuples(:,1), 'binwidth', .25)
-set(gca, 'yscale', 'linear')
-title('States')
-xlabel('State')
-ylabel('Count (ntuples)')
-axis tight

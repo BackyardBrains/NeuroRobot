@@ -1,11 +1,8 @@
 
 
 %% Get inter-state similarity
-axes(ml_out1)
+axes(ml_train1_status)
 cla
-
-tx4 = text(0.03, 0.5, horzcat('getting inter-state similarities...'));
-drawnow
 
 inter_state_similarity = zeros(n_unique_states, n_unique_states);
 for nstate = 1:n_unique_states
@@ -20,17 +17,7 @@ for nstate = 1:n_unique_states
 
 end
 
-% axes(im_ax1)
-% cla
-% imagesc(inter_state_similarity, [0 0.5])
-% xlabel('State')
-% ylabel('State')
-% c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
-% title('Inter-state similarity')
-
 avg_inter = mean(inter_state_similarity(:));
-tx4.String = horzcat('avg. inter-state = ', num2str(avg_inter), ', getting intra-state...');
-drawnow
 
 
 %% Get intra-state similarity
@@ -45,6 +32,7 @@ for nstate = 1:n_unique_states
 end
 
 avg_intra = mean(intra_state_similarity);
-tx4.String = horzcat('Similarity: between groups = ', num2str(avg_inter), ', within groups = ', num2str(avg_intra));
+this_msg = horzcat('Similarity: between groups = ', num2str(avg_inter), ', within groups = ', num2str(avg_intra));
+tx4.String = this_msg;
 drawnow
 

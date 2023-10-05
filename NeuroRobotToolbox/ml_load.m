@@ -1,5 +1,5 @@
 
-axes(ml_out2)
+axes(ml_load_status)
 cla
 txx = text(0.03, 0.5, 'Loading...');
 drawnow
@@ -16,5 +16,5 @@ catch
     error('Cannot find prepared training data')
 end
 
-txx.String = 'Ready to train decision-making network';
+txx.String = 'Ready to train decision network';
 

@@ -25,65 +25,76 @@ set(fig_ml, 'menubar', 'none', 'toolbar', 'none')
 set(fig_ml, 'position', fig_pos, 'color', fig_bg_col) 
 
 
-%% Buttons
-ml_title_pos = [0.03 0.58 0.2 0.05];
-ml_button1_pos = [0.03 0.52 0.2 0.05];
-ml_button2_pos = [0.03 0.45 0.2 0.05];
-ml_button3_pos = [0.03 0.38 0.2 0.05];
-ml_out1_pos = [0.26 0.52 0.31 0.05];
-ml_out2_pos = [0.26 0.45 0.31 0.05];
-ml_out3_pos = [0.49 0.38 0.08 0.05];
-ml_edit3_goal_pos = [0.39 0.38 0.09 0.05];
-ml_edit3_name_pos = [0.26 0.38 0.12 0.05];
-
-ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_title_pos, ...
-    'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 6, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
-
-button_data_ml = uicontrol('Style', 'pushbutton', 'String', 'Get pattern recognition net', 'units', 'normalized', 'position', ml_button1_pos);
-set(button_data_ml,'Callback', 'ml_step1', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-button_load_ml = uicontrol('Style', 'pushbutton', 'String', 'Load pattern recognition net', 'units', 'normalized', 'position', ml_button2_pos);
-set(button_load_ml,'Callback', 'ml_load', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-button_train_ml = uicontrol('Style', 'pushbutton', 'String', 'Train decision-making net', 'units', 'normalized', 'position', ml_button3_pos);
-set(button_train_ml,'Callback', 'ml_step2', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+%% Positions
+ml_1_title_pos =            [0.03 0.9 0.94 0.05];
+ml_2_data_str_pos =         [0.03 0.8 0.2 0.05];
+ml_2_data_status_pos =      [0.26 0.8 0.28 0.05];
+ml_3_speed_str_pos =        [0.03 0.7 0.2 0.05];
+ml_3_speed_select_pos =     [0.26 0.7 0.28 0.05];
+ml_4_name1_str_pos =        [0.03 0.6 0.2 0.05];
+ml_4_name1_status_pos =     [0.26 0.6 0.28 0.05];
+ml_5_train1_button_pos =    [0.03 0.5 0.2 0.05];
+ml_5_train1_status_pos =    [0.26 0.5 0.28 0.05];
+ml_6_load_button_pos =      [0.03 0.4 0.2 0.05];
+ml_6_load_status_pos =      [0.26 0.4 0.28 0.05];
+ml_7_goals_str_pos =        [0.03 0.3 0.2 0.05];
+ml_7_goals_edit_pos =       [0.26 0.3 0.28 0.05];
+ml_8_name2_str_pos =        [0.03 0.2 0.2 0.05];
+ml_8_name2_edit_pos =       [0.26 0.2 0.28 0.05];
+ml_9_train2_button_pos =    [0.03 0.1 0.2 0.05];
+ml_9_train2_status_pos =    [0.26 0.1 0.28 0.05];
 
 
-%% Text Fields
-ml_out1 = axes('position', ml_out1_pos);
-set(ml_out1, 'xtick', [], 'ytick', [])
+%% UI objects
+ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_1_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
+
+ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_2_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_data_status = uicontrol('Style', 'text', 'String', dataset_dir_name, 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+
+ml_speeds = {'Slow', 'Fast'};
+ml_speed_str = uicontrol('Style', 'text', 'String', 'Training speed:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_speed_select = uicontrol('Style', 'popupmenu', 'String', ml_speeds, 'units', 'normalized', 'position', ml_3_speed_select_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+
+ml_name1_str = uicontrol('Style', 'text', 'String', 'Save pattern recognition network as:', 'units', 'normalized', 'position', ml_4_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_name1_status = uicontrol('Style', 'text', 'String', 'patternrecognizer', 'units', 'normalized', 'position', ml_4_name1_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+
+ml_train1_button = uicontrol('Style', 'pushbutton', 'String', 'Train pattern recognition network', 'Callback', 'ml_step1', 'units', 'normalized', 'position', ml_5_train1_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train1_status = axes('position', ml_5_train1_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 
-ml_out2 = axes('position', ml_out2_pos);
-set(ml_out2, 'xtick', [], 'ytick', [])
+ml_load_button = uicontrol('Style', 'pushbutton', 'String', 'Load pattern recognition network', 'Callback', 'ml_load', 'units', 'normalized', 'position', ml_6_load_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_load_status = axes('position', ml_6_load_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 
-ml_out3 = axes('position', ml_out3_pos);
-set(ml_out3, 'xtick', [], 'ytick', [])
+ml_goals_str = uicontrol('Style', 'text', 'String', 'Goal states:', 'units', 'normalized', 'position', ml_7_goals_str_pos, 'fontsize', bfsize + 4);
+ml_goals_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_7_goals_edit_pos, 'fontsize', bfsize + 4);
+
+ml_name2_str = uicontrol('Style', 'text', 'String', 'Save decision network as:', 'units', 'normalized', 'position', ml_8_name2_str_pos, 'fontsize', bfsize + 4);
+ml_name2_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_8_name2_edit_pos, 'fontsize', bfsize + 4);
+
+ml_train2_button = uicontrol('Style', 'pushbutton', 'String', 'Train decision network', 'Callback', 'ml_step2', 'units', 'normalized', 'position', ml_9_train2_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train2_status = axes('position', ml_9_train2_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
-
-ml_edit3_goal = uicontrol('Style', 'edit', 'String', 'Enter goal states here', 'units', 'normalized', 'position', ml_edit3_goal_pos);
-ml_edit3_name = uicontrol('Style', 'edit', 'String', 'Enter action net name here', 'units', 'normalized', 'position', ml_edit3_name_pos);
 
 
 %% Image Panels
-im_ax1_pos = [0.63 0.25 0.3 0.5];
+im_ax1_pos = [0.58 0.2 0.39 0.65];
 im_ax1 = axes('position', im_ax1_pos);
 set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 
 disp('Ready to train')
 
 
-%% Exit button
-button_exit_ml_pos = [0.03 0.08 0.2 0.05];
-button_exit_ml = uicontrol('Style', 'pushbutton', 'String', 'Exit ML', 'units', 'normalized', 'position', button_exit_ml_pos);
-set(button_exit_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+% %% Advanced settings button
+% button_exit_ml_pos = [0.75 0.11 0.2 0.05];
+% button_exit_ml = uicontrol('Style', 'pushbutton', 'String', 'Advanced Settings', 'units', 'normalized', 'position', button_exit_ml_pos);
+% set(button_exit_ml,'Callback', 'ml_interface', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
 %% Exit button
-button_advanced_ml_pos = [0.77 0.08 0.2 0.05];
-button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Advanced Settings', 'units', 'normalized', 'position', button_advanced_ml_pos);
-set(button_advanced_ml,'Callback', 'ml_interface', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+button_advanced_ml_pos = [0.75 0.04 0.2 0.05];
+button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', button_advanced_ml_pos);
+set(button_advanced_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])

@@ -78,6 +78,7 @@ olearn_title = uicontrol('Style', 'text', 'String', 'Reinforcment Learning', 'un
 %% Load net
 available_nets = dir(strcat(nets_dir_name, '*-ml.mat'));
 nnets = length(available_nets); % Trained nets
+training_nets = cell([]);
 for nnet = 1:nnets
     training_nets{nnet} = available_nets(nnet).name(1:end-7);
 end

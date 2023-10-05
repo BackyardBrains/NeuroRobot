@@ -1,18 +1,20 @@
 
 %% Get features and similarity scores
-
-axes(ml_out1)
+axes(ml_train1_status)
 cla
 
-this_msg = horzcat('Preparing to find features...');
+this_msg = horzcat('Finding features...');
 tx2 = text(0.03, 0.5, this_msg);
 drawnow
 disp(this_msg)
 
+tiny_inds = randsample(ntuples, 100);
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
+image_ds_tiny = subset(image_ds, tiny_inds);
 image_ds_small = subset(image_ds, small_inds);
 image_ds_medium = subset(image_ds, medium_inds);
+image_ds_tiny.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
@@ -20,23 +22,24 @@ ps = parallel.Settings;
 ps.Pool.AutoCreate = false;
 ps.Pool.IdleTimeout = Inf;
 
-this_msg = 'Finding features...';
-tx2.String = this_msg;
-drawnow
-disp(this_msg)
+axes(im_ax1)
+montage(image_ds_tiny)
+title('Example images from the dataset')
+
 bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching]);
 
 this_msg = 'Creating image index...';
 tx2.String = this_msg;
 drawnow
 disp(this_msg)
+
 imageIndex = indexImages(image_ds_medium, bag);
 
 this_msg = 'Getting similarity matrix...';
 tx2.String = this_msg;
 drawnow
+disp(this_msg)
 
-disp('Getting similarity matrix (slow, be patient)...')
 xdata = zeros(nmedium, nmedium);
 
 for ntuple = 1:nmedium
@@ -52,24 +55,16 @@ for ntuple = 1:nmedium
 end
 
 avg_sim = mean(xdata(:));
-this_msg = horzcat('Avg. similarity = ', num2str(avg_sim));
+this_msg = horzcat('Avgerage image similarity = ', num2str(avg_sim));
 disp(this_msg)
 tx2.String = horzcat(this_msg);
 drawnow
 
 
 %% Plot similarity matrix
-
-% axes(im_ax1)
-% imagesc(xdata, [0 0.75])
-% xlabel('Image')
-% ylabel('Image')
-% c = colorbar('location', 'manual', 'position', im_ax1_colb_pos);
-% title('Similarity scores')
-
 axes(im_ax1)
 histogram(xdata(:))
 set(gca, 'yscale', 'log')
-title('Similarity scores')
+title('Image similarity scores')
 
 drawnow
