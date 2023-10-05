@@ -56,7 +56,7 @@ else
     this_str = 'training-progress';
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    Plots=this_str, Shuffle ='every-epoch', MaxEpochs=20);
+    Plots=this_str, Shuffle ='every-epoch', MaxEpochs=20, VerboseFrequency= 1);
 
 net = trainNetwork(classifier_ds, net, options);
 
