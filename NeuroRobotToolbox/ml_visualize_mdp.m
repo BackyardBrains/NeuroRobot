@@ -1,12 +1,11 @@
 
-fig_ml = figure(5);
+fig_mdp = figure(5);
 clf
-% set(fig_ml, 'NumberTitle', 'off', 'Name', 'Visualize MDP')
-% set(fig_ml, 'menubar', 'none', 'toolbar', 'none')
+set(fig_mdp, 'NumberTitle', 'off', 'Name', 'MDP')
+set(fig_mdp, 'toolbar', 'none')
 
-% fig_pos = get(0, 'screensize') + [0 49 0 -71];
-% set(fig_ml, 'position', fig_pos, 'color', fig_bg_col) 
-fig_ml.Color = 'w';
+set(fig_mdp, 'position', [360 70 800 720], 'color', fig_bg_col) 
+fig_mdp.Color = 'w';
 
 data = zeros(n_unique_actions, 1);
 x = ceil(sqrt(n_unique_actions));

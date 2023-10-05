@@ -54,9 +54,8 @@ drawnow
 fig_ml = figure(4);
 clf
 set(fig_ml, 'NumberTitle', 'off', 'Name', 'States')
-set(fig_ml, 'menubar', 'none', 'toolbar', 'none')
-fig_pos = get(0, 'screensize') + [0 49 0 -71];
-set(fig_ml, 'position', fig_pos, 'color', fig_bg_col) 
+set(fig_ml, 'toolbar', 'none')
+set(fig_ml, 'position', [360 70 800 720], 'color', fig_bg_col) 
 
 
 %% Visualize

@@ -15,39 +15,53 @@ else
 end
 
 brain_name = 'L1C1';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L1C2';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L1C3';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L1C4';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L2C3';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L3C1';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 brain_name = 'L3C3';
-load(horzcat(brain_name, '.mat'))
-load_brain
-save_brain
+if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+    load(horzcat(brain_name, '.mat'))
+    load_brain
+    save_brain
+end
 
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
