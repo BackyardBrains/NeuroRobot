@@ -22,9 +22,9 @@ try
     load(strcat(nets_dir_name, net_name, '-actions'))
     load(strcat(nets_dir_name, net_name, '-mdp'))
 catch
-    button_load_ml.BackgroundColor = [1 0 0];
+    ml_load_button.BackgroundColor = [1 0 0];
     pause(0.5)
-    button_load_ml.BackgroundColor = [0.94 0.94 0.94];
+    ml_load_button.BackgroundColor = [0.94 0.94 0.94];
     error('Cannot find prepared training data')
 end
 
