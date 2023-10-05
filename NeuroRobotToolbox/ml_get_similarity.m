@@ -25,6 +25,7 @@ ps.Pool.IdleTimeout = Inf;
 axes(im_ax1)
 montage(image_ds_tiny)
 title('Example images from the dataset')
+drawnow
 
 bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching]);
 
