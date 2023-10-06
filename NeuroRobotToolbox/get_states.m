@@ -44,6 +44,7 @@ for ntuple = 1:ntuples
 %         disp('error')
 %     end
 
+    this_ind = ntuple;
     this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
     [this_state, this_score] = classify(net, this_im);
     this_state = find(labels == this_state);

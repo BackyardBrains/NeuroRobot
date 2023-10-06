@@ -55,7 +55,7 @@ fig_ml = figure(4);
 clf
 set(fig_ml, 'NumberTitle', 'off', 'Name', 'States')
 set(fig_ml, 'toolbar', 'none')
-set(fig_ml, 'position', [360 70 800 720], 'color', fig_bg_col) 
+set(fig_ml, 'position', [175 70 1200 720], 'color', fig_bg_col) 
 
 
 %% Visualize
