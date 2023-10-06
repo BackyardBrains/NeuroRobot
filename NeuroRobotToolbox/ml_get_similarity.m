@@ -27,7 +27,7 @@ montage(image_ds_tiny)
 title('Example images from the dataset')
 drawnow
 
-bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching]);
+bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching], 'BlockWidth', 64);
 
 this_msg = 'Creating image index...';
 tx2.String = this_msg;

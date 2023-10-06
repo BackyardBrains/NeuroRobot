@@ -18,7 +18,7 @@ tx7.String = 'indexing data..';
 drawnow
 disp('indexing data...')
 
-image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_x.png'));
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
 
 ntorques = size(torque_dir, 1);

@@ -10,7 +10,7 @@ drawnow
 disp(this_msg)
 
 try
-    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*.png'));
+    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_x.png'));
 catch
     error('Datasets folder is missing or empty')
 end
@@ -22,7 +22,8 @@ torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.m
 
 ndists = size(serial_dir, 1);
 ntorques = size(torque_dir, 1);
-ntuples = nimages/2;
+% ntuples = nimages/2;
+ntuples = nimages;
 
 if ntuples ~= ndists || ntuples ~= ntorques
     error('nimages, ndists, ntorques, ntuples - size mismatch')

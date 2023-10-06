@@ -1,6 +1,6 @@
 
 %%
-rec_dir_name = 'Rec5';
+rec_dir_name = 'Rec3';
 % rec_dir_name = '';
 
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
@@ -14,8 +14,8 @@ spikes_step = zeros(nneurons, ms_per_step);
 data = zeros(nsteps, 1);
 
 % these_neurons = find(neuron_tones);
-% these_neurons = 14:18;
-these_neurons = 3:7;
+these_neurons = 14;
+% these_neurons = 3;
 
 %%
 for nstep = 1:nsteps
