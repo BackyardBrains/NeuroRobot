@@ -132,8 +132,8 @@ class ProtoNeuron extends CustomPainter{
       circles.add(circle);
     }
     print("circles.length");
-    print(screenWidth);
-    print(screenHeight);
+    // print(screenWidth);
+    // print(screenHeight);
     print(circles.length);
   }
   

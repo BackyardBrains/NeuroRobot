@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Float64List bBufView  = Float64List(neuronSize);
   Int16List cBufView  = Int16List(neuronSize);
   Int16List dBufView  = Int16List(neuronSize);
-  Int16List iBufView  = Int16List(neuronSize);
+  Float64List iBufView  = Float64List(neuronSize);
   Float64List wBufView  = Float64List(neuronSize);
   // List<int> positionsBufView  = List<int>.filled(neuronSize, 0);
   Uint16List positionsBufView  = Uint16List(neuronSize);
@@ -185,14 +185,14 @@ class _MyHomePageState extends State<MyHomePage> {
     bBufView  = Float64List(neuronSize);
     cBufView  = Int16List(neuronSize);
     dBufView  = Int16List(neuronSize);
-    iBufView  = Int16List(neuronSize);
+    iBufView  = Float64List(neuronSize);
     wBufView  = Float64List(neuronSize);
     
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
     cBufView.fillRange(0, neuronSize, c);
     dBufView.fillRange(0, neuronSize, d);
-    iBufView.fillRange(0, neuronSize, i.floor());
+    iBufView.fillRange(0, neuronSize, i);
     wBufView.fillRange(0, neuronSize, w);
     
     positionsBufView  = Uint16List(neuronSize);
@@ -239,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
     double b = 0.18;
     int c = -65;
     int d = 2;
-    int i = 5;
+    double i = 5.0;
     double w = 2.0;   
     
     // int neuronSizeType = neuronSize;
@@ -323,6 +323,10 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
   setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps){
     WaveWidget.canvasBufferBytes1 = buffer;
+    buffer.fillRange(0,6000,-1000);
+    print("buffer");
+    print(buffer);
+
     WaveWidget.positionsBufView = positionsBuf;
     neuronCircleBridge = neuronBridge;
     npsBufView  = nps;
@@ -624,7 +628,7 @@ class _MyHomePageState extends State<MyHomePage> {
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
                 varI[idx] = (lowerValue/10000);
-                iBufView[idx] = varI[idx].floor();
+                iBufView[idx] = varI[idx];
                 changeNeuronSimulatorParameters();
 
                 setState(() {});

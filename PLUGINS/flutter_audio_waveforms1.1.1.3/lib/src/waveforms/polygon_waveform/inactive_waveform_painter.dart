@@ -87,7 +87,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
       double prevY=0;
       for (; i < samples.length - 1; i++) {
         final x = sampleWidth * i;
-        final y = -samples[i]/gain;
+        final y = -(samples[i]>30?30:samples[i])/gain ;
         prevX = x;
         prevY = y;
         path.lineTo(x, y);
