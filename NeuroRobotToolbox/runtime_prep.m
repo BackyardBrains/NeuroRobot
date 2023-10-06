@@ -73,7 +73,6 @@ clear presynaptic_neuron
 clear postsynaptic_neuron
 clear postsynaptic_contact
 clear neuron_xys
-spikes_step = zeros(nneurons, ms_per_step);
 
 
 %% Calibrate distance sensor
@@ -95,6 +94,8 @@ brain_name = brain_string{select_brain.Value};
 
 load(strcat(brain_dir, brain_name, '.mat'))
 load_brain
+
+spikes_step = zeros(nneurons, ms_per_step);
 
 brain_support = 1;
 if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn
