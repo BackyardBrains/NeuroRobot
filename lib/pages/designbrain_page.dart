@@ -26,7 +26,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // label: 'Rectangle',
       allowResize: false,
       
-      offset: const Offset(100, 100),
+      offset: const Offset(300, 300),
       size: const Size(20, 20),
       child: Builder(
         builder: (context) {
@@ -49,7 +49,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     final triangleNode = InfiniteCanvasNode(
       key: UniqueKey(),
       // label: 'Triangle',
-      offset: const Offset(250, 100),
+      offset: const Offset(500, 170),
       size: const Size(20, 20),
       child: Builder(
         builder: (context) {
@@ -76,7 +76,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     final circleNode = InfiniteCanvasNode(
       key: UniqueKey(),
       // label: 'Circle',
-      offset: const Offset(200, 250),
+      offset: const Offset(320, 430),
       size: const Size(20, 20),
       child: Builder(
         builder: (context) {
@@ -97,17 +97,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       rectangleNode,
       triangleNode,
       circleNode,
+      InfiniteCanvasNode(
+        key: UniqueKey(),
+        offset: const Offset(800, 600),
+        size: const Size(0, 0), 
+        child: const SizedBox(width: 0,height:0,)
+      ),
     ];    
     controller = InfiniteCanvasController(nodes: nodes, edges: [
       InfiniteCanvasEdge(
         from: rectangleNode.key,
         to: triangleNode.key,
-        label: '4 -> 3',
+        // label: '4 -> 3',
       ),
       InfiniteCanvasEdge(
         from: rectangleNode.key,
         to: circleNode.key,
-        label: '[] -> ()',
+        // label: '[] -> ()',
       ),
       InfiniteCanvasEdge(
         from: triangleNode.key,
@@ -115,25 +121,34 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       ),
     ]);
     controller.maxScale = 1.5;
-    controller.scale = 0.75;
+    controller.scale = 1;
     controller.minScale = 0.5;
     controller.addListener(() {
       if (controller.hasSelection){
         if (controller.mouseDown){
           var selected = controller.selection[0];
-          if (selected.offset.dx < 0){
-            print(controller.mousePosition.dx);
-            print(controller.mousePosition.dy);
-            var pos = selected.offset;
-            var newOffset = Offset(0, pos.dy);
+          var pos = selected.offset;
+
+          if (selected.offset.dx < 300){
+            var newOffset = Offset(300, pos.dy);
+            selected.update(size:selected.size, offset:newOffset, label:"");
+          }else
+          if (selected.offset.dx > 500){
+            var newOffset = Offset(500, pos.dy);
             selected.update(size:selected.size, offset:newOffset, label:"");
           }
 
-          if (selected.offset.dy < 0){
-            var pos = selected.offset;
-            var newOffset = Offset(pos.dx, 0);
+          pos = selected.offset;
+
+          if (selected.offset.dy < 170){
+            var newOffset = Offset(pos.dx, 170);
+            selected.update(size:selected.size, offset:newOffset, label:"");
+          }else
+          if (selected.offset.dy > 430){
+            var newOffset = Offset(pos.dx, 430);
             selected.update(size:selected.size, offset:newOffset, label:"");
           }
+
 
         }
       }
@@ -142,6 +157,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   @override
   Widget build(BuildContext context) {
+    double density = MediaQuery.of(context).devicePixelRatio;
+    print("MediaQuery.of(context).devicePixelRatio");
+    print(density);
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.title),
@@ -152,9 +171,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             left:0,
             top:0,
             child: Container(
+              color:Colors.white,
               width:800, 
               height:600,
               child: InfiniteCanvas(
+                backgroundBuilder: (ctx, r){ 
+                  return SizedBox(
+                    width:700,
+                    height:500,
+                    // color: Colors.green,
+                    child: Image.asset(
+                      // scale: density,
+                      "assets/bg/bg${density}x.jpeg"
+                    ),
+                  );
+                },
                 drawVisibleOnly: true,
                 canAddEdges: true,
                 menuVisible: false,

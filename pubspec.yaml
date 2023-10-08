@@ -50,4 +50,5 @@ dev_dependencies:
 flutter:
   assets:
     - assets/icons/
+    - assets/bg/
   uses-material-design: true
