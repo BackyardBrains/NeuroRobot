@@ -56,7 +56,7 @@ end
 
 mdp.T = transition_counter;
 save(strcat(nets_dir_name, net_name, '-mdp'), 'mdp')
-disp('Markov ready')
+disp('Ready to train decision network')
 
 
 %% Output

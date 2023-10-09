@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 200 * learn_speed;
+scale_f = 500 * learn_speed;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -71,7 +71,7 @@ scan_agent
 title(horzcat(net_name, '- ', agent_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
-tx10.String = horzcat('Learning complete');
+tx10.String = horzcat('Finished training decision network');
 drawnow
 
-disp('Learning complete')
+disp('Finished training decision network')
