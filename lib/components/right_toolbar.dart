@@ -3,7 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
 
 class RightToolbar extends StatefulWidget {
-  const RightToolbar({super.key});
+  RightToolbar({super.key, required this.callback});
+  late Function callback;
   @override
   State<RightToolbar> createState() => _RightToolbarState();
 }
@@ -103,6 +104,7 @@ class _RightToolbarState extends State<RightToolbar> {
                 child:GestureDetector(
                   onTap:(){
                     activeIdx = idx;
+                    widget.callback({"menuIdx":activeIdx});
                     setState(() {});
                   },
                   child: Container(
@@ -250,6 +252,7 @@ class _RightToolbarState extends State<RightToolbar> {
                 child:GestureDetector(
                   onTap:(){
                     activeIdx = idx + 6;
+                    widget.callback({"menuIdx":activeIdx});
                     setState(() {});
                   },
                   child: Container(

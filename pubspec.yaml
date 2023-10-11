@@ -22,7 +22,8 @@ dependencies:
   web_socket_channel: 2.4.0
   socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4
-  infinite_canvas: 0.0.9  
+  infinite_canvas:  
+    path: ./PLUGINS/infinite_canvas-0.0.9/
   flutter_svg: 2.0.7
   shared_preferences: 2.2.1
   responsive_grid: 2.4.4
@@ -36,10 +37,10 @@ dependencies:
   #native
   # winaudio: 
   #   path: ./PLUGINS/winaudio
-  # window_manager: 0.3.6
   # nativec: 
   #   path: ./PLUGINS/nativec/
-  # auto_orientation: 2.3.1
+  window_manager: 0.3.6
+  auto_orientation: 2.3.1
 
 
 dev_dependencies:
