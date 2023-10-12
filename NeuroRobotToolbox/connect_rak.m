@@ -1,4 +1,4 @@
-function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam, ext_cam_h, ext_cam_w] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_library, button_to_sleep, button_to_quit, button_new_brain)
+function [rak_cam, rak_cam_h, rak_cam_w, esp32WebsocketClient, ext_cam, ext_cam_h, ext_cam_w] = connect_rak(button_camera, camera_present, use_webcam, button_startup_complete, rak_only, hd_camera, use_esp32, esp32WebsocketClient, button_to_simulator, button_to_sleep, button_to_quit, button_new_brain)
 
 connect_success = 0;
 
@@ -7,7 +7,7 @@ disp('Connecting...')
 button_camera.BackgroundColor = [0.94 0.78 0.62];
 set(button_camera, 'enable', 'off')
 set(button_startup_complete, 'enable', 'off')
-set(button_to_library, 'enable', 'off')
+set(button_to_simulator, 'enable', 'off')
 set(button_to_sleep, 'enable', 'off')
 set(button_to_quit, 'enable', 'off')
 set(button_new_brain, 'enable', 'off')
@@ -140,7 +140,7 @@ end
 
 set(button_camera, 'enable', 'on')
 set(button_startup_complete, 'enable', 'on')
-set(button_to_library, 'enable', 'on')
+set(button_to_simulator, 'enable', 'on')
 set(button_to_sleep, 'enable', 'on')
 set(button_to_quit, 'enable', 'on')
 set(button_new_brain, 'enable', 'on')
