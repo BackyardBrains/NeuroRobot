@@ -6,12 +6,16 @@ if nneurons % This prevents error caused by running script after deleting all ne
     
     motor_command = zeros(1, 5);
     
+    %%%% Oct 13, 2023 left_forward and left_backward flipped below
+
     % Extract motor out from spiking neurons
-    left_forward = sum([sum(neuron_contacts(firing,6)) sum(neuron_contacts(firing,8))]) / 2;
+    left_backward = sum([sum(neuron_contacts(firing,6)) sum(neuron_contacts(firing,8))]) / 2;
     right_forward = sum([sum(neuron_contacts(firing,10)) sum(neuron_contacts(firing,12))]) / 2;
-    left_backward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9))]) / 2;
+    left_forward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9))]) / 2;
     right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;
-    
+
+    %%%%
+
     % Extract speaker out from spiking neurons
     these_speaker_neurons = find(neuron_contacts(:, 4) & firing);
     if ~isempty(these_speaker_neurons)
