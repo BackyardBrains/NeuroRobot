@@ -1,5 +1,5 @@
 
-send_this = 'd:131;d:231;d:331;d:431;d:531;d:631;';
+send_this = 'd:111;d:211;d:311;d:411;d:511;d:611;';
 
 if rak_only
     rak_cam.writeSerial(send_this)

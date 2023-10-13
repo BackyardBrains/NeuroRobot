@@ -1,3 +1,0 @@
-Deep Learning Toolbox Model for GoogLeNet Network
-IP Cameras
-USB Webcams
