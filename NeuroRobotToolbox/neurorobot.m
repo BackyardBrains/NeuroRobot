@@ -9,7 +9,7 @@
 
 
 %% Settings
-pulse_period = 0.2;         % Step time in seconds
+pulse_period = 0.1;         % Step time in seconds
 night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
@@ -104,7 +104,7 @@ text_app = uicontrol('Style', 'text', 'String', 'App', 'units', 'normalized', 'p
 option_app = {'Record Data'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-select_app.Value = [];
+select_app.Value = 1;
 
 % Nets
 option_nets = {'GoogLeNet'}; % Imported nets

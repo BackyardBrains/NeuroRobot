@@ -160,44 +160,44 @@ if nneurons % This prevents error caused by running script after deleting all ne
         l_dir = -1;
     end 
         
-    % Update motor contact colors
-    if l_torque
-        if l_dir == 1
-            contact_h(6).MarkerFaceColor = [0 0.45 0];
-            contact_h(8).MarkerFaceColor = [0 0.45 0];
-            contact_h(7).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(9).MarkerFaceColor = [0.9 0.6 0.3];
-        elseif l_dir == -1
-            contact_h(6).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(8).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(7).MarkerFaceColor = [0 0.45 0];
-            contact_h(9).MarkerFaceColor = [0 0.45 0];
-        end
-    else
-        contact_h(6).MarkerFaceColor = [0.9 0.6 0.3];
-        contact_h(7).MarkerFaceColor = [0.9 0.6 0.3];     
-        contact_h(8).MarkerFaceColor = [0.9 0.6 0.3];
-        contact_h(9).MarkerFaceColor = [0.9 0.6 0.3];
-    end
-    
-    if r_torque
-        if r_dir == 1
-            contact_h(10).MarkerFaceColor = [0 0.45 0];
-            contact_h(12).MarkerFaceColor = [0 0.45 0];
-            contact_h(11).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
-        elseif r_dir == -1
-            contact_h(10).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
-            contact_h(11).MarkerFaceColor = [0 0.45 0];
-            contact_h(13).MarkerFaceColor = [0 0.45 0];
-        end
-    else
-        contact_h(10).MarkerFaceColor = [0.9 0.6 0.3];
-        contact_h(11).MarkerFaceColor = [0.9 0.6 0.3];     
-        contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
-        contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
-    end
+%     % Update motor contact colors
+%     if l_torque
+%         if l_dir == 1
+%             contact_h(6).MarkerFaceColor = [0 0.45 0];
+%             contact_h(8).MarkerFaceColor = [0 0.45 0];
+%             contact_h(7).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(9).MarkerFaceColor = [0.9 0.6 0.3];
+%         elseif l_dir == -1
+%             contact_h(6).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(8).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(7).MarkerFaceColor = [0 0.45 0];
+%             contact_h(9).MarkerFaceColor = [0 0.45 0];
+%         end
+%     else
+%         contact_h(6).MarkerFaceColor = [0.9 0.6 0.3];
+%         contact_h(7).MarkerFaceColor = [0.9 0.6 0.3];     
+%         contact_h(8).MarkerFaceColor = [0.9 0.6 0.3];
+%         contact_h(9).MarkerFaceColor = [0.9 0.6 0.3];
+%     end
+%     
+%     if r_torque
+%         if r_dir == 1
+%             contact_h(10).MarkerFaceColor = [0 0.45 0];
+%             contact_h(12).MarkerFaceColor = [0 0.45 0];
+%             contact_h(11).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
+%         elseif r_dir == -1
+%             contact_h(10).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
+%             contact_h(11).MarkerFaceColor = [0 0.45 0];
+%             contact_h(13).MarkerFaceColor = [0 0.45 0];
+%         end
+%     else
+%         contact_h(10).MarkerFaceColor = [0.9 0.6 0.3];
+%         contact_h(11).MarkerFaceColor = [0.9 0.6 0.3];     
+%         contact_h(12).MarkerFaceColor = [0.9 0.6 0.3];
+%         contact_h(13).MarkerFaceColor = [0.9 0.6 0.3];
+%     end
     
     %% Sending serial to RAK
     if rak_only      
