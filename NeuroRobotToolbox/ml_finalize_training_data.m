@@ -1,7 +1,7 @@
 
 
 %% Get net name
-net_name = 'patternrecognizer';
+net_name = 'patternrecognizer4';
 
 
 %% Create datasets for training nets
