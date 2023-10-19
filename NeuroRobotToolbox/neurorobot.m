@@ -61,12 +61,12 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 3.7')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 3.8')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col) 
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 3.7', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 3.8', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 
@@ -104,7 +104,7 @@ text_app = uicontrol('Style', 'text', 'String', 'App', 'units', 'normalized', 'p
 option_app = {'Record Data'};
 select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 0.15 0.25 0.2], ...
     'fontsize', bfsize + 4, 'string', option_app, 'fontweight', gui_font_weight, 'FontName', gui_font_name, 'max', 10, 'min', 0);
-select_app.Value = 1;
+select_app.Value = [];
 
 % Nets
 option_nets = {'GoogLeNet'}; % Imported nets

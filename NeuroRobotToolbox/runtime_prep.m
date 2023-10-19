@@ -161,6 +161,9 @@ if exist('rak_only', 'var') && brain_support
 
     %% Visual features
     vis_pref_names = basic_vis_pref_names;
+    if use_cnn
+        use_cnn_code
+    end    
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
@@ -201,9 +204,7 @@ if exist('rak_only', 'var') && brain_support
         state_net_name = '';
         action_net_name = '';
     end
-    if use_cnn
-        use_cnn_code
-    end    
+    
     n_vis_prefs = size(vis_pref_names, 2);
 
 

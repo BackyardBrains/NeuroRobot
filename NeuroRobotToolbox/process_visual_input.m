@@ -71,20 +71,6 @@ for ncam = 1:2
         scores(4) = cup_score;
         vis_pref_vals(8:8+12, ncam) = scores * 50;
     end
-    if use_custom_net
-        if ~regression_flag
-%             lframe = imresize(large_frame, [227 302]);
-%             [~, scores] = classify(net, lframe);
-        elseif ncam == 1
-            lframe = imresize(large_frame, [227 302]);
-            scores = predict(net, lframe);
-        end
-        if ~use_cnn
-            vis_pref_vals(8:n_vis_prefs, ncam) = scores * 50;
-        else
-            vis_pref_vals(8+13:n_vis_prefs, ncam) = scores * 50;
-        end
-    end
     
     if ncam == 1
         prev_left_eye_frame = uframe;
@@ -102,10 +88,10 @@ if use_custom_net
     lframe = imresize(large_frame, [227 302]);
     [~, scores] = classify(net, lframe);
     if ~use_cnn
-        vis_pref_vals(8:n_vis_prefs, 1) = scores * 50;
-        vis_pref_vals(8:n_vis_prefs, 2) = scores * 50;
+        vis_pref_vals(8:end, 1) = scores * 50;
+        vis_pref_vals(8:end, 2) = scores * 50;
     else
-        vis_pref_vals(8+13:n_vis_prefs, 1) = scores * 50;
-        vis_pref_vals(8+13:n_vis_prefs, 2) = scores * 50;
+        vis_pref_vals(8+13:end, 1) = scores * 50;
+        vis_pref_vals(8+13:end, 2) = scores * 50;
     end    
 end
