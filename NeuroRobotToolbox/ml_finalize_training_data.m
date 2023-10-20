@@ -1,7 +1,7 @@
 
 
 %% Get net name
-net_name = 'patternrecognizer4';
+net_name = 'wallArenaNet';
 
 
 %% Create datasets for training nets
