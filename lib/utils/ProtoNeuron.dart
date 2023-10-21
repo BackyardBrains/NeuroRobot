@@ -16,8 +16,8 @@ class ProtoNeuron extends CustomPainter{
   late List<List<double>> matrix;
   late List<List<double>> matrixTranspose;
 
-  final double circleRadius = 15.0;
-  final double arrowSize = 15.0;
+  final double circleRadius = 10.0;
+  final double arrowSize = 10.0;
   final double arrowMultiplier = 1.0;
   final arrowAngle=  25 * pi / 180;
   
@@ -57,9 +57,11 @@ class ProtoNeuron extends CustomPainter{
     // matrix = List<List<double>>.generate(neuronSize, ()=>List<double>.generate()=> []);
     matrix = List.generate(neuronSize, (_) => List<double>.generate(neuronSize, (_)=> 0));
     matrixTranspose = List.generate(neuronSize, (_) => List<double>.generate(neuronSize, (_)=> 0));
-    generateSparseMatrix(neuronSize);
-    generateCircle(neuronSize);
+    // generateSparseMatrix(neuronSize);
+    // generateCircle(neuronSize);
   }
+
+
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -106,7 +108,17 @@ class ProtoNeuron extends CustomPainter{
 
   }
 
-  void generateCircle(int neuronSize) {
+  void setConnectome(int neuronSize, List<List<double>> connectomeMatrix){
+    matrix = connectomeMatrix;
+    int ctr = 0;
+    for (int i = 0; i < neuronSize ; i++){
+      for (int j = 0; j < neuronSize ; j++){
+        connectomeBufList[ctr++] = matrix[i][j];
+      }
+    }
+
+  }
+  void generateCircle(int neuronSize, List<Offset> pos) {
     boxPaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke;
@@ -125,9 +137,11 @@ class ProtoNeuron extends CustomPainter{
 
       circle.activePaint = (activePaint);
       circle.inactivePaint = (inactivePaint);
-      double x = Random().nextDouble() * screenWidth * 2/3 + 50;
-      double y = Random().nextDouble() * screenHeight* 0.5 + 50;
-      circle.centerPos = Offset(x, y);
+      // double x = Random().nextDouble() * screenWidth * 2/3 + 50;
+      // double y = Random().nextDouble() * screenHeight* 0.5 + 50;
+      // circle.centerPos = Offset(x, y);
+      circle.centerPos = pos[i];
+
       circle.zIndex = 0;
       circles.add(circle);
     }

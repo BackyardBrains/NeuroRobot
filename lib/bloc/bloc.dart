@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 class Bloc {
   final StreamController<int> _redrawNeuronController = StreamController<int>();
@@ -10,6 +11,18 @@ class Bloc {
   void refreshNow(int flag ) {
     redrawNeuronSink.add(flag);
   }
+
+
+  final StreamController<Uint8List> _imageController = StreamController<Uint8List>.broadcast();
+
+  Stream<Uint8List> get imageStream => _imageController.stream;
+
+  Sink<Uint8List> get imageSink => _imageController.sink;
+
+  void drawImageNow(Uint8List flag ) {
+    imageSink.add(flag);
+  }
+
 
   // final StreamController<List<bool>> _redrawNeuronController = StreamController<List<bool>>.broadcast();
 

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  nativec
   screen_retriever
   window_manager
 )

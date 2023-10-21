@@ -7,21 +7,24 @@ version: 1.0.0+1
 environment:
   sdk: '>=2.19.3 <3.0.0'
 dependencies:
-  async: 2.11.0
   flutter:
     sdk: flutter
+
+
+  # http: ^1.1.0
+  async: 2.11.0
   cupertino_icons: ^1.0.2
-  mic_stream: 
-    path: ./PLUGINS/mic_stream
+  # mic_stream: 
+  #   path: ./PLUGINS/mic_stream
   flutter_audio_waveforms: 
-    path: ./PLUGINS/flutter_audio_waveforms1.1.1.3/
+    path: "./PLUGINS/flutter_audio_waveforms1.1.1.3/"
   intl: 0.18.1
   another_xlider: 3.0.1
-
 
   web_socket_channel: 2.4.0
   socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4
+
   infinite_canvas:  
     path: ./PLUGINS/infinite_canvas-0.0.9/
   flutter_svg: 2.0.7
@@ -33,16 +36,16 @@ dependencies:
   # fps_widget: 1.0.1+2
   # tflite_flutter: 0.10.2
 
-
   #native
-  # winaudio: 
+  # winaudio:
   #   path: ./PLUGINS/winaudio
-  # nativec: 
-  #   path: ./PLUGINS/nativec/
+  nativec:
+    path: "./PLUGINS/nativec/"
   window_manager: 0.3.6
   auto_orientation: 2.3.1
+  gesture_x_detector: 1.1.1
 
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

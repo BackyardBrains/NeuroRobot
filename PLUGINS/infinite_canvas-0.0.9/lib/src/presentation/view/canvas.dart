@@ -202,33 +202,40 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         child: Listener(
           onPointerDown: (details) {
             controller.mouseDown = true;
-            controller.checkSelection(details.localPosition);
-            if (controller.selection.isEmpty) {
-              if (!controller.spacePressed) {
-                controller.marqueeStart = details.localPosition;
-                controller.marqueeEnd = details.localPosition;
-              }
-            } else {
-              if (controller.controlPressed && widget.canAddEdges) {
-                final selected = controller.selection.last;
-                controller.linkStart = selected.key;
-                controller.linkEnd = null;
-              }
+            // CHANGE ME
+            try{
+              controller.checkSelection(details.localPosition);
+
+            }catch(err){
+              print(err);
             }
+            // if (controller.selection.isEmpty) {
+            //   if (!controller.spacePressed) {
+            //     controller.marqueeStart = details.localPosition;
+            //     controller.marqueeEnd = details.localPosition;
+            //   }
+            // } else {
+            //   if (controller.controlPressed && widget.canAddEdges) {
+            //     final selected = controller.selection.last;
+            //     controller.linkStart = selected.key;
+            //     controller.linkEnd = null;
+            //   }
+            // }
           },
           onPointerUp: (details) {
             controller.mouseDown = false;
-            if (controller.marqueeStart != null &&
-                controller.marqueeEnd != null) {
-              controller.checkMarqueeSelection();
-            }
-            if (controller.linkStart != null && controller.linkEnd != null) {
-              controller.checkSelection(controller.linkEnd!);
-              if (controller.selection.isNotEmpty) {
-                final selected = controller.selection.last;
-                controller.addLink(controller.linkStart!, selected.key);
-              }
-            }
+            // CHANGE ME
+            // if (controller.marqueeStart != null &&
+            //     controller.marqueeEnd != null) {
+            //   controller.checkMarqueeSelection();
+            // }
+            // if (controller.linkStart != null && controller.linkEnd != null) {
+            //   controller.checkSelection(controller.linkEnd!);
+            //   if (controller.selection.isNotEmpty) {
+            //     final selected = controller.selection.last;
+            //     controller.addLink(controller.linkStart!, selected.key);
+            //   }
+            // }
             controller.marqueeStart = null;
             controller.marqueeEnd = null;
             controller.linkStart = null;
@@ -242,15 +249,16 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             controller.checkSelection(controller.mousePosition, true);
           },
           onPointerMove: (details) {
-            controller.marqueeEnd = details.localPosition;
-            if (controller.marqueeStart != null &&
-                controller.marqueeEnd != null) {
-              controller.checkMarqueeSelection(true);
-            }
-            if (controller.linkStart != null) {
-              controller.linkEnd = details.localPosition;
-              controller.checkSelection(controller.linkEnd!, true);
-            }
+            // CHANGE ME
+            // controller.marqueeEnd = details.localPosition;
+            // if (controller.marqueeStart != null &&
+            //     controller.marqueeEnd != null) {
+            //   controller.checkMarqueeSelection(true);
+            // }
+            // if (controller.linkStart != null) {
+            //   controller.linkEnd = details.localPosition;
+            //   controller.checkSelection(controller.linkEnd!, true);
+            // }
           },
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -316,16 +324,17 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                                 .toList(),
                           ),
                         ),
-                        if (controller.marqueeStart != null &&
-                            controller.marqueeEnd != null) ...[
-                          Positioned.fill(
-                            child: Marquee(
-                              start:
-                                  controller.toLocal(controller.marqueeStart!),
-                              end: controller.toLocal(controller.marqueeEnd!),
-                            ),
-                          ),
-                        ],
+                        // CHANGE ME
+                        // if (controller.marqueeStart != null &&
+                        //     controller.marqueeEnd != null) ...[
+                        //   Positioned.fill(
+                        //     child: Marquee(
+                        //       start:
+                        //           controller.toLocal(controller.marqueeStart!),
+                        //       end: controller.toLocal(controller.marqueeEnd!),
+                        //     ),
+                        //   ),
+                        // ],
                       ],
                     ),
                   );

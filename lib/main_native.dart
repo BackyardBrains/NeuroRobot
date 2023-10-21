@@ -140,9 +140,9 @@ class _MyHomePageState extends State<MyHomePage> {
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
   late Int16List dBufView  = Int16List(0);
 
-  static ffi.Pointer<ffi.Int16> iBuf = allocate<ffi.Int16>(
-      count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Int16>());
-  late Int16List iBufView  = Int16List(0);
+  static ffi.Pointer<ffi.Double> iBuf = allocate<ffi.Double>(
+      count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
+  late Float64List iBufView  = Float64List(0);
   
   static ffi.Pointer<ffi.Double> wBuf = allocate<ffi.Double>(
       count: neuronSize, sizeOfType: ffi.sizeOf<ffi.Double>());
@@ -197,51 +197,6 @@ class _MyHomePageState extends State<MyHomePage> {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf, positionsBuf, wBuf,level, neuronSize, envelopeSize, bufferSize, 1);    
-    Nativec.cPublicationStream!.listen((message) {
-      if (message.indexOf("S|")>-1){
-        List<String> arr = message.split("|");
-        int firingFlags=0;
-        // List<int> firingFlags= [0,0];
-        if (arr[1]=="1" && arr[2]=="1"){
-          // firingFlags[0] = 1;
-          // firingFlags[1] = 1;
-          firingFlags = 3000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else
-        if (arr[1]=="1" ){
-          // firingFlags[0] = 1;
-          // firingFlags[1] = 0;
-          firingFlags = 1000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else
-        if (arr[2]=="1"){
-          // firingFlags[0] = 0;
-          // firingFlags[1] = 1;
-          firingFlags = 2000 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }else{
-          // firingFlags[0] = 0;
-          // firingFlags[1] = 0;
-          firingFlags = 0 + Random().nextInt(1000);
-          spikingFlags.value = firingFlags;
-          // mainBloc.refreshNow(firingFlags);
-        }
-        // print("1---Redraw1");
-        // print(firingFlags);
-
-        // setState(() {
-          
-        // });
-      }else{
-        print("PRINT C++ MESSAGE222 : ");
-        print(message);
-
-      }
-    });    
   }
 
   bool canvasDraw(params){

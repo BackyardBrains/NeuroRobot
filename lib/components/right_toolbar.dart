@@ -3,23 +3,29 @@ import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
 
 class RightToolbar extends StatefulWidget {
-  RightToolbar({super.key, required this.callback});
+  RightToolbar({super.key, required this.callback, required this.menuIdx});
   late Function callback;
+  final int menuIdx;
   @override
   State<RightToolbar> createState() => _RightToolbarState();
 }
 
 
 class _RightToolbarState extends State<RightToolbar> {
+  ScrollController _actionController = ScrollController();
+  ScrollController _simulationController = ScrollController();
+
   static int totalActionIcons = 6;
-  static int totalSimulationIcons = 3;
+  static int totalSimulationIcons = 2;
   static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg"];
   static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg"];
   static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(6, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
 
-  static List<String> activeSimulationIconsStr = ["assets/icons/Save.svg","assets/icons/Play.svg","assets/icons/Home.svg"];
-  static List<String> inactiveSimulationIconsStr = ["assets/icons/Save.svg","assets/icons/Play.svg","assets/icons/Home.svg"];
-  static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(3, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
+  // static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
+  // static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
+  static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Save.svg"];
+  static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Save.svg"];
+  static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(2, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
   
   int activeIdx=0;
   List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","Create Axon","-","Undo","Redo"];
@@ -50,7 +56,7 @@ class _RightToolbarState extends State<RightToolbar> {
 
 
 
-  List<String> tooltipSimulations = ["Save Brain","Run Brain","Home"];
+  List<String> tooltipSimulations = ["Save Brain","Home"];
   List<Widget> activeSimulationIcons = List.generate(totalSimulationIcons, (index) {
     return SvgPicture.asset(
       activeSimulationIconsStr[index],
@@ -65,6 +71,17 @@ class _RightToolbarState extends State<RightToolbar> {
 
   // List<int> containerActionWidth = [30,20,15,15,15,15,15,15,15];
   List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
+
+  @override
+  void initState(){
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 200),(){
+      _actionController.animateTo(1000, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      _simulationController.animateTo(1000, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+
+    });
+    activeIdx = widget.menuIdx;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,18 +99,35 @@ class _RightToolbarState extends State<RightToolbar> {
 
   Widget createActionToolbar() {
     return Container(
-      padding: const EdgeInsets.all(8.0)..copyWith(top:18),
+      padding: const EdgeInsets.all(8.0)..copyWith(top:10),
       width:70,
-      child: Card(
-        surfaceTintColor: Colors.white,
+      child: Container(
+        // color:Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],          
+        ),
+        // surfaceTintColor: Colors.white,
         child: Container(
           
-          padding: const EdgeInsets.fromLTRB(7, 10, 8, 10),
+          padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
           width:54,
-          height:205,
+          height:185,
           child: ListView.builder(
             itemCount:6,
-            physics: const NeverScrollableScrollPhysics(),
+            reverse:false,
+            shrinkWrap: true,
+            controller: _actionController,
+
+            // physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (ctx, idx){
               if (idx == 3){
                 return const Divider();
@@ -110,7 +144,7 @@ class _RightToolbarState extends State<RightToolbar> {
                   child: Container(
                     width:30,
                     height:30,
-                    margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
                       idx==activeIdx && activeIdx<4 ? const BoxDecoration(
                         color: Color(0xFF13A9FC),
@@ -233,17 +267,32 @@ class _RightToolbarState extends State<RightToolbar> {
     
   Widget createSimulationToolbar() {
     return Container(
-      padding: const EdgeInsets.all(8.0)..copyWith(top:18),
+      padding: const EdgeInsets.all(8.0)..copyWith(top:0),
       width:70,
-      child: Card(
-        surfaceTintColor: Colors.white,
+      child: Container(
+        // surfaceTintColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],          
+        ),
+
         child: Container(
-          padding: const EdgeInsets.fromLTRB(7, 10, 8, 10),
+          padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
           width:54,
-          height:125,
+          height:70,
           child: ListView.builder(
-            itemCount:3,
-            physics: const NeverScrollableScrollPhysics(),
+            controller: _simulationController,
+            shrinkWrap: true,
+            itemCount:totalSimulationIcons,
+            // physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (ctx, index){
               int idx = index;
               return MeTooltip(
@@ -251,14 +300,22 @@ class _RightToolbarState extends State<RightToolbar> {
                 preferOri: PreferOrientation.left,
                 child:GestureDetector(
                   onTap:(){
+                    int prevIdx = activeIdx;
                     activeIdx = idx + 6;
                     widget.callback({"menuIdx":activeIdx});
+
+                    // if (prevIdx == activeIdx && activeIdx == 7){
+                    //   activeIdx = 0;
+                    //   // Future.delayed(Duration(milliseconds: 300),(){
+                    //     widget.callback({"menuIdx":activeIdx});
+                    //   // });
+                    // }
                     setState(() {});
                   },
                   child: Container(
                     width:30,
                     height:30,
-                    margin: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
                       idx==activeIdx - 6 ? const BoxDecoration(
                         // color : Colors.transparent,
@@ -271,7 +328,7 @@ class _RightToolbarState extends State<RightToolbar> {
                         color: Colors.white,
                       )
                     ,
-                    padding: containerActionPadding[idx],
+                    padding: containerActionPadding[idx+6],
                     child: idx == activeIdx - 6 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
                   ),
                 ),

@@ -166,7 +166,14 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   bool get hasSelection => _selected.isNotEmpty;
 
-  bool get canvasMoveEnabled => !mouseDown;
+  bool _canvasMoveEnabled = true;
+  // bool get canvasMoveEnabled => !mouseDown;
+  bool get canvasMoveEnabled => _canvasMoveEnabled && !mouseDown;
+  void setCanvasMove(bool value) {
+    _canvasMoveEnabled = value;
+    // notifyListeners();
+  }
+
 
   Offset toLocal(Offset global) {
     return transform.toScene(global);
