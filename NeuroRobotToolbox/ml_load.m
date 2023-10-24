@@ -14,7 +14,7 @@ cla
 txx = text(0.03, 0.5, 'Loading...');
 drawnow
 
-net_name = 'patternrecognizer';
+net_name = 'windowArenaNet';
 
 try
     openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
