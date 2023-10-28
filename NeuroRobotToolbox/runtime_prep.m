@@ -84,7 +84,7 @@ if this_distance < 1000
 else
     dist_short = 700;
     dist_med = 1000;
-    dist_long = 1300;
+    dist_long = 1000;
 end
 scores = 0;
 
