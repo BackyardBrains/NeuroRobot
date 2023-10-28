@@ -43,6 +43,7 @@ steps_per_loop = 200;
 
 
 %% Constants
+clear a b c d
 special_font = 'Comic Book';
 nneurons = 2;
 neuron_xys = [-1 0; 1 0];
