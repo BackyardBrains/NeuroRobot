@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
@@ -17,9 +19,9 @@ class _RightToolbarState extends State<RightToolbar> {
 
   static int totalActionIcons = 6;
   static int totalSimulationIcons = 2;
-  static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg"];
-  static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg"];
-  static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(6, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
+  static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(7, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
 
   // static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
   // static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
@@ -28,7 +30,7 @@ class _RightToolbarState extends State<RightToolbar> {
   static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(2, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
   
   int activeIdx=0;
-  List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","Create Axon","-","Undo","Redo"];
+  List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","Create Axon","-","Undo","Redo","Pan Screen"];
   List<Widget> activeActionIcons = List.generate(totalActionIcons, (index) {
     if (index == 3 ){
       return const Divider();
@@ -37,6 +39,9 @@ class _RightToolbarState extends State<RightToolbar> {
       return SvgPicture.asset(
         activeActionIconsStr[index],
       );
+    }else
+    if (index == 6){
+      return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
     }
 
     return SvgPicture.asset(
@@ -47,6 +52,9 @@ class _RightToolbarState extends State<RightToolbar> {
   List<Widget> inactiveActionIcons = List.generate(totalActionIcons, (index) {
     if (index == 3 ){
       return const Divider();
+    }else
+    if (index == 6){
+      return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
     }
     return SvgPicture.asset(
       inactiveActionIconsStr[index],
@@ -56,7 +64,7 @@ class _RightToolbarState extends State<RightToolbar> {
 
 
 
-  List<String> tooltipSimulations = ["Save Brain","Home"];
+  List<String> tooltipSimulations = ["Home", "Save Brain"];
   List<Widget> activeSimulationIcons = List.generate(totalSimulationIcons, (index) {
     return SvgPicture.asset(
       activeSimulationIconsStr[index],
@@ -76,9 +84,13 @@ class _RightToolbarState extends State<RightToolbar> {
   void initState(){
     super.initState();
     Future.delayed(const Duration(milliseconds: 200),(){
-      _actionController.animateTo(1000, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      _simulationController.animateTo(1000, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-
+      if (Platform.isAndroid){
+        _actionController.animateTo( 20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      }else{
+        _actionController.animateTo( 1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      }
     });
     activeIdx = widget.menuIdx;
   }
@@ -122,7 +134,7 @@ class _RightToolbarState extends State<RightToolbar> {
           width:54,
           height:185,
           child: ListView.builder(
-            itemCount:6,
+            itemCount:totalActionIcons,
             reverse:false,
             shrinkWrap: true,
             controller: _actionController,
@@ -146,7 +158,7 @@ class _RightToolbarState extends State<RightToolbar> {
                     height:30,
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
-                      idx==activeIdx && activeIdx<4 ? const BoxDecoration(
+                      idx==activeIdx && ( activeIdx<4 ) ? const BoxDecoration(
                         color: Color(0xFF13A9FC),
                         borderRadius: BorderRadius.all(Radius.circular(5))
                       )
@@ -301,6 +313,7 @@ class _RightToolbarState extends State<RightToolbar> {
                 child:GestureDetector(
                   onTap:(){
                     int prevIdx = activeIdx;
+                    // activeIdx = idx + 7;//6;
                     activeIdx = idx + 6;
                     widget.callback({"menuIdx":activeIdx});
 
@@ -318,6 +331,7 @@ class _RightToolbarState extends State<RightToolbar> {
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
                       idx==activeIdx - 6 ? const BoxDecoration(
+                      // idx==activeIdx - 7 ? const BoxDecoration(
                         // color : Colors.transparent,
                         color: Color(0xFF13A9FC),
                         borderRadius: BorderRadius.all(Radius.circular(5))
@@ -330,6 +344,8 @@ class _RightToolbarState extends State<RightToolbar> {
                     ,
                     padding: containerActionPadding[idx+6],
                     child: idx == activeIdx - 6 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
+                    // padding: containerActionPadding[idx+7],
+                    // child: idx == activeIdx - 7 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
                   ),
                 ),
               );

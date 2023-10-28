@@ -45,25 +45,26 @@ class NodeRenderer extends StatelessWidget {
                 ),
               ),
             ),
-          if (controller.isSelected(node.key) || controller.isHovered(node.key))
-            Positioned(
-              top: -borderInset,
-              left: -borderInset,
-              right: -borderInset,
-              bottom: -borderInset,
-              child: IgnorePointer(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: controller.isSelected(node.key)
-                          ? colors.primary
-                          : colors.outline,
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          // CHANGE ME
+          // if (controller.isSelected(node.key) || controller.isHovered(node.key))
+            // Positioned(
+            //   top: -borderInset,
+            //   left: -borderInset,
+            //   right: -borderInset,
+            //   bottom: -borderInset,
+            //   child: IgnorePointer(
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         border: Border.all(
+            //           color: controller.isSelected(node.key)
+            //               ? colors.primary
+            //               : colors.outline,
+            //           width: 1,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           Positioned.fill(
             key: key,
             child: node.clipBehavior != Clip.none
@@ -72,7 +73,14 @@ class NodeRenderer extends StatelessWidget {
                     clipBehavior: node.clipBehavior,
                     child: node.child,
                   )
-                : node.child,
+                : 
+                  (controller.isSelected(node.key) || controller.isHovered(node.key)) ? 
+                  ColorFiltered(
+                    colorFilter: const ColorFilter.mode(Colors.orangeAccent, BlendMode.srcIn),
+                    child: node.child
+                  )
+                  :
+                  node.child,
           ),
           if (showHandles) ...[
             // bottom right

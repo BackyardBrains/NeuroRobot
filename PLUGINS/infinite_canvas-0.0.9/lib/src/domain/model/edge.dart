@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// An edge in the [InfiniteCanvas].
 class InfiniteCanvasEdge {
-  const InfiniteCanvasEdge({
+  InfiniteCanvasEdge({
     required this.from,
     required this.to,
     this.label,
@@ -11,4 +11,5 @@ class InfiniteCanvasEdge {
   final LocalKey from;
   final LocalKey to;
   final String? label;
+  int isReciprocate = 0;
 }

@@ -1,1 +1,1 @@
-/Users/macbook/Documents/development/BYB/gl/neurorobot/neurorobot/PLUGINS/nativec/macos/Classes/NeuronPrototype.cpp
+/Users/macbook/Documents/BYB/neurorobot/neurorobot/PLUGINS/nativec/macos/Classes/NeuronPrototype.cpp

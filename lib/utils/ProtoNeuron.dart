@@ -34,8 +34,7 @@ class ProtoNeuron extends CustomPainter{
   late Float64List iBufList;
   late Float64List wBufList;
   late Float64List connectomeBufList;
-
-
+ 
   ProtoNeuron({
     required ValueNotifier<int> notifier, required this.neuronSize, required this.screenWidth, required this.screenHeight,
     required aBufView, required bBufView,required cBufView,required dBufView,required iBufView,required wBufView, required connectomeBufView,
@@ -118,7 +117,7 @@ class ProtoNeuron extends CustomPainter{
     }
 
   }
-  void generateCircle(int neuronSize, List<Offset> pos) {
+  void generateCircle(int neuronSize, List<Offset> pos, List<String> neuronTypes) {
     boxPaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke;
@@ -131,7 +130,8 @@ class ProtoNeuron extends CustomPainter{
       final activePaint = Paint()
         ..color = activeColor
         ..style = PaintingStyle.fill;
-      circle.neuronType = randomNeuronType();
+      // circle.neuronType = randomNeuronType();
+      circle.neuronType = neuronTypes[i];
 
       fillNeuronType(circle, i, aBufList,bBufList,cBufList,dBufList,iBufList,wBufList);
 

@@ -32,6 +32,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final Paint foundEdgeBrush = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final Paint selectedEdgeBrush = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
     return CustomPaint(
       painter: InlinePainter(
         brush: Paint()
@@ -39,19 +48,74 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
         builder: (brush, canvas, rect) {
+          // List<InfiniteCanvasEdge> reciprocateList = [];
           for (final edge in edges) {
             final from =
                 controller.nodes.firstWhere((node) => node.key == edge.from);
             final to =
                 controller.nodes.firstWhere((node) => node.key == edge.to);
+
+            Paint curBrush = brush;
+            if (controller.isSelectingEdge && controller.edgeSelected == edge){
+              curBrush = selectedEdgeBrush;
+            }else
+            if (controller.isFoundEdge && controller.edgeFound == edge){
+              curBrush = foundEdgeBrush;
+              // drawHitArea(canvas,edge);
+            }else{
+            }
             drawEdge(
               context,
               canvas,
-              from.rect.center,
-              to.rect.center,
-              brush,
+              // IS RECIPROCATE
+              // from.rect.center,
+              // to.rect.center,
+              Offset(from.rect.center.dx, from.rect.center.dy + edge.isReciprocate * 7),
+              Offset(to.rect.center.dx, to.rect.center.dy + edge.isReciprocate * 7),
+              curBrush,
               label: edge.label,
             );
+            
+            /*
+            int isReciprocate = 0;
+            if (reciprocateList.indexOf(edge)>-1){
+              isReciprocate = 1;
+              reciprocateList.remove(edge);
+            }else{
+              List<InfiniteCanvasEdge> pairEdges = controller.edges.where((e) => ( e.from == edge.to && e.to == edge.from) ).toList();
+              if (pairEdges.isNotEmpty){
+                reciprocateList.add(pairEdges[0]);
+                isReciprocate = -1;
+              }
+            }
+
+            
+            if (isReciprocate !=0){
+              drawEdge(
+                context,
+                canvas,
+                Offset(from.rect.center.dx, from.rect.center.dy + isReciprocate * 15),
+                Offset(to.rect.center.dx, to.rect.center.dy + isReciprocate * 15),
+                curBrush,
+                label: edge.label,
+              );
+              
+              if (isReciprocate == 1){
+
+              }else{
+
+              }
+            }else{
+              drawEdge(
+                context,
+                canvas,
+                from.rect.center,
+                to.rect.center,
+                curBrush,
+                label: edge.label,
+              );
+            }
+            */
           }
         },
       ),
@@ -92,8 +156,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       path.moveTo(toOffset.dx, toOffset.dy);
     } else {
       // path.moveTo(fromOffset.dx, fromOffset.dy);
+
       path.lineTo(toOffset.dx, toOffset.dy);
-      drawArrow(context, canvas, fromOffset, toOffset, brush, path);
       // path.cubicTo(
       //   fromOffset.dx,
       //   fromOffset.dy,
@@ -102,6 +166,29 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       //   toOffset.dx,
       //   toOffset.dy,
       // );
+
+      drawArrow(context, canvas, fromOffset, toOffset, brush, path);
+
+      // const lineWidth = 2;
+      // var iFrom = Offset(fromOffset.dx, fromOffset.dy);
+      // var oFrom = Offset( fromOffset.dx + lineWidth, fromOffset.dy + lineWidth +7);
+
+      // var iTo = Offset(toOffset.dx, toOffset.dy);
+      // var oTo = Offset( toOffset.dx + lineWidth, toOffset.dy + lineWidth + 7 );
+      // final Paint testBrush = Paint()
+      //   ..color = Colors.red
+      //   ..style = PaintingStyle.fill
+      //   ..strokeWidth = 2;
+
+      // Path p = Path()
+      //   ..moveTo(iFrom.dx - lineWidth, iFrom.dy - lineWidth)
+      //   ..lineTo(iTo.dx - lineWidth, iTo.dy - lineWidth)
+      //   ..lineTo(oTo.dx, oTo.dy)
+      //   ..lineTo(oFrom.dx, oFrom.dy)
+      //   ..lineTo(iFrom.dx - lineWidth, iFrom.dy - lineWidth);
+
+      // p.close();   
+      // canvas.drawPath(p, testBrush);
     }
     canvas.drawPath(path, brush);
     if (label != null) {
@@ -154,7 +241,66 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       ..style = PaintingStyle.fill
       ..strokeWidth = 2;
 
-    
+  
+    try{
+      PathMetric pathMetric = line.computeMetrics().first;
+      Path extractPath =
+          pathMetric.extractPath(0.0, pathMetric.length * 0.93);
+      var metric = extractPath.computeMetrics().first;
+      final offsetMetricPos = metric.getTangentForOffset(metric.length)!.position;
+      Offset toOffset = offsetMetricPos;
+
+      // Path extractPathStart =
+      //     pathMetric.extractPath(0.0, pathMetric.length * 0.9);
+      // var metricStart = extractPathStart.computeMetrics().first;
+      // final offsetMetricStartPos = metricStart.getTangentForOffset(metricStart.length)!.position;
+      // Offset toOffsetStart = offsetMetricStartPos;
+
+      // Path path = Path();
+      // if ( (toOffset.dx - toOffsetStart.dx).abs() < (toOffset.dy - toOffsetStart.dy).abs() ){
+      //   path.moveTo(toOffset.dx, toOffset.dy);
+      //   path.lineTo(toOffsetStart.dx-10, toOffsetStart.dy-5 );
+      //   path.lineTo(toOffsetStart.dx+10, toOffsetStart.dy-5 );
+
+      // }else{
+      //   path.moveTo(toOffset.dx, toOffset.dy);
+      //   path.lineTo(toOffsetStart.dx, toOffsetStart.dy - 10);
+      //   path.lineTo(toOffsetStart.dx, toOffsetStart.dy + 10);
+
+      // }
+      // path.close();
+      // canvas.drawPath(path, brush);
+
+
+      final dX = toOffset.dx - fromOffset.dx;
+      final dY = toOffset.dy - fromOffset.dy;
+      final angle = atan2(dY, dX);
+
+
+      final rx1 = arrowSize * cos(angle - arrowAngle);
+      final ry1 = arrowSize * sin(angle - arrowAngle);
+      final rx2 = arrowSize * cos(angle + arrowAngle);
+      final ry2 = arrowSize * sin(angle + arrowAngle);
+
+      final x1 = toOffset.dx - rx1 * arrowMultiplier;
+      final y1 = toOffset.dy - ry1 * arrowMultiplier;
+
+      Path path = Path();
+      path.moveTo(x1, y1);
+      path.lineTo(toOffset.dx, toOffset.dy);
+      path.lineTo(toOffset.dx - rx2, toOffset.dy - ry2);
+
+      path.close();
+      canvas.drawPath(path, brush);
+      
+    }catch(err){
+      print("err");
+      print(err);
+      return;
+    }
+
+
+
     // Rect r = Rect.fromCenter(center: rawToOffset, width: 20, height: 20);
     // Rect r2 = Rect.fromPoints(fromOffset, rawToOffset);
     // Rect intersect = r2.intersect(r);
@@ -177,26 +323,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     //   }
     // }
 
-    PathMetric pathMetric = line.computeMetrics().first;
-    Path extractPath =
-        pathMetric.extractPath(0.0, pathMetric.length * 0.93);
-    var metric = extractPath.computeMetrics().first;
-    final offsetMetricPos = metric.getTangentForOffset(metric.length)!.position;
-    Offset toOffset = offsetMetricPos;
 
-    final dX = toOffset.dx - fromOffset.dx;
-    final dY = toOffset.dy - fromOffset.dy;
-    final angle = atan2(dY, dX);
-    Path path = Path();
-
-
-    final rx1 = arrowSize * cos(angle - arrowAngle);
-    final ry1 = arrowSize * sin(angle - arrowAngle);
-    final rx2 = arrowSize * cos(angle + arrowAngle);
-    final ry2 = arrowSize * sin(angle + arrowAngle);
-
-    final x1 = toOffset.dx - rx1 * arrowMultiplier;
-    final y1 = toOffset.dy - ry1 * arrowMultiplier;
 
     // final Float64List scalingMatrix = Float64List.fromList(
     //   [0.995, 0, 0, 0,
@@ -218,13 +345,39 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     //     0,             0,     1, 0,
     //     subX, subY, 0, 1]);
 
-    path.moveTo(x1, y1);
-    path.lineTo(toOffset.dx, toOffset.dy);
-    path.lineTo(toOffset.dx - rx2, toOffset.dy - ry2);
+
     // path = path.transform(scalingMatrix);
     // path = path.transform(translateMatrix);
 
-    path.close();
-    canvas.drawPath(path, brush);
+  }
+  
+  void drawHitArea(
+    // BuildContext context,
+    Canvas canvas,
+    InfiniteCanvasEdge edge) {
+      const lineWidth = 3;
+      const radius = 10;
+      var eFrom = controller.nodes.where((e) => edge.from == (e.key)).toList()[0];
+      var eTo = controller.nodes.where((e) => edge.to == (e.key)).toList()[0];
+
+      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius, eFrom.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
+      var oFrom = Offset( eFrom.offset.dx + lineWidth + radius, eFrom.offset.dy + lineWidth  + radius + edge.isReciprocate * 7);
+      
+      
+      var iTo = Offset(eTo.offset.dx - lineWidth + radius, eTo.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
+      var oTo = Offset( eTo.offset.dx + lineWidth + radius, eTo.offset.dy + lineWidth + radius + edge.isReciprocate * 7);
+      Path p = Path()
+        ..moveTo(iFrom.dx, iFrom.dy)
+        ..lineTo(iTo.dx, iTo.dy)
+        ..lineTo(oTo.dx, oTo.dy)
+        ..lineTo(oFrom.dx, oFrom.dy)
+        ..lineTo(iFrom.dx, iFrom.dy);
+
+      p.close();
+      Paint paint = Paint()
+        ..color = Colors.yellow
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      canvas.drawPath(p,paint);
   }
 }

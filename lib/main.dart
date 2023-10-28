@@ -12,7 +12,7 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux){
+  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
 
     WindowOptions windowOptions = const WindowOptions(
@@ -27,8 +27,7 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
-
-  }else{
+  } else {
     AutoOrientation.landscapeLeftMode();
   }
 
@@ -41,7 +40,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      // title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -60,8 +60,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  TextEditingController ctlBrainName = TextEditingController(text:"");
-  TextEditingController ctlBrainDescription = TextEditingController(text:"");
+  TextEditingController ctlBrainName = TextEditingController(text: "");
+  TextEditingController ctlBrainDescription = TextEditingController(text: "");
 
   int isInitialized = 0;
   late SharedPreferences prefs;
@@ -73,111 +73,108 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget welcomePage() {
-    return WelcomePage(callback:(){
+    return WelcomePage(callback: () {
       print("Set String");
-      setState(() {
-      });
+      setState(() {});
     });
   }
 
-  Widget defaultPage(){
-    return CreateBrainPage(callback:(action){
-      if (action == "add_brain"){
-        customDialog(  
-            context,  
-            content: Column(  
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [  
-                const Text("Name of Brain", style: TextStyle(fontWeight: FontWeight.bold),),
-                TextField(  
-                  decoration: const InputDecoration(labelText: "Name of brain"),  
-                  controller: ctlBrainName,
-                ),  
-                const SizedBox(
-                  height:20,
-                ),
-                const Text(
-                  "Description of Brain", style: TextStyle(fontWeight: FontWeight.bold)
-                ),
-                TextField(  
-                  decoration: const InputDecoration(labelText: "Description of brain"),  
-                  controller: ctlBrainDescription,
-                ), 
-                const SizedBox(
-                  height:20,
-                ),
-                Row(              
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    OutlinedButton(
-                      onPressed: (){
-                        Navigator.pop(context);
-                      }, 
-                      child: const Text("Cancel")
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: brandBlue,
+  Widget defaultPage() {
+    return CreateBrainPage(callback: (action) {
+      if (action == "add_brain") {
+        customDialog(
+          context,
+          content:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text(
+              "Name of Brain",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextField(
+              decoration: const InputDecoration(labelText: "Name of brain"),
+              controller: ctlBrainName,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text("Description of Brain",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextField(
+              decoration:
+                  const InputDecoration(labelText: "Description of brain"),
+              controller: ctlBrainDescription,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Cancel")),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: brandBlue,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DesignBrainPage(),
                       ),
-                      onPressed: (){
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => DesignBrainPage(),
-                          ),
-                        );
-                      }, 
-                      child: const Text("Save Brain", style: TextStyle(color: Colors.white),),
-                    ),
-                  ],
-                )
-              ]
-            ),  
-            positiveButtonText: "",  
-            positiveButtonAction: () {},  
-            negativeButtonText: "",
-            negativeButtonAction: () {},  
-            neutralButtonAction: () {  
-            },  
-            hideNeutralButton: true,  
-            closeOnBackPress: true,  
+                    );
+                  },
+                  child: const Text(
+                    "Save Brain",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            )
+          ]),
+          positiveButtonText: "",
+          positiveButtonAction: () {},
+          negativeButtonText: "",
+          negativeButtonAction: () {},
+          neutralButtonAction: () {},
+          hideNeutralButton: true,
+          closeOnBackPress: true,
         );
       }
     });
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     SharedPreferences.getInstance().then((sp) {
       prefs = sp;
       isInitialized = 1;
       setState(() => {});
     });
-
   }
+
   @override
   Widget build(BuildContext context) {
     print("isInitialized");
     print(isInitialized);
-    if (isInitialized==1){
+    if (isInitialized == 1) {
       isInitialized = 2;
       print(prefs.getString("welcome"));
-      if (prefs.getString("welcome") == null){
+      if (prefs.getString("welcome") == null) {
         // prefs.setString("welcome", "home");
         return DesignBrainPage();
-      }else{ 
+      } else {
         // return defaultPage();
         return DesignBrainPage();
       }
-
-    }else
-    if(isInitialized >= 2){
+    } else if (isInitialized >= 2) {
       // return defaultPage();
       return DesignBrainPage();
     }
 
     return const SizedBox();
-
   }
-  
 }
