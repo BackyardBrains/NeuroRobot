@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:nativec/allocation.dart';
+// import 'package:nativec/allocation.dart';
+
+import 'package:nativec/allocator.dart';
 
 import 'nativec_platform_interface.dart';
 import 'dart:ffi' as ffi;
@@ -195,8 +197,8 @@ class Nativec {
       pNeuronCircle,
       pNps,
     );
-    print("pPositions.asTypedList(20)");
-    print(pPositions.asTypedList(20));
+    // print("pPositions.asTypedList(20)");
+    // print(pPositions.asTypedList(20));
     return test;
   }
 

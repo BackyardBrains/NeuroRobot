@@ -17,10 +17,12 @@ class _RightToolbarState extends State<RightToolbar> {
   ScrollController _actionController = ScrollController();
   ScrollController _simulationController = ScrollController();
 
-  static int totalActionIcons = 6;
+  static int totalActionIcons = 5;
   static int totalSimulationIcons = 2;
-  static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
-  static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  // static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  // static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
+  static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
   static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(7, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
 
   // static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
@@ -30,19 +32,20 @@ class _RightToolbarState extends State<RightToolbar> {
   static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(2, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
   
   int activeIdx=0;
-  List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","Create Axon","-","Undo","Redo","Pan Screen"];
+  List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","-","Undo","Redo"];
   List<Widget> activeActionIcons = List.generate(totalActionIcons, (index) {
-    if (index == 3 ){
+    if (index == 2 ){
       return const Divider();
     }else
     if (index == 1){
       return SvgPicture.asset(
         activeActionIconsStr[index],
       );
-    }else
-    if (index == 6){
-      return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
     }
+    // else
+    // if (index == 5){
+    //   return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
+    // }
 
     return SvgPicture.asset(
       activeActionIconsStr[index],
@@ -50,12 +53,13 @@ class _RightToolbarState extends State<RightToolbar> {
     );
   });
   List<Widget> inactiveActionIcons = List.generate(totalActionIcons, (index) {
-    if (index == 3 ){
+    if (index == 2 ){
       return const Divider();
-    }else
-    if (index == 6){
-      return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
     }
+    // else
+    // if (index == 5){
+    //   return const Icon(Icons.pan_tool_rounded, size: 17,color:Color(0xFF4e4e4e));
+    // }
     return SvgPicture.asset(
       inactiveActionIconsStr[index],
       // colorFilter :const ColorFilter.mode(Color(0xFF13A9FC), BlendMode.srcIn),
@@ -78,7 +82,8 @@ class _RightToolbarState extends State<RightToolbar> {
   });
 
   // List<int> containerActionWidth = [30,20,15,15,15,15,15,15,15];
-  List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
+  // List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
+  List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
 
   @override
   void initState(){
@@ -132,7 +137,7 @@ class _RightToolbarState extends State<RightToolbar> {
           
           padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
           width:54,
-          height:185,
+          height:150,
           child: ListView.builder(
             itemCount:totalActionIcons,
             reverse:false,
@@ -141,7 +146,7 @@ class _RightToolbarState extends State<RightToolbar> {
 
             // physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (ctx, idx){
-              if (idx == 3){
+              if (idx == 2){
                 return const Divider();
               }
               return MeTooltip(
@@ -158,7 +163,7 @@ class _RightToolbarState extends State<RightToolbar> {
                     height:30,
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
-                      idx==activeIdx && ( activeIdx<4 ) ? const BoxDecoration(
+                      idx==activeIdx && ( activeIdx<3 ) ? const BoxDecoration(
                         color: Color(0xFF13A9FC),
                         borderRadius: BorderRadius.all(Radius.circular(5))
                       )
@@ -168,7 +173,7 @@ class _RightToolbarState extends State<RightToolbar> {
                       )
                     ,
                     padding: containerActionPadding[idx],
-                    child: idx==activeIdx && activeIdx<4 ? activeActionIcons[idx] : inactiveActionIcons[idx],
+                    child: idx==activeIdx && activeIdx<3 ? activeActionIcons[idx] : inactiveActionIcons[idx],
                   ),
                 ),
               );
@@ -313,8 +318,8 @@ class _RightToolbarState extends State<RightToolbar> {
                 child:GestureDetector(
                   onTap:(){
                     int prevIdx = activeIdx;
-                    // activeIdx = idx + 7;//6;
-                    activeIdx = idx + 6;
+                    // activeIdx = idx + 7;//6//5;
+                    activeIdx = idx + 5;
                     widget.callback({"menuIdx":activeIdx});
 
                     // if (prevIdx == activeIdx && activeIdx == 7){
@@ -330,7 +335,7 @@ class _RightToolbarState extends State<RightToolbar> {
                     height:30,
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
                     decoration: 
-                      idx==activeIdx - 6 ? const BoxDecoration(
+                      idx==activeIdx - 5 ? const BoxDecoration(
                       // idx==activeIdx - 7 ? const BoxDecoration(
                         // color : Colors.transparent,
                         color: Color(0xFF13A9FC),
@@ -343,7 +348,7 @@ class _RightToolbarState extends State<RightToolbar> {
                       )
                     ,
                     padding: containerActionPadding[idx+6],
-                    child: idx == activeIdx - 6 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
+                    child: idx == activeIdx - 5 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
                     // padding: containerActionPadding[idx+7],
                     // child: idx == activeIdx - 7 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
                   ),

@@ -58,20 +58,21 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             Paint curBrush = brush;
             if (controller.isSelectingEdge && controller.edgeSelected == edge){
               curBrush = selectedEdgeBrush;
+              // drawHitArea(canvas,edge);
             }else
             if (controller.isFoundEdge && controller.edgeFound == edge){
               curBrush = foundEdgeBrush;
-              // drawHitArea(canvas,edge);
             }else{
             }
+            double pairSpace = edge.isReciprocate * 7;            
             drawEdge(
               context,
               canvas,
               // IS RECIPROCATE
               // from.rect.center,
               // to.rect.center,
-              Offset(from.rect.center.dx, from.rect.center.dy + edge.isReciprocate * 7),
-              Offset(to.rect.center.dx, to.rect.center.dy + edge.isReciprocate * 7),
+              Offset(from.rect.center.dx + pairSpace, from.rect.center.dy + pairSpace),
+              Offset(to.rect.center.dx + pairSpace, to.rect.center.dy + pairSpace),
               curBrush,
               label: edge.label,
             );
@@ -357,15 +358,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     InfiniteCanvasEdge edge) {
       const lineWidth = 3;
       const radius = 10;
+      
       var eFrom = controller.nodes.where((e) => edge.from == (e.key)).toList()[0];
       var eTo = controller.nodes.where((e) => edge.to == (e.key)).toList()[0];
-
-      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius, eFrom.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
-      var oFrom = Offset( eFrom.offset.dx + lineWidth + radius, eFrom.offset.dy + lineWidth  + radius + edge.isReciprocate * 7);
+      
+      double pairSpace = edge.isReciprocate * 7;
+      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius + pairSpace, eFrom.offset.dy - lineWidth + radius + pairSpace);
+      var oFrom = Offset( eFrom.offset.dx + lineWidth + radius + pairSpace, eFrom.offset.dy + lineWidth  + radius + pairSpace);
       
       
-      var iTo = Offset(eTo.offset.dx - lineWidth + radius, eTo.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
-      var oTo = Offset( eTo.offset.dx + lineWidth + radius, eTo.offset.dy + lineWidth + radius + edge.isReciprocate * 7);
+      var iTo = Offset(eTo.offset.dx - lineWidth + radius + pairSpace, eTo.offset.dy - lineWidth + radius + pairSpace);
+      var oTo = Offset( eTo.offset.dx + lineWidth + radius + pairSpace, eTo.offset.dy + lineWidth + radius + pairSpace);
       Path p = Path()
         ..moveTo(iFrom.dx, iFrom.dy)
         ..lineTo(iTo.dx, iTo.dy)

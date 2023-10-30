@@ -158,11 +158,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("isInitialized");
-    print(isInitialized);
+    // print("isInitialized");
+    // print(isInitialized);
     if (isInitialized == 1) {
       isInitialized = 2;
-      print(prefs.getString("welcome"));
+      // print(prefs.getString("welcome"));
       if (prefs.getString("welcome") == null) {
         // prefs.setString("welcome", "home");
         return DesignBrainPage();

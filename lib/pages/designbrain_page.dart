@@ -12,9 +12,10 @@ import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:metooltip/metooltip.dart';
-import 'package:nativec/allocation.dart';
+// import 'package:nativec/allocation.dart';
 import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
+import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
 import 'package:neurorobot/utils/Simulations.dart';
 import 'package:neurorobot/utils/SingleCircle.dart';
@@ -33,13 +34,14 @@ class DesignBrainPage extends StatefulWidget {
 class _DesignBrainPageState extends State<DesignBrainPage> {
   // SIMULATION SECTION
   List<String> neuronTypes = [];
-  static int neuronSize = 14;
+  static int neuronSize = 12;
   static const int maxPosBuffer = 220;
   int epochs = 30;
 
   late Nativec nativec;
   static ffi.Pointer<ffi.Uint32> npsBuf =
       allocate<ffi.Uint32>(count: 2, sizeOfType: ffi.sizeOf<ffi.Uint32>());
+
   static ffi.Pointer<ffi.Int16> neuronCircleBuf = allocate<ffi.Int16>(
       count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
 
@@ -130,9 +132,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int gapTailX = 5;
   int gapTailY = 30;
 
-  int circleNeuronStartIndex = 11;
 
   double prevMouseX = 0.0, prevMouseY = 0.0;
+  
+  int circleNeuronStartIndex = 11;
+  int normalNeuronStartIdx = 9;
+  int allNeuronStartIdx = 2;
 
   void runNativeC() {
     const level = 1;
@@ -340,6 +345,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   double prevScreenHeight = 600.0;
   double screenWidth = 800.0;
   double screenHeight = 600.0;
+  double safePadding = 0.0;
   bool isResizingFlag = false;
 
   bool axonFromSelected = false;
@@ -373,7 +379,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         waveRedraw.value = Random().nextInt(10000);
       }
       if (isPlayingMenu) {
-        for (int i = circleNeuronStartIndex; i < neuronSize; i++) {
+        // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
+        for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
           int neuronIndex = i;
           if (neuronCircleBridge[i] == 1) {
             protoNeuron.circles[neuronIndex].isSpiking = 1;
@@ -395,6 +402,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+    safePadding = MediaQuery.of(context).padding.right;
     // Future.delayed(const Duration(milliseconds: 2000), (){
     //   repositionSensoryNeuron();
     // });
@@ -414,6 +422,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           screenWidth: screenWidth);
     }
 
+    // if (Platform.isAndroid || Platform.isIOS){
+
+    // }else{
     if (isInitialized) {
       if (prevScreenWidth != screenWidth) {
         isResizingFlag = true;
@@ -422,8 +433,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         isResizingFlag = true;
       }
     }
+    // }
 
     if (isResizingFlag) {
+      // print("isResizingFlag");
+      viewPortNode.update(offset: Offset(screenWidth, screenHeight));
       controller.getNode(viewportKey)?.offset =
           Offset(screenWidth, screenHeight);
       int idx = 0;
@@ -443,7 +457,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       constraintBrainBottom = constraintOffsetBottomLeft.dy;
 
       for (var element in controller.nodes) {
-        if (idx > 0) {
+        if (idx > 1) {
           element.offset = element.offset.scale(scaleX, scaleY);
 
           // constraintBrainLeft *= scaleX;
@@ -479,7 +493,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     List<Widget> widgets = [];
     if (isPlayingMenu) {
-      for (int i = circleNeuronStartIndex; i < neuronSize; i++) {
+      // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
+      for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
         SingleNeuron neuron = protoNeuron.circles[i];
         widgets.add(Positioned(
           top: neuron.centerPos.dy,
@@ -506,13 +521,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           onPressed: () {
             isEmergencyPause = !isEmergencyPause;
             if (!isEmergencyPause) {
-              rightToolbarCallback({"menuIdx": 8});
+              rightToolbarCallback({"menuIdx": 7});
               Future.delayed(const Duration(milliseconds: 100), () {
                 menuIdx = 0;
                 setState(() {});
               });
             } else {
-              rightToolbarCallback({"menuIdx": 8});
+              rightToolbarCallback({"menuIdx": 7});
             }
 
             setState(() {});
@@ -522,6 +537,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               : const Icon(Icons.pause)),
       body: Stack(
         children: [
+          // Positioned(
+          //   left: 0,
+          //   top: 0,
+          //   child: Container(
+          //     width: screenWidth,
+          //     height: screenHeight,
+          //     decoration: const BoxDecoration(
+          //       image: DecorationImage(
+          //         image: AssetImage("assets/bg/bg1.0x.jpeg"),
+          //         fit: BoxFit.contain,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
           Positioned(
             left: 0,
             top: 0,
@@ -535,6 +565,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     // print("MediaQuery.of(context).screenWidth");
                     // print(screenWidth);
                     // print(screenHeight);
+                    // print(r);
 
                     return Container(
                       color: Colors.white,
@@ -542,7 +573,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                       height: screenHeight,
                       child: Image.asset(
                           width: screenWidth,
-                          height: screenHeight,
+                          height: screenHeight * 2,
                           // scale: screenWidth/800,
                           fit: BoxFit.contain,
                           // scale: density,
@@ -558,14 +589,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             ),
           ),
           Positioned(
-            right: 10,
+            right: 10 + safePadding,
             top: 10,
             child: RightToolbar(
                 key: GlobalKey(),
                 menuIdx: menuIdx,
                 callback: rightToolbarCallback),
           ),
-          if (!(Platform.isIOS && Platform.isAndroid)) ...[
+          if (!(Platform.isIOS || Platform.isAndroid)) ...[
             Positioned(
               right: 90,
               bottom: 20,
@@ -699,14 +730,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   void allowMoveNodes() {
     int n = controller.nodes.length;
-    for (int i = 9; i < n; i++) {
+    for (int i = normalNeuronStartIdx; i < n; i++) {
       controller.nodes[i].allowMove = true;
     }
   }
 
   void disallowMoveNodes() {
     int n = controller.nodes.length;
-    for (int i = 9; i < n; i++) {
+    for (int i = normalNeuronStartIdx; i < n; i++) {
       controller.nodes[i].allowMove = false;
     }
   }
@@ -722,11 +753,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     Map<String, int> nodeKey = {};
     int idx = 0;
     for (InfiniteCanvasNode node in controller.nodes) {
-      // if (idx>=10){
-      pos.add(node.offset);
-      nodeKey[node.key.toString()] = idx;
+      if (idx>=allNeuronStartIdx){
+        pos.add(node.offset);
+        nodeKey[node.key.toString()] = idx - allNeuronStartIdx;
       // nodeKey[idx] = node.key.toString();
-      // }
+      }
       idx++;
     }
     print("nodeKey");
@@ -741,8 +772,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       print("edge.from");
       print(edge.from);
       print(edge.to);
-      int fromIdx = nodeKey[edge.from.toString()]!;
-      int toIdx = nodeKey[edge.to.toString()]!;
+      int fromIdx = nodeKey[edge.from.toString()]! - allNeuronStartIdx;
+      int toIdx = nodeKey[edge.to.toString()]! - allNeuronStartIdx;
       connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
     });
     protoNeuron = ProtoNeuron(
@@ -765,6 +796,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   neuronTypeChangeCallback(neuronType) {
     print("neuronType");
     print(neuronType);
+    
   }
 
   deleteNeuronCallback() {
@@ -817,11 +849,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         },
         onLongPress: () {
           print("controller.mousePosition");
-          print(controller.mousePosition);
+          // print(controller.mousePosition);
           if (controller.hasSelection) {
             var selected = controller.selection[0];
+            int neuronIdx = selected.value - normalNeuronStartIdx - 1;
+            // String neuronType = protoNeuron.circles[neuronIdx].neuronType;
+            String neuronType = neuronTypes[neuronIdx];
+            // print(neuronIdx);
+
             //show dialog box to change neuron
-            neuronDialogBuilder(context, selected.value.toString(), "Neuron ",
+            // neuronDialogBuilder(context, selected.value.toString(), "Neuron ",
+            neuronDialogBuilder(context, "Neuron ", (neuronIdx + 1).toString(), neuronType,
                 neuronTypeChangeCallback, deleteNeuronCallback);
           } else if (controller.isSelectingEdge) {
             // IMPORTANT - Check duplication when adding edge into the same neuron
@@ -925,13 +963,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     //     setState(() {});
     //   }
     // } else
-    if (menuIdx == 6) {
+    if (menuIdx == 5) {
       print("home");
       Navigator.pop(context);
-    } else if (menuIdx == 7) {
+    } else if (menuIdx == 6) {
       // print( json.encode(controller.nodes) );
       // print( json.encode(controller.edges) );
-    } else if (menuIdx == 8) {
+    } else if (menuIdx == 7) {
       controller.spacePressed = false;
       isPlayingMenu = !isPlayingMenu;
       isSelected = false;
@@ -971,13 +1009,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         screenWidth -= (2 * MediaQuery.of(context).padding.right);
       }
     }
-    print("screenDimension");
-    print(screenWidth);
-    print(screenHeight);
-    print(MediaQuery.of(context).padding.left);
-    print(MediaQuery.of(context).padding.right);
-    print(ratio);
-    print(MediaQuery.of(context).devicePixelRatio);
+    // print("screenDimension");
+    // print(screenWidth);
+    // print(screenHeight);
+    // print(MediaQuery.of(context).padding.left);
+    // print(MediaQuery.of(context).padding.right);
+    // print(ratio);
+    // print(MediaQuery.of(context).devicePixelRatio);
     Offset middleScreenOffset = Offset(screenWidth / 2 - 10, 150);
 
     // Offset offset = middleScreenOffset.scale(0.5, 0.5);
@@ -1041,6 +1079,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void initCanvas() {
+    // controller.getNode(viewportKey)?.offset = Offset(screenWidth, screenHeight);
+    // viewPortNode.update(offset:Offset(screenWidth,screenHeight));
+    viewPortNode = InfiniteCanvasNode(
+        key: viewportKey,
+        allowMove: false,
+        allowResize: false,
+        offset: Offset(screenWidth, screenHeight),
+        size: const Size(0, 0),
+        child: const SizedBox(
+          width: 0,
+          height: 0,
+        ));
+
     tailNode = InfiniteCanvasNode(
       // allowMove: true,
       // allowResize: false,
@@ -1048,7 +1099,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       key: UniqueKey(),
       // label: 'Triangle',
       offset: const Offset(0, 0),
-      size: const Size(10, 10),
+      size: const Size(12, 12),
       child: Builder(
         builder: (context) {
           return CustomPaint(
@@ -1209,7 +1260,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     ]);
     controller.maxScale = 1.5;
     controller.scale = 1;
-    controller.minScale = 0.95;
+    controller.minScale = 0.75;
     controller.addListener(() {
       if (controller.mouseDown) {
         // if (menuIdx == 6) {
@@ -1218,13 +1269,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         if (menuIdx == 0 && !controller.hasSelection) {
           isDrawTail = false;
 
-          print("menuIdx == 0");
-          print(menuIdx == 0);
-          print(controller.hasSelection);
+          // print("menuIdx == 0");
+          // print(menuIdx == 0);
+          // print(controller.hasSelection);
 
           double scales = controller.getScale();
-          print("scales");
-          print(scales);
+          // print("scales");
+          // print(scales);
           if (scales == 0.95) {
             controller.zoomReset();
             controller.setCanvasMove(false);
@@ -1319,7 +1370,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             selected.update(size: selected.size, offset: newOffset, label: "");
           }
         } else if (menuIdx == 1 && !isCreatePoint && !controller.hasSelection) {
-          if (Platform.isIOS) {
+          if (Platform.isIOS || Platform.isAndroid) {
             if (prevMouseX == controller.mousePosition.dx &&
                 prevMouseY == controller.mousePosition.dy) {
               prevMouseX = controller.mousePosition.dx;
@@ -1422,13 +1473,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           print(controller.hasSelection);
           print(axonFromSelected);
           print(axonToSelected);
-        } else if (menuIdx == 7 && !controller.hasSelection) {
+        } else if (menuIdx == 6 && !controller.hasSelection) {
           print("Zoom Reset");
           controller.zoomReset();
           isSelected = false;
           nativec.changeIdxSelected(-1);
           setState(() {});
-        } else if (menuIdx == 7 && controller.hasSelection) {
+        } else if (menuIdx == 6 && controller.hasSelection) {
           var selected = controller.selection[0];
           print("selected.value");
           print(selected.value);

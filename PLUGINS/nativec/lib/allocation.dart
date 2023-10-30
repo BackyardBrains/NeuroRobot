@@ -43,7 +43,7 @@ stdlib.lookupFunction<WinHeapFreeNative, WinHeapFree>("HeapFree");
 /// of 0 is undefined.
 ///
 /// Throws an ArgumentError on failure to allocate.
-Pointer<T> allocate<T extends NativeType>({int count = 1, int sizeOfType = 2}) {
+Pointer<T> _allocate<T extends NativeType>({int count = 1, int sizeOfType = 2}) {
   final int totalSize = count * sizeOfType;
   Pointer<T> result;
   if (Platform.isWindows) {
@@ -67,7 +67,7 @@ Pointer<T> allocate<T extends NativeType>({int count = 1, int sizeOfType = 2}) {
 ///
 // TODO(dartbug.com/36855): Once we have a ffi.Bool type we can use it instead
 // of testing the return integer to be non-zero.
-void free(Pointer pointer) {
+void _free(Pointer pointer) {
   if (Platform.isWindows) {
     if (winHeapFree(processHeap, /*flags=*/ 0, pointer) == 0) {
       throw ArgumentError("Could not free $pointer.");

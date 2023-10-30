@@ -1,7 +1,7 @@
   import 'package:flutter/material.dart';
 
-Future<void> neuronDialogBuilder(BuildContext context, String title, String nodeId, neuronTypeChangecallback,deleteCallback) {
-  String val = "-";
+Future<void> neuronDialogBuilder(BuildContext context, String title, String nodeId, String neuronType, neuronTypeChangecallback,deleteCallback) {
+  String val = neuronType;
   List<String> neuronTypesLabel = ["Select Neuron Type","Quiet", "Occassionally active", "Highly active", "Generates bursts", "Bursts when activated", "Dopaminergic", "Striatal"];
   List<String> neuronTypes = ["-","RS", "FS", "LTS", "IB", "CH", "RZ", "TC"];
   List<DropdownMenuItem> dropdownMenuItems = List<DropdownMenuItem>.generate(neuronTypes.length, (index) {

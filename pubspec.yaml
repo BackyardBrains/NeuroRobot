@@ -2,14 +2,15 @@ name: neurorobot
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+21
+version: 1.2.0+23
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  ffi: 2.1.0
   # http: ^1.1.0
   async: 2.11.0
   cupertino_icons: ^1.0.2

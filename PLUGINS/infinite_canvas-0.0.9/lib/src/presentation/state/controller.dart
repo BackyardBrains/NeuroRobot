@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -40,8 +41,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   // STEVE
   late InfiniteCanvasEdge edgeFound;
   late InfiniteCanvasEdge edgeSelected;
-  List<InfiniteCanvasEdge> get edgeSelection =>
-    edges.where((e) => edgeSelected.from == e.from && edgeSelected.to == e.to).toList();
+  List<InfiniteCanvasEdge> get edgeSelection => edges
+      .where((e) => edgeSelected.from == e.from && edgeSelected.to == e.to)
+      .toList();
 
   final Set<Key> _selected = {};
   List<InfiniteCanvasNode> get selection =>
@@ -171,7 +173,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   // STEVE
-  bool isEdgeSelected(LocalKey keyFrom, LocalKey keyTo) => edgeSelected.from == keyFrom && edgeSelected.to == keyTo;
+  bool isEdgeSelected(LocalKey keyFrom, LocalKey keyTo) =>
+      edgeSelected.from == keyFrom && edgeSelected.to == keyTo;
   bool get hasEdgeSelection => edgeSelection.isNotEmpty;
 
   bool isSelected(LocalKey key) => _selected.contains(key);
@@ -185,10 +188,10 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   bool get canvasMoveEnabled => _canvasMoveEnabled;
   void setCanvasMove(bool value) {
     _canvasMoveEnabled = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
-  void notifyMousePosition(){
+  void notifyMousePosition() {
     notifyListeners();
   }
 
@@ -224,12 +227,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         ..lineTo(eFrom.offset.dx - lineWidth, eFrom.offset.dy - lineWidth);
         */
       // IS RECIPROCATE
-      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius, eFrom.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
-      var oFrom = Offset( eFrom.offset.dx + lineWidth + radius, eFrom.offset.dy + lineWidth  + radius + edge.isReciprocate * 7);
-      
-      
-      var iTo = Offset(eTo.offset.dx - lineWidth + radius, eTo.offset.dy - lineWidth + radius + edge.isReciprocate * 7);
-      var oTo = Offset( eTo.offset.dx + lineWidth + radius, eTo.offset.dy + lineWidth + radius + edge.isReciprocate * 7);
+      double pairSpace = edge.isReciprocate * 7;
+      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius + pairSpace,
+          eFrom.offset.dy - lineWidth + radius + pairSpace);
+      var oFrom = Offset(eFrom.offset.dx + lineWidth + radius +pairSpace,
+          eFrom.offset.dy + lineWidth + radius + pairSpace);
+
+      var iTo = Offset(eTo.offset.dx - lineWidth + radius + pairSpace,
+          eTo.offset.dy - lineWidth + radius + pairSpace);
+      var oTo = Offset(eTo.offset.dx + lineWidth + radius + pairSpace,
+          eTo.offset.dy + lineWidth + radius + pairSpace);
       Path p = Path()
         ..moveTo(iFrom.dx, iFrom.dy)
         ..lineTo(iTo.dx, iTo.dy)
@@ -239,13 +246,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
       p.close();
 
-      if (p.contains(offset)){
+      if (p.contains(offset)) {
         edgeFound = edge;
         isFoundEdge = true;
+        if (Platform.isIOS || Platform.isAndroid) {
+          isSelectingEdge = true;
+          edgeSelected = edge;
+        }
         break;
-      }else{
+      } else {
         isFoundEdge = false;
-
       }
 
       // Rect rect = Rect.fromLTRB(
@@ -254,7 +264,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       //   max(eFrom.rect.right, eTo.rect.right),
       //   max(eFrom.rect.bottom, eTo.rect.bottom),
       // );
-                 
+
       // if (rect.contains(offset)){
       //   edgeSelected = edge;
       //   print("edgeSelected");
@@ -310,16 +320,25 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       to: to,
       label: label,
     );
-    List<InfiniteCanvasEdge> foundNodeList = edges.where((element) => element.from == edge.from && element.to == edge.to,).toList();
-    List<InfiniteCanvasEdge> foundReciprocateNodeList = edges.where((element) => element.from == edge.to && element.to == edge.from,).toList();
+    List<InfiniteCanvasEdge> foundNodeList = edges
+        .where(
+          (element) => element.from == edge.from && element.to == edge.to,
+        )
+        .toList();
+    List<InfiniteCanvasEdge> foundReciprocateNodeList = edges
+        .where(
+          (element) => element.from == edge.to && element.to == edge.from,
+        )
+        .toList();
     int foundNode = foundNodeList.length;
 
-    if (foundNode == 0){//not duplicate
-      if (foundReciprocateNodeList.isNotEmpty){
+    if (foundNode == 0) {
+      //not duplicate
+      if (foundReciprocateNodeList.isNotEmpty) {
         foundReciprocateNodeList[0].isReciprocate = 1;
-        edge.isReciprocate  = -1;
+        edge.isReciprocate = -1;
         edges.add(edge);
-      }else{
+      } else {
         edges.add(edge);
       }
     }
@@ -378,10 +397,13 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   void deselectAll([bool hover = false]) {
     if (hover) {
-      _hovered.clear();
+      // _hovered.clear();
+      if (_hovered.isNotEmpty) _hovered.clear();
     } else {
-      _selected.clear();
-      _selectedOrigins.clear();
+      // _selected.clear();
+      // _selectedOrigins.clear();
+      if (_selected.isNotEmpty) _selected.clear();
+      if (_selectedOrigins.isNotEmpty) _selectedOrigins.clear();
     }
     notifyListeners();
   }

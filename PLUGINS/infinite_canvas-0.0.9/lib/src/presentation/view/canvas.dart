@@ -161,7 +161,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           if (event is KeyDownEvent) {
             if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
                 event.logicalKey == LogicalKeyboardKey.shiftRight) {
-              controller.shiftPressed = true;
+              // controller.shiftPressed = true;
             }
             if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
                 event.logicalKey == LogicalKeyboardKey.controlRight) {
@@ -169,10 +169,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             }
             if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
                 event.logicalKey == LogicalKeyboardKey.metaRight) {
-              controller.metaPressed = true;
+              // controller.metaPressed = true;
             }
             if (event.logicalKey == LogicalKeyboardKey.space) {
-              controller.spacePressed = true;
+              // controller.spacePressed = true;
             }
           }
           if (event is KeyUpEvent) {
@@ -271,16 +271,16 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 onInteractionStart: (details) {
                   controller.mousePosition = details.focalPoint;
                   controller.mouseDragStart = controller.mousePosition;
-                  if (Platform.isIOS){
-                    controller.notifyMousePosition();
-                  }
+                  // if (Platform.isIOS){
+                  //   controller.notifyMousePosition();
+                  // }
                 },
                 onInteractionUpdate: (details) {
                   if (!controller.mouseDown) {
                     controller.scale = details.scale;
                   } else if (controller.spacePressed) {
-                      print("controller.canvasMoveEnabled");
-                      print(controller.canvasMoveEnabled);
+                      // print("controller.canvasMoveEnabled");
+                      // print(controller.canvasMoveEnabled);
                     if (controller.canvasMoveEnabled){
                       controller.pan(details.focalPointDelta);
                     }
