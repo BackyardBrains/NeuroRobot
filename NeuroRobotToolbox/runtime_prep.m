@@ -83,8 +83,8 @@ if this_distance < 1000
     dist_long = 10;
 else
     dist_short = 700;
-    dist_med = 1000;
-    dist_long = 1000;
+    dist_med = 900;
+    dist_long = 1100;
 end
 scores = 0;
 
@@ -260,7 +260,6 @@ if exist('rak_only', 'var') && brain_support
     %% Audio
     audx = 250;
     sound_spectrum = zeros(audx, nsteps_per_loop);
-    fx = (0:audx-1)*16;
     this_audio = [];
     audio_out_fs = 0;
     speaker_tone = 0;
@@ -369,19 +368,22 @@ if exist('rak_only', 'var') && brain_support
     right_uframe = prev_right_eye_frame;
 
     if matlab_audio_rec
-        mic_fs = 44100;
         if exist('mic_obj', 'var')
             clear mic_obj
         end
         try
             mic_obj = audioDeviceReader;
             mic_fs = mic_obj.SampleRate;
+%             release(mic_obj);
+%             mic_obj.SampleRate = 32000;
             mic_obj.SamplesPerFrame = round(mic_fs * pulse_period * 0.8); % Too much? Blocking?
             setup(mic_obj)
         catch
             disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')
             matlab_audio_rec = 0;
         end
+    else
+        mic_fs = 44100;
     end
     
 %     if use_speech2text
@@ -413,12 +415,6 @@ if exist('rak_only', 'var') && brain_support
     
     xstep = 0;
     rak_fail = 0;
-    
-    if hd_camera
-        fs = 32000;
-    else
-        fs = 8000;
-    end
     
     audio_I = zeros(nneurons, 1);
     audio_empty_flag = 0;

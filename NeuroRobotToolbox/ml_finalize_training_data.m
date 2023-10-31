@@ -1,9 +1,5 @@
 
 
-%% Get net name
-net_name = 'windowArenaNet';
-
-
 %% Create datasets for training nets
 axes(ml_train1_status)
 cla

@@ -1,6 +1,7 @@
 
 
-%% Get all recorded data and display summary stats
+
+% Get all recorded data and display summary stats
 axes(ml_train1_status)
 
 this_msg = 'Finding recorded data...';
@@ -49,4 +50,5 @@ disp(horzcat('nmedium = ', num2str(nmedium)))
 disp(horzcat('bof_branching = ', num2str(bof_branching)))
 disp(horzcat('init_n_unique_states = ', num2str(init_n_unique_states)))
 disp(horzcat('min_size = ', num2str(min_size)))
+
 

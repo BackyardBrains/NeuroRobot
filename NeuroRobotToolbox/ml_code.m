@@ -32,7 +32,7 @@ ml_2_data_status_pos =      [0.26 0.8 0.28 0.05];
 ml_3_speed_str_pos =        [0.03 0.7 0.2 0.05];
 ml_3_speed_select_pos =     [0.26 0.7 0.28 0.05];
 ml_4_name1_str_pos =        [0.03 0.6 0.2 0.05];
-ml_4_name1_status_pos =     [0.26 0.6 0.28 0.05];
+ml_4_name1_edit_pos =       [0.26 0.6 0.28 0.05];
 ml_5_train1_button_pos =    [0.03 0.5 0.2 0.05];
 ml_5_train1_status_pos =    [0.26 0.5 0.28 0.05];
 ml_6_load_button_pos =      [0.03 0.4 0.2 0.05];
@@ -57,8 +57,8 @@ ml_speeds = {'Slow', 'Medium', 'Fast'};
 ml_speed_str = uicontrol('Style', 'text', 'String', 'Training speed:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
 ml_speed_select = uicontrol('Style', 'popupmenu', 'String', ml_speeds, 'units', 'normalized', 'position', ml_3_speed_select_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
-ml_name1_str = uicontrol('Style', 'text', 'String', 'Save classifier network as:', 'units', 'normalized', 'position', ml_4_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_name1_status = uicontrol('Style', 'text', 'String', 'patternrecognizer', 'units', 'normalized', 'position', ml_4_name1_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_name1_str = uicontrol('Style', 'text', 'String', 'Classifier network name:', 'units', 'normalized', 'position', ml_4_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_name1_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_4_name1_edit_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
 ml_train1_button = uicontrol('Style', 'pushbutton', 'String', 'Train classifier network', 'Callback', 'ml_step1', 'units', 'normalized', 'position', ml_5_train1_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 ml_train1_status = axes('position', ml_5_train1_status_pos, 'xtick', [], 'ytick', []);
@@ -73,7 +73,7 @@ axis([0 1 0 1])
 ml_goals_str = uicontrol('Style', 'text', 'String', 'Goal states:', 'units', 'normalized', 'position', ml_7_goals_str_pos, 'fontsize', bfsize + 4);
 ml_goals_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_7_goals_edit_pos, 'fontsize', bfsize + 4);
 
-ml_name2_str = uicontrol('Style', 'text', 'String', 'Save decision network as:', 'units', 'normalized', 'position', ml_8_name2_str_pos, 'fontsize', bfsize + 4);
+ml_name2_str = uicontrol('Style', 'text', 'String', 'Decision network name:', 'units', 'normalized', 'position', ml_8_name2_str_pos, 'fontsize', bfsize + 4);
 ml_name2_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_8_name2_edit_pos, 'fontsize', bfsize + 4);
 
 ml_train2_button = uicontrol('Style', 'pushbutton', 'String', 'Train decision network', 'Callback', 'ml_step2', 'units', 'normalized', 'position', ml_9_train2_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
