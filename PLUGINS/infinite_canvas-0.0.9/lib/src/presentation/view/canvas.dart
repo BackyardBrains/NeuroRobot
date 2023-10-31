@@ -46,6 +46,15 @@ class InfiniteCanvas extends StatefulWidget {
 }
 
 class InfiniteCanvasState extends State<InfiniteCanvas> {
+  int lastPointerDownTime = 0;
+
+  Duration holdDuration = const Duration(milliseconds: 1000);
+
+  late Future longPressFuture;
+
+  int firstTapTime = 0;
+  int secondTapTime = 0;
+
   @override
   void initState() {
     super.initState();
@@ -203,10 +212,31 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
+            // print("pointer down");
             controller.mouseDown = true;
+            controller.mousePosition = details.localPosition;
+            if (Platform.isAndroid || Platform.isIOS) {
+              lastPointerDownTime = DateTime.now().millisecondsSinceEpoch;
+              Future.delayed(holdDuration, () {
+                if (lastPointerDownTime != 0 &&
+                    (controller.hasSelection || controller.isSelectingEdge)) {
+                  var curTimeStamp = DateTime.now().millisecondsSinceEpoch;
+                  if (curTimeStamp - lastPointerDownTime >
+                      holdDuration.inMilliseconds) {
+                    controller.onLongPress.call();
+                    return;
+                  }
+                }
+                // firstTapTime = 0;
+                // secondTapTime = 0;
+              });
+            }
+
+            // controller.mousePosition = details.position;
+
             // CHANGE ME
             // try {
-              controller.checkSelection(details.localPosition);
+            controller.checkSelection(details.localPosition);
             // } catch (err) {
             //   print(err);
             // }
@@ -216,11 +246,11 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             //     controller.marqueeEnd = details.localPosition;
             //   }
             // } else {
-              if (controller.controlPressed && widget.canAddEdges) {
-                final selected = controller.selection.last;
-                controller.linkStart = selected.key;
-                controller.linkEnd = null;
-              }
+            if (controller.controlPressed && widget.canAddEdges) {
+              final selected = controller.selection.last;
+              controller.linkStart = selected.key;
+              controller.linkEnd = null;
+            }
             // }
           },
           onPointerUp: (details) {
@@ -230,6 +260,29 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             //     controller.marqueeEnd != null) {
             //   controller.checkMarqueeSelection();
             // }
+
+            if (Platform.isAndroid || Platform.isIOS) {
+              var curTimeStamp = DateTime.now().millisecondsSinceEpoch;
+              if (firstTapTime == 0) {
+                firstTapTime = curTimeStamp;
+                Future.delayed(holdDuration, () {
+                  firstTapTime = 0;
+                  secondTapTime = 0;
+                });
+              } else if (secondTapTime == 0) {
+                secondTapTime = curTimeStamp;
+              } else {
+                if (secondTapTime - firstTapTime < 2000) {
+                  firstTapTime = 0;
+                  secondTapTime = 0;
+                  controller.onDoubleTap.call();
+                }
+                // firstTapTime = 0;
+                // secondTapTime = 0;
+              }
+              lastPointerDownTime = 0;
+            }
+
             if (controller.linkStart != null && controller.linkEnd != null) {
               controller.checkSelection(controller.linkEnd!);
               if (controller.selection.isNotEmpty) {
@@ -244,12 +297,17 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           },
           onPointerCancel: (details) {
             controller.mouseDown = false;
+            // print("Pointer Cancel");
           },
           onPointerHover: (details) {
             controller.mousePosition = details.localPosition;
             controller.checkSelection(controller.mousePosition, true);
           },
           onPointerMove: (details) {
+            lastPointerDownTime = 0;
+            firstTapTime = 0;
+            secondTapTime = 0;
+
             // CHANGE ME
             // controller.marqueeEnd = details.localPosition;
             // if (controller.marqueeStart != null &&
@@ -269,19 +327,22 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 panEnabled: controller.canvasMoveEnabled,
                 scaleEnabled: controller.canvasMoveEnabled,
                 onInteractionStart: (details) {
+                  // print("controller.mousePosition");
+                  // print(details.focalPoint);
                   controller.mousePosition = details.focalPoint;
                   controller.mouseDragStart = controller.mousePosition;
-                  // if (Platform.isIOS){
-                  //   controller.notifyMousePosition();
-                  // }
+                  if (Platform.isIOS) {
+                    print(controller.mousePosition);
+                    controller.notifyMousePosition();
+                  }
                 },
                 onInteractionUpdate: (details) {
                   if (!controller.mouseDown) {
                     controller.scale = details.scale;
                   } else if (controller.spacePressed) {
-                      // print("controller.canvasMoveEnabled");
-                      // print(controller.canvasMoveEnabled);
-                    if (controller.canvasMoveEnabled){
+                    // print("controller.canvasMoveEnabled");
+                    // print(controller.canvasMoveEnabled);
+                    if (controller.canvasMoveEnabled) {
                       controller.pan(details.focalPointDelta);
                     }
                   } else if (controller.controlPressed) {
@@ -289,6 +350,12 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     controller.moveSelection(details.focalPoint);
                   }
                   controller.mousePosition = details.focalPoint;
+                  // if (Platform.isIOS) {
+                  //   print("controller.mousePosition2");
+                  //   print(details.focalPoint);
+                  //   print(controller.mousePosition);
+                  //   controller.notifyMousePosition();
+                  // }
                 },
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
                 minScale: controller.minScale,

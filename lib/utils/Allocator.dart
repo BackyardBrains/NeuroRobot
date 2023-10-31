@@ -1,14 +1,14 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
-
 class MemoryAllocator implements Allocator {
   final Allocator _wrappedAllocator;
   int _totalAllocations = 0;
   int _nonFreedAllocations = 0;
 
   MemoryAllocator([Allocator? allocator])
-      : _wrappedAllocator = allocator ?? calloc;
+      // : _wrappedAllocator = allocator ?? calloc;
+      : _wrappedAllocator = calloc;
 
   int get totalAllocations => _totalAllocations;
 
@@ -31,6 +31,11 @@ class MemoryAllocator implements Allocator {
 }
 
 MemoryAllocator allocator = MemoryAllocator();
-Pointer<T> allocate<T extends NativeType>( {int? count, int? alignment, int? sizeOfType}){
+Pointer<T> allocate<T extends NativeType>(
+    {int? count, int? alignment, int? sizeOfType}) {
   return allocator.allocate(count! * sizeOfType!);
+}
+
+void freeMemory(obj) {
+  return allocator.free(obj);
 }

@@ -12,10 +12,15 @@ typedef NodeFormatter = void Function(InfiniteCanvasNode);
 
 /// A controller for the [InfiniteCanvas].
 class InfiniteCanvasController extends ChangeNotifier implements Graph {
+  bool isInteractable = true;
   bool isFoundEdge = false;
   bool isSelectingEdge = false;
+  final VoidCallback onLongPress;
+  final VoidCallback onDoubleTap;
 
   InfiniteCanvasController({
+    required this.onLongPress,
+    required this.onDoubleTap,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],
   }) {
@@ -200,6 +205,12 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void checkSelection(Offset localPosition, [bool hover = false]) {
+    if (!isInteractable) {
+      deselectAll(true);
+      deselectAll();
+      return;
+    }
+
     final offset = toLocal(localPosition);
     final selection = <Key>[];
     for (final child in nodes) {
@@ -209,7 +220,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       }
     }
     for (final edge in edges) {
-      const lineWidth = 3;
+      const lineWidth = 7;
       const radius = 10;
       var eFrom = nodes.where((e) => edge.from == (e.key)).toList()[0];
       var eTo = nodes.where((e) => edge.to == (e.key)).toList()[0];
@@ -230,13 +241,14 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       double pairSpace = edge.isReciprocate * 7;
       var iFrom = Offset(eFrom.offset.dx - lineWidth + radius + pairSpace,
           eFrom.offset.dy - lineWidth + radius + pairSpace);
-      var oFrom = Offset(eFrom.offset.dx + lineWidth + radius +pairSpace,
+      var oFrom = Offset(eFrom.offset.dx + lineWidth + radius + pairSpace,
           eFrom.offset.dy + lineWidth + radius + pairSpace);
 
       var iTo = Offset(eTo.offset.dx - lineWidth + radius + pairSpace,
           eTo.offset.dy - lineWidth + radius + pairSpace);
       var oTo = Offset(eTo.offset.dx + lineWidth + radius + pairSpace,
           eTo.offset.dy + lineWidth + radius + pairSpace);
+
       Path p = Path()
         ..moveTo(iFrom.dx, iFrom.dy)
         ..lineTo(iTo.dx, iTo.dy)
@@ -253,6 +265,17 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
           isSelectingEdge = true;
           edgeSelected = edge;
         }
+        // print("OFFSET");
+        // print(isSelectingEdge);
+        // print(eFrom.value);
+        // print(eTo.value);
+        // print(eFrom.offset);
+        // print(eTo.offset);
+        // print(iFrom);
+        // print(oFrom);
+        // print(iTo);
+        // print(oTo);
+
         break;
       } else {
         isFoundEdge = false;
@@ -342,6 +365,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         edges.add(edge);
       }
     }
+    deselectAll(true);
+    deselectAll(false);
     notifyListeners();
   }
 
