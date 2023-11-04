@@ -322,6 +322,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               controller.viewport = constraints.biggest;
+              // print("constraints.maxWidth");
+              // print(constraints.maxWidth);
+              // print(constraints.maxHeight);
               return InteractiveViewer.builder(
                 transformationController: controller.transform,
                 panEnabled: controller.canvasMoveEnabled,
@@ -332,7 +335,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   controller.mousePosition = details.focalPoint;
                   controller.mouseDragStart = controller.mousePosition;
                   if (Platform.isIOS) {
-                    print(controller.mousePosition);
+                    // print(controller.mousePosition);
                     controller.notifyMousePosition();
                   }
                 },

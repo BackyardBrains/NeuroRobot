@@ -219,6 +219,10 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         selection.add(child.key);
       }
     }
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      isSelectingEdge = false;
+    }
     for (final edge in edges) {
       const lineWidth = 7;
       const radius = 10;
@@ -238,16 +242,30 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         ..lineTo(eFrom.offset.dx - lineWidth, eFrom.offset.dy - lineWidth);
         */
       // IS RECIPROCATE
-      double pairSpace = edge.isReciprocate * 7;
-      var iFrom = Offset(eFrom.offset.dx - lineWidth + radius + pairSpace,
-          eFrom.offset.dy - lineWidth + radius + pairSpace);
-      var oFrom = Offset(eFrom.offset.dx + lineWidth + radius + pairSpace,
-          eFrom.offset.dy + lineWidth + radius + pairSpace);
 
-      var iTo = Offset(eTo.offset.dx - lineWidth + radius + pairSpace,
-          eTo.offset.dy - lineWidth + radius + pairSpace);
-      var oTo = Offset(eTo.offset.dx + lineWidth + radius + pairSpace,
-          eTo.offset.dy + lineWidth + radius + pairSpace);
+      // Calculate direction vector of the line
+      double dx = eTo.offset.dx - eFrom.offset.dx;
+      double dy = eTo.offset.dy - eFrom.offset.dy;
+
+      // Normalize the direction vector
+      double length = sqrt(dx * dx + dy * dy);
+      double unitDx = dx / length;
+      double unitDy = dy / length;
+
+      // Compute the perpendicular direction
+      double perpDx = -unitDy;
+      double perpDy = unitDx;
+
+      double pairSpace = edge.isReciprocate * 7;
+      var iFrom = Offset(eFrom.offset.dx - perpDx * lineWidth + radius + pairSpace,
+          eFrom.offset.dy - perpDy * lineWidth + radius + pairSpace);
+      var oFrom = Offset(eFrom.offset.dx + perpDx * lineWidth + radius + pairSpace,
+          eFrom.offset.dy + perpDy * lineWidth + radius + pairSpace);
+
+      var iTo = Offset(eTo.offset.dx - perpDx * lineWidth + radius + pairSpace,
+          eTo.offset.dy - perpDy * lineWidth + radius + pairSpace);
+      var oTo = Offset(eTo.offset.dx + perpDx * lineWidth + radius + pairSpace,
+          eTo.offset.dy + perpDy * lineWidth + radius + pairSpace);
 
       Path p = Path()
         ..moveTo(iFrom.dx, iFrom.dy)
@@ -279,6 +297,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         break;
       } else {
         isFoundEdge = false;
+
       }
 
       // Rect rect = Rect.fromLTRB(

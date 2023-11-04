@@ -60,6 +60,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             } else if (controller.isFoundEdge && controller.edgeFound == edge) {
               curBrush = foundEdgeBrush;
             } else {}
+            
+            
             double pairSpace = edge.isReciprocate * 7;
             drawEdge(
               context,
@@ -74,47 +76,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               curBrush,
               label: edge.label,
             );
-
-            /*
-            int isReciprocate = 0;
-            if (reciprocateList.indexOf(edge)>-1){
-              isReciprocate = 1;
-              reciprocateList.remove(edge);
-            }else{
-              List<InfiniteCanvasEdge> pairEdges = controller.edges.where((e) => ( e.from == edge.to && e.to == edge.from) ).toList();
-              if (pairEdges.isNotEmpty){
-                reciprocateList.add(pairEdges[0]);
-                isReciprocate = -1;
-              }
-            }
-
-            
-            if (isReciprocate !=0){
-              drawEdge(
-                context,
-                canvas,
-                Offset(from.rect.center.dx, from.rect.center.dy + isReciprocate * 15),
-                Offset(to.rect.center.dx, to.rect.center.dy + isReciprocate * 15),
-                curBrush,
-                label: edge.label,
-              );
-              
-              if (isReciprocate == 1){
-
-              }else{
-
-              }
-            }else{
-              drawEdge(
-                context,
-                canvas,
-                from.rect.center,
-                to.rect.center,
-                curBrush,
-                label: edge.label,
-              );
-            }
-            */
           }
         },
       ),
@@ -168,26 +129,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
       drawArrow(context, canvas, fromOffset, toOffset, brush, path);
 
-      // const lineWidth = 2;
-      // var iFrom = Offset(fromOffset.dx, fromOffset.dy);
-      // var oFrom = Offset( fromOffset.dx + lineWidth, fromOffset.dy + lineWidth +7);
-
-      // var iTo = Offset(toOffset.dx, toOffset.dy);
-      // var oTo = Offset( toOffset.dx + lineWidth, toOffset.dy + lineWidth + 7 );
-      // final Paint testBrush = Paint()
-      //   ..color = Colors.red
-      //   ..style = PaintingStyle.fill
-      //   ..strokeWidth = 2;
-
-      // Path p = Path()
-      //   ..moveTo(iFrom.dx - lineWidth, iFrom.dy - lineWidth)
-      //   ..lineTo(iTo.dx - lineWidth, iTo.dy - lineWidth)
-      //   ..lineTo(oTo.dx, oTo.dy)
-      //   ..lineTo(oFrom.dx, oFrom.dy)
-      //   ..lineTo(iFrom.dx - lineWidth, iFrom.dy - lineWidth);
-
-      // p.close();
-      // canvas.drawPath(p, testBrush);
     }
     canvas.drawPath(path, brush);
     if (label != null) {
@@ -242,32 +183,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
     try {
       PathMetric pathMetric = line.computeMetrics().first;
-      Path extractPath = pathMetric.extractPath(0.0, pathMetric.length * 0.93);
+      Path extractPath = pathMetric.extractPath(0.0, pathMetric.length -10);
       var metric = extractPath.computeMetrics().first;
       final offsetMetricPos =
           metric.getTangentForOffset(metric.length)!.position;
       Offset toOffset = offsetMetricPos;
-
-      // Path extractPathStart =
-      //     pathMetric.extractPath(0.0, pathMetric.length * 0.9);
-      // var metricStart = extractPathStart.computeMetrics().first;
-      // final offsetMetricStartPos = metricStart.getTangentForOffset(metricStart.length)!.position;
-      // Offset toOffsetStart = offsetMetricStartPos;
-
-      // Path path = Path();
-      // if ( (toOffset.dx - toOffsetStart.dx).abs() < (toOffset.dy - toOffsetStart.dy).abs() ){
-      //   path.moveTo(toOffset.dx, toOffset.dy);
-      //   path.lineTo(toOffsetStart.dx-10, toOffsetStart.dy-5 );
-      //   path.lineTo(toOffsetStart.dx+10, toOffsetStart.dy-5 );
-
-      // }else{
-      //   path.moveTo(toOffset.dx, toOffset.dy);
-      //   path.lineTo(toOffsetStart.dx, toOffsetStart.dy - 10);
-      //   path.lineTo(toOffsetStart.dx, toOffsetStart.dy + 10);
-
-      // }
-      // path.close();
-      // canvas.drawPath(path, brush);
 
       final dX = toOffset.dx - fromOffset.dx;
       final dY = toOffset.dy - fromOffset.dy;
@@ -293,50 +213,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       print(err);
       return;
     }
-
-    // Rect r = Rect.fromCenter(center: rawToOffset, width: 20, height: 20);
-    // Rect r2 = Rect.fromPoints(fromOffset, rawToOffset);
-    // Rect intersect = r2.intersect(r);
-    // List<Offset> checkList = [
-    //   intersect.topLeft, intersect.topCenter,intersect.topRight,
-    //   intersect.centerLeft, intersect.center,intersect.centerRight,
-    //   intersect.bottomLeft, intersect.bottomCenter,intersect.bottomRight
-    // ];
-
-    // Offset toOffset = Offset.zero;
-    // print("anther line");
-    // print(rawToOffset);
-    // print("Intersect");
-    // print(intersect);
-    // for (Offset check in checkList){
-    //   if (line.contains(check) && check != rawToOffset){
-    //     print("line contains check");
-    //     print(check);
-    //     toOffset = check;
-    //   }
-    // }
-
-    // final Float64List scalingMatrix = Float64List.fromList(
-    //   [0.995, 0, 0, 0,
-    //   0, 0.995, 0, 0,
-    //   0, 0, 1, 0,
-    //   0, 0, 0, 1]);
-
-    // int signX = dX > 0? 1 : -1;
-    // int signY = dY > 0? 1 : -1;
-
-    // double subX = 10.0 * -signX;
-    // double subY = 10.0 * -signY;
-
-    // final spaceWidth = MediaQuery.of(context).size.width * 0.005;
-    // final translateMatrix = Float64List.fromList([
-    //     1,             0,     0, 0,
-    //     0,             1,     0, 0,
-    //     0,             0,     1, 0,
-    //     subX, subY, 0, 1]);
-
-    // path = path.transform(scalingMatrix);
-    // path = path.transform(translateMatrix);
   }
 
   void drawHitArea(
@@ -349,16 +225,29 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     var eFrom = controller.nodes.where((e) => edge.from == (e.key)).toList()[0];
     var eTo = controller.nodes.where((e) => edge.to == (e.key)).toList()[0];
 
-    double pairSpace = edge.isReciprocate * 7;
-    var iFrom = Offset(eFrom.offset.dx - lineWidth + radius + pairSpace,
-        eFrom.offset.dy - lineWidth + radius + pairSpace);
-    var oFrom = Offset(eFrom.offset.dx + lineWidth + radius + pairSpace,
-        eFrom.offset.dy + lineWidth + radius + pairSpace);
+    double dx = eTo.offset.dx - eFrom.offset.dx;
+    double dy = eTo.offset.dy - eFrom.offset.dy;
 
-    var iTo = Offset(eTo.offset.dx - lineWidth + radius + pairSpace,
-        eTo.offset.dy - lineWidth + radius + pairSpace);
-    var oTo = Offset(eTo.offset.dx + lineWidth + radius + pairSpace,
-        eTo.offset.dy + lineWidth + radius + pairSpace);
+    // Normalize the direction vector
+    double length = sqrt(dx * dx + dy * dy);
+    double unitDx = dx / length;
+    double unitDy = dy / length;
+
+    // Compute the perpendicular direction
+    double perpDx = -unitDy;
+    double perpDy = unitDx;
+
+    double pairSpace = edge.isReciprocate * 7;
+    var iFrom = Offset(eFrom.offset.dx - perpDx * lineWidth + radius + pairSpace,
+        eFrom.offset.dy - perpDy * lineWidth + radius + pairSpace);
+    var oFrom = Offset(eFrom.offset.dx + perpDx * lineWidth + radius + pairSpace,
+        eFrom.offset.dy + perpDy * lineWidth + radius + pairSpace);
+
+    var iTo = Offset(eTo.offset.dx - perpDx * lineWidth + radius + pairSpace,
+        eTo.offset.dy - perpDy * lineWidth + radius + pairSpace);
+    var oTo = Offset(eTo.offset.dx + perpDx * lineWidth + radius + pairSpace,
+        eTo.offset.dy + perpDy * lineWidth + radius + pairSpace);
+
     Path p = Path()
       ..moveTo(iFrom.dx, iFrom.dy)
       ..lineTo(iTo.dx, iTo.dy)

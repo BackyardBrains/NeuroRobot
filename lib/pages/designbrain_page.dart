@@ -128,6 +128,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   bool isDrawTail = false;
   int prevEdgesLength = 0;
   late InfiniteCanvasNode prevSelectedNeuron;
+  late InfiniteCanvasEdge prevSelectedEdge;
+  bool isPrevSelectedEdge = false;
 
   late InfiniteCanvasNode tailNode;
   late InfiniteCanvasNode triangleNode;
@@ -136,11 +138,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   bool isPanningCanvas = false;
 
+  Paint circleColor = Paint()..color = Colors.red;
+  Paint triangleColor = Paint()..color = Colors.green;
+  Paint rectangleColor = Paint()..color = Colors.blue;
+
   Paint neuronColor = Paint()..color = Colors.grey;
   Paint tailColor = Paint()..color = Colors.green;
 
-  int gapTailX = 5;
-  int gapTailY = 30;
+  int gapTailX = 0;
+  int gapTailY = 40;
 
   double prevMouseX = 0.0, prevMouseY = 0.0;
 
@@ -290,6 +296,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     allowMove: false,
     allowResize: false,
     offset: const Offset(395, 150),
+    // offset: const Offset(852.0 / 2, 150),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.black),
   );
@@ -417,7 +424,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   @override
   void initState() {
     super.initState();
-    print("INIT STATEEE");
+    // print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
     try {
       initMemoryAllocation();
@@ -487,9 +494,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           screenWidth: screenWidth);
     }
 
-    // if (Platform.isAndroid || Platform.isIOS){
-
-    // }else{
+    // if (Platform.isAndroid || Platform.isIOS) {
+    //   prevScreenWidth = screenWidth;
+    //   prevScreenHeight = screenHeight;
+    // } else
     if (isInitialized) {
       if (prevScreenWidth != screenWidth) {
         isResizingFlag = true;
@@ -506,7 +514,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       controller.getNode(viewportKey)?.offset =
           Offset(screenWidth, screenHeight);
       int idx = 0;
+      // double scaleX = screenWidth / prevScreenWidth;
       double scaleX = screenWidth / prevScreenWidth;
+      if (Platform.isIOS || Platform.isAndroid) {
+        scaleX = 1;
+      }
       double scaleY = screenHeight / prevScreenHeight;
 
       constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
@@ -589,10 +601,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               rightToolbarCallback({"menuIdx": 7});
               Future.delayed(const Duration(milliseconds: 100), () {
                 menuIdx = 0;
+                controller.isInteractable = true;
+
                 setState(() {});
               });
             } else {
               rightToolbarCallback({"menuIdx": 7});
+              controller.isInteractable = true;
             }
 
             setState(() {});
@@ -602,21 +617,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               : const Icon(Icons.pause)),
       body: Stack(
         children: [
-          // Positioned(
-          //   left: 0,
-          //   top: 0,
-          //   child: Container(
-          //     width: screenWidth,
-          //     height: screenHeight,
-          //     decoration: const BoxDecoration(
-          //       image: DecorationImage(
-          //         image: AssetImage("assets/bg/bg1.0x.jpeg"),
-          //         fit: BoxFit.contain,
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
           Positioned(
             left: 0,
             top: 0,
@@ -634,11 +634,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
                     return Container(
                       color: Colors.white,
-                      width: screenWidth * 2,
+                      width: screenWidth,
                       height: screenHeight,
                       child: Image.asset(
                           width: screenWidth,
-                          height: screenHeight * 2,
+                          height: screenHeight,
                           // scale: screenWidth/800,
                           fit: BoxFit.contain,
                           // scale: density,
@@ -787,7 +787,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                             child: Text(tooltipOverlayMessage,
                                 style: const TextStyle(color: Colors.white))),
                       );
-              }))
+              })),
+          // Positioned(
+          //   left: 825 / 2,
+          //   top: 0,
+          //   child: Container(
+          //     width: 30,
+          //     height: 30,
+          //     color: Colors.green,
+          //   ),
+          // ),
         ]..addAll(widgets),
       ),
     );
@@ -834,11 +843,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             List<double>.generate(neuronSize, (index) => 0.0, growable: false),
         growable: false);
     controller.edges.forEach((edge) {
-      print("edge.from");
-      print(edge.from);
-      print(edge.to);
-      int fromIdx = nodeKey[edge.from.toString()]! - allNeuronStartIdx;
-      int toIdx = nodeKey[edge.to.toString()]! - allNeuronStartIdx;
+      // print("edge.from");
+      // print(edge.from);
+      // print(edge.to);
+      int fromIdx = nodeKey[edge.from.toString()]!; // - allNeuronStartIdx;
+      int toIdx = nodeKey[edge.to.toString()]!; // - allNeuronStartIdx;
       connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
     });
     protoNeuron = ProtoNeuron(
@@ -905,8 +914,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             if (controller.isFoundEdge) {
               controller.isSelectingEdge = true;
               controller.edgeSelected = controller.edgeFound;
+            }else{
+              controller.isSelectingEdge = false;
+              controller.edgeSelected = controller.edgeFound;
+
             }
-            controller.notifyMousePosition();
+            // controller.notifyMousePosition();
           },
           onScaleEnd: (ScaleEndDetails details) {
             // print( details.scaleVelocity );
@@ -1080,30 +1093,40 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   void repositionSensoryNeuron() {
     // double screenHeight = MediaQuery.of(context).size.height/2;
-    double ratio = screenHeight / 600;
+    // double ratio = screenHeight / 600;
     double screenWidth = MediaQuery.of(context).size.width;
-    if (Platform.isIOS) {
+    // print("controller.toLocal(Offset(screenWidth / 2, 0))");
+    // print(controller.toLocal(Offset(screenWidth / 2, 0)));
+    if (Platform.isIOS || Platform.isAndroid) {
       if (MediaQuery.of(context).padding.left == 0 &&
           MediaQuery.of(context).padding.right == 0 &&
           MediaQuery.of(context).padding.top == 0 &&
           MediaQuery.of(context).padding.bottom == 0) {
         screenWidth += 140;
       } else {
-        screenWidth -= (2 * MediaQuery.of(context).padding.right);
+        print(MediaQuery.of(context).padding.right);
+        print(MediaQuery.of(context).padding.left);
+
+        // screenWidth -= (MediaQuery.of(context).padding.right +
+        //     MediaQuery.of(context).padding.left);
+        // screenWidth += 14;
+        // screenWidth *= 0.87;
       }
     }
-    // print("screenDimension");
-    // print(screenWidth);
+    print("screenDimension");
+    print(screenWidth);
     // print(screenHeight);
     // print(MediaQuery.of(context).padding.left);
     // print(MediaQuery.of(context).padding.right);
     // print(ratio);
     // print(MediaQuery.of(context).devicePixelRatio);
-    Offset middleScreenOffset = Offset(screenWidth / 2 - 10, 150);
+    Offset middleScreenOffset = Offset(screenWidth / 2, 150);
 
     // Offset offset = middleScreenOffset.scale(0.5, 0.5);
     // Offset offset = middleScreenOffset.scale(ratio, ratio);
     nodeDistanceSensor.offset = middleScreenOffset;
+    print("nodeDistanceSensor.offset");
+    print(nodeDistanceSensor.offset);
 
     Offset diff = Offset(screenHeight / 8, 0);
     Offset offset = middleScreenOffset - diff;
@@ -1138,6 +1161,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         nodeRightMotorBackwardSensor.offset.dy);
     nodeRightMotorBackwardSensor.offset = offsetRMB;
 
+    print("nodeMicrophoneSensor");
+    print(nodeMicrophoneSensor.offset);
+    print("nodeSpeakerSensor");
+    print(nodeSpeakerSensor.offset);
+    
     constraintOffsetTopLeft =
         Offset(nodeMicrophoneSensor.offset.dx + 20, middleScreenOffset.dy + 30);
     constraintOffsetTopRight =
@@ -1152,8 +1180,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     constraintBrainTop = constraintOffsetTopLeft.dy;
     constraintBrainBottom = constraintOffsetBottomLeft.dy;
 
-    triangleNode.offset = constraintOffsetTopLeft;
-    rectangleNode.offset = constraintOffsetTopRight;
+    triangleNode.offset = constraintOffsetTopRight;
+    rectangleNode.offset = constraintOffsetTopLeft;
     circleNode.offset = constraintOffsetBottomLeft;
 
     // Offset diffLMB = Offset(2 * screenHeight/10, 0);
@@ -1182,7 +1210,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       key: UniqueKey(),
       // label: 'Triangle',
       offset: const Offset(0, 0),
-      size: const Size(12, 12),
+      size: const Size(24, 24),
       child: Builder(
         builder: (context) {
           return CustomPaint(
@@ -1195,7 +1223,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 if (isDrawTail) {
                   Offset parentOffset =
                       Offset(rect.center.dx, rect.center.dy - gapTailY);
-                  canvas.drawCircle(rect.center, rect.width / 2, brush);
+                  canvas.drawCircle(rect.center, rect.width / 3, brush);
                   brush.color = Colors.black;
                   canvas.drawLine(rect.center, parentOffset, brush);
                   brush.color = tailColor.color;
@@ -1220,6 +1248,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             willChange: true,
             painter: InlineCustomPainter(
               brush: neuronColor,
+              // brush: rectangleColor,
               builder: (brush, canvas, rect) {
                 canvas.drawCircle(rect.center, rect.width / 2, brush);
               },
@@ -1241,6 +1270,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           return CustomPaint(
             painter: InlineCustomPainter(
               brush: neuronColor,
+              // brush: triangleColor,
               builder: (brush, canvas, rect) {
                 canvas.drawCircle(rect.center, rect.width / 2, brush);
               },
@@ -1262,6 +1292,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           return CustomPaint(
             painter: InlineCustomPainter(
               brush: neuronColor,
+              // brush: circleColor,
               builder: (brush, canvas, rect) {
                 // Draw circle
                 // brush.color = Theme.of(context).colorScheme.tertiary;
@@ -1274,9 +1305,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       ),
     );
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      repositionSensoryNeuron();
-    }
     var nodes = [
       tailNode,
       viewPortNode,
@@ -1348,6 +1376,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller.maxScale = 2.7;
     controller.scale = 1;
     controller.minScale = 0.85;
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      repositionSensoryNeuron();
+    }
+
     controller.addListener(() {
       if (controller.mouseDown) {
         // if (menuIdx == 6) {
@@ -1360,10 +1393,26 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
         if (menuIdx == 0 && !controller.hasSelection) {
           isDrawTail = false;
+          // if (controller.isSelectingEdge && isPrevSelectedEdge == false){
+          //   isPrevSelectedEdge = true;
+          //   prevSelectedEdge = controller.edgeSelected;
 
-          // print("menuIdx == 0");
+          //   controller.isFoundEdge = false;
+          //   controller.isSelectingEdge = false;
+
+          // }
+          // else
+          // if (controller.isSelectingEdge && isPrevSelectedEdge == true  ){
+          //   isPrevSelectedEdge = false;
+          //   prevSelectedEdge = controller.edgeSelected;
+
+          //   controller.isFoundEdge = false;
+          //   controller.isSelectingEdge = false;
+          // }
+
+          print("menuIdx == 0");
           // print(menuIdx == 0);
-          // print(controller.hasSelection);
+          print(controller.hasSelection);
 
           double scales = controller.getScale();
           // print("scales");
@@ -1460,7 +1509,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   offset:
                       Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
             } else {
-              print("updateee");
+              // print("updateee");
               tailNode.update(
                   offset: Offset(selected.offset.dx + gapTailX,
                       selected.offset.dy + gapTailY));
