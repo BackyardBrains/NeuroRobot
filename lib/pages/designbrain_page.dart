@@ -8,10 +8,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:metooltip/metooltip.dart';
+import 'package:native_opencv/native_opencv.dart';
 // import 'package:nativec/allocation.dart';
 import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
@@ -19,11 +21,28 @@ import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
 import 'package:neurorobot/utils/Simulations.dart';
 import 'package:neurorobot/utils/SingleCircle.dart';
+import 'package:neurorobot/utils/Vision.dart';
 import 'package:neurorobot/utils/WaveWidget.dart';
+// import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
-
 import '../dialogs/info_dialog.dart';
+
+// import 'package:path/path.dart' as p;
+// import 'package:opencv_ffi/src/generated/opencv_ffi_bindings.dart' as ocv;
+
+// String _getPath() {
+//   final cjsonExamplePath = Directory.current.absolute.path;
+//   var path = p.join(cjsonExamplePath, 'opencv_ffi/');
+//   if (Platform.isMacOS) {
+//     path = p.join(path, 'libopencv_ffi.dylib');
+//   } else if (Platform.isWindows) {
+//     path = p.join(path, 'Debug', 'opencv_ffi.dll');
+//   } else {
+//     path = p.join(path, 'libopencv_ffi.so');
+//   }
+//   return path;
+// }
 
 class DesignBrainPage extends StatefulWidget {
   DesignBrainPage({super.key});
@@ -31,6 +50,8 @@ class DesignBrainPage extends StatefulWidget {
   State<DesignBrainPage> createState() => _DesignBrainPageState();
 }
 
+
+bool isCheckingColor = false;
 class _DesignBrainPageState extends State<DesignBrainPage> {
   // SIMULATION SECTION
   List<String> neuronTypes = [];
@@ -68,6 +89,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   // static ffi.Pointer<ffi.Double> connectomeBuf = allocate<ffi.Double>(
   //     count: maxPosBuffer * maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+
+  static int frameQVGASize = 320 * 240;
+  late ffi.Pointer<ffi.Uint8> ptrFrame;
+  static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
+      count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  
+  static ffi.Pointer<ffi.Uint8> ptrLowerB = allocate<ffi.Uint8>(
+      count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  static ffi.Pointer<ffi.Uint8> ptrUpperB = allocate<ffi.Uint8>(
+      count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+
   late ffi.Pointer<ffi.Uint32> npsBuf;
   late ffi.Pointer<ffi.Int16> neuronCircleBuf;
   late ffi.Pointer<ffi.Int16> positionsBuf;
@@ -153,6 +185,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int circleNeuronStartIndex = 11;
   int normalNeuronStartIdx = 9;
   int allNeuronStartIdx = 2;
+  
+  Uint8List dataMaskedImage = Uint8List(0);
+  
 
   void runNativeC() {
     const level = 1;
@@ -424,16 +459,62 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   @override
   void initState() {
     super.initState();
+
     // print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
     try {
       initMemoryAllocation();
       initNativeC();
+      // final ocsvlib = ocv.OpenCVBindings(ffi.DynamicLibrary.open(_getPath()));
+      // testColorCV();
+
+      Uint8List lowerB = ptrLowerB.asTypedList(3);
+      Uint8List upperB = ptrUpperB.asTypedList(3);
+      
+      //RED
+      lowerB[0] = 0;
+      lowerB[1] = 43;
+      lowerB[2] = 46;
+      upperB[0] = 0;
+      upperB[1] = 255;
+      upperB[2] = 255;
+      
+      // GREEN
+      lowerB[0] = 36;
+      lowerB[1] = 25;
+      lowerB[2] = 25;
+      upperB[0] = 86;
+      upperB[1] = 255;
+      upperB[2] = 255;
+
+      rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) {
+        Uint8List redBg = raw.buffer.asUint8List();
+        try{
+
+          freeMemory(ptrFrame);
+          // freeMemory(ptrMaskedFrame);
+        }catch(err){
+
+        }
+
+
+        ptrFrame = allocate<ffi.Uint8>(count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+        if (!isCheckingColor){
+          isCheckingColor = true;
+          checkColorCV(redBg, lowerB, upperB).then((flag){
+            if (flag){// forward or backward
+
+            }
+            
+            isCheckingColor = false;
+          });
+        }
+      });
+    // });
     } catch (err) {
       print("err");
       print(err);
     }
-    // });
 
     initNeuronType();
 
@@ -492,6 +573,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           levelMedian: levelMedian,
           screenHeight: screenHeight,
           screenWidth: screenWidth);
+      // testColorCV();
     }
 
     // if (Platform.isAndroid || Platform.isIOS) {
@@ -797,6 +879,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           //     color: Colors.green,
           //   ),
           // ),
+          // Positioned(
+          //   left:10,
+          //   top:10,
+          //   child: Image.memory(dataMaskedImage)
+          // )
         ]..addAll(widgets),
       ),
     );
@@ -1696,6 +1783,82 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       controller.scale = 2.0;
     }
   }
+  void testColorCV() async {
+    // print("testColorCV");
+    NativeOpenCV nativeocv = NativeOpenCV();
+    // print(nativeocv.opencvVersion());
+
+    Uint8List lowerB = ptrLowerB.asTypedList(3);
+    Uint8List upperB = ptrUpperB.asTypedList(3);
+    
+    //RED
+    lowerB[0] = 0;
+    lowerB[1] = 43;
+    lowerB[2] = 46;
+    upperB[0] = 0;
+    upperB[1] = 255;
+    upperB[2] = 255;
+    
+    // GREEN
+    lowerB[0] = 36;
+    lowerB[1] = 25;
+    lowerB[2] = 25;
+    upperB[0] = 86;
+    upperB[1] = 255;
+    upperB[2] = 255;
+
+// lower_red = (0, 43, 46)
+// upper_red = (0, 255, 255)
+
+// lower_green = (36, 25, 25)
+// upper_green = (86, 255, 255)
+
+// lower_blue = (100, 130, 46)
+// upper_blue = (124, 255, 255)
+    Uint8List redBg = ( await rootBundle.load("assets/bg/ObjectColorRange.jpeg") ).buffer.asUint8List();
+    try{
+
+      freeMemory(ptrFrame);
+      // freeMemory(ptrMaskedFrame);
+    }catch(err){
+
+    }
+    ptrFrame = allocate<ffi.Uint8>(count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+    // ptrMaskedFrame = allocate<ffi.Uint8>(count: frameQVGASize * 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+    // ptrMaskedFrame = allocate<ffi.Uint8>(count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+
+    Uint8List data = ptrFrame.asTypedList(redBg.length);
+    // dataMaskedImage = ptrMaskedFrame.asTypedList(redBg.length);
+    // print("redBg");
+    // print(redBg);
+    
+    int i = 0;
+    // copy data manually
+    for (i=0;i<data.length;i++){
+      data[i] = redBg[i];
+      // dataMaskedImage[i] = redBg[i];
+    }
+
+    
+    // nativeocv
+    int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrLowerB, ptrUpperB, 40, ptrMaskedFrame);
+    // dataMaskedImage = ptrMaskedFrame.asTypedList(8202);
+    // dataMaskedImage = ptrMaskedFrame.asTypedList(redBg.length);
+    // dataMaskedImage = ( await rootBundle.load("assets/bg/greenbg.jpeg") ).buffer.asUint8List();
+    
+    // setState((){});
+    
+    print("status");
+    print(status);
+    int area = 320 * 240;
+    int percentage = (status * 100 /area).floor();
+    if (percentage > 30){
+      print("Occupied by that color");
+    }else{
+      print("#Not Occupied by that color");
+    }
+  }
+  
 }
 
 class EyeClipper extends CustomClipper<Rect> {
@@ -1744,10 +1907,71 @@ class InlineCustomPainter extends CustomPainter {
 }
 
 class ImagePreprocessor extends MjpegPreprocessor {
+  static int frameQVGASize = 320 * 240;
+  static ffi.Pointer<ffi.Uint8> ptrFrame = allocate<ffi.Uint8>(
+      count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
+      count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  
+  static ffi.Pointer<ffi.Uint8> ptrLowerB = allocate<ffi.Uint8>(
+      count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  static ffi.Pointer<ffi.Uint8> ptrUpperB = allocate<ffi.Uint8>(
+      count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+
   @override
   List<int>? process(List<int> frame) {
     // print(frame);
-    mainBloc.drawImageNow(Uint8List.fromList(frame));
+    //send to isolate
+    
+    // Uint8List maskedFrameData = Uint8List(frame.length);
+    Uint8List frameData = Uint8List.fromList(frame);
+
+    Uint8List lowerB = ptrLowerB.asTypedList(3);
+    Uint8List upperB = ptrUpperB.asTypedList(3);
+
+
+    // RED
+    lowerB[0] = 0;
+    lowerB[1] = 43;
+    lowerB[2] = 46;
+    upperB[0] = 0;
+    upperB[1] = 255;
+    upperB[2] = 255;
+    
+    // BLUE
+    lowerB[0] = 92;
+    lowerB[1] = 57;
+    lowerB[2] = 50;
+    upperB[0] = 142;
+    upperB[1] = 153;
+    upperB[2] = 178;
+
+
+
+    // Uint8List data = ptrFrame.asTypedList(frameQVGASize);
+    // int i = 0;
+    // for (i=0;i<frameQVGASize;i++){
+    //   data[i] = frameData[i];
+    // }
+
+    // OpenCVImage image = OpenCVImage(length: frameQVGASize, pointer: ptrFrame);
+    // image.inRange(lowerB,upperB,ptrMaskedFrame,40);
+
+    // image.inRange();
+    // checkColorCV(frameData,ptrLowerB,ptrUpperB);
+    if (!isCheckingColor){
+      isCheckingColor = true;
+      checkColorCV(frameData, lowerB, upperB).then((flag){
+        if (flag){// forward or backward
+
+        }
+        
+        isCheckingColor = false;
+      });
+    }
+
+
+    mainBloc.drawImageNow(frameData);
     return frame;
   }
 }
