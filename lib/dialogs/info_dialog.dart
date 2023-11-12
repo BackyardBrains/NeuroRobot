@@ -57,8 +57,17 @@ Future<void> neuronDialogBuilder(BuildContext context, String title, String node
   );
 }
 
-Future<void> axonDialogBuilder(BuildContext context, String title, String nodeId, neuronTypeChangecallback,deleteCallback) {
- 
+Future<void> axonDialogBuilder(BuildContext context, bool isVisualSensory, String title, String nodeId, neuronTypeChangecallback,deleteCallback, linkTypeChangecallback) {
+  String val = '-';
+  List<String> linkTypesLabel = ["Select Visual Preference","Red", "Red (side)", "Green", "Green (side)", "Blue", "Blue (side)", "Movement"];
+  List<String> linkTypes = ["-","Red", "Red (side)", "Green", "Green (side)", "Blue", "Blue (side)", "Movement"];
+  List<DropdownMenuItem> dropdownMenuItems = List<DropdownMenuItem>.generate(linkTypes.length, (index) {
+    return DropdownMenuItem(
+      value: linkTypes[index],
+      child: Text(linkTypesLabel[index]),
+    );
+  });
+
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -67,18 +76,38 @@ Future<void> axonDialogBuilder(BuildContext context, String title, String nodeId
           return AlertDialog(
             // title: const Text('Basic dialog title'),
             content: SizedBox(
-              height: 50,
-              child: Row(
+              height: 250,
+              child: Column(
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold),),
-                  const VerticalDivider(),
-                  GestureDetector(
-                    onTap:(){
-                      deleteCallback();
+                  Row(
+                    children: [
+                      Text(title, style: const TextStyle(fontWeight: FontWeight.bold),),
+                      const VerticalDivider(),
+                      GestureDetector(
+                        onTap:(){
+                          deleteCallback();
+                          Navigator.pop(context);
+                        },
+                        child: const Icon(Icons.delete)
+                      ),
+
+                    ],
+                  ),
+                  !isVisualSensory?
+                  const SizedBox(width:10,height:10,)
+                  :
+                  DropdownButton(
+                    value: val,
+                    items: dropdownMenuItems, 
+                    onChanged: (value) {
+                      val = value;
+                      linkTypeChangecallback(value);
+                      // setState((){});
                       Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.delete)
-                  )
+
+                    }, 
+                  ),
+
                 ],
               ),
             ),
@@ -87,4 +116,54 @@ Future<void> axonDialogBuilder(BuildContext context, String title, String nodeId
       );
     },
   );
+}
+
+
+
+Future<void> linkDialogBuilder(BuildContext context, String linkType, linkTypeChangecallback) {
+  String val = linkType;
+  List<String> linkTypesLabel = ["Select Visual Preference","Red", "Red (side)", "Green", "Green (side)", "Blue", "Blue (side)", "Movement"];
+  List<String> linkTypes = ["-","Red", "Red (side)", "Green", "Green (side)", "Blue", "Blue (side)", "Movement"];
+  List<DropdownMenuItem> dropdownMenuItems = List<DropdownMenuItem>.generate(linkTypes.length, (index) {
+    return DropdownMenuItem(
+      value: linkTypes[index],
+      child: Text(linkTypesLabel[index]),
+    );
+  });
+
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (ctx, setState) {
+          return AlertDialog(
+            content: SizedBox(
+              height: 250,
+              width: 400,
+              child: ListView(
+                children: [
+                  Row(
+                    children: [
+                      DropdownButton(
+                        value: val,
+                        items: dropdownMenuItems, 
+                        onChanged: (value) {
+                          val = value;
+                          linkTypeChangecallback(value);
+                          // setState((){});
+                          Navigator.pop(context);
+
+                        }, 
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      );
+    },
+  );  
 }

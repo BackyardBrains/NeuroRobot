@@ -301,6 +301,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int menuIdx = 0;
   bool isCreatePoint = false;
 
+  Map mapAxonNeuron = {};
+
   List<UniqueKey> neuronsKey = [];
   List<UniqueKey> axonsKey = [];
 
@@ -891,14 +893,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   void allowMoveNodes() {
     int n = controller.nodes.length;
-    for (int i = normalNeuronStartIdx; i < n; i++) {
+    for (int i = normalNeuronStartIdx+2; i < n; i++) {
       controller.nodes[i].allowMove = true;
     }
   }
 
   void disallowMoveNodes() {
     int n = controller.nodes.length;
-    for (int i = normalNeuronStartIdx; i < n; i++) {
+    for (int i = normalNeuronStartIdx+2; i < n; i++) {
       controller.nodes[i].allowMove = false;
     }
   }
@@ -966,7 +968,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
       controller.deselectAll();
       // controller.select(prevSelectedNeuron.key);
-      controller.controlPressed = true;
+      controller.controlPressed = false;
       isDrawTail = false;
       prevEdgesLength = controller.edges.length;
     }
@@ -984,7 +986,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // controller.edgeSelected = null;
 
       controller.deselectAll();
-      controller.controlPressed = true;
+      controller.controlPressed = false;
       isDrawTail = false;
       prevEdgesLength = controller.edges.length;
     }
@@ -1003,7 +1005,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               controller.edgeSelected = controller.edgeFound;
             }else{
               controller.isSelectingEdge = false;
-              controller.edgeSelected = controller.edgeFound;
+              // controller.edgeSelected = controller.edgeFound;
 
             }
             // controller.notifyMousePosition();
@@ -1027,7 +1029,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
               //show dialog box to change neuron
               // neuronDialogBuilder(context, selected.value.toString(), "Neuron ",
-              /* CHANGE ME
+              // /* CHANGE ME
               neuronDialogBuilder(
                   context,
                   "Neuron ",
@@ -1035,14 +1037,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   neuronType,
                   neuronTypeChangeCallback,
                   deleteNeuronCallback);
-              */
+              // */
             } else if (controller.isSelectingEdge) {
               // IMPORTANT - Check duplication when adding edge into the same neuron
               // 2-way axons
-              /* CHANGE ME
-              axonDialogBuilder(context, "Edge", " ", neuronTypeChangeCallback,
-                  deleteEdgeCallback);
-              */
+              // /* CHANGE ME
+              // at this point - there is a minimum of 1 edge
+              bool isVisualSensory = false;
+              
+              final lastCreatedEdge = controller.edgeSelected;
+              InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+              // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
+              if (neuronFrom == nodeLeftEyeSensor || neuronFrom == nodeRightEyeSensor) isVisualSensory = true;
+              print("isVisualSensory");
+              print(isVisualSensory);
+
+              axonDialogBuilder(context, isVisualSensory, "Edge", " ",  neuronTypeChangeCallback,
+                  deleteEdgeCallback, linkSensoryConnection);
+              // */
             }
             // else
             // if (controller.hasEdgeSelection{
@@ -1497,9 +1509,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           //   controller.isSelectingEdge = false;
           // }
 
-          print("menuIdx == 0");
-          // print(menuIdx == 0);
-          print(controller.hasSelection);
+          // print("menuIdx == 0");
+          // // print(menuIdx == 0);
+          // print(controller.hasSelection);
 
           double scales = controller.getScale();
           // print("scales");
@@ -1515,6 +1527,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             disallowMoveNodes();
           }
         } else if (menuIdx == 0 && controller.controlPressed) {
+          // print("Controle pRessed");
         } else if (menuIdx == 0 &&
             controller.hasSelection &&
             !controller.controlPressed) {
@@ -1541,26 +1554,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               isTooltipOverlay = false;
               tooltipValueChange.value = (Random().nextInt(10000));
             });
-            selected.update(offset: pos);
-            return;
-          }
-
-          if (selected.offset.dx < constraintBrainLeft) {
-            var newOffset = Offset(constraintBrainLeft, pos.dy);
-            selected.update(size: selected.size, offset: newOffset, label: "");
-          } else if (selected.offset.dx > constraintBrainRight) {
-            var newOffset = Offset(constraintBrainRight, pos.dy);
-            selected.update(size: selected.size, offset: newOffset, label: "");
-          }
-
-          pos = selected.offset;
-
-          if (selected.offset.dy < constraintBrainTop) {
-            var newOffset = Offset(pos.dx, constraintBrainTop);
-            selected.update(size: selected.size, offset: newOffset, label: "");
-          } else if (selected.offset.dy > constraintBrainBottom) {
-            var newOffset = Offset(pos.dx, constraintBrainBottom);
-            selected.update(size: selected.size, offset: newOffset, label: "");
+            // selected.update(offset: pos);
+            // return;
+            // print("disallowMoveNodes");
+            // disallowMoveNodes();
+            // controller.setCanvasMove(false);
           }
 
           if (selected == tailNode) {
@@ -1575,36 +1573,61 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             // }else{
             prevSelectedNeuron = selected;
             isDrawTail = true;
-            if (selected.offset.dx < constraintBrainLeft) {
-              var newOffset = Offset(constraintBrainLeft, selected.offset.dy);
-              tailNode.update(
-                  offset:
-                      Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
-            } else if (selected.offset.dx > constraintBrainRight) {
-              var newOffset = Offset(constraintBrainRight, selected.offset.dy);
-              tailNode.update(
-                  offset:
-                      Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
-            } else if (selected.offset.dy < constraintBrainTop) {
-              var newOffset = Offset(selected.offset.dx, constraintBrainTop);
-              tailNode.update(
-                  offset:
-                      Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
-            } else if (selected.offset.dy > constraintBrainBottom) {
-              var newOffset = Offset(selected.offset.dx, constraintBrainBottom);
-              tailNode.update(
-                  offset:
-                      Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
-            } else {
-              // print("updateee");
+            if (foundSelected){
               tailNode.update(
                   offset: Offset(selected.offset.dx + gapTailX,
                       selected.offset.dy + gapTailY));
-            }
 
+            }else{
+              if (selected.offset.dx < constraintBrainLeft) {
+                var newOffset = Offset(constraintBrainLeft, pos.dy);
+                selected.update(size: selected.size, offset: newOffset, label: "");
+              } else if (selected.offset.dx > constraintBrainRight) {
+                var newOffset = Offset(constraintBrainRight, pos.dy);
+                selected.update(size: selected.size, offset: newOffset, label: "");
+              }
+
+              pos = selected.offset;
+
+              if (selected.offset.dy < constraintBrainTop) {
+                var newOffset = Offset(pos.dx, constraintBrainTop);
+                selected.update(size: selected.size, offset: newOffset, label: "");
+              } else if (selected.offset.dy > constraintBrainBottom) {
+                var newOffset = Offset(pos.dx, constraintBrainBottom);
+                selected.update(size: selected.size, offset: newOffset, label: "");
+              }
+
+              if (selected.offset.dx < constraintBrainLeft) {
+                var newOffset = Offset(constraintBrainLeft, selected.offset.dy);
+                tailNode.update(
+                    offset:
+                        Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
+              } else if (selected.offset.dx > constraintBrainRight) {
+                var newOffset = Offset(constraintBrainRight, selected.offset.dy);
+                tailNode.update(
+                    offset:
+                        Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
+              } else if (selected.offset.dy < constraintBrainTop) {
+                var newOffset = Offset(selected.offset.dx, constraintBrainTop);
+                tailNode.update(
+                    offset:
+                        Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
+              } else if (selected.offset.dy > constraintBrainBottom) {
+                var newOffset = Offset(selected.offset.dx, constraintBrainBottom);
+                tailNode.update(
+                    offset:
+                        Offset(newOffset.dx + gapTailX, newOffset.dy + gapTailY));
+              } else {
+                // print("updateee");
+                tailNode.update(
+                    offset: Offset(selected.offset.dx + gapTailX,
+                        selected.offset.dy + gapTailY));
+              }
+            }
             controller.spacePressed = false;
             controller.setCanvasMove(false);
             allowMoveNodes();
+
           }
         } else if (menuIdx == 1 && !isCreatePoint && !controller.hasSelection) {
           if (Platform.isIOS || Platform.isAndroid) {
@@ -1742,6 +1765,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       } else {
         isCreatePoint = false;
         if (controller.controlPressed) {
+          //create link
+          // final lastCreatedEdge = controller.edges[controller.edges.length-1];
+          // InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+          // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
+
+          // int prevValue = neuronFrom.value;
+          // if (prevValue >=0 && prevValue <=8){
+          //   linkDialogBuilder(context, "-", linkSensoryConnection);
+          // }else{
+          //   int toValue = neuronTo.value;
+          //   if (toValue >=0 && toValue <=8){
+          //     linkDialogBuilder(context, "-", linkSensoryConnection);
+          //   }else{
+          //   }
+
+          // }
           controller.controlPressed = false;
           controller.deselectAll();
           isDrawTail = false;
@@ -1751,6 +1790,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // setState((){});
       }
     });
+  }
+
+  InfiniteCanvasNode findNeuronByKey(key){
+    var list = controller.nodes.where((element) => element.key==key).toList(growable: false);
+    return list[0];
+  }
+  void linkSensoryConnection(value){
+    print("asd");
+    print(value);
+    final lastCreatedEdge = controller.edgeSelected;
+    // final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+    // final neuronTo = findNeuronByKey(lastCreatedEdge.to);
+    mapAxonNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
   }
 
   void initNeuronType() {
@@ -1765,11 +1817,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       int neuronIdx = selected.value - normalNeuronStartIdx - 1;
       String neuronType = neuronTypes[neuronIdx];
 
-      // neuronDialogBuilder(context, "Neuron ", (neuronIdx + 1).toString(),
-      //     neuronType, neuronTypeChangeCallback, deleteNeuronCallback);
+      neuronDialogBuilder(context, "Neuron ", (neuronIdx + 1).toString(),
+          neuronType, neuronTypeChangeCallback, deleteNeuronCallback);
     } else if (controller.isSelectingEdge) {
+      bool isVisualSensory = false;
+      
+      final lastCreatedEdge = controller.edges[controller.edges.length-1];
+      InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+      // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
+      if (neuronFrom == nodeLeftEyeSensor || neuronFrom == nodeRightEyeSensor) isVisualSensory = true;
+
+      axonDialogBuilder(context, isVisualSensory, "Edge", " ",  neuronTypeChangeCallback,
+          deleteEdgeCallback, linkSensoryConnection);
+
       // axonDialogBuilder(
-      //     context, "Edge", " ", neuronTypeChangeCallback, deleteEdgeCallback);
+      //     context, isSensory, "Edge", " ", neuronTypeChangeCallback, deleteEdgeCallback);
     }
   }
 
