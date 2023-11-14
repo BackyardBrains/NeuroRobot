@@ -381,6 +381,7 @@ if exist('rak_only', 'var') && brain_support
         catch
             disp('audioDeviceReader failed to initialize. Setting matlab_audio_rec to 0.')
             matlab_audio_rec = 0;
+            mic_fs = 44100;
         end
     else
         mic_fs = 44100;

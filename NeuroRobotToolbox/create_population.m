@@ -8,7 +8,7 @@ if n > 10000
 end
 
 % Get equally distributed points
-xx = 0.001 * n + 0.3;
+xx = 0.001 * n + 0.7;
 npoints = round(2*sqrt(n));
 phi = (sqrt(5)+1)/2;
 for nneuron = 1:n
