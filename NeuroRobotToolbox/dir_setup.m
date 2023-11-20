@@ -85,8 +85,9 @@ else
     disp(horzcat('Dataset dir: ', dataset_dir_name))
 end
 
-available_rec_dirs = dir(strcat(dataset_dir_name, 'Rec*'));
-nrecs = length(available_rec_dirs);
+available_dirs = dir(dataset_dir_name);
+available_dirs(1:2) = [];
+nrecs = length(available_dirs);
 
 
 %% Workspace

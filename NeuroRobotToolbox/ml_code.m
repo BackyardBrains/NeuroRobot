@@ -96,6 +96,12 @@ disp('Ready to train')
 % set(button_exit_ml,'Callback', 'ml_interface', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
+%% Chop button
+button_chop_pos = [0.58 0.04 0.15 0.05];
+button_chop = uicontrol('Style', 'pushbutton', 'String', 'Chop', 'units', 'normalized', 'position', button_chop_pos);
+set(button_chop,'Callback', 'ml_chop', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+
 %% Exit button
 button_advanced_ml_pos = [0.75 0.04 0.2 0.05];
 button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', button_advanced_ml_pos);
