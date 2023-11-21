@@ -14,8 +14,9 @@ import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:native_opencv/native_opencv.dart';
+import 'package:native_opencv/nativec.dart';
 // import 'package:nativec/allocation.dart';
-import 'package:nativec/nativec.dart';
+// import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
 import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
@@ -29,6 +30,7 @@ import 'package:neurorobot/components/right_toolbar.dart';
 import '../dialogs/info_dialog.dart';
 
 // import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 // import 'package:opencv_ffi/src/generated/opencv_ffi_bindings.dart' as ocv;
 
 // String _getPath() {
@@ -56,6 +58,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   // SIMULATION SECTION
   List<String> neuronTypes = [];
   static int neuronSize = 12;
+  static const int motorCommandsLength = 5 * 2;
   static const int maxPosBuffer = 220;
   int epochs = 30;
 
@@ -109,7 +112,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ffi.Pointer<ffi.Int16> dBuf;
   late ffi.Pointer<ffi.Double> iBuf;
   late ffi.Pointer<ffi.Double> wBuf;
+  late ffi.Pointer<ffi.Int16> visPrefsBuf;
   late ffi.Pointer<ffi.Double> connectomeBuf;
+  late ffi.Pointer<ffi.Double> motorCommandBuf;
 
   // NATIVE
 
@@ -122,7 +127,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late Int16List dBufView = Int16List(0);
   late Float64List iBufView = Float64List(0);
   late Float64List wBufView = Float64List(0);
+  late Int16List visPrefsBufView = Int16List(0);
   late Float64List connectomeBufView = Float64List(0);
+  late Float64List motorCommandBufView = Float64List(0);
 
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
@@ -193,8 +200,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
+    print("motorCommandBufView.length");
+    print(motorCommandBufView.length);
     nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf,
-        connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+        connectomeBuf, level, neuronSize, envelopeSize, bufferSize, 1, visPrefsBuf, motorCommandBuf);
   }
 
   void initMemoryAllocation() {
@@ -216,8 +225,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
     wBuf = allocate<ffi.Double>(
         count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+    visPrefsBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer * maxPosBuffer, 
+        sizeOfType: ffi.sizeOf<ffi.Int16>());
     connectomeBuf = allocate<ffi.Double>(
         count: maxPosBuffer * maxPosBuffer,
+        sizeOfType: ffi.sizeOf<ffi.Double>());
+    motorCommandBuf = allocate<ffi.Double>(
+        count: motorCommandsLength,
         sizeOfType: ffi.sizeOf<ffi.Double>());
   }
 
@@ -253,6 +268,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
       positionsBufView = positionsBuf.asTypedList(1);
       connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
+      visPrefsBufView = visPrefsBuf.asTypedList(neuronSize * neuronSize);
+      motorCommandBufView = motorCommandBuf.asTypedList(motorCommandsLength);
     }
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
@@ -262,6 +279,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     wBufView.fillRange(0, neuronSize, w);
     positionsBufView.fillRange(0, 1, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0.0);
+    visPrefsBufView.fillRange(0, neuronSize * neuronSize, 0);
+    motorCommandBufView.fillRange(0, motorCommandsLength, 0.0);
+
     neuronSpikeFlags =
         List<ValueNotifier<int>>.generate(neuronSize, (_) => ValueNotifier(0));
     neuronCircleKeys = List<GlobalKey>.generate(neuronSize,
@@ -454,6 +474,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     freeMemory(iBuf);
     freeMemory(wBuf);
     freeMemory(connectomeBuf);
+    freeMemory(motorCommandBuf);
+    freeMemory(visPrefsBuf);
     freeMemory(nativec.canvasBuffer1);
     freeMemory(nativec.canvasBuffer2);
   }
@@ -489,7 +511,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       upperB[1] = 255;
       upperB[2] = 255;
 
-      rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) {
+      rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) async {
         Uint8List redBg = raw.buffer.asUint8List();
         try{
 
@@ -503,10 +525,37 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         ptrFrame = allocate<ffi.Uint8>(count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
         if (!isCheckingColor){
           isCheckingColor = true;
+        
+        // print('abc');
+        // Directory appDocumentsDir = await getTemporaryDirectory();
+        // String path = appDocumentsDir.path;
+        // File file = File('$path/bg.png');
+        // print('$path/bg.png');
+        // file.writeAsBytesSync(redBg, mode: FileMode.write);
+
           checkColorCV(redBg, lowerB, upperB).then((flag){
             if (flag){// forward or backward
 
             }
+            
+            // % Repackage
+            // r_torque = motor_command(1,1);
+            // r_dir = motor_command(1,2);
+            // if r_dir == 2
+            //     r_dir = -1;
+            // end
+            // l_torque = motor_command(1,3);
+            // l_dir = motor_command(1,4);
+            // if l_dir == 2
+            //     l_dir = -1;
+            // end 
+
+            // send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
+            // try
+            //     esp32WebsocketClient.send(send_this);
+            // catch
+            //     disp('Cannot send ESP32 serial')
+            // end            
             
             isCheckingColor = false;
           });
@@ -1447,7 +1496,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       nodeRightEyeSensor,
       nodeMicrophoneSensor,
       nodeSpeakerSensor,
-      nodeLeftMotorForwardSensor,
+      nodeLeftMotorForwardSensor, //5
       nodeRightMotorForwardSensor,
       nodeLeftMotorBackwardSensor,
       nodeRightMotorBackwardSensor,
@@ -1877,7 +1926,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
 // lower_blue = (100, 130, 46)
 // upper_blue = (124, 255, 255)
-    Uint8List redBg = ( await rootBundle.load("assets/bg/ObjectColorRange.jpeg") ).buffer.asUint8List();
+    // Uint8List redBg = ( await rootBundle.load("assets/bg/ObjBlackRedBg.jpg") ).buffer.asUint8List();
+    Uint8List redBg = ( await rootBundle.load("assets/bg/MatLabExample.png") ).buffer.asUint8List();
+    // String path = Directory.current.absolute.path;    
+    print('abc');
+    Directory appDocumentsDir = await getTemporaryDirectory();
+    String path = appDocumentsDir.path;
+    File file = File('$path/bg.png');
+    print('$path/bg.png');
+    file.writeAsBytesSync(redBg, mode: FileMode.write);
+
     try{
 
       freeMemory(ptrFrame);

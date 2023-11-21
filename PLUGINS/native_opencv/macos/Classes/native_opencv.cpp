@@ -9,6 +9,12 @@
 #include <opencv2/imgcodecs.hpp>
 #include <vector>
 
+#include <istream>
+#include <string>
+#include <stdint.h>
+
+#include "NeuronPrototype.cpp"
+
 using namespace cv;
 using namespace std;
 #if defined(__GNUC__)
@@ -19,6 +25,11 @@ using namespace std;
     #define FUNCTION_ATTRIBUTE __declspec(dllexport)
 #endif
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
 
 long long int get_now() {
     return chrono::duration_cast<std::chrono::milliseconds>(
@@ -29,7 +40,9 @@ long long int get_now() {
 #include <windows.h>
 #endif
 
-void platform_log(const char *fmt, ...) {
+
+
+EXTERNC void platform_log(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 #ifdef __ANDROID__
@@ -47,114 +60,349 @@ void platform_log(const char *fmt, ...) {
 }
 
 
+class cca_opencv_wrapper{
+
+    private:
+
+        Mat inp;
+        Mat labels;
+        Mat stats;
+        Mat centroids;
+
+    public:
+        int max_idx = -1;
+        int numObjects = 0;
+
+        cca_opencv_wrapper( Mat input )
+        {
+            inp = input.clone();
+            labels = Mat(input.size(), CV_16U);
+            // labels = Mat(input.size(), CV_32S);
+
+            if(inp.channels() == 3)
+                cvtColor(inp, inp, cv::COLOR_BGR2GRAY);
+            connectedComponentsWithStats(inp, labels, stats, centroids, 8, CV_16U);
+            // connectedComponentsWithStats(inp, labels, stats, centroids, 8, CV_32S);
+
+        }
+
+
+        Mat getCentroids(){
+            return centroids;
+        }
+
+        Mat getLabels(){
+            return labels;
+        }
+
+        uint32_t get_most_left_of_centroid(int centroid_index)
+        {
+            return stats.at<int>(centroid_index, CC_STAT_LEFT);
+        }
+        
+        uint32_t get_most_top_of_centroid(int centroid_index)
+        {
+            return stats.at<int>(centroid_index, CC_STAT_TOP);
+        }
+        
+        uint32_t get_width_of_centroid(int centroid_index)
+        {
+            return stats.at<int>(centroid_index, CC_STAT_WIDTH);
+        }
+        
+        uint32_t get_heigth_of_centroid(int centroid_index)
+        {
+            return stats.at<int>(centroid_index, CC_STAT_HEIGHT);
+        }
+        
+        uint32_t get_area_of_component(int centroid_index)
+        {
+            // return 0;
+            return stats.at<int>(centroid_index, CC_STAT_AREA);
+        }
+        
+        uint16_t get_label_of_pixel(int x_pos, int y_pos)
+        {
+            return labels.at<int>(x_pos, y_pos);
+        }
+
+        uint8_t get_centroid_x(int index)
+        {
+            return centroids.at<int>(index, 0);
+        }
+
+        uint8_t get_centroid_y(int index)
+        {
+            return centroids.at<int>(index, 1);
+        }
+
+        size_t get_connected_component_count()
+        {
+            return centroids.rows;
+        }
+
+        uint32_t get_max_component_area()
+        {
+            uint32_t max_ = 0;
+            for(auto i = 0; i < get_connected_component_count(); i++)
+            {
+                if(get_area_of_component(i) > max_ && i > 0){
+                    max_ = get_area_of_component(i);
+                    max_idx = i;
+                }
+            }
+            return max_;
+        }
+
+        uint32_t get_min_component_area()
+        {
+            uint32_t min_ = inp.rows * inp.cols;
+            for(auto i = 0; i < get_connected_component_count(); i++)
+            {
+                if(get_area_of_component(i) < min_)
+                    min_ = get_area_of_component(i);
+            }
+            return min_;
+        }
+
+        float get_average_component_area()
+        {
+            uint32_t sum = 0;
+            for(auto i = 0; i < get_connected_component_count(); i++)
+            {
+                sum = sum + get_area_of_component(i);
+            }
+            return ((float) sum) / (float) get_connected_component_count();
+        }
+
+        float get_standard_deviation_of_connected_compenent_areas()
+        {
+            float sum = 0;
+            for(auto i = 0; i < get_connected_component_count(); i++)
+            {
+                sum = sum + ( abs( get_area_of_component(i) - get_average_component_area() ) );
+            }
+            return ((float) sum) / (float) get_connected_component_count();
+        }
+
+};
+
+
+
 double sigmoid(double x, double c, double a) {
     return 1.0 / (1.0 + exp(-a * (x - c)));
 }
 
+EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
+Size net_input_size = Size(224,224);
+
+
+
+void initializeCameraConstant(){
+    vis_pref_vals = new double*[7];
+    for (short camIdx = 0; camIdx < ncam; camIdx++){
+        vis_pref_vals[camIdx] = new double[ncam];
+    }
+}
+
+
+
 // Avoiding name mangling
-extern "C" {
+// extern "C" {
     // Attributes to prevent 'unused' function from being removed and to make it visible
     // __attribute__((visibility("default"))) __attribute__((used))
-    FUNCTION_ATTRIBUTE
+    EXTERNC FUNCTION_ATTRIBUTE
     const char* version() {
         return CV_VERSION;
     }
 
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
-    FUNCTION_ATTRIBUTE
+    EXTERNC FUNCTION_ATTRIBUTE
     int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
+        initializeCameraConstant();
+        platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
+        // platform_log(std::to_string(epochs).c_str());
+
         vector<uint8_t> buffer(img, img + imgLength);
         Mat imageRgb = imdecode(buffer, IMREAD_COLOR);;
 
-
-        Mat uframe, frame, xframe;
+        Mat uframe, frame, grayFrame, xframe, leftFrame, rightFrame, bwframe;
+        Mat leftGrayFrame, rightGrayFrame;
+        leftFrame = imageRgb(Rect(0, 0, 240, 240));
+        rightFrame = imageRgb(Rect(70, 0, 240, 240));
+        if (!isPrevEyesSaved){
+            resize(leftFrame, prev_left_eye_frame, net_input_size);            
+            resize(rightFrame, prev_right_eye_frame, net_input_size);            
+            isPrevEyesSaved = true;
+        }
+        // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
-        resize(imageRgb, uframe, Size(224,224));
-        // left_uframe = uframe;
-        //convertTo (OutputArray m, int rtype, double alpha=1, double beta=0) const
-        uframe.convertTo(frame, CV_32FC3);
-        cvtColor(uframe, uframe, COLOR_BGR2GRAY);
-        // cvtColor(prev_left_eye_frame, prev_left_eye_frame, COLOR_BGR2GRAY)
-        // subtract(, , xframe);
-        for (int ncol = 0; ncol < 3; ncol++) {
-            Mat colframe;
-            if (ncol == 0) {
-                // cv::Mat img = cv::imread("image.jpg");
-                // std::vector<cv::Mat> channels;
-                // cv::split(img, channels);
-                // cv::Mat blueChannel = channels[0];
-                // cv::Mat greenChannel = channels[1];
-                // cv::Mat redChannel = channels[2];
-                Mat channels[3];
-                split(uframe, channels);
-                Mat temp1 = uframe.col(0);
-                Mat temp2 = uframe.col(1) * 1.5;
-                Mat temp3 = uframe.col(2) * 1.5;
-                //cv::compare (InputArray src1, InputArray src2, OutputArray dst, int cmpop)
-                compare(temp1, temp2, colframe, CMP_GT);
-                compare(temp1, temp3, temp1, CMP_GT);
-                //cv::bitwise_and (InputArray src1, InputArray src2, OutputArray dst, InputArray mask=noArray())
-                bitwise_and(colframe, temp1, colframe);
-                compare(temp1, 50, temp1, CMP_LT);
-                colframe.setTo(0, temp1);
-            } else if (ncol == 1) {
-                Mat temp1 = uframe.col(1);
-                Mat temp2 = uframe.col(0) * 1.3;
-                Mat temp3 = uframe.col(2) * 1.3;
-                compare(temp1, temp2, colframe, CMP_GT);
-                compare(temp1, temp3, temp1, CMP_GT);
-                bitwise_and(colframe, temp1, colframe);
-                compare(temp1, 50, temp1, CMP_LT);
-                colframe.setTo(0, temp1);
-            } else {
-                Mat temp1 = uframe.col(2);
-                Mat temp2 = uframe.col(1) * 1.2;
-                Mat temp3 = uframe.col(0) * 1.2;
-                compare(temp1, temp2, colframe, CMP_GT);
-                compare(temp1, temp3, temp1, CMP_GT);
-                bitwise_and(colframe, temp1, colframe);
-                compare(temp1, 50, temp1, CMP_LT);
-                colframe.setTo(0, temp1);
-            }
+        double this_score = 0;
+        double this_left_score = 0;
+        double this_right_score = 0;
+        double meanx = 0;
 
-            Mat blob;
-            //cv::connectedComponents (InputArray image, OutputArray labels, int connectivity, int ltype, int ccltype)
-            connectedComponents(colframe, blob);
-            if (countNonZero(blob)) {
+        for (int ncam = 0; ncam < 2; ncam++){
+            if (ncam == 0){
+                resize(leftFrame, uframe, net_input_size);
+                cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
+                cvtColor(prev_left_eye_frame, leftGrayFrame, COLOR_BGR2GRAY);
+                subtract(grayFrame, leftGrayFrame, xframe);
+            }else{
+                resize(rightFrame, uframe, net_input_size);
+                cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
+                cvtColor(prev_right_eye_frame, rightGrayFrame, COLOR_BGR2GRAY);
+                subtract(grayFrame, rightGrayFrame, xframe);
+            }
+            // left_uframe = uframe;
+            //convertTo (OutputArray m, int rtype, double alpha=1, double beta=0) const
+            uframe.convertTo(frame, CV_32FC3);
+            // cvtColor(prev_left_eye_frame, prev_left_eye_frame, COLOR_BGR2GRAY)
+            // subtract(, , xframe);
+            for (int ncol = 0; ncol < 3; ncol++) {
+                Mat colframe;
+                if (ncol == 0) {
+                    Mat channels[3];
+                    split(uframe, channels);
+                    Mat temp1 = channels[0];
+                    Mat temp2 = channels[1] * 1.5;
+                    Mat temp3 = channels[2] * 1.5;
+                    //cv::compare (InputArray src1, InputArray src2, OutputArray dst, int cmpop)
+                    compare(temp1, temp2, colframe, CMP_GT);
+                    compare(temp1, temp3, temp1, CMP_GT);
+                    //cv::bitwise_and (InputArray src1, InputArray src2, OutputArray dst, InputArray mask=noArray())
+                    bitwise_and(colframe, temp1, colframe);
+                    compare(temp1, 50, temp1, CMP_LT);
+                    colframe.setTo(0, temp1);
+                } else if (ncol == 1) {
+                    // Mat temp1 = uframe.col(1);
+                    // Mat temp2 = uframe.col(0) * 1.3;
+                    // Mat temp3 = uframe.col(2) * 1.3;
+                    Mat channels[3];
+                    split(uframe, channels);
+                    Mat temp1 = channels[1];
+                    Mat temp2 = channels[0] * 1.3;
+                    Mat temp3 = channels[2] * 1.3;
+
+                    compare(temp1, temp2, colframe, CMP_GT);
+                    compare(temp1, temp3, temp1, CMP_GT);
+                    bitwise_and(colframe, temp1, colframe);
+                    compare(temp1, 50, temp1, CMP_LT);
+                    colframe.setTo(0, temp1);
+                } else {
+                    // Mat temp1 = uframe.col(2);
+                    // Mat temp2 = uframe.col(1) * 1.2;
+                    // Mat temp3 = uframe.col(0) * 1.2;
+                    Mat channels[3];
+                    split(uframe, channels);
+                    Mat temp1 = channels[2];
+                    Mat temp2 = channels[1] * 1.2;
+                    Mat temp3 = channels[0] * 1.2;
+
+                    compare(temp1, temp2, colframe, CMP_GT);
+                    compare(temp1, temp3, temp1, CMP_GT);
+                    bitwise_and(colframe, temp1, colframe);
+                    compare(temp1, 50, temp1, CMP_LT);
+                    colframe.setTo(0, temp1);
+                }
+
+
+
+                // Mat blob;
+                //cv::connectedComponents (InputArray image, OutputArray labels, int connectivity, int ltype, int ccltype)
+                // connectedComponents(colframe, blob);
+                cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(colframe);
+                // int x = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx);
+                // int y = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx);
+                // int w = cca_wrapper.get_heigth_of_centroid(cca_wrapper.max_idx);
+                // int h = cca_wrapper.get_width_of_centroid(cca_wrapper.max_idx);
+
+                // rectangle(colframe, Rect( Point( x,y ), Point(x + w, y + h) ),  Scalar(255, 255, 255), 3);
+                if (cca_wrapper.get_connected_component_count() > 0) {
+                    // i = max area
+                    // j = max_idx
+                    // npx = max_idx
+                    // [i, j] = max(cellfun(@numel,blob.PixelIdxList));
+                    // npx = i;
+                    // [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
+                    // this_score = sigmoid(npx, 1000, 0.0075) * 50;
+                    // this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
+                    // this_right_score = sigmoid(((mean(x)) / 227), 0.85, 10) * this_score;                    
+                    int max_size = 0;
+                    int max_idx = 0;
+
+                    max_size = cca_wrapper.get_max_component_area();
+                    double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
+                    
+                    this_score = sigmoid(max_size, 1000, 0.0075) * 50;
+                    this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
+                    this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                } else {
+                    meanx = 0;
+                    this_score = 0;
+                    this_left_score = 0;
+                    this_right_score = 0;                    
+                    // platform_log(std::to_string(777788889999).c_str());
+                    // vis_pref_vals[ncol * 2] = 0;
+                    // vis_pref_vals[ncol * 2 + 1] = 0;
+                }
+                vis_pref_vals[ncol * 2][ncam] = this_score;
+                if (ncam == 1) {
+                    vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
+                }
+                else{                    
+                    vis_pref_vals[ncol * 2+1][ncam] = this_right_score;
+                }
+
+            }
+            
+
+            Mat channels[3];
+            split(uframe, channels);
+            // compare(xframe, 20, xframe, CMP_GT);
+            threshold(xframe, bwframe, 20, 255, cv::THRESH_BINARY);            
+            // bwframe.setTo(0, xframe);
+            // platform_log("SIZE : \n");
+            // platform_log(std::to_string(bwframe.size().width).c_str());
+            // platform_log("\n");
+            // platform_log(std::to_string(bwframe.size().height).c_str());
+            // platform_log("\n");
+            // platform_log(std::to_string(bwframe.channels()).c_str());
+            // platform_log("\n");
+            // platform_log("@^ channels \n");
+
+
+            cca_opencv_wrapper cca_wrapper_bw = cca_opencv_wrapper(bwframe);
+            // break;
+            if (cca_wrapper_bw.get_connected_component_count() > 0) {
                 int max_size = 0;
                 int max_idx = 0;
-                
-                //!!!
-                //https://stackoverflow.com/questions/37147762/python-connected-components-with-pixel-list
-                for (int i = 1; i < blob.rows; i++) {
-                    for (int j = 1; j < blob.cols; j++) {
-                        if (blob.at<int>(i, j) == 1) {
-                            Mat temp;
 
-                            // int cv::floodFill (InputOutputArray image, InputOutputArray mask, Point seedPoint, Scalar newVal, Rect *rect=0, Scalar loDiff=Scalar(), Scalar upDiff=Scalar(), int flags=4)
-                            floodFill(blob, temp, Point(j, i), 2);
-                            int size = countNonZero(temp == 2);
-                            if (size > max_size) {
-                                max_size = size;
-                                max_idx = j;
-                            }
-                        }
-                    }
-                }
+                max_size = cca_wrapper_bw.get_max_component_area();
+                double meanx = cca_wrapper_bw.get_centroid_x(cca_wrapper_bw.max_idx);
                 
-                // !!!
-                double this_score = sigmoid(max_size, 1000, 0.0075) * 50;
-                double this_left_score = sigmoid(((228 - max_idx) / 227.0), 0.85, 10) * this_score;
-                double this_right_score = sigmoid(((max_idx) / 227.0), 0.85, 10) * this_score;
-                // vis_pref_vals[ncol * 2] = (ncam == 1) ? this_left_score : this_right_score;
-                // vis_pref_vals[ncol * 2 + 1] = this_score;
-            } else {
-                // vis_pref_vals[ncol * 2] = 0;
-                // vis_pref_vals[ncol * 2 + 1] = 0;
+                this_score = sigmoid(max_size, 1000, 0.0075) * 50;
+
+
+            }else{
+                this_score = 0;
             }
+
+
+            vis_pref_vals[6][ncam] = this_score;
+
+
+            if (ncam == 0){
+                prev_left_eye_frame = uframe;
+            }else{
+                prev_right_eye_frame = uframe;
+            }
+
         }
+
+        
         return 0;
     }
 
@@ -268,4 +516,16 @@ extern "C" {
 
     // int evalInMillis = static_cast<int>(get_now() - start);
     // platform_log("Processing done in %dms\n", evalInMillis);    
-}
+// }
+
+
+
+
+
+// This is a piece of MATLAB code that is used to find the largest connected component (blob) in an image and its centroid.
+// Here’s a breakdown of what each line does:
+// [i, j] = max(cellfun(@numel,blob.PixelIdxList));: This line finds the index of the largest connected component in the image. cellfun(@numel,blob.PixelIdxList) applies the numel function to each cell in blob.PixelIdxList (which contains the linear indices of each connected component in the image), returning an array of the sizes of each connected component. max then returns the size of the largest component (i) and its index (j).
+// npx = i;: This line simply stores the size of the largest connected component in npx.
+// [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});: This line converts the linear indices of the largest connected component into subscripts relative to the size of the original image (blob.ImageSize). The ~ is used to ignore the row indices, while x stores the column indices, effectively giving the x-coordinates of the pixels in the largest connected component.
+// So, in summary, this code is used to find the largest connected component in an image and its x-coordinates. It’s often used in image processing tasks such as object detection or segmentation. Please note that this explanation assumes some familiarity with MATLAB and image processing concepts. If you’re not familiar with these, you might need to look up some terms for a deeper understanding.
+

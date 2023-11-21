@@ -14,7 +14,9 @@ A new Flutter plugin project.
   s.author           = { 'Your Company' => 'email@example.com' }
 
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  # s.source_files     = 'Classes/**/*'
+  s.source_files     = ['Classes/NativeOpencvPlugin.swift','Classes/include/*', 'Classes/native_opencv.cpp']
+  # s.source_files     = ['Classes/NativeOpencvPlugin.swift','Classes/include/*', 'Classes/NeuronPrototype.h', 'Classes/NeuronPrototype.cpp', 'Classes/native_opencv.cpp']
   s.dependency 'FlutterMacOS'
 
   s.platform = :osx, '10.11'

@@ -24,7 +24,7 @@ dependencies:
   web_socket_channel: 2.4.0
   socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4
-
+  path_provider: 2.1.1
   # opencv_ffi:
   #   path: ./PLUGINS/opencv_ffi/
     
@@ -46,8 +46,8 @@ dependencies:
   #native
   # winaudio:
   #   path: ./PLUGINS/winaudio
-  nativec:
-    path: "./PLUGINS/nativec/"
+  # nativec:
+  #   path: "./PLUGINS/nativec/"
   window_manager: 0.3.6
   auto_orientation: 2.3.1
   gesture_x_detector: 1.1.1

@@ -4,7 +4,6 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   native_opencv
-  nativec
   screen_retriever
   window_manager
 )

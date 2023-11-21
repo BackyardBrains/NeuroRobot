@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
-import 'package:nativec/nativec.dart';
+import 'package:native_opencv/nativec.dart';
 
 //https://stackoverflow.com/questions/54797911/flutter-where-to-add-listeners-in-statelesswidget
 class WaveWidget extends StatefulWidget {
