@@ -39,10 +39,10 @@ disp(this_msg)
 %% Set ML parameters
 nsmall = round((0.001 * ntuples + 1000) * learn_speed * 2);
 bof_branching = round((0.0003 * ntuples + 200) * learn_speed);
-nmedium = round((0.005 * ntuples + 2000) * learn_speed);
+nmedium = round((0.005 * ntuples + 3000) * learn_speed);
 init_n_unique_states = round(0.0005 * ntuples * learn_speed) + 10 * learn_speed;
-min_size = round(0.00008 * ntuples * learn_speed) + 9 * learn_speed;
-        
+min_size = round(0.00008 * ntuples * learn_speed) + 3 * learn_speed;
+
 disp('')
 disp('PARAMETER SETTINGS:')
 disp(horzcat('nsmall = ', num2str(nsmall)))
