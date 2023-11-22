@@ -77,15 +77,9 @@ clear neuron_xys
 
 %% Calibrate distance sensor
 esp_get_serial
-if this_distance < 450
-    dist_short = 4;
-    dist_med = 7;
-    dist_long = 10;
-else
-    dist_short = 700;
-    dist_med = 900;
-    dist_long = 1100;
-end
+dist_short = 500;
+dist_med = 700;
+dist_long = 900;
 scores = 0;
 
 
