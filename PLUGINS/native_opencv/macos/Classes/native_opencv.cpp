@@ -42,22 +42,22 @@ long long int get_now() {
 
 
 
-EXTERNC void platform_log(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-#ifdef __ANDROID__
-    __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
-#elif defined(IS_WIN32)
-    char *buf = new char[4096];
-    std::fill_n(buf, 4096, '\0');
-    _vsprintf_p(buf, 4096, fmt, args);
-    OutputDebugStringA(buf);
-    delete[] buf;
-#else
-    vprintf(fmt, args);
-#endif
-    va_end(args);
-}
+// EXTERNC void platform_log(const char *fmt, ...) {
+//     va_list args;
+//     va_start(args, fmt);
+// #ifdef __ANDROID__
+//     __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
+// #elif defined(IS_WIN32)
+//     char *buf = new char[4096];
+//     std::fill_n(buf, 4096, '\0');
+//     _vsprintf_p(buf, 4096, fmt, args);
+//     OutputDebugStringA(buf);
+//     delete[] buf;
+// #else
+//     vprintf(fmt, args);
+// #endif
+//     va_end(args);
+// }
 
 
 class cca_opencv_wrapper{
@@ -221,6 +221,7 @@ void initializeCameraConstant(){
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
     int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
+        platform_log("INITIALIZE CAMERA CONSTANT Start : \n");
         initializeCameraConstant();
         platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
         // platform_log(std::to_string(epochs).c_str());
@@ -330,12 +331,12 @@ void initializeCameraConstant(){
                     // this_score = sigmoid(npx, 1000, 0.0075) * 50;
                     // this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
                     // this_right_score = sigmoid(((mean(x)) / 227), 0.85, 10) * this_score;                    
-                    int max_size = 0;
+                    uint32_t max_size = 0;
                     int max_idx = 0;
 
                     max_size = cca_wrapper.get_max_component_area();
                     double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
-                    
+                   
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
                     this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
                     this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
@@ -348,8 +349,14 @@ void initializeCameraConstant(){
                     // vis_pref_vals[ncol * 2] = 0;
                     // vis_pref_vals[ncol * 2 + 1] = 0;
                 }
+                // platform_log("STRRRR\n");
+                // platform_log(std::to_string(ncol * 2 + 1).c_str());
+                // platform_log("\n");
+                // platform_log(std::to_string(ncam).c_str());
+                // platform_log(std::to_string(this_left_score).c_str());
+                // platform_log(std::to_string(this_right_score).c_str());
                 vis_pref_vals[ncol * 2][ncam] = this_score;
-                if (ncam == 1) {
+                if (ncam == 0) {
                     vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
                 }
                 else{                    
@@ -362,7 +369,8 @@ void initializeCameraConstant(){
             Mat channels[3];
             split(uframe, channels);
             // compare(xframe, 20, xframe, CMP_GT);
-            threshold(xframe, bwframe, 20, 255, cv::THRESH_BINARY);            
+            threshold(xframe, bwframe, 20, 255, THRESH_BINARY);            
+            
             // bwframe.setTo(0, xframe);
             // platform_log("SIZE : \n");
             // platform_log(std::to_string(bwframe.size().width).c_str());
@@ -377,7 +385,7 @@ void initializeCameraConstant(){
             cca_opencv_wrapper cca_wrapper_bw = cca_opencv_wrapper(bwframe);
             // break;
             if (cca_wrapper_bw.get_connected_component_count() > 0) {
-                int max_size = 0;
+                uint32_t max_size = 0;
                 int max_idx = 0;
 
                 max_size = cca_wrapper_bw.get_max_component_area();

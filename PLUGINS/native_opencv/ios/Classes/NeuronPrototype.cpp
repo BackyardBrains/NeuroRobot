@@ -139,7 +139,7 @@ EXTERNC void platform_log(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 #ifdef __ANDROID__
-    // __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
+    __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
 #elif defined(IS_WIN32)
     char *buf = new char[4096];
     std::fill_n(buf, 4096, '\0');

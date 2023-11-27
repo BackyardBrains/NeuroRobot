@@ -60,6 +60,23 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    packagingOptions {
+        // jniLibs {
+        //     useLegacyPackaging = false
+        // }        
+        
+        pickFirst 'lib/x86/libopencv_java4.so'
+        pickFirst 'lib/x86_64/libopencv_java4.so'
+        pickFirst 'lib/armeabi-v7a/libopencv_java4.so'
+        pickFirst 'lib/arm64-v8a/libopencv_java4.so'
+        
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'        
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+    }    
+
 }
 
 flutter {

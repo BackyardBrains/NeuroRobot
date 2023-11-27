@@ -5,7 +5,7 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SO
 add_library(native_opencv 
     SHARED 
     ../macos/Classes/native_opencv.cpp
-    ../macos/Classes/NeuronPrototype.cpp
+    # ../macos/Classes/NeuronPrototype.cpp
 
 )
 find_library(log-lib log)

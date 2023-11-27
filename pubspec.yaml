@@ -34,8 +34,8 @@ dependencies:
   shared_preferences: 2.2.1
   responsive_grid: 2.4.4
   easy_animated_tabbar: 0.0.1
-  fialogs: 2.1.0
   metooltip: 0.0.7
+  fialogs: 2.1.0
   
   native_opencv:
     path: ./PLUGINS/native_opencv
@@ -51,8 +51,7 @@ dependencies:
   window_manager: 0.3.6
   auto_orientation: 2.3.1
   gesture_x_detector: 1.1.1
-
-  
+  # cart_stepper: ^4.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

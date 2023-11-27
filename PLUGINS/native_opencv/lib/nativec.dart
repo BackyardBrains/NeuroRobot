@@ -36,9 +36,11 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Uint32,
   ffi.Uint32,
   ffi.Int16,
-  ffi.Pointer<ffi.Int16>,
-  ffi.Pointer<ffi.Double>,  
+  ffi.Pointer<ffi.Int16>, // visualPreferences
+  ffi.Pointer<ffi.Double>, //motorCommandBuf
+  ffi.Pointer<ffi.Double>, //neuronContactsBuf
 );
+
 typedef ChangeNeuronSimulatorProcess = double Function(
   ffi.Pointer<ffi.Double>, // a
   ffi.Pointer<ffi.Double>, // b
@@ -59,8 +61,9 @@ typedef ChangeNeuronSimulatorProcess = double Function(
   int, // envelope size
   int, // buffer size
   int, // isPlaying
-  ffi.Pointer<ffi.Int16>, // d
+  ffi.Pointer<ffi.Int16>, // visualPreferences
   ffi.Pointer<ffi.Double>, //motorCommandBuf
+  ffi.Pointer<ffi.Double>, //neuronContactsBuf
 );
 
 typedef set_threshold_dart_port_func = ffi.Double Function(ffi.Int64);
@@ -81,11 +84,15 @@ typedef PassPointers = double Function(
 
 // Low Pass filter sample https://www.youtube.com/watch?v=X8JD8hHkBMc
 class Nativec {
+  // ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
+  //     ? ffi.DynamicLibrary.open("libnative_nativec.so")
+  //     : (Platform.isWindows)
+  //         ? ffi.DynamicLibrary.open("nativec_plugin.dll")
+  //         : ffi.DynamicLibrary.process();
   ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
-      ? ffi.DynamicLibrary.open("libnative_nativec.so")
-      : (Platform.isWindows)
-          ? ffi.DynamicLibrary.open("nativec_plugin.dll")
-          : ffi.DynamicLibrary.process();
+    ? Platform.isWindows? ffi.DynamicLibrary.open('native_opencv.dll')
+    :ffi.DynamicLibrary.open('libnative_opencv.so')
+    : ffi.DynamicLibrary.process();
 
   late PassPointers _passPointers;
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
@@ -137,24 +144,24 @@ class Nativec {
         .asFunction();
 
     // C++ to Flutter
-    final initializeApi = nativeLrsLib.lookupFunction<
-        ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
-        int Function(ffi.Pointer<ffi.Void>)>("InitDartApiDL");
-    final SetThresholdDartPortFunc _setDartPort = nativeLrsLib
-        .lookup<ffi.NativeFunction<set_threshold_dart_port_func>>(
-            "set_dart_port")
-        .asFunction();
+    // final initializeApi = nativeLrsLib.lookupFunction<
+    //     ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
+    //     int Function(ffi.Pointer<ffi.Void>)>("InitDartApiDL");
+    // final SetThresholdDartPortFunc _setDartPort = nativeLrsLib
+    //     .lookup<ffi.NativeFunction<set_threshold_dart_port_func>>(
+    //         "set_dart_port")
+    //     .asFunction();
 
-    initializeApi(ffi.NativeApi.initializeApiDLData);
-    thresholdPublication = ReceivePort();
-    cPublicationStream = thresholdPublication!.asBroadcastStream()
-      ..listen((message) {
-        print("PRINT C++ MESSAGE : ");
-        print(message);
-        // print(_canvasBufferBytes1.getRange(0, 10));
-        // print(_canvasBufferBytes2);
-      });
-    _setDartPort(thresholdPublication!.sendPort.nativePort);
+    // initializeApi(ffi.NativeApi.initializeApiDLData);
+    // thresholdPublication = ReceivePort();
+    // cPublicationStream = thresholdPublication!.asBroadcastStream()
+    //   ..listen((message) {
+    //     print("PRINT C++ MESSAGE : ");
+    //     print(message);
+    //     // print(_canvasBufferBytes1.getRange(0, 10));
+    //     // print(_canvasBufferBytes2);
+    //   });
+    // _setDartPort(thresholdPublication!.sendPort.nativePort);
     // END C++ to Flutter
 
     // if (_data == null) {
@@ -193,9 +200,10 @@ class Nativec {
       int isPlaying,
       ffi.Pointer<ffi.Int16> visPrefs,
       ffi.Pointer<ffi.Double> motorCommandBuf,
+      ffi.Pointer<ffi.Double> neuronContactsBuf,
       ) {
     return _changeNeuronSimulatorProcess(a, b, c, d, i, w, connectome, level,
-        neuronLength, envelopeSize, bufferSize, isPlaying, visPrefs, motorCommandBuf);
+        neuronLength, envelopeSize, bufferSize, isPlaying, visPrefs, motorCommandBuf,neuronContactsBuf);
   }
 
   // double *_canvasBuffer1, double *_canvasBuffer2, uint16_t *_positions,short *_neuronCircle, int *_nps,
