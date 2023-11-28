@@ -163,37 +163,41 @@ if exist('rak_only', 'var') && brain_support
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
         full_net_name = option_nets{select_nets.Value(this_ind)};        
         trained_nets{2} = full_net_name;
-        cnet_temp = strfind(full_net_name, '-');
-        if cnet_temp >= 1
-            state_net_name = full_net_name(1:cnet_temp(1)-1);
-            action_net_name = full_net_name(cnet_temp(1)+1:end);            
-        else
-            state_net_name = full_net_name;
-            action_net_name = '';        
-        end
 
-        load(strcat(nets_dir_name, state_net_name, '-ml'))
-        try
-            load(strcat(nets_dir_name, state_net_name, '-labels'))
-            regression_flag = 0;
-            unique_states = unique(labels);
-            n_unique_states = length(unique_states);
-            vis_pref_names = [vis_pref_names, labels'];
-        catch
-            regression_flag = 1;
-            vis_pref_names = [vis_pref_names, 'scalar'];
-        end
+        % cnet_temp = strfind(full_net_name, '-');
+        % if cnet_temp >= 1
+        %     state_net_name = full_net_name(1:cnet_temp(1)-1);
+        %     action_net_name = full_net_name(cnet_temp(1)+1:end);            
+        % else
+        %     state_net_name = full_net_name;
+        %     action_net_name = '';        
+        % end
+
+        % load(strcat(nets_dir_name, state_net_name, '-ml'))
+        % try
+        %     load(strcat(nets_dir_name, state_net_name, '-labels'))
+        %     regression_flag = 0;
+        %     unique_states = unique(labels);
+        %     n_unique_states = length(unique_states);
+        %     vis_pref_names = [vis_pref_names, labels'];
+        % catch
+        %     regression_flag = 1;
+        %     vis_pref_names = [vis_pref_names, 'scalar'];
+        % end
         
-        if length(cnet_temp) >= 1
-            load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
-            load(strcat(nets_dir_name, state_net_name, '-torque_data'))
-            load(strcat(nets_dir_name, state_net_name, '-actions'))
+        % if length(cnet_temp) >= 1
+            load(horzcat(nets_dir_name, full_net_name, '-ml'))
+            load(strcat(nets_dir_name, full_net_name, '-torque_data'))
+            load(strcat(nets_dir_name, full_net_name, '-actions'))
             n_unique_actions = length(unique(actions));        
             motor_combs = zeros(n_unique_actions, 2);
             for naction = 1:n_unique_actions
                 motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
             end
-        end 
+        % end 
+
+
+
     else
         state_net_name = '';
         action_net_name = '';
@@ -410,6 +414,8 @@ if exist('rak_only', 'var') && brain_support
     
     xstep = 0;
     rak_fail = 0;
+
+    rl_image_size = round([227 302] * 0.5);
     
     audio_I = zeros(nneurons, 1);
     audio_empty_flag = 0;

@@ -4,10 +4,13 @@
 close all
 clear
 
-nsmall = 10000;
+nsmall = 20000;
 
 rec_dir_name = '';
-dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+dataset_dir_name = 'C:\SpikerBot ML Datasets Livingroom\';
+nets_dir_name = strcat(userpath, '\Nets\');
+
+net_name = 'nova';
 
 gnet = googlenet;
 
@@ -25,6 +28,21 @@ rng(1)
 actions = kmeans(torque_data, n_unique_actions);
 n_unique_actions = length(unique(actions));
 
+save(strcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
+save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
+
+figure(15)
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+hold on
+for naction = 1:n_unique_actions
+    mean_torque = mean(torque_data(actions == naction, :));
+    text(mean_torque(1), mean_torque(2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+end
+axis padded
+set(gca, 'yscale', 'linear')
+title('Actions')
+xlabel('Torque 1')
+ylabel('Torque 2')
 
 %%
 image_size = round([227 302] * 0.5);
@@ -86,37 +104,22 @@ lgraph = layerGraph();
 
 tempLayers1 = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
-
-    convolution2dLayer([3 3],32,"Padding","same")
-    batchNormalizationLayer
+    convolution2dLayer(3,16,"Padding","same")
     reluLayer
-    
-    convolution2dLayer([3 3],32,"Padding","same")
-    batchNormalizationLayer
+    fullyConnectedLayer(100)
     reluLayer
-
-    fullyConnectedLayer(400)
-    batchNormalizationLayer
-    reluLayer
-
-    fullyConnectedLayer(300,"Name","fc_image_final")];
-
+    fullyConnectedLayer(100,"Name","fc_image_final")];
 lgraph = addLayers(lgraph,tempLayers1);
-
 
 tempLayers2 = [
     imageInputLayer([1 1 1],"Name","imageinput_action","Normalization","none")
-
-    fullyConnectedLayer(300,"Name","fc_action_final")];
-
+    fullyConnectedLayer(100,"Name","fc_action_final")];
 lgraph = addLayers(lgraph,tempLayers2);
 
 tempLayers3 = [
     additionLayer(2)
     reluLayer
-
     fullyConnectedLayer(1)];
-
 this_graph = addLayers(lgraph,tempLayers3);
 
 % clean up helper variable
@@ -138,11 +141,11 @@ critic.UseDevice = 'gpu';
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 agent.ExperienceBuffer = buffer;
-tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 500, 'NumStepsPerEpoch', 50);
+tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 100, 'NumStepsPerEpoch', 50);
 trainFromData(agent,tfdOpts);
 
 %%
-getAction(agent, this_im)
-
+% getAction(agent, next_im_g)
+save(horzcat(nets_dir_name, net_name, '-ml'), 'agent')
 
 

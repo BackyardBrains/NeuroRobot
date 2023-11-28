@@ -5,22 +5,26 @@ if use_custom_net
     % (expecting state net output 
     % from process_visual_input.m)
 
-    if use_cnn
-        [this_score, this_state] = max(vis_pref_vals(8+13:n_vis_prefs, 1));
-    else
-        [this_score, this_state] = max(vis_pref_vals(8:n_vis_prefs, 1));
-    end
+    % if use_cnn
+    %     [this_score, this_state] = max(vis_pref_vals(8+13:n_vis_prefs, 1));
+    % else
+    %     [this_score, this_state] = max(vis_pref_vals(8:n_vis_prefs, 1));
+    % end
 
     disp('')
     disp(horzcat('xstep: ', num2str(xstep)))
-    disp(horzcat('state: ', num2str(this_state)))
-    disp(horzcat('score: ', num2str(this_score)))
-    disp(horzcat('dist: ', num2str(this_distance)))
+    % disp(horzcat('state: ', num2str(this_state)))
+    % disp(horzcat('score: ', num2str(this_score)))
+    % disp(horzcat('dist: ', num2str(this_distance)))
     disp('')
    
-    if length(cnet_temp) >= 1
+    % if length(cnet_temp) >= 1
+
+        this_im_small = imresize(large_frame, rl_image_size);
+        this_im_g = rgb2gray(this_im_small);
+
         % Get action
-        this_action = getAction(agent, this_state);
+        this_action = getAction(agent, this_im_g);
         this_action = cell2mat(this_action);
         this_motor_vector = motor_combs(this_action, :);
         disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
@@ -41,7 +45,7 @@ if use_custom_net
         else
             right_backward = -this_motor_vector(2);
         end
-    end
+    % end
     
 else
 
