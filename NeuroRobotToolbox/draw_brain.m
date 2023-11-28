@@ -367,7 +367,11 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
                 if neuron_scripts(nneuron) == 5
-                    this_str = horzcat(state_net_name, '-', action_net_name);
+                    try
+                        this_str = horzcat(state_net_name, '-', action_net_name);
+                    catch
+                        this_str = 'nova';
+                    end
                 else
                     this_str = script_strs(neuron_scripts(nneuron)).name;
                 end

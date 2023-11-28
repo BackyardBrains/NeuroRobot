@@ -187,13 +187,13 @@ if exist('rak_only', 'var') && brain_support
         
         % if length(cnet_temp) >= 1
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
-            load(strcat(nets_dir_name, full_net_name, '-torque_data'))
-            load(strcat(nets_dir_name, full_net_name, '-actions'))
-            n_unique_actions = length(unique(actions));        
-            motor_combs = zeros(n_unique_actions, 2);
-            for naction = 1:n_unique_actions
-                motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
-            end
+            load(strcat(nets_dir_name, full_net_name, '-motor_combs'))
+            % load(strcat(nets_dir_name, full_net_name, '-actions'))
+            % n_unique_actions = length(unique(actions));        
+            % motor_combs = zeros(n_unique_actions, 2);
+            % for naction = 1:n_unique_actions
+            %     motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
+            % end
         % end 
 
 
@@ -415,7 +415,7 @@ if exist('rak_only', 'var') && brain_support
     xstep = 0;
     rak_fail = 0;
 
-    rl_image_size = round([227 302] * 0.5);
+    rl_image_size = round([227 302] * 0.4);
     
     audio_I = zeros(nneurons, 1);
     audio_empty_flag = 0;

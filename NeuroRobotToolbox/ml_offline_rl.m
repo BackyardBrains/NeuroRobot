@@ -4,7 +4,7 @@
 close all
 clear
 
-nsmall = 20000;
+nsmall = 50000;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets Livingroom\';
@@ -28,24 +28,28 @@ rng(1)
 actions = kmeans(torque_data, n_unique_actions);
 n_unique_actions = length(unique(actions));
 
-save(strcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
-save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
+motor_combs = zeros(2, n_unique_actions);
 
-figure(15)
+figure(1)
+clf
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
 for naction = 1:n_unique_actions
-    mean_torque = mean(torque_data(actions == naction, :));
-    text(mean_torque(1), mean_torque(2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+    motor_combs(:,naction) = mean(torque_data(actions == naction, :));
+    text(motor_combs(1,naction), motor_combs(2,naction), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
 end
 axis padded
 set(gca, 'yscale', 'linear')
 title('Actions')
 xlabel('Torque 1')
 ylabel('Torque 2')
+drawnow
+
+save(strcat(nets_dir_name, net_name, '-motor_combs'), 'motor_combs')
+
 
 %%
-image_size = round([227 302] * 0.5);
+image_size = round([227 302] * 0.4);
 obsInfo = rlNumericSpec(image_size);
 obsInfo.Name = "CameraImages";
 
@@ -106,6 +110,8 @@ tempLayers1 = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
     convolution2dLayer(3,16,"Padding","same")
     reluLayer
+    convolution2dLayer(3,16,"Padding","same")
+    reluLayer    
     fullyConnectedLayer(100)
     reluLayer
     fullyConnectedLayer(100,"Name","fc_image_final")];
@@ -130,10 +136,15 @@ clear tempLayers3;
 this_graph = connectLayers(this_graph,"fc_image_final","addition/in1");
 this_graph = connectLayers(this_graph,"fc_action_final","addition/in2");
 
+figure(2)
+clf
 plot(this_graph);
+title('Nova net')
+drawnow
 
 net = dlnetwork(this_graph);
 summary(net)
+
 
 %%
 critic = rlQValueFunction(net,obsInfo,actInfo, "ObservationInputNames","imageinput_state","ActionInputNames","imageinput_action");
@@ -141,8 +152,9 @@ critic.UseDevice = 'gpu';
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 agent.ExperienceBuffer = buffer;
-tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 100, 'NumStepsPerEpoch', 50);
+tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 400, 'NumStepsPerEpoch', 100);
 trainFromData(agent,tfdOpts);
+
 
 %%
 % getAction(agent, next_im_g)

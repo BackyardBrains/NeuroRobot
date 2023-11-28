@@ -26,7 +26,7 @@ if use_custom_net
         % Get action
         this_action = getAction(agent, this_im_g);
         this_action = cell2mat(this_action);
-        this_motor_vector = motor_combs(this_action, :);
+        this_motor_vector = motor_combs(:, this_action)';
         disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
         
         left_forward = 0;
