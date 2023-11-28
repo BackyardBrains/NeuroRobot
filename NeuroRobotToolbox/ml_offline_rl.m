@@ -7,10 +7,10 @@ clear
 nsmall = 100000;
 
 rec_dir_name = '';
-dataset_dir_name = 'C:\SpikerBot ML Datasets Livingroom\';
+dataset_dir_name = 'C:\SpikerBot ML Datasets Office\';
 nets_dir_name = strcat(userpath, '\Nets\');
 
-net_name = 'nova';
+net_name = 'office';
 
 gnet = googlenet;
 
@@ -150,7 +150,7 @@ critic.UseDevice = 'gpu';
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 agent.ExperienceBuffer = buffer;
-tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 500, 'NumStepsPerEpoch', 20);
+tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 200, 'NumStepsPerEpoch', 20);
 trainFromData(agent,tfdOpts);
 
 
