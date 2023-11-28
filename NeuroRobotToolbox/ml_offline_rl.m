@@ -84,61 +84,52 @@ append(buffer,exp);
 %% DQN
 lgraph = layerGraph();
 
-tempLayers = [
+tempLayers1 = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
 
-    % convolution2dLayer([3 3],32,"Name","conv","Padding","same")
-    % reluLayer("Name","relu")
-
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer([3 3],32,"Padding","same")
     batchNormalizationLayer
     reluLayer
-
-    maxPooling2dLayer(2,'Stride',2)
-
-    convolution2dLayer(3,32,'Padding','same')
-    batchNormalizationLayer
-    reluLayer
-
-    maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,16,'Padding','same')
+    convolution2dLayer([3 3],32,"Padding","same")
     batchNormalizationLayer
-    reluLayer    
+    reluLayer
 
-    fullyConnectedLayer(400,"Name","fc")
-    reluLayer("Name","relu_1")
+    fullyConnectedLayer(400)
+    batchNormalizationLayer
+    reluLayer
 
     fullyConnectedLayer(300,"Name","fc_image_final")];
 
-lgraph = addLayers(lgraph,tempLayers);
+lgraph = addLayers(lgraph,tempLayers1);
 
 
-tempLayers = [
+tempLayers2 = [
     imageInputLayer([1 1 1],"Name","imageinput_action","Normalization","none")
 
     fullyConnectedLayer(300,"Name","fc_action_final")];
 
-lgraph = addLayers(lgraph,tempLayers);
+lgraph = addLayers(lgraph,tempLayers2);
 
-tempLayers = [
-    additionLayer(2,"Name","addition")
-    reluLayer("Name","relu_2")
+tempLayers3 = [
+    additionLayer(2)
+    reluLayer
 
-    fullyConnectedLayer(1,"Name","fc_rew")];
+    fullyConnectedLayer(1)];
 
-lgraph = addLayers(lgraph,tempLayers);
-
+this_graph = addLayers(lgraph,tempLayers3);
 
 % clean up helper variable
-clear tempLayers;
+clear tempLayers1;
+clear tempLayers2;
+clear tempLayers3;
 
-lgraph = connectLayers(lgraph,"fc_image_final","addition/in1");
-lgraph = connectLayers(lgraph,"fc_action_final","addition/in2");
+this_graph = connectLayers(this_graph,"fc_image_final","addition/in1");
+this_graph = connectLayers(this_graph,"fc_action_final","addition/in2");
 
-plot(lgraph);
+plot(this_graph);
 
-net = dlnetwork(lgraph);
+net = dlnetwork(this_graph);
 summary(net)
 
 %%
