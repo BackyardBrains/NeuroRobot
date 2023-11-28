@@ -4,7 +4,7 @@
 close all
 clear
 
-nsmall = 100000;
+nsmall = 50000;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets Office\';

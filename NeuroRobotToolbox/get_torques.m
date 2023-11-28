@@ -4,8 +4,8 @@ disp(horzcat('Getting ', num2str(ntuples), ' torques'))
 
 for ntuple = 1:ntuples
 
-    if ~rem(ntuple, round(ntuples/5))
-        disp(horzcat('done = ', num2str(100 * (ntuple/ntuples)), '%'))
+    if ~rem(ntuple, round(ntuples/10))
+        disp(horzcat('done = ', num2str(round((100 * (ntuple/ntuples)))), '%'))
     end
 
     torque_fname = horzcat(torque_dir(ntuple).folder, '\', torque_dir(ntuple).name);
