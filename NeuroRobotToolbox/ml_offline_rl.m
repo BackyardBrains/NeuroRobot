@@ -4,7 +4,7 @@
 close all
 clear
 
-nsmall = 50000;
+nsmall = 100000;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets Livingroom\';
@@ -49,7 +49,7 @@ save(strcat(nets_dir_name, net_name, '-motor_combs'), 'motor_combs')
 
 
 %%
-image_size = round([227 302] * 0.4);
+image_size = round([227 302] * 0.3);
 obsInfo = rlNumericSpec(image_size);
 obsInfo.Name = "CameraImages";
 
@@ -110,16 +110,14 @@ tempLayers1 = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
     convolution2dLayer(3,16,"Padding","same")
     reluLayer
-    convolution2dLayer(3,16,"Padding","same")
-    reluLayer    
-    fullyConnectedLayer(100)
+    fullyConnectedLayer(400)
     reluLayer
-    fullyConnectedLayer(100,"Name","fc_image_final")];
+    fullyConnectedLayer(300,"Name","fc_image_final")];
 lgraph = addLayers(lgraph,tempLayers1);
 
 tempLayers2 = [
     imageInputLayer([1 1 1],"Name","imageinput_action","Normalization","none")
-    fullyConnectedLayer(100,"Name","fc_action_final")];
+    fullyConnectedLayer(300,"Name","fc_action_final")];
 lgraph = addLayers(lgraph,tempLayers2);
 
 tempLayers3 = [
@@ -152,7 +150,7 @@ critic.UseDevice = 'gpu';
 agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 agent.ExperienceBuffer = buffer;
-tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 400, 'NumStepsPerEpoch', 100);
+tfdOpts = rlTrainingFromDataOptions('verbose', 1, 'MaxEpochs', 500, 'NumStepsPerEpoch', 20);
 trainFromData(agent,tfdOpts);
 
 
