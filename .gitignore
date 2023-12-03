@@ -4,6 +4,7 @@ OGLdpf.log
 NeuroRobotToolbox/Nets/rcnn5heads.mat
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
+NeuroRobotToolbox/logs*
 NeuroRobotToolbox/rcnn*
 NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/*.asv

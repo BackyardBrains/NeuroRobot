@@ -370,7 +370,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
                     try
                         this_str = horzcat(state_net_name, '-', action_net_name);
                     catch
-                        this_str = 'nova';
+                        this_str = full_net_name;
                     end
                 else
                     this_str = script_strs(neuron_scripts(nneuron)).name;
