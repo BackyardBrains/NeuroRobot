@@ -5,7 +5,7 @@ close all
 clear
 
 nsmall = 1000;
-image_size = round([227 302] * 0.5);
+image_size = round([227 302] * 0.1);
 
 get_imdir = 1;
 get_torques = 1;
@@ -17,7 +17,7 @@ rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 nets_dir_name = strcat(userpath, '\Nets\');
 
-net_name = 'equator';
+net_name = 'tessier';
 
 gnet = googlenet;
 
@@ -177,13 +177,13 @@ nfiles = length(fds.Files);
 %% Train DQN 
 criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
-    convolution2dLayer(3,16,"Padding","same")
+    convolution2dLayer(3,8,"Padding","same")
     reluLayer
     convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    fullyConnectedLayer(100)
+    fullyConnectedLayer(48)
     reluLayer
-    fullyConnectedLayer(100)
+    fullyConnectedLayer(24)
     reluLayer
     fullyConnectedLayer(n_unique_actions)
     ];
@@ -200,7 +200,7 @@ agent = rlDQNAgent(critic,agentOptions);
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = 10;
-tfdOpts.MaxEpochs = 10000;
+tfdOpts.MaxEpochs = 500;
 tfdOpts.NumStepsPerEpoch = 10;
 
 trainFromData(agent, fds, tfdOpts);
@@ -209,52 +209,3 @@ agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
 
-
-
-
-% critic = rlQValueFunction(net,obsInfo,actInfo, "ObservationInputNames","imageinput_state","ActionInputNames","imageinput_action");
-% critic.UseDevice = 'gpu';
-% agent_opt = rlDQNAgentOptions('MiniBatchSize', 64);
-% agent = rlDQNAgent(critic, agent_opt);
-% agent.ExperienceBuffer = buffer;
-% agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.01;
-% agent.AgentOptions.EpsilonGreedyExploration.Epsilon = 0.05;
-% tfdOpts = rlTrainingFromDataOptions('Verbose', 1, 'MaxEpochs', 100, 'NumStepsPerEpoch', 10, 'ScoreAveragingWindowLength', 10);
-% trainFromData(agent,tfdOpts);
-% agent_fname = horzcat(nets_dir_name, net_name, '-ml');
-% save(agent_fname, 'agent')
-% disp(horzcat('agent net saved as ', agent_fname))
-
-
-% %% Train neural agent from data
-% criticNet = [
-%     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput","Normalization","none")
-%     convolution2dLayer(3,16,"Padding","same")
-%     reluLayer
-%     fullyConnectedLayer(24)
-%     reluLayer
-%     fullyConnectedLayer(numel(actInfo.Elements))
-%     ];
-% 
-% criticNet = dlnetwork(criticNet);
-% summary(criticNet)
-% 
-% figure(2)
-% clf
-% plot(criticNet);
-% title('criticNet')
-% drawnow
-% 
-% critic = rlVectorQValueFunction(criticNet,obsInfo,actInfo, "ObservationInputNames","imageinput");
-% agentOptions = rlDQNAgentOptions(MiniBatchSize=16);
-% agent = rlDQNAgent(critic,agentOptions);
-% % agent = rlDQNAgent(critic);
-% % agent.AgentOptions.EpsilonGreedyExploration.Epsilon = .04;
-% % agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.1;
-% agent.ExperienceBuffer = buffer;
-% % tfdOpts = rlTrainingFromDataOptions;
-% % tfdOpts.StopTrainingCriteria = "none";
-% % tfdOpts.ScoreAveragingWindowLength = 30;
-% % tfdOpts.MaxEpochs = 1000;
-% % tfdOpts.NumStepsPerEpoch = 10;
-% trainFromData(agent);
