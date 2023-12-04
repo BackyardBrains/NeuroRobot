@@ -4,8 +4,8 @@
     #include <emscripten.h>
     #include <wasm_simd128.h>
 #endif
-// #ifndef NEURO_ROBOT_SIMULATOR
-// #define NEURO_ROBOT_SIMULATOR
+#ifndef NEURO_ROBOT_SIMULATOR
+#define NEURO_ROBOT_SIMULATOR
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -99,7 +99,6 @@
 #endif         
 
 #include "NeuronPrototype.h"
-// #include "NeuronPrototypeHeader.cpp"
 // #include "native_opencv.cpp"
 // C++ to Flutter
 
@@ -156,21 +155,6 @@ EXTERNC void platform_log(const char *fmt, ...) {
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE short initialize(){
-    temp_vis_pref_vals = new double*[vis_prefs_count];
-    for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
-        temp_vis_pref_vals[featureIdx] = new double[ncam];
-        temp_vis_pref_vals[featureIdx][0] = 0;
-        temp_vis_pref_vals[featureIdx][1] = 0;
-    }
-    return 1;
-}
-
-
-#ifdef __EMSCRIPTEN__
-  EMSCRIPTEN_KEEPALIVE
-#endif
-
 EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess(short _idxSelected){
     isThreadRunning = false;
     isThreadCreated = -1;
@@ -218,7 +202,7 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
 //     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts){
-    // platform_log("changeNeuronSimulatorProcess 0");
+    // platform_log2("changeNeuronSimulatorProcess 0");
     initializeConstant(_neuronLength);
 
     a=_a;
@@ -237,7 +221,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     visPrefs = new short*[_neuronLength];
     neuron_contacts = new double*[_neuronLength];
     int ctr = 0;
-    double flagcounter = 0;
     for (int ii = 0; ii < _neuronLength; ii++){
         connectome[ii] = new double[_neuronLength]();
         visPrefs[ii] = new short[_neuronLength]();
@@ -245,11 +228,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         for (int j = 0; j < _neuronLength; j++){
             connectome[ii][j] = _connectome[ctr];
             visPrefs[ii][j] = vis_prefs[ctr];
-            if (vis_prefs[ctr]>-1){
-                flagcounter++;
-                // platform_log(std::to_string(visPrefs[ii][j]).c_str());
-                // platform_log("\n");
-            }
             neuron_contacts[ii][j] = _neuronContacts[ctr];
             ctr++;
         }
@@ -288,15 +266,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             spikes_step = new short*[threadInitialTotalNumOfNeurons];
-            for (short i = 0; i < threadInitialTotalNumOfNeurons; i++){
-                spikes_step[i] = new short[epochs];
+            for (short iEpochs = 0; iEpochs < threadInitialTotalNumOfNeurons; iEpochs++){
+                spikes_step[iEpochs] = new short[epochs];
             }
             firing = new short[threadInitialTotalNumOfNeurons];
 
             auto start = std::chrono::high_resolution_clock::now();
             auto elapsed = std::chrono::high_resolution_clock::now() - start;
-            long long microseconds = 0;
-            bool isNeuronPerSecond = true;
+            // long long microseconds = 0;
+            // bool isNeuronPerSecond = true;
             while(isThreadRunning){
                 // mtx.lock();
 
@@ -311,32 +289,55 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     continue;
                 }else{
+                    // std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step*2));
                     std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 2));
                 }
 
-                for (short i = 0; i < threadInitialTotalNumOfNeurons; i++){
+                for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                     for (short j = 0; j < epochs; j++){
-                        spikes_step[i][j] = 0;
+                        spikes_step[iStep][j] = 0;
                     }
-                    vis_I[i] = 0;
+                    vis_I[iStep] = 0;
                 }
 
-                // VISUAL INPUT
-                for (short ii = 9; ii < threadInitialTotalNumOfNeurons; ii++){
-                    sumVisPrefVals = 0;
-                    for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
-                        if (visPrefs[jj][ii] > -1){
+                // for nneuron = 1:nneurons % ugly for loop, fix this
+                //     for ncam = 1:2
+                //         these_prefs = logical(vis_prefs(nneuron, :, ncam));
+                //         %%% GoogleNet/Alexnet missing error here
+                //         vis_I(nneuron) = vis_I(nneuron) + sum(vis_pref_vals(these_prefs, ncam));
+                //     end
+                // end 
 
-                            short k = (visPrefs[jj][ii] / 2);
-                            double val1 = temp_vis_pref_vals[k][0];
-                            double val2 = temp_vis_pref_vals[k][1];
-                            sumVisPrefVals += val1;
-                            sumVisPrefVals += val2;
+                // VISUAL INPUT
+                for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
+                    double sumVisPrefVals = 0;
+                    for (short j = 1; j <= ncam; j++){
+                        for (short k = 0; k < vis_prefs_count; k++){
+                            // only camera sensor for now
+                            if (visPrefs[iStep][j] == (k+1)){ // left eye sensor OR right eye sensor - compare with value filled when the user select edge
+                                // platform_log2("abc1230000");
+                                sumVisPrefVals += vis_pref_vals[iStep][j];
+                                // debug_print("abc");
+                                // sumVisPrefVals += vis_pref_vals[i][7];
+                                // sumVisPrefVals += vis_pref_vals[i][6];
+                                // sumVisPrefVals += vis_pref_vals[i][8];
+
+                                // if (i == 5){ // left motor forward
+                                //     sumVisPrefVals += vis_pref_vals[i][5];
+                                // }else
+                                // if (i == 7){ // right motor forward
+                                //     sumVisPrefVals += vis_pref_vals[i][7];
+                                // }else
+                                // if (i == 6){ // left motor backward
+                                //     sumVisPrefVals += vis_pref_vals[i][6];
+                                // }else
+                                // if (i == 8){ // right motor backward
+                                //     sumVisPrefVals += vis_pref_vals[i][8];
+                                // }
+                            }
                         }
                     }
-                    vis_I[ii] = vis_I[ii] + sumVisPrefVals;
-                    // vis_I[ii] = 0;
-
+                    vis_I[iStep] = vis_I[iStep] + (sumVisPrefVals);
                 }
 
                 std::vector<double*> v_step = std::vector<double*>();
@@ -407,109 +408,185 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                 }
 
-
+                // short* tempFiring = new short[threadTotalNumOfNeurons];
+                // for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
+                //     for (short t = 0; t<epochs; t++){
+                //         tempFiring[neuronIdx] += spikes_step[neuronIdx][t];
+                //     }
+                // }
+                // for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
+                //     if (tempFiring[neuronIdx] > 0){
+                //         firing[neuronIdx] = 1;
+                //     }else{
+                //         firing[neuronIdx] = 0;
+                //     }
+                // }
                 for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
                     firing[neuronIdx] = isStepSpiking[neuronIdx];
                 }
 
 
+
+                // if (isNeuronPerSecond){
+                //     isNeuronPerSecond = false;
+                //     elapsed = std::chrono::high_resolution_clock::now() - start;
+                //     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                //     // int microtime = microseconds;
+                //     nps[0] = static_cast<int>(microseconds);
+                // }
+                // debug_print( (std::to_string(microseconds)+" microseconds" ).c_str());
+                // mtx.unlock();
+
                 std::string str = "S|";
+                // short isFlagSpikingNow = 0;
                 for (int idx=0; idx<threadTotalNumOfNeurons; idx++){
                     neuronCircles[idx] = isStepSpiking[idx];
                 }
 
-     
+                // #ifdef __EMSCRIPTEN__
+                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
+                //         neuronCircles[idx] = isStepSpiking[idx];
+                //     }
+                // #else
+                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
+                //         str.append(std::to_string(isStepSpiking[idx]).c_str());
+                //         if (idx < threadTotalNumOfNeurons-1) str.append("|");
+                //         if (isStepSpiking[idx] == 1){
+                //             isFlagSpikingNow = 1;
+                //         }
+                //     }
+                //     if (prevFlagSpiking == 0 && isFlagSpikingNow == 0){
+                //     }else
+                //     if (prevFlagSpiking == 1 && isFlagSpikingNow == 1){
+                //         #ifdef __EMSCRIPTEN__
+                //         #else
+                //             debug_print(str.c_str());
+                //         #endif                        
+                //     }else{
+                //         prevFlagSpiking = isFlagSpikingNow;
+                //         #ifdef __EMSCRIPTEN__
+                //         #else
+                //             debug_print(str.c_str());
+                //         #endif                        
+                //     }
+
+                // #endif                
                 short startPos = static_cast<short>( (currentStep) * ms_per_step );
                 // for (int idx = 0; idx < v_step.size(); idx++) {
 
                 for (short idx = 0; idx < static_cast<short>(epochs); idx++) {
+                    // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
                 }
                 positions[0] = startPos + static_cast<short>(epochs);
+                // debug_print( (std::to_string(positions[0])+" | " ).c_str());
+
+                // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
+                //     positions[neuronIndex] = startPos + epochs;
+                // }
                 currentStep++;
                 if (currentStep >= steps_per_loop){
                     currentStep = 0;            
                 }
 
                 if (isSelected){
+                    // debug_print( (std::to_string(idxSelected) + " | " +std::to_string(threadTotalNumOfNeurons)).c_str());
                     if (idxSelected < threadTotalNumOfNeurons){
                         std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
                     }
                 }
 
-                // UPDATE MOTORS
-                for (short idx=0; idx<5; idx++){
-                    motor_command[idx] = 0;
-                }
-                double left_backward = 0;
-                double left_forward = 0;
-                double right_backward = 0;
-                double right_forward = 0;
-                for (short i =0; i < threadTotalNumOfNeurons;i++){
-                    if ( isStepSpiking[i] == 1 ){
-                        left_backward += (neuron_contacts[i][5] + neuron_contacts[i][7]);
-                        left_forward += (neuron_contacts[i][6] + neuron_contacts[i][8]);
+                // % Step data
+                // spikes_step ==== spikingNow;
 
-                        right_forward += (neuron_contacts[i][9] + neuron_contacts[i][11]);
-                        right_backward += (neuron_contacts[i][10] + neuron_contacts[i][12]);
-                    }
-                }
-                left_forward *= 0.5;
-                right_forward *= 0.5;
-                left_backward *= 0.5;
-                right_backward *= 0.5;
-
-
-                // scale
-                left_forward *= 2.5;
-                right_forward *= 2.5;
-                left_backward *= 2.5;
-                right_backward *= 2.5;
-
-                int left_torque = left_forward - left_backward;
-                int left_torque_mem = left_torque;
-                int left_dir = 0;
-
-                short sign = 0;
-                if (left_torque > 0) {
-                    sign = 1;
-                } else {
-                    sign = -1;
-                }                
-                left_dir = std::max(1 - sign *(left_torque), 1);
-
-                left_torque = abs(left_torque);
-                if (left_torque > 250) left_torque = 250;
-                // left_torque(left_torque > 250) = 250;
-                motor_command[2] = left_torque;
-                motor_command[3]= left_dir;
+                // firing = sum(spikes_step, 2) > 0;
+                // steps_since_last_spike(firing) = 0;
+                // steps_since_last_spike = steps_since_last_spike + 1;
                 
-                int right_torque = right_forward - right_backward;
-                int right_torque_mem = right_torque;
-                int right_dir = 0;
-                if (right_torque > 0) {
-                    sign = 1;
-                } else {
-                    sign = -1;
-                }                
-                right_dir = std::max(1 - sign *(right_torque), 1);
-                right_torque = abs(right_torque); 
-                if (right_torque > 250) right_torque = 250;
-                motor_command[0] = right_torque;
-                motor_command[1] = right_dir;
+                // double *sumFiring = new double[threadTotalNumOfNeurons]();
+                
+                // for (short idx = 0; idx < numberOfSpikingNow; idx++){
+                //     short spikingNeuronIndex = static_cast<short>(spikingNow[idx]);
 
-                if ( (currentStep * pulse_period) < init_motor_block_in_s ){
-                    motor_command[0] = 0;
-                    motor_command[1] = 0;
-                    motor_command[2] = 0;
-                    motor_command[3] = 0;
-                    motor_command[4] = 1000;
-                }
-                motor_command[5] = motorCounter;
-                motorCounter++;
-                motorCounter %= 100;
+                //     for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
+                //         sumConnectome[j] += connectome[spikingNeuronIndex][j];
+                //     }
+                // }
+
+                // UPDATE MOTORS
+                // for (short idx=0; idx<5; idx++){
+                //     motor_command[idx] = 0;
+                // }
+                // // debug_print( " !!!microseconds"  );
+                // // debug_print( (std::to_string(sizeof(motor_command)/8)+" microseconds" ).c_str() );
+                // // std::fill(motor_command, motor_command + 5 * 8, 0);
+
+                // double left_backward = 0;
+                // double left_forward = 0;
+                // double right_backward = 0;
+                // double right_forward = 0;
+                // for (short i =0; i < threadTotalNumOfNeurons;i++){
+                //     if ( isStepSpiking[i] == 1 ){
+                //         left_backward += (neuron_contacts[i][5] + neuron_contacts[i][7]);
+                //         left_forward += (neuron_contacts[i][6] + neuron_contacts[i][8]);
+
+                //         right_forward += (neuron_contacts[i][9] + neuron_contacts[i][11]);
+                //         right_backward += (neuron_contacts[i][10] + neuron_contacts[i][12]);
+                //     }
+                // }
+                // left_forward *= 0.5;
+                // right_forward *= 0.5;
+                // left_backward *= 0.5;
+                // right_backward *= 0.5;
+
+
+                // // scale
+                // left_forward *= 2.5;
+                // right_forward *= 2.5;
+                // left_backward *= 2.5;
+                // right_backward *= 2.5;
+
+                // int left_torque = left_forward - left_backward;
+                // int left_torque_mem = left_torque;
+                // int left_dir = 0;
+
+                // short sign = 0;
+                // if (left_torque > 0) {
+                //     sign = 1;
+                // } else {
+                //     sign = -1;
+                // }                
+                // left_torque = std::max(1 - sign *(left_torque), 1);
+
+                // left_torque = abs(left_torque);
+                // if (left_torque > 250) left_torque = 250;
+                // // left_torque(left_torque > 250) = 250;
+                // motor_command[2] = left_torque;
+                // motor_command[3]= left_dir;
+                
+                // int right_torque = right_forward - right_backward;
+                // int right_torque_mem = right_torque;
+                // int right_dir = 0;
+                // if (right_torque > 0) {
+                //     sign = 1;
+                // } else {
+                //     sign = -1;
+                // }                
+                // right_torque = std::max(1 - sign *(right_torque), 1);
+                // right_torque = abs(right_torque); 
+                // if (right_torque > 250) right_torque = 250;
+                // motor_command[0] = right_torque;
+                // motor_command[1] = right_dir;
+
+                // if ( (currentStep * pulse_period) < init_motor_block_in_s ){
+                //     motor_command[0] = 0;
+                //     motor_command[1] = 0;
+                //     motor_command[2] = 0;
+                //     motor_command[3] = 0;
+                //     motor_command[4] = 1000;
+                // }
 
 
 
@@ -520,6 +597,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
             }
             if (!isThreadRunning){
+                // delete[] (a);
+                // delete[] (b);
+                // delete[] (c);
+                // delete[] (d);
+                // delete[] (i);
+                // delete[] (w);
                 delete[] (v);
                 delete[] (u);
                 delete[] (connectome);
@@ -527,8 +610,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] (neuron_contacts);
                 delete[] (vis_pref_vals);
 
-                for (short i = 0; i < threadInitialTotalNumOfNeurons; i++){
-                    delete[] spikes_step[i];
+                for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
+                    delete[] spikes_step[iStep];
                 }
                 delete[] spikes_step;
 
@@ -548,7 +631,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         // debug_print("t detach");
 
     }
-    return flagcounter;
+    return 1.0;
 }
 
 #ifdef __EMSCRIPTEN__
@@ -570,4 +653,4 @@ EMSCRIPTEN_BINDINGS(my_module) {
 // EXTERNC double createFilters(){
 //     return 30;
 // }
-// #endif
+#endif

@@ -9,16 +9,17 @@ import 'package:neurorobot/utils/Allocator.dart';
 late ffi.Pointer<ffi.Uint8> ptrFrame;
 ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
       count: 320*240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) {
+Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
     // print("testColorCV");
 
     Map map = Map();
     map["frameData"] = frameData;
     // map["lowerB"] = ptrLowerB.asTypedList(3);
     // map["upperB"] = ptrUpperB.asTypedList(3);
-    map["lowerB"] = ptrLowerB;
-    map["upperB"] = ptrUpperB;
-    return compute(_checkNativeColorCv,map);
+    // map["lowerB"] = ptrLowerB;
+    // map["upperB"] = ptrUpperB;
+    await compute(_checkNativeColorCv,map);
+    return true;
 }
 
 bool _checkNativeColorCv(map){
@@ -35,15 +36,15 @@ bool _checkNativeColorCv(map){
     Uint8List lowerB = ptrLowerB.asTypedList(3);
     Uint8List upperB = ptrUpperB.asTypedList(3);
     
-    Uint8List _lowerB = map["lowerB"];
-    Uint8List _upperB = map["upperB"];
+    // Uint8List _lowerB = map["lowerB"];
+    // Uint8List _upperB = map["upperB"];
     
-    lowerB[0] = _lowerB[0];
-    lowerB[1] = _lowerB[1];
-    lowerB[2] = _lowerB[2];
-    upperB[0] = _upperB[0];
-    upperB[1] = _upperB[1];
-    upperB[2] = _upperB[2];
+    // lowerB[0] = _lowerB[0];
+    // lowerB[1] = _lowerB[1];
+    // lowerB[2] = _lowerB[2];
+    // upperB[0] = _upperB[0];
+    // upperB[1] = _upperB[1];
+    // upperB[2] = _upperB[2];
     
 
     Uint8List data = ptrFrame.asTypedList(redBg.length);
@@ -57,7 +58,8 @@ bool _checkNativeColorCv(map){
 
     
     // nativeocv
-    int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrLowerB, ptrUpperB, 40, ptrMaskedFrame);
+    int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrMaskedFrame);
+    // int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrLowerB, ptrUpperB, 40, ptrMaskedFrame);
     try{
 
       freeMemory(ptrFrame);
@@ -67,15 +69,15 @@ bool _checkNativeColorCv(map){
 
     }
 
-    int area = 320 * 240;
-    int percentage = (status * 100 /area).floor();
-    if (percentage > 20){
-      print("!Occupied by that color");
-      return true;
-    }else{
-      print("#Not Occupied by that color");
-      return false;
-    }
-
+    // int area = 320 * 240;
+    // int percentage = (status * 100 /area).floor();
+    // if (percentage > 20){
+    //   print("!Occupied by that color");
+    //   return true;
+    // }else{
+    //   print("#Not Occupied by that color");
+    //   return false;
+    // }
+    return true;
 
   }

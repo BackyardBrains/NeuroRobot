@@ -17,6 +17,9 @@ typedef ChangeIsPlayingProcess = int Function(int);
 typedef change_idx_selected_func = ffi.Int16 Function(ffi.Int16);
 typedef ChangeIdxSelectedProcess = int Function(int);
 
+typedef _initialize_func = ffi.Int Function();
+typedef InitializeProcess = int Function();
+
 typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Double>,
@@ -40,7 +43,6 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>, //motorCommandBuf
   ffi.Pointer<ffi.Double>, //neuronContactsBuf
 );
-
 typedef ChangeNeuronSimulatorProcess = double Function(
   ffi.Pointer<ffi.Double>, // a
   ffi.Pointer<ffi.Double>, // b
@@ -99,13 +101,14 @@ class Nativec {
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
   late ChangeIdxSelectedProcess _changeIdxSelectedProcess;
   late StopThreadProcess _stopThreadProcess;
+  late InitializeProcess _initialize;
 
   static int totalBytes = 200 * 30;
 
-  ffi.Pointer<ffi.Double>? canvasBuffer1;
-  ffi.Pointer<ffi.Double>? canvasBuffer2;
+  static ffi.Pointer<ffi.Double>? canvasBuffer1;
+  static ffi.Pointer<ffi.Double>? canvasBuffer2;
 
-  Float64List canvasBufferBytes1 = Float64List(0);
+  static Float64List canvasBufferBytes1 = Float64List(0);
   Float64List canvasBufferBytes2 = Float64List(0);
 
   static ReceivePort? thresholdPublication;
@@ -142,6 +145,9 @@ class Nativec {
     _stopThreadProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<stop_thread_func>>('stopThreadProcess')
         .asFunction();
+    _initialize = nativeLrsLib
+      .lookup<ffi.NativeFunction<_initialize_func>>('initialize')
+      .asFunction();
 
     // C++ to Flutter
     // final initializeApi = nativeLrsLib.lookupFunction<
@@ -202,8 +208,11 @@ class Nativec {
       ffi.Pointer<ffi.Double> motorCommandBuf,
       ffi.Pointer<ffi.Double> neuronContactsBuf,
       ) {
-    return _changeNeuronSimulatorProcess(a, b, c, d, i, w, connectome, level,
+    double res = _changeNeuronSimulatorProcess(a, b, c, d, i, w, connectome, level,
         neuronLength, envelopeSize, bufferSize, isPlaying, visPrefs, motorCommandBuf,neuronContactsBuf);
+        print("res");
+        print(res);
+        return res;
   }
 
   // double *_canvasBuffer1, double *_canvasBuffer2, uint16_t *_positions,short *_neuronCircle, int *_nps,
@@ -234,4 +243,8 @@ class Nativec {
   int stopThreadProcess(int idxSelected) {
     return _stopThreadProcess(idxSelected);
   }
+  int initialize() {
+    return _initialize();
+  }
+
 }

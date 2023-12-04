@@ -23,7 +23,7 @@ Future<void> neuronDialogBuilder(
     "Dopaminergic",
     "Striatal"
   ];
-  List<String> neuronTypes = ["-", "RS", "FS", "LTS", "IB", "CH", "RZ", "TC"];
+  List<String> neuronTypes = ["-", "Quiet", "Occassionally active", "Highly active", "Generates bursts", "Bursts when activated", "Dopaminergic", "Striatal"];
   List<DropdownMenuItem> dropdownMenuItems =
       List<DropdownMenuItem>.generate(neuronTypes.length, (index) {
     return DropdownMenuItem(
@@ -91,22 +91,22 @@ Future<void> axonDialogBuilder(
     linkNeuronConnection) {
   List<String> linkTypesLabel = [
     "Select Visual Preference",
-    "Red",
-    "Red (side)",
-    "Green",
-    "Green (side)",
     "Blue",
     "Blue (side)",
+    "Green",
+    "Green (side)",
+    "Red",
+    "Red (side)",
     "Movement"
   ];
   List<String> linkTypes = [
     "-",
-    "Red",
-    "Red (side)",
-    "Green",
-    "Green (side)",
     "Blue",
     "Blue (side)",
+    "Green",
+    "Green (side)",
+    "Red",
+    "Red (side)",
     "Movement"
   ];
 
@@ -182,7 +182,9 @@ Future<void> axonDialogBuilder(
                       val = value;
                       linkTypeChangecallback(
                           linkTypes.indexOf(value.toString()) - 1);
-                      Navigator.pop(context);
+                      setState(() {});
+
+                      // Navigator.pop(context);
                     },
                   ),
                 } else if (isSensoryType == 2) ...[

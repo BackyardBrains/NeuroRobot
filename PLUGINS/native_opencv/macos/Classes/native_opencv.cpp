@@ -197,12 +197,17 @@ EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
 Size net_input_size = Size(224,224);
 
-
+bool isInitialized = false;
+short resetCounter = 0;
 
 void initializeCameraConstant(){
-    vis_pref_vals = new double*[7];
-    for (short camIdx = 0; camIdx < ncam; camIdx++){
-        vis_pref_vals[camIdx] = new double[ncam];
+    vis_pref_vals = new double*[vis_prefs_count];
+    // temp_vis_pref_vals = new double*[vis_prefs_count];
+    for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
+        vis_pref_vals[featureIdx] = new double[ncam];
+        // temp_vis_pref_vals[featureIdx] = new double[ncam];
+        // temp_vis_pref_vals[featureIdx][0] = 100;
+        // temp_vis_pref_vals[featureIdx][1] = 100;
     }
 }
 
@@ -217,13 +222,18 @@ void initializeCameraConstant(){
         return CV_VERSION;
     }
 
+
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
-    int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
-        platform_log("INITIALIZE CAMERA CONSTANT Start : \n");
-        initializeCameraConstant();
-        platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
+    // int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
+    int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* imgMask) {
+        // platform_log("INITIALIZE CAMERA CONSTANT Start : \n");
+        if (!isInitialized){
+            isInitialized = true;
+            initializeCameraConstant();
+        }
+        // platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
         // platform_log(std::to_string(epochs).c_str());
 
         vector<uint8_t> buffer(img, img + imgLength);
@@ -340,6 +350,38 @@ void initializeCameraConstant(){
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
                     this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
                     this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    if (this_score>5 || this_left_score > 5 || this_right_score > 5){
+                        resetCounter = 0;
+                        temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
+                        if (ncam == 0) {
+                            temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                        }
+                        else{                    
+                            temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        }
+
+                        // platform_log("STRRRR\n");
+                        // platform_log(std::to_string(ncol).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string(this_score).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string(this_left_score).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string(this_right_score).c_str());
+                        // platform_log("\n");
+                        // platform_log("\n");
+                    }else{
+                        if (temp_vis_pref_vals[ncol * 2][ncam]!=0){
+                            resetCounter++;
+                            if (resetCounter >=20 ){
+                                resetCounter = 0;
+                                temp_vis_pref_vals[ncol * 2][ncam] = 0;
+                                temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
+                                // platform_log("Reset Counter\n");
+                                // platform_log(std::to_string(ncol).c_str());
+                            }
+                        }
+                    }
                 } else {
                     meanx = 0;
                     this_score = 0;
@@ -348,13 +390,15 @@ void initializeCameraConstant(){
                     // platform_log(std::to_string(777788889999).c_str());
                     // vis_pref_vals[ncol * 2] = 0;
                     // vis_pref_vals[ncol * 2 + 1] = 0;
+
+                    temp_vis_pref_vals[ncol * 2][ncam] = 0;
+                    temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
+                    // platform_log("No Connected Components\n");
+                    // platform_log(std::to_string(ncol).c_str());
+
                 }
-                // platform_log("STRRRR\n");
-                // platform_log(std::to_string(ncol * 2 + 1).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(ncam).c_str());
-                // platform_log(std::to_string(this_left_score).c_str());
-                // platform_log(std::to_string(this_right_score).c_str());
+
+
                 vis_pref_vals[ncol * 2][ncam] = this_score;
                 if (ncam == 0) {
                     vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
@@ -389,7 +433,7 @@ void initializeCameraConstant(){
                 int max_idx = 0;
 
                 max_size = cca_wrapper_bw.get_max_component_area();
-                double meanx = cca_wrapper_bw.get_centroid_x(cca_wrapper_bw.max_idx);
+                // double meanx = cca_wrapper_bw.get_centroid_x(cca_wrapper_bw.max_idx);
                 
                 this_score = sigmoid(max_size, 1000, 0.0075) * 50;
 

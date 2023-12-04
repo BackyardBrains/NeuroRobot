@@ -24,8 +24,8 @@ void createWebSocket(List<dynamic> args) {
   final rcvWriteChannelPort = ReceivePort();
   // rcvWriteChannelPort.sendPort.send(message)
   rcvWriteChannelPort.listen((message) {
-    print("socketisolate message");
-    print(message);
+    // print("socketisolate message");
+    // print(message);
     if (message == "DISCONNECT"){
       heartbeatTimer.cancel();
       channel.sink.close();
@@ -44,17 +44,17 @@ void createWebSocket(List<dynamic> args) {
       heartbeatMissingCounter++;
     }
 
-    print("CLLOSEEE HEART BEAT0");
-    print(heartbeatMissingCounter);
-    print(DateTime.now().millisecondsSinceEpoch - heartbeatMissingLastTime);
-    if (heartbeatMissingCounter > 10){
-      heartbeatMissingCounter = 0;
-      print("CLLOSEEE HEART BEAT");
-      channel.sink.close();
-      writeMainPort.send("DISCONNECTED");
-      rcvWriteChannelPort.close();
-      timer.cancel();
-    }
+    // print("CLLOSEEE HEART BEAT0");
+    // print(heartbeatMissingCounter);
+    // print(DateTime.now().millisecondsSinceEpoch - heartbeatMissingLastTime);
+    // if (heartbeatMissingCounter > 10){
+    //   heartbeatMissingCounter = 0;
+    //   print("CLLOSEEE HEART BEAT");
+    //   channel.sink.close();
+    //   writeMainPort.send("DISCONNECTED");
+    //   rcvWriteChannelPort.close();
+    //   timer.cancel();
+    // }
   });
 
   // Send port back to main isolate

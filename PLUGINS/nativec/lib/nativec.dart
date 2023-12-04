@@ -75,6 +75,10 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Uint32>,
 );
 
+
+typedef _init_func = ffi.Int Function();
+typedef InitializeProcess = int Function();
+
 // Low Pass filter sample https://www.youtube.com/watch?v=X8JD8hHkBMc
 class Nativec {
   ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
@@ -88,6 +92,7 @@ class Nativec {
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
   late ChangeIdxSelectedProcess _changeIdxSelectedProcess;
   late StopThreadProcess _stopThreadProcess;
+  late InitializeProcess _initialize;
 
   static int totalBytes = 200 * 30;
 
@@ -131,6 +136,9 @@ class Nativec {
     _stopThreadProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<stop_thread_func>>('stopThreadProcess')
         .asFunction();
+    _initialize = nativeLrsLib
+      .lookup<ffi.NativeFunction<_init_func>>('initialize')
+      .asFunction();
 
     // C++ to Flutter
     /*

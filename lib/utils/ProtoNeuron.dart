@@ -201,45 +201,58 @@ class ProtoNeuron extends CustomPainter{
     return isSelected;
   }
   
+// List<String> neuronFixedType = ["Quiet", "Occassionally active", "Highly active", "Generates bursts", "Bursts when activated", "Dopaminergic", "Striatal"];
+// String randomNeuronType(){
+//   int r = Random().nextInt(7); // <9
+//   return neuronFixedType[r];
+// }
+
   void fillNeuronType(SingleNeuron neuron, int idx, Float64List aBufList, Float64List bBufList, Int16List cBufList, Int16List dBufList, Float64List iBufList, Float64List wBufList) {
     try{
-      switch(neuron.neuronType){
-        case "RS":
+      switch (neuron.neuronType){
+        case "Quiet":
           aBufList[idx] = 0.02;
-          bBufList[idx] = 0.2;
-        break;
-        case "IB":
-          bBufList[idx] = 0.19;
-
-          cBufList[idx] = -55;
-          dBufList[idx] = 4;
-        break;
-        case "CH":
-          bBufList[idx] = 0.19;
-
-          cBufList[idx] = -50;
+          bBufList[idx] = 0.1;
+          cBufList[idx] = -65;
           dBufList[idx] = 2;
         break;
-        case "FS": 
-          aBufList[idx] = 0.1;
+        case "Occassionally active":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.16;
+          cBufList[idx] = -65;
+          dBufList[idx] = 2;
+        break;
+        case "Highly active":
+          aBufList[idx] = 0.02;
           bBufList[idx] = 0.2;
+          cBufList[idx] = -65;
+          dBufList[idx] = 2;
+        break;
+        case "Generates bursts":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.16;
+          cBufList[idx] = -8;
+          dBufList[idx] = 2;
+        break;
+        case "Bursts when activated":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.1;
+          cBufList[idx] = -37;
+          dBufList[idx] = 2;
+        break;
+        case "Dopaminergic":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.1;
+          cBufList[idx] = -65;
+          dBufList[idx] = 2;
+        break;
+        case "Striatal":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.1;
+          cBufList[idx] = -65;
+          dBufList[idx] = 2;
         break;
 
-        case "TC": 
-          bBufList[idx] = 0.19;
-          cBufList[idx] = -65;
-          // dBufList[idx] = 0.05;
-          dBufList[idx] = 0;
-        break;      
-        case "RZ":
-          aBufList[idx] = 0.1;
-          bBufList[idx] = 0.3;
-        break;      
-
-        case "LTS":
-          aBufList[idx] = 0.02;
-          bBufList[idx] = 0.25;
-        break;      
       }
 
     }catch(ex){
