@@ -84,14 +84,14 @@ if use_esp32 && use_webcam
     external_camera
 end
 
-if use_custom_net
-    lframe = imresize(large_frame, [227 302]);
-    [~, scores] = classify(net, lframe);
-    if ~use_cnn
-        vis_pref_vals(8:end, 1) = scores * 50;
-        vis_pref_vals(8:end, 2) = scores * 50;
-    else
-        vis_pref_vals(8+13:end, 1) = scores * 50;
-        vis_pref_vals(8+13:end, 2) = scores * 50;
-    end    
-end
+% if use_custom_net
+%     lframe = imresize(large_frame, [227 302]);
+%     [~, scores] = classify(net, lframe);
+%     if ~use_cnn
+%         vis_pref_vals(8:end, 1) = scores * 50;
+%         vis_pref_vals(8:end, 2) = scores * 50;
+%     else
+%         vis_pref_vals(8+13:end, 1) = scores * 50;
+%         vis_pref_vals(8+13:end, 2) = scores * 50;
+%     end    
+% end

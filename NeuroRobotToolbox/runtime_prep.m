@@ -173,31 +173,23 @@ if exist('rak_only', 'var') && brain_support
             action_net_name = '';        
         end
 
-        load(strcat(nets_dir_name, state_net_name, '-ml'))
         try
+            load(strcat(nets_dir_name, state_net_name, '-ml'))
             load(strcat(nets_dir_name, state_net_name, '-labels'))
             regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
             vis_pref_names = [vis_pref_names, labels'];
         catch
-            regression_flag = 1;
-            vis_pref_names = [vis_pref_names, 'scalar'];
+            % regression_flag = 1;
+            % vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
         if length(cnet_temp) >= 1
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
-            
-            % load(strcat(nets_dir_name, full_net_name, '-motor_combs'))
-            % load(strcat(nets_dir_name, full_net_name, '-actions'))
             load(strcat(nets_dir_name, state_net_name, '-motor_combs'))
-            load(strcat(nets_dir_name, state_net_name, '-actions'))
-
-            n_unique_actions = length(unique(actions));        
-            % motor_combs = zeros(n_unique_actions, 2);
-            % for naction = 1:n_unique_actions
-            %     motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
-            % end
+            n_unique_actions = size(motor_combs, 2);
+            rl_image_size = round([227 302] * 0.1);
         end 
     else
         state_net_name = '';
@@ -415,8 +407,6 @@ if exist('rak_only', 'var') && brain_support
     
     xstep = 0;
     rak_fail = 0;
-
-    rl_image_size = round([227 302] * 0.5);
     
     audio_I = zeros(nneurons, 1);
     audio_empty_flag = 0;

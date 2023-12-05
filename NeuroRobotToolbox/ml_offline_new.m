@@ -4,7 +4,7 @@
 close all
 clear
 
-nsmall = 1000;
+nsmall = 10000;
 image_size = round([227 302] * 0.1);
 
 get_imdir = 1;
@@ -179,11 +179,7 @@ criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
     convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    convolution2dLayer(3,8,"Padding","same")
-    reluLayer
-    fullyConnectedLayer(48)
-    reluLayer
-    fullyConnectedLayer(24)
+    fullyConnectedLayer(8)
     reluLayer
     fullyConnectedLayer(n_unique_actions)
     ];
@@ -200,7 +196,7 @@ agent = rlDQNAgent(critic,agentOptions);
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = 10;
-tfdOpts.MaxEpochs = 500;
+tfdOpts.MaxEpochs = 5000;
 tfdOpts.NumStepsPerEpoch = 10;
 
 trainFromData(agent, fds, tfdOpts);
