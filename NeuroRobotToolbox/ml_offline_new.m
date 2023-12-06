@@ -4,9 +4,6 @@
 close all
 clear
 
-nsmall = 10000;
-image_size = round([227 302] * 0.1);
-
 get_imdir = 1;
 get_torques = 1;
 get_combs = 1;
@@ -21,6 +18,7 @@ net_name = 'tessier';
 
 gnet = googlenet;
 
+
 %% Get images
 disp('Getting images...')
 if get_imdir
@@ -33,6 +31,7 @@ end
 nimages = size(image_dir, 1);
 ntuples = nimages;
 disp(horzcat('nimages / ntuples: ', num2str(ntuples)))
+
 
 %% Torques
 disp('Getting torques...')
@@ -59,7 +58,7 @@ end
 %% Combs
 disp('Getting actions / combs...')
 if get_combs
-    n_unique_actions = 10; %%%%%%%%
+    n_unique_actions = 10;
     rng(1)
     actions = kmeans(torque_data, n_unique_actions);
     n_unique_actions = length(unique(actions));
@@ -89,6 +88,7 @@ end
 
 
 %% Get rewards
+disp('Getting rewards...')
 if get_rewards
     gnet = googlenet;
     rewards = zeros(ntuples, 1);
@@ -109,6 +109,10 @@ end
 
 
 %%
+image_size = round([227 302] * 0.1);
+nsmall = 1000;
+steps_per_sequence = 10;
+
 obsInfo = rlNumericSpec(image_size);
 obsInfo.Name = "CameraImages";
 
@@ -120,13 +124,11 @@ try
 catch
 end
 mkdir('./logs')
-steps_per_sequence = 10;
 
 small_inds = randsample(6:(ntuples-steps_per_sequence), nsmall);
 
 if get_buffer
     disp('Getting buffer...')
-    % buffer = rlReplayMemory(obsInfo,actInfo, nsmall * steps_per_sequence);
     for n = 1:nsmall
         if ~rem(n, round(nsmall/20))
             disp(horzcat('done = ', num2str(round((100 * (n/nsmall)))), '%'))
@@ -144,8 +146,6 @@ if get_buffer
             next_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
             next_im_small = imresize(next_im, image_size);
             next_im_g = rgb2gray(next_im_small);      
-
-            % this_ind = start_ind + (ntuple - 1);
 
             exp(ntuple).Observation = {this_im_g};
             exp(ntuple).Action = {actions(this_ind - 5)};
@@ -177,9 +177,13 @@ nfiles = length(fds.Files);
 %% Train DQN 
 criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
+    convolution2dLayer(5,16,"Padding","same")
+    reluLayer
     convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    fullyConnectedLayer(8)
+    fullyConnectedLayer(64)
+    reluLayer
+    fullyConnectedLayer(24)
     reluLayer
     fullyConnectedLayer(n_unique_actions)
     ];
@@ -188,16 +192,27 @@ criticNet = dlnetwork(criticNet);
 summary(criticNet)
 
 critic = rlVectorQValueFunction(criticNet,obsInfo,actInfo);
-
+critic.UseDevice = 'gpu';
+critic.LearnRate = 0.1;
 agentOptions = rlDQNAgentOptions;
-agentOptions.MiniBatchSize = 512;
+agentOptions.MiniBatchSize = 256;
+agentOptions.ExperienceBufferLength = nsmall * steps_per_sequence;
+
 agent = rlDQNAgent(critic,agentOptions);
 
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = 10;
-tfdOpts.MaxEpochs = 5000;
+tfdOpts.MaxEpochs = 1000;
 tfdOpts.NumStepsPerEpoch = 10;
+
+options = trainingOptions("sgdm", ...
+    LearnRateSchedule="piecewise", ...
+    LearnRateDropFactor=0.2, ...
+    LearnRateDropPeriod=5, ...
+    MaxEpochs=20, ...
+    MiniBatchSize=64, ...
+    Plots="training-progress")
 
 trainFromData(agent, fds, tfdOpts);
 
