@@ -4,10 +4,10 @@
 close all
 clear
 
-get_imdir = 1;
-get_torques = 1;
-get_combs = 1;
-get_rewards = 1;
+get_imdir = 0;
+get_torques = 0;
+get_combs = 0;
+get_rewards = 0;
 get_buffer = 1;
 
 rec_dir_name = '';
@@ -169,53 +169,47 @@ if get_buffer
     end
 end
 
-%%
 fds = fileDatastore("./logs", "ReadFcn", @ml_readFcn);
 nfiles = length(fds.Files);
 
 
-%% Train DQN 
+%% Train DQN
+
+% Net
 criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
     convolution2dLayer(5,16,"Padding","same")
     reluLayer
-    convolution2dLayer(3,8,"Padding","same")
+    convolution2dLayer(5,8,"Padding","same")
     reluLayer
-    fullyConnectedLayer(64)
+    fullyConnectedLayer(48)
     reluLayer
     fullyConnectedLayer(24)
     reluLayer
     fullyConnectedLayer(n_unique_actions)
     ];
 
+% Critic
 criticNet = dlnetwork(criticNet);
-summary(criticNet)
-
 critic = rlVectorQValueFunction(criticNet,obsInfo,actInfo);
 critic.UseDevice = 'gpu';
-critic.LearnRate = 0.1;
+
+% Agent
 agentOptions = rlDQNAgentOptions;
 agentOptions.MiniBatchSize = 256;
 agentOptions.ExperienceBufferLength = nsmall * steps_per_sequence;
-
 agent = rlDQNAgent(critic,agentOptions);
+agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.01;
 
+% Training
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = 10;
 tfdOpts.MaxEpochs = 1000;
 tfdOpts.NumStepsPerEpoch = 10;
-
-options = trainingOptions("sgdm", ...
-    LearnRateSchedule="piecewise", ...
-    LearnRateDropFactor=0.2, ...
-    LearnRateDropPeriod=5, ...
-    MaxEpochs=20, ...
-    MiniBatchSize=64, ...
-    Plots="training-progress")
-
 trainFromData(agent, fds, tfdOpts);
 
+% Save
 agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
