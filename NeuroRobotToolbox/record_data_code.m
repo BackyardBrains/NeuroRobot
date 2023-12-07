@@ -25,7 +25,7 @@ if record_data > 0
     imwrite(this_frame, fname);
     
     % Save torques
-    torques = [left_torque_mem right_torque_mem];    
+    torques = [-left_torque_mem right_torque_mem];    
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-torques.mat');
     save(fname, 'torques', '-mat')
 
