@@ -128,6 +128,7 @@ end
 mkdir('./logs')
 
 small_inds = randsample(6:(ntuples-steps_per_sequence), nsmall);
+mode_action = mode(actions);
 
 if get_buffer
     disp('Getting buffer...')
@@ -151,7 +152,12 @@ if get_buffer
 
             exp(ntuple).Observation = {this_im_g};
             exp(ntuple).Action = {actions(this_ind - 5)};
-            exp(ntuple).Reward = rewards(this_ind);
+            if actions(this_ind - 5) == mode_action
+                this_reward = rewards(this_ind);
+            else
+                this_reward = -1;
+            end
+            exp(ntuple).Reward = this_reward;
             exp(ntuple).NextObservation = {next_im_g};
             exp(ntuple).IsDone = 0;
         end
@@ -213,10 +219,11 @@ disp(horzcat('agent net saved as ', agent_fname))
 
 
 %% Test
+nsteps = 1000;
+
 figure(2)
 clf
 
-nsteps = 100;
 mini_inds = randsample(6:(ntuples-steps_per_sequence), nsteps);
 data = zeros(nsteps, 1);
 for nstep = 1:nsteps
@@ -231,9 +238,12 @@ for nstep = 1:nsteps
     title(num2str(this_action))
     drawnow
 end
+
 figure(2)
 clf
-plot(data)
+plot(1:nsteps, repmat(mode_action, nsteps), 'linewidth', 2, 'color', [1 0.5 0])
+hold on
+plot(data, 'color', [0.2 0.7 0.2])
 title('Actions taken')
 
 
