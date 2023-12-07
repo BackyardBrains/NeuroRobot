@@ -14,7 +14,7 @@ rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 nets_dir_name = strcat(userpath, '\Nets\');
 
-net_name = 'tessier';
+net_name = 'ashpool';
 
 gnet = googlenet;
 
@@ -49,6 +49,7 @@ if get_torques
         torques(torques < -250) = -250;    
         torque_data(ntuple, :) = torques;
     end
+    torque_data(:,1) = -torque_data(:,1);
     save(strcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
 else
     load(strcat(nets_dir_name, net_name, '-torque_data'))
@@ -56,9 +57,10 @@ end
 
 
 %% Combs
+n_unique_actions = 10;
 disp('Getting actions / combs...')
 if get_combs
-    n_unique_actions = 10;
+    
     rng(1)
     actions = kmeans(torque_data, n_unique_actions);
     n_unique_actions = length(unique(actions));
@@ -109,8 +111,8 @@ end
 
 
 %%
-image_size = round([227 302] * 0.1);
-nsmall = 1000;
+image_size = round([227 302] * 0.2);
+nsmall = 10000;
 steps_per_sequence = 10;
 
 obsInfo = rlNumericSpec(image_size);
@@ -169,22 +171,17 @@ if get_buffer
     end
 end
 
-fds = fileDatastore("./logs", "ReadFcn", @ml_readFcn);
-nfiles = length(fds.Files);
-
 
 %% Train DQN
+fds = fileDatastore("./logs", "ReadFcn", @ml_readFcn);
+nfiles = length(fds.Files);
 
 % Net
 criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
-    convolution2dLayer(5,16,"Padding","same")
+    convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    convolution2dLayer(5,8,"Padding","same")
-    reluLayer
-    fullyConnectedLayer(48)
-    reluLayer
-    fullyConnectedLayer(24)
+    fullyConnectedLayer(8)
     reluLayer
     fullyConnectedLayer(n_unique_actions)
     ];
@@ -196,21 +193,47 @@ critic.UseDevice = 'gpu';
 
 % Agent
 agentOptions = rlDQNAgentOptions;
-agentOptions.MiniBatchSize = 256;
+agentOptions.MiniBatchSize = 1024;
 agentOptions.ExperienceBufferLength = nsmall * steps_per_sequence;
 agent = rlDQNAgent(critic,agentOptions);
-agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.01;
+% agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.1;
 
 % Training
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = 10;
-tfdOpts.MaxEpochs = 1000;
-tfdOpts.NumStepsPerEpoch = 10;
+tfdOpts.MaxEpochs = 10000;
+tfdOpts.NumStepsPerEpoch = 3;
 trainFromData(agent, fds, tfdOpts);
 
 % Save
 agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
+
+
+%% Test
+figure(2)
+clf
+
+nsteps = 100;
+mini_inds = randsample(6:(ntuples-steps_per_sequence), nsteps);
+data = zeros(nsteps, 1);
+for nstep = 1:nsteps
+    this_ind = mini_inds(nstep);
+    this_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+    this_im_small = imresize(this_im, image_size);
+    this_im_g = rgb2gray(this_im_small);
+    this_action = getAction(agent, this_im_g);
+    this_action = cell2mat(this_action);
+    data(nstep) = this_action;
+    image(this_im_g)
+    title(num2str(this_action))
+    drawnow
+end
+figure(2)
+clf
+plot(data)
+title('Actions taken')
+
 
