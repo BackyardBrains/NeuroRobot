@@ -192,7 +192,7 @@ class cca_opencv_wrapper{
 double sigmoid(double x, double c, double a) {
     return 1.0 / (1.0 + exp(-a * (x - c)));
 }
-
+// GLOBAL Variable
 EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
 Size net_input_size = Size(224,224);
@@ -222,6 +222,12 @@ void initializeCameraConstant(){
         return CV_VERSION;
     }
 
+    EXTERNC FUNCTION_ATTRIBUTE
+    int initializeOpenCV(){
+        initializeCameraConstant();
+        isPrevEyesSaved = false;
+        return 1;
+    }
 
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
@@ -235,6 +241,10 @@ void initializeCameraConstant(){
         }
         // platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
         // platform_log(std::to_string(epochs).c_str());
+        // auto start = std::chrono::high_resolution_clock::now();
+        // auto duration = start.time_since_epoch();
+        // long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        // platform_log( (std::to_string(microseconds)+" STARTmicroseconds\n" ).c_str());
 
         vector<uint8_t> buffer(img, img + imgLength);
         Mat imageRgb = imdecode(buffer, IMREAD_COLOR);;
@@ -274,12 +284,12 @@ void initializeCameraConstant(){
             // subtract(, , xframe);
             for (int ncol = 0; ncol < 3; ncol++) {
                 Mat colframe;
-                if (ncol == 0) {
+                if (ncol == 2) {
                     Mat channels[3];
                     split(uframe, channels);
-                    Mat temp1 = channels[0];
+                    Mat temp1 = channels[2];
                     Mat temp2 = channels[1] * 1.5;
-                    Mat temp3 = channels[2] * 1.5;
+                    Mat temp3 = channels[0] * 1.5;
                     //cv::compare (InputArray src1, InputArray src2, OutputArray dst, int cmpop)
                     compare(temp1, temp2, colframe, CMP_GT);
                     compare(temp1, temp3, temp1, CMP_GT);
@@ -294,8 +304,8 @@ void initializeCameraConstant(){
                     Mat channels[3];
                     split(uframe, channels);
                     Mat temp1 = channels[1];
-                    Mat temp2 = channels[0] * 1.3;
-                    Mat temp3 = channels[2] * 1.3;
+                    Mat temp2 = channels[2] * 1.3;
+                    Mat temp3 = channels[0] * 1.3;
 
                     compare(temp1, temp2, colframe, CMP_GT);
                     compare(temp1, temp3, temp1, CMP_GT);
@@ -308,9 +318,9 @@ void initializeCameraConstant(){
                     // Mat temp3 = uframe.col(0) * 1.2;
                     Mat channels[3];
                     split(uframe, channels);
-                    Mat temp1 = channels[2];
+                    Mat temp1 = channels[0];
                     Mat temp2 = channels[1] * 1.2;
-                    Mat temp3 = channels[0] * 1.2;
+                    Mat temp3 = channels[2] * 1.2;
 
                     compare(temp1, temp2, colframe, CMP_GT);
                     compare(temp1, temp3, temp1, CMP_GT);
@@ -348,45 +358,54 @@ void initializeCameraConstant(){
                     double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
-                    this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                    this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                    if (this_score>5 || this_left_score > 5 || this_right_score > 5){
-                        resetCounter = 0;
-                        temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
-                        if (ncam == 0) {
-                            temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
-                        }
-                        else{                    
-                            temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                        }
+                    temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
 
-                        // platform_log("STRRRR\n");
-                        // platform_log(std::to_string(ncol).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(this_score).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(this_left_score).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(this_right_score).c_str());
-                        // platform_log("\n");
-                        // platform_log("\n");
-                    }else{
-                        if (temp_vis_pref_vals[ncol * 2][ncam]!=0){
-                            resetCounter++;
-                            if (resetCounter >=20 ){
-                                resetCounter = 0;
-                                temp_vis_pref_vals[ncol * 2][ncam] = 0;
-                                temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
-                                // platform_log("Reset Counter\n");
-                                // platform_log(std::to_string(ncol).c_str());
-                            }
-                        }
+                    if (ncam == 0) {
+                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                        this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
                     }
+                    else{                    
+                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    }
+
+                    // if (this_score>10 || this_left_score > 10 || this_right_score > 10){
+                    //     resetCounter = 0;
+                    //     temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
+                    //     if (ncam == 0) {
+                    //         temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                    //     }
+                    //     else{                    
+                    //         temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    //     }
+
+                    //     // platform_log("STRRRR\n");
+                    //     // platform_log(std::to_string(ncol).c_str());
+                    //     // platform_log("\n");
+                    //     // platform_log(std::to_string(this_score).c_str());
+                    //     // platform_log("\n");
+                    //     // platform_log(std::to_string(this_left_score).c_str());
+                    //     // platform_log("\n");
+                    //     // platform_log(std::to_string(this_right_score).c_str());
+                    //     // platform_log("\n");
+                    //     // platform_log("\n");
+                    // }else{
+                    //     if (temp_vis_pref_vals[ncol * 2][ncam]!=0){
+                    //         resetCounter++;
+                    //         if (resetCounter >=5 ){
+                    //             resetCounter = 0;
+                    //             temp_vis_pref_vals[ncol * 2][ncam] = 0;
+                    //             temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
+                    //             // platform_log("Reset Counter\n");
+                    //             // platform_log(std::to_string(ncol).c_str());
+                    //         }
+                    //     }
+                    // }
                 } else {
                     meanx = 0;
                     this_score = 0;
                     this_left_score = 0;
-                    this_right_score = 0;                    
+                    this_right_score = 0;
                     // platform_log(std::to_string(777788889999).c_str());
                     // vis_pref_vals[ncol * 2] = 0;
                     // vis_pref_vals[ncol * 2 + 1] = 0;
@@ -406,6 +425,15 @@ void initializeCameraConstant(){
                 else{                    
                     vis_pref_vals[ncol * 2+1][ncam] = this_right_score;
                 }
+
+
+                // temp_vis_pref_vals[ncol * 2][ncam] = this_score;
+                // if (ncam == 0) {
+                //     temp_vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
+                // }
+                // else{                    
+                //     temp_vis_pref_vals[ncol * 2+1][ncam] = this_right_score;
+                // }
 
             }
             
@@ -454,6 +482,10 @@ void initializeCameraConstant(){
 
         }
 
+        // start = std::chrono::high_resolution_clock::now();
+        // duration = start.time_since_epoch();
+        // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        // platform_log( (std::to_string(microseconds)+" ENDmicroseconds\n" ).c_str());
         
         return 0;
     }

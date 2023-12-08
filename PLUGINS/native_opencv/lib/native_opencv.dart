@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 
@@ -6,6 +7,11 @@ import 'package:ffi/ffi.dart';
 typedef _version_func = ffi.Pointer<Utf8> Function();
 // typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>, ffi.Uint8, ffi.Pointer<ffi.Uint8>);
 typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>);
+
+typedef _initialize_open_cv_func = ffi.Int Function();
+typedef _InitializeOpenCVFunc = int Function();
+// typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>, ffi.Uint8, ffi.Pointer<ffi.Uint8>);
+// typedef _initialize_open_cv_func = ffi.Int Function();
 
 
 
@@ -22,6 +28,9 @@ ffi.DynamicLibrary _lib = Platform.isAndroid
   : ffi.DynamicLibrary.process();
 
 // Looking for the functions
+final _InitializeOpenCVFunc _initializeOpenCV = _lib
+  .lookup<ffi.NativeFunction<_initialize_open_cv_func>>('initializeOpenCV')
+  .asFunction();
 final _VersionFunc _version = _lib
   .lookup<ffi.NativeFunction<_version_func>>('version')
   .asFunction();
@@ -30,10 +39,17 @@ final _FindColorInImageFunc _findColorInImage = _lib
   .asFunction();
 
 
+
+
 class NativeOpenCV {
   String opencvVersion() {
     print(_lib);
     return _version().toDartString();
+  }
+
+  int initializeOpenCV() {
+    // print(_lib);
+    return _initializeOpenCV();
   }
 
   // int findColorInImage(_pointer, imageLength, lowerB, upperB, int colorSpace, _pointerMaskedFrame) {
@@ -44,6 +60,8 @@ class NativeOpenCV {
     // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
     // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
   }
+
+
 
 }
 

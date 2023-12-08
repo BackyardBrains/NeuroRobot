@@ -1,9 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
 // import 'package:nativec/allocation.dart';
 
+import 'package:ffi/ffi.dart';
 import 'package:nativec/allocator.dart';
 
 import 'nativec_platform_interface.dart';
@@ -79,6 +81,20 @@ typedef PassPointers = double Function(
 typedef _init_func = ffi.Int Function();
 typedef InitializeProcess = int Function();
 
+
+// typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
+// final _SimulationCallbackFunc _simulationCallbackFunc = _lib
+//   .lookup<ffi.NativeFunction<_find_color_in_image_func>>('simulationCallbackFunc')
+//   .asFunction();
+
+// typedef SimulationCallback = Void Function(Pointer<Utf8>);
+typedef HttpCallback = Void Function(Pointer<Utf8>);
+
+typedef HttpServeFunction = void Function(
+    Pointer<NativeFunction<HttpCallback>>);
+typedef HttpServeNativeFunction = Void Function(
+    Pointer<NativeFunction<HttpCallback>>);
+
 // Low Pass filter sample https://www.youtube.com/watch?v=X8JD8hHkBMc
 class Nativec {
   ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
@@ -112,7 +128,12 @@ class Nativec {
 
   static ffi.Pointer<ffi.Void>? cookie;
 
+  late var nativeHttpServe;
+
   Nativec() {
+    nativeHttpServe = nativeLrsLib
+      .lookupFunction<HttpServeNativeFunction, HttpServeFunction>('http_serve');
+    
     canvasBuffer1 = allocate<ffi.Double>(
         count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
     // canvasBuffer2 = allocate<ffi.Double>(
@@ -229,4 +250,20 @@ class Nativec {
   int stopThreadProcess(int idxSelected) {
     return _stopThreadProcess(idxSelected);
   }
+
+
+  void simulationCallback(void Function(String) onSimulationCallback) {
+    // Create the NativeCallable.listener.
+    void onNativeSimulationCallback(Pointer<Utf8> requestPointer) {
+      onSimulationCallback(requestPointer.toDartString());
+      calloc.free(requestPointer);
+    }
+
+    // ignore: sdk_version_since
+    final callback = NativeCallable<HttpCallback>.listener(onNativeSimulationCallback);
+    // ignore: sdk_version_since
+    nativeHttpServe(callback.nativeFunction);
+    // ignore: sdk_version_since
+    callback.keepIsolateAlive = false;
+  }    
 }

@@ -2,7 +2,7 @@ name: neurorobot
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+30
+version: 1.2.0+32
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -52,6 +52,13 @@ dependencies:
   auto_orientation: 2.3.1
   gesture_x_detector: 1.1.1
   # cart_stepper: ^4.1.2
+
+  firebase_core: 2.17.0
+  firebase_analytics: 10.5.1
+  # firebase_performance: 0.9.3+7
+  # firebase_core: 2.24.1
+  # firebase_analytics: 10.7.3
+  # firebase_performance: 0.9.3+7
 dev_dependencies:
   flutter_test:
     sdk: flutter

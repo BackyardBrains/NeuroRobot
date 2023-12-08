@@ -14,8 +14,8 @@ void createWebSocket(List<dynamic> args) {
   WebSocketChannel channel = WebSocketChannel.connect(wsUrl);
 
   channel.stream.listen((message) {
-    print("message");
-    print(message);
+    // print("message");
+    // print(message);
     heartbeatMissingCounter = 0;
     heartbeatMissingLastTime = DateTime.now().millisecondsSinceEpoch;
   });

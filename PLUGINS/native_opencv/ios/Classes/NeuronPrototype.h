@@ -92,3 +92,6 @@ double *motor_command;
 // neuron_contacts = zeros(nneurons, ncontacts);
 double sumVisPrefVals = 0;
 short motorCounter = 0;
+// CALLBACK
+std::string message;
+void (*onCallback)(const char*);

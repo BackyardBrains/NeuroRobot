@@ -6,10 +6,17 @@ import 'package:native_opencv/native_opencv.dart';
 import 'package:neurorobot/utils/Allocator.dart';
 
 
-late ffi.Pointer<ffi.Uint8> ptrFrame;
+ffi.Pointer<ffi.Uint8> ptrFrame = allocate<ffi.Uint8>(
+      count: 320*240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
       count: 320*240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
+// Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
+initializeOpenCV(){
+  NativeOpenCV ocv = NativeOpenCV();
+  ocv.initializeOpenCV();
+}
+
+Future<bool> checkColorCV(frameData) async {
     // print("testColorCV");
 
     Map map = Map();
@@ -23,18 +30,22 @@ Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
 }
 
 bool _checkNativeColorCv(map){
-
     NativeOpenCV nativeocv = NativeOpenCV();
     // print(nativeocv.opencvVersion());
     Uint8List frameData = map['frameData']; 
     Uint8List redBg = frameData;
+    try{
+      freeMemory(ptrFrame);
+    }catch(err){
+      print("err allocating memory");
+    }
     ptrFrame = allocate<ffi.Uint8>(count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
     
-    ffi.Pointer<ffi.Uint8> ptrLowerB = allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());; 
-    ffi.Pointer<ffi.Uint8> ptrUpperB = allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());; 
+    // ffi.Pointer<ffi.Uint8> ptrLowerB = allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());; 
+    // ffi.Pointer<ffi.Uint8> ptrUpperB = allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());; 
 
-    Uint8List lowerB = ptrLowerB.asTypedList(3);
-    Uint8List upperB = ptrUpperB.asTypedList(3);
+    // Uint8List lowerB = ptrLowerB.asTypedList(3);
+    // Uint8List upperB = ptrUpperB.asTypedList(3);
     
     // Uint8List _lowerB = map["lowerB"];
     // Uint8List _upperB = map["upperB"];
@@ -58,13 +69,13 @@ bool _checkNativeColorCv(map){
 
     
     // nativeocv
-    int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrMaskedFrame);
+    nativeocv.findColorInImage(ptrFrame, redBg.length, ptrMaskedFrame);
     // int status = nativeocv.findColorInImage(ptrFrame, redBg.length, ptrLowerB, ptrUpperB, 40, ptrMaskedFrame);
     try{
 
       freeMemory(ptrFrame);
-      freeMemory(ptrLowerB);
-      freeMemory(ptrUpperB);
+      // freeMemory(ptrLowerB);
+      // freeMemory(ptrUpperB);
     }catch(err){
 
     }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 // import 'package:nativec/allocation.dart';
 
+import 'package:ffi/ffi.dart';
 import 'package:native_opencv/allocator.dart';
 
 // import 'nativec_platform_interface.dart';
@@ -84,7 +85,22 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Uint32>,
 );
 
+
+// typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
+// final _SimulationCallbackFunc _simulationCallbackFunc = _lib
+//   .lookup<ffi.NativeFunction<_find_color_in_image_func>>('simulationCallbackFunc')
+//   .asFunction();
+
+// typedef SimulationCallback = Void Function(Pointer<Utf8>);
+typedef HttpCallback = ffi.Void Function(ffi.Pointer<Utf8>);
+
+typedef HttpServeFunction = void Function(
+    ffi.Pointer<ffi.NativeFunction<HttpCallback>>);
+typedef HttpServeNativeFunction = ffi.Void Function(
+    ffi.Pointer<ffi.NativeFunction<HttpCallback>>);
+
 // Low Pass filter sample https://www.youtube.com/watch?v=X8JD8hHkBMc
+
 class Nativec {
   // ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
   //     ? ffi.DynamicLibrary.open("libnative_nativec.so")
@@ -120,8 +136,12 @@ class Nativec {
   // }
 
   static ffi.Pointer<ffi.Void>? cookie;
+  late var nativeHttpServe;
 
   Nativec() {
+    nativeHttpServe = nativeLrsLib
+      .lookupFunction<HttpServeNativeFunction, HttpServeFunction>('nativeSimulationCallback');
+
     canvasBuffer1 = allocate<ffi.Double>(
         count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
     // canvasBuffer2 = allocate<ffi.Double>(
@@ -246,5 +266,19 @@ class Nativec {
   int initialize() {
     return _initialize();
   }
+  void simulationCallback(void Function(String) onSimulationCallback) {
+    // Create the NativeCallable.listener.
+    void onNativeSimulationCallback(ffi.Pointer<Utf8> requestPointer) {
+      onSimulationCallback(requestPointer.toDartString().toString());
+      // calloc.free(requestPointer);
+    }
+
+    // ignore: sdk_version_since
+    final callback = ffi.NativeCallable<HttpCallback>.listener(onNativeSimulationCallback);
+    // ignore: sdk_version_since
+    nativeHttpServe(callback.nativeFunction);
+    // ignore: sdk_version_since
+    callback.keepIsolateAlive = false;
+  }    
 
 }

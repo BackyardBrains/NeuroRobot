@@ -104,6 +104,15 @@
 // C++ to Flutter
 
 // MAIN CODE
+
+#ifdef __EMSCRIPTEN__
+  EMSCRIPTEN_KEEPALIVE
+#endif
+EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const char*)) {
+    onCallback = onRequest;
+}
+
+
 std::thread simulatorThread;
 
 double randoms(){
@@ -217,7 +226,8 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
 //     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
-    short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts){
+    short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts,
+    void (*onRequest)(const char*)){  
     // platform_log("changeNeuronSimulatorProcess 0");
     initializeConstant(_neuronLength);
 
@@ -297,6 +307,25 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             auto elapsed = std::chrono::high_resolution_clock::now() - start;
             long long microseconds = 0;
             bool isNeuronPerSecond = true;
+
+            double left_backward = 0;
+            double left_forward = 0;
+            double right_backward = 0;
+            double right_forward = 0;
+            int left_torque = 0;
+            int left_torque_mem = 0;
+            int left_dir = 0;
+
+            int right_torque = 0;
+            int right_torque_mem = 0;
+            int right_dir = 0;
+
+            int r_torque = 0;
+            int r_dir = 0;
+            int l_torque = 0;
+            int l_dir = 0;
+
+
             while(isThreadRunning){
                 // mtx.lock();
 
@@ -334,15 +363,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 for (short ii = 9; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
                     for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
-                        if (visPrefs[jj][ii] > -1){
+                        if (visPrefs[jj][ii] > -1){ // selected Color detection
 
-                            short k = (visPrefs[jj][ii] / 2);
-
-                            // platform_log("\nFOUNNDDD\n");
-                            // platform_log(std::to_string(temp_vis_pref_vals[k][0]).c_str());
-                            // platform_log("\n");
-                            // platform_log(std::to_string(k).c_str());
-                            // platform_log("\n");
+                            // short k = (visPrefs[jj][ii] / 2);
+                            short k = ( visPrefs[jj][ii] );
 
                             double val1 = temp_vis_pref_vals[k][0];
                             double val2 = temp_vis_pref_vals[k][1];
@@ -350,6 +374,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             sumVisPrefVals += val2;
                             // temp_vis_pref_vals[k][0] = 0;
                             // temp_vis_pref_vals[k][1] = 0;
+
+                            // platform_log("\nFOUNDD\n");
+                            // platform_log(std::to_string(temp_vis_pref_vals[k][0]).c_str());
+                            // platform_log("\n");
+                            // platform_log(std::to_string(temp_vis_pref_vals[k][1]).c_str());
+                            // platform_log("\n");
+                            // platform_log(std::to_string(k).c_str());
+                            // platform_log("\n");
+                            // platform_log(std::to_string(sumVisPrefVals).c_str());
+                            // platform_log("\n");
 
                             
 
@@ -366,7 +400,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     isStepSpiking[neuronIndex] = 0;
                 }
 
-                start = std::chrono::high_resolution_clock::now();
+                // start = std::chrono::high_resolution_clock::now();
+                // auto duration = start.time_since_epoch();
+                // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+                // platform_log( (std::to_string(microseconds)+" STARTmicroseconds\n" ).c_str());
+
                 for (int t = 0; t < epochs; t++) {
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
@@ -458,12 +496,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 // if (isNeuronPerSecond){
                 //     isNeuronPerSecond = false;
-                //     elapsed = std::chrono::high_resolution_clock::now() - start;
-                //     microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                    // elapsed = std::chrono::high_resolution_clock::now() - start;
+                    // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
                 //     // int microtime = microseconds;
                 //     nps[0] = static_cast<int>(microseconds);
                 // }
-                // debug_print( (std::to_string(microseconds)+" microseconds" ).c_str());
+                // platform_log( (std::to_string(microseconds)+" microseconds\n" ).c_str());
+                
+                // start = std::chrono::high_resolution_clock::now();
+                // duration = start.time_since_epoch();
+                // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+                // platform_log( (std::to_string(microseconds)+" ENDmicroseconds\n" ).c_str());
                 // mtx.unlock();
 
                 std::string str = "S|";
@@ -552,10 +595,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // debug_print( (std::to_string(sizeof(motor_command)/8)+" microseconds" ).c_str() );
                 // std::fill(motor_command, motor_command + 5 * 8, 0);
 
-                double left_backward = 0;
-                double left_forward = 0;
-                double right_backward = 0;
-                double right_forward = 0;
+                left_backward = 0;
+                left_forward = 0;
+                right_backward = 0;
+                right_forward = 0;
                 for (short i =0; i < threadTotalNumOfNeurons;i++){
                     // platform_log("\nStepsSpiking: ");
                     // platform_log(std::to_string( isStepSpiking[i] ).c_str());
@@ -585,9 +628,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 left_backward *= 2.5;
                 right_backward *= 2.5;
 
-                int left_torque = left_forward - left_backward;
-                int left_torque_mem = left_torque;
-                int left_dir = 0;
+                left_torque = left_forward - left_backward;
+                left_torque_mem = left_torque;
+                left_dir = 0;
 
                 short sign = 0;
                 if (left_torque > 0) {
@@ -597,25 +640,29 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 }                
                 left_dir = std::max(1 - sign *(left_torque), 1);
 
-                left_torque = abs(left_torque);
+                left_torque = std::abs(left_torque);
                 if (left_torque > 250) left_torque = 250;
+                if (left_torque < 0) left_torque = 0;
                 // left_torque(left_torque > 250) = 250;
                 motor_command[2] = left_torque;
                 motor_command[3]= left_dir;
                 
-                int right_torque = right_forward - right_backward;
-                int right_torque_mem = right_torque;
-                int right_dir = 0;
+                right_torque = right_forward - right_backward;
+                right_torque_mem = right_torque;
+                right_dir = 0;
                 if (right_torque > 0) {
                     sign = 1;
                 } else {
                     sign = -1;
                 }                
                 right_dir = std::max(1 - sign *(right_torque), 1);
-                right_torque = abs(right_torque); 
+                right_torque = std::abs(right_torque); 
                 if (right_torque > 250) right_torque = 250;
+                if (right_torque < 0) right_torque = 0;
                 motor_command[0] = right_torque;
                 motor_command[1] = right_dir;
+                // platform_log("std::to_string(right_torque).c_str()");
+                // platform_log(std::to_string(right_torque).c_str());
 
                 if ( (currentStep * pulse_period) < init_motor_block_in_s ){
                     motor_command[0] = 0;
@@ -629,6 +676,27 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 motorCounter %= 100;
 
 
+
+                // // String message = "l:${l_torque * l_dir};r:${r_torque * r_dir};";
+                r_torque = motor_command[0];
+                r_dir = motor_command[1];
+                if (r_dir == 2) {
+                    r_dir = -1;
+                }
+
+                l_torque = motor_command[2];
+                l_dir = motor_command[3];
+                if (l_dir == 2) {
+                    l_dir = -1;
+                }
+                
+
+                // // print("wheel message");
+                // // print(processedMotorCounter.toString() + "__" + message);
+                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";";
+                // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
+                onCallback(message.c_str());
+                // }
 
 
                 delete[] isSpiking;
@@ -645,13 +713,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // delete[] (w);
                 delete[] (v);
                 delete[] (u);
-                delete[] (connectome);
-                delete[] (visPrefs);
-                delete[] (neuron_contacts);
-                delete[] (vis_pref_vals);
+                // delete[] (visPrefs);
+                // delete[] (vis_pref_vals);
+                // delete[] (temp_vis_pref_vals);
 
                 for (short i = 0; i < threadInitialTotalNumOfNeurons; i++){
                     delete[] spikes_step[i];
+                    delete[] (connectome[i]);
+                    delete[] (neuron_contacts[i]);
                 }
                 delete[] spikes_step;
 
