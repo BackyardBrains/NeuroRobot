@@ -1,9 +1,32 @@
 
-%% Lucid dream
-% Demo Sleep:Basal Ganglia
 
+% close all
+clear
 
-%% Prepare
+nsteps = 500;
+
+get_images = 0;
+get_torques = 0;
+get_combs = 1;
+get_rewards = 0;
+
+net_name = 'tessier';
+rec_dir_name = '';
+dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+nets_dir_name = strcat(userpath, '\Nets\');
+
+steps_per_sequence = 100;
+
+ml_get_images
+ml_get_torques
+ml_get_combs
+ml_get_rewards
+
+nimages = size(image_dir, 1);
+ntuples = nimages;
+disp(horzcat('nimages / ntuples: ', num2str(ntuples)))
+
+%%
 figure(9)
 clf
 set(gcf, 'position', [80 80 1320 600], 'color', 'w')
@@ -18,38 +41,32 @@ tx2 = title('');
 ax3 = axes('position', [0.3 0.025 0.4 0.05], 'xcolor', 'w', 'ycolor', 'w');
 plot([0 10], [0 10], 'color', 'w')
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-tx3 = text(5, 5, '', 'HorizontalAlignment','center', 'VerticalAlignment', 'middle');
+tx3 = text(5, 15, '', 'HorizontalAlignment','center', 'VerticalAlignment', 'middle');
+tx4 = text(5, 5, '', 'HorizontalAlignment','center', 'VerticalAlignment', 'middle');
 
 
 %%
-imdim = 227;
-rinds = randsample(ntuples-5, 100, 0);
+rinds = randsample(ntuples-steps_per_sequence, nsteps, 0);
 for start_tuple = rinds'
 
-%     ntuple = start at random ind and proceed sequentially, hopefully
-%     showing how action and states are entangled
-
-    for ntuple = start_tuple:start_tuple + 50
-        this_ind = ntuple*2-1;    
+    for ntuple = start_tuple:start_tuple + (steps_per_sequence - 1)
+    % for ntuple = 1:ntuples
+        this_ind = ntuple;    
         now_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
-        now_im = imresize(now_im, [imdim imdim]);        
         im1.CData = now_im;
-        this_state = char(labels(states(ntuple)));
-        this_state(this_state=='_') = [];
-        tx1.String = horzcat('Tuple: ', num2str(ntuple), ', state: ', num2str(states(ntuple)), ' (', this_state, ')');
+        tx1.String = horzcat('Obs N: ', num2str(ntuple));
         
-        this_ind = (ntuple + 5)*2-1;
-        next_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
-        next_im = imresize(next_im, [imdim imdim]);
-        im2.CData = next_im;
-        this_state = char(labels(states(ntuple + 5)));
-        this_state(this_state=='_') = [];        
-        tx2.String = horzcat('Prime tuple: ', num2str(ntuple + 5), ' , state: ', num2str(states(ntuple + 5)), ' (', this_state, ')');
+        % this_ind = ntuple + 5;
+        % next_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
+        % im2.CData = next_im;
+        % tx2.String = horzcat('Obs N + 5: ', num2str(ntuple + 5));
     
         this_motor_vector = torque_data(ntuple, :);
         this_action = actions(ntuple);
         tx3.String = horzcat('Action: ', num2str(this_action), ', left: ', num2str(this_motor_vector(1)), ', right: ', num2str(this_motor_vector(2)));
-           
+        
+        this_reward = rewards(ntuple);
+        tx4.String = horzcat('Reward: ', num2str(this_reward));
         drawnow
         pause
     end
