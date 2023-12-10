@@ -1,7 +1,7 @@
 # SpikerBot app by Backyard Brains
 <br>
 <b>Installation</b><br>
-To install the SpikerBot app on a Windows PC, download this repository, unpack SpikerBot_2.4_Installer.zip, and run the installer SpikerBot_2.4_Installer.exe. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. The app also runs natively in Matlab on all platforms.<br>
+To install the SpikerBot app on a Windows PC, download this repository, unpack SpikerBot_x.x_Installer.zip, and run the installer SpikerBot_x.x_Installer.exe. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. The app also runs natively in Matlab on all platforms.<br>
 <br>
 <b>Summary</b><br>
 A <b>neurorobot</b> is a robot controlled by a computer model of a biological brain. <a href="https://github.com/BackyardBrains">Backyard Brains</a> is developing a neurorobot for education that enables students to perform computational neuroscience investigations by designing brains and observing their behavior (<a href="https://www.frontiersin.org/articles/10.3389/fnbot.2020.00006/full">Harris et al., 2020</a>). Students use the <b>NeuroRobot app</b> to design and simulate biologically-based neural networks connected to mobile robots with sensors (camera, microphone, distance sensor) and actuators (speaker, motors, lights).<br>
