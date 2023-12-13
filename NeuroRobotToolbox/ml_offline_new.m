@@ -4,18 +4,17 @@
 close all
 clear
 
-get_images = 0;
-get_torques = 0;
+get_images = 1;
+get_torques = 1;
 get_combs = 1;
-get_rewards = 0;
+get_rewards = 1;
 get_buffer = 1;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 nets_dir_name = strcat(userpath, '\Nets\');
-net_name = 'tessier';
+net_name = 'dixie_repeat';
 
-gnet = googlenet;
 ml_get_images
 ml_get_torques
 ml_get_combs
@@ -23,7 +22,7 @@ ml_get_rewards
 
 
 %%
-image_size = round([227 302] * 0.2);
+image_size = round([227 302] * 0.03);
 nsmall = 1000;
 steps_per_sequence = 100;
 
@@ -33,20 +32,21 @@ obsInfo.Name = "CameraImages";
 actInfo = rlFiniteSetSpec(1:n_unique_actions);
 actInfo.Name = "Actions";
 
-try
-    rmdir logs s
-catch
-end
-mkdir('./logs')
-
 small_inds = randsample(1:(ntuples-steps_per_sequence-5), nsmall);
 mode_action = mode(actions);
 
 if get_buffer
     disp('Getting buffer...')
+    
+    try
+        rmdir logs s
+    catch
+    end
+    mkdir('./logs')
+
     for n = 1:nsmall
-        if ~rem(n, round(nsmall/20))
-            disp(horzcat('done = ', num2str(round((100 * (n/nsmall)))), '%'))
+        if ~rem(n, round(nsmall/100))
+            disp(horzcat('Assembling buffer, % done = ', num2str(round((100 * (n/nsmall))))))
         end        
         start_ind = small_inds(n);
         clear exp
@@ -64,12 +64,7 @@ if get_buffer
 
             exp(ntuple).Observation = {this_im_g};
             exp(ntuple).Action = {actions(this_ind)};
-            % if actions(this_ind - 5) == mode_action
-                this_reward = rewards(this_ind);
-            % else
-                this_reward = -1;
-            % end
-            exp(ntuple).Reward = this_reward;
+            exp(ntuple).Reward = rewards(this_ind);
             exp(ntuple).NextObservation = {next_im_g};
             exp(ntuple).IsDone = 0;
         end
@@ -92,20 +87,23 @@ end
 
 %% Train DQN
 fds = fileDatastore("./logs", "ReadFcn", @ml_readFcn);
+fds.shuffle();
 nfiles = length(fds.Files);
 
 % Net
 criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
-    convolution2dLayer(5,16,"Padding","same")
+    convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    convolution2dLayer(5,8,"Padding","same")
-    reluLayer    
+    convolution2dLayer(3,8,"Padding","same")
+    reluLayer
+    % maxPooling2dLayer(2,'Stride',2)
     fullyConnectedLayer(400)
     reluLayer
     fullyConnectedLayer(300)
     reluLayer    
     fullyConnectedLayer(n_unique_actions)
+    % softmaxLayer
     ];
 
 % Critic
@@ -115,17 +113,19 @@ critic.UseDevice = 'gpu';
 
 % Agent
 agentOptions = rlDQNAgentOptions;
-agentOptions.MiniBatchSize = 128;
+agentOptions.MiniBatchSize = 512;
 agentOptions.ExperienceBufferLength = nsmall * steps_per_sequence;
 agent = rlDQNAgent(critic,agentOptions);
 % agent.AgentOptions.CriticOptimizerOptions.LearnRate = 0.1;
+cqOpts = rlConservativeQLearningOptions;
+agentOptions.BatchDataRegularizerOptions  = cqOpts;
 
 % Training
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
-tfdOpts.ScoreAveragingWindowLength = 10;
+tfdOpts.ScoreAveragingWindowLength = steps_per_sequence;
 tfdOpts.MaxEpochs = 1000;
-tfdOpts.NumStepsPerEpoch = 100;
+tfdOpts.NumStepsPerEpoch = steps_per_sequence;
 trainFromData(agent, fds, tfdOpts);
 
 % Save
@@ -133,14 +133,13 @@ agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
 
-
-%% Test
+%
 nsteps = 500;
 
 figure(2)
 clf
 
-mini_inds = randsample(6:(ntuples-steps_per_sequence), nsteps);
+mini_inds = randsample(1:(ntuples-steps_per_sequence), nsteps);
 data = zeros(nsteps, 1);
 for nstep = 1:nsteps
     this_ind = mini_inds(nstep);

@@ -1,30 +1,21 @@
 
 
-% close all
-clear
-
-nsteps = 500;
-
-get_images = 0;
-get_torques = 0;
-get_combs = 1;
-get_rewards = 0;
-
-net_name = 'tessier';
-rec_dir_name = '';
-dataset_dir_name = 'C:\SpikerBot ML Datasets\';
-nets_dir_name = strcat(userpath, '\Nets\');
-
-steps_per_sequence = 100;
-
-ml_get_images
-ml_get_torques
-ml_get_combs
-ml_get_rewards
-
-nimages = size(image_dir, 1);
-ntuples = nimages;
-disp(horzcat('nimages / ntuples: ', num2str(ntuples)))
+% % close all
+% clear
+% 
+nseqs = 500;
+% 
+% get_images = 1;
+% get_torques = 0;
+% get_combs = 0;
+% get_rewards = 0;
+% 
+% net_name = 'tessier';
+% rec_dir_name = '';
+% dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+% nets_dir_name = strcat(userpath, '\Nets\');
+% 
+% steps_per_sequence = 100;
 
 %%
 figure(9)
@@ -46,11 +37,11 @@ tx4 = text(5, 5, '', 'HorizontalAlignment','center', 'VerticalAlignment', 'middl
 
 
 %%
-rinds = randsample(ntuples-steps_per_sequence, nsteps, 0);
-for start_tuple = rinds'
+rand_inds = randsample(ntuples-steps_per_sequence, nseqs, 0);
+for start_tuple = rand_inds'
 
     for ntuple = start_tuple:start_tuple + (steps_per_sequence - 1)
-    % for ntuple = 1:ntuples
+
         this_ind = ntuple;    
         now_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
         im1.CData = now_im;

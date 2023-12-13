@@ -1,5 +1,5 @@
 
-n_unique_actions = 10;
+n_unique_actions = 5;
 disp('Getting actions / combs...')
 if get_combs
     

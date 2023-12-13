@@ -5,6 +5,9 @@ if get_rewards
     rewards = zeros(ntuples, 1);
     for ntuple = 1:ntuples
         next_im = imread(strcat(image_dir(ntuple).folder, '\',  image_dir(ntuple).name));    
+        % cup_score = sum(next_im(:));
+        % cup_score = (sum(next_im(:))/(10^7)) - sum(abs(torque_data(ntuple, :)));  
+        
         [~, scores] = classify(gnet, next_im(1:224,1:224,:));
         cup_score_left = max(scores([505 739 969]));
         [~, scores] = classify(gnet, next_im(1:224,79:302,:));    

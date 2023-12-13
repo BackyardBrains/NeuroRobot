@@ -189,7 +189,7 @@ if exist('rak_only', 'var') && brain_support
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
             load(strcat(nets_dir_name, state_net_name, '-motor_combs'))
             n_unique_actions = size(motor_combs, 2);
-            rl_image_size = round([227 302] * 0.1);
+            rl_image_size = round([227 302] * 0.03);
         end 
     else
         state_net_name = '';
