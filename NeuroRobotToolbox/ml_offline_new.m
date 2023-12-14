@@ -4,16 +4,16 @@
 close all
 clear
 
-get_images = 0;
-get_torques = 0;
-get_combs = 0;
-get_rewards = 0;
+get_images = 1;
+get_torques = 1;
+get_combs = 1;
+get_rewards = 1;
 get_buffer = 1;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 nets_dir_name = strcat(userpath, '\Nets\');
-net_name = 'dixie_repeat';
+net_name = 'dixie500';
 
 ml_get_images
 ml_get_torques
@@ -22,8 +22,8 @@ ml_get_rewards
 
 
 %%
-image_size = round([227 302] * 0.03);
-nsmall = 2000;
+image_size = round([227 302] * 0.02);
+nsmall = 500;
 steps_per_sequence = 100;
 
 obsInfo = rlNumericSpec(image_size);
@@ -101,8 +101,8 @@ criticNet = [
     imageInputLayer([image_size(1) image_size(2) 1],"Name","imageinput_state","Normalization","none")
     convolution2dLayer(3,8,"Padding","same")
     reluLayer
-    convolution2dLayer(3,8,"Padding","same")
-    reluLayer
+    % convolution2dLayer(3,8,"Padding","same")
+    % reluLayer
     % maxPooling2dLayer(2,'Stride',2)
     fullyConnectedLayer(400)
     reluLayer
@@ -130,7 +130,7 @@ agentOptions.BatchDataRegularizerOptions  = cqOpts;
 tfdOpts = rlTrainingFromDataOptions;
 tfdOpts.StopTrainingCriteria = "none";
 tfdOpts.ScoreAveragingWindowLength = steps_per_sequence;
-tfdOpts.MaxEpochs = 1000;
+tfdOpts.MaxEpochs = 500;
 tfdOpts.NumStepsPerEpoch = steps_per_sequence;
 trainFromData(agent, fds, tfdOpts);
 
