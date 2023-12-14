@@ -85,7 +85,6 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Uint32>,
 );
 
-
 // typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
 // final _SimulationCallbackFunc _simulationCallbackFunc = _lib
 //   .lookup<ffi.NativeFunction<_find_color_in_image_func>>('simulationCallbackFunc')
@@ -108,9 +107,10 @@ class Nativec {
   //         ? ffi.DynamicLibrary.open("nativec_plugin.dll")
   //         : ffi.DynamicLibrary.process();
   ffi.DynamicLibrary nativeLrsLib = Platform.isAndroid
-    ? Platform.isWindows? ffi.DynamicLibrary.open('native_opencv.dll')
-    :ffi.DynamicLibrary.open('libnative_opencv.so')
-    : ffi.DynamicLibrary.process();
+      ? Platform.isWindows
+          ? ffi.DynamicLibrary.open('native_opencv.dll')
+          : ffi.DynamicLibrary.open('libnative_opencv.so')
+      : ffi.DynamicLibrary.process();
 
   late PassPointers _passPointers;
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
@@ -139,8 +139,9 @@ class Nativec {
   late var nativeHttpServe;
 
   Nativec() {
-    nativeHttpServe = nativeLrsLib
-      .lookupFunction<HttpServeNativeFunction, HttpServeFunction>('nativeSimulationCallback');
+    nativeHttpServe =
+        nativeLrsLib.lookupFunction<HttpServeNativeFunction, HttpServeFunction>(
+            'nativeSimulationCallback');
 
     canvasBuffer1 = allocate<ffi.Double>(
         count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
@@ -166,8 +167,8 @@ class Nativec {
         .lookup<ffi.NativeFunction<stop_thread_func>>('stopThreadProcess')
         .asFunction();
     _initialize = nativeLrsLib
-      .lookup<ffi.NativeFunction<_initialize_func>>('initialize')
-      .asFunction();
+        .lookup<ffi.NativeFunction<_initialize_func>>('initialize')
+        .asFunction();
 
     // C++ to Flutter
     // final initializeApi = nativeLrsLib.lookupFunction<
@@ -212,27 +213,41 @@ class Nativec {
   //       neuronCircle,nps,level, neuronLength, envelopeSize, bufferSize, isPlaying);
   // }
   double changeNeuronSimulatorProcess(
-      ffi.Pointer<ffi.Double> a,
-      ffi.Pointer<ffi.Double> b,
-      ffi.Pointer<ffi.Int16> c,
-      ffi.Pointer<ffi.Int16> d,
-      ffi.Pointer<ffi.Double> i,
-      ffi.Pointer<ffi.Double> w,
-      ffi.Pointer<ffi.Double> connectome,
-      int level,
-      int neuronLength,
-      int envelopeSize,
-      int bufferSize,
-      int isPlaying,
-      ffi.Pointer<ffi.Int16> visPrefs,
-      ffi.Pointer<ffi.Double> motorCommandBuf,
-      ffi.Pointer<ffi.Double> neuronContactsBuf,
-      ) {
-    double res = _changeNeuronSimulatorProcess(a, b, c, d, i, w, connectome, level,
-        neuronLength, envelopeSize, bufferSize, isPlaying, visPrefs, motorCommandBuf,neuronContactsBuf);
-        print("res");
-        print(res);
-        return res;
+    ffi.Pointer<ffi.Double> a,
+    ffi.Pointer<ffi.Double> b,
+    ffi.Pointer<ffi.Int16> c,
+    ffi.Pointer<ffi.Int16> d,
+    ffi.Pointer<ffi.Double> i,
+    ffi.Pointer<ffi.Double> w,
+    ffi.Pointer<ffi.Double> connectome,
+    int level,
+    int neuronLength,
+    int envelopeSize,
+    int bufferSize,
+    int isPlaying,
+    ffi.Pointer<ffi.Int16> visPrefs,
+    ffi.Pointer<ffi.Double> motorCommandBuf,
+    ffi.Pointer<ffi.Double> neuronContactsBuf,
+  ) {
+    double res = _changeNeuronSimulatorProcess(
+        a,
+        b,
+        c,
+        d,
+        i,
+        w,
+        connectome,
+        level,
+        neuronLength,
+        envelopeSize,
+        bufferSize,
+        isPlaying,
+        visPrefs,
+        motorCommandBuf,
+        neuronContactsBuf);
+    print("res");
+    print(res);
+    return res;
   }
 
   // double *_canvasBuffer1, double *_canvasBuffer2, uint16_t *_positions,short *_neuronCircle, int *_nps,
@@ -263,9 +278,11 @@ class Nativec {
   int stopThreadProcess(int idxSelected) {
     return _stopThreadProcess(idxSelected);
   }
+
   int initialize() {
     return _initialize();
   }
+
   void simulationCallback(void Function(String) onSimulationCallback) {
     // Create the NativeCallable.listener.
     void onNativeSimulationCallback(ffi.Pointer<Utf8> requestPointer) {
@@ -274,11 +291,11 @@ class Nativec {
     }
 
     // ignore: sdk_version_since
-    final callback = ffi.NativeCallable<HttpCallback>.listener(onNativeSimulationCallback);
+    final callback =
+        ffi.NativeCallable<HttpCallback>.listener(onNativeSimulationCallback);
     // ignore: sdk_version_since
     nativeHttpServe(callback.nativeFunction);
     // ignore: sdk_version_since
     callback.keepIsolateAlive = false;
-  }    
-
+  }
 }

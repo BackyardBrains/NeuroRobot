@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
@@ -89,7 +90,9 @@ class _RightToolbarState extends State<RightToolbar> {
   void initState(){
     super.initState();
     Future.delayed(const Duration(milliseconds: 200),(){
+      // WEB CHANGE
       if (Platform.isAndroid){
+      // if (!kIsWeb){
         _actionController.animateTo( 20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
         _simulationController.animateTo(20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
       }else{

@@ -1,21 +1,29 @@
-import 'dart:io';
-
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:fialogs/fialogs.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:neurorobot/pages/createbrain_page.dart';
 import 'package:neurorobot/pages/designbrain_page.dart';
 import 'package:neurorobot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// /*
+import 'dart:io';
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
+// */
 import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // FirebaseCrashlytics.instance.crash();
+
+  // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
 
@@ -34,6 +42,7 @@ void main() async {
   } else {
     AutoOrientation.landscapeLeftMode();
   }
+  // */
 
   runApp(const MyApp());
 }
@@ -41,6 +50,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   // This widget is the root of your application.
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

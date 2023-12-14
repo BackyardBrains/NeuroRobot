@@ -9,6 +9,14 @@ let selectedIdx=-1;
 let neuronSize = 2;
 let windowSize = 200 * 30;
 
+let ptrVisPrefs;
+let ptrMotorCommands;
+let ptrNeuronContacts;
+let sabVisPrefs;
+let sabMotorCommands;
+let sabNeuronContacts;
+
+
 let sabNumAPtr;
 let sabNumBPtr;
 let sabNumCPtr;
@@ -161,6 +169,17 @@ self.onmessage = async function( eventFromMain ) {
         const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
         sabNumNps = Module.HEAP32.subarray( startNps, (startNps + 1 ));
 
+        ptrVisPrefs = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        const startVisPrefs = ptrPos/Module.HEAP16.BYTES_PER_ELEMENT;
+        sabVisPrefs = Module.HEAP16.subarray( startVisPrefs, (startVisPrefs + 10 ));
+
+        ptrMotorCommands = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        const startMotorCommands = ptrMotorCommands/Module.HEAP16.BYTES_PER_ELEMENT;
+        sabMotorCommands = Module.HEAP16.subarray( startMotorCommands, (startMotorCommands + 10 ));
+
+        ptrNeuronContacts = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        const startNeuronContacts = ptrNeuronContacts/Module.HEAP16.BYTES_PER_ELEMENT;
+        sabNeuronContacts = Module.HEAP16.subarray( startNeuronContacts, (startNeuronContacts + 10 ));
     
         console.log("b4 pass ptr");        
         const test = Module.ccall(
@@ -209,11 +228,15 @@ self.onmessage = async function( eventFromMain ) {
                 'changeNeuronSimulatorProcess',
                 'number',
                 ['number', 'number' ,'number','number',  'number', 'number' ,'number',
-                    'number', 'number' ,'number','number','number'],
+                    'number', 'number' ,'number','number','number', 'number', 'number', 'number'],
                 [ sabNumAPtr, sabNumBPtr, sabNumCPtr, sabNumDPtr,   sabNumIPtr, sabNumWPtr, sabNumConnectomePtr,
-                    level, neuronSize, envelopeSize, bufferSize, isPlaying]
+                    level, neuronSize, envelopeSize, bufferSize, isPlaying, sabVisPrefs,sabMotorCommands, sabNeuronContacts]
             );
-
+            // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
+            //     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, 
+            //     short *vis_prefs, double *_motor_command, double *_neuronContacts,
+            //     void (*onRequest)(const char*)){      // platform_log2("changeNeuronSimulatorProcess 0");
+            
             // running = Module.changeNeuronSimulatorProcess(level, neuronSize,envelopeSize,bufferSize,isPlaying);
         }catch(ex){
             console.log(ex);

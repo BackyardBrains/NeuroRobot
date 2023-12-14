@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart';
 import '../utils/General.dart';
 // import 'package:cart_stepper/cart_stepper.dart';
 // import 'package:item_count_number_button/item_count_number_button.dart';
 // import 'package:number_selection/number_selection.dart';
 
+bool isNeuronDialog = false;
 Future<void> neuronDialogBuilder(
     BuildContext context,
     String title,
@@ -12,72 +14,94 @@ Future<void> neuronDialogBuilder(
     String neuronType,
     neuronTypeChangecallback,
     deleteCallback) {
-  String val = neuronType;
-  List<String> neuronTypesLabel = [
-    "Select Neuron Type",
-    "Quiet",
-    "Occassionally active",
-    "Highly active",
-    "Generates bursts",
-    "Bursts when activated",
-    "Dopaminergic",
-    "Striatal"
-  ];
-  List<String> neuronTypes = ["-", "Quiet", "Occassionally active", "Highly active", "Generates bursts", "Bursts when activated", "Dopaminergic", "Striatal"];
-  List<DropdownMenuItem> dropdownMenuItems =
-      List<DropdownMenuItem>.generate(neuronTypes.length, (index) {
-    return DropdownMenuItem(
-      value: neuronTypes[index],
-      child: Text(neuronTypesLabel[index]),
-    );
-  });
-
-  return showDialog<void>(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(builder: (ctx, setState) {
-        return AlertDialog(
-          // title: const Text('Basic dialog title'),
-          content: SizedBox(
-            height: 250,
-            width: 400,
-            child: ListView(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text("#$nodeId"),
-                    const VerticalDivider(),
-                    DropdownButton(
-                      value: val,
-                      items: dropdownMenuItems,
-                      onChanged: (value) {
-                        val = value;
-                        neuronTypeChangecallback(value);
-                        setState(() {});
-                      },
-                    ),
-                    const VerticalDivider(),
-                    GestureDetector(
-                        onTap: () {
-                          deleteCallback();
-                          Navigator.pop(context);
-                        },
-                        child: const Icon(Icons.delete))
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      });
+  MyApp.analytics.logEvent(
+    name: 'neuron_dialog',
+    parameters: <String, dynamic>{
+      'neuron_dialog': 'true',
     },
   );
+
+  if (!isNeuronDialog) {
+    isNeuronDialog = true;
+    String val = neuronType;
+    List<String> neuronTypesLabel = [
+      "Select Neuron Type",
+      "Quiet",
+      "Occassionally active",
+      "Highly active",
+      "Generates bursts",
+      "Bursts when activated",
+      "Dopaminergic",
+      "Striatal"
+    ];
+    List<String> neuronTypes = [
+      "-",
+      "Quiet",
+      "Occassionally active",
+      "Highly active",
+      "Generates bursts",
+      "Bursts when activated",
+      "Dopaminergic",
+      "Striatal"
+    ];
+    List<DropdownMenuItem> dropdownMenuItems =
+        List<DropdownMenuItem>.generate(neuronTypes.length, (index) {
+      return DropdownMenuItem(
+        value: neuronTypes[index],
+        child: Text(neuronTypesLabel[index]),
+      );
+    });
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          return AlertDialog(
+            // title: const Text('Basic dialog title'),
+            content: SizedBox(
+              height: 250,
+              width: 400,
+              child: ListView(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text("#$nodeId"),
+                      const VerticalDivider(),
+                      DropdownButton(
+                        value: val,
+                        items: dropdownMenuItems,
+                        onChanged: (value) {
+                          val = value;
+                          neuronTypeChangecallback(value);
+                          setState(() {});
+                        },
+                      ),
+                      const VerticalDivider(),
+                      GestureDetector(
+                          onTap: () {
+                            deleteCallback();
+                            Navigator.pop(context);
+                          },
+                          child: const Icon(Icons.delete))
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    ).whenComplete(() => isNeuronDialog = false);
+  } else {
+    return Future<void>.value();
+  }
 }
 
+bool isAxonDialog = false;
 Future<void> axonDialogBuilder(
     BuildContext context,
     int isSensoryType,
@@ -89,6 +113,18 @@ Future<void> axonDialogBuilder(
     linkTypeChangecallback,
     linkMotorCallback,
     linkNeuronConnection) {
+  if (isAxonDialog) {
+    return Future<void>.value();
+  }
+
+  MyApp.analytics.logEvent(
+    name: 'axon_dialog',
+    parameters: <String, dynamic>{
+      'axondialog': 'true',
+    },
+  );
+
+  isAxonDialog = true;
   List<String> linkTypesLabel = [
     "Select Visual Preference",
     "Blue",
@@ -231,11 +267,19 @@ Future<void> axonDialogBuilder(
         );
       });
     },
-  );
+  ).whenComplete(() => isAxonDialog = false);
 }
 
+bool isLinkDialog = false;
 Future<void> linkDialogBuilder(
     BuildContext context, String linkType, linkTypeChangecallback) {
+  MyApp.analytics.logEvent(
+    name: 'link_dialog',
+    parameters: <String, dynamic>{
+      'link_dialog': 'true',
+    },
+  );
+
   String val = linkType;
   List<String> linkTypesLabel = [
     "Select Visual Preference",
@@ -265,6 +309,8 @@ Future<void> linkDialogBuilder(
     );
   });
 
+  if (isLinkDialog) return Future<void>.value();
+  isLinkDialog = true;
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -296,5 +342,5 @@ Future<void> linkDialogBuilder(
         );
       });
     },
-  );
+  ).whenComplete(() => isNeuronDialog = false);
 }

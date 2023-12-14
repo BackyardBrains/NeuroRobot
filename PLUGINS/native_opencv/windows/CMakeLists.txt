@@ -15,8 +15,8 @@ cmake_policy(VERSION 3.14...3.25)
 # This value is used when generating builds using this plugin, so it must
 # not be changed
 set(PLUGIN_NAME "native_opencv_plugin")
-set(OpenCV_RELEASE_DLL_NAME "opencv_world454.dll")
-set(OpenCV_DEBUG_DLL_NAME "opencv_world454d.dll")
+set(OpenCV_RELEASE_DLL_NAME "opencv_world480.dll")
+set(OpenCV_DEBUG_DLL_NAME "opencv_world480d.dll")
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
