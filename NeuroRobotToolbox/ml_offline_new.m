@@ -4,10 +4,10 @@
 close all
 clear
 
-get_images = 1;
-get_torques = 1;
-get_combs = 1;
-get_rewards = 1;
+get_images = 0;
+get_torques = 0;
+get_combs = 0;
+get_rewards = 0;
 get_buffer = 1;
 
 rec_dir_name = '';
@@ -23,7 +23,7 @@ ml_get_rewards
 
 %%
 image_size = round([227 302] * 0.03);
-nsmall = 1000;
+nsmall = 2000;
 steps_per_sequence = 100;
 
 obsInfo = rlNumericSpec(image_size);
@@ -64,7 +64,13 @@ if get_buffer
 
             exp(ntuple).Observation = {this_im_g};
             exp(ntuple).Action = {actions(this_ind)};
-            exp(ntuple).Reward = rewards(this_ind);
+
+            if actions(this_ind) == mode_action
+                action_cost = 0;
+            else
+                action_cost = 1;
+            end
+            exp(ntuple).Reward = rewards(this_ind) - action_cost;
             exp(ntuple).NextObservation = {next_im_g};
             exp(ntuple).IsDone = 0;
         end
@@ -87,7 +93,7 @@ end
 
 %% Train DQN
 fds = fileDatastore("./logs", "ReadFcn", @ml_readFcn);
-fds.shuffle();
+% fds.shuffle();
 nfiles = length(fds.Files);
 
 % Net
@@ -134,7 +140,7 @@ save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
 
 %
-nsteps = 500;
+nsteps = 100;
 
 figure(2)
 clf

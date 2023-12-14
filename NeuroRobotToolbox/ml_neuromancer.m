@@ -2,7 +2,7 @@
 
 clear
 
-net_name = 'dixie';
+net_name = 'dixie_repeat';
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
@@ -13,23 +13,24 @@ load(agent_fname)
 
 %%
 
-get_images = 1;
+get_images = 0;
 ml_get_images
-get_torques = 1;
+get_torques = 0;
 ml_get_torques
-get_combs = 1;
+get_combs = 0;
 ml_get_combs
 
 %%
-nsteps = 500;
+nsteps = 100;
 ntuples = 91264;
-image_size = round([227 302] * 0.03);
+image_size = round([227 302] * 0.02);
 nsmall = 100;
 
 mode_action = mode(actions);
 
 steps_per_sequence = 50;
 
+%%
 figure(2)
 clf
 
@@ -51,6 +52,7 @@ for nstep = 1:nsteps
     end
 end
 
+%%
 figure(3)
 clf
 plot(1:nsteps, repmat(mode_action, nsteps), 'linewidth', 2, 'color', [1 0.5 0])
