@@ -3,7 +3,7 @@ n_unique_actions = 5;
 disp('Getting actions / combs...')
 if get_combs
     
-    rng(1)
+    % rng(1)
     actions = kmeans(torque_data, n_unique_actions);
     n_unique_actions = length(unique(actions));
     motor_combs = zeros(2, n_unique_actions);
