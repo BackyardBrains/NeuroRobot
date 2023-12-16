@@ -170,9 +170,9 @@ function initializeModels(jsonRawData){
 
     simulationWorkerChannel.port2.onmessage = function(event){
         if (event.data.message == 'INITIALIZED_WORKER'){
-            izhikevichWorker.postMessage({
-                message:'CONNECT_SIMULATION',
-            });
+            // izhikevichWorker.postMessage({
+            //     message:'CONNECT_SIMULATION',
+            // });
         
         }
         // console.log("event main thread");
@@ -221,7 +221,7 @@ function changeSelectedIdx(selectedIdx){
 function repaint(timestamp){
     try{
         // console.log(sabNumNps);
-        window.canvasDraw();
+        // window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );
     //   console.log("exc");

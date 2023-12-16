@@ -91,14 +91,18 @@ class _RightToolbarState extends State<RightToolbar> {
     super.initState();
     Future.delayed(const Duration(milliseconds: 200),(){
       // WEB CHANGE
-      if (Platform.isAndroid){
-      // if (!kIsWeb){
-        _actionController.animateTo( 20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      }else{
+      if (kIsWeb){
         _actionController.animateTo( 1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);        
       }
+      // else
+      // if (Platform.isAndroid){
+      //   _actionController.animateTo( 20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      //   _simulationController.animateTo(20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      // }else{
+      //   _actionController.animateTo( 1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      //   _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      // }
     });
     activeIdx = widget.menuIdx;
   }

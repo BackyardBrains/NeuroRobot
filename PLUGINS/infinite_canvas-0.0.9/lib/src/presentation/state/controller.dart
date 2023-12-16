@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/model/edge.dart';
@@ -219,7 +220,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         selection.add(child.key);
       }
     }
+    if (kIsWeb){
 
+    }else
     if (Platform.isIOS || Platform.isAndroid) {
       isSelectingEdge = false;
     }

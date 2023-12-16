@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
@@ -212,9 +213,12 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
-            // print("pointer down");
             controller.mouseDown = true;
             controller.mousePosition = details.localPosition;
+            // WEB CHANGE
+            if (kIsWeb){
+
+            }else
             if (Platform.isAndroid || Platform.isIOS) {
               lastPointerDownTime = DateTime.now().millisecondsSinceEpoch;
               Future.delayed(holdDuration, () {
@@ -260,7 +264,11 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             //     controller.marqueeEnd != null) {
             //   controller.checkMarqueeSelection();
             // }
+            print("mouse down");
+            // WEB CHANGE
+            if (kIsWeb){
 
+            }else
             if (Platform.isAndroid || Platform.isIOS) {
               var curTimeStamp = DateTime.now().millisecondsSinceEpoch;
               if (firstTapTime == 0) {
@@ -334,6 +342,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   // print(details.focalPoint);
                   controller.mousePosition = details.focalPoint;
                   controller.mouseDragStart = controller.mousePosition;
+                  // WEB CHANGE
+                  if (kIsWeb){
+
+                  }else
                   if (Platform.isIOS) {
                     // print(controller.mousePosition);
                     controller.notifyMousePosition();

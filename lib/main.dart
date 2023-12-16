@@ -6,11 +6,11 @@ import 'package:neurorobot/pages/createbrain_page.dart';
 import 'package:neurorobot/pages/designbrain_page.dart';
 import 'package:neurorobot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// /*
+/*
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
-// */
+*/
 import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
@@ -23,7 +23,7 @@ void main() async {
   );
   // FirebaseCrashlytics.instance.crash();
 
-  // /*
+  /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
 
@@ -42,7 +42,7 @@ void main() async {
   } else {
     AutoOrientation.landscapeLeftMode();
   }
-  // */
+  */
 
   runApp(const MyApp());
 }

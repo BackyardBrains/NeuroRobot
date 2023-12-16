@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
-import 'package:native_opencv/nativec.dart';
-
+// import 'package:native_opencv/nativec.dart';
+// import 'package:spikerbox_architecture/models/microphone_stream/microphone_stream.dart'
+    // if (dart.library.io) 'package:spikerbox_architecture/models/microphone_stream/microphone_stream_native.dart'
+    // if (dart.library.html) 'package:spikerbox_architecture/models/microphone_stream/microphone_stream_web.dart';
 //https://stackoverflow.com/questions/54797911/flutter-where-to-add-listeners-in-statelesswidget
 class WaveWidget extends StatefulWidget {
   WaveWidget(
@@ -45,8 +47,8 @@ class _WaveWidgetState extends State<WaveWidget> {
       height: widget.screenHeight / 2 - 130,
       width: widget.screenWidth - 20,
       // samples: WaveWidget.canvasBufferBytes1,
-      samples: Nativec.canvasBufferBytes1,
-      // samples: Float64List(0),
+      // samples: Nativec.canvasBufferBytes1,
+      samples: Float64List(0),
       maxDuration: const Duration(seconds: 3),
       elapsedDuration: const Duration(seconds: 1),
       eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],
