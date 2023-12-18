@@ -233,7 +233,14 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 // EM_JS(void, consoleLogEnd, (), {
 //     console.log( "END : ", Date().now() );
 // });
+// val JSFunction;
+// void myFunction(val jsFunction) {
+//     JSFunction = jsFunction;
+// }
 
+// EM_JS(void, call_js, (), {
+//     callMe(12345);
+// });
 
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
@@ -598,10 +605,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // // print(processedMotorCounter.toString() + "__" + message);
                 message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";";
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
+                //NATIVE
                 // onCallback(message.c_str());
-                // EM_ASM({
-                //     console.log("JS DATE NOW ", performance.now() )
-                // });
+                
+
+
+                // call_js();
+                // JSFunction();
+                EM_ASM({
+                    // console.log("JS DATE NOW ", performance.now() )
+                    callMe($0);
+                },nps);
                 // EM_ASM({
                 //     console.log("JS DATE NOW ", performance.now() )
                 // });
@@ -666,6 +680,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 //     // function("getNeuronCircles", &getNeuronCircles);
     function("stopThreadProcess", &stopThreadProcess);
     function("changeIdxSelectedProcess", &changeIdxSelectedProcess);
+    // function("myFunction", &myFunction);
 //     // function("applyLowPassFilter", &applyLowPassFilter);
 //     // register_vector<short>("vector<short>");
 //     // register_vector<short>("LowPassList");

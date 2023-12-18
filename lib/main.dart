@@ -1,29 +1,56 @@
 import 'package:fialogs/fialogs.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:neurorobot/pages/createbrain_page.dart';
 import 'package:neurorobot/pages/designbrain_page.dart';
 import 'package:neurorobot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-/*
+// WEB CHANGE
+// /*
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
-*/
+// */
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'firebase_options.dart';
 
+const _kShouldTestAsyncErrorOnInit = false;
+const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // FirebaseCrashlytics.instance.crash();
+  const fatalError = true;
+  // Non-async exceptions
+  FlutterError.onError = (errorDetails) {
+    if (fatalError) {
+      // If you want to record a "fatal" exception
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      // ignore: dead_code
+    } else {
+      // If you want to record a "non-fatal" exception
+      // FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+    }
+  };
+  // Async exceptions
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (fatalError) {
+      // If you want to record a "fatal" exception
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      // ignore: dead_code
+    } else {
+      // If you want to record a "non-fatal" exception
+      // FirebaseCrashlytics.instance.recordError(error, stack);
+    }
+    return true;
+  };
 
-  /*
+  // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
 
@@ -42,7 +69,7 @@ void main() async {
   } else {
     AutoOrientation.landscapeLeftMode();
   }
-  */
+  // */
 
   runApp(const MyApp());
 }
@@ -63,8 +90,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: const MyHomePage(title: 'NeuroRobot'),
-      home: DesignBrainPage(),
+      home: const MyHomePage(title: 'NeuroRobot'),
+      // home: DesignBrainPage(),
     );
   }
 }
@@ -80,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   TextEditingController ctlBrainName = TextEditingController(text: "");
   TextEditingController ctlBrainDescription = TextEditingController(text: "");
+  late Future<void> _initializeFlutterFireFuture;
 
   int isInitialized = 0;
   late SharedPreferences prefs;
@@ -164,6 +192,29 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _testAsyncErrorOnInit() async {
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      final List<int> list = <int>[];
+      print(list[100]);
+    });
+  }
+
+  Future<void> _initializeFlutterFire() async {
+    if (_kTestingCrashlytics) {
+      // Force enable crashlytics collection enabled if we're testing it.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    } else {
+      // Else only enable it in non-debug builds.
+      // You could additionally extend this to allow users to opt-in.
+      await FirebaseCrashlytics.instance
+          .setCrashlyticsCollectionEnabled(!kDebugMode);
+    }
+
+    if (_kShouldTestAsyncErrorOnInit) {
+      await _testAsyncErrorOnInit();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -172,6 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
       isInitialized = 1;
       setState(() => {});
     });
+    _initializeFlutterFireFuture = _initializeFlutterFire();
   }
 
   @override

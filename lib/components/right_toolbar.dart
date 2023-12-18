@@ -13,7 +13,6 @@ class RightToolbar extends StatefulWidget {
   State<RightToolbar> createState() => _RightToolbarState();
 }
 
-
 class _RightToolbarState extends State<RightToolbar> {
   ScrollController _actionController = ScrollController();
   ScrollController _simulationController = ScrollController();
@@ -22,23 +21,50 @@ class _RightToolbarState extends State<RightToolbar> {
   static int totalSimulationIcons = 2;
   // static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
   // static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
-  static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
-  static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
-  static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(7, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
+  static List<String> activeActionIconsStr = [
+    "assets/icons/ArrowSelect.svg",
+    "assets/icons/NeuronActive.svg",
+    "-",
+    "assets/icons/Undo.svg",
+    "assets/icons/Redo.svg",
+    "pan_tool_rounded"
+  ];
+  static List<String> inactiveActionIconsStr = [
+    "assets/icons/ArrowSelect.svg",
+    "assets/icons/Neuron.svg",
+    "-",
+    "assets/icons/Undo.svg",
+    "assets/icons/Redo.svg",
+    "pan_tool_rounded"
+  ];
+  static List<ColorFilter> colorActionFilters = List<ColorFilter>.generate(
+      7, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
 
   // static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
   // static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
-  static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Save.svg"];
-  static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Save.svg"];
-  static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(2, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
-  
-  int activeIdx=0;
-  List<String> tooltipActions = ["\nEdit Properties\nNeuron/Axon\n","Create Neuron","-","Undo","Redo"];
+  static List<String> activeSimulationIconsStr = [
+    "assets/icons/Home.svg",
+    "assets/icons/Save.svg"
+  ];
+  static List<String> inactiveSimulationIconsStr = [
+    "assets/icons/Home.svg",
+    "assets/icons/Save.svg"
+  ];
+  static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(
+      2, (index) => const ColorFilter.mode(Colors.white, BlendMode.srcIn));
+
+  int activeIdx = 0;
+  List<String> tooltipActions = [
+    "\nEdit Properties\nNeuron/Axon\n",
+    "Create Neuron",
+    "-",
+    "Undo",
+    "Redo"
+  ];
   List<Widget> activeActionIcons = List.generate(totalActionIcons, (index) {
-    if (index == 2 ){
+    if (index == 2) {
       return const Divider();
-    }else
-    if (index == 1){
+    } else if (index == 1) {
       return SvgPicture.asset(
         activeActionIconsStr[index],
       );
@@ -54,7 +80,7 @@ class _RightToolbarState extends State<RightToolbar> {
     );
   });
   List<Widget> inactiveActionIcons = List.generate(totalActionIcons, (index) {
-    if (index == 2 ){
+    if (index == 2) {
       return const Divider();
     }
     // else
@@ -67,16 +93,16 @@ class _RightToolbarState extends State<RightToolbar> {
     );
   });
 
-
-
   List<String> tooltipSimulations = ["Home", "Save Brain"];
-  List<Widget> activeSimulationIcons = List.generate(totalSimulationIcons, (index) {
+  List<Widget> activeSimulationIcons =
+      List.generate(totalSimulationIcons, (index) {
     return SvgPicture.asset(
       activeSimulationIconsStr[index],
       colorFilter: colorSimulationFilters[index],
     );
   });
-  List<Widget> inactiveSimulationIcons = List.generate(totalSimulationIcons, (index) {
+  List<Widget> inactiveSimulationIcons =
+      List.generate(totalSimulationIcons, (index) {
     return SvgPicture.asset(
       inactiveSimulationIconsStr[index],
     );
@@ -84,25 +110,38 @@ class _RightToolbarState extends State<RightToolbar> {
 
   // List<int> containerActionWidth = [30,20,15,15,15,15,15,15,15];
   // List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
-  List<EdgeInsets> containerActionPadding = [const EdgeInsets.all(8),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(5),const EdgeInsets.all(6)];
+  List<EdgeInsets> containerActionPadding = [
+    const EdgeInsets.all(8),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(5),
+    const EdgeInsets.all(6)
+  ];
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 200),(){
+    Future.delayed(const Duration(milliseconds: 200), () {
       // WEB CHANGE
-      if (kIsWeb){
-        _actionController.animateTo( 1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);        
+      if (kIsWeb) {
+        _actionController.animateTo(1,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(1,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      } else if (Platform.isAndroid) {
+        _actionController.animateTo(20,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(20,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+      } else {
+        _actionController.animateTo(1,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        _simulationController.animateTo(1,
+            duration: const Duration(milliseconds: 10), curve: Curves.linear);
       }
-      // else
-      // if (Platform.isAndroid){
-      //   _actionController.animateTo( 20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      //   _simulationController.animateTo(20, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      // }else{
-      //   _actionController.animateTo( 1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      //   _simulationController.animateTo(1, duration: const Duration(milliseconds: 10), curve: Curves.linear);
-      // }
     });
     activeIdx = widget.menuIdx;
   }
@@ -112,7 +151,7 @@ class _RightToolbarState extends State<RightToolbar> {
     return createRightToolbar();
   }
 
-  Widget createRightToolbar(){
+  Widget createRightToolbar() {
     return Column(
       children: [
         createActionToolbar(),
@@ -123,8 +162,8 @@ class _RightToolbarState extends State<RightToolbar> {
 
   Widget createActionToolbar() {
     return Container(
-      padding: const EdgeInsets.all(8.0)..copyWith(top:10),
-      width:70,
+      padding: const EdgeInsets.all(8.0)..copyWith(top: 10),
+      width: 70,
       child: Container(
         // color:Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
@@ -137,57 +176,55 @@ class _RightToolbarState extends State<RightToolbar> {
               offset: Offset(0, 2),
               blurRadius: 4,
             ),
-          ],          
+          ],
         ),
         // surfaceTintColor: Colors.white,
         child: Container(
-          
           padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
-          width:54,
-          height:150,
+          width: 54,
+          height: 150,
           child: ListView.builder(
-            itemCount:totalActionIcons,
-            reverse:false,
+            itemCount: totalActionIcons,
+            reverse: false,
             shrinkWrap: true,
             controller: _actionController,
 
             // physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (ctx, idx){
-              if (idx == 2){
+            itemBuilder: (ctx, idx) {
+              if (idx == 2) {
                 return const Divider();
               }
               return MeTooltip(
                 message: tooltipActions[idx],
                 preferOri: PreferOrientation.left,
-                child:GestureDetector(
-                  onTap:(){
+                child: GestureDetector(
+                  onTap: () {
                     activeIdx = idx;
-                    widget.callback({"menuIdx":activeIdx});
+                    widget.callback({"menuIdx": activeIdx});
                     setState(() {});
                   },
                   child: Container(
-                    width:30,
-                    height:30,
+                    width: 30,
+                    height: 30,
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                    decoration: 
-                      idx==activeIdx && ( activeIdx<3 ) ? const BoxDecoration(
-                        color: Color(0xFF13A9FC),
-                        borderRadius: BorderRadius.all(Radius.circular(5))
-                      )
-                      :
-                      const BoxDecoration(
-                        color: Colors.white,
-                      )
-                    ,
+                    decoration: idx == activeIdx && (activeIdx < 3)
+                        ? const BoxDecoration(
+                            color: Color(0xFF13A9FC),
+                            borderRadius: BorderRadius.all(Radius.circular(5)))
+                        : const BoxDecoration(
+                            color: Colors.white,
+                          ),
                     padding: containerActionPadding[idx],
-                    child: idx==activeIdx && activeIdx<3 ? activeActionIcons[idx] : inactiveActionIcons[idx],
+                    child: idx == activeIdx && activeIdx < 3
+                        ? activeActionIcons[idx]
+                        : inactiveActionIcons[idx],
                   ),
                 ),
               );
             },
             // children: [
             //   const SizedBox(height:10),
-        
+
             //   MeTooltip(
             //     message: "Create Neuron",
             //     preferOri: PreferOrientation.left,
@@ -210,10 +247,10 @@ class _RightToolbarState extends State<RightToolbar> {
             //         "assets/icons/Axon.svg",
             //       ),
             //     ),
-            //   ),                 
-        
+            //   ),
+
             //   Divider(),
-              
+
             //   MeTooltip(
             //     message: "Undo",
             //     preferOri: PreferOrientation.left,
@@ -264,9 +301,9 @@ class _RightToolbarState extends State<RightToolbar> {
             //         colorFilter: const ColorFilter.mode(Color(0xFF13A9FC), BlendMode.srcIn),
             //         semanticsLabel: 'A red up arrow'
             //       ),
-            //     ),            
+            //     ),
             //   ),
-        
+
             //   MeTooltip(
             //     message: "Home",
             //     preferOri: PreferOrientation.left,
@@ -277,7 +314,7 @@ class _RightToolbarState extends State<RightToolbar> {
             //         "assets/icons/Home.svg",
             //         colorFilter: const ColorFilter.mode(Color(0xFF13A9FC), BlendMode.srcIn),
             //         semanticsLabel: 'A red up arrow'
-            //       ),    
+            //       ),
             //     ),
             //   ),
             //   const SizedBox(height:10),
@@ -286,13 +323,12 @@ class _RightToolbarState extends State<RightToolbar> {
         ),
       ),
     );
-
   }
-    
+
   Widget createSimulationToolbar() {
     return Container(
-      padding: const EdgeInsets.all(8.0)..copyWith(top:0),
-      width:70,
+      padding: const EdgeInsets.all(8.0)..copyWith(top: 0),
+      width: 70,
       child: Container(
         // surfaceTintColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
@@ -305,29 +341,29 @@ class _RightToolbarState extends State<RightToolbar> {
               offset: Offset(0, 2),
               blurRadius: 4,
             ),
-          ],          
+          ],
         ),
 
         child: Container(
           padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
-          width:54,
-          height:70,
+          width: 54,
+          height: 70,
           child: ListView.builder(
             controller: _simulationController,
             shrinkWrap: true,
-            itemCount:totalSimulationIcons,
+            itemCount: totalSimulationIcons,
             // physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (ctx, index){
+            itemBuilder: (ctx, index) {
               int idx = index;
               return MeTooltip(
                 message: tooltipSimulations[idx],
                 preferOri: PreferOrientation.left,
-                child:GestureDetector(
-                  onTap:(){
+                child: GestureDetector(
+                  onTap: () {
                     int prevIdx = activeIdx;
                     // activeIdx = idx + 7;//6//5;
                     activeIdx = idx + 5;
-                    widget.callback({"menuIdx":activeIdx});
+                    widget.callback({"menuIdx": activeIdx});
 
                     // if (prevIdx == activeIdx && activeIdx == 7){
                     //   activeIdx = 0;
@@ -338,24 +374,23 @@ class _RightToolbarState extends State<RightToolbar> {
                     setState(() {});
                   },
                   child: Container(
-                    width:30,
-                    height:30,
+                    width: 30,
+                    height: 30,
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                    decoration: 
-                      idx==activeIdx - 5 ? const BoxDecoration(
-                      // idx==activeIdx - 7 ? const BoxDecoration(
-                        // color : Colors.transparent,
-                        color: Color(0xFF13A9FC),
-                        borderRadius: BorderRadius.all(Radius.circular(5))
-                      )
-                      :
-                      const BoxDecoration(
-                        // color : Colors.transparent,
-                        color: Colors.white,
-                      )
-                    ,
-                    padding: containerActionPadding[idx+6],
-                    child: idx == activeIdx - 5 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
+                    decoration: idx == activeIdx - 5
+                        ? const BoxDecoration(
+                            // idx==activeIdx - 7 ? const BoxDecoration(
+                            // color : Colors.transparent,
+                            color: Color(0xFF13A9FC),
+                            borderRadius: BorderRadius.all(Radius.circular(5)))
+                        : const BoxDecoration(
+                            // color : Colors.transparent,
+                            color: Colors.white,
+                          ),
+                    padding: containerActionPadding[idx + 6],
+                    child: idx == activeIdx - 5
+                        ? activeSimulationIcons[idx]
+                        : inactiveSimulationIcons[idx],
                     // padding: containerActionPadding[idx+7],
                     // child: idx == activeIdx - 7 ? activeSimulationIcons[idx] : inactiveSimulationIcons[idx],
                   ),
@@ -365,8 +400,6 @@ class _RightToolbarState extends State<RightToolbar> {
           ),
         ),
       ),
-    );    
+    );
   }
-
-
 }

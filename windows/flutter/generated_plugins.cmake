@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   firebase_core
+  native_opencv
   screen_retriever
   window_manager
 )

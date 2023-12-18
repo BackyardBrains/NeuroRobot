@@ -600,20 +600,30 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 right_backward = 0;
                 right_forward = 0;
                 for (short i =0; i < threadTotalNumOfNeurons;i++){
-                    // platform_log("\nStepsSpiking: ");
-                    // platform_log(std::to_string( isStepSpiking[i] ).c_str());
-                    // platform_log("\n");
-                    // platform_log(std::to_string( neuron_contacts[i][5] ).c_str());
-                    // platform_log("\n");
-                    // platform_log(std::to_string( neuron_contacts[i][6] ).c_str());
-                    // platform_log("\n");
-
                     if ( isStepSpiking[i] == 1 ){
-                        left_backward += (neuron_contacts[i][5] + neuron_contacts[i][7]);
-                        left_forward += (neuron_contacts[i][6] + neuron_contacts[i][8]);
+                        // platform_log("\nStepsSpiking: ");
+                        // // platform_log(std::to_string( isStepSpiking[i] ).c_str());
+                        // platform_log(std::to_string( i ).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string( neuron_contacts[i][5] ).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string( neuron_contacts[i][7] ).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string( neuron_contacts[i][6] ).c_str());
+                        // platform_log("\n");
+                        // platform_log(std::to_string( neuron_contacts[i][8] ).c_str());
+                        // platform_log("\n");
 
-                        right_forward += (neuron_contacts[i][9] + neuron_contacts[i][11]);
-                        right_backward += (neuron_contacts[i][10] + neuron_contacts[i][12]);
+                        // left_backward += (neuron_contacts[i][5] + neuron_contacts[i][7]);
+                        // left_forward += (neuron_contacts[i][6] + neuron_contacts[i][8]);
+
+                        // right_forward += (neuron_contacts[i][9] + neuron_contacts[i][11]);
+                        // right_backward += (neuron_contacts[i][10] + neuron_contacts[i][12]);
+                        left_forward += ( neuron_contacts[i][7]);
+                        left_backward += ( neuron_contacts[i][5]);
+
+                        right_forward += ( neuron_contacts[i][6] );
+                        right_backward += ( neuron_contacts[i][8] );
                     }
                 }
                 left_forward *= 0.5;
@@ -633,32 +643,50 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 left_dir = 0;
 
                 short sign = 0;
+                if (left_torque == 0) {
+                    sign = 0;
+                    left_dir = 1;
+                }else
                 if (left_torque > 0) {
                     sign = 1;
+                    left_dir = 1;
                 } else {
                     sign = -1;
+                    left_dir = 2;
                 }                
-                left_dir = std::max(1 - sign *(left_torque), 1);
+                // left_dir = std::max(1 - sign *(left_torque), 1);
+                // platform_log("Left Torque : \n");
+                // platform_log(std::to_string( left_dir ).c_str());
+                // platform_log("\n");
 
-                left_torque = std::abs(left_torque);
+                left_torque = std::abs(left_torque); // pin 15
                 if (left_torque > 250) left_torque = 250;
-                if (left_torque < 0) left_torque = 0;
+                else                
+                if (left_torque < -250) left_torque = -250;
                 // left_torque(left_torque > 250) = 250;
                 motor_command[2] = left_torque;
-                motor_command[3]= left_dir;
+                motor_command[3] = left_dir;
                 
                 right_torque = right_forward - right_backward;
                 right_torque_mem = right_torque;
                 right_dir = 0;
+                if (right_torque == 0) {
+                    sign = 0;
+                    right_dir = 1;
+                }else
                 if (right_torque > 0) {
                     sign = 1;
+                    right_dir = 1;
                 } else {
                     sign = -1;
-                }                
-                right_dir = std::max(1 - sign *(right_torque), 1);
-                right_torque = std::abs(right_torque); 
+                    right_dir = 2;
+
+                }
+                // right_dir = std::max(1 - sign *(right_torque), 1);
+                right_torque = std::abs(right_torque); // pin 14
                 if (right_torque > 250) right_torque = 250;
-                if (right_torque < 0) right_torque = 0;
+                else
+                if (right_torque < -250) right_torque = -250;
                 motor_command[0] = right_torque;
                 motor_command[1] = right_dir;
                 // platform_log("std::to_string(right_torque).c_str()");
@@ -693,10 +721,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 // // print("wheel message");
                 // // print(processedMotorCounter.toString() + "__" + message);
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";";
+                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:0;";
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
-                onCallback(message.c_str());
+                //     platform_log("Motor Commands :\n");
+                //     platform_log(message.c_str());
+                //     platform_log("\n");
                 // }
+                onCallback(message.c_str());
 
 
                 delete[] isSpiking;
