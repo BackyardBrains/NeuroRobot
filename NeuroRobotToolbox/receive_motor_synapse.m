@@ -56,23 +56,23 @@ if fig_design.UserData == 2 && (~exist('postsynaptic_neuron', 'var') && ~exist('
     end
 
     neuron_contacts(presynaptic_neuron, postsynaptic_contact) = this_input;
-    if  postsynaptic_contact == 6
-        neuron_contacts(presynaptic_neuron, 8) = this_input;
-    elseif  postsynaptic_contact == 7
-        neuron_contacts(presynaptic_neuron, 9) = this_input;
-    elseif  postsynaptic_contact == 8
-        neuron_contacts(presynaptic_neuron, 6) = this_input;
-    elseif  postsynaptic_contact == 9
-        neuron_contacts(presynaptic_neuron, 7) = this_input;
-    elseif  postsynaptic_contact == 10
-        neuron_contacts(presynaptic_neuron, 12) = this_input;
-    elseif  postsynaptic_contact == 11
-        neuron_contacts(presynaptic_neuron, 13) = this_input;
-    elseif  postsynaptic_contact == 12
-        neuron_contacts(presynaptic_neuron, 10) = this_input;
-    elseif  postsynaptic_contact == 13
-        neuron_contacts(presynaptic_neuron, 11) = this_input;
-    end
+    % if  postsynaptic_contact == 6
+    %     neuron_contacts(presynaptic_neuron, 8) = this_input;
+    % elseif  postsynaptic_contact == 7
+    %     neuron_contacts(presynaptic_neuron, 9) = this_input;
+    % elseif  postsynaptic_contact == 8
+    %     neuron_contacts(presynaptic_neuron, 6) = this_input;
+    % elseif  postsynaptic_contact == 9
+    %     neuron_contacts(presynaptic_neuron, 7) = this_input;
+    % elseif  postsynaptic_contact == 10
+    %     neuron_contacts(presynaptic_neuron, 12) = this_input;
+    % elseif  postsynaptic_contact == 11
+    %     neuron_contacts(presynaptic_neuron, 13) = this_input;
+    % elseif  postsynaptic_contact == 12
+    %     neuron_contacts(presynaptic_neuron, 10) = this_input;
+    % elseif  postsynaptic_contact == 13
+    %     neuron_contacts(presynaptic_neuron, 11) = this_input;
+    % end
 
     % Design action complete
     design_action = 0; % not read at the end, ugly hack
