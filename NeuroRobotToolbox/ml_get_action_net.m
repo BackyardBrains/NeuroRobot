@@ -43,7 +43,7 @@ training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = scale_f/5;
-training_opts.UseParallel = 0;
+training_opts.UseParallel = 1;
 if isdeployed
     this_str = 'none';
 else
