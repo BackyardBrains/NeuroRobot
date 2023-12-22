@@ -217,7 +217,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             elseif multi_neuron_opt == 3 % Trained Net
                 if ~strcmp(popup_select_nets.String, '--')
                     create_from_net
-                    trained_nets{2} = full_net_name;
+                    % trained_nets{2} = full_net_name;
                 end
                 delete(text_heading)
                 delete(text_w1)

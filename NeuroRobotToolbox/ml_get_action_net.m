@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 100 * learn_speed;
+scale_f = 25 * learn_speed;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -32,20 +32,20 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
 
-
+delete(gcp('nocreate'))
 parpool
 
 %% Train Agent 2
-scale_f = 50;
+% scale_f = 200;
 agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = scale_f*20;
+training_opts.MaxEpisodes = scale_f * 5;
 training_opts.MaxStepsPerEpisode = scale_f;
-training_opts.StopTrainingValue = scale_f;
+training_opts.StopTrainingValue = scale_f * 10;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = scale_f/10;
+training_opts.ScoreAveragingWindowLength = scale_f/5;
 training_opts.UseParallel = 1;
 if isdeployed
     this_str = 'none';
@@ -56,7 +56,7 @@ training_opts.Plots = this_str;
 training_opts.Verbose = 1;
 
 trainingStats_deep = train(agent, env, training_opts);
-save(horzcat(nets_dir_name, net_name, '-', agent_name, '-ml'), 'agent')
+save(horzcat(nets_dir_name, net_name, '-go2-', agent_name, '-ml'), 'agent')
 
 
 %% Show Agent 2

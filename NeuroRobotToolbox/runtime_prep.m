@@ -164,7 +164,7 @@ if exist('rak_only', 'var') && brain_support
         full_net_name = option_nets{select_nets.Value(this_ind)};        
         trained_nets{2} = full_net_name;
 
-        cnet_temp = strfind(full_net_name, '2');
+        cnet_temp = strfind(full_net_name, '-go2-');
         if cnet_temp >= 1
             state_net_name = full_net_name(1:cnet_temp(1)-1);
             action_net_name = full_net_name(cnet_temp(1)+1:end);            
@@ -174,29 +174,30 @@ if exist('rak_only', 'var') && brain_support
         end
 
         try
-            load(strcat(nets_dir_name, net_name, '-ml')) %% state_net_name fix
-            load(strcat(nets_dir_name, net_name, '-labels')) %% state_net_name fix
+            load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
+            load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
             regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
             vis_pref_names = [vis_pref_names, labels'];
         catch
-            disp('Unable to load convnet')
+            disp('Unable to load convnet / state net')
             % regression_flag = 1;
             % vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
-        % if length(cnet_temp) >= 1
-        % try    
+        if length(cnet_temp) >= 1
+        try    
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
-            load(horzcat(nets_dir_name, net_name, '-torque_data'))
-            load(strcat(nets_dir_name, net_name, '-actions'))            
+            load(horzcat(nets_dir_name, full_net_name, '-torque_data'))
+            load(strcat(nets_dir_name, full_net_name, '-actions'))            
             ml_get_combs_quick
             n_unique_actions = size(motor_combs, 1);        
             % 1
-        % end
-        % catch
-        % end
+        catch
+            disp('Unable to load agent / action net')
+        end
+        end
     else
         state_net_name = '';
         action_net_name = '';

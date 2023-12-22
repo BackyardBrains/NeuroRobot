@@ -25,7 +25,7 @@ drawnow
 reward_counter = zeros(size(mdp.R));
 reward_counter(:, :, 4) = -1; % Skip this?
 if ~isempty(reward_states)
-    reward_counter(:, reward_states, reward_action) = 1;
+    reward_counter(:, reward_states, reward_action) = 5;
 end
 % if ~isempty(bad_states)
 %     reward_counter(:, -bad_states, reward_action) = -1;
