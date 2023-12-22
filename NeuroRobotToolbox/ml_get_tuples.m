@@ -59,15 +59,19 @@ disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == 
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
 
-    motor_combs = zeros(2, n_unique_actions);
+n_unique_actions = length(unique(actions));
+motor_combs = zeros(n_unique_actions, 2);
+
+for naction = 1:n_unique_actions
+    motor_combs(naction, :) = mean(torque_data(actions == naction, :));
+end
 
     figure(22)
     clf
     gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
     hold on
     for naction = 1:n_unique_actions
-        motor_combs(naction,:) = mean(torque_data(actions == naction, :));
-        text(motor_combs(naction,:), motor_combs(naction,:), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+        text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
     end
     axis padded
     set(gca, 'yscale', 'linear')
