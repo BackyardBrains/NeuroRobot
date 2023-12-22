@@ -78,6 +78,7 @@ char commandBuffer[256];
   Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
   uint32_t colorBlue = (0,0,255);
   uint32_t colorGreen = (0,255,0);
+  bool shouldSetGreen = false;
 #endif
 
 #if defined(USE_MOTORS)
@@ -519,14 +520,28 @@ void loop()
   #if defined(MAKE_AP)
     if(WiFi.softAPgetStationNum()==0)
     {
-        strip.begin();
-        strip.show();
+
+
         strip.setBrightness(25);
         strip.setPixelColor(0, colorBlue);
         strip.setPixelColor(1, colorBlue);
         strip.setPixelColor(2, colorBlue);
         strip.setPixelColor(3, colorBlue);
         strip.show();
+        shouldSetGreen = true;
+    }
+    else
+    {
+      if(shouldSetGreen)
+      {
+        shouldSetGreen = false;
+        strip.setBrightness(25);
+        strip.setPixelColor(0, 0,255,0);
+        strip.setPixelColor(1, 0,255,0);
+        strip.setPixelColor(2, 0,255,0);
+        strip.setPixelColor(3, 0,255,0);
+        strip.show();
+      }
     }
   #endif
   #endif
