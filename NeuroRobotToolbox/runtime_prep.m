@@ -174,8 +174,8 @@ if exist('rak_only', 'var') && brain_support
         end
 
         try
-            load(strcat(nets_dir_name, 'dec21', '-ml')) %% state_net_name fix
-            load(strcat(nets_dir_name, 'dec21', '-labels')) %% state_net_name fix
+            load(strcat(nets_dir_name, net_name, '-ml')) %% state_net_name fix
+            load(strcat(nets_dir_name, net_name, '-labels')) %% state_net_name fix
             regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
@@ -187,16 +187,16 @@ if exist('rak_only', 'var') && brain_support
         end
         
         % if length(cnet_temp) >= 1
-        try    
+        % try    
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
-            load(horzcat(nets_dir_name, 'dec21', '-torque_data'))
-            load(strcat(nets_dir_name, 'dec21', '-actions'))            
+            load(horzcat(nets_dir_name, net_name, '-torque_data'))
+            load(strcat(nets_dir_name, net_name, '-actions'))            
             ml_get_combs_quick
             n_unique_actions = size(motor_combs, 1);        
-            1
+            % 1
         % end
-        catch
-        end
+        % catch
+        % end
     else
         state_net_name = '';
         action_net_name = '';
