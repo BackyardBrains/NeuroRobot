@@ -47,7 +47,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 5;
 rng(1)
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
@@ -58,6 +58,27 @@ disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
 save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, net_name, '-actions'))
+
+n_unique_actions = length(unique(actions));
+motor_combs = zeros(n_unique_actions, 2);
+
+for naction = 1:n_unique_actions
+    motor_combs(naction, :) = mean(torque_data(actions == naction, :));
+end
+
+    figure(22)
+    clf
+    gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+    hold on
+    for naction = 1:n_unique_actions
+        text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+    end
+    axis padded
+    set(gca, 'yscale', 'linear')
+    title('Actions')
+    xlabel('Torque 1')
+    ylabel('Torque 2')
+    drawnow
 
 
 %% Plot torque data with action IDs

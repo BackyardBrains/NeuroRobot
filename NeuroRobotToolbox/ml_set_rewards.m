@@ -23,13 +23,13 @@ tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
 reward_counter = zeros(size(mdp.R));
-reward_counter(:, :, reward_action) = -1; % Skip this?
+reward_counter(:, :, 4) = -1; % Skip this?
 if ~isempty(reward_states)
     reward_counter(:, reward_states, reward_action) = 1;
 end
-if ~isempty(bad_states)
-    reward_counter(:, -bad_states, reward_action) = -1;
-end
+% if ~isempty(bad_states)
+%     reward_counter(:, -bad_states, reward_action) = -1;
+% end
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 disp('Rewards ready')

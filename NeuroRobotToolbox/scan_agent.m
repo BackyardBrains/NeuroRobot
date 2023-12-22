@@ -1,6 +1,6 @@
 
-data = zeros(n_unique_states, 2);
-motor_combs = zeros(n_unique_actions, 2);
+% data = zeros(n_unique_states, 2);
+% motor_combs = zeros(n_unique_actions, 2);
 for naction = 1:n_unique_actions
     y = naction * (n_unique_states/n_unique_actions);
     plot(4, y, 'marker', '.', 'markersize', 50, 'color', [0.8 0.8 0.8])

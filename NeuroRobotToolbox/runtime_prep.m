@@ -174,23 +174,29 @@ if exist('rak_only', 'var') && brain_support
         end
 
         try
-            load(strcat(nets_dir_name, state_net_name, '-ml'))
-            load(strcat(nets_dir_name, state_net_name, '-labels'))
+            load(strcat(nets_dir_name, net_name, '-ml')) %% state_net_name fix
+            load(strcat(nets_dir_name, net_name, '-labels')) %% state_net_name fix
             regression_flag = 0;
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
             vis_pref_names = [vis_pref_names, labels'];
         catch
+            disp('Unable to load convnet')
             % regression_flag = 1;
             % vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
-        if length(cnet_temp) >= 1
+        % if length(cnet_temp) >= 1
+        % try    
             load(horzcat(nets_dir_name, full_net_name, '-ml'))
-            load(strcat(nets_dir_name, state_net_name, '-motor_combs'))
-            n_unique_actions = size(motor_combs, 2);
-            rl_image_size = round([227 302] * 0.03);
-        end 
+            load(horzcat(nets_dir_name, net_name, '-torque_data'))
+            load(strcat(nets_dir_name, net_name, '-actions'))            
+            ml_get_combs_quick
+            n_unique_actions = size(motor_combs, 1);        
+            % 1
+        % end
+        % catch
+        % end
     else
         state_net_name = '';
         action_net_name = '';

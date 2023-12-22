@@ -25,10 +25,10 @@ bfsize = 8;
 grey_background = 1; % Grey background (1) or white background (0)    
 if grey_background
     fig_bg_col = [0.94 0.94 0.94];
-    this_workspace_fig = 'workspace2.jpg';
+    this_workspace_fig = 'workspace3.jpg';
 else
     fig_bg_col = [1 1 1];
-    this_workspace_fig = 'workspace.jpg';
+    this_workspace_fig = 'workspace4.jpg';
 end
 im = flipud(255 - ((255 - imread(this_workspace_fig))));
 im2 = flipud(255 - ((255 - imread(this_workspace_fig))));

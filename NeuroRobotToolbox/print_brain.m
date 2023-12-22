@@ -1,6 +1,6 @@
 
 
-im3 = flipud(255 - ((255 - imread('workspace.jpg'))));
+im3 = flipud(255 - ((255 - imread('workspace4.jpg'))));
 
 fig_print = figure(3);
 set(fig_print, 'position', [400 100 1000 800]);
