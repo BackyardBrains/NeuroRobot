@@ -1,7 +1,7 @@
 
 
-agent_name = ml_name2_edit.String;
-if isempty(agent_name)
+action_net_name = ml_name2_edit.String;
+if isempty(action_net_name)
     ml_name2_edit.BackgroundColor = [1 0 0];
     pause(0.5)
     ml_name2_edit.BackgroundColor = [0.94 0.94 0.94];

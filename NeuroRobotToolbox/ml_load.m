@@ -29,11 +29,12 @@ else
     load(strcat(nets_dir_name, state_net_name, '-tuples'))
     load(strcat(nets_dir_name, state_net_name, '-mdp'))
     ml_visualize_mdp
-    
     n_unique_states = length(unique(states));
     n_unique_actions = length(unique(actions));
     ntuples = size(states, 1);
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
+    
+    ml_get_combs_quick
     
     txx.String = 'Ready to train decision network';
 
