@@ -10,8 +10,8 @@ if exist('serial_receive', 'var') && ~isempty(serial_receive)
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == 0) = 4000;
         
-        this_battery = str2double(serial_data{4});
-        disp(num2str(this_battery))
+        % this_battery = str2double(serial_data{4});
+        % disp(num2str(this_battery))
        
     catch
         disp('serial_receive is not empty but ESP_get_serial.m does not recognize the content')
