@@ -8,7 +8,7 @@ elseif ml_speed_select.Value == 3 % Fast
     learn_speed = 0.1;    
 end
 
-ntuples = numel(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
+ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat')));
 disp(horzcat('ntuples: ', num2str(ntuples)))
 disp(horzcat('learn speed: ', num2str(learn_speed)))
 
