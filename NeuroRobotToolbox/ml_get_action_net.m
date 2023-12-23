@@ -2,7 +2,7 @@
 
 
 %% scaling factor
-scale_f = 10 * learn_speed;
+scale_f = 100 * learn_speed;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
 
 
@@ -31,7 +31,7 @@ agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = scale_f * 5;
+training_opts.MaxEpisodes = scale_f * 10;
 training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f * 10;
 training_opts.StopTrainingCriteria = "AverageReward";
@@ -61,7 +61,7 @@ cla
 
 hold on
 scan_agent
-title(horzcat(net_name))
+title(horzcat(state_net_name, '-go2-', agent_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
 tx10.String = horzcat('Finished training decision network');

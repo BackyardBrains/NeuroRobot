@@ -67,6 +67,6 @@ save(strcat(nets_dir_name, state_net_name, '-ml'), 'net')
 
 
 %% End message
-tx6.String = horzcat(net_name, ' trained successfully');
+tx6.String = horzcat(state_net_name, ' trained successfully');
 drawnow
 

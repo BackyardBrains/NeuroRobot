@@ -7,9 +7,8 @@ elseif ml_speed_select.Value == 2 % Medium
 elseif ml_speed_select.Value == 3 % Fast
     learn_speed = 0.1;    
 end
-serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
-ndists = size(serial_dir, 1);
-disp(horzcat('ntuples: ', num2str(ndists)))
+ntuples = numel(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
+disp(horzcat('ntuples: ', num2str(ntuples)))
 disp(horzcat('learn speed: ', num2str(learn_speed)))
 nsmall = round((0.001 * ndists + 1000) * learn_speed * 2);
 bof_branching = round((0.0003 * ndists + 200) * learn_speed);
