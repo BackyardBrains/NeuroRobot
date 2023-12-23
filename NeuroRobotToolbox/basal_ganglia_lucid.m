@@ -10,7 +10,7 @@ nseqs = 500;
 % get_combs = 0;
 % get_rewards = 0;
 % 
-% net_name = 'tessier';
+% state_net_name = 'tessier';
 % rec_dir_name = '';
 % dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 % nets_dir_name = strcat(userpath, '\Nets\');

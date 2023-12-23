@@ -347,7 +347,7 @@ elseif fig_design.UserData == 6
 %                 if use_cnn
 %                     trained_nets = 'GoogLeNet';
 %                 else
-%                     trained_nets = net_name;
+%                     trained_nets = state_net_name;
 %                 end
 %                 disp(horzcat('Brain now requires this trained net to load: ', trained_nets))
 %             else

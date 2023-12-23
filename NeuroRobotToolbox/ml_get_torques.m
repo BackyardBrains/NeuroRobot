@@ -16,7 +16,7 @@ if get_torques
     end
     % torque_data(:,1) = -torque_data(:,1); %%%% %%%%
     torque_data = fliplr(torque_data);    %%%% %%%%
-    save(strcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
+    save(strcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 else
-    load(strcat(nets_dir_name, net_name, '-torque_data'))
+    load(strcat(nets_dir_name, state_net_name, '-torque_data'))
 end

@@ -8,8 +8,8 @@ tx7 = text(0.03, 0.5, horzcat('loading net...'));
 drawnow
 disp('Loading state net...')
 
-load(strcat(nets_dir_name, net_name, '-ml'))
-load(strcat(nets_dir_name, net_name, '-labels'))
+load(strcat(nets_dir_name, state_net_name, '-ml'))
+load(strcat(nets_dir_name, state_net_name, '-labels'))
 
 n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
@@ -33,15 +33,16 @@ drawnow
 disp('assembling tuples...')
 
 get_states
-save(horzcat(nets_dir_name, net_name, '-states'), 'states')
+save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
+load(horzcat(nets_dir_name, state_net_name, '-states'))
 
 
 %% Torques
 tx7.String = 'loading torques..';
 drawnow
 get_torques
-save(horzcat(nets_dir_name, net_name, '-torque_data'), 'torque_data')
-load(horzcat(nets_dir_name, net_name, '-torque_data'))
+save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
+load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 tx7.String = horzcat('ntorques loaded: ', num2str(ntuples), ' LR torque value pairs, ...');
 drawnow
 
@@ -56,8 +57,8 @@ n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
-save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
-load(strcat(nets_dir_name, net_name, '-actions'))
+save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
+load(strcat(nets_dir_name, state_net_name, '-actions'))
 
 n_unique_actions = length(unique(actions));
 motor_combs = zeros(n_unique_actions, 2);
@@ -66,19 +67,20 @@ for naction = 1:n_unique_actions
     motor_combs(naction, :) = mean(torque_data(actions == naction, :));
 end
 
-    figure(22)
-    clf
-    gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
-    hold on
-    for naction = 1:n_unique_actions
-        text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
-    end
-    axis padded
-    set(gca, 'yscale', 'linear')
-    title('Actions')
-    xlabel('Torque 1')
-    ylabel('Torque 2')
-    drawnow
+%%
+axes(im_ax1)
+cla
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+hold on
+for naction = 1:n_unique_actions
+    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+end
+axis padded
+set(gca, 'yscale', 'linear')
+title('Actions')
+xlabel('Torque 1')
+ylabel('Torque 2')
+drawnow
 
 
 %% Plot torque data with action IDs
@@ -106,6 +108,8 @@ for ntuple = 6:ntuples - 1
 end
 ntuples = size(tuples, 1);
 disp('Tuples assembled successfully')
+save(strcat(nets_dir_name, state_net_name, '-tuples'), 'tuples')
+load(strcat(nets_dir_name, state_net_name, '-tuples'))
 
 
 %% Lucid sleep?

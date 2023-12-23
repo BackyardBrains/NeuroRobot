@@ -35,20 +35,3 @@ tx1.String = this_msg;
 drawnow
 disp(this_msg)
 
-
-%% Set ML parameters
-nsmall = round((0.001 * ntuples + 1000) * learn_speed * 2);
-bof_branching = round((0.0003 * ntuples + 200) * learn_speed);
-nmedium = round((0.005 * ntuples + 3000) * learn_speed);
-init_n_unique_states = max([10 round(0.0005 * ntuples * learn_speed) + 10 * learn_speed]);
-min_size = max([5 round((0.00008 * ntuples * learn_speed) + 3 * learn_speed)]);
-
-disp('')
-disp('PARAMETER SETTINGS:')
-disp(horzcat('nsmall = ', num2str(nsmall)))
-disp(horzcat('nmedium = ', num2str(nmedium)))
-disp(horzcat('bof_branching = ', num2str(bof_branching)))
-disp(horzcat('init_n_unique_states = ', num2str(init_n_unique_states)))
-disp(horzcat('min_size = ', num2str(min_size)))
-
-

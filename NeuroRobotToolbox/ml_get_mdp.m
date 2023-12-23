@@ -42,20 +42,20 @@ for ii_state = 1:n_unique_states
             end
         end
 
-        % 
-        if naction == mode(actions)
-            transition_counter(ii_state, :, naction) = 0;
-            transition_counter(ii_state, ii_state, naction) = 1;
-        else
-            transition_counter(ii_state, :, naction) = this_val;
-        end
-%         transition_counter(ii_state, :, naction) = this_val;
+
+        % if naction == mode(actions)
+        %     transition_counter(ii_state, :, naction) = 0;
+        %     transition_counter(ii_state, ii_state, naction) = 1;
+        % else
+        %     transition_counter(ii_state, :, naction) = this_val;
+        % end
+        transition_counter(ii_state, :, naction) = this_val;
 
     end
 end
 
 mdp.T = transition_counter;
-save(strcat(nets_dir_name, net_name, '-mdp'), 'mdp')
+save(strcat(nets_dir_name, state_net_name, '-mdp'), 'mdp')
 disp('Ready to train decision network')
 
 

@@ -75,10 +75,10 @@ end
 
 %%
 % try
-%     rmdir(strcat(workspace_dir_name, net_name), 's')
+%     rmdir(strcat(workspace_dir_name, state_net_name), 's')
 %     disp('Removed previous net')
 % catch
-%     disp(horzcat('Could not find or delete any previous training data for ', net_name))
+%     disp(horzcat('Could not find or delete any previous training data for ', state_net_name))
 % end
 % 
 % h = histogram(states);
@@ -94,7 +94,7 @@ end
 %     else
 %         this_dir = strcat('state_00', num2str(nstate));
 %     end
-%     mkdir(strcat(workspace_dir_name, net_name, '\', this_dir))
+%     mkdir(strcat(workspace_dir_name, state_net_name, '\', this_dir))
 % 
 %     these_inds = find(states == nstate);
 %     these_inds_subset = randsample(these_inds, min_size);
@@ -103,13 +103,13 @@ end
 %         this_ind = these_inds_subset(nimage) * 2 - 1;    
 %         left_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
 %     
-%         fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im_left_', num2str(this_ind), '.png');
+%         fname = strcat(workspace_dir_name, state_net_name, '\', this_dir, '\', 'im_left_', num2str(this_ind), '.png');
 %         imwrite(left_im, fname);
 %     
 %         this_ind = these_inds_subset(nimage) * 2;
 %         right_im = imread(strcat(image_dir(this_ind).folder, '\',  image_dir(this_ind).name));
 %     
-%         fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im_right_', num2str(this_ind), '.png');
+%         fname = strcat(workspace_dir_name, state_net_name, '\', this_dir, '\', 'im_right_', num2str(this_ind), '.png');
 %         imwrite(right_im, fname);
 %     end
 %     
@@ -117,15 +117,15 @@ end
 
 
 %% Get labels
-% labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
+% labels = folders2labels(strcat(workspace_dir_name, state_net_name, '\'));
 % labels = unique(labels);
 % n_unique_states = length(labels);
 % disp(horzcat('n unique states = ', num2str(n_unique_states)))
 
 
 %% Train classifier net
-% classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
-% imds = imageDatastore(strcat(workspace_dir_name, net_name, '\'),'FileExtensions','.png','IncludeSubfolders', true);
+% classifier_ds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+% imds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'),'FileExtensions','.png','IncludeSubfolders', true);
 image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\large_frame*.png'));
 tds = arrayDatastore(thetas);
 ds = combine(image_ds,tds);
@@ -187,5 +187,5 @@ options = trainingOptions('adam', ...
 %     Plots="training-progress")
 
 net = trainNetwork(ds, net, options);
-save(strcat(nets_dir_name, net_name, '-ml'), 'net')
+save(strcat(nets_dir_name, state_net_name, '-ml'), 'net')
 

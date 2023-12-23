@@ -16,7 +16,7 @@ if get_rewards
         rewards(ntuple) = cup_score;
         disp(horzcat('ntuple = ', num2str(ntuple), ', done = ', num2str(100*(ntuple/ntuples)), '%, reward = ', num2str(cup_score)))
     end
-    save(strcat(nets_dir_name, net_name, '-rewards'), 'rewards')
+    save(strcat(nets_dir_name, state_net_name, '-go2-', agent_name, '-rewards'), 'rewards')
 else
-    load(strcat(nets_dir_name, net_name, '-rewards'))
+    load(strcat(nets_dir_name, state_net_name, '-go2-', agent_name, '-rewards'))
 end

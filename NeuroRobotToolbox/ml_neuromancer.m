@@ -2,13 +2,13 @@
 
 clear
 
-net_name = 'dixie_repeat';
+state_net_name = 'dixie_repeat';
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 nets_dir_name = strcat(userpath, '\Nets\');
 
-agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
+agent_fname = horzcat(nets_dir_name, state_net_name, '2cups-ml');
 load(agent_fname)
 
 %%
