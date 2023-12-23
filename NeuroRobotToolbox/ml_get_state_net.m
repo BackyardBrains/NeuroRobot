@@ -8,14 +8,14 @@ imdim_w = 302;
 
 
 %% Get labels
-labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
+labels = folders2labels(strcat(workspace_dir_name, state_net_name, '\'));
 labels = unique(labels);
 n_unique_states = length(labels);
 disp(horzcat('Training pattern recogniztion net for ', num2str(n_unique_states), ' states'))
 
 
 %% Save labels
-save(strcat(nets_dir_name, net_name, '-labels'), 'labels')
+save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 
 
 %%
@@ -26,7 +26,7 @@ drawnow
 
 
 %% Train classifier net
-classifier_ds = imageDatastore(strcat(workspace_dir_name, net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
+classifier_ds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
 classifier_ds.ReadFcn = @customReadFcn; % imdim = 100
 
 net = [
@@ -63,7 +63,7 @@ options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
 
 net = trainNetwork(classifier_ds, net, options);
 
-save(strcat(nets_dir_name, net_name, '-ml'), 'net')
+save(strcat(nets_dir_name, state_net_name, '-ml'), 'net')
 
 
 %% End message

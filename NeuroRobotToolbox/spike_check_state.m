@@ -1,8 +1,8 @@
 
 
 nets_dir_name = strcat(userpath, '\Nets\');
-net_name = 'patternrecognizer';
-load(strcat(nets_dir_name, net_name, '-states'))
+state_net_name = 'patternrecognizer';
+load(strcat(nets_dir_name, state_net_name, '-states'))
 nsteps = size(states, 1);
 
 these_states = [8 18];

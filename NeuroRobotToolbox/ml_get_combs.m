@@ -23,9 +23,9 @@ if get_combs
     ylabel('Torque 2')
     drawnow
     
-    save(strcat(nets_dir_name, net_name, '-actions'), 'actions')
-    save(strcat(nets_dir_name, net_name, '-motor_combs'), 'motor_combs')
+    save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
+    save(strcat(nets_dir_name, state_net_name, '-motor_combs'), 'motor_combs')
 else
-    load(strcat(nets_dir_name, net_name, '-actions'))
-    load(strcat(nets_dir_name, net_name, '-motor_combs'))
+    load(strcat(nets_dir_name, state_net_name, '-actions'))
+    load(strcat(nets_dir_name, state_net_name, '-motor_combs'))
 end

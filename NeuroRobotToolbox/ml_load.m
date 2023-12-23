@@ -1,7 +1,7 @@
 
-net_name = ml_name1_edit.String;
+state_net_name = ml_name1_edit.String;
 
-if isempty(net_name)
+if isempty(state_net_name)
     
     ml_name1_edit.BackgroundColor = [1 0.25 0.25];
     pause(0.75)
@@ -22,13 +22,20 @@ else
     txx = text(0.03, 0.5, 'Loading...');
     drawnow
     
-    % net_name = 'windowArenaNet';
+    % state_net_name = 'windowArenaNet';
     
     try
-        openfig(strcat(nets_dir_name, net_name, '-examples.fig'))
-        load(strcat(nets_dir_name, net_name, '-torque_data'))
-        load(strcat(nets_dir_name, net_name, '-actions'))
-        load(strcat(nets_dir_name, net_name, '-mdp'))
+        openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
+        load(strcat(nets_dir_name, state_net_name, '-states'))
+        load(strcat(nets_dir_name, state_net_name, '-torque_data'))
+        load(strcat(nets_dir_name, state_net_name, '-actions'))
+        load(strcat(nets_dir_name, state_net_name, '-tuples'))
+        load(strcat(nets_dir_name, state_net_name, '-mdp'))
+        n_unique_states = length(unique(states));
+        n_unique_actions = length(unique(actions));
+        ntuples = size(states, 1);
+        disp(horzcat('loaded ntuples: ', num2str(ntuples)))
+        
     catch
         ml_load_button.BackgroundColor = [1 0 0];
         pause(0.5)

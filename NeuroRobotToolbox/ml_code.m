@@ -55,7 +55,7 @@ ml_data_status = uicontrol('Style', 'popupmenu', 'String', {dataset_dir_name, av
 
 ml_speeds = {'Slow', 'Medium', 'Fast'};
 ml_speed_str = uicontrol('Style', 'text', 'String', 'Training speed:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_speed_select = uicontrol('Style', 'popupmenu', 'String', ml_speeds, 'units', 'normalized', 'position', ml_3_speed_select_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_speed_select = uicontrol('Style', 'popupmenu', 'String', ml_speeds, 'callback', 'ml_params', 'units', 'normalized', 'position', ml_3_speed_select_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
 ml_name1_str = uicontrol('Style', 'text', 'String', 'Classifier network name:', 'units', 'normalized', 'position', ml_4_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
 ml_name1_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_4_name1_edit_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
@@ -106,3 +106,8 @@ set(button_chop,'Callback', 'ml_chop', 'FontSize', bfsize + 4, 'fontname', gui_f
 button_advanced_ml_pos = [0.75 0.04 0.2 0.05];
 button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', button_advanced_ml_pos);
 set(button_advanced_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+
+
+%% Set hyperparameters
+ml_params
+

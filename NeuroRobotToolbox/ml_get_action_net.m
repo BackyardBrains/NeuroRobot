@@ -2,18 +2,8 @@
 
 
 %% scaling factor
-scale_f = 25 * learn_speed;
+scale_f = 10 * learn_speed;
 disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
-
-
-%% 
-agent_name = ml_name2_edit.String;
-if isempty(agent_name)
-    ml_name2_edit.BackgroundColor = [1 0 0];
-    pause(0.5)
-    ml_name2_edit.BackgroundColor = [0.94 0.94 0.94];
-    error('Name your decision network')
-end
 
 
 %%
@@ -32,8 +22,8 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
 
-delete(gcp('nocreate'))
-parpool
+% delete(gcp('nocreate'))
+% parpool
 
 %% Train Agent 2
 % scale_f = 200;
@@ -46,7 +36,7 @@ training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f * 10;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = scale_f/5;
-training_opts.UseParallel = 1;
+training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';
 else
@@ -56,7 +46,7 @@ training_opts.Plots = this_str;
 training_opts.Verbose = 1;
 
 trainingStats_deep = train(agent, env, training_opts);
-save(horzcat(nets_dir_name, net_name, '-go2-', agent_name, '-ml'), 'agent')
+save(horzcat(nets_dir_name, state_net_name, '-go2-', agent_name, '-ml'), 'agent')
 
 
 %% Show Agent 2

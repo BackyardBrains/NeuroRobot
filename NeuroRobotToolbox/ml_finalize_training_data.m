@@ -7,9 +7,9 @@ tx5 = text(0.03, 0.5, horzcat('Creating training datasets...'));
 drawnow
 
 try
-    rmdir(strcat(workspace_dir_name, net_name), 's')
+    rmdir(strcat(workspace_dir_name, state_net_name), 's')
 catch
-    disp(horzcat('Could not find or delete any previous training data for ', net_name))
+    disp(horzcat('Could not find or delete any previous training data for ', state_net_name))
 end
 
 n_unique_states = sum(state_info(:,1));
@@ -24,18 +24,18 @@ for nstate = 1:n_unique_states
     else
         this_dir = strcat('state_00', num2str(nstate));
     end
-    mkdir(strcat(workspace_dir_name, net_name, '\', this_dir))
+    mkdir(strcat(workspace_dir_name, state_net_name, '\', this_dir))
     for nimage = 1:min_size
         this_ind = state_inds(nstate, nimage);
         this_im = imread(imageIndex.ImageLocation{this_ind});
-        fname = strcat(workspace_dir_name, net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
+        fname = strcat(workspace_dir_name, state_net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
         imwrite(this_im, fname);
     end
 end
 
 
 %% Get labels
-labels = folders2labels(strcat(workspace_dir_name, net_name, '\'));
+labels = folders2labels(strcat(workspace_dir_name, state_net_name, '\'));
 labels = unique(labels);
 n_unique_states = length(labels);
 disp(horzcat('n unique states = ', num2str(n_unique_states)))
@@ -72,7 +72,7 @@ for nstate = 1:n_unique_states
     data(nstate) = mean_score;
 end
 drawnow
-saveas(fig_ml, horzcat(nets_dir_name, net_name, '-examples.fig'))
+saveas(fig_ml, horzcat(nets_dir_name, state_net_name, '-examples.fig'))
 
 
 %% Output

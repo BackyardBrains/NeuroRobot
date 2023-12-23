@@ -135,7 +135,7 @@ tfdOpts.NumStepsPerEpoch = steps_per_sequence;
 trainFromData(agent, fds, tfdOpts);
 
 % Save
-agent_fname = horzcat(nets_dir_name, net_name, '2cups-ml');
+agent_fname = horzcat(nets_dir_name, state_net_name, '2cups-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
 
