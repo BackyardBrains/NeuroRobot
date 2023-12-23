@@ -8,8 +8,8 @@ if get_combs
     n_unique_actions = length(unique(actions));
     motor_combs = zeros(n_unique_actions, 2);
 
-    figure(23)
-    clf
+    axes(ax_im1)
+    cla
     gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
     hold on
     for naction = 1:n_unique_actions
