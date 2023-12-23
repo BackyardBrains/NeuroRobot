@@ -1,3 +1,14 @@
+// WebSocket
+var websocketWorker;
+const StateLength = 10;
+var ptrStateBuffer;
+var bufStateArray;
+var ptrCameraDrawBuffer;
+var bufCameraDrawArray;
+
+var preprocessWorker;
+
+
 var izhikevichWorker;
 let neuronSize = 2;
 const windowSize = 200*30;
@@ -173,7 +184,7 @@ function initializeModels(jsonRawData){
             // izhikevichWorker.postMessage({
             //     message:'CONNECT_SIMULATION',
             // });
-        
+            runSimulation(event.data);        
         }
         // console.log("event main thread");
         // console.log(event);
@@ -185,6 +196,58 @@ function setIsPlaying(flag){
     sabNumIsPlaying[0]=flag;
 }
 
+
+function runSimulation(allocatedBuffer){
+    ptrStateBuffer = allocatedBuffer.ptrStateBuffer;
+    bufStateArray = new Int32Array(ptrStateBuffer);
+    ptrCameraDrawBuffer = allocatedBuffer.ptrCameraDrawBuffer;
+    bufCameraDrawArray = new Int32Array(ptrCameraDrawBuffer);
+
+    // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
+    // ptrMotorCommands | WS, Neuron Simulation
+    // ptrCameraDrawBuffer | WS, UI, PreProcess CV, 
+    // ptrVisPrefs | UI, PreProcessCV, 
+    // ptrVisPrefVals | UI, PreProcessCV
+    // Vis Prefs&Vals create connectomeCV like connectome but for 
+
+    // ptrMotorCommands: ptrMotorCommands,
+    // ptrVisPrefs: ptrVisPrefs,
+    // ptrVisPrefVals: ptrVisPrefVals,
+
+
+    websocketWorker = new Worker('build/web/websocket.worker.js');
+    websocketWorker.postMessage({
+        "message": "INIT",
+        "ptrStateBuffer":ptrStateBuffer,
+        "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
+    });
+    websocketWorker.onmessage = function( evt ){
+        switch( evt.data.message ){
+            case "INITIALIZED":
+                websocketWorker.postMessage({
+                    "message": "START",
+                });
+            break;
+        }
+    }
+
+    preprocessWorker = new Worker('build/web/preprocess.worker.js');
+    preprocessWorker.postMessage({
+        "message": "INIT",
+        "ptrStateBuffer":ptrStateBuffer,
+        "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
+    });
+    preprocessWorker.onmessage = function( evt ){
+        switch( evt.data.message ){
+            case "INITIALIZED":
+                preprocessWorker.postMessage({
+                    "message": "START",
+                });
+            break;
+        }
+    }
+
+}
 // function setIzhikevichParameters(aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,positionsBuf,connectomeBuf, level, neuronSize,envelopeSize,bufferSize,isPlaying){
 function setIzhikevichParameters(jsonRawData){
     let jsonData = JSON.parse(jsonRawData);
@@ -195,7 +258,7 @@ function setIzhikevichParameters(jsonRawData){
     sabNumI.set(jsonData[4]);
     sabNumW.set(jsonData[5]);
     sabNumPos.set(jsonData[6]);
-    sabNumConnectome.set(jsonData[7]);    
+    sabNumConnectome.set(jsonData[7]);
     // for (let neuronIndex = 0; neuronIndex<neuronSize; neuronIndex++){
     //     sabNumA[neuronIndex] = (jsonData[0][neuronIndex]);
     //     sabNumB[neuronIndex] = (jsonData[1][neuronIndex]);
@@ -220,6 +283,9 @@ function changeSelectedIdx(selectedIdx){
 // window.canvasDraw(canvasBuffer);
 function repaint(timestamp){
     try{
+        let image = document.getElementById('image');
+        image.src = bufCameraDrawArray;
+
         // console.log(sabNumNps);
         // window.canvasDraw();
     }catch(exc){

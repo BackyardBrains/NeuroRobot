@@ -1,16 +1,37 @@
+const MotorCommandsLength = 200;
+const StateLength = 10;
+const cameraWidth = 320;
+const cameraHeight = 240;
+
+let statesDrawBuffer = new SharedArrayBuffer(10 * Int32Array.BYTES_PER_ELEMENT);
+let statesDraw = new Int32Array(statesDrawBuffer);
+
+let notifBuffer = new SharedArrayBuffer(1 * Int32Array.BYTES_PER_ELEMENT);
+let notif = new Int32Array(notifBuffer);
+notif[0]= -100;
+
+
 let isConnectedAllocateBuffer = false;
 let ptrCanvasBuffer;
 let ptrNeuronCircle;
 let ptrPos;
 let ptrNps;
+
+let ptrStateBuffer;
+let ptrCanvasDrawBuffer;
+
 let sabNumNps;
 let allocatedCanvasBuffer;
 let selectedIdx=-1;
 let neuronSize = 2;
 let windowSize = 200 * 30;
 
+const VisPrefsLength = 10;
 let ptrVisPrefs;
+let ptrVisPrefVals;
 let ptrMotorCommands;
+
+
 let ptrNeuronContacts;
 let sabVisPrefs;
 let sabMotorCommands;
@@ -167,29 +188,49 @@ self.onmessage = async function( eventFromMain ) {
     
         ptrNps = Module._malloc(1 * Module.HEAP32.BYTES_PER_ELEMENT);
         const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
+        console.log("ptrNps, startNps");
+        console.log(ptrNps, startNps);
         sabNumNps = Module.HEAP32.subarray( startNps, (startNps + 1 ));
 
-        ptrVisPrefs = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        ptrVisPrefs = Module._malloc(VisPrefsLength * Module.HEAP16.BYTES_PER_ELEMENT);
         const startVisPrefs = ptrPos/Module.HEAP16.BYTES_PER_ELEMENT;
         sabVisPrefs = Module.HEAP16.subarray( startVisPrefs, (startVisPrefs + 10 ));
 
-        ptrMotorCommands = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        // vision
+        ptrVisPrefVals = Module._malloc(VisPrefsLength * Module.HEAP16.BYTES_PER_ELEMENT);
+
+        ptrMotorCommands = Module._malloc(MotorCommandsLength * Module.HEAP16.BYTES_PER_ELEMENT);
         const startMotorCommands = ptrMotorCommands/Module.HEAP16.BYTES_PER_ELEMENT;
         sabMotorCommands = Module.HEAP16.subarray( startMotorCommands, (startMotorCommands + 10 ));
 
-        ptrNeuronContacts = Module._malloc(10 * Module.HEAP16.BYTES_PER_ELEMENT);
+        ptrNeuronContacts = Module._malloc(VisPrefsLength * Module.HEAP16.BYTES_PER_ELEMENT);
         const startNeuronContacts = ptrNeuronContacts/Module.HEAP16.BYTES_PER_ELEMENT;
         sabNeuronContacts = Module.HEAP16.subarray( startNeuronContacts, (startNeuronContacts + 10 ));
+
+        ptrCameraDrawBuffer = Module._malloc( cameraWidth * cameraHeight * Module.HeapU8.BYTES_PER_ELEMENT );
+        ptrStateBuffer = Module._malloc( StateLength * Modul.HEAP32.BYTES_PER_ELEMENT );
+        
+
+        // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
+        // ptrMotorCommands | WS, Neuron Simulation
+        // ptrCameraDrawBuffer | WS, UI, PreProcess CV, 
+        // ptrVisPrefs | UI, PreProcessCV, 
+        // ptrVisPrefVals | UI, PreProcessCV
+        // Vis Prefs&Vals create connectomeCV like connectome but for 
+
+
+
+
     
         console.log("b4 pass ptr");        
         const test = Module.ccall(
             'passPointers',
             'number',
             [
-                'number', 'number' ,'number','number',
+                'number', 'number' ,'number','number','number','number','number','number','number',
             ],
             [
-                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps,
+                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps, ptrStateBuffer, ptrMotorCommands, ptrCameraDrawBuffer, ptrVisPrefs, ptrVisPrefVals,
             ]
         );
         console.log("after pass ptr", test);        
@@ -230,7 +271,7 @@ self.onmessage = async function( eventFromMain ) {
                 ['number', 'number' ,'number','number',  'number', 'number' ,'number',
                     'number', 'number' ,'number','number','number', 'number', 'number', 'number'],
                 [ sabNumAPtr, sabNumBPtr, sabNumCPtr, sabNumDPtr,   sabNumIPtr, sabNumWPtr, sabNumConnectomePtr,
-                    level, neuronSize, envelopeSize, bufferSize, isPlaying, sabVisPrefs,sabMotorCommands, sabNeuronContacts]
+                    level, neuronSize, envelopeSize, bufferSize, isPlaying, ptrVisPrefs, ptrMotorCommands, sabNeuronContacts]
             );
             // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
             //     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, 
@@ -247,56 +288,106 @@ self.onmessage = async function( eventFromMain ) {
     
         await sleep(500);
         simulationWorkerChannelPort.postMessage({
-            message:'INITIALIZED_WORKER'
+            message:'INITIALIZED_WORKER',
+            ptrStateBuffer: ptrStateBuffer,
+            ptrCameraDrawBuffer: ptrCameraDrawBuffer,
+            ptrMotorCommands: ptrMotorCommands,
+            ptrVisPrefs: ptrVisPrefs,
+            ptrVisPrefVals: ptrVisPrefVals,
         });
 
         console.log("init end")
 
     }else
     if (eventFromMain.data.message === 'CONNECT_SIMULATION') {
-        console.log("connect simulation branch")
+        // isNotified = false;
+        notif[0] = 100;
+        // sabNumNps[0] = 101;
+        
+        console.log("connect simulation branch", sabNumNps[0]);
 
         let prevCircleFlag = false;
-
-        while (true){
-            // console.log("init end con" )
-            if (sabNumConfig[0] != 0){
-                selectedIdx = sabNumConfig[0];
-                sabNumConfig[0] = 0;
-                Module.changeIdxSelectedProcess(selectedIdx);
-            }
-            // selectedIdx=sabNumConfig[0];
-            // let temp2 = Module.getCurrentPosition(0);
-            // sabNumPos.fill(temp2);
-            if (sabNumConfig[1]==1){
-                Module.stopThreadProcess(0)
-                sabNumConfig[1] = 0;
-            }
-
-            if (sabNumCom[0]==1){
-                console.log("Instruction coming in!");
-                sabNumCom[0] = -1;
-            }
-            if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
-                Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
-                sabNumIsPlaying[0] = 0;
-            }
+        console.log("Atomics start waiting 2", statesDraw);
+        // console.log(Atomics.wait(statesDraw, 0, 0) === 'ok');
+        const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
+        while (Atomics.wait(Module.HEAP32, startNps, 0) === 'ok') {
+        // while (Atomics.wait(sabNumNps, 0, 0) === 'ok') {
+            console.log("Atomics not waiting anymore");
+            // console.log(Atomics.wait(Module.HEAP32, startNps, 0) === 'ok');
+            // Atomics.store(Module.HEAP32, startNps, 0);
         }
+    
+        // while (true){
+        //     // console.log("init end con" )
+        //     if (sabNumConfig[0] != 0){
+        //         selectedIdx = sabNumConfig[0];
+        //         sabNumConfig[0] = 0;
+        //         Module.changeIdxSelectedProcess(selectedIdx);
+        //     }
+        //     // selectedIdx=sabNumConfig[0];
+        //     // let temp2 = Module.getCurrentPosition(0);
+        //     // sabNumPos.fill(temp2);
+        //     if (sabNumConfig[1]==1){
+        //         Module.stopThreadProcess(0)
+        //         sabNumConfig[1] = 0;
+        //     }
+
+        //     if (sabNumCom[0]==1){
+        //         console.log("Instruction coming in!");
+        //         sabNumCom[0] = -1;
+        //     }
+        //     if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
+        //         Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
+        //         sabNumIsPlaying[0] = 0;
+        //     }
+        // }
     }
 }  
 
 
 
 self.importScripts("neuronprototype.js"); 
+// importScripts("img_tracker_wasm.js"); 
 self.Module.onRuntimeInitialized = async _ => {
-    console.log("WASM Runtime Initialized");
+    console.log("WASM Runtime Initialized", self.Module);
     postMessage({
         message:'INITIALIZE_WASM',
+        statesDrawBuffer : statesDrawBuffer,
     });
+    // console.log("self.Module.myFunction");
+    // console.log(self.Module.myFunction);
+    // self.Module.myFunction( ()=>{
+    //     console.log("notif[0]");
+    // });
 }; 
 
+// callback from C++ can't access the same parent scope, so callback is not possible here
+// what has been done
 function callMe(a){
-    console.log(tempBufferNum.subarray(0,10));
+    // console.log("callme");
+    const pos = a>>2;
+    // console.log("pos", pos);
+    // if (HEAP32[pos] == 101){
+        // HEAP32[pos] = 200;
+        
+        // Atomics.notify(HEAP32, pos,1);
+        // console.log(HEAP32[pos]);
+    // }
+    // console.log(a >> 2);
+    // statesDraw[0] = 1;
+    // Atomics.store(statesDraw, 0, 0);
+    // console.log("CALL ME RECEIVED IN WEB WORKER 2", notif[0]);
+    // console.log("channel port", initializeChannelPort);
+    // if (!isNotified){
+
+    // if (notif[0]==100){
+
+    //     console.log("statesDraw")
+    //     // console.log(statesDraw)
+    //     Atomics.notify(statesDraw, 0, 1);
+    // }
+    // console.log(self);
+    // postMessage("CALL MEEEEE");
     
 }
 
