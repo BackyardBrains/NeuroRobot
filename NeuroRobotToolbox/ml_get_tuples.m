@@ -68,7 +68,7 @@ for naction = 1:n_unique_actions
 end
 
 %%
-% axes(im_ax1)
+axes(im_ax1)
 cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
