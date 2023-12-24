@@ -87,6 +87,12 @@ end
 if use_custom_net
     lframe = imresize(large_frame, [227 302]);
     [~, scores] = classify(net, lframe);
+    
+    [i, j] = max(scores);
+    inds = 1:n_unique_states;
+    inds(j) = [];
+    scores(inds) = 0;
+
     if ~use_cnn
         vis_pref_vals(8:end, 1) = scores * 50;
         vis_pref_vals(8:end, 2) = scores * 50;

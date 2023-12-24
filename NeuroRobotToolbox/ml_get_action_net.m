@@ -46,7 +46,7 @@ training_opts.Plots = this_str;
 training_opts.Verbose = 1;
 
 trainingStats_deep = train(agent, env, training_opts);
-save(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'), 'agent')
+save(horzcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'), 'agent')
 
 
 %% Show Agent
