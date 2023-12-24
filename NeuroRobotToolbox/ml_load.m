@@ -28,22 +28,25 @@ else
     load(strcat(nets_dir_name, state_net_name, '-actions'))
     load(strcat(nets_dir_name, state_net_name, '-tuples'))
     load(strcat(nets_dir_name, state_net_name, '-mdp'))
-    ml_visualize_mdp
     n_unique_states = length(unique(states));
     n_unique_actions = length(unique(actions));
     ntuples = size(states, 1);
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
+
+    ml_visualize_mdp
     
     ml_get_combs_quick
 
-    load(strcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))    
-    
-    figure
-    hold on
-    scan_agent
-    title(horzcat(state_net_name, '-go2-', action_net_name))
-    set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
-        
+    try
+        load(strcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))     
+        figure
+        hold on
+        scan_agent
+        title(horzcat(state_net_name, '-go2-', action_net_name))
+        set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+    catch
+        disp('no agent found')
+    end
     txx.String = 'Ready to train decision network';
 
 end

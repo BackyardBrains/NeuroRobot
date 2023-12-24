@@ -72,6 +72,8 @@ for nstate = 1:n_unique_states
     data(nstate) = mean_score;
 end
 drawnow
+
+title(state_net_name)
 saveas(fig_ml, horzcat(nets_dir_name, state_net_name, '-examples.fig'))
 
 

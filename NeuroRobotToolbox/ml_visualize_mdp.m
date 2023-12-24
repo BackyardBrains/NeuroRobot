@@ -4,7 +4,7 @@ clf
 set(fig_mdp, 'NumberTitle', 'off', 'Name', 'MDP')
 set(fig_mdp, 'toolbar', 'none')
 
-set(fig_mdp, 'position', [134 -150 1134 1034], 'color', fig_bg_col) 
+set(fig_mdp, 'position', [262 62 828 732], 'color', fig_bg_col) 
 fig_mdp.Color = 'w';
 
 data = zeros(n_unique_actions, 1);
