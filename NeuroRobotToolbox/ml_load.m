@@ -38,11 +38,11 @@ else
     ml_get_combs_quick
 
     try
-        load(strcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))     
+        load(strcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))     
         figure
         hold on
         scan_agent
-        title(horzcat(state_net_name, '-go2-', action_net_name))
+        title(horzcat(state_net_name, '-', action_net_name))
         set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
     catch
         disp('no agent found')
