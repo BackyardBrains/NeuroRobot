@@ -35,7 +35,15 @@ else
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
     
     ml_get_combs_quick
+
+    load(strcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))    
     
+    figure
+    hold on
+    scan_agent
+    title(horzcat(state_net_name, '-go2-', action_net_name))
+    set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+        
     txx.String = 'Ready to train decision network';
 
 end

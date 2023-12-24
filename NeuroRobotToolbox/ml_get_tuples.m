@@ -49,8 +49,8 @@ drawnow
 
 %% Actions
 n_unique_actions = 5;
-rng(1)
-tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
+% rng(1)
+% tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
 actions = kmeans(torque_data, n_unique_actions);
 n_unique_actions = length(unique(actions));
@@ -68,7 +68,7 @@ for naction = 1:n_unique_actions
 end
 
 %%
-axes(im_ax1)
+% axes(im_ax1)
 cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
