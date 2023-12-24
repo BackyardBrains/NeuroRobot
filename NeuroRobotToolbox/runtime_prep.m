@@ -202,7 +202,7 @@ if exist('rak_only', 'var') && brain_support
                 ntuples = size(states, 1);
                 disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
                 
-                ml_visualize_mdp
+                % ml_visualize_mdp
                 ml_get_combs_quick
             % catch
                 % disp('Unable to load agent / action net')
