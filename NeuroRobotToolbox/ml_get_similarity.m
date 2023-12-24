@@ -64,7 +64,7 @@ drawnow
 
 %% Plot similarity matrix
 axes(im_ax1)
-histogram(xdata(:))
+histogram(xdata(:), [0 0.5])
 set(gca, 'yscale', 'log')
 title('Image similarity scores')
 
