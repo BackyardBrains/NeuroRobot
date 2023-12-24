@@ -187,8 +187,8 @@ if exist('rak_only', 'var') && brain_support
         end
         
         if length(cnet_temp) >= 1
-            try    
-                load(horzcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))
+            % try    
+                load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
 
                 openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
                 load(strcat(nets_dir_name, state_net_name, '-states'))
@@ -196,16 +196,17 @@ if exist('rak_only', 'var') && brain_support
                 load(strcat(nets_dir_name, state_net_name, '-actions'))
                 load(strcat(nets_dir_name, state_net_name, '-tuples'))
                 load(strcat(nets_dir_name, state_net_name, '-mdp'))
-                ml_visualize_mdp
+                
                 n_unique_states = length(unique(states));
                 n_unique_actions = length(unique(actions));
                 ntuples = size(states, 1);
                 disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
                 
+                ml_visualize_mdp
                 ml_get_combs_quick
-            catch
-                disp('Unable to load agent / action net')
-            end
+            % catch
+                % disp('Unable to load agent / action net')
+            % end
         end
     else
         state_net_name = '';
