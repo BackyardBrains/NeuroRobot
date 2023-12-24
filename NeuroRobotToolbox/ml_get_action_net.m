@@ -58,7 +58,7 @@ scan_agent
 title(horzcat(state_net_name, '-go2-', action_net_name))
 set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
-tx10.String = horzcat('Finished training decision network');
+tx10.String = horzcat('Finished training action network');
 drawnow
 
 disp('Finished training decision network')
