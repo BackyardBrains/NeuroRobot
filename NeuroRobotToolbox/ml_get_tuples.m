@@ -49,10 +49,18 @@ drawnow
 
 %% Actions
 n_unique_actions = 5;
-% rng(1)
-% tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
+
+motor_combs = zeros(n_unique_actions, 2);
+while ~(sum(sum(motor_combs, 2) < 0) == 1)
+    actions = kmeans(torque_data, n_unique_actions);
+    for naction = 1:n_unique_actions
+        motor_combs(naction, :) = mean(torque_data(actions == naction, :));
+    end
+end
+
+tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
-actions = kmeans(torque_data, n_unique_actions);
+
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
@@ -60,12 +68,6 @@ disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == 
 save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, state_net_name, '-actions'))
 
-n_unique_actions = length(unique(actions));
-motor_combs = zeros(n_unique_actions, 2);
-
-for naction = 1:n_unique_actions
-    motor_combs(naction, :) = mean(torque_data(actions == naction, :));
-end
 
 %%
 axes(im_ax1)
@@ -82,6 +84,19 @@ xlabel('Torque 1')
 ylabel('Torque 2')
 drawnow
 
+figure
+cla
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+hold on
+for naction = 1:n_unique_actions
+    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+end
+axis padded
+set(gca, 'yscale', 'linear')
+title('Actions')
+xlabel('Torque 1')
+ylabel('Torque 2')
+drawnow
 
 %% Get tuples
 tuples = zeros(ntuples - 6, 3);

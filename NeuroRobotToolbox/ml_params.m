@@ -1,7 +1,7 @@
 
 %% Get vals
 if ml_speed_select.Value == 1 % Slow
-    learn_speed = 1;
+    learn_speed = 2;
 elseif ml_speed_select.Value == 2 % Medium
     learn_speed = 0.5;
 elseif ml_speed_select.Value == 3 % Fast
@@ -16,7 +16,7 @@ nsmall = round((0.001 * ntuples + 1000) * learn_speed * 2);
 bof_branching = round((0.0003 * ntuples + 200) * learn_speed);
 nmedium = round((0.005 * ntuples + 3000) * learn_speed);
 init_n_unique_states = max([10 round(0.0005 * ntuples * learn_speed) + 10 * learn_speed]);
-min_size = max([5 round((0.00015 * ntuples * learn_speed) + 10 * learn_speed)]);
+min_size = max([5 round((0.00015 * ntuples * learn_speed) + 5 * learn_speed)]);
 
 disp(horzcat('nsmall = ', num2str(nsmall)))
 disp(horzcat('nmedium = ', num2str(nmedium)))

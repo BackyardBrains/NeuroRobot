@@ -13,7 +13,11 @@ bad_states = list_of_states(sign(list_of_states) == -1);
 
 reward_action = mode(actions);
 disp(horzcat('reward action (mode) = ', num2str(reward_action)))
+disp(horzcat('reward action torque: ',  num2str(round(mean(torque_data(actions == reward_action, :), 1)))))
 
+bad_action = find(sum(motor_combs, 2) < 0);
+disp(horzcat('bad action (backward) = ', num2str(bad_action)))
+disp(horzcat('bad action torque: ',  num2str(round(mean(torque_data(actions == bad_action, :), 1)))))
 
 %% Create reward landscape
 disp('Creating reward landscape...')
@@ -23,13 +27,13 @@ tx9 = text(0.03, 0.5, 'Creating reward landscape ');
 drawnow
 
 reward_counter = zeros(size(mdp.R));
-reward_counter(:, :, 4) = -1; % Skip this?
+reward_counter(:, :, bad_action) = -1;
 if ~isempty(reward_states)
     reward_counter(:, reward_states, reward_action) = 5;
 end
-% if ~isempty(bad_states)
-%     reward_counter(:, -bad_states, reward_action) = -1;
-% end
+if ~isempty(bad_states)
+    reward_counter(:, -bad_states, reward_action) = -1;
+end
 mdp.R = reward_counter;
 disp(horzcat('total reward: ', num2str(sum(reward_counter(:)))))
 disp('Rewards ready')
