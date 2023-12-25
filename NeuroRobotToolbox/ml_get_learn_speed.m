@@ -1,0 +1,8 @@
+
+if ml_speed_select.Value == 1 % Slow
+    learn_speed = 10;
+elseif ml_speed_select.Value == 2 % Medium
+    learn_speed = 5;
+elseif ml_speed_select.Value == 3 % Fast
+    learn_speed = 1;    
+end

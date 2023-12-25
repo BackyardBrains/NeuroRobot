@@ -9,13 +9,7 @@ if isempty(state_net_name)
 
 else
 
-    if ml_speed_select.Value == 1 % Slow
-        learn_speed = 2;
-    elseif ml_speed_select.Value == 2 % Medium
-        learn_speed = 0.5;
-    elseif ml_speed_select.Value == 3 % Fast
-        learn_speed = 0.1;    
-    end
+    ml_get_learn_speed
     
     axes(ml_load_status)
     cla

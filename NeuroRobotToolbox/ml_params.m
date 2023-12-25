@@ -1,12 +1,6 @@
 
 %% Get vals
-if ml_speed_select.Value == 1 % Slow
-    learn_speed = 2;
-elseif ml_speed_select.Value == 2 % Medium
-    learn_speed = 0.5;
-elseif ml_speed_select.Value == 3 % Fast
-    learn_speed = 0.1;    
-end
+ml_get_learn_speed
 
 ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat')));
 disp(horzcat('ntuples: ', num2str(ntuples)))
