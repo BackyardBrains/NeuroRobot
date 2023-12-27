@@ -26,16 +26,15 @@ n_unique_actions = size(actInfo.Elements, 1);
 % parpool
 
 %% Train Agent 2
-% scale_f = 200;
 agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = scale_f * 4;
+training_opts.MaxEpisodes = scale_f * 2;
 training_opts.MaxStepsPerEpisode = scale_f;
 training_opts.StopTrainingValue = scale_f * 10;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = scale_f/5;
+training_opts.ScoreAveragingWindowLength = scale_f / 5;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';

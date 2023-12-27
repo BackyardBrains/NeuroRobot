@@ -30,6 +30,20 @@ else
     ml_visualize_mdp
     
     ml_get_combs_quick
+    
+    figure(9)
+    clf
+    gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+    hold on
+    for naction = 1:n_unique_actions
+        text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+    end
+    axis padded
+    set(gca, 'yscale', 'linear')
+    title('Actions')
+    xlabel('Torque 1')
+    ylabel('Torque 2')
+    drawnow
 
     try
         load(horzcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))
@@ -38,6 +52,7 @@ else
         scan_agent
         title(horzcat(state_net_name, '-', action_net_name))
         set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+        drawnow
     catch
     end
     

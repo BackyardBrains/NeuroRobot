@@ -84,8 +84,8 @@ xlabel('Torque 1')
 ylabel('Torque 2')
 drawnow
 
-figure
-cla
+figure(9)
+clf
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
 for naction = 1:n_unique_actions
