@@ -174,6 +174,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late WaveWidget waveWidget;
 
   late Mjpeg mjpegComponent;
+  late Image imageJpegComponent;
+  Uint8List cameraBuffer = Uint8List(0);
 
   bool isEmergencyPause = false;
   bool isDrawTail = false;
@@ -616,9 +618,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     return "";
   }
 
+  streamImageFrame(cameraFrames){
+    // print(cameraFrames);
+    mainBloc.drawImageNow(cameraFrames);
+  }
+  
   @override
   void initState() {
     super.initState();
+    if (kIsWeb){
+      js.context['streamImageFrame'] = streamImageFrame;
+    }
 
     print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
@@ -706,6 +716,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     // processor = ImagePreprocessor();
     // processor.isRunning = true;
+    imageJpegComponent = Image.memory(
+      Uint8List.fromList( cameraBuffer ),
+      gaplessPlayback: true,
+    );
     mjpegComponent = Mjpeg(
       stream: httpdStream,
       // stream: "http://192.168.1.4:8081/",
@@ -1025,10 +1039,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               //     isLive: true,
               //   ),
               // )
-              child: ClipRect(
-                clipper: EyeClipper(
-                    isLeft: true, width: screenWidth, height: screenHeight),
-                child: mjpegComponent,
+              child: StreamBuilder<Uint8List>(
+                stream: mainBloc.imageStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) return Container();
+                  
+                  cameraBuffer = snapshot.data!;
+                  imageJpegComponent = Image.memory(
+                    Uint8List.fromList( cameraBuffer ),
+                    gaplessPlayback: true,
+                  );
+
+                  return ClipRect(
+                    clipper: EyeClipper(
+                        isLeft: true, width: screenWidth, height: screenHeight),
+                    child: kIsWeb? imageJpegComponent : mjpegComponent,
+                  );
+                }
               ),
             ),
             Positioned(
@@ -1039,13 +1066,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   builder: (context, snapshot) {
                     // print(snapshot.data);
                     if (snapshot.data == null) return Container();
+
+                    cameraBuffer = snapshot.data!;
                     return ClipRect(
                       clipper: EyeClipper(
                           isLeft: false,
                           width: screenWidth,
                           height: screenHeight),
                       child: Image.memory(
-                        snapshot.data!,
+                        Uint8List.fromList( cameraBuffer ),
                         gaplessPlayback: true,
                       ),
                     );

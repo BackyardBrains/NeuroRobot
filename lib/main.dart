@@ -12,9 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // */
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'firebase_options.dart';
 
@@ -25,6 +25,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // WEB CHANGE
+  // /*
   const fatalError = true;
   // Non-async exceptions
   FlutterError.onError = (errorDetails) {
@@ -49,7 +52,8 @@ void main() async {
     }
     return true;
   };
-
+  // */
+  // WEB CHANGE
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
@@ -200,6 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _initializeFlutterFire() async {
+    // WEB CHANGE
     if (_kTestingCrashlytics) {
       // Force enable crashlytics collection enabled if we're testing it.
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);

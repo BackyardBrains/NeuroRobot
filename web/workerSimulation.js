@@ -1,9 +1,19 @@
+const COLOR_CHANNELS = 4;
+const CAMERA_BYTES_PER_ELEMENT = 1;
 const MotorCommandsLength = 200;
 const StateLength = 10;
 const cameraWidth = 320;
 const cameraHeight = 240;
 
-let statesDrawBuffer = new SharedArrayBuffer(10 * Int32Array.BYTES_PER_ELEMENT);
+// websocket
+let ptrCameraDrawBuffer;
+let ptrStateBuffer;
+let sabCameraDrawBuffer;
+let sabStateBuffer;
+
+
+
+let statesDrawBuffer = new SharedArrayBuffer(StateLength * Int32Array.BYTES_PER_ELEMENT);
 let statesDraw = new Int32Array(statesDrawBuffer);
 
 let notifBuffer = new SharedArrayBuffer(1 * Int32Array.BYTES_PER_ELEMENT);
@@ -17,8 +27,6 @@ let ptrNeuronCircle;
 let ptrPos;
 let ptrNps;
 
-let ptrStateBuffer;
-let ptrCanvasDrawBuffer;
 
 let sabNumNps;
 let allocatedCanvasBuffer;
@@ -26,16 +34,18 @@ let selectedIdx=-1;
 let neuronSize = 2;
 let windowSize = 200 * 30;
 
+// MOTOR
 const VisPrefsLength = 10;
 let ptrVisPrefs;
 let ptrVisPrefVals;
 let ptrMotorCommands;
-
+let sabVisPrefs;
+let sabVisPrefVals;
+let sabMotorCommands;
 
 let ptrNeuronContacts;
-let sabVisPrefs;
-let sabMotorCommands;
 let sabNeuronContacts;
+
 
 
 let sabNumAPtr;
@@ -207,8 +217,13 @@ self.onmessage = async function( eventFromMain ) {
         const startNeuronContacts = ptrNeuronContacts/Module.HEAP16.BYTES_PER_ELEMENT;
         sabNeuronContacts = Module.HEAP16.subarray( startNeuronContacts, (startNeuronContacts + 10 ));
 
-        ptrCameraDrawBuffer = Module._malloc( cameraWidth * cameraHeight * Module.HeapU8.BYTES_PER_ELEMENT );
-        ptrStateBuffer = Module._malloc( StateLength * Modul.HEAP32.BYTES_PER_ELEMENT );
+        ptrCameraDrawBuffer = Module._malloc( cameraWidth * cameraHeight * COLOR_CHANNELS * CAMERA_BYTES_PER_ELEMENT );
+        const startCameraBuffer = ptrNeuronContacts/Module.HEAP8.BYTES_PER_ELEMENT;
+        sabCameraDrawBuffer = Module.HEAP8.subarray(startCameraBuffer, cameraWidth * cameraHeight * COLOR_CHANNELS);
+
+        ptrStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
+        const startStateBuffer = ptrNeuronContacts/Module.HEAP32.BYTES_PER_ELEMENT;
+        sabStateBuffer = Module.HEAP8.subarray(startStateBuffer, startStateBuffer + StateLength);
         
 
         // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
@@ -227,10 +242,10 @@ self.onmessage = async function( eventFromMain ) {
             'passPointers',
             'number',
             [
-                'number', 'number' ,'number','number','number','number','number','number','number',
+                'number', 'number' ,'number','number',
             ],
             [
-                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps, ptrStateBuffer, ptrMotorCommands, ptrCameraDrawBuffer, ptrVisPrefs, ptrVisPrefVals,
+                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps,
             ]
         );
         console.log("after pass ptr", test);        
@@ -289,11 +304,16 @@ self.onmessage = async function( eventFromMain ) {
         await sleep(500);
         simulationWorkerChannelPort.postMessage({
             message:'INITIALIZED_WORKER',
-            ptrStateBuffer: ptrStateBuffer,
-            ptrCameraDrawBuffer: ptrCameraDrawBuffer,
-            ptrMotorCommands: ptrMotorCommands,
-            ptrVisPrefs: ptrVisPrefs,
-            ptrVisPrefVals: ptrVisPrefVals,
+            // ptrStateBuffer: ptrStateBuffer,
+            // ptrCameraDrawBuffer: ptrCameraDrawBuffer,
+            // ptrMotorCommands: ptrMotorCommands,
+            // ptrVisPrefs: ptrVisPrefs,
+            // ptrVisPrefVals: ptrVisPrefVals,
+            sabStateBuffer: sabStateBuffer,
+            sabCameraDrawBuffer: sabCameraDrawBuffer,
+            sabMotorCommands: sabMotorCommands,
+            sabVisPrefs: sabVisPrefs,
+            sabVisPrefVals: sabVisPrefVals,
         });
 
         console.log("init end")

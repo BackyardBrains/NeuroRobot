@@ -225,12 +225,19 @@ void initializeCameraConstant(){
         return 1;
     }
 
+    EXTERNC FUNCTION_ATTRIBUTE
+    int passPreprocessPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps){
+
+        isPrevEyesSaved = false;
+        return 1;
+    }
+
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
     int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
         platform_log("INITIALIZE CAMERA CONSTANT Start : \n");
-        initializeCameraConstant();
+        // initializeCameraConstant();
         platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
         // platform_log(std::to_string(epochs).c_str());
 

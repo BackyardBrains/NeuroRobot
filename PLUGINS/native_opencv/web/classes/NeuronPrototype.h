@@ -28,6 +28,7 @@
 
 #endif         
 
+// void platform_log(const char *fmt, ...);
 
 // MAIN CODE
 // std::mutex mtx;
@@ -66,13 +67,14 @@ short isThreadCreated=-1;
 double i_rand = 5;
 
 // OPENCV
-const short vis_pref_count = 7;
+short vis_prefs_count = 7;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short **visPrefs;
 double **vis_pref_vals;
-double **temp_vis_pref_vals;
+// double **temp_vis_pref_vals;
 double *vis_I;
+
 
 // std::vector<int> vis_I(1,0);
 // short *firing = new short[totalNumOfNeurons];
@@ -88,7 +90,6 @@ double *motor_command;
 // from neuron to sensory neuron
 //neuron_contacts = zeros(nneurons, ncontacts);
 // neuron_contacts = zeros(nneurons, ncontacts);
-short vis_prefs_count = 7;
 double sumVisPrefVals = 0;
 short motorCounter = 0;
 // CALLBACK

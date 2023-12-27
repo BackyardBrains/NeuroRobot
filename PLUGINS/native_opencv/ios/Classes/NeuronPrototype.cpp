@@ -166,11 +166,17 @@ EXTERNC void platform_log(const char *fmt, ...) {
   EMSCRIPTEN_KEEPALIVE
 #endif
 EXTERNC FUNCTION_ATTRIBUTE short initialize(){
-    temp_vis_pref_vals = new double*[vis_prefs_count];
+    // temp_vis_pref_vals = new double*[vis_prefs_count];
+    // for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
+    //     temp_vis_pref_vals[featureIdx] = new double[ncam];
+    //     temp_vis_pref_vals[featureIdx][0] = 0;
+    //     temp_vis_pref_vals[featureIdx][1] = 0;
+    // }
+    vis_pref_vals = new double*[vis_prefs_count];
     for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
-        temp_vis_pref_vals[featureIdx] = new double[ncam];
-        temp_vis_pref_vals[featureIdx][0] = 0;
-        temp_vis_pref_vals[featureIdx][1] = 0;
+        vis_pref_vals[featureIdx] = new double[ncam];
+        vis_pref_vals[featureIdx][0] = 0;
+        vis_pref_vals[featureIdx][1] = 0;
     }
     return 1;
 }
@@ -368,8 +374,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             // short k = (visPrefs[jj][ii] / 2);
                             short k = ( visPrefs[jj][ii] );
 
-                            double val1 = temp_vis_pref_vals[k][0];
-                            double val2 = temp_vis_pref_vals[k][1];
+                            // double val1 = temp_vis_pref_vals[k][0];
+                            // double val2 = temp_vis_pref_vals[k][1];
+                            double val1 = vis_pref_vals[k][0];
+                            double val2 = vis_pref_vals[k][1];
                             sumVisPrefVals += val1;
                             sumVisPrefVals += val2;
                             // temp_vis_pref_vals[k][0] = 0;

@@ -358,14 +358,17 @@ void initializeCameraConstant(){
                     double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
-                    temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
+                    // temp_vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
+                    vis_pref_vals[ncol * 2][ncam] = sigmoid(max_size, 1000, 0.0075) * 50;;
 
                     if (ncam == 0) {
-                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                        // temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                        vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
                     }
                     else{                    
-                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        // temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
                     }
 
@@ -410,21 +413,23 @@ void initializeCameraConstant(){
                     // vis_pref_vals[ncol * 2] = 0;
                     // vis_pref_vals[ncol * 2 + 1] = 0;
 
-                    temp_vis_pref_vals[ncol * 2][ncam] = 0;
-                    temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
+                    vis_pref_vals[ncol * 2][ncam] = 0;
+                    vis_pref_vals[ncol * 2+1][ncam] = 0;
+                    // temp_vis_pref_vals[ncol * 2][ncam] = 0;
+                    // temp_vis_pref_vals[ncol * 2+1][ncam] = 0;
                     // platform_log("No Connected Components\n");
                     // platform_log(std::to_string(ncol).c_str());
 
                 }
 
-
-                vis_pref_vals[ncol * 2][ncam] = this_score;
-                if (ncam == 0) {
-                    vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
-                }
-                else{                    
-                    vis_pref_vals[ncol * 2+1][ncam] = this_right_score;
-                }
+            
+                // vis_pref_vals[ncol * 2][ncam] = this_score;
+                // if (ncam == 0) {
+                //     vis_pref_vals[ncol * 2+1][ncam] = this_left_score;
+                // }
+                // else{                    
+                //     vis_pref_vals[ncol * 2+1][ncam] = this_right_score;
+                // }
 
 
                 // temp_vis_pref_vals[ncol * 2][ncam] = this_score;

@@ -1,13 +1,36 @@
 // WebSocket
-var websocketWorker;
 const StateLength = 10;
-var ptrStateBuffer;
-var bufStateArray;
-var ptrCameraDrawBuffer;
-var bufCameraDrawArray;
-
+var websocketWorker;
 var preprocessWorker;
 
+// var ptrStateBuffer;
+// var ptrCameraDrawBuffer;
+// var ptrVisPrefs;
+// var ptrVisPrefVals;
+
+
+var sabStateBuffer;
+var sabCameraDrawBuffer;
+var sabVisPrefs;
+var sabVisPrefVals;
+
+
+const STATE = {
+    "WEB_SOCKET":0,
+    "PREPROCESS_IMAGE":1,
+    "COMMAND_MOTORS":2,
+    "CAMERA_CONTENT_LENGTH":3,
+    "CAMERA_CONTENT_COMPLETE":4,
+};
+// WEB SOCKET 
+const frameWidth = 320;
+const frameHeight = 240;
+let offscreenCanvas;
+let ctx;
+let imgData;
+let imgCamera;
+let imgFrame;
+let lastFrame;
 
 var izhikevichWorker;
 let neuronSize = 2;
@@ -170,7 +193,7 @@ function initializeModels(jsonRawData){
         sabNumNeuronCircle.fill(0);
         sabNumIsPlaying.fill(0);
         console.log(event.data.allocatedCanvasbuffer);
-        window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
+        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
         izhikevichWorker.postMessage({
             message:'RUN_WORKER',
         });
@@ -198,11 +221,12 @@ function setIsPlaying(flag){
 
 
 function runSimulation(allocatedBuffer){
-    ptrStateBuffer = allocatedBuffer.ptrStateBuffer;
-    bufStateArray = new Int32Array(ptrStateBuffer);
-    ptrCameraDrawBuffer = allocatedBuffer.ptrCameraDrawBuffer;
-    bufCameraDrawArray = new Int32Array(ptrCameraDrawBuffer);
-
+    console.log("RUN SIMULATION", allocatedBuffer);
+    sabStateBuffer = allocatedBuffer.sabStateBuffer;
+    sabCameraDrawBuffer = allocatedBuffer.sabCameraDrawBuffer;
+    sabVisPrefs = allocatedBuffer.sabVisPrefs;
+    sabVisPrefVals = allocatedBuffer.sabVisPrefVals;
+    
     // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
     // ptrMotorCommands | WS, Neuron Simulation
     // ptrCameraDrawBuffer | WS, UI, PreProcess CV, 
@@ -214,12 +238,27 @@ function runSimulation(allocatedBuffer){
     // ptrVisPrefs: ptrVisPrefs,
     // ptrVisPrefVals: ptrVisPrefVals,
 
+    const offscreenCanvasElement = document.getElementById("canvas");
+    imgCamera = document.getElementById("image");
+    // alert(offscreenCanvasElement);
+    // offscreenCanvas = offscreenCanvasElement.transferControlToOffscreen();
+    // ctx = offscreenCanvas.getContext('2d');
+    // imgData = ctx.createImageData(frameWidth, frameHeight);
+    // for (let i = 0; i < imgData.data.length; i += 4) {
+    //     imgData.data[i+0] = 0;
+    //     imgData.data[i+1] = 255;
+    //     imgData.data[i+2] = 0;
+    //     imgData.data[i+3] = 255;
+    // }                                    
 
+    console.log("Websocket worker", offscreenCanvas);
     websocketWorker = new Worker('build/web/websocket.worker.js');
     websocketWorker.postMessage({
-        "message": "INIT",
-        "ptrStateBuffer":ptrStateBuffer,
-        "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
+        "message": "INITIALIZE",
+        "sabStateBuffer":sabStateBuffer,
+        "sabCameraDrawBuffer":sabCameraDrawBuffer,
+        // "offscreenCanvas": offscreenCanvas,
+    // },[offscreenCanvas]);
     });
     websocketWorker.onmessage = function( evt ){
         switch( evt.data.message ){
@@ -231,21 +270,27 @@ function runSimulation(allocatedBuffer){
         }
     }
 
-    preprocessWorker = new Worker('build/web/preprocess.worker.js');
-    preprocessWorker.postMessage({
-        "message": "INIT",
-        "ptrStateBuffer":ptrStateBuffer,
-        "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
-    });
-    preprocessWorker.onmessage = function( evt ){
-        switch( evt.data.message ){
-            case "INITIALIZED":
-                preprocessWorker.postMessage({
-                    "message": "START",
-                });
-            break;
-        }
-    }
+    // preprocessWorker = new Worker('build/web/preprocess.worker.js');
+    // preprocessWorker.postMessage({
+    //     "message": "INITIALIZE",
+    //     "ptrStateBuffer":ptrStateBuffer,
+    //     "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
+    //     "ptrVisPrefs":ptrVisPrefs,
+    //     "ptrVisPrefVals":ptrVisPrefVals,
+
+    // });
+    // preprocessWorker.onmessage = function( evt ){
+    //     switch( evt.data.message ){
+    //         case "INITIALIZED":
+    //             preprocessWorker.postMessage({
+    //                 "message": "START",
+    //             });
+    //         break;
+    //     }
+    // }
+
+    // send pointer into UI Thread
+    // passUIPointers(ptrVisPrefs, ptrVisPrefVals);
 
 }
 // function setIzhikevichParameters(aBuf,bBuf,cBuf,dBuf,iBuf,wBuf,positionsBuf,connectomeBuf, level, neuronSize,envelopeSize,bufferSize,isPlaying){
@@ -283,18 +328,45 @@ function changeSelectedIdx(selectedIdx){
 // window.canvasDraw(canvasBuffer);
 function repaint(timestamp){
     try{
-        let image = document.getElementById('image');
-        image.src = bufCameraDrawArray;
+        // let image = document.getElementById('image');
+        if (sabCameraDrawBuffer !== undefined){
+            // console.log("sabCameraDrawBuffer");
+            // console.log(sabCameraDrawBuffer);
+            const isFrameComplete = sabStateBuffer[STATE.CAMERA_CONTENT_COMPLETE];
+            // console.log("COMPLETE : ", isFrameComplete, bufStateArray);
+            if (isFrameComplete != lastFrame) {
+                lastFrame = isFrameComplete;
+                const len = sabStateBuffer[STATE.CAMERA_CONTENT_LENGTH];
+                const cameraContent = sabCameraDrawBuffer.slice(0,len);
+                // const cameraContent = sabCameraDrawBuffer.subarray(0,len);
+                // console.log(len, cameraContent);
+                // send to Flutter
+                window.streamImageFrame(cameraContent);
+                
+
+                // imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
+                // // let frame = URL.createObjectURL(new Blob([cameraContent], {type: "video/x-motion-jpeg"})) 
+                // imgCamera.src = imgFrame;
+                // imgCamera.onload = function(){
+                //     URL.revokeObjectURL(imgFrame)
+                // }
+    
+                // imgData.data.set(sabCameraDrawBuffer);
+                // ctx.putImageData(imgData,10,10);
+                
+                // image.src = sabCameraDrawBuffer;
+            }
+        }
 
         // console.log(sabNumNps);
         // window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );
-    //   console.log("exc");
-    //   console.log(exc);
+      console.log("exc");
+      console.log(exc);
     }
-
     window.requestAnimationFrame(repaint);    
+
 }  
 window.requestAnimationFrame(repaint);
 

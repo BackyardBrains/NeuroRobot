@@ -72,7 +72,7 @@ const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short **visPrefs;
 double **vis_pref_vals;
-double **temp_vis_pref_vals;
+// double **temp_vis_pref_vals;
 double *vis_I;
 
 

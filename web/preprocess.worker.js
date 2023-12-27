@@ -9,6 +9,19 @@ const STATE = {
     "PREPROCESS_IMAGE":1,
     "COMMAND_MOTORS":2,
 };
+self.importScripts("neuronprototype.js"); 
+self.Module.onRuntimeInitialized = async _ => {
+    console.log("WASM Runtime Initialized", self.Module);
+    postMessage({
+        message:'INITIALIZE_WASM_PREPROCESS',
+        statesDrawBuffer : statesDrawBuffer,
+    });
+    // console.log("self.Module.myFunction");
+    // console.log(self.Module.myFunction);
+    // self.Module.myFunction( ()=>{
+    //     console.log("notif[0]");
+    // });
+}; 
 
 self.onmessage = function(eventFromMain){
     switch (eventFromMain.data.message){
@@ -17,6 +30,13 @@ self.onmessage = function(eventFromMain){
             bufStateArray = new Int32Array(ptrStateBuffer);
             ptrCameraDrawBuffer = eventFromMain.data.ptrCameraDrawBuffer;
             bufCameraDrawArray = new Int32Array(ptrCameraDrawBuffer);
+            Module.ccall(
+                'passPreprocessPointers',
+                'number',
+                ['number', 'number', 'number', 'number'],
+                [ ptrStateBuffer, ptrCameraDrawBuffer, ptrVisPrefs, ptrVisPrefVals]
+            );
+
         break;
         case "START":
             // wake thread
