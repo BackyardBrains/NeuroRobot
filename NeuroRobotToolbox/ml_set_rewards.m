@@ -8,11 +8,13 @@ if isempty(list_of_states) || sum(isnan(list_of_states))
     ml_goals_edit.BackgroundColor = [0.94 0.94 0.94];
     error('Enter at least one goal state')
 end
+
 reward_states = list_of_states(sign(list_of_states) == 1);
+
 if sum(sign(list_of_states) == -1)
     bad_states = list_of_states(sign(list_of_states) == -1);
 else
-    bad_action = [];
+    bad_states = [];
 end
 
 reward_action = mode(actions);
