@@ -12,6 +12,11 @@ nmedium = round((0.005 * ntuples + 3000) * learn_speed);
 init_n_unique_states = max([10 round(0.0005 * ntuples * learn_speed) + 10 * learn_speed]);
 min_size = max([5 round((0.00015 * ntuples * learn_speed) + 5 * learn_speed)]);
 
+bof_branching = round(bof_branching / 4);
+nmedium = round(nmedium / 2);
+init_n_unique_states = round(init_n_unique_states / 2);
+min_size = round(min_size / 2);
+
 disp(horzcat('nsmall = ', num2str(nsmall)))
 disp(horzcat('nmedium = ', num2str(nmedium)))
 disp(horzcat('bof_branching = ', num2str(bof_branching)))

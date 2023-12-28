@@ -32,8 +32,8 @@ tx7.String = 'getting states..';
 drawnow
 disp('assembling tuples...')
 
-get_states
-save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
+% get_states
+% save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, state_net_name, '-states'))
 
 
@@ -48,7 +48,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 5;
+n_unique_actions = 9;
 
 motor_combs = zeros(n_unique_actions, 2);
 while ~(sum(sum(motor_combs, 2) < 0) == 1)
@@ -69,13 +69,12 @@ save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, state_net_name, '-actions'))
 
 
-%%
 axes(im_ax1)
 cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
 for naction = 1:n_unique_actions
-    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold');
 end
 axis padded
 set(gca, 'yscale', 'linear')
