@@ -27,7 +27,7 @@ else
     ntuples = size(torque_data, 1);
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
 
-    ml_visualize_mdp
+    % ml_visualize_mdp
     
     ml_get_combs_quick
     
