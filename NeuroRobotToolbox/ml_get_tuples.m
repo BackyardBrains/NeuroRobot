@@ -32,8 +32,8 @@ tx7.String = 'getting states..';
 drawnow
 disp('assembling tuples...')
 
-% get_states
-% save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
+get_states
+save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 load(horzcat(nets_dir_name, state_net_name, '-states'))
 
 
@@ -48,10 +48,12 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 10;
 
 motor_combs = zeros(n_unique_actions, 2);
-while ~(sum(sum(motor_combs, 2) < 0) == 1)
+counter = 0;
+while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
+    counter = counter + 1;
     actions = kmeans(torque_data, n_unique_actions);
     for naction = 1:n_unique_actions
         motor_combs(naction, :) = mean(torque_data(actions == naction, :));
@@ -98,7 +100,7 @@ ylabel('Torque 2')
 drawnow
 
 %% Get tuples
-tuples = zeros(ntuples - 6, 3);
+tuples = zeros(ntuples, 3);
 for ntuple = 6:ntuples - 1
     tuples(ntuple - 5, 1) = states(ntuple - 5);
     tuples(ntuple - 5, 2) = states(ntuple);

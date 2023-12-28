@@ -15,9 +15,9 @@ reward_action = mode(actions);
 disp(horzcat('reward action (mode) = ', num2str(reward_action)))
 disp(horzcat('reward action torque: ',  num2str(round(mean(torque_data(actions == reward_action, :), 1)))))
 
-bad_action = find(sum(motor_combs, 2) < 0);
-disp(horzcat('bad action (backward) = ', num2str(bad_action)))
-disp(horzcat('bad action torque: ',  num2str(round(mean(torque_data(actions == bad_action, :), 1)))))
+% bad_action = find(sum(motor_combs, 2) < 0);
+% disp(horzcat('bad action (backward) = ', num2str(bad_action)))
+% disp(horzcat('bad action torque: ',  num2str(round(mean(torque_data(actions == bad_action, :), 1)))))
 
 %% Create reward landscape
 disp('Creating reward landscape...')
