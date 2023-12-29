@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 // WEB CHANGE
-import 'package:native_opencv/nativec.dart';
+// import 'package:native_opencv/nativec.dart';
 
 // import 'package:spikerbox_architecture/models/microphone_stream/microphone_stream.dart'
 // if (dart.library.io) 'package:spikerbox_architecture/models/microphone_stream/microphone_stream_native.dart'
@@ -50,8 +50,8 @@ class _WaveWidgetState extends State<WaveWidget> {
       width: widget.screenWidth - 20,
       // samples: WaveWidget.canvasBufferBytes1,
       // WEB CHANGE
-      samples: Nativec.canvasBufferBytes1,
-      // samples: Float64List(0),
+      // samples: Nativec.canvasBufferBytes1,
+      samples: Float64List(0),
       maxDuration: const Duration(seconds: 3),
       elapsedDuration: const Duration(seconds: 1),
       eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],

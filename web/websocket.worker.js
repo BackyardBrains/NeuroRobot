@@ -1,4 +1,4 @@
-const StateLength = 10;
+const StateLength = 20;
 var ptrStateBuffer;
 var bufStateArray;
 var ptrCameraDrawBuffer;
@@ -17,10 +17,13 @@ const url = "http://192.168.1.5:8081";
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "COMMAND_MOTORS":2,
-    "CAMERA_CONTENT_LENGTH":3,
-    "CAMERA_CONTENT_COMPLETE":4,
+    "PREPROCESS_IMAGE_LENGTH":2,
+    "COMMAND_MOTORS":3,
+    "COMMAND_MOTORS_LENGTH":4,
+    "CAMERA_CONTENT_LENGTH":5,
+    "CAMERA_CONTENT_COMPLETE":6,
 };
+
 
 self.onmessage = function(eventFromMain){
     switch (eventFromMain.data.message){

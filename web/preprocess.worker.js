@@ -1,49 +1,107 @@
-var ptrStateBuffer;
-var bufStateArray;
-var ptrCameraDrawBuffer;
-var bufCameraDrawArray;
+const StateLength = 20;
+const COLOR_CHANNELS = 4;
+const cameraWidth = 320;
+const cameraHeight = 240;
+
+let neuronSize = 1;
+
+var sabStateBuffer;
+var sabVisPrefs;
+var sabVisPrefVals;
+
+var ptrPreprocessStateBuffer;
+var sabPreprocessStateBuffer;
+var ptrPreprocessCameraBuffer;
+var sabPreprocessCameraBuffer;
+
+var ptrPreprocessVisPrefs;
+var sabPreprocessVisPrefs;
+var ptrPreprocessVisPrefVals;
+var sabPreprocessVisPrefVals;
+
 const url = "http://192.168.4.1:81/stream";
 
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "COMMAND_MOTORS":2,
+    "PREPROCESS_IMAGE_LENGTH":2,
+    "COMMAND_MOTORS":3,
+    "COMMAND_MOTORS_LENGTH":4,
+    "CAMERA_CONTENT_LENGTH":5,
+    "CAMERA_CONTENT_COMPLETE":6,
 };
-self.importScripts("neuronprototype.js"); 
+
+
+self.importScripts("nativeopencv.js"); 
 self.Module.onRuntimeInitialized = async _ => {
     console.log("WASM Runtime Initialized", self.Module);
+    
+    ptrPreprocessStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
+    const startPreprocessStateBuffer = ptrPreprocessStateBuffer/Module.HEAP32.BYTES_PER_ELEMENT;
+    sabPreprocessStateBuffer = Module.HEAP32.subarray(startPreprocessStateBuffer, startPreprocessStateBuffer + StateLength);
+
+    const bufferLen = cameraWidth * cameraHeight * COLOR_CHANNELS;
+    ptrPreprocessCameraBuffer = Module._malloc( bufferLen * Module.HEAPU8.BYTES_PER_ELEMENT );
+    const startPreprocessCameraBuffer = ptrPreprocessCameraBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
+    sabPreprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
+
+
+    ptrPreprocessVisPrefs = Module._malloc( neuronSize * neuronSize * Module.HEAP16.BYTES_PER_ELEMENT);
+    const startPreprocessVisPrefs = ptrPreprocessVisPrefs/Module.HEAP16.BYTES_PER_ELEMENT;
+    sabPreprocessVisPrefs = Module.HEAP16.subarray( startPreprocessVisPrefs, (startPreprocessVisPrefs + 10 ));
+
+    ptrPreprocessVisPrefVals = Module._malloc( neuronSize * neuronSize * Module.HEAPF64.BYTES_PER_ELEMENT);
+    const startPreprocessVisPrefVals = ptrPreprocessVisPrefVals/Module.HEAPF64.BYTES_PER_ELEMENT;
+    sabPreprocessVisPrefVals = Module.HEAPF64.subarray( startPreprocessVisPrefVals, (startPreprocessVisPrefVals + 10 ));
+    
+
     postMessage({
-        message:'INITIALIZE_WASM_PREPROCESS',
-        statesDrawBuffer : statesDrawBuffer,
+        message:'INITIALIZED_WASM_PREPROCESS',
+        sabPreprocessCameraBuffer:sabPreprocessCameraBuffer
     });
-    // console.log("self.Module.myFunction");
-    // console.log(self.Module.myFunction);
-    // self.Module.myFunction( ()=>{
-    //     console.log("notif[0]");
-    // });
 }; 
 
 self.onmessage = function(eventFromMain){
     switch (eventFromMain.data.message){
-        case "INIT":
-            ptrStateBuffer = eventFromMain.data.ptrStateBuffer;
-            bufStateArray = new Int32Array(ptrStateBuffer);
-            ptrCameraDrawBuffer = eventFromMain.data.ptrCameraDrawBuffer;
-            bufCameraDrawArray = new Int32Array(ptrCameraDrawBuffer);
+        case "INITIALIZE":
+            sabStateBuffer = eventFromMain.data.sabStateBuffer;
+            // sabCameraPreprocessBuffer = eventFromMain.data.sabCameraPreprocessBuffer;
+            sabVisPrefs = eventFromMain.data.sabVisPrefs;
+            sabVisPrefVals = eventFromMain.data.sabVisPrefVals;
+            neuronSize = eventFromMain.data.neuronSize;
+    
+        break;
+        case "START":
+            // wake thread
+            console.log("PREPROCESS START");
+            // Pass pointer first
             Module.ccall(
                 'passPreprocessPointers',
                 'number',
                 ['number', 'number', 'number', 'number'],
-                [ ptrStateBuffer, ptrCameraDrawBuffer, ptrVisPrefs, ptrVisPrefVals]
+                [ ptrPreprocessStateBuffer, ptrPreprocessCameraBuffer, ptrPreprocessVisPrefs, ptrPreprocessVisPrefVals]
             );
 
-        break;
-        case "START":
-            // wake thread
-            while (Atomics.wait(bufStateArray, STATE.PREPROCESS_IMAGE, 0) === "ok"){
+            while (Atomics.wait(sabStateBuffer, STATE.PREPROCESS_IMAGE, 0) === "ok"){
+                // sabStateBuffer[7] = -10000; // passing pointer should be from the WASM allocation
+                sabPreprocessStateBuffer.set(sabStateBuffer);
+                sabPreprocessVisPrefs.set(sabVisPrefs);
+                sabPreprocessVisPrefVals.set(sabVisPrefVals);
+
                 // only call wasm function - pass pointer esp vis_pref_vals
+                Module.ccall(
+                    'findColorInImage',
+                    'number',
+                    ['number', 'number', 'number'],
+                    [ ptrPreprocessCameraBuffer, sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH], ptrPreprocessCameraBuffer]
+                );
                 // output : change vis_pref_vals pointer so it can be processed by neuronSimulator.
-                Atomics.store(bufStateArray, STATE.PREPROCESS_IMAGE, 0);
+                sabStateBuffer.set(sabPreprocessStateBuffer);
+                sabVisPrefs.set(sabPreprocessVisPrefs);
+                sabVisPrefVals.set(sabPreprocessVisPrefVals);
+
+                Atomics.store(sabStateBuffer, STATE.PREPROCESS_IMAGE, 0);
+                // console.log("sabStateBuffer : ", sabStateBuffer[7]);
             }
         break;
 

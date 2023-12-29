@@ -1,5 +1,5 @@
 // WebSocket
-const StateLength = 10;
+const StateLength = 20;
 var websocketWorker;
 var preprocessWorker;
 
@@ -14,14 +14,21 @@ var sabCameraDrawBuffer;
 var sabVisPrefs;
 var sabVisPrefVals;
 
+// PREPROCESS
+var sabPreprocessCameraBuffer;
+
 
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "COMMAND_MOTORS":2,
-    "CAMERA_CONTENT_LENGTH":3,
-    "CAMERA_CONTENT_COMPLETE":4,
+    "PREPROCESS_IMAGE_LENGTH":2,
+    "COMMAND_MOTORS":3,
+    "COMMAND_MOTORS_LENGTH":4,
+    "CAMERA_CONTENT_LENGTH":5,
+    "CAMERA_CONTENT_COMPLETE":6,
 };
+
+
 // WEB SOCKET 
 const frameWidth = 320;
 const frameHeight = 240;
@@ -29,8 +36,9 @@ let offscreenCanvas;
 let ctx;
 let imgData;
 let imgCamera;
+let canvasElement;
 let imgFrame;
-let lastFrame;
+let lastFrameIdx= -100;
 
 var izhikevichWorker;
 let neuronSize = 2;
@@ -238,8 +246,10 @@ function runSimulation(allocatedBuffer){
     // ptrVisPrefs: ptrVisPrefs,
     // ptrVisPrefVals: ptrVisPrefVals,
 
-    const offscreenCanvasElement = document.getElementById("canvas");
+    canvasElement = document.getElementById("canvas");
     imgCamera = document.getElementById("image");
+    ctx = canvasElement.getContext('2d', { willReadFrequently: true });
+    // ctx = canvas.getContext('2d');
     // alert(offscreenCanvasElement);
     // offscreenCanvas = offscreenCanvasElement.transferControlToOffscreen();
     // ctx = offscreenCanvas.getContext('2d');
@@ -251,7 +261,28 @@ function runSimulation(allocatedBuffer){
     //     imgData.data[i+3] = 255;
     // }                                    
 
-    console.log("Websocket worker", offscreenCanvas);
+    // console.log("Websocket worker", offscreenCanvas);
+
+    preprocessWorker = new Worker('build/web/preprocess.worker.js');
+    preprocessWorker.postMessage({
+        "message": "INITIALIZE",
+        "sabStateBuffer":sabStateBuffer,
+        "sabCameraDrawBuffer":sabCameraDrawBuffer,
+        "sabVisPrefs":sabVisPrefs,
+        "sabVisPrefVals":sabVisPrefVals,
+
+    });
+    preprocessWorker.onmessage = function( evt ){
+        switch( evt.data.message ){
+            case "INITIALIZED_WASM_PREPROCESS":
+                sabPreprocessCameraBuffer = evt.data.sabPreprocessCameraBuffer;
+                preprocessWorker.postMessage({
+                    "message": "START",
+                });
+            break;
+        }
+    }
+
     websocketWorker = new Worker('build/web/websocket.worker.js');
     websocketWorker.postMessage({
         "message": "INITIALIZE",
@@ -270,24 +301,6 @@ function runSimulation(allocatedBuffer){
         }
     }
 
-    // preprocessWorker = new Worker('build/web/preprocess.worker.js');
-    // preprocessWorker.postMessage({
-    //     "message": "INITIALIZE",
-    //     "ptrStateBuffer":ptrStateBuffer,
-    //     "ptrCameraDrawBuffer":ptrCameraDrawBuffer,
-    //     "ptrVisPrefs":ptrVisPrefs,
-    //     "ptrVisPrefVals":ptrVisPrefVals,
-
-    // });
-    // preprocessWorker.onmessage = function( evt ){
-    //     switch( evt.data.message ){
-    //         case "INITIALIZED":
-    //             preprocessWorker.postMessage({
-    //                 "message": "START",
-    //             });
-    //         break;
-    //     }
-    // }
 
     // send pointer into UI Thread
     // passUIPointers(ptrVisPrefs, ptrVisPrefVals);
@@ -333,23 +346,33 @@ function repaint(timestamp){
             // console.log("sabCameraDrawBuffer");
             // console.log(sabCameraDrawBuffer);
             const isFrameComplete = sabStateBuffer[STATE.CAMERA_CONTENT_COMPLETE];
-            // console.log("COMPLETE : ", isFrameComplete, bufStateArray);
-            if (isFrameComplete != lastFrame) {
-                lastFrame = isFrameComplete;
+            // console.log("COMPLETE : ", isFrameComplete);
+            // only if there is a frame
+            if (isFrameComplete != lastFrameIdx) {
+                lastFrameIdx = isFrameComplete;
                 const len = sabStateBuffer[STATE.CAMERA_CONTENT_LENGTH];
                 const cameraContent = sabCameraDrawBuffer.slice(0,len);
                 // const cameraContent = sabCameraDrawBuffer.subarray(0,len);
                 // console.log(len, cameraContent);
                 // send to Flutter
                 window.streamImageFrame(cameraContent);
-                
 
-                // imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
+                imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
                 // // let frame = URL.createObjectURL(new Blob([cameraContent], {type: "video/x-motion-jpeg"})) 
-                // imgCamera.src = imgFrame;
-                // imgCamera.onload = function(){
-                //     URL.revokeObjectURL(imgFrame)
-                // }
+                imgCamera.src = imgFrame;
+                imgCamera.onload = function(){
+                    ctx.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
+                    imgData = ctx.getImageData(0, 0, frameWidth, frameHeight);
+                    if (sabPreprocessCameraBuffer !== undefined){
+                        sabPreprocessCameraBuffer.set(imgData.data);
+                        // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
+                    }
+                    sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH] = imgData.data.length;
+                    // sabCameraDrawBuffer.set(imgData);
+                    Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);
+                    //send imgData to wasm 
+                    URL.revokeObjectURL(imgFrame)
+                }
     
                 // imgData.data.set(sabCameraDrawBuffer);
                 // ctx.putImageData(imgData,10,10);
