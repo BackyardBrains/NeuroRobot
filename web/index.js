@@ -13,10 +13,11 @@ var sabStateBuffer;
 var sabCameraDrawBuffer;
 var sabVisPrefs;
 var sabVisPrefVals;
-
+var sabNeuronContacts; 
+var sabMotorCommands;
 // PREPROCESS
 var sabPreprocessCameraBuffer;
-
+let sabCanvasBuffer;
 
 const STATE = {
     "WEB_SOCKET":0,
@@ -186,6 +187,11 @@ function initializeModels(jsonRawData){
         sabNumConfig = event.data.sabNumConfig;
         sabNumCom = event.data.sabNumCom;
         sabNumIsPlaying = event.data.sabNumIsPlaying;
+        // OPENCV & SIMULATION
+        sabVisPrefs = event.data.sabVisPrefs;
+        sabNeuronContacts = event.data.sabNeuronContacts;
+        sabMotorCommands = event.data.sabMotorCommands;
+
 
         sabNumA.set(jsonData[0]);
         sabNumB.set(jsonData[1]);
@@ -200,8 +206,17 @@ function initializeModels(jsonRawData){
         sabNumCom.fill(-1);
         sabNumNeuronCircle.fill(0);
         sabNumIsPlaying.fill(0);
-        console.log(event.data.allocatedCanvasbuffer);
-        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
+        console.log(jsonData);
+        console.log(sabVisPrefs);
+        sabVisPrefs.set(jsonData[13]);
+        sabNeuronContacts.set(jsonData[14]);
+        sabMotorCommands.set(jsonData[15]);
+        // pVisPrefs, pNeuronContacts, pMotorCommands,
+        sabCanvasBuffer = event.data.allocatedCanvasbuffer;
+        //remove me
+        sabNumConfig[0] = 9;
+        window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
+        // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps, event.data.sabVisPrefs, event.data.sabNeuronContacts, event.data.);
         izhikevichWorker.postMessage({
             message:'RUN_WORKER',
         });
@@ -270,6 +285,7 @@ function runSimulation(allocatedBuffer){
         "sabCameraDrawBuffer":sabCameraDrawBuffer,
         "sabVisPrefs":sabVisPrefs,
         "sabVisPrefVals":sabVisPrefVals,
+        "neuronSize":neuronSize,
 
     });
     preprocessWorker.onmessage = function( evt ){
@@ -294,9 +310,12 @@ function runSimulation(allocatedBuffer){
     websocketWorker.onmessage = function( evt ){
         switch( evt.data.message ){
             case "INITIALIZED":
-                websocketWorker.postMessage({
-                    "message": "START",
-                });
+                setTimeout(()=>{
+                    websocketWorker.postMessage({
+                        "message": "START",
+                    });
+    
+                },2000);
             break;
         }
     }
@@ -355,6 +374,8 @@ function repaint(timestamp){
                 // const cameraContent = sabCameraDrawBuffer.subarray(0,len);
                 // console.log(len, cameraContent);
                 // send to Flutter
+
+                // console.log("sabCanvasBuffer : ", sabCanvasBuffer);
                 window.streamImageFrame(cameraContent);
 
                 imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
@@ -382,6 +403,9 @@ function repaint(timestamp){
         }
 
         // console.log(sabNumNps);
+        if (sabCanvasBuffer!== undefined){
+            console.log(sabCanvasBuffer[sabNumPos[0]]);
+        }
         // window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );

@@ -174,7 +174,10 @@ class _MyHomePageState extends State<MyHomePage> {
   NumberFormat formatter = NumberFormat.decimalPatternDigits(
       locale: 'en_us',
       decimalDigits: 2,
-  );  
+  );
+  
+  Int16List visPrefs = Int16List(0);  
+  Int16List visPrefVals = Int16List(0);  
 
   void resetNeuronParameters(){
     const a = 0.02;
@@ -388,11 +391,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps){
+  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps, p_visPrefs, p_visPrefVals){
     WaveWidget.canvasBufferBytes1 = buffer;
     WaveWidget.positionsBufView = positionsBuf;
     neuronCircleBridge = neuronBridge;
     npsBufView  = nps;
+    visPrefs = p_visPrefs;
+    visPrefVals = p_visPrefVals;
   }
   canvasDraw(){
     // print(params);

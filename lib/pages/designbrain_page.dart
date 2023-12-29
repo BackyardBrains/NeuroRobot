@@ -225,7 +225,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     const bufferSize = 2000;
     if (kIsWeb){
       js.context.callMethod("initializeModels",
-        [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1]) ]
+        [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView]) ]
       );        
     }
     // Web Change
@@ -305,6 +305,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       wBufView  = Float64List(neuronSize);
       positionsBufView  = Int16List(neuronSize);
       connectomeBufView  = Float64List(neuronSize*neuronSize);
+
       visPrefsBufView = Int16List(neuronSize * neuronSize);
       motorCommandBufView = Float64List(motorCommandsLength);
       neuronContactsBufView = Float64List(neuronSize * neuronSize);
@@ -622,12 +623,32 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // print(cameraFrames);
     mainBloc.drawImageNow(cameraFrames);
   }
+  canvasDraw(params){
+    WaveWidget.canvasBufferBytes1 = Float64List.fromList((params[0]).toList().cast<double>());
+  }
+
+  // setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps, pVisPrefs, pNeuronContacts, pMotorCommands, pConnectome){
+  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps){
+    WaveWidget.canvasBufferBytes1 = buffer;
+    WaveWidget.positionsBufView = positionsBuf;
+    neuronCircleBridge = neuronBridge;
+    npsBufView  = nps;
+
+    // visPrefsBufView = pVisPrefs;
+    // neuronContactsBufView = pNeuronContacts;
+    // connectomeBufView = pConnectome;
+    // motorCommandBufView = pMotorCommands;
+
+  }
+
   
   @override
   void initState() {
     super.initState();
     if (kIsWeb){
       js.context['streamImageFrame'] = streamImageFrame;
+      js.context['setCanvasBuffer'] = setCanvasBuffer;
+
     }
 
     print("INIT STATEEE");
@@ -1410,6 +1431,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               print("neuronIdx");
               print(neuronIdx);
               isSelected = true;
+              if (kIsWeb){
+                // js.context.callMethod("changeSelectedIdx",[neuronIdx]);
+              }
               // nativec.changeIdxSelected(neuronIdx);
               if (neuronIdx < normalNeuronStartIdx) {
                 return;
@@ -1608,7 +1632,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         runSimulation();
       } else {
         if (kIsWeb) {
-          // js.context.callMethod("stopThreadProcess", [0]);
+          js.context.callMethod("stopThreadProcess", [0]);
         } else {
           // nativec.stopThreadProcess(0);
         }

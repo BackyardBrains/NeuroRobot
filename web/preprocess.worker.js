@@ -35,30 +35,34 @@ const STATE = {
 self.importScripts("nativeopencv.js"); 
 self.Module.onRuntimeInitialized = async _ => {
     console.log("WASM Runtime Initialized", self.Module);
+    // setTimeout(()=>{
+        const matrixSize = neuronSize * neuronSize;
     
-    ptrPreprocessStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
-    const startPreprocessStateBuffer = ptrPreprocessStateBuffer/Module.HEAP32.BYTES_PER_ELEMENT;
-    sabPreprocessStateBuffer = Module.HEAP32.subarray(startPreprocessStateBuffer, startPreprocessStateBuffer + StateLength);
-
-    const bufferLen = cameraWidth * cameraHeight * COLOR_CHANNELS;
-    ptrPreprocessCameraBuffer = Module._malloc( bufferLen * Module.HEAPU8.BYTES_PER_ELEMENT );
-    const startPreprocessCameraBuffer = ptrPreprocessCameraBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
-    sabPreprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
-
-
-    ptrPreprocessVisPrefs = Module._malloc( neuronSize * neuronSize * Module.HEAP16.BYTES_PER_ELEMENT);
-    const startPreprocessVisPrefs = ptrPreprocessVisPrefs/Module.HEAP16.BYTES_PER_ELEMENT;
-    sabPreprocessVisPrefs = Module.HEAP16.subarray( startPreprocessVisPrefs, (startPreprocessVisPrefs + 10 ));
-
-    ptrPreprocessVisPrefVals = Module._malloc( neuronSize * neuronSize * Module.HEAPF64.BYTES_PER_ELEMENT);
-    const startPreprocessVisPrefVals = ptrPreprocessVisPrefVals/Module.HEAPF64.BYTES_PER_ELEMENT;
-    sabPreprocessVisPrefVals = Module.HEAPF64.subarray( startPreprocessVisPrefVals, (startPreprocessVisPrefVals + 10 ));
+        ptrPreprocessStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
+        const startPreprocessStateBuffer = ptrPreprocessStateBuffer/Module.HEAP32.BYTES_PER_ELEMENT;
+        sabPreprocessStateBuffer = Module.HEAP32.subarray(startPreprocessStateBuffer, startPreprocessStateBuffer + StateLength);
     
+        const bufferLen = cameraWidth * cameraHeight * COLOR_CHANNELS;
+        ptrPreprocessCameraBuffer = Module._malloc( bufferLen * Module.HEAPU8.BYTES_PER_ELEMENT );
+        const startPreprocessCameraBuffer = ptrPreprocessCameraBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
+        sabPreprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
+    
+    
+        ptrPreprocessVisPrefs = Module._malloc( matrixSize * Module.HEAP16.BYTES_PER_ELEMENT);
+        const startPreprocessVisPrefs = ptrPreprocessVisPrefs/Module.HEAP16.BYTES_PER_ELEMENT;
+        sabPreprocessVisPrefs = Module.HEAP16.subarray( startPreprocessVisPrefs, (startPreprocessVisPrefs + matrixSize ));
 
-    postMessage({
-        message:'INITIALIZED_WASM_PREPROCESS',
-        sabPreprocessCameraBuffer:sabPreprocessCameraBuffer
-    });
+        const prefCameraLength = 7 * 2;
+        ptrPreprocessVisPrefVals = Module._malloc( prefCameraLength * Module.HEAPF64.BYTES_PER_ELEMENT);
+        const startPreprocessVisPrefVals = ptrPreprocessVisPrefVals/Module.HEAPF64.BYTES_PER_ELEMENT;
+        sabPreprocessVisPrefVals = Module.HEAPF64.subarray( startPreprocessVisPrefVals, (startPreprocessVisPrefVals + prefCameraLength ));
+        
+    
+        postMessage({
+            message:'INITIALIZED_WASM_PREPROCESS',
+            sabPreprocessCameraBuffer:sabPreprocessCameraBuffer
+        });
+    // }, 1700);
 }; 
 
 self.onmessage = function(eventFromMain){
