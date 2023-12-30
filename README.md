@@ -6,7 +6,7 @@ A <b>neurorobot</b> is a robot controlled by a computer model of a biological br
 <p align="center"><img src="https://github.com/BackyardBrains/NeuroRobot/blob/master/Gallery/robots.jpg" width="800"></p>
 <br>
 <b>Installation</b><br>
-To install the SpikerBot app on a Windows PC, download this repository, unpack SpikerBot_x.x_Installer.zip, and run the installer SpikerBot_x.x_Installer.exe. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. The app also runs natively in Matlab on all platforms.<br>
+To install the SpikerBot app on a Windows PC, download this repository, unpack SpikerBot_4.1_Installer.zip, and run the installer SpikerBot_4.1_Installer.exe. Because this is an unsigned app, you will need to navigate a blue warning message by clicking 'More info' then 'Run Anyway' in order to install the app. The app also runs natively in Matlab on all platforms.<br>
 <br>
 <b>How the app works</b><br>
 The NeuroRobot app has 3 modes of operation: Startup, Runtime and Design. <b>Startup</b> is the main menu. <b>Runtime</b> is the brain simulation engine where you can see what the brain is observing, hearing and doing. This is also where you provide dopamine rewards to modulate its motivation and learning. <b>Design</b> is where you modify the structure of the brain. Click anywhere in the brain-shaped area to add a neuron or synapse. Select the orange box next to the eyes, microphone or whiskers to send sensory information to specific neurons in the brain. Select a neuron and click the ‘Axon’ button to extend an axon to the wheels, the speaker or another neuron.
