@@ -11,17 +11,18 @@ let frames = 0;
 // let imgData;
 // const imgBuf = new Image();
 
-// const url = "http://192.168.4.1:81/stream";
-const url = "http://192.168.1.5:8081";
+const url = "http://192.168.4.1:81/stream";
+// const url = "http://192.168.1.5:8081";
 
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "PREPROCESS_IMAGE_LENGTH":2,
-    "COMMAND_MOTORS":3,
-    "COMMAND_MOTORS_LENGTH":4,
-    "CAMERA_CONTENT_LENGTH":5,
-    "CAMERA_CONTENT_COMPLETE":6,
+    "PREPROCESS_IMAGE_PROCESSING":2,
+    "PREPROCESS_IMAGE_LENGTH":3,
+    "COMMAND_MOTORS":4,
+    "COMMAND_MOTORS_LENGTH":5,
+    "CAMERA_CONTENT_LENGTH":6,
+    "CAMERA_CONTENT_COMPLETE":7,
 };
 
 

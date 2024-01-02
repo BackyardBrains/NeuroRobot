@@ -2,6 +2,7 @@
 const StateLength = 20;
 var websocketWorker;
 var preprocessWorker;
+var websocketcommandWorker;
 
 // var ptrStateBuffer;
 // var ptrCameraDrawBuffer;
@@ -22,11 +23,12 @@ let sabCanvasBuffer;
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "PREPROCESS_IMAGE_LENGTH":2,
-    "COMMAND_MOTORS":3,
-    "COMMAND_MOTORS_LENGTH":4,
-    "CAMERA_CONTENT_LENGTH":5,
-    "CAMERA_CONTENT_COMPLETE":6,
+    "PREPROCESS_IMAGE_PROCESSING":2,
+    "PREPROCESS_IMAGE_LENGTH":3,
+    "COMMAND_MOTORS":4,
+    "COMMAND_MOTORS_LENGTH":5,
+    "CAMERA_CONTENT_LENGTH":6,
+    "CAMERA_CONTENT_COMPLETE":7,
 };
 
 
@@ -34,12 +36,16 @@ const STATE = {
 const frameWidth = 320;
 const frameHeight = 240;
 let offscreenCanvas;
-let ctx;
+let ctxLeft;
 let imgData;
 let imgCamera;
-let canvasElement;
+
+let canvasLeftElement;
 let imgFrame;
 let lastFrameIdx= -100;
+
+let canvasRightElement;
+let ctxRight;
 
 var izhikevichWorker;
 let neuronSize = 2;
@@ -79,6 +85,19 @@ let sabNumNps;
 function initializeModels(jsonRawData){
     try{
         izhikevichWorker.terminate();
+    }catch(ex){
+    }
+    try{
+        preprocessWorker.terminate();
+    }catch(ex){
+    }
+
+    try{
+        websocketWorker.terminate();
+    }catch(ex){
+    }
+    try{
+        websocketcommandWorker.terminate();
     }catch(ex){
     }
 
@@ -214,7 +233,7 @@ function initializeModels(jsonRawData){
         // pVisPrefs, pNeuronContacts, pMotorCommands,
         sabCanvasBuffer = event.data.allocatedCanvasbuffer;
         //remove me
-        sabNumConfig[0] = 9;
+        // sabNumConfig[0] = 9;
         window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
         // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps, event.data.sabVisPrefs, event.data.sabNeuronContacts, event.data.);
         izhikevichWorker.postMessage({
@@ -261,9 +280,13 @@ function runSimulation(allocatedBuffer){
     // ptrVisPrefs: ptrVisPrefs,
     // ptrVisPrefVals: ptrVisPrefVals,
 
-    canvasElement = document.getElementById("canvas");
+    canvasLeftElement = document.getElementById("canvasLeft");
     imgCamera = document.getElementById("image");
-    ctx = canvasElement.getContext('2d', { willReadFrequently: true });
+    ctxLeft = canvasLeftElement.getContext('2d', { willReadFrequently: true });
+
+    canvasRightElement = document.getElementById("canvasRight");
+    ctxRight = canvasRightElement.getContext('2d', { willReadFrequently: true });
+
     // ctx = canvas.getContext('2d');
     // alert(offscreenCanvasElement);
     // offscreenCanvas = offscreenCanvasElement.transferControlToOffscreen();
@@ -285,6 +308,7 @@ function runSimulation(allocatedBuffer){
         "sabCameraDrawBuffer":sabCameraDrawBuffer,
         "sabVisPrefs":sabVisPrefs,
         "sabVisPrefVals":sabVisPrefVals,
+        "sabNeuronContacts":sabNeuronContacts,
         "neuronSize":neuronSize,
 
     });
@@ -293,7 +317,7 @@ function runSimulation(allocatedBuffer){
             case "INITIALIZED_WASM_PREPROCESS":
                 sabPreprocessCameraBuffer = evt.data.sabPreprocessCameraBuffer;
                 preprocessWorker.postMessage({
-                    "message": "START",
+                    "message": "START_PREPROCESS",
                 });
             break;
         }
@@ -304,6 +328,14 @@ function runSimulation(allocatedBuffer){
         "message": "INITIALIZE",
         "sabStateBuffer":sabStateBuffer,
         "sabCameraDrawBuffer":sabCameraDrawBuffer,
+        // "offscreenCanvas": offscreenCanvas,
+    // },[offscreenCanvas]);
+    });
+    websocketcommandWorker = new Worker('build/web/websocketcommand.worker.js');
+    websocketcommandWorker.postMessage({
+        "message": "INITIALIZE",
+        "sabStateBuffer":sabStateBuffer,
+        "sabMotorCommand":sabMotorCommands,
         // "offscreenCanvas": offscreenCanvas,
     // },[offscreenCanvas]);
     });
@@ -320,6 +352,9 @@ function runSimulation(allocatedBuffer){
         }
     }
 
+    izhikevichWorker.postMessage({
+        message:'CONNECT_SIMULATION',
+    });
 
     // send pointer into UI Thread
     // passUIPointers(ptrVisPrefs, ptrVisPrefVals);
@@ -376,21 +411,27 @@ function repaint(timestamp){
                 // send to Flutter
 
                 // console.log("sabCanvasBuffer : ", sabCanvasBuffer);
-                window.streamImageFrame(cameraContent);
+                // window.streamImageFrame(cameraContent);
 
                 imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
                 // // let frame = URL.createObjectURL(new Blob([cameraContent], {type: "video/x-motion-jpeg"})) 
                 imgCamera.src = imgFrame;
                 imgCamera.onload = function(){
-                    ctx.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
-                    imgData = ctx.getImageData(0, 0, frameWidth, frameHeight);
-                    if (sabPreprocessCameraBuffer !== undefined){
-                        sabPreprocessCameraBuffer.set(imgData.data);
-                        // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
+                    ctxLeft.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
+                    ctxRight.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
+                    
+                    if (sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] == 0){
+                        sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 1;
+                        imgData = ctxLeft.getImageData(0, 0, frameWidth, frameHeight);
+                        if (sabPreprocessCameraBuffer !== undefined){
+                            sabPreprocessCameraBuffer.set(imgData.data);
+                            // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
+                        }
+                        sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH] = imgData.data.length;
+                        // sabCameraDrawBuffer.set(imgData);
+                        Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);                        
                     }
-                    sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH] = imgData.data.length;
-                    // sabCameraDrawBuffer.set(imgData);
-                    Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);
+
                     //send imgData to wasm 
                     URL.revokeObjectURL(imgFrame)
                 }
@@ -403,9 +444,9 @@ function repaint(timestamp){
         }
 
         // console.log(sabNumNps);
-        if (sabCanvasBuffer!== undefined){
-            console.log(sabCanvasBuffer[sabNumPos[0]]);
-        }
+        // if (sabCanvasBuffer!== undefined){
+        //     console.log(sabCanvasBuffer[sabNumPos[0]]);
+        // }
         // window.canvasDraw();
     }catch(exc){
       // window.callbackErrorLog( ["error_repaint", "Repaint Audio Error"] );

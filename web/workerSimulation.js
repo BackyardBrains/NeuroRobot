@@ -1,6 +1,7 @@
 const COLOR_CHANNELS = 4;
 const CAMERA_BYTES_PER_ELEMENT = 1;
-const MotorCommandsLength = 300;
+const MotorCommandsLength = 6 * 2;
+const MotorMessageLength = 300;
 const StateLength = 20;
 const cameraWidth = 320;
 const cameraHeight = 240;
@@ -9,12 +10,14 @@ const cameraHeight = 240;
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "PREPROCESS_IMAGE_LENGTH":2,
-    "COMMAND_MOTORS":3,
-    "COMMAND_MOTORS_LENGTH":4,
-    "CAMERA_CONTENT_LENGTH":5,
-    "CAMERA_CONTENT_COMPLETE":6,
+    "PREPROCESS_IMAGE_PROCESSING":2,
+    "PREPROCESS_IMAGE_LENGTH":3,
+    "COMMAND_MOTORS":4,
+    "COMMAND_MOTORS_LENGTH":5,
+    "CAMERA_CONTENT_LENGTH":6,
+    "CAMERA_CONTENT_COMPLETE":7,
 };
+
 
 // websocket
 let ptrCameraDrawBuffer;
@@ -23,6 +26,7 @@ let sabCameraDrawBuffer;
 let sabStateBuffer;
 let isNotified = false;
 
+let sabMotorMessageBuffer;
 
 let statesDrawBuffer = new SharedArrayBuffer(StateLength * Int32Array.BYTES_PER_ELEMENT);
 let statesDraw = new Int32Array(statesDrawBuffer);
@@ -223,24 +227,27 @@ self.onmessage = async function( eventFromMain ) {
         // vision
         ptrVisPrefVals = Module._malloc(VisPrefsLength * totalCamera * Module.HEAPF64.BYTES_PER_ELEMENT);
         const startVisPrefVals = ptrVisPrefVals/Module.HEAPF64.BYTES_PER_ELEMENT;
-        sabVisPrefVals = Module.HEAP16.subarray( startVisPrefVals, (startVisPrefVals + VisPrefsLength * totalCamera ));
+        sabVisPrefVals = Module.HEAPF64.subarray( startVisPrefVals, (startVisPrefVals + VisPrefsLength * totalCamera ));
 
         ptrMotorCommands = Module._malloc(MotorCommandsLength * Module.HEAPF64.BYTES_PER_ELEMENT);
         const startMotorCommands = ptrMotorCommands/Module.HEAPF64.BYTES_PER_ELEMENT;
         sabMotorCommands = Module.HEAPF64.subarray( startMotorCommands, (startMotorCommands + MotorCommandsLength ));
 
-        ptrNeuronContacts = Module._malloc(matrixSize * Module.HEAP16.BYTES_PER_ELEMENT);
-        const startNeuronContacts = ptrNeuronContacts/Module.HEAP16.BYTES_PER_ELEMENT;
-        sabNeuronContacts = Module.HEAP16.subarray( startNeuronContacts, (startNeuronContacts + matrixSize ));
+        ptrNeuronContacts = Module._malloc(matrixSize * Module.HEAPF64.BYTES_PER_ELEMENT);
+        const startNeuronContacts = ptrNeuronContacts/Module.HEAPF64.BYTES_PER_ELEMENT;
+        sabNeuronContacts = Module.HEAPF64.subarray( startNeuronContacts, (startNeuronContacts + matrixSize ));
 
         ptrCameraDrawBuffer = Module._malloc( cameraWidth * cameraHeight * COLOR_CHANNELS * CAMERA_BYTES_PER_ELEMENT );
-        const startCameraBuffer = ptrCanvasBuffer/Module.HEAP8.BYTES_PER_ELEMENT;
-        sabCameraDrawBuffer = Module.HEAP8.subarray(startCameraBuffer, cameraWidth * cameraHeight * COLOR_CHANNELS);
+        const startCameraBuffer = ptrCanvasBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
+        sabCameraDrawBuffer = Module.HEAPU8.subarray(startCameraBuffer, startCameraBuffer + cameraWidth * cameraHeight * COLOR_CHANNELS);
 
         ptrStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
         const startStateBuffer = ptrStateBuffer/Module.HEAP32.BYTES_PER_ELEMENT;
         sabStateBuffer = Module.HEAP32.subarray(startStateBuffer, startStateBuffer + StateLength);
         
+        ptrMotorMessage = Module._malloc( MotorMessageLength * CAMERA_BYTES_PER_ELEMENT );
+        const startMotorMessageBuffer = ptrMotorMessage/Module.HEAPU8.BYTES_PER_ELEMENT;
+        sabMotorMessageBuffer = Module.HEAPU8.subarray(startMotorMessageBuffer, startMotorMessageBuffer + MotorMessageLength);
 
         // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
         // ptrMotorCommands | WS, Neuron Simulation
@@ -248,9 +255,6 @@ self.onmessage = async function( eventFromMain ) {
         // ptrVisPrefs | UI, PreProcessCV, 
         // ptrVisPrefVals | UI, PreProcessCV
         // Vis Prefs&Vals create connectomeCV like connectome but for 
-
-
-
 
     
         console.log("b4 pass ptr");        
@@ -261,7 +265,7 @@ self.onmessage = async function( eventFromMain ) {
                 'number', 'number' ,'number','number','number','number', 'number', 'number', 'number',
             ],
             [
-                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps, ptrStateBuffer, ptrVisPrefs, ptrVisPrefVals, ptrMotorCommands, ptrNeuronContacts
+                ptrCanvasBuffer, ptrPos, ptrNeuronCircle, ptrNps, ptrStateBuffer, ptrVisPrefs, ptrVisPrefVals, ptrMotorMessage, ptrNeuronContacts
             ]
         );
         console.log("after pass ptr", ptrMotorCommands);        
@@ -272,9 +276,9 @@ self.onmessage = async function( eventFromMain ) {
             sabNumNeuronCircle: sabNumNeuronCircle,
             sabNumNps: sabNumNps,
             sabVisPrefs: sabVisPrefs,
+            sabVisPrefVals: sabVisPrefVals,
             sabNeuronContacts: sabNeuronContacts,
             sabMotorCommands: sabMotorCommands,
-            // sabVisPrefVals: sabVisPrefVals,
 
             sabNumA : sabNumA,
             sabNumB : sabNumB,
@@ -332,6 +336,7 @@ self.onmessage = async function( eventFromMain ) {
             sabStateBuffer: sabStateBuffer,
             sabCameraDrawBuffer: sabCameraDrawBuffer,
             sabMotorCommands: sabMotorCommands,
+            sabMotorMessageBuffer: sabMotorMessageBuffer,
             sabVisPrefs: sabVisPrefs,
             sabVisPrefVals: sabVisPrefVals,
         });
@@ -350,6 +355,8 @@ self.onmessage = async function( eventFromMain ) {
         console.log("Atomics start waiting 2", statesDraw);
         // console.log(Atomics.wait(statesDraw, 0, 0) === 'ok');
         const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
+
+        Module.changeIdxSelectedProcess(9);
         // while (Atomics.wait(Module.HEAP32, startNps, 0) === 'ok') {
         // // while (Atomics.wait(sabNumNps, 0, 0) === 'ok') {
         //     console.log("Atomics not waiting anymore");
@@ -357,30 +364,30 @@ self.onmessage = async function( eventFromMain ) {
         //     // Atomics.store(Module.HEAP32, startNps, 0);
         // }
     
-        while (true){
-            // console.log("init end con" )
-            if (sabNumConfig[0] != 0){
-                selectedIdx = sabNumConfig[0];
-                sabNumConfig[0] = 0;
-                Module.changeIdxSelectedProcess(selectedIdx);
-            }
-            // selectedIdx=sabNumConfig[0];
-            // let temp2 = Module.getCurrentPosition(0);
-            // sabNumPos.fill(temp2);
-            if (sabNumConfig[1]==1){
-                Module.stopThreadProcess(0)
-                sabNumConfig[1] = 0;
-            }
+        // while (true){
+        //     if (sabNumConfig[0] != 0){
+        //         console.log("init end con SAB NUM CONFIG" );
+        //         selectedIdx = sabNumConfig[0];
+        //         sabNumConfig[0] = 0;
+        //         Module.changeIdxSelectedProcess(selectedIdx);
+        //     }
+        //     // selectedIdx=sabNumConfig[0];
+        //     // let temp2 = Module.getCurrentPosition(0);
+        //     // sabNumPos.fill(temp2);
+        //     if (sabNumConfig[1]==1){
+        //         Module.stopThreadProcess(0)
+        //         sabNumConfig[1] = 0;
+        //     }
 
-            if (sabNumCom[0]==1){
-                console.log("Instruction coming in!");
-                sabNumCom[0] = -1;
-            }
-            if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
-                Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
-                sabNumIsPlaying[0] = 0;
-            }
-        }
+        //     if (sabNumCom[0]==1){
+        //         console.log("Instruction coming in!");
+        //         sabNumCom[0] = -1;
+        //     }
+        //     if (sabNumIsPlaying[0]==-1 || sabNumIsPlaying[0]==1){
+        //         Module.changeIsPlayingProcess(sabNumIsPlaying[0]);
+        //         sabNumIsPlaying[0] = 0;
+        //     }
+        // }
     }
 }  
 
@@ -392,7 +399,7 @@ self.Module.onRuntimeInitialized = async _ => {
     console.log("WASM Runtime Initialized", self.Module);
     postMessage({
         message:'INITIALIZE_WASM',
-        statesDrawBuffer : statesDrawBuffer,
+        // statesDrawBuffer : statesDrawBuffer,
     });
     // console.log("self.Module.myFunction");
     // console.log(self.Module.myFunction);
@@ -405,7 +412,7 @@ self.Module.onRuntimeInitialized = async _ => {
 // what has been done
 function updateMotorCommand(rawPosState, message, rawPosCmdLen, ptrMotorCommandMessage){
     const posNotify = rawPosState >> 2;
-    const posCmdLen = rawPosCmdLen;
+    // const posCmdLen = rawPosCmdLen;
     // const startMotorCommands = ptrMotorCommandMessage/Module.HEAPU8.BYTES_PER_ELEMENT;
     // if (!isNotified){
         // isNotified = true;

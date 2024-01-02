@@ -8,11 +8,15 @@ let neuronSize = 1;
 var sabStateBuffer;
 var sabVisPrefs;
 var sabVisPrefVals;
+var sabNeuronContacts;
 
 var ptrPreprocessStateBuffer;
 var sabPreprocessStateBuffer;
 var ptrPreprocessCameraBuffer;
 var sabPreprocessCameraBuffer;
+
+var ptrPreprocessNeuronContacts;
+var sabPreprocessNeuronContacts;
 
 var ptrPreprocessVisPrefs;
 var sabPreprocessVisPrefs;
@@ -24,12 +28,14 @@ const url = "http://192.168.4.1:81/stream";
 const STATE = {
     "WEB_SOCKET":0,
     "PREPROCESS_IMAGE":1,
-    "PREPROCESS_IMAGE_LENGTH":2,
-    "COMMAND_MOTORS":3,
-    "COMMAND_MOTORS_LENGTH":4,
-    "CAMERA_CONTENT_LENGTH":5,
-    "CAMERA_CONTENT_COMPLETE":6,
+    "PREPROCESS_IMAGE_PROCESSING":2,
+    "PREPROCESS_IMAGE_LENGTH":3,
+    "COMMAND_MOTORS":4,
+    "COMMAND_MOTORS_LENGTH":5,
+    "CAMERA_CONTENT_LENGTH":6,
+    "CAMERA_CONTENT_COMPLETE":7,
 };
+
 
 
 self.importScripts("nativeopencv.js"); 
@@ -47,7 +53,11 @@ self.Module.onRuntimeInitialized = async _ => {
         const startPreprocessCameraBuffer = ptrPreprocessCameraBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
         sabPreprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
     
-    
+        
+        ptrPreprocessNeuronContacts = Module._malloc( matrixSize * Module.HEAPF64.BYTES_PER_ELEMENT);
+        const startPreprocessNeuronContacts = ptrPreprocessNeuronContacts/Module.HEAPF64.BYTES_PER_ELEMENT;
+        sabPreprocessNeuronContacts = Module.HEAPF64.subarray( startPreprocessNeuronContacts, (startPreprocessNeuronContacts + matrixSize ));
+
         ptrPreprocessVisPrefs = Module._malloc( matrixSize * Module.HEAP16.BYTES_PER_ELEMENT);
         const startPreprocessVisPrefs = ptrPreprocessVisPrefs/Module.HEAP16.BYTES_PER_ELEMENT;
         sabPreprocessVisPrefs = Module.HEAP16.subarray( startPreprocessVisPrefs, (startPreprocessVisPrefs + matrixSize ));
@@ -72,10 +82,13 @@ self.onmessage = function(eventFromMain){
             // sabCameraPreprocessBuffer = eventFromMain.data.sabCameraPreprocessBuffer;
             sabVisPrefs = eventFromMain.data.sabVisPrefs;
             sabVisPrefVals = eventFromMain.data.sabVisPrefVals;
+            sabNeuronContacts = eventFromMain.data.sabNeuronContacts;
+            
             neuronSize = eventFromMain.data.neuronSize;
+            // console.log("INITIALIZE ", sabStateBuffer);
     
         break;
-        case "START":
+        case "START_PREPROCESS":
             // wake thread
             console.log("PREPROCESS START");
             // Pass pointer first
@@ -83,14 +96,16 @@ self.onmessage = function(eventFromMain){
                 'passPreprocessPointers',
                 'number',
                 ['number', 'number', 'number', 'number'],
-                [ ptrPreprocessStateBuffer, ptrPreprocessCameraBuffer, ptrPreprocessVisPrefs, ptrPreprocessVisPrefVals]
+                [ ptrPreprocessStateBuffer, ptrPreprocessVisPrefVals, ptrPreprocessVisPrefs, ptrPreprocessNeuronContacts]
             );
 
             while (Atomics.wait(sabStateBuffer, STATE.PREPROCESS_IMAGE, 0) === "ok"){
                 // sabStateBuffer[7] = -10000; // passing pointer should be from the WASM allocation
+                
                 sabPreprocessStateBuffer.set(sabStateBuffer);
                 sabPreprocessVisPrefs.set(sabVisPrefs);
                 sabPreprocessVisPrefVals.set(sabVisPrefVals);
+                // console.log("RUNNING PREPROCESS STATE : ", sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH]);
 
                 // only call wasm function - pass pointer esp vis_pref_vals
                 Module.ccall(
@@ -103,9 +118,10 @@ self.onmessage = function(eventFromMain){
                 sabStateBuffer.set(sabPreprocessStateBuffer);
                 sabVisPrefs.set(sabPreprocessVisPrefs);
                 sabVisPrefVals.set(sabPreprocessVisPrefVals);
-
+                console.log("RUNNING PREPROCESS 22: ", sabVisPrefVals);
+                sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 0;
                 Atomics.store(sabStateBuffer, STATE.PREPROCESS_IMAGE, 0);
-                // console.log("sabStateBuffer : ", sabStateBuffer[7]);
+                // console.log("sabStateBuffer : ", sabStateBuffer[7]); // show 12323333
             }
         break;
 
