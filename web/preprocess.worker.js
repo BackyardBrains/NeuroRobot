@@ -14,6 +14,7 @@ var ptrPreprocessStateBuffer;
 var sabPreprocessStateBuffer;
 var ptrPreprocessCameraBuffer;
 var sabPreprocessCameraBuffer;
+var preprocessCameraBuffer;
 
 var ptrPreprocessNeuronContacts;
 var sabPreprocessNeuronContacts;
@@ -40,7 +41,7 @@ const STATE = {
 
 self.importScripts("nativeopencv.js"); 
 self.Module.onRuntimeInitialized = async _ => {
-    console.log("WASM Runtime Initialized", self.Module);
+    console.log("WASM Preprocess Runtime Initialized", self.Module);
     // setTimeout(()=>{
         const matrixSize = neuronSize * neuronSize;
     
@@ -51,7 +52,8 @@ self.Module.onRuntimeInitialized = async _ => {
         const bufferLen = cameraWidth * cameraHeight * COLOR_CHANNELS;
         ptrPreprocessCameraBuffer = Module._malloc( bufferLen * Module.HEAPU8.BYTES_PER_ELEMENT );
         const startPreprocessCameraBuffer = ptrPreprocessCameraBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
-        sabPreprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
+        preprocessCameraBuffer = Module.HEAPU8.subarray(startPreprocessCameraBuffer, startPreprocessCameraBuffer + bufferLen);
+        sabPreprocessCameraBuffer = new Uint8Array( new SharedArrayBuffer(bufferLen * Module.HEAPU8.BYTES_PER_ELEMENT) );
     
         
         ptrPreprocessNeuronContacts = Module._malloc( matrixSize * Module.HEAPF64.BYTES_PER_ELEMENT);
@@ -90,7 +92,7 @@ self.onmessage = function(eventFromMain){
         break;
         case "START_PREPROCESS":
             // wake thread
-            console.log("PREPROCESS START");
+            console.log("PREPROCESS START", JSON.stringify(sabVisPrefVals) );
             // Pass pointer first
             Module.ccall(
                 'passPreprocessPointers',
@@ -105,6 +107,7 @@ self.onmessage = function(eventFromMain){
                 sabPreprocessStateBuffer.set(sabStateBuffer);
                 sabPreprocessVisPrefs.set(sabVisPrefs);
                 sabPreprocessVisPrefVals.set(sabVisPrefVals);
+                preprocessCameraBuffer.set(sabPreprocessCameraBuffer);
                 // console.log("RUNNING PREPROCESS STATE : ", sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH]);
 
                 // only call wasm function - pass pointer esp vis_pref_vals
@@ -115,10 +118,11 @@ self.onmessage = function(eventFromMain){
                     [ ptrPreprocessCameraBuffer, sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH], ptrPreprocessCameraBuffer]
                 );
                 // output : change vis_pref_vals pointer so it can be processed by neuronSimulator.
+                // console.log("RUNNING PREPROCESS 23: ", sabPreprocessCameraBuffer, ptrPreprocessCameraBuffer);
+                // console.log("RUNNING PREPROCESS 22: ", JSON.stringify(sabVisPrefVals));
                 sabStateBuffer.set(sabPreprocessStateBuffer);
                 sabVisPrefs.set(sabPreprocessVisPrefs);
                 sabVisPrefVals.set(sabPreprocessVisPrefVals);
-                console.log("RUNNING PREPROCESS 22: ", sabVisPrefVals);
                 sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 0;
                 Atomics.store(sabStateBuffer, STATE.PREPROCESS_IMAGE, 0);
                 // console.log("sabStateBuffer : ", sabStateBuffer[7]); // show 12323333

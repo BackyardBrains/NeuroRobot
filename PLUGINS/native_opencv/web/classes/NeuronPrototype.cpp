@@ -236,16 +236,17 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts){
     canvasBuffer = _canvasBuffer;
     positions = _positions;
     neuronCircles = _neuronCircle;        
-    nps = _nps;    
+    nps = _nps;
 
     state_buf = p_state_buf;
     visPrefs = p_vis_prefs;
     vis_pref_vals = p_vis_pref_vals;
     motor_command_message = p_motor_command_message;
+    neuron_contacts = p_neuron_contacts;
     return 1.0;
 }
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
@@ -393,12 +394,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
                         // if (visPrefs[jj][ii] > -1){ // selected Color detection
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, threadInitialTotalNumOfNeurons);
+
                         if (k > -1){ // selected Color detection
                             // short k = ( visPrefs[jj][ii] );
                             // double val1 = vis_pref_vals[k][0];
                             // double val2 = vis_pref_vals[k][1];
-                            double val1 = getSimulationMatrixValue(vis_pref_vals, k, 0, threadInitialTotalNumOfNeurons);
-                            double val2 = getSimulationMatrixValue(vis_pref_vals, k, 1, threadInitialTotalNumOfNeurons);
+                            double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, threadInitialTotalNumOfNeurons);
+                            double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, threadInitialTotalNumOfNeurons);
                             sumVisPrefVals += val1;
                             sumVisPrefVals += val2;                        
                         }

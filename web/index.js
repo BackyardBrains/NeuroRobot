@@ -263,11 +263,12 @@ function setIsPlaying(flag){
 
 
 function runSimulation(allocatedBuffer){
-    console.log("RUN SIMULATION", allocatedBuffer);
+    console.log("RUN SIMULATION");
     sabStateBuffer = allocatedBuffer.sabStateBuffer;
     sabCameraDrawBuffer = allocatedBuffer.sabCameraDrawBuffer;
     sabVisPrefs = allocatedBuffer.sabVisPrefs;
     sabVisPrefVals = allocatedBuffer.sabVisPrefVals;
+    console.log(sabVisPrefs);
     
     // ptrStateBuffer | WS, PreProcess CV, Neuron Simulation, UI
     // ptrMotorCommands | WS, Neuron Simulation
@@ -420,13 +421,16 @@ function repaint(timestamp){
                     ctxLeft.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
                     ctxRight.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
                     
-                    if (sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] == 0){
+                    if (sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] == 0 && sabPreprocessCameraBuffer !== undefined){
                         sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 1;
                         imgData = ctxLeft.getImageData(0, 0, frameWidth, frameHeight);
-                        if (sabPreprocessCameraBuffer !== undefined){
-                            sabPreprocessCameraBuffer.set(imgData.data);
-                            // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
-                        }
+
+                        // sabPreprocessCameraBuffer.set(Array.from( imgData.data) );
+                        sabPreprocessCameraBuffer.set( imgData.data );
+                        // console.log("imgData", sabPreprocessCameraBuffer);
+                        // console.log("sabPreprocessCameraBuffer", sabPreprocessCameraBuffer);
+                        // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
+
                         sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH] = imgData.data.length;
                         // sabCameraDrawBuffer.set(imgData);
                         Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);                        
