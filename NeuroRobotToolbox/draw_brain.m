@@ -1,7 +1,7 @@
 
-thick_axon = 2;
-thick_synapse = 2;
-thick_neuron = 2;
+thick_axon = 1;
+thick_synapse = 1;
+thick_neuron = 1;
 
 if nneurons > 100
     small_neurons = 1;
