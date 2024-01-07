@@ -1,7 +1,7 @@
 
-thick_axon = 1;
-thick_synapse = 1;
-thick_neuron = 1;
+thick_axon = 2;
+thick_synapse = 2;
+thick_neuron = 2;
 
 if nneurons > 100
     small_neurons = 1;
@@ -135,27 +135,27 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     fs = 18;
                 end
                 
-                plot_contact_synapses(nneuron, ncontact, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 100) * thick_axon, 'color', [0.5 0.5 0.5]);
+                plot_contact_synapses(nneuron, ncontact, 1) = plot([x1 x2], [y1 y2], 'linewidth', (abs(w) / 100) * thick_axon * 3, 'color', [0.5 0.5 0.5]);
                 plot_contact_synapses(nneuron, ncontact, 2) = plot(x2, y2, 'marker', 'square', 'markersize', s * thick_synapse, 'linewidth', lw, 'markerfacecolor', 'w', 'markeredgecolor', 'k');
 
                 % Indicate synapse filter (add rich neuron symbols here)
                 if sum(ncontact == [1 2]) && sum(vis_prefs(nneuron, :, ncontact))  
                     this_vis_pref = find(vis_prefs(nneuron, :, ncontact));
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, char(vis_pref_names(this_vis_pref)), 'fontsize', (bfsize + 2) * thick_neuron, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
+                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, char(vis_pref_names(this_vis_pref)), 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
                 end
                 
                 if ncontact == 3 && audio_prefs(nneuron)
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
-                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', bfsize + 2, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                    plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                 end
                 
                 if ncontact == 4 && neuron_tones(nneuron)
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     if neuron_tones(nneuron) > length(audio_out_names)
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', bfsize + 2, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(neuron_tones(nneuron)), ' Hz'), 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     elseif iscell(audio_out_names)
-                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', bfsize + 2, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
+                        plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, audio_out_names{neuron_tones(nneuron)}, 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                     else
                         disp('Unable to draw synapse label. Is the brain combining pure tones with custom audio output?')
                     end

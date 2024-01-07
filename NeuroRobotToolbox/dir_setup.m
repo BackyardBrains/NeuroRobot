@@ -42,26 +42,26 @@ if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     save_brain
 end
 
-brain_name = 'L2C3';
+brain_name = 'L2C1';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L3C1';
-if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
-
-brain_name = 'L3C3';
-if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
-    load(horzcat(brain_name, '.mat'))
-    load_brain
-    save_brain
-end
+% brain_name = 'L3C1';
+% if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+%     load(horzcat(brain_name, '.mat'))
+%     load_brain
+%     save_brain
+% end
+% 
+% brain_name = 'L3C3';
+% if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
+%     load(horzcat(brain_name, '.mat'))
+%     load_brain
+%     save_brain
+% end
 
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
