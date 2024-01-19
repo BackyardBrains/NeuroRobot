@@ -238,7 +238,7 @@ self.onmessage = async function( eventFromMain ) {
         sabNeuronContacts = Module.HEAPF64.subarray( startNeuronContacts, (startNeuronContacts + matrixSize ));
 
         ptrCameraDrawBuffer = Module._malloc( cameraWidth * cameraHeight * COLOR_CHANNELS * CAMERA_BYTES_PER_ELEMENT );
-        const startCameraBuffer = ptrCanvasBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
+        const startCameraBuffer = ptrCameraDrawBuffer/Module.HEAPU8.BYTES_PER_ELEMENT;
         sabCameraDrawBuffer = Module.HEAPU8.subarray(startCameraBuffer, startCameraBuffer + cameraWidth * cameraHeight * COLOR_CHANNELS);
 
         ptrStateBuffer = Module._malloc( StateLength * Module.HEAP32.BYTES_PER_ELEMENT );
@@ -354,9 +354,9 @@ self.onmessage = async function( eventFromMain ) {
         let prevCircleFlag = false;
         console.log("Atomics start waiting 2", statesDraw);
         // console.log(Atomics.wait(statesDraw, 0, 0) === 'ok');
-        const startNps = ptrNps/Module.HEAP32.BYTES_PER_ELEMENT;
+        const startNps = ptrNps / Module.HEAP32.BYTES_PER_ELEMENT;
 
-        Module.changeIdxSelectedProcess(9);
+        Module.changeIdxSelectedProcess(sabNumConfig[0]);
         // while (Atomics.wait(Module.HEAP32, startNps, 0) === 'ok') {
         // // while (Atomics.wait(sabNumNps, 0, 0) === 'ok') {
         //     console.log("Atomics not waiting anymore");
@@ -388,7 +388,11 @@ self.onmessage = async function( eventFromMain ) {
         //         sabNumIsPlaying[0] = 0;
         //     }
         // }
+    }else
+    if (eventFromMain.data.message === 'CHANGE_SELECTED_IDX') {
+    Module.changeIdxSelectedProcess(eventFromMain.data.selectedIdx);
     }
+
 }  
 
 

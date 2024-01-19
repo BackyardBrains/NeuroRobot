@@ -63,6 +63,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
+  GlobalKey waveChartKey= GlobalKey();
+  GlobalKey canvasKey= GlobalKey();
   List<String> neuronTypes = [];
   static int neuronSize = 10;
   static const int motorCommandsLength = 6 * 2;
@@ -218,6 +220,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late Isolate webSocket;
   
   bool isSimulationCallbackAttached = false;
+  
+  late InfiniteCanvas infiniteCanvasWidget;
+  
+  
 
   void runNativeC() {
     const level = 1;
@@ -750,7 +756,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       timeout: const Duration(seconds: 60),
     );
 
-    Timer.periodic(const Duration(milliseconds: 70), (timer) {
+    Timer.periodic(const Duration(milliseconds: 10), (timer) {
       if (isSelected) {
         // print("redraw");
         // print(Nativec.canvasBufferBytes1);
@@ -793,6 +799,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // WaveWidget.positionsBufView = positionsBufView;
       }
       waveWidget = WaveWidget(
+          key: waveChartKey,
           valueNotifier: waveRedraw,
           chartGain: chartGain,
           levelMedian: levelMedian,
@@ -955,31 +962,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               child: !isInitialized
                   ? const SizedBox()
                   : prepareWidget(
-                      InfiniteCanvas(
-                        backgroundBuilder: (ctx, r) {
-                          // print("MediaQuery.of(context).screenWidth");
-                          // print(screenWidth);
-                          // print(screenHeight);
-                          // print(r);
-
-                          return Container(
-                            color: Colors.white,
-                            width: screenWidth,
-                            height: screenHeight,
-                            child: Image.asset(
-                                width: screenWidth,
-                                height: screenHeight,
-                                // scale: screenWidth/800,
-                                fit: BoxFit.contain,
-                                // scale: density,
-                                "assets/bg/bg1.0x.jpeg"),
-                          );
-                        },
-                        drawVisibleOnly: true,
-                        canAddEdges: true,
-                        menuVisible: false,
-                        controller: controller,
-                      ),
+                      infiniteCanvasWidget,
                     ),
             ),
           ),
@@ -1432,10 +1415,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               print(neuronIdx);
               isSelected = true;
               if (kIsWeb){
-                // js.context.callMethod("changeSelectedIdx",[neuronIdx]);
+                js.context.callMethod("changeSelectedIdx",[neuronIdx]);
               }
               // nativec.changeIdxSelected(neuronIdx);
               if (neuronIdx < normalNeuronStartIdx) {
+                return;
+              }
+
+              if (isPlayingMenu){
                 return;
               }
 
@@ -2255,6 +2242,36 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // setState((){});
       }
     });
+  
+  
+    infiniteCanvasWidget = InfiniteCanvas(
+      key: canvasKey,
+      backgroundBuilder: (ctx, r) {
+        // print("MediaQuery.of(context).screenWidth");
+        // print(screenWidth);
+        // print(screenHeight);
+        // print(r);
+
+        return Container(
+          color: Colors.white,
+          width: screenWidth,
+          height: screenHeight,
+          child: Image.asset(
+              width: screenWidth,
+              height: screenHeight,
+              // scale: screenWidth/800,
+              fit: BoxFit.contain,
+              // scale: density,
+              "assets/bg/bg1.0x.jpeg"),
+        );
+      },
+      drawVisibleOnly: true,
+      canAddEdges: true,
+      menuVisible: false,
+      controller: controller,
+    );
+
+  
   }
 
   InfiniteCanvasNode findNeuronByValue(val) {

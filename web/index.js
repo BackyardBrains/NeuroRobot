@@ -61,7 +61,7 @@ const windowSize = 200*30;
 // let sabNeuronCircle;
 let sabIsPlaying;
 let sabCom;
-let sabConfig;
+let sabConfig = new SharedArrayBuffer( 10 * Uint32Array.BYTES_PER_ELEMENT );
 
 let sabNumA;
 let sabNumB;
@@ -73,7 +73,7 @@ let sabNumPos;
 let sabNumConnectome;
 let sabNumNeuronCircle;
 
-let sabNumConfig;
+let sabNumConfig = new Uint32Array(sabConfig);
 let sabNumCom;
 let sabNumIsPlaying;
 let simulationWorkerChannel;
@@ -126,12 +126,12 @@ function initializeModels(jsonRawData){
     // sabNumConnectome = new Float64Array(sabConnectome);
     // sabNumNeuronCircle = new Int16Array(sabNeuronCircle);
 
-    sabConfig = new SharedArrayBuffer( 10 * Uint32Array.BYTES_PER_ELEMENT );
+    // sabConfig = new SharedArrayBuffer( 10 * Uint32Array.BYTES_PER_ELEMENT );
     sabCom = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
     sabIsPlaying = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
 
     sabNumCom = new Int16Array(sabCom);
-    sabNumConfig = new Uint32Array(sabConfig);
+    // sabNumConfig = new Uint32Array(sabConfig);
     sabNumIsPlaying = new Int16Array(sabIsPlaying);
     
     simulationWorkerChannel = new MessageChannel();
@@ -389,7 +389,16 @@ function stopThreadProcess(isStop){
 }
 function changeSelectedIdx(selectedIdx){
     if (selectedIdx!=-1){
-        sabNumConfig[0]=selectedIdx;
+        sabNumConfig[0] = selectedIdx;
+        try{
+            izhikevichWorker.postMessage({
+                message: 'CHANGE_SELECTED_IDX',
+                selectedIdx: selectedIdx,
+            });    
+        }catch(err){
+            console.log("err");
+            console.log(err);
+        }
     }
 }
 

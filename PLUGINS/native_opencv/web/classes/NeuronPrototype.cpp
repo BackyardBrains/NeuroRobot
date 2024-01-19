@@ -733,10 +733,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 state_buf[4]= message.length();
                 char *cstr = new char[message.length() + 1];
                 strcpy(cstr, message.c_str());                
-                EM_ASM({
-                    updateMotorCommand($0, UTF8ToString($1), $2, $3);
-                // }, state_buf, motor_command_message, state_buf[4]);
-                }, state_buf, cstr, state_buf[4], motor_command_message);
+                #ifdef __EMSCRIPTEN__
+                    EM_ASM({
+                        updateMotorCommand($0, UTF8ToString($1), $2, $3);
+                    // }, state_buf, motor_command_message, state_buf[4]);
+                    }, state_buf, cstr, state_buf[4], motor_command_message);
+                #endif                        
+
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
                 //     platform_log("Motor Commands :\n");
                 //     platform_log(message.c_str());

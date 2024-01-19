@@ -11,8 +11,8 @@ let frames = 0;
 // let imgData;
 // const imgBuf = new Image();
 
-const url = "http://192.168.4.1:81/stream";
-// const url = "http://192.168.1.5:8081";
+// const url = "http://192.168.4.1:81/stream";
+const url = "http://192.168.1.5:8081";
 
 const STATE = {
     "WEB_SOCKET":0,
