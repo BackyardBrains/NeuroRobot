@@ -37,9 +37,9 @@ dependencies:
   fialogs: 2.1.0
   
   # WEB CHANGE
-  # ffi: 2.1.0  
-  # native_opencv:
-  #   path: ./PLUGINS/native_opencv
+  ffi: 2.1.0  
+  native_opencv:
+    path: ./PLUGINS/native_opencv
 
 
 

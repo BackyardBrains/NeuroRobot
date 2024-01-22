@@ -266,21 +266,30 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         
         // set pixels one by one
         int imgCounter = 0;
-        Mat srcImageRgb = Mat(240, 320, CV_8UC4, Scalar(0,0,0,255));
-        for (int i=0; i<240;i++){
-            for (int j=0; j<320; j++){
-                Vec4b pixVal = srcImageRgb.at<Vec4b>(i, j);
-                pixVal[2] = img[imgCounter++];
-                pixVal[1] = img[imgCounter++];
-                pixVal[0] = img[imgCounter++];
-                // pixVal[0] = img[imgCounter];
-                pixVal[3] = img[imgCounter++];
-                srcImageRgb.at<Vec4b>(i, j)=pixVal;
-
-            }
-        }
+        Mat srcImageRgb;
         Mat imageRgb;
-        cvtColor(srcImageRgb, imageRgb, COLOR_BGRA2BGR);
+ 
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb = Mat(240, 320, CV_8UC4, Scalar(0,0,0,255));
+            for (int i=0; i<240;i++){
+                for (int j=0; j<320; j++){
+                    Vec4b pixVal = srcImageRgb.at<Vec4b>(i, j);
+                    pixVal[2] = img[imgCounter++];
+                    pixVal[1] = img[imgCounter++];
+                    pixVal[0] = img[imgCounter++];
+                    // pixVal[0] = img[imgCounter];
+                    pixVal[3] = img[imgCounter++];
+                    srcImageRgb.at<Vec4b>(i, j)=pixVal;
+
+                }
+            }
+            cvtColor(srcImageRgb, imageRgb, COLOR_BGRA2BGR);            
+        #else
+            vector<uint8_t> buffer(img, img + imgLength);
+            imageRgb = imdecode(buffer, IMREAD_COLOR);;
+
+        #endif
+        
         // cvtColor(imageRgb, imageRgb, COLOR_RGBA2BGR);
         
         // Mat imageRgb = Mat(320, 240, CV_8UC4, img);
@@ -441,7 +450,9 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         leftFrame.release();
         rightFrame.release();
         bwframe.release();
-        srcImageRgb.release();
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb.release();
+        #endif
         // rawImageRgb.release();
         // matImageRgb.release();
         imageRgb.release();

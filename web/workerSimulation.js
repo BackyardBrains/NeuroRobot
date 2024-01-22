@@ -128,6 +128,11 @@ var tempOnMessage = self.onmessage;
 self.onmessage = async function( eventFromMain ) {
     console.log("eventFromMain.data.message");
     console.log(eventFromMain.data.message);
+    if (eventFromMain.data.message === 'STOP_THREAD_PROCESS') {
+        console.log("Module.stopThreadProcess ");
+        Module.stopThreadProcess(0);
+        sabNumConfig[1] = 0;
+    } else
     if (eventFromMain.data.message === 'INITIALIZE_WORKER') {
         console.log("Initialize Worker branch")
         neuronSize = eventFromMain.data.neuronSize;

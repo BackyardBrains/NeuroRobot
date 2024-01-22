@@ -3,7 +3,7 @@ const StateLength = 20;
 var websocketWorker;
 var preprocessWorker;
 var websocketcommandWorker;
-
+var isWarmingEngine = false;
 // var ptrStateBuffer;
 // var ptrCameraDrawBuffer;
 // var ptrVisPrefs;
@@ -80,9 +80,11 @@ let simulationWorkerChannel;
 let initializeChannel;
 
 let sabNumNps;
+let tempJsonRawData;
 // let sabCanvas=[];
 // let canvasBuffers=[];
 function initializeModels(jsonRawData){
+    tempJsonRawData = jsonRawData;
     try{
         izhikevichWorker.terminate();
     }catch(ex){
@@ -101,6 +103,7 @@ function initializeModels(jsonRawData){
     }catch(ex){
     }
 
+    console.log(jsonRawData);
     let jsonData = JSON.parse(jsonRawData);
     neuronSize = jsonData[9];
     // neuronSize = 200;
@@ -340,6 +343,8 @@ function runSimulation(allocatedBuffer){
         // "offscreenCanvas": offscreenCanvas,
     // },[offscreenCanvas]);
     });
+
+    
     websocketWorker.onmessage = function( evt ){
         switch( evt.data.message ){
             case "INITIALIZED":
@@ -353,9 +358,26 @@ function runSimulation(allocatedBuffer){
         }
     }
 
-    izhikevichWorker.postMessage({
-        message:'CONNECT_SIMULATION',
-    });
+    if (!isWarmingEngine){
+        isWarmingEngine = true;
+        stopThreadProcess();
+        setTimeout(()=>{
+            try{
+                izhikevichWorker.terminate();
+                preprocessWorker.terminate();
+                websocketWorker.terminate();
+                websocketcommandWorker.terminate();
+            }catch(err){
+
+            }
+    
+        }, 2000);
+    }else{
+        izhikevichWorker.postMessage({
+            message:'CONNECT_SIMULATION',
+        });
+    }
+
 
     // send pointer into UI Thread
     // passUIPointers(ptrVisPrefs, ptrVisPrefVals);
@@ -386,7 +408,11 @@ function setIzhikevichParameters(jsonRawData){
 
 function stopThreadProcess(isStop){
     sabNumConfig[1]=1;
+    izhikevichWorker.postMessage({
+        message: 'STOP_THREAD_PROCESS',
+    });
 }
+
 function changeSelectedIdx(selectedIdx){
     if (selectedIdx!=-1){
         sabNumConfig[0] = selectedIdx;
@@ -394,7 +420,7 @@ function changeSelectedIdx(selectedIdx){
             izhikevichWorker.postMessage({
                 message: 'CHANGE_SELECTED_IDX',
                 selectedIdx: selectedIdx,
-            });    
+            });
         }catch(err){
             console.log("err");
             console.log(err);
@@ -477,3 +503,20 @@ window.requestAnimationFrame(repaint);
 //     // canvasBuffer = [buf];
 //     // console.log(ab, typeof ab);
 // }
+
+
+setTimeout(()=>{
+    initializeModels(`[
+        [0.02], [0.18], [-65], [2], [5.0], [2.0],  
+        [0.0], [0.0],  
+        1, 1, 200, 2000,
+        1, [-1], [0], [0]
+    ]`);    
+}, 2000);
+
+//jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,
+//positionsBufView, connectomeBufView,
+//level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView]) ]
+//jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,
+//positionsBufView, connectomeBufView,
+//level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView])

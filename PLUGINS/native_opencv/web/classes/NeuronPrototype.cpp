@@ -738,6 +738,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         updateMotorCommand($0, UTF8ToString($1), $2, $3);
                     // }, state_buf, motor_command_message, state_buf[4]);
                     }, state_buf, cstr, state_buf[4], motor_command_message);
+                #else
+                    onCallback(message.c_str());
+
                 #endif                        
 
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){

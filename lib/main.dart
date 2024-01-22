@@ -18,8 +18,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 
-const this_is_small_change = true;
-
 const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {

@@ -1,7 +1,8 @@
+import 'dart:convert';
+import 'dart:js' as js;
+
 import 'dart:async';
-// import 'dart:convert';
-import 'dart:ffi' as ffi;
-import 'dart:io';
+// import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
@@ -10,15 +11,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
-import 'package:gesture_x_detector/gesture_x_detector.dart';
+// import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:metooltip/metooltip.dart';
-import 'package:native_opencv/native_opencv.dart';
-import 'package:native_opencv/nativec.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
-import 'package:neurorobot/utils/Allocator.dart';
+// import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
 import 'package:neurorobot/utils/Simulations.dart';
 import 'package:neurorobot/utils/SingleCircle.dart';
@@ -32,7 +31,6 @@ import '../dialogs/info_dialog.dart';
 // import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../main.dart';
 import '../utils/SingleSquare.dart';
 import '../utils/WebSocket.dart';
 // import 'package:opencv_ffi/src/generated/opencv_ffi_bindings.dart' as ocv;
@@ -65,13 +63,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
+  GlobalKey waveChartKey= GlobalKey();
+  GlobalKey canvasKey= GlobalKey();
   List<String> neuronTypes = [];
   static int neuronSize = 10;
   static const int motorCommandsLength = 6 * 2;
   static const int maxPosBuffer = 220;
   int epochs = 30;
 
-  late Nativec nativec;
+  // late Nativec nativec;
   // static ffi.Pointer<ffi.Uint32> npsBuf =
   //     allocate<ffi.Uint32>(count: 2, sizeOfType: ffi.sizeOf<ffi.Uint32>());
 
@@ -103,28 +103,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   //     count: maxPosBuffer * maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
 
   static int frameQVGASize = 320 * 240;
-  late ffi.Pointer<ffi.Uint8> ptrFrame;
-  static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
-      count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  // late ffi.Pointer<ffi.Uint8> ptrFrame;
+  // static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
+  //     count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  static ffi.Pointer<ffi.Uint8> ptrLowerB =
-      allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-  static ffi.Pointer<ffi.Uint8> ptrUpperB =
-      allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  // static ffi.Pointer<ffi.Uint8> ptrLowerB =
+  //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  // static ffi.Pointer<ffi.Uint8> ptrUpperB =
+  //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  late ffi.Pointer<ffi.Uint32> npsBuf;
-  late ffi.Pointer<ffi.Int16> neuronCircleBuf;
-  late ffi.Pointer<ffi.Int16> positionsBuf;
-  late ffi.Pointer<ffi.Double> aBuf;
-  late ffi.Pointer<ffi.Double> bBuf;
-  late ffi.Pointer<ffi.Int16> cBuf;
-  late ffi.Pointer<ffi.Int16> dBuf;
-  late ffi.Pointer<ffi.Double> iBuf;
-  late ffi.Pointer<ffi.Double> wBuf;
-  late ffi.Pointer<ffi.Int16> visPrefsBuf;
-  late ffi.Pointer<ffi.Double> connectomeBuf;
-  late ffi.Pointer<ffi.Double> motorCommandBuf;
-  late ffi.Pointer<ffi.Double> neuronContactsBuf;
+  // late ffi.Pointer<ffi.Uint32> npsBuf;
+  // late ffi.Pointer<ffi.Int16> neuronCircleBuf;
+  // late ffi.Pointer<ffi.Int16> positionsBuf;
+  // late ffi.Pointer<ffi.Double> aBuf;
+  // late ffi.Pointer<ffi.Double> bBuf;
+  // late ffi.Pointer<ffi.Int16> cBuf;
+  // late ffi.Pointer<ffi.Int16> dBuf;
+  // late ffi.Pointer<ffi.Double> iBuf;
+  // late ffi.Pointer<ffi.Double> wBuf;
+  // late ffi.Pointer<ffi.Int16> visPrefsBuf;
+  // late ffi.Pointer<ffi.Double> connectomeBuf;
+  // late ffi.Pointer<ffi.Double> motorCommandBuf;
+  // late ffi.Pointer<ffi.Double> neuronContactsBuf;
 
   // NATIVE
 
@@ -164,7 +164,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   int isPlaying = 1;
   double levelMedian = 30;
-  double chartGain = 2;
+  double chartGain = 0.67;
 
   bool isInitialized = false;
 
@@ -176,6 +176,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late WaveWidget waveWidget;
 
   late Mjpeg mjpegComponent;
+  late Image imageJpegComponent;
+  Uint8List cameraBuffer = Uint8List(0);
 
   bool isEmergencyPause = false;
   bool isDrawTail = false;
@@ -210,20 +212,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   Uint8List dataMaskedImage = Uint8List(0);
 
   int bufPositionCount = 1;
-
-  late ImagePreprocessor processor;
-
+  
+  // late ImagePreprocessor processor;
+  
   String httpdStream = "http://192.168.4.1:81/stream";
-
+  
   late Isolate webSocket;
-
+  
   bool isSimulationCallbackAttached = false;
+  
+  late InfiniteCanvas infiniteCanvasWidget;
+  
+  
 
   void runNativeC() {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    nativec.initialize();
+    if (kIsWeb){
+      js.context.callMethod("initializeModels",
+        [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView]) ]
+      );        
+    }
+    // Web Change
+    /*
+    if (!kIsWeb) nativec.initialize();
     print("motorCommandBufView.length");
     print(motorCommandBufView.length);
     // print(visPrefsBufView);
@@ -243,40 +256,41 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         visPrefsBuf,
         motorCommandBuf,
         neuronContactsBuf);
+        */
   }
 
   void initMemoryAllocation() {
-    npsBuf =
-        allocate<ffi.Uint32>(count: 2, sizeOfType: ffi.sizeOf<ffi.Uint32>());
-    neuronCircleBuf = allocate<ffi.Int16>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    positionsBuf = allocate<ffi.Int16>(
-        count: bufPositionCount, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    aBuf = allocate<ffi.Double>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-    bBuf = allocate<ffi.Double>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-    cBuf = allocate<ffi.Int16>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    dBuf = allocate<ffi.Int16>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
-    iBuf = allocate<ffi.Double>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
-    wBuf = allocate<ffi.Double>(
-        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+    // npsBuf =
+    //     allocate<ffi.Uint32>(count: 2, sizeOfType: ffi.sizeOf<ffi.Uint32>());
+    // neuronCircleBuf = allocate<ffi.Int16>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    // positionsBuf = allocate<ffi.Int16>(
+    //     count: bufPositionCount, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    // aBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+    // bBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+    // cBuf = allocate<ffi.Int16>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    // dBuf = allocate<ffi.Int16>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    // iBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+    // wBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
 
-    visPrefsBuf = allocate<ffi.Int16>(
-        count: maxPosBuffer * maxPosBuffer,
-        sizeOfType: ffi.sizeOf<ffi.Int16>());
-    connectomeBuf = allocate<ffi.Double>(
-        count: maxPosBuffer * maxPosBuffer,
-        sizeOfType: ffi.sizeOf<ffi.Double>());
-    neuronContactsBuf = allocate<ffi.Double>(
-        count: maxPosBuffer * maxPosBuffer,
-        sizeOfType: ffi.sizeOf<ffi.Double>());
+    // visPrefsBuf = allocate<ffi.Int16>(
+    //     count: maxPosBuffer * maxPosBuffer,
+    //     sizeOfType: ffi.sizeOf<ffi.Int16>());
+    // connectomeBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer * maxPosBuffer,
+    //     sizeOfType: ffi.sizeOf<ffi.Double>());
+    // neuronContactsBuf = allocate<ffi.Double>(
+    //     count: maxPosBuffer * maxPosBuffer,
+    //     sizeOfType: ffi.sizeOf<ffi.Double>());
 
-    motorCommandBuf = allocate<ffi.Double>(
-        count: motorCommandsLength, sizeOfType: ffi.sizeOf<ffi.Double>());
+    // motorCommandBuf = allocate<ffi.Double>(
+    //     count: motorCommandsLength, sizeOfType: ffi.sizeOf<ffi.Double>());
   }
 
   void initNativeC() {
@@ -289,37 +303,43 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     // int neuronSizeType = neuronSize;
     if (kIsWeb) {
-      // aBufView  = Float64List(neuronSize);
-      // bBufView  = Float64List(neuronSize);
-      // cBufView  = Int16List(neuronSize);
-      // dBufView  = Int16List(neuronSize);
-      // iBufView  = Float64List(neuronSize);
-      // wBufView  = Float64List(neuronSize);
-      // positionsBufView  = Int16List(neuronSize);
-      // connectomeBufView  = Float64List(neuronSize*neuronSize);
-    } else {
-      nativec = Nativec();
-      nativec.passPointers(
-          Nativec.canvasBuffer1!, positionsBuf, neuronCircleBuf, npsBuf);
-      aBufView = aBuf.asTypedList(neuronSize);
-      bBufView = bBuf.asTypedList(neuronSize);
-      cBufView = cBuf.asTypedList(neuronSize);
-      dBufView = dBuf.asTypedList(neuronSize);
-      iBufView = iBuf.asTypedList(neuronSize);
-      wBufView = wBuf.asTypedList(neuronSize);
-      npsBufView = npsBuf.asTypedList(2);
-      neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
-      positionsBufView = positionsBuf.asTypedList(bufPositionCount);
-      connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
-      visPrefsBufView = visPrefsBuf.asTypedList(neuronSize * neuronSize);
-      motorCommandBufView = motorCommandBuf.asTypedList(motorCommandsLength);
-      neuronContactsBufView =
-          neuronContactsBuf.asTypedList(neuronSize * neuronSize);
+      aBufView  = Float64List(neuronSize);
+      bBufView  = Float64List(neuronSize);
+      cBufView  = Int16List(neuronSize);
+      dBufView  = Int16List(neuronSize);
+      iBufView  = Float64List(neuronSize);
+      wBufView  = Float64List(neuronSize);
+      positionsBufView  = Int16List(neuronSize);
+      connectomeBufView  = Float64List(neuronSize*neuronSize);
 
-      if (!isSimulationCallbackAttached) {
-        isSimulationCallbackAttached = true;
-        nativec.simulationCallback(updateFromSimulation);
-      }
+      visPrefsBufView = Int16List(neuronSize * neuronSize);
+      motorCommandBufView = Float64List(motorCommandsLength);
+      neuronContactsBufView = Float64List(neuronSize * neuronSize);
+
+
+    } else {
+      // nativec = Nativec();
+      // nativec.passPointers(
+      //     Nativec.canvasBuffer1!, positionsBuf, neuronCircleBuf, npsBuf);
+      // aBufView = aBuf.asTypedList(neuronSize);
+      // bBufView = bBuf.asTypedList(neuronSize);
+      // cBufView = cBuf.asTypedList(neuronSize);
+      // dBufView = dBuf.asTypedList(neuronSize);
+      // iBufView = iBuf.asTypedList(neuronSize);
+      // wBufView = wBuf.asTypedList(neuronSize);
+      // npsBufView = npsBuf.asTypedList(2);
+      // neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
+      // positionsBufView = positionsBuf.asTypedList(bufPositionCount);
+      // connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
+      // visPrefsBufView = visPrefsBuf.asTypedList(neuronSize * neuronSize);
+      // motorCommandBufView = motorCommandBuf.asTypedList(motorCommandsLength);
+      // neuronContactsBufView =
+      //     neuronContactsBuf.asTypedList(neuronSize * neuronSize);
+
+      // if (!isSimulationCallbackAttached){
+      //   isSimulationCallbackAttached = true;
+      //   nativec.simulationCallback(updateFromSimulation);
+      // }
     }
     aBufView.fillRange(0, neuronSize, a);
     bBufView.fillRange(0, neuronSize, b);
@@ -391,7 +411,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int menuIdx = 0;
   bool isCreatePoint = false;
 
-  Map mapConnectome = {};
+  Map mapConnectome = {}; 
   Map mapSensoryNeuron = {}; // vis prefs
   Map mapContactsNeuron = {};
 
@@ -536,20 +556,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void freeUsedMemory() {
-    freeMemory(npsBuf);
-    freeMemory(neuronCircleBuf);
-    freeMemory(positionsBuf);
-    freeMemory(aBuf);
-    freeMemory(bBuf);
-    freeMemory(cBuf);
-    freeMemory(dBuf);
-    freeMemory(iBuf);
-    freeMemory(wBuf);
-    freeMemory(connectomeBuf);
-    freeMemory(motorCommandBuf);
-    freeMemory(visPrefsBuf);
-    freeMemory(Nativec.canvasBuffer1);
-    // freeMemory(nativec.canvasBuffer2);
+    if (!kIsWeb){
+      /*
+      freeMemory(npsBuf);
+      freeMemory(neuronCircleBuf);
+      freeMemory(positionsBuf);
+      freeMemory(aBuf);
+      freeMemory(bBuf);
+      freeMemory(cBuf);
+      freeMemory(dBuf);
+      freeMemory(iBuf);
+      freeMemory(wBuf);
+      freeMemory(connectomeBuf);
+      freeMemory(motorCommandBuf);
+      freeMemory(visPrefsBuf);
+      */
+      // Uncomment me
+      // freeMemory(Nativec.canvasBuffer1);
+    }
   }
 
   Future<String> startWebSocket() async {
@@ -601,9 +625,37 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     return "";
   }
 
+  streamImageFrame(cameraFrames){
+    // print(cameraFrames);
+    mainBloc.drawImageNow(cameraFrames);
+  }
+  canvasDraw(params){
+    WaveWidget.canvasBufferBytes1 = Float64List.fromList((params[0]).toList().cast<double>());
+  }
+
+  // setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps, pVisPrefs, pNeuronContacts, pMotorCommands, pConnectome){
+  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps){
+    WaveWidget.canvasBufferBytes1 = buffer;
+    WaveWidget.positionsBufView = positionsBuf;
+    neuronCircleBridge = neuronBridge;
+    npsBufView  = nps;
+
+    // visPrefsBufView = pVisPrefs;
+    // neuronContactsBufView = pNeuronContacts;
+    // connectomeBufView = pConnectome;
+    // motorCommandBufView = pMotorCommands;
+
+  }
+
+  
   @override
   void initState() {
     super.initState();
+    if (kIsWeb){
+      js.context['streamImageFrame'] = streamImageFrame;
+      js.context['setCanvasBuffer'] = setCanvasBuffer;
+
+    }
 
     print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
@@ -613,70 +665,73 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // final ocsvlib = ocv.OpenCVBindings(ffi.DynamicLibrary.open(_getPath()));
       // testColorCV();
 
-      Uint8List lowerB = ptrLowerB.asTypedList(3);
-      Uint8List upperB = ptrUpperB.asTypedList(3);
+      // Uint8List lowerB = ptrLowerB.asTypedList(3);
+      // Uint8List upperB = ptrUpperB.asTypedList(3);
 
-      //RED
-      lowerB[0] = 0;
-      lowerB[1] = 43;
-      lowerB[2] = 46;
-      upperB[0] = 0;
-      upperB[1] = 255;
-      upperB[2] = 255;
+      // //RED
+      // lowerB[0] = 0;
+      // lowerB[1] = 43;
+      // lowerB[2] = 46;
+      // upperB[0] = 0;
+      // upperB[1] = 255;
+      // upperB[2] = 255;
 
-      // GREEN
-      lowerB[0] = 36;
-      lowerB[1] = 25;
-      lowerB[2] = 25;
-      upperB[0] = 86;
-      upperB[1] = 255;
-      upperB[2] = 255;
+      // // GREEN
+      // lowerB[0] = 36;
+      // lowerB[1] = 25;
+      // lowerB[2] = 25;
+      // upperB[0] = 86;
+      // upperB[1] = 255;
+      // upperB[2] = 255;
 
-      rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) async {
-        Uint8List redBg = raw.buffer.asUint8List();
-        try {
-          // freeMemory(ptrFrame);
-          // freeMemory(ptrMaskedFrame);
-        } catch (err) {}
+      if (!kIsWeb){
+        // rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) async {
+        //   Uint8List redBg = raw.buffer.asUint8List();
+        //   try {
+        //     // freeMemory(ptrFrame);
+        //     // freeMemory(ptrMaskedFrame);
+        //   } catch (err) {}
 
-        print(redBg.length);
-        ptrFrame = allocate<ffi.Uint8>(
-            count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-        if (!isCheckingColor) {
-          // isCheckingColor = true;
+        //   print(redBg.length);
+        //   ptrFrame = allocate<ffi.Uint8>(
+        //       count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+        //   if (!isCheckingColor) {
+        //     // isCheckingColor = true;
 
-          // print('abc');
-          // Directory appDocumentsDir = await getTemporaryDirectory();
-          // String path = appDocumentsDir.path;
-          // File file = File('$path/bg.png');
-          // print('$path/bg.png');
-          // file.writeAsBytesSync(redBg, mode: FileMode.write);
-          // CHECK COLOR FIRST TIME
-          Future.delayed(const Duration(milliseconds: 300), () {
-            // checkColorCV(redBg, lowerB, upperB).then((flag){
-            //   if (flag){// forward or backward
+        //     // print('abc');
+        //     // Directory appDocumentsDir = await getTemporaryDirectory();
+        //     // String path = appDocumentsDir.path;
+        //     // File file = File('$path/bg.png');
+        //     // print('$path/bg.png');
+        //     // file.writeAsBytesSync(redBg, mode: FileMode.write);
+        //     // CHECK COLOR FIRST TIME
+        //     Future.delayed(const Duration(milliseconds: 300), () {
+        //       // checkColorCV(redBg, lowerB, upperB).then((flag){
+        //       //   if (flag){// forward or backward
 
-            //   }
+        //       //   }
 
-            //   // double r_torque = motorCommandBufView[0];
-            //   // double r_dir = motorCommandBufView[1];
-            //   // if (r_dir == 2){
-            //   //   r_dir = -1;
-            //   // }
+        //       //   // double r_torque = motorCommandBufView[0];
+        //       //   // double r_dir = motorCommandBufView[1];
+        //       //   // if (r_dir == 2){
+        //       //   //   r_dir = -1;
+        //       //   // }
 
-            //   // double l_torque = motorCommandBufView[2];
-            //   // double l_dir = motorCommandBufView[3];
-            //   // if (l_dir == 2){
-            //   //   l_dir = -1;
-            //   // }
+        //       //   // double l_torque = motorCommandBufView[2];
+        //       //   // double l_dir = motorCommandBufView[3];
+        //       //   // if (l_dir == 2){
+        //       //   //   l_dir = -1;
+        //       //   // }
 
-            //   // String message = "l:" + (l_torque * l_dir).toString() +";r:"+(r_torque * r_dir).toString()+";";
+        //       //   // String message = "l:" + (l_torque * l_dir).toString() +";r:"+(r_torque * r_dir).toString()+";";
 
-            //   isCheckingColor = false;
-            // });
-          });
-        }
-      });
+        //       //   isCheckingColor = false;
+        //       // });
+        //     });
+        //   }
+        // });
+      }
+      
       // });
     } catch (err) {
       print("err Memory Allocation");
@@ -685,18 +740,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     initNeuronType();
 
-    processor = ImagePreprocessor();
-    processor.isRunning = true;
+
+    // processor = ImagePreprocessor();
+    // processor.isRunning = true;
+    imageJpegComponent = Image.memory(
+      Uint8List.fromList( cameraBuffer ),
+      gaplessPlayback: true,
+    );
     mjpegComponent = Mjpeg(
       stream: httpdStream,
       // stream: "http://192.168.1.4:8081/",
-      preprocessor: processor,
+      // preprocessor: processor,
       isLive: true,
       fit: BoxFit.fill,
       timeout: const Duration(seconds: 60),
     );
 
-    Timer.periodic(const Duration(milliseconds: 70), (timer) {
+    Timer.periodic(const Duration(milliseconds: 10), (timer) {
       if (isSelected) {
         // print("redraw");
         // print(Nativec.canvasBufferBytes1);
@@ -739,6 +799,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // WaveWidget.positionsBufView = positionsBufView;
       }
       waveWidget = WaveWidget(
+          key: waveChartKey,
           valueNotifier: waveRedraw,
           chartGain: chartGain,
           levelMedian: levelMedian,
@@ -769,9 +830,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       int idx = 0;
       // double scaleX = screenWidth / prevScreenWidth;
       double scaleX = screenWidth / prevScreenWidth;
-      if (Platform.isIOS || Platform.isAndroid) {
-        scaleX = 1;
-      }
+      // if (Platform.isIOS || Platform.isAndroid) {
+      //   scaleX = 1;
+      // }
       double scaleY = screenHeight / prevScreenHeight;
 
       constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
@@ -901,31 +962,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               child: !isInitialized
                   ? const SizedBox()
                   : prepareWidget(
-                      InfiniteCanvas(
-                        backgroundBuilder: (ctx, r) {
-                          // print("MediaQuery.of(context).screenWidth");
-                          // print(screenWidth);
-                          // print(screenHeight);
-                          // print(r);
-
-                          return Container(
-                            color: Colors.white,
-                            width: screenWidth,
-                            height: screenHeight,
-                            child: Image.asset(
-                                width: screenWidth,
-                                height: screenHeight,
-                                // scale: screenWidth/800,
-                                fit: BoxFit.contain,
-                                // scale: density,
-                                "assets/bg/bg1.0x.jpeg"),
-                          );
-                        },
-                        drawVisibleOnly: true,
-                        canAddEdges: true,
-                        menuVisible: false,
-                        controller: controller,
-                      ),
+                      infiniteCanvasWidget,
                     ),
             ),
           ),
@@ -937,7 +974,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 menuIdx: menuIdx,
                 callback: rightToolbarCallback),
           ),
-          if (!(Platform.isIOS || Platform.isAndroid)) ...[
+          // if (!(Platform.isIOS || Platform.isAndroid)) ...[
+          if (kIsWeb) ...[
             Positioned(
               right: 90,
               bottom: 20,
@@ -1005,10 +1043,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               //     isLive: true,
               //   ),
               // )
-              child: ClipRect(
-                clipper: EyeClipper(
-                    isLeft: true, width: screenWidth, height: screenHeight),
-                child: mjpegComponent,
+              child: StreamBuilder<Uint8List>(
+                stream: mainBloc.imageStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) return Container();
+                  
+                  cameraBuffer = snapshot.data!;
+                  imageJpegComponent = Image.memory(
+                    Uint8List.fromList( cameraBuffer ),
+                    gaplessPlayback: true,
+                  );
+
+                  return ClipRect(
+                    clipper: EyeClipper(
+                        isLeft: true, width: screenWidth, height: screenHeight),
+                    child: kIsWeb? imageJpegComponent : mjpegComponent,
+                  );
+                }
               ),
             ),
             Positioned(
@@ -1019,13 +1070,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   builder: (context, snapshot) {
                     // print(snapshot.data);
                     if (snapshot.data == null) return Container();
+
+                    cameraBuffer = snapshot.data!;
                     return ClipRect(
                       clipper: EyeClipper(
                           isLeft: false,
                           width: screenWidth,
                           height: screenHeight),
                       child: Image.memory(
-                        snapshot.data!,
+                        Uint8List.fromList( cameraBuffer ),
                         gaplessPlayback: true,
                       ),
                     );
@@ -1276,8 +1329,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           controller.edges.where((e) => e.from == selected.key).toList();
       for (int i = 0; i < outwardEdges.length; i++) {
         InfiniteCanvasEdge outwardEdge = outwardEdges[i];
-        if (mapSensoryNeuron
-            .containsKey("${outwardEdge.from}_${outwardEdge.to}"))
+        if (mapSensoryNeuron.containsKey("${outwardEdge.from}_${outwardEdge.to}"))
           mapSensoryNeuron.remove("${outwardEdge.from}_${outwardEdge.to}");
         if (mapContactsNeuron
             .containsKey("${outwardEdge.from}_${outwardEdge.to}"))
@@ -1305,8 +1357,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       InfiniteCanvasEdge lastCreatedEdge = controller.edges[idx];
       if (mapSensoryNeuron
           .containsKey("${lastCreatedEdge.from}_${lastCreatedEdge.to}"))
-        mapSensoryNeuron
-            .remove("${lastCreatedEdge.from}_${lastCreatedEdge.to}");
+        mapSensoryNeuron.remove("${lastCreatedEdge.from}_${lastCreatedEdge.to}");
       if (mapContactsNeuron
           .containsKey("${lastCreatedEdge.from}_${lastCreatedEdge.to}"))
         mapContactsNeuron
@@ -1330,13 +1381,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   prepareWidget(InfiniteCanvas canvas) {
-    if (Platform.isFuchsia) {
+    if (!kIsWeb) {
       return canvas;
     } else {
       return GestureDetector(
           onTapUp: (details) {
-            // print("controller.isFoundEdge");
-            // print(controller.isFoundEdge);
+            print("controller.isFoundEdge");
+            print(controller.isFoundEdge);
             if (controller.isFoundEdge) {
               controller.isSelectingEdge = true;
               controller.edgeSelected = controller.edgeFound;
@@ -1363,8 +1414,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               print("neuronIdx");
               print(neuronIdx);
               isSelected = true;
-              nativec.changeIdxSelected(neuronIdx);
+              if (kIsWeb){
+                js.context.callMethod("changeSelectedIdx",[neuronIdx]);
+              }
+              // nativec.changeIdxSelected(neuronIdx);
               if (neuronIdx < normalNeuronStartIdx) {
+                return;
+              }
+
+              if (isPlayingMenu){
                 return;
               }
 
@@ -1457,49 +1515,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           },
           child: canvas);
     }
-    if ((Platform.isAndroid || Platform.isIOS) && isPanningCanvas) {
-      return XGestureDetector(
-        onMoveUpdate: (MoveEvent event) {
-          print("onMoveUpdate Press Move");
-          // return;
-          Offset offset = event.delta;
-          if (offset.dx > 0) {
-            // controller.panRight();
-            Offset offset = const Offset(2, 0);
-            controller.pan(offset);
-          } else if (offset.dx < 0) {
-            // controller.panLeft();
-            Offset offset = const Offset(-2, 0);
-            controller.pan(offset);
-          }
-          if (offset.dy > 0) {
-            // controller.panDown();
-            Offset offset = const Offset(0, 2);
-            controller.pan(offset);
-          } else if (offset.dy < 0) {
-            Offset offset = const Offset(0, -2);
-            controller.pan(offset);
-          }
-        },
-        onScaleUpdate: (ScaleEvent event) {
-          print("prepare scaling");
-          var temp = controller.scale * event.scale;
-          print(controller.minScale);
-          print(controller.maxScale);
-          print(controller.scale);
-          if (temp < controller.maxScale && temp > controller.minScale) {
-            if (temp > controller.scale) {
-              controller.zoom(1.003);
-            } else {
-              controller.zoom(0.997);
-            }
-          }
-        },
-        child: canvas,
-      );
-    } else {
-      return canvas;
-    }
+
   }
 
   rightToolbarCallback(map) {
@@ -1543,8 +1559,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // controller.setCanvasMove(false);
     } else if (menuIdx == 5) {
       print("home");
-      // Navigator.pop(context);
-      // Navigator.pop(context);
+      Navigator.pop(context);
     } else if (menuIdx == 6) {
       // print( json.encode(controller.nodes) );
       // print( json.encode(controller.edges) );
@@ -1568,31 +1583,32 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       if (isPlayingMenu) {
         isCheckingColor = false;
         try {
-          startWebSocket();
+          // startWebSocket();
         } catch (ex) {}
       } else {
-        initializeOpenCV();
-        isIsolateWritePortInitialized = false;
-        processor.clearMemory();
-        try {
-          processor = ImagePreprocessor();
-          mjpegComponent = Mjpeg(
-            stream: httpdStream,
-            // stream: "http://192.168.1.4:8081/",
-            preprocessor: processor,
-            isLive: true,
-            fit: BoxFit.fill,
-            timeout: const Duration(seconds: 60),
-          );
+        // initializeOpenCV();
+        // isIsolateWritePortInitialized = false;
+        // processor.clearMemory();
+        // try {
+        //   processor = ImagePreprocessor();
+        //   mjpegComponent = Mjpeg(
+        //     stream: httpdStream,
+        //     // stream: "http://192.168.1.4:8081/",
+        //     preprocessor: processor,
+        //     isLive: true,
+        //     fit: BoxFit.fill,
+        //     timeout: const Duration(seconds: 60),
+        //   );
 
-          // writePort.close();
-        } catch (exc) {
-          print("exception : ");
-          print(exc);
-        }
+        //   // writePort.close();
+        // } catch (exc) {
+        //   print("exception : ");
+        //   print(exc);
+        // }
 
         // isolateWritePort.send("DISCONNECT");
-        Future.delayed(const Duration(milliseconds: 300), () {});
+        Future.delayed(const Duration(milliseconds: 300), () {
+        });
       }
 
       // print("visPrefsBufView");
@@ -1603,9 +1619,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         runSimulation();
       } else {
         if (kIsWeb) {
-          // js.context.callMethod("stopThreadProcess", [0]);
+          js.context.callMethod("stopThreadProcess", [0]);
         } else {
-          nativec.stopThreadProcess(0);
+          // nativec.stopThreadProcess(0);
         }
         controller.deselectAll();
         controller.setCanvasMove(true);
@@ -1621,7 +1637,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     // print("controller.toLocal(Offset(screenWidth / 2, 0))");
     // print(controller.toLocal(Offset(screenWidth / 2, 0)));
-    if (Platform.isIOS || Platform.isAndroid) {
+    // WEB CHANGE
+    // if (Platform.isIOS || Platform.isAndroid) {
+    if (!kIsWeb) {
       if (MediaQuery.of(context).padding.left == 0 &&
           MediaQuery.of(context).padding.right == 0 &&
           MediaQuery.of(context).padding.top == 0 &&
@@ -1903,9 +1921,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller.scale = 1;
     controller.minScale = 0.85;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      repositionSensoryNeuron();
-    }
+    // if (Platform.isAndroid || Platform.isIOS) {
+    // if (kIsWeb) {
+    //   repositionSensoryNeuron();
+    // }
 
     controller.addListener(() {
       if (controller.mouseDown) {
@@ -2061,7 +2080,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             allowMoveNodes();
           }
         } else if (menuIdx == 1 && !isCreatePoint && !controller.hasSelection) {
-          if (Platform.isIOS || Platform.isAndroid) {
+          // if (Platform.isIOS || Platform.isAndroid) {
+          if (kIsWeb) {
             if (prevMouseX == controller.mousePosition.dx &&
                 prevMouseY == controller.mousePosition.dy) {
               prevMouseX = controller.mousePosition.dx;
@@ -2183,14 +2203,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           print("Zoom Reset");
           controller.zoomReset();
           isSelected = false;
-          nativec.changeIdxSelected(-1);
+          // nativec.changeIdxSelected(-1);
           setState(() {});
         } else if (menuIdx == 6 && controller.hasSelection) {
           var selected = controller.selection[0];
           print("selected.value");
           print(selected.value);
           isSelected = true;
-          nativec.changeIdxSelected(selected.value);
+          // nativec.changeIdxSelected(selected.value);
           redrawNeuronLine.value = Random().nextInt(100);
           setState(() {});
         }
@@ -2222,6 +2242,36 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // setState((){});
       }
     });
+  
+  
+    infiniteCanvasWidget = InfiniteCanvas(
+      key: canvasKey,
+      backgroundBuilder: (ctx, r) {
+        // print("MediaQuery.of(context).screenWidth");
+        // print(screenWidth);
+        // print(screenHeight);
+        // print(r);
+
+        return Container(
+          color: Colors.white,
+          width: screenWidth,
+          height: screenHeight,
+          child: Image.asset(
+              width: screenWidth,
+              height: screenHeight,
+              // scale: screenWidth/800,
+              fit: BoxFit.contain,
+              // scale: density,
+              "assets/bg/bg1.0x.jpeg"),
+        );
+      },
+      drawVisibleOnly: true,
+      canAddEdges: true,
+      menuVisible: false,
+      controller: controller,
+    );
+
+  
   }
 
   InfiniteCanvasNode findNeuronByValue(val) {
@@ -2285,13 +2335,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void onLongPress() {
-    print("longPress");
-    MyApp.analytics.logEvent(
-      name: 'longpress',
-      parameters: <String, dynamic>{
-        'longpress': 'true',
-      },
-    );
     if (controller.hasSelection) {
       var selected = controller.selection[0];
       int neuronIdx = selected.value;
@@ -2300,7 +2343,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         return;
       }
       isSelected = true;
-      nativec.changeIdxSelected(neuronIdx);
+      // nativec.changeIdxSelected(neuronIdx);
 
       String neuronType = neuronTypes[neuronIdx];
       neuronDialogBuilder(context, "Neuron ", (neuronIdx + 1).toString(),
@@ -2333,10 +2376,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             mapContactsNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
                 ? mapContactsNeuron["${neuronFrom.key}_${neuronTo.key}"]
                 : 0,
-        "visualPref": mapSensoryNeuron
-                .containsKey("${neuronFrom.key}_${neuronTo.key}")
-            ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
-            : -1.0,
+        "visualPref":
+            mapSensoryNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
+                ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
+                : -1.0,
       };
       axonDialogBuilder(
           context,
@@ -2506,133 +2549,133 @@ class InlineCustomPainter extends CustomPainter {
   }
 }
 
-class ImagePreprocessor extends MjpegPreprocessor {
-  static int frameQVGASize = 320 * 240;
-  ffi.Pointer<ffi.Uint8> ptrFrame = allocate<ffi.Uint8>(
-      count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-  // static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
-  //     count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+// class ImagePreprocessor extends MjpegPreprocessor {
+//   static int frameQVGASize = 320 * 240;
+//   // ffi.Pointer<ffi.Uint8> ptrFrame = allocate<ffi.Uint8>(
+//   //     count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   // static ffi.Pointer<ffi.Uint8> ptrMaskedFrame = allocate<ffi.Uint8>(
+//   //     count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  // static ffi.Pointer<ffi.Uint8> ptrLowerB =
-  //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-  // static ffi.Pointer<ffi.Uint8> ptrUpperB =
-  //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   // static ffi.Pointer<ffi.Uint8> ptrLowerB =
+//   //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   // static ffi.Pointer<ffi.Uint8> ptrUpperB =
+//   //     allocate<ffi.Uint8>(count: 3, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  double processedMotorCounter = -1;
-  bool isRunning = true;
+//   double processedMotorCounter = -1;
+//   bool isRunning = true;
 
-  ImagePreprocessor() {
-    ptrFrame = allocate<ffi.Uint8>(
-        count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-  }
+//   ImagePreprocessor(){
+//     // ptrFrame = allocate<ffi.Uint8>(
+//     //   count: frameQVGASize, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   }
 
-  bool isValidJpeg(Uint8List bytes) {
-    if (bytes.length < 4) {
-      return false;
-    }
-    return bytes[0] == 0xFF &&
-        bytes[1] == 0xD8 &&
-        bytes[bytes.length - 2] == 0xFF &&
-        bytes[bytes.length - 1] == 0xD9;
-  }
+//   bool isValidJpeg(Uint8List bytes) {
+//     if (bytes.length < 4) {
+//       return false;
+//     }
+//     return bytes[0] == 0xFF &&
+//         bytes[1] == 0xD8 &&
+//         bytes[bytes.length - 2] == 0xFF &&
+//         bytes[bytes.length - 1] == 0xD9;
+//   }
 
-  clearMemory() {
-    isRunning = false;
-    freeMemory(ptrFrame);
-  }
+//   clearMemory(){
+//     isRunning = false;
+//     freeMemory(ptrFrame);
+//   }
 
-  @override
-  List<int>? process(List<int> frame) {
-    // if (!isRunning) return frame;
-    // print(frame);
-    // print("process Frame");
+//   @override
+//   List<int>? process(List<int> frame) {
+//     // if (!isRunning) return frame;
+//     // print(frame);
+//     // print("process Frame");
 
-    // print("Receive Image DateTime");
-    // print(DateTime.now().microsecondsSinceEpoch);
-    //send to isolate
+//     // print("Receive Image DateTime");
+//     // print(DateTime.now().microsecondsSinceEpoch);
+//     //send to isolate
 
-    Uint8List frameData = Uint8List.fromList(frame);
-    // Uint8List maskedFrameData = Uint8List(frame.length);
-    // mainBloc.drawImageNow(frameData);
-    // return frame;
+//     Uint8List frameData = Uint8List.fromList(frame);
+//     // Uint8List maskedFrameData = Uint8List(frame.length);
+//     // mainBloc.drawImageNow(frameData);
+//     // return frame;
 
-    // Uint8List lowerB = ptrLowerB.asTypedList(3);
-    // Uint8List upperB = ptrUpperB.asTypedList(3);
+//     // Uint8List lowerB = ptrLowerB.asTypedList(3);
+//     // Uint8List upperB = ptrUpperB.asTypedList(3);
 
-    // // RED
-    // lowerB[0] = 0;
-    // lowerB[1] = 43;
-    // lowerB[2] = 46;
-    // upperB[0] = 0;
-    // upperB[1] = 255;
-    // upperB[2] = 255;
+//     // // RED
+//     // lowerB[0] = 0;
+//     // lowerB[1] = 43;
+//     // lowerB[2] = 46;
+//     // upperB[0] = 0;
+//     // upperB[1] = 255;
+//     // upperB[2] = 255;
 
-    // // BLUE
-    // lowerB[0] = 92;
-    // lowerB[1] = 57;
-    // lowerB[2] = 50;
-    // upperB[0] = 142;
-    // upperB[1] = 153;
-    // upperB[2] = 178;
+//     // // BLUE
+//     // lowerB[0] = 92;
+//     // lowerB[1] = 57;
+//     // lowerB[2] = 50;
+//     // upperB[0] = 142;
+//     // upperB[1] = 153;
+//     // upperB[2] = 178;
 
-    // Uint8List data = ptrFrame.asTypedList(frameQVGASize);
-    // int i = 0;
-    // for (i=0;i<frameQVGASize;i++){
-    //   data[i] = frameData[i];
-    // }
+//     // Uint8List data = ptrFrame.asTypedList(frameQVGASize);
+//     // int i = 0;
+//     // for (i=0;i<frameQVGASize;i++){
+//     //   data[i] = frameData[i];
+//     // }
 
-    // OpenCVImage image = OpenCVImage(length: frameQVGASize, pointer: ptrFrame);
-    // image.inRange(lowerB,upperB,ptrMaskedFrame,40);
+//     // OpenCVImage image = OpenCVImage(length: frameQVGASize, pointer: ptrFrame);
+//     // image.inRange(lowerB,upperB,ptrMaskedFrame,40);
 
-    // image.inRange();
-    // checkColorCV(frameData,ptrLowerB,ptrUpperB);
+//     // image.inRange();
+//     // checkColorCV(frameData,ptrLowerB,ptrUpperB);
 
-    bool isJpegValid = isValidJpeg(frameData);
-    if (!isCheckingColor && isJpegValid) {
-      // print("isCheckingColor");
-      // print(isCheckingColor);
-      // print(frameData.length);
-      isCheckingColor = true;
-      // print("C++CallImageProcessingStartDateTime");
-      // print(DateTime.now().microsecondsSinceEpoch);
+//     bool isJpegValid = isValidJpeg(frameData);
+//     if (!isCheckingColor && isJpegValid) {
+//       // print("isCheckingColor");
+//       // print(isCheckingColor);
+//       // print(frameData.length);
+//       isCheckingColor = true;
+//       // print("C++CallImageProcessingStartDateTime");
+//       // print(DateTime.now().microsecondsSinceEpoch);
 
-      checkColorCV(frameData).then((flag) {
-        if (flag) {
-          // forward or backward
-        }
-        // print("C++CallImageProcessingEndDateTime");
-        // print(DateTime.now().microsecondsSinceEpoch);
+//       checkColorCV(frameData).then((flag) {
+//         if (flag) {
+//           // forward or backward
+//         }
+//         // print("C++CallImageProcessingEndDateTime");
+//         // print(DateTime.now().microsecondsSinceEpoch);
 
-        // if (processedMotorCounter !=
-        //     _DesignBrainPageState.motorCommandBufView[5]) {
-        //   processedMotorCounter = _DesignBrainPageState.motorCommandBufView[5];
-        //   double r_torque = _DesignBrainPageState.motorCommandBufView[0];
-        //   double r_dir = _DesignBrainPageState.motorCommandBufView[1];
-        //   if (r_dir == 2) {
-        //     r_dir = -1;
-        //   }
+//         // if (processedMotorCounter !=
+//         //     _DesignBrainPageState.motorCommandBufView[5]) {
+//         //   processedMotorCounter = _DesignBrainPageState.motorCommandBufView[5];
+//         //   double r_torque = _DesignBrainPageState.motorCommandBufView[0];
+//         //   double r_dir = _DesignBrainPageState.motorCommandBufView[1];
+//         //   if (r_dir == 2) {
+//         //     r_dir = -1;
+//         //   }
 
-        //   double l_torque = _DesignBrainPageState.motorCommandBufView[2];
-        //   double l_dir = _DesignBrainPageState.motorCommandBufView[3];
-        //   if (l_dir == 2) {
-        //     l_dir = -1;
-        //   }
+//         //   double l_torque = _DesignBrainPageState.motorCommandBufView[2];
+//         //   double l_dir = _DesignBrainPageState.motorCommandBufView[3];
+//         //   if (l_dir == 2) {
+//         //     l_dir = -1;
+//         //   }
 
-        //   String message = "l:${l_torque * l_dir};r:${r_torque * r_dir};";
+//         //   String message = "l:${l_torque * l_dir};r:${r_torque * r_dir};";
 
-        //   // print("wheel message");
-        //   // print(r_torque.toString() + " ___@___" + r_dir.toString());
-        //   _DesignBrainPageState.isolateWritePort.send(message);
-        // }
-        isCheckingColor = false;
-      });
-    } else {
-      if (!isJpegValid) {
-        print("isNotValidJPEG");
-      }
-    }
+//         //   // print("wheel message");
+//         //   // print(r_torque.toString() + " ___@___" + r_dir.toString());
+//         //   _DesignBrainPageState.isolateWritePort.send(message);
+//         // }
+//         isCheckingColor = false;
+//       });
+//     } else {
+//       if (!isJpegValid) {
+//         print("isNotValidJPEG");
+//       }
+//     }
 
-    mainBloc.drawImageNow(frameData);
-    return frame;
-  }
-}
+//     mainBloc.drawImageNow(frameData);
+//     return frame;
+//   }
+// }
