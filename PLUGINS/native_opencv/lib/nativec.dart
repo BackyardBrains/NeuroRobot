@@ -77,12 +77,24 @@ typedef pass_pointers_func = ffi.Double Function(
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Uint32>,
+  ffi.Pointer<ffi.Int32>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Uint8>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
 );
 typedef PassPointers = double Function(
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Uint32>,
+  ffi.Pointer<ffi.Int32>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Uint8>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
 );
 
 // typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
@@ -250,17 +262,31 @@ class Nativec {
     return res;
   }
 
-  // double *_canvasBuffer1, double *_canvasBuffer2, uint16_t *_positions,short *_neuronCircle, int *_nps,
+// double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps,
+// int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts
   double passPointers(
-      ffi.Pointer<ffi.Double> pCanvasbuffer1,
-      ffi.Pointer<ffi.Int16> pPositions,
-      ffi.Pointer<ffi.Int16> pNeuronCircle,
-      ffi.Pointer<ffi.Uint32> pNps) {
+    ffi.Pointer<ffi.Double> pCanvasbuffer1,
+    ffi.Pointer<ffi.Int16> pPositions,
+    ffi.Pointer<ffi.Int16> pNeuronCircle,
+    ffi.Pointer<ffi.Uint32> pNps,
+    ffi.Pointer<ffi.Int32> p_state_buf,
+    ffi.Pointer<ffi.Int16> p_vis_prefs,
+    ffi.Pointer<ffi.Double> p_vis_pref_vals,
+    ffi.Pointer<ffi.Uint8> p_motor_command_message,
+    ffi.Pointer<ffi.Double> p_neuron_contacts,
+    ffi.Pointer<ffi.Int16> p_dist_prefs,
+  ) {
     var test = _passPointers(
       pCanvasbuffer1,
       pPositions,
       pNeuronCircle,
       pNps,
+      p_state_buf,
+      p_vis_prefs,
+      p_vis_pref_vals,
+      p_motor_command_message,
+      p_neuron_contacts,
+      p_dist_prefs,
     );
     // print("pPositions.asTypedList(20)");
     // print(pPositions.asTypedList(20));

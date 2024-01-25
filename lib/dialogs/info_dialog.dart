@@ -112,7 +112,8 @@ Future<void> axonDialogBuilder(
     deleteCallback,
     linkTypeChangecallback,
     linkMotorCallback,
-    linkNeuronConnection) {
+    linkNeuronConnection,
+    linkDistanceConnection) {
   if (isAxonDialog) {
     return Future<void>.value();
   }
@@ -164,6 +165,9 @@ Future<void> axonDialogBuilder(
   TextEditingController txtNeuronWeightController =
       TextEditingController(text: map["connectomeContact"].floor().toString());
 
+  TextEditingController txtNeuronDistanceController =
+      TextEditingController(text: map["distanceContact"].floor().toString());
+
   txtContactWeightController.addListener(() {
     linkMotorCallback(txtContactWeightController.text);
   });
@@ -171,6 +175,22 @@ Future<void> axonDialogBuilder(
   txtNeuronWeightController.addListener(() {
     linkMotorCallback(txtNeuronWeightController.text);
   });
+
+  List<String> neuronDistanceLabel = [
+    "-",
+    "Short",
+    "Medium",
+    "Long",
+  ];
+  List<DropdownMenuItem> dropdownDistanceItems =
+      List<DropdownMenuItem>.generate(neuronDistanceLabel.length, (index) {
+    return DropdownMenuItem(
+      value: index,
+      child: Text(neuronDistanceLabel[index]),
+    );
+  });
+
+  int distanceVal = 0;
 
   return showDialog<void>(
     context: context,
@@ -231,7 +251,6 @@ Future<void> axonDialogBuilder(
                     controller: txtContactWeightController,
                     keyboardType: TextInputType.number,
                     inputFormatters: whiteListingTextInputFormatter,
-                    decoration: inputWeightDecoration,
                     maxLines: 1,
                   ),
                   // SizedBox(
@@ -250,7 +269,20 @@ Future<void> axonDialogBuilder(
                   //     }
                   //   ),
                   // )
+                ] else if (isSensoryType == 3) ...[
+                  Text("Distance Preferences : "),
+                  DropdownButton(
+                    value: distanceVal,
+                    items: dropdownDistanceItems,
+                    onChanged: (value) {
+                      distanceVal = value;
+                      linkDistanceConnection(value - 1);
+                      setState(() {});
+                      // Navigator.pop(context);
+                    },
+                  ),
                 ],
+
                 const SizedBox(height: 20),
                 const Divider(),
                 const SizedBox(height: 20),

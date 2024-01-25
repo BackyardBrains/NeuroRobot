@@ -137,6 +137,7 @@ void initializeConstant(int neuronLength){
     intended_timer_period = ms_per_step/1000;
     epochs = ms_per_step;
     vis_I = new double[neuronLength];
+    dist_I = new short[neuronLength];
 
 }
 
@@ -355,6 +356,19 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         spikes_step[i][j] = 0;
                     }
                     vis_I[i] = 0;
+                    if (dist_prefs[i] == 0){
+                        dist_I[i] = sigmoid(sensor_distance, dist_short, -10) * 50;
+                    } else 
+                    if (dist_prefs[i] == 1){
+                        dist_I[i] = sigmoid(sensor_distance, dist_medium, -10) * 50;
+                    } else 
+                    if (dist_prefs[i] == 2){
+                        dist_I[i] = sigmoid(sensor_distance, dist_long, -10) * 50;
+                    }
+
+                    // dist_I(dist_prefs == 1) = sigmoid(this_distance, dist_short, -10) * 50;
+                    // dist_I(dist_prefs == 2) = sigmoid(this_distance, dist_med, -10) * 50;
+                    // dist_I(dist_prefs == 3) = sigmoid(this_distance, dist_long, -10) * 50;                    
                 }
 
                 // for nneuron = 1:nneurons % ugly for loop, fix this
@@ -460,7 +474,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     delete[](sumConnectome);
                     // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
-                        tI[idx] += vis_I[idx];
+                        tI[idx] += (vis_I[idx] + dist_I[idx]);
                         // tI[idx] += 100;
                         // if (vis_I[idx] >= 100){
                         //     platform_log("\nNOISE\n");

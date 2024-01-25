@@ -61,13 +61,13 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
 
   @override
   bool shouldRepaint(PolygonInActiveWaveformPainter oldDelegate) {
-    // if (oldDelegate.gain != gain ||
-    //     oldDelegate.samples != samples ||
-    //     oldDelegate.levelMedian != levelMedian ||
-    //     oldDelegate.eventMarkersPosition != eventMarkersPosition) {
-    //   return true;
-    // }
-    return true;
+    if (oldDelegate.gain != gain ||
+        oldDelegate.samples != samples ||
+        oldDelegate.levelMedian != levelMedian ||
+        oldDelegate.eventMarkersPosition != eventMarkersPosition) {
+      return true;
+    }
+    return false;
   }
 
   /// Style of the waveform
@@ -110,7 +110,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
       // if (channelIdx == 0){
         final evX = eventMarkersPosition[0] * sampleWidth;
         final offset1 = Offset(evX, 0);
-        final offset2 = Offset(evX, 300);
+        final offset2 = Offset(evX, 900);
         // final spikingLine1 = new Offset(0, -30/gain + levelMedian);
         // final spikingLine2 = new Offset(1200, -30/gain + levelMedian);
 

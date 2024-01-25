@@ -125,7 +125,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ffi.Pointer<ffi.Double> connectomeBuf;
   late ffi.Pointer<ffi.Double> motorCommandBuf;
   late ffi.Pointer<ffi.Double> neuronContactsBuf;
-  
+  late ffi.Pointer<ffi.Int16> neuronDistanceBuf;
+
   late ffi.Pointer<ffi.Int32> stateBuf;
   late ffi.Pointer<ffi.Double> visPrefsValsBuf;
   late ffi.Pointer<ffi.Uint8> motorCommandMessageBuf;
@@ -144,7 +145,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late Float64List connectomeBufView = Float64List(0);
   static Float64List motorCommandBufView = Float64List(0);
   late Float64List neuronContactsBufView = Float64List(0);
-
+  late Int16List neuronDistanceBufView = Int16List(0);
 
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
@@ -218,11 +219,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ImagePreprocessor processor;
 
   String httpdStream = "http://192.168.4.1:81/stream";
+  // String httpdStream = "http://192.168.1.4:8081";
 
   late Isolate webSocket;
 
   bool isSimulationCallbackAttached = false;
-  
+
   int StateLength = 20;
   int MotorMessageLength = 300;
   int VisualPrefLength = 7 * 2;
@@ -282,6 +284,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     neuronContactsBuf = allocate<ffi.Double>(
         count: maxPosBuffer * maxPosBuffer,
         sizeOfType: ffi.sizeOf<ffi.Double>());
+    neuronDistanceBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer * maxPosBuffer,
+        sizeOfType: ffi.sizeOf<ffi.Int16>());
 
     motorCommandBuf = allocate<ffi.Double>(
         count: motorCommandsLength, sizeOfType: ffi.sizeOf<ffi.Double>());
@@ -292,7 +297,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: VisualPrefLength, sizeOfType: ffi.sizeOf<ffi.Double>());
     motorCommandMessageBuf = allocate<ffi.Uint8>(
         count: MotorMessageLength, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-
   }
 
   void initNativeC() {
@@ -314,11 +318,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // positionsBufView  = Int16List(neuronSize);
       // connectomeBufView  = Float64List(neuronSize*neuronSize);
     } else {
+      print("try to pass pointers");
+
       nativec = Nativec();
       nativec.passPointers(
-          Nativec.canvasBuffer1!, positionsBuf, neuronCircleBuf, npsBuf,
-          stateBuf, visPrefsBuf, visPrefsValsBuf, motorCommandMessageBuf, neuronContactsBuf
-      );
+          Nativec.canvasBuffer1!,
+          positionsBuf,
+          neuronCircleBuf,
+          npsBuf,
+          stateBuf,
+          visPrefsBuf,
+          visPrefsValsBuf,
+          motorCommandMessageBuf,
+          neuronContactsBuf,
+          neuronDistanceBuf);
+      print("try to pass nativec pointers");
       aBufView = aBuf.asTypedList(neuronSize);
       bBufView = bBuf.asTypedList(neuronSize);
       cBufView = cBuf.asTypedList(neuronSize);
@@ -326,13 +340,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       iBufView = iBuf.asTypedList(neuronSize);
       wBufView = wBuf.asTypedList(neuronSize);
       npsBufView = npsBuf.asTypedList(2);
+      print("neuronSize neuronCircleBridge");
+      print(neuronSize);
       neuronCircleBridge = neuronCircleBuf.asTypedList(neuronSize);
+      print(neuronCircleBridge.length);
       positionsBufView = positionsBuf.asTypedList(bufPositionCount);
       connectomeBufView = connectomeBuf.asTypedList(neuronSize * neuronSize);
       visPrefsBufView = visPrefsBuf.asTypedList(neuronSize * neuronSize);
       motorCommandBufView = motorCommandBuf.asTypedList(motorCommandsLength);
       neuronContactsBufView =
           neuronContactsBuf.asTypedList(neuronSize * neuronSize);
+      neuronDistanceBufView =
+          neuronDistanceBuf.asTypedList(neuronSize * neuronSize);
 
       if (!isSimulationCallbackAttached) {
         isSimulationCallbackAttached = true;
@@ -412,6 +431,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   Map mapConnectome = {};
   Map mapSensoryNeuron = {}; // vis prefs
   Map mapContactsNeuron = {};
+  Map mapDistanceNeuron = {}; // dist prefs
 
   List<UniqueKey> neuronsKey = [];
   List<UniqueKey> axonsKey = [];
@@ -709,8 +729,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       stream: httpdStream,
       // stream: "http://192.168.1.4:8081/",
       preprocessor: processor,
+      width: 320 / 2,
+      height: 240 / 2,
+
       isLive: true,
-      fit: BoxFit.fill,
+      fit: BoxFit.fitHeight,
       timeout: const Duration(seconds: 60),
     );
 
@@ -722,19 +745,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }
       if (isPlayingMenu) {
         // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
-        for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
-          int neuronIndex = i;
-          if (neuronCircleBridge[i] == 1) {
-            protoNeuron.circles[neuronIndex].isSpiking = 1;
-            neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-          } else {
-            try {
-              protoNeuron.circles[neuronIndex].isSpiking = -1;
+        try {
+          for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
+            int neuronIndex = i;
+            if (neuronCircleBridge[i] == 1) {
+              protoNeuron.circles[neuronIndex].isSpiking = 1;
               neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-            } catch (err) {
-              print(err);
+            } else {
+              try {
+                protoNeuron.circles[neuronIndex].isSpiking = -1;
+                neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+              } catch (err) {
+                print(err);
+              }
             }
           }
+        } catch (err) {
+          print(err);
         }
       }
     });
@@ -1037,6 +1064,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   builder: (context, snapshot) {
                     // print(snapshot.data);
                     if (snapshot.data == null) return Container();
+                    // return Image.memory(
+                    //   snapshot.data!,
+                    //   gaplessPlayback: true,
+                    //   // width: 320 / 2,
+                    //   height: 240 / 2,
+                    //   fit: BoxFit.fitHeight,
+                    // );
                     return ClipRect(
                       clipper: EyeClipper(
                           isLeft: false,
@@ -1045,6 +1079,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                       child: Image.memory(
                         snapshot.data!,
                         gaplessPlayback: true,
+                        // width: 320 / 2,
+                        height: 240 / 2,
+                        fit: BoxFit.fitHeight,
                       ),
                     );
                   }),
@@ -1143,6 +1180,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           neuronContactsBufView[ctr] = 0;
         }
 
+        if (mapDistanceNeuron.containsKey(connectionKey)) {
+          neuronDistanceBufView[ctr] = mapDistanceNeuron[connectionKey];
+        } else {
+          neuronDistanceBufView[ctr] = 0;
+        }
+
         // connectome
         if (mapConnectome.containsKey(connectionKey)) {
           connectomeBufView[ctr] = mapConnectome[connectionKey];
@@ -1224,6 +1267,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       print(neuronType);
       int idx = selected.value;
       neuronTypes[idx] = neuronType;
+
+      // aBufView = aBuf.asTypedList(neuronSize);
+      // bBufView = bBuf.asTypedList(neuronSize);
+      // cBufView = cBuf.asTypedList(neuronSize);
+      // dBufView = dBuf.asTypedList(neuronSize);
+
       switch (neuronType) {
         case "Quiet":
           aBufView[idx] = 0.02;
@@ -1419,7 +1468,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               else if (neuronTo == nodeLeftMotorBackwardSensor ||
                   neuronTo == nodeRightMotorBackwardSensor ||
                   neuronTo == nodeLeftMotorForwardSensor ||
-                  neuronTo == nodeRightMotorForwardSensor) isSensoryType = 2;
+                  neuronTo == nodeRightMotorForwardSensor)
+                isSensoryType = 2;
+              else if (neuronFrom == nodeDistanceSensor) isSensoryType = 3;
 
               print("isVisualSensory");
               print(isSensoryType);
@@ -1443,6 +1494,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"]
                         .toDouble()
                     : -1.0,
+                "distanceContact": mapDistanceNeuron
+                        .containsKey("${neuronFrom.key}_${neuronTo.key}")
+                    ? mapDistanceNeuron["${neuronFrom.key}_${neuronTo.key}"]
+                        .toDouble()
+                    : -1,
               };
               axonDialogBuilder(
                   context,
@@ -1454,7 +1510,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   deleteEdgeCallback,
                   linkSensoryConnection,
                   linkMotorConnection,
-                  linkNeuronConnection);
+                  linkNeuronConnection,
+                  linkDistanceConnection);
               // */
             }
             // else
@@ -1598,8 +1655,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             stream: httpdStream,
             // stream: "http://192.168.1.4:8081/",
             preprocessor: processor,
+            width: 320 / 2,
+            height: 240 / 2,
+
             isLive: true,
-            fit: BoxFit.fill,
+            fit: BoxFit.fitHeight,
             timeout: const Duration(seconds: 60),
           );
 
@@ -2291,6 +2351,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     mapSensoryNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
   }
 
+  void linkDistanceConnection(value) {
+    final lastCreatedEdge = controller.edgeSelected;
+    mapDistanceNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+  }
+
   void initNeuronType() {
     neuronTypes = [];
     for (int i = 0; i < neuronSize; i++) {
@@ -2335,7 +2400,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       else if (neuronTo == nodeLeftMotorBackwardSensor ||
           neuronTo == nodeRightMotorBackwardSensor ||
           neuronTo == nodeLeftMotorForwardSensor ||
-          neuronTo == nodeRightMotorForwardSensor) isSensoryType = 2;
+          neuronTo == nodeRightMotorForwardSensor)
+        isSensoryType = 2;
+      else if (neuronFrom == nodeDistanceSensor) isSensoryType = 3;
 
       print("isVisualSensory");
       print(isSensoryType);
@@ -2355,6 +2422,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 .containsKey("${neuronFrom.key}_${neuronTo.key}")
             ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
             : -1.0,
+        "distanceContact":
+            mapDistanceNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
+                ? mapDistanceNeuron["${neuronFrom.key}_${neuronTo.key}"]
+                : -1,
       };
       axonDialogBuilder(
           context,
@@ -2366,7 +2437,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           deleteEdgeCallback,
           linkSensoryConnection,
           linkMotorConnection,
-          linkNeuronConnection);
+          linkNeuronConnection,
+          linkDistanceConnection);
 
       // axonDialogBuilder(context, isSensoryType, "Edge", " ",  neuronTypeChangeCallback,
       //     deleteEdgeCallback, linkSensoryConnection, linkMotorConnection, linkNeuronConnection);
@@ -2486,10 +2558,15 @@ class EyeClipper extends CustomClipper<Rect> {
   final double height;
   @override
   Rect getClip(Size size) {
+    // if (isLeft) {
+    //   return const Rect.fromLTWH(0, 25, 150, 150);
+    // } else {
+    //   return const Rect.fromLTWH(50, 25, 150, 150);
+    // }
     if (isLeft) {
-      return const Rect.fromLTWH(0, 30, 160, 120);
+      return const Rect.fromLTWH(0, 0, 270 / 2, 240 / 2);
     } else {
-      return const Rect.fromLTWH(50, 30, 160, 120);
+      return const Rect.fromLTWH(50 / 2, 0, 270 / 2, 240 / 2);
     }
   }
 
@@ -2606,6 +2683,12 @@ class ImagePreprocessor extends MjpegPreprocessor {
     // checkColorCV(frameData,ptrLowerB,ptrUpperB);
 
     bool isJpegValid = isValidJpeg(frameData);
+    // if (isJpegValid) {
+    //   await resizeImageFrame(frameData).then((flag) {
+    //     ptrResizedFrame.asTypedList(resizedFrameLength);
+    //   });
+
+    // }
     if (!isCheckingColor && isJpegValid) {
       // print("isCheckingColor");
       // print(isCheckingColor);

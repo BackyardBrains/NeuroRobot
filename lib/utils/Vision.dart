@@ -9,11 +9,47 @@ ffi.Pointer<ffi.Uint8> ptrFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 ffi.Pointer<ffi.Uint8> ptrMaskedFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+ffi.Pointer<ffi.Uint8> ptrResizedFrame =
+    allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+ffi.Pointer<ffi.Uint32> ptrResizedFrameLength =
+    allocate<ffi.Uint32>(count: 1, sizeOfType: ffi.sizeOf<ffi.Uint32>());
+Uint32List resizedFrameLength = ptrResizedFrameLength.asTypedList(1);    
 // Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
 initializeOpenCV() {
   NativeOpenCV ocv = NativeOpenCV();
   ocv.initializeOpenCV();
 }
+
+Future<bool> resizeImageFrame(frameData) async {
+  await compute(_resizeImageFrame, frameData);
+  return true;
+}
+bool _resizeImageFrame(rawFrameData) {
+  NativeOpenCV nativeocv = NativeOpenCV();
+
+  ptrResizedFrame = allocate<ffi.Uint8>(
+      count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  ffi.Pointer<ffi.Uint8> ptrRawFrame = allocate<ffi.Uint8>(
+      count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+
+  Uint8List data = ptrRawFrame.asTypedList(rawFrameData.length);
+
+  int i = 0;
+  // copy data manually
+  for (i = 0; i < data.length; i++) {
+    data[i] = rawFrameData[i];
+  }
+
+  // nativeocv
+  nativeocv.resizeImage(ptrRawFrame, rawFrameData.length, ptrResizedFrame, ptrResizedFrameLength);
+  try {
+    // freeMemory(ptrResizedFrame);
+    freeMemory(ptrRawFrame);
+  } catch (err) {}
+
+  return true;
+}
+
 
 Future<bool> checkColorCV(frameData) async {
   // print("testColorCV");

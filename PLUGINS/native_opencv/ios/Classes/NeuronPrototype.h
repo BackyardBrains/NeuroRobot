@@ -95,3 +95,14 @@ short motorCounter = 0;
 // CALLBACK
 std::string message;
 void (*onCallback)(const char*);
+
+// DISTANCE
+short *dist_I;
+short *dist_prefs;
+
+
+double dist_short = 0;
+double dist_medium = 0;
+double dist_long = 0;
+
+double sensor_distance = 0;

@@ -266,30 +266,30 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // }
             print("mouse down");
             // WEB CHANGE
-            if (kIsWeb){
+            // if (kIsWeb){
 
-            }else
-            if (Platform.isAndroid || Platform.isIOS) {
-              var curTimeStamp = DateTime.now().millisecondsSinceEpoch;
-              if (firstTapTime == 0) {
-                firstTapTime = curTimeStamp;
-                Future.delayed(holdDuration, () {
-                  firstTapTime = 0;
-                  secondTapTime = 0;
-                });
-              } else if (secondTapTime == 0) {
-                secondTapTime = curTimeStamp;
-              } else {
-                if (secondTapTime - firstTapTime < 2000) {
-                  firstTapTime = 0;
-                  secondTapTime = 0;
-                  controller.onDoubleTap.call();
-                }
-                // firstTapTime = 0;
-                // secondTapTime = 0;
-              }
-              lastPointerDownTime = 0;
-            }
+            // }else
+            // if (Platform.isAndroid || Platform.isIOS) {
+            //   var curTimeStamp = DateTime.now().millisecondsSinceEpoch;
+            //   if (firstTapTime == 0) {
+            //     firstTapTime = curTimeStamp;
+            //     Future.delayed(holdDuration, () {
+            //       firstTapTime = 0;
+            //       secondTapTime = 0;
+            //     });
+            //   } else if (secondTapTime == 0) {
+            //     secondTapTime = curTimeStamp;
+            //   } else {
+            //     if (secondTapTime - firstTapTime < 2000) {
+            //       firstTapTime = 0;
+            //       secondTapTime = 0;
+            //       controller.onDoubleTap.call();
+            //     }
+            //     // firstTapTime = 0;
+            //     // secondTapTime = 0;
+            //   }
+            //   lastPointerDownTime = 0;
+            // }
 
             if (controller.linkStart != null && controller.linkEnd != null) {
               controller.checkSelection(controller.linkEnd!);

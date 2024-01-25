@@ -285,8 +285,10 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
             }
             cvtColor(srcImageRgb, imageRgb, COLOR_BGRA2BGR);            
         #else
+            // platform_log("Start decode buffer");
             vector<uint8_t> buffer(img, img + imgLength);
             imageRgb = imdecode(buffer, IMREAD_COLOR);;
+            // platform_log("END decode buffer");
 
         #endif
         
@@ -296,14 +298,19 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
 
         Mat uframe, frame, grayFrame, xframe, leftFrame, rightFrame, bwframe;
         Mat leftGrayFrame, rightGrayFrame;
-        leftFrame = imageRgb(Rect(0, 0, 240, 240));
-        rightFrame = imageRgb(Rect(70, 0, 240, 240));
+        // leftFrame = imageRgb(Rect(0, 0, frameSize, frameSize));
+        // rightFrame = imageRgb(Rect(70, 0, frameSize, frameSize));
+        leftFrame = imageRgb(Rect(0, 0, frameSizeWidth, frameSizeHeight));
+        rightFrame = imageRgb(Rect(50, 0, frameSizeWidth, frameSizeHeight));
+//         leftFrame = imageRgb(Rect(0, 0, 240, 240));
+//         rightFrame = imageRgb(Rect(70, 0, 240, 240));
 
         if (!isPrevEyesSaved){
             resize(leftFrame, prev_left_eye_frame, net_input_size);            
             resize(rightFrame, prev_right_eye_frame, net_input_size);            
             isPrevEyesSaved = true;
         }
+
 
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
@@ -434,6 +441,7 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
             }
 
         }
+        // platform_log("Set preprocess matrix");
 
         // start = std::chrono::high_resolution_clock::now();
         // duration = start.time_since_epoch();

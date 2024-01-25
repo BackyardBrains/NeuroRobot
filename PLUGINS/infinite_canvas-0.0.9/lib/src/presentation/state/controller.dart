@@ -282,6 +282,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       if (p.contains(offset)) {
         edgeFound = edge;
         isFoundEdge = true;
+        if (kIsWeb){
+
+        }else
         if (Platform.isIOS || Platform.isAndroid) {
           isSelectingEdge = true;
           edgeSelected = edge;

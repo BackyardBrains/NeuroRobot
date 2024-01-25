@@ -7,6 +7,7 @@ import 'package:ffi/ffi.dart';
 typedef _version_func = ffi.Pointer<Utf8> Function();
 // typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>, ffi.Uint8, ffi.Pointer<ffi.Uint8>);
 typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>);
+typedef _resize_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint32>);
 
 typedef _initialize_open_cv_func = ffi.Int Function();
 typedef _InitializeOpenCVFunc = int Function();
@@ -20,6 +21,7 @@ typedef _VersionFunc = ffi.Pointer<Utf8> Function();
 // typedef _FindColorInImageFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
 
 typedef _FindColorInImageFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
+typedef _ResizeImageFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint32>);
 
 // Getting a library that holds needed symbols
 ffi.DynamicLibrary _lib = Platform.isAndroid
@@ -38,6 +40,9 @@ final _FindColorInImageFunc _findColorInImage = _lib
   .lookup<ffi.NativeFunction<_find_color_in_image_func>>('findColorInImage')
   .asFunction();
 
+final _ResizeImageFunc _resizeImage = _lib
+  .lookup<ffi.NativeFunction<_resize_image_func>>('resizeImage')
+  .asFunction();
 
 
 
@@ -61,6 +66,13 @@ class NativeOpenCV {
     // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
   }
 
+  int resizeImage(_pointer, imageLength, _pointerResizedFrame, resizedLength) {
+    // print("dart - findColorInImage");
+    // return _findColorInImage(_pointer, imageLength, lowerB, upperB, colorSpace, _pointerMaskedFrame);
+    return _resizeImage(_pointer, imageLength, _pointerResizedFrame, resizedLength);
+    // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
+    // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
+  }
 
 
 }

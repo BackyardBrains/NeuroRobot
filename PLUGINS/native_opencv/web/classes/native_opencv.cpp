@@ -196,6 +196,7 @@ double sigmoid(double x, double c, double a) {
 EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
 Size net_input_size = Size(224,224);
+Size resize_input_size = Size(320,240);
 
 bool isInitialized = false;
 short resetCounter = 0;
@@ -242,6 +243,45 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         return 1;
     }
 
+    EXTERNC FUNCTION_ATTRIBUTE
+    int resizeImage(uint8_t *img, uint32_t imgLength, uint8_t* imgResize, uint32_t* imgResizeLength) {
+        int imgCounter = 0;
+        Mat srcImageRgb;
+        Mat imageRgb;
+        Mat destImageRgb;
+ 
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb = Mat(240, 320, CV_8UC4, Scalar(0,0,0,255));
+            for (int i=0; i<240;i++){
+                for (int j=0; j<320; j++){
+                    Vec4b pixVal = srcImageRgb.at<Vec4b>(i, j);
+                    pixVal[2] = img[imgCounter++];
+                    pixVal[1] = img[imgCounter++];
+                    pixVal[0] = img[imgCounter++];
+                    // pixVal[0] = img[imgCounter];
+                    pixVal[3] = img[imgCounter++];
+                    srcImageRgb.at<Vec4b>(i, j)=pixVal;
+                }
+            }
+            cvtColor(srcImageRgb, imageRgb, COLOR_BGRA2BGR);            
+        #else
+            vector<uint8_t> buffer(img, img + imgLength);
+            imageRgb = imdecode(buffer, IMREAD_COLOR);;
+
+        #endif
+        // cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
+        resize(imageRgb, destImageRgb, resize_input_size);
+        imgResizeLength[0] = destImageRgb.total() * destImageRgb.channels();
+        std::copy(&destImageRgb.data, &destImageRgb.data + imgResizeLength[0], imgResize);
+
+
+        
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb.release();
+        #endif
+        imageRgb.release();
+
+    }
 
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
@@ -306,7 +346,7 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         }
 
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
-        //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
+        // cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
         double this_score = 0;
         double this_left_score = 0;
         double this_right_score = 0;
