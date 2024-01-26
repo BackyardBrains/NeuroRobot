@@ -115,6 +115,19 @@ EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const
 
 std::thread simulatorThread;
 
+
+void setSimulationMatrixValue(double *arr, short i, short j, short per_row, double value){
+    arr[ i * per_row + j] =  value;
+}
+
+double getSimulationMatrixValue(double *arr, short i, short j, short per_row){
+    return arr[ i * per_row + j];
+}
+
+short getSimulationMatrixValue(short *arr, short i, short j, short per_row){
+    return arr[ i * per_row + j];
+}
+
 double randoms(){
     // srand((unsigned) time(NULL));    
     return (double) rand() / RAND_MAX * 1;
@@ -140,6 +153,11 @@ void initializeConstant(int neuronLength){
     dist_I = new short[neuronLength];
 
 }
+
+double brainSigmoid(double xx, double cc, double aa) {
+    return 1.0 / (1.0 + exp(-aa * (xx - cc)));
+}
+
 
 int main()
 {
@@ -173,12 +191,13 @@ EXTERNC FUNCTION_ATTRIBUTE short initialize(){
     //     temp_vis_pref_vals[featureIdx][0] = 0;
     //     temp_vis_pref_vals[featureIdx][1] = 0;
     // }
-    vis_pref_vals = new double*[vis_prefs_count];
-    for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
-        vis_pref_vals[featureIdx] = new double[ncam];
-        vis_pref_vals[featureIdx][0] = 0;
-        vis_pref_vals[featureIdx][1] = 0;
-    }
+
+    // vis_pref_vals = new double*[vis_prefs_count];
+    // for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
+    //     vis_pref_vals[featureIdx] = new double[ncam];
+    //     vis_pref_vals[featureIdx][0] = 0;
+    //     vis_pref_vals[featureIdx][1] = 0;
+    // }
     return 1;
 }
 
@@ -223,11 +242,19 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs){
     canvasBuffer = _canvasBuffer;
     positions = _positions;
     neuronCircles = _neuronCircle;        
-    nps = _nps;    
+    nps = _nps;
+
+    state_buf = p_state_buf;
+    visPrefs = p_vis_prefs;
+    vis_pref_vals = p_vis_pref_vals;
+    motor_command_message = p_motor_command_message;
+    neuron_contacts = p_neuron_contacts;
+    dist_prefs = p_dist_prefs;
+
     return 1.0;
 }
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
@@ -251,23 +278,26 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     
     // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
-    visPrefs = new short*[_neuronLength];
-    neuron_contacts = new double*[_neuronLength];
+    // visPrefs = new short*[_neuronLength];
+    // neuron_contacts = new double*[_neuronLength];
     int ctr = 0;
     double flagcounter = 0;
     for (int ii = 0; ii < _neuronLength; ii++){
         connectome[ii] = new double[_neuronLength]();
-        visPrefs[ii] = new short[_neuronLength]();
-        neuron_contacts[ii] = new double[_neuronLength]();
+        // visPrefs[ii] = new short[_neuronLength]();
+        // neuron_contacts[ii] = new double[_neuronLength]();
         for (int j = 0; j < _neuronLength; j++){
             connectome[ii][j] = _connectome[ctr];
-            visPrefs[ii][j] = vis_prefs[ctr];
+            // visPrefs[ii][j] = vis_prefs[ctr];
+            // setSimulationMatrixValue(visPrefs, ii, j, _neuronLength, vis_prefs[ctr]);
             if (vis_prefs[ctr]>-1){
                 flagcounter++;
                 // platform_log(std::to_string(visPrefs[ii][j]).c_str());
                 // platform_log("\n");
             }
-            neuron_contacts[ii][j] = _neuronContacts[ctr];
+
+            //setSimulationMatrixValue
+            //neuron_contacts[ii][j] = _neuronContacts[ctr];
             ctr++;
         }
     }
@@ -313,7 +343,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             auto start = std::chrono::high_resolution_clock::now();
             auto elapsed = std::chrono::high_resolution_clock::now() - start;
             long long microseconds = 0;
-            bool isNeuronPerSecond = true;
+            bool isNeuronPerSecond = false;
 
             double left_backward = 0;
             double left_forward = 0;
@@ -356,19 +386,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         spikes_step[i][j] = 0;
                     }
                     vis_I[i] = 0;
-                    if (dist_prefs[i] == 0){
-                        dist_I[i] = sigmoid(sensor_distance, dist_short, -10) * 50;
-                    } else 
-                    if (dist_prefs[i] == 1){
-                        dist_I[i] = sigmoid(sensor_distance, dist_medium, -10) * 50;
-                    } else 
-                    if (dist_prefs[i] == 2){
-                        dist_I[i] = sigmoid(sensor_distance, dist_long, -10) * 50;
-                    }
 
-                    // dist_I(dist_prefs == 1) = sigmoid(this_distance, dist_short, -10) * 50;
-                    // dist_I(dist_prefs == 2) = sigmoid(this_distance, dist_med, -10) * 50;
-                    // dist_I(dist_prefs == 3) = sigmoid(this_distance, dist_long, -10) * 50;                    
+                    // if (dist_prefs[i] == 0){
+                    //     dist_I[i] = brainSigmoid(sensor_distance, dist_short, -10) * 50;
+                    // } else 
+                    // if (dist_prefs[i] == 1){
+                    //     dist_I[i] = brainSigmoid(sensor_distance, dist_medium, -10) * 50;
+                    // } else 
+                    // if (dist_prefs[i] == 2){
+                    //     dist_I[i] = brainSigmoid(sensor_distance, dist_long, -10) * 50;
+                    // }
+
                 }
 
                 // for nneuron = 1:nneurons % ugly for loop, fix this
@@ -383,38 +411,37 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 for (short ii = 9; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
                     for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
-                        if (visPrefs[jj][ii] > -1){ // selected Color detection
+                        // if (visPrefs[jj][ii] > -1){ // selected Color detection
+                        short k = getSimulationMatrixValue(visPrefs, jj, ii, threadInitialTotalNumOfNeurons);
 
-                            // short k = (visPrefs[jj][ii] / 2);
-                            short k = ( visPrefs[jj][ii] );
-
-                            // double val1 = temp_vis_pref_vals[k][0];
-                            // double val2 = temp_vis_pref_vals[k][1];
-                            double val1 = vis_pref_vals[k][0];
-                            double val2 = vis_pref_vals[k][1];
+                        if (k > -1){ // selected Color detection
+                            platform_log( (std::to_string(k)+" END SELECTED COLOR\n" ).c_str());
+                            // short k = ( visPrefs[jj][ii] );
+                            // double val1 = vis_pref_vals[k][0];
+                            // double val2 = vis_pref_vals[k][1];
+                            double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, threadInitialTotalNumOfNeurons);
+                            double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, threadInitialTotalNumOfNeurons);
                             sumVisPrefVals += val1;
-                            sumVisPrefVals += val2;
-                            // temp_vis_pref_vals[k][0] = 0;
-                            // temp_vis_pref_vals[k][1] = 0;
-
-                            // platform_log("\nFOUNDD\n");
-                            // platform_log(std::to_string(temp_vis_pref_vals[k][0]).c_str());
-                            // platform_log("\n");
-                            // platform_log(std::to_string(temp_vis_pref_vals[k][1]).c_str());
-                            // platform_log("\n");
-                            // platform_log(std::to_string(k).c_str());
-                            // platform_log("\n");
-                            // platform_log(std::to_string(sumVisPrefVals).c_str());
-                            // platform_log("\n");
-
-                            
-
+                            sumVisPrefVals += val2;                        
                         }
                     }
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
+                    // platform_log( "4 - idx");
+                    // platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 4, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                    // platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 4, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                    // platform_log( "3 - idx");
+                    // platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 3, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                    // platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 3, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                    // 3 - idx
+                    // 0.024184 END VIS SCORE
+                    // 0.517687 END VIS SCORE
+                    // 4 - idx
+                    // 50.000000 END VIS SCORE
+                    // 0.000000 END VIS SCORE
                     // vis_I[ii] = 0;
-
                 }
+
+                
 
                 std::vector<double*> v_step = std::vector<double*>();
 
@@ -474,7 +501,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     delete[](sumConnectome);
                     // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
-                        tI[idx] += (vis_I[idx] + dist_I[idx]);
+                        // tI[idx] += (vis_I[idx] + dist_I[idx]);
+                        tI[idx] += vis_I[idx];
                         // tI[idx] += 100;
                         // if (vis_I[idx] >= 100){
                         //     platform_log("\nNOISE\n");
@@ -623,29 +651,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 right_forward = 0;
                 for (short i =0; i < threadTotalNumOfNeurons;i++){
                     if ( isStepSpiking[i] == 1 ){
-                        // platform_log("\nStepsSpiking: ");
-                        // // platform_log(std::to_string( isStepSpiking[i] ).c_str());
-                        // platform_log(std::to_string( i ).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string( neuron_contacts[i][5] ).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string( neuron_contacts[i][7] ).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string( neuron_contacts[i][6] ).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string( neuron_contacts[i][8] ).c_str());
-                        // platform_log("\n");
+                        // left_forward += ( neuron_contacts[i][7]);
+                        // left_backward += ( neuron_contacts[i][5]);
 
-                        // left_backward += (neuron_contacts[i][5] + neuron_contacts[i][7]);
-                        // left_forward += (neuron_contacts[i][6] + neuron_contacts[i][8]);
+                        // right_forward += ( neuron_contacts[i][6] );
+                        // right_backward += ( neuron_contacts[i][8] );
+                        
+                        left_forward += ( getSimulationMatrixValue( neuron_contacts, i, 7, threadTotalNumOfNeurons));
+                        left_backward += ( getSimulationMatrixValue( neuron_contacts, i, 5, threadTotalNumOfNeurons));
 
-                        // right_forward += (neuron_contacts[i][9] + neuron_contacts[i][11]);
-                        // right_backward += (neuron_contacts[i][10] + neuron_contacts[i][12]);
-                        left_forward += ( neuron_contacts[i][7]);
-                        left_backward += ( neuron_contacts[i][5]);
-
-                        right_forward += ( neuron_contacts[i][6] );
-                        right_backward += ( neuron_contacts[i][8] );
+                        right_forward += ( getSimulationMatrixValue( neuron_contacts, i, 6, threadTotalNumOfNeurons));
+                        right_backward += ( getSimulationMatrixValue( neuron_contacts, i, 8, threadTotalNumOfNeurons));
                     }
                 }
                 left_forward *= 0.5;
@@ -743,13 +759,30 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 // // print("wheel message");
                 // // print(processedMotorCounter.toString() + "__" + message);
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:0;";
+                message = "l:" + std::to_string(r_torque * r_dir) + ";r:" + std::to_string(l_torque * l_dir) + ";s:0;";
+                std::fill(motor_command_message, motor_command_message + 300, 0);
+                for (std::size_t i = 0; i < message.length(); ++i) {
+                    motor_command_message[i] = static_cast<uint8_t>(message[i]);
+                }
+                state_buf[4]= message.length();
+                char *cstr = new char[message.length() + 1];
+                strcpy(cstr, message.c_str());                
+                #ifdef __EMSCRIPTEN__
+                    EM_ASM({
+                        updateMotorCommand($0, UTF8ToString($1), $2, $3);
+                    // }, state_buf, motor_command_message, state_buf[4]);
+                    }, state_buf, cstr, state_buf[4], motor_command_message);
+                #else
+                    onCallback(message.c_str());
+
+                #endif                        
+
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
                 //     platform_log("Motor Commands :\n");
                 //     platform_log(message.c_str());
                 //     platform_log("\n");
                 // }
-                onCallback(message.c_str());
+                // onCallback(message.c_str());
 
 
                 delete[] isSpiking;
@@ -773,7 +806,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 for (short i = 0; i < threadInitialTotalNumOfNeurons; i++){
                     delete[] spikes_step[i];
                     delete[] (connectome[i]);
-                    delete[] (neuron_contacts[i]);
+                    // delete[] (neuron_contacts[i]);
                 }
                 delete[] spikes_step;
 

@@ -2,7 +2,7 @@ name: neurorobot
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+37
+version: 1.2.0+38
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -35,12 +35,12 @@ dependencies:
   easy_animated_tabbar: 0.0.1
   metooltip: 0.0.7
   fialogs: 2.1.0
-  
+  screenshot: 2.1.0
+
   # WEB CHANGE
   ffi: 2.1.0  
   native_opencv:
     path: ./PLUGINS/native_opencv
-
 
 
   # opencv_ffi: 1.1.0

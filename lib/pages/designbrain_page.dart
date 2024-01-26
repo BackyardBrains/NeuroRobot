@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 // import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
@@ -24,6 +25,7 @@ import 'package:neurorobot/utils/Simulations.dart';
 import 'package:neurorobot/utils/SingleCircle.dart';
 import 'package:neurorobot/utils/Vision.dart';
 import 'package:neurorobot/utils/WaveWidget.dart';
+import 'package:screenshot/screenshot.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
@@ -210,7 +212,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   int circleNeuronStartIndex = 11;
   int normalNeuronStartIdx = 9;
-  int allNeuronStartIdx = 2;
+  int allNeuronStartIdx = 2; // beside viewport & tail node
 
   Uint8List dataMaskedImage = Uint8List(0);
 
@@ -228,6 +230,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int StateLength = 20;
   int MotorMessageLength = 300;
   int VisualPrefLength = 7 * 2;
+
+  late Widget mainBody;
 
   void runNativeC() {
     const level = 1;
@@ -548,6 +552,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   double constraintBrainTop = 170.0;
   double constraintBrainBottom = 430.0;
 
+  double aspectRatio = 1.0;
   double prevScreenWidth = 800.0;
   double prevScreenHeight = 600.0;
   double screenWidth = 800.0;
@@ -772,6 +777,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     safePadding = MediaQuery.of(context).padding.right;
+    // aspectRatio = MediaQuery.of(context).devicePixelRatio;
     // Future.delayed(const Duration(milliseconds: 2000), (){
     //   repositionSensoryNeuron();
     // });
@@ -912,6 +918,35 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }
     }
 
+    mainBody = !isInitialized
+        ? const SizedBox()
+        : prepareWidget(
+            InfiniteCanvas(
+              backgroundBuilder: (ctx, r) {
+                // print("MediaQuery.of(context).screenWidth");
+                // print(screenWidth);
+                // print(screenHeight);
+                // print(r);
+
+                return Container(
+                  color: Colors.white,
+                  width: screenWidth,
+                  height: screenHeight,
+                  child: Image.asset(
+                      width: screenWidth,
+                      height: screenHeight,
+                      // scale: screenWidth/800,
+                      fit: BoxFit.contain,
+                      // scale: density,
+                      "assets/bg/bg1.0x.jpeg"),
+                );
+              },
+              drawVisibleOnly: true,
+              canAddEdges: true,
+              menuVisible: false,
+              controller: controller,
+            ),
+          );
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -940,39 +975,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             left: 0,
             top: 0,
             child: Container(
-              color: Colors.white,
-              width: screenWidth,
-              height: screenHeight,
-              child: !isInitialized
-                  ? const SizedBox()
-                  : prepareWidget(
-                      InfiniteCanvas(
-                        backgroundBuilder: (ctx, r) {
-                          // print("MediaQuery.of(context).screenWidth");
-                          // print(screenWidth);
-                          // print(screenHeight);
-                          // print(r);
-
-                          return Container(
-                            color: Colors.white,
-                            width: screenWidth,
-                            height: screenHeight,
-                            child: Image.asset(
-                                width: screenWidth,
-                                height: screenHeight,
-                                // scale: screenWidth/800,
-                                fit: BoxFit.contain,
-                                // scale: density,
-                                "assets/bg/bg1.0x.jpeg"),
-                          );
-                        },
-                        drawVisibleOnly: true,
-                        canAddEdges: true,
-                        menuVisible: false,
-                        controller: controller,
-                      ),
-                    ),
-            ),
+                color: Colors.white,
+                width: screenWidth,
+                height: screenHeight,
+                child: mainBody),
           ),
           Positioned(
             right: 10 + safePadding,
@@ -1157,10 +1163,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     int ctr = 0;
 
     for (int i = 0; i < neuronSize; i++) {
-      LocalKey neuronFromKey = findNeuronByValue(i).key;
+      // LocalKey neuronFromKey = findNeuronByValue(i).key;
+      InfiniteCanvasNode neuronFrom = findNeuronByValue(i);
       for (int j = 0; j < neuronSize; j++) {
-        LocalKey neuronToKey = findNeuronByValue(j).key;
-        String connectionKey = "${neuronFromKey}_${neuronToKey}";
+        // LocalKey neuronToKey = findNeuronByValue(j).key;
+        InfiniteCanvasNode neuronTo = findNeuronByValue(j);
+        String connectionKey = "${neuronFrom.value}_${neuronTo.value}";
 
         // sensory neuron
         // print("visPrefsBufView.length");
@@ -1617,10 +1625,90 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     if (menuIdx == 1) {
       // controller.setCanvasMove(false);
     } else if (menuIdx == 5) {
-      print("home");
+      // home
       // Navigator.pop(context);
       // Navigator.pop(context);
     } else if (menuIdx == 6) {
+      // save
+      // save neurons : position, index, color, shape, size
+      // save edges : from node Id, to node Id
+      // save as json.
+
+      var nodesJson = [];
+      controller.nodes.forEach((InfiniteCanvasNode e) {
+        print("e.value == null");
+        if (e.value == -2) {
+          nodesJson.add({
+            "index": e.value,
+            "position": [e.offset.dx, e.offset.dy],
+            "color": [e.offset.dx, e.offset.dy],
+            "shape": "SizedBox"
+          });
+        } else if (e.value == -1) {
+          nodesJson.add({
+            "index": e.value,
+            "position": [e.offset.dx, e.offset.dy],
+            "color": [e.offset.dx, e.offset.dy],
+            "shape": "CustomPainter"
+          });
+        } else if (e.value < normalNeuronStartIdx) {
+          nodesJson.add({
+            "index": e.value,
+            "position": [e.offset.dx, e.offset.dy],
+            "color": [e.offset.dx, e.offset.dy],
+            "shape": "CustomPaint"
+          });
+        } else {
+          nodesJson.add({
+            "index": e.value,
+            "position": [e.offset.dx, e.offset.dy],
+            "color": [e.offset.dx, e.offset.dy],
+            "shape": "CustomPaint"
+          });
+          // e.value >=normalNeuronStartIdx
+        }
+      });
+
+      var edgesJson = [];
+      controller.edges.forEach((InfiniteCanvasEdge edge) {
+        InfiniteCanvasNode from = findNeuronByKey(edge.from);
+        InfiniteCanvasNode to = findNeuronByKey(edge.to);
+        edgesJson.add(from.value + "_#_" + to.value);
+      });
+      print("nodesJson");
+      print(nodesJson);
+      // Map mapConnectome = {};
+      // Map mapSensoryNeuron = {}; // vis prefs
+      // Map mapContactsNeuron = {};
+      // Map mapDistanceNeuron = {}; // dist prefs
+      // var sensoryNeuronJson = [];
+      // mapSensoryNeuron.keys.forEach((key) {
+      //   String connectionKey = mapSensoryNeuron[key];
+      //   List<String> arr = connectionKey.split("_");
+      // });
+
+      // String strNodesJson = json.encode({
+      //   "nodes": nodesJson,
+      //   "edges": edgesJson,
+      //   "mapConnectome": connectomeJson,
+      //   "mapSensoryNeuron": sensoryNeuronJson,
+      //   "mapContactsNeuron": contactsNeuronJson,
+      //   "mapDistanceNeuron": distanceNeuronJson,
+      // });
+
+      ScreenshotController screenshotController = ScreenshotController();
+      screenshotController.captureFromWidget(mainBody).then((imageBytes) async {
+        // String directory = (await getApplicationDocumentsDirectory())
+        //     .path; //from path_provide package
+        String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+        // path = '$directory';
+
+        final directory = await getApplicationDocumentsDirectory();
+        final imagePath =
+            await File('${directory.path}/Brain$fileName').create();
+        await imagePath.writeAsBytes(imageBytes);
+      });
+
       // print( json.encode(controller.nodes) );
       // print( json.encode(controller.edges) );
     } else if (menuIdx == 7) {
@@ -2327,7 +2415,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       val = 30;
     }
     final lastCreatedEdge = controller.edgeSelected;
-    mapConnectome["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
+    final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+    final neuronTo = findNeuronByKey(lastCreatedEdge.to);
+
+    // mapConnectome["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
+    mapConnectome["${neuronFrom.value}_${neuronTo.value}"] = val;
   }
 
   void linkMotorConnection(value) {
@@ -2339,21 +2431,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       val = 50;
     }
     final lastCreatedEdge = controller.edgeSelected;
-    mapContactsNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
+    final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+    final neuronTo = findNeuronByKey(lastCreatedEdge.to);
+
+    // mapContactsNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
+    mapContactsNeuron["${neuronFrom.value}_${neuronTo.value}"] = val;
   }
 
   void linkSensoryConnection(value) {
     print("sensory");
     print(value);
     final lastCreatedEdge = controller.edgeSelected;
-    // final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
-    // final neuronTo = findNeuronByKey(lastCreatedEdge.to);
-    mapSensoryNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+    final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+    final neuronTo = findNeuronByKey(lastCreatedEdge.to);
+
+    // mapSensoryNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+    mapSensoryNeuron["${neuronFrom.value}_${neuronTo.value}"] = value;
   }
 
   void linkDistanceConnection(value) {
     final lastCreatedEdge = controller.edgeSelected;
-    mapDistanceNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+    final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
+    final neuronTo = findNeuronByKey(lastCreatedEdge.to);
+
+    // mapDistanceNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+    mapDistanceNeuron["${neuronFrom.value}_${neuronTo.value}"] = value;
   }
 
   void initNeuronType() {
@@ -2564,9 +2666,9 @@ class EyeClipper extends CustomClipper<Rect> {
     //   return const Rect.fromLTWH(50, 25, 150, 150);
     // }
     if (isLeft) {
-      return const Rect.fromLTWH(0, 0, 270 / 2, 240 / 2);
+      return const Rect.fromLTWH(0, 0, 260 / 2, 240 / 2);
     } else {
-      return const Rect.fromLTWH(50 / 2, 0, 270 / 2, 240 / 2);
+      return const Rect.fromLTWH(50 / 2, 0, 260 / 2, 240 / 2);
     }
   }
 
