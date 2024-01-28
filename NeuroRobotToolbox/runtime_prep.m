@@ -75,6 +75,11 @@ clear postsynaptic_contact
 clear neuron_xys
 
 
+%% Add path
+if ~isdeployed
+    addpath(genpath("MatlabWebSocket\"))
+end
+
 %% Calibrate distance sensor
 esp_get_serial
 dist_short = 500;
