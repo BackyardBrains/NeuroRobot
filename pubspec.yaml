@@ -24,6 +24,7 @@ dependencies:
   socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4
   path_provider: 2.1.1
+  path: 1.8.3
   # opencv_ffi:
   #   path: ./PLUGINS/opencv_ffi/
     
@@ -36,6 +37,7 @@ dependencies:
   metooltip: 0.0.7
   fialogs: 2.1.0
   screenshot: 2.1.0
+  sn_progress_dialog: 1.1.3
 
   # WEB CHANGE
   ffi: 2.1.0  

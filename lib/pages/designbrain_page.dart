@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ import 'package:native_opencv/nativec.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
+import 'package:neurorobot/dialogs/load_brain.dart';
+import 'package:neurorobot/dialogs/save_brain.dart';
 import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
 import 'package:neurorobot/utils/Simulations.dart';
@@ -26,6 +29,7 @@ import 'package:neurorobot/utils/SingleCircle.dart';
 import 'package:neurorobot/utils/Vision.dart';
 import 'package:neurorobot/utils/WaveWidget.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
@@ -68,7 +72,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   // SIMULATION SECTION
   List<String> neuronTypes = [];
-  static int neuronSize = 10;
+  static int neuronSize = 9;
   static const int motorCommandsLength = 6 * 2;
   static const int maxPosBuffer = 220;
   int epochs = 30;
@@ -1438,7 +1442,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               print("neuronIdx");
               print(neuronIdx);
               isSelected = true;
-              nativec.changeIdxSelected(neuronIdx);
+              try {
+                nativec.changeIdxSelected(neuronIdx);
+              } catch (err) {
+                print("err");
+                print(err);
+              }
               if (neuronIdx < normalNeuronStartIdx) {
                 return;
               }
@@ -1488,23 +1497,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 // "neuronContact": neuronContactsBufView[ neuronFrom.value * neuronSize + neuronTo.value],
                 // "visualPref": visPrefsBufView[ neuronFrom.value * neuronSize + neuronTo.value].toDouble(),
                 "connectomeContact": mapConnectome
-                        .containsKey("${neuronFrom.key}_${neuronTo.key}")
-                    ? mapConnectome["${neuronFrom.key}_${neuronTo.key}"]
+                        .containsKey("${neuronFrom.value}_${neuronTo.value}")
+                    ? mapConnectome["${neuronFrom.value}_${neuronTo.value}"]
                         .toDouble()
                     : 0,
                 "neuronContact": mapContactsNeuron
-                        .containsKey("${neuronFrom.key}_${neuronTo.key}")
-                    ? mapContactsNeuron["${neuronFrom.key}_${neuronTo.key}"]
+                        .containsKey("${neuronFrom.value}_${neuronTo.value}")
+                    ? mapContactsNeuron["${neuronFrom.value}_${neuronTo.value}"]
                         .toDouble()
                     : 0,
                 "visualPref": mapSensoryNeuron
-                        .containsKey("${neuronFrom.key}_${neuronTo.key}")
-                    ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"]
+                        .containsKey("${neuronFrom.value}_${neuronTo.value}")
+                    ? mapSensoryNeuron["${neuronFrom.value}_${neuronTo.value}"]
                         .toDouble()
                     : -1.0,
                 "distanceContact": mapDistanceNeuron
-                        .containsKey("${neuronFrom.key}_${neuronTo.key}")
-                    ? mapDistanceNeuron["${neuronFrom.key}_${neuronTo.key}"]
+                        .containsKey("${neuronFrom.value}_${neuronTo.value}")
+                    ? mapDistanceNeuron["${neuronFrom.value}_${neuronTo.value}"]
                         .toDouble()
                     : -1,
               };
@@ -1585,7 +1594,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     }
   }
 
-  rightToolbarCallback(map) {
+  rightToolbarCallback(map) async {
     print("map");
     print(map);
     menuIdx = map["menuIdx"];
@@ -1628,86 +1637,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // home
       // Navigator.pop(context);
       // Navigator.pop(context);
+
+      await loadBrainDialog(context, "Load Brain", selectSavedBrain);
+      Future.delayed(const Duration(seconds: 1), () {
+        rightToolbarCallback({"menuIdx": 0});
+        setState(() {});
+      });
+      // String filename = "1706316809745231";
+      // selectSavedBrain(filename);
+      // controller.nodes.clear();
     } else if (menuIdx == 6) {
       // save
       // save neurons : position, index, color, shape, size
       // save edges : from node Id, to node Id
       // save as json.
-
-      var nodesJson = [];
-      controller.nodes.forEach((InfiniteCanvasNode e) {
-        print("e.value == null");
-        if (e.value == -2) {
-          nodesJson.add({
-            "index": e.value,
-            "position": [e.offset.dx, e.offset.dy],
-            "color": [e.offset.dx, e.offset.dy],
-            "shape": "SizedBox"
-          });
-        } else if (e.value == -1) {
-          nodesJson.add({
-            "index": e.value,
-            "position": [e.offset.dx, e.offset.dy],
-            "color": [e.offset.dx, e.offset.dy],
-            "shape": "CustomPainter"
-          });
-        } else if (e.value < normalNeuronStartIdx) {
-          nodesJson.add({
-            "index": e.value,
-            "position": [e.offset.dx, e.offset.dy],
-            "color": [e.offset.dx, e.offset.dy],
-            "shape": "CustomPaint"
-          });
-        } else {
-          nodesJson.add({
-            "index": e.value,
-            "position": [e.offset.dx, e.offset.dy],
-            "color": [e.offset.dx, e.offset.dy],
-            "shape": "CustomPaint"
-          });
-          // e.value >=normalNeuronStartIdx
-        }
-      });
-
-      var edgesJson = [];
-      controller.edges.forEach((InfiniteCanvasEdge edge) {
-        InfiniteCanvasNode from = findNeuronByKey(edge.from);
-        InfiniteCanvasNode to = findNeuronByKey(edge.to);
-        edgesJson.add(from.value + "_#_" + to.value);
-      });
-      print("nodesJson");
-      print(nodesJson);
-      // Map mapConnectome = {};
-      // Map mapSensoryNeuron = {}; // vis prefs
-      // Map mapContactsNeuron = {};
-      // Map mapDistanceNeuron = {}; // dist prefs
-      // var sensoryNeuronJson = [];
-      // mapSensoryNeuron.keys.forEach((key) {
-      //   String connectionKey = mapSensoryNeuron[key];
-      //   List<String> arr = connectionKey.split("_");
-      // });
-
-      // String strNodesJson = json.encode({
-      //   "nodes": nodesJson,
-      //   "edges": edgesJson,
-      //   "mapConnectome": connectomeJson,
-      //   "mapSensoryNeuron": sensoryNeuronJson,
-      //   "mapContactsNeuron": contactsNeuronJson,
-      //   "mapDistanceNeuron": distanceNeuronJson,
-      // });
-
-      ScreenshotController screenshotController = ScreenshotController();
-      screenshotController.captureFromWidget(mainBody).then((imageBytes) async {
-        // String directory = (await getApplicationDocumentsDirectory())
-        //     .path; //from path_provide package
-        String fileName = DateTime.now().microsecondsSinceEpoch.toString();
-        // path = '$directory';
-
-        final directory = await getApplicationDocumentsDirectory();
-        final imagePath =
-            await File('${directory.path}/Brain$fileName').create();
-        await imagePath.writeAsBytes(imageBytes);
-      });
+      await saveBrainInfoDialog(context, saveCurrentBrain);
 
       // print( json.encode(controller.nodes) );
       // print( json.encode(controller.edges) );
@@ -2017,7 +1961,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       nodeMicrophoneSensor,
       nodeSpeakerSensor,
 
-      rectangleNode,
+      // rectangleNode,
       // triangleNode,
       // circleNode,
     ];
@@ -2393,9 +2337,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   InfiniteCanvasNode findNeuronByValue(val) {
     // print("val");
     // print(val);
-    var list = controller.nodes
-        .where((element) => element.value == val)
-        .toList(growable: false);
+    var list = controller.nodes.where((element) {
+      print("element.value");
+      print(element.value);
+      print(val);
+      print(element.value.runtimeType);
+      print(val.runtimeType);
+      print("------");
+      return element.value == val;
+    }).toList(growable: false);
     return list[0];
   }
 
@@ -2513,21 +2463,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // "neuronContact": neuronContactsBufView[ neuronFrom.value * neuronSize + neuronTo.value],
         // "visualPref": visPrefsBufView[ neuronFrom.value * neuronSize + neuronTo.value].toDouble(),
         "connectomeContact":
-            mapConnectome.containsKey("${neuronFrom.key}_${neuronTo.key}")
-                ? mapConnectome["${neuronFrom.key}_${neuronTo.key}"]
+            mapConnectome.containsKey("${neuronFrom.value}_${neuronTo.value}")
+                ? mapConnectome["${neuronFrom.value}_${neuronTo.value}"]
                 : 0,
-        "neuronContact":
-            mapContactsNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
-                ? mapContactsNeuron["${neuronFrom.key}_${neuronTo.key}"]
-                : 0,
+        "neuronContact": mapContactsNeuron
+                .containsKey("${neuronFrom.value}_${neuronTo.value}")
+            ? mapContactsNeuron["${neuronFrom.value}_${neuronTo.value}"]
+            : 0,
         "visualPref": mapSensoryNeuron
-                .containsKey("${neuronFrom.key}_${neuronTo.key}")
-            ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
+                .containsKey("${neuronFrom.value}_${neuronTo.value}")
+            ? mapSensoryNeuron["${neuronFrom.value}_${neuronTo.value}"]
+                .toDouble()
             : -1.0,
-        "distanceContact":
-            mapDistanceNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
-                ? mapDistanceNeuron["${neuronFrom.key}_${neuronTo.key}"]
-                : -1,
+        "distanceContact": mapDistanceNeuron
+                .containsKey("${neuronFrom.value}_${neuronTo.value}")
+            ? mapDistanceNeuron["${neuronFrom.value}_${neuronTo.value}"]
+            : -1,
       };
       axonDialogBuilder(
           context,
@@ -2650,6 +2601,183 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // print(message);
       _DesignBrainPageState.isolateWritePort.send(message);
     }
+  }
+
+  void populateNode(v, nodeKey) {
+    InfiniteCanvasNode tempNode = InfiniteCanvasNode(
+      value: v["index"],
+      key: nodeKey,
+      offset: Offset(v["position"][0], v["position"][1]),
+      size: const Size(20, 20),
+      allowResize: false,
+      child: Builder(
+        builder: (context) {
+          return CustomPaint(
+            isComplex: true,
+            willChange: true,
+            painter: InlineCustomPainter(
+              brush: neuronColor,
+              // brush: rectangleColor,
+              builder: (brush, canvas, rect) {
+                canvas.drawCircle(rect.center, rect.width / 2, brush);
+              },
+            ),
+          );
+        },
+      ),
+    );
+    controller.nodes.add(tempNode);
+  }
+
+  void saveCurrentBrain(String title, String description) async {
+    // mainBloc.setLoading(1);
+    ProgressDialog pd = ProgressDialog(context: context);
+    pd.show(msg: 'Saving Brain...');
+
+    var nodesJson = [];
+    controller.nodes.forEach((InfiniteCanvasNode e) {
+      print("e.value == null");
+      if (e.value == -2) {
+        nodesJson.add({
+          "index": e.value,
+          "position": [e.offset.dx, e.offset.dy],
+          "color": [e.offset.dx, e.offset.dy],
+          "shape": "SizedBox"
+        });
+      } else if (e.value == -1) {
+        nodesJson.add({
+          "index": e.value,
+          "position": [e.offset.dx, e.offset.dy],
+          "color": [e.offset.dx, e.offset.dy],
+          "shape": "CustomPainter"
+        });
+      } else if (e.value < normalNeuronStartIdx) {
+        nodesJson.add({
+          "index": e.value,
+          "position": [e.offset.dx, e.offset.dy],
+          "color": [e.offset.dx, e.offset.dy],
+          "shape": "CustomPaint"
+        });
+      } else {
+        print("e.offset");
+        print(e.offset);
+        nodesJson.add({
+          "index": e.value,
+          "position": [e.offset.dx, e.offset.dy],
+          "color": [e.offset.dx, e.offset.dy],
+          "shape": "CustomPaint"
+        });
+        // e.value >=normalNeuronStartIdx
+      }
+    });
+
+    var edgesJson = [];
+    controller.edges.forEach((InfiniteCanvasEdge edge) {
+      InfiniteCanvasNode from = findNeuronByKey(edge.from);
+      InfiniteCanvasNode to = findNeuronByKey(edge.to);
+      edgesJson.add(from.value.toString() + "_#_" + to.value.toString());
+    });
+
+    String strNodesJson = json.encode({
+      "nodes": nodesJson,
+      "edges": edgesJson,
+      "neuronTypes": neuronTypes,
+      "mapConnectome": mapConnectome,
+      "mapSensoryNeuron": mapSensoryNeuron,
+      "mapContactsNeuron": mapContactsNeuron,
+      "mapDistanceNeuron": mapDistanceNeuron,
+    });
+    print("strNodesJson");
+    // print(strNodesJson);
+
+    String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+    Directory directory =
+        (await getApplicationDocumentsDirectory()); //from path_provide package
+
+    Directory imgDirectory =
+        Directory("${(await getApplicationDocumentsDirectory()).path}/images");
+    Directory txtDirectory =
+        Directory("${(await getApplicationDocumentsDirectory()).path}/text");
+    if (!imgDirectory.existsSync()) imgDirectory.createSync();
+    if (!txtDirectory.existsSync()) txtDirectory.createSync();
+
+    print(directory.path);
+    final File file = File('${directory.path}/text/BrainText$fileName.txt');
+    await file.writeAsString(strNodesJson);
+
+    ScreenshotController screenshotController = ScreenshotController();
+    screenshotController.captureFromWidget(mainBody).then((imageBytes) async {
+      // String directory = (await getApplicationDocumentsDirectory())
+      //     .path; //from path_provide package
+      // String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+      // path = '$directory';
+      title = title.replaceAll(".", "|");
+      description = description.replaceAll(".", "|");
+      title = title.replaceAll("@", "#");
+      description = description.replaceAll("@", "#");
+      final directory = await getApplicationDocumentsDirectory();
+      final imagePath = await File(
+              '${directory.path}/images/Brain$fileName@@@$title@@@$description.png')
+          .create();
+      await imagePath.writeAsBytes(imageBytes);
+      pd.close();
+      // mainBloc.setLoading(0);
+    });
+  }
+
+  void selectSavedBrain(String filename) async {
+    if (filename == "") return;
+    controller.edges.clear();
+    int len = controller.nodes.length;
+    for (int i = 9 + 2; i < len; i++) {
+      controller.nodes.removeLast();
+    }
+
+    final Directory directory = await getApplicationDocumentsDirectory();
+    final File savedFile =
+        File('${directory.path}/text/BrainText$filename.txt');
+    String savedFileText = await savedFile.readAsString();
+    Map savedFileJson = json.decode(savedFileText);
+
+    List<dynamic> nodesJson = savedFileJson["nodes"];
+    // List<String> tempNeuronTypes =
+    //     List.generate(neuronTypes.length, (index) => neuronTypes[index]);
+    List<UniqueKey> tempNeuronsKey =
+        List.generate(neuronsKey.length, (index) => neuronsKey[index]);
+
+    nodesJson.forEach((v) {
+      if (v["index"] == -2) {
+      } else if (v["index"] == -1) {
+      } else if (v["index"] < 9) {
+      } else {
+        UniqueKey nodeKey = UniqueKey();
+        tempNeuronsKey.add(nodeKey);
+        populateNode(v, nodeKey);
+      }
+    });
+
+    List<dynamic> edgesJson = savedFileJson["edges"];
+    edgesJson.forEach((v) {
+      List<String> arr = v.toString().split("_#_");
+      InfiniteCanvasNode nodeFrom = findNeuronByValue(int.parse(arr[0]));
+      InfiniteCanvasNode nodeTo = findNeuronByValue(int.parse(arr[1]));
+      InfiniteCanvasEdge edge = InfiniteCanvasEdge(
+        from: nodeFrom.key,
+        to: nodeTo.key,
+      );
+      controller.edges.add(edge);
+    });
+
+    mapConnectome = savedFileJson["mapConnectome"];
+    mapSensoryNeuron = savedFileJson["mapSensoryNeuron"];
+    mapContactsNeuron = savedFileJson["mapContactsNeuron"];
+    mapDistanceNeuron = savedFileJson["mapDistanceNeuron"];
+    neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
+
+    neuronSize = controller.nodes.length - 2;
+    neuronsKey = tempNeuronsKey;
+    // print("Loaded Neuron Type : ");
+    // print(neuronTypes);
   }
 }
 
