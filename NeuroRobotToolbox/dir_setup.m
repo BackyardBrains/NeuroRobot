@@ -49,33 +49,19 @@ if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     save_brain
 end
 
-% brain_name = 'L3C1';
-% if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
-%     load(horzcat(brain_name, '.mat'))
-%     load_brain
-%     save_brain
-% end
-% 
-% brain_name = 'L3C3';
-% if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
-%     load(horzcat(brain_name, '.mat'))
-%     load_brain
-%     save_brain
-% end
-
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
 %% Datasets
-if isdeployed
-    if ispc
-        dataset_dir_name = strcat(userpath, '\Datasets\');
-    elseif ismac
-        dataset_dir_name = strcat(userpath, './Datasets/');
-    end
-else
+% if isdeployed
+%     if ispc
+%         dataset_dir_name = strcat(userpath, '\Datasets\');
+%     elseif ismac
+%         dataset_dir_name = strcat(userpath, './Datasets/');
+%     end
+% else
     dataset_dir_name = 'C:\SpikerBot ML Datasets\';
-end
+% end
 
 if ~exist(dataset_dir_name, 'dir')
     mkdir(dataset_dir_name)
