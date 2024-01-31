@@ -48,7 +48,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 10;
+n_unique_actions = 9;
 
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;

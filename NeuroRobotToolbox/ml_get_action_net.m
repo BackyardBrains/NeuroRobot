@@ -1,11 +1,6 @@
 
 
 
-%% scaling factor
-scale_f = 10 * learn_speed;
-disp(horzcat('main ML parameter scaled to: ', num2str(scale_f)))
-
-
 %%
 axes(ml_train2_status)
 cla
@@ -30,11 +25,11 @@ agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = scale_f * 2;
-training_opts.MaxStepsPerEpisode = scale_f;
-training_opts.StopTrainingValue = scale_f * 10;
+training_opts.MaxEpisodes = learn_speed * 200;
+training_opts.MaxStepsPerEpisode = learn_speed * 200;
+training_opts.StopTrainingValue = learn_speed * 200 * 5;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = scale_f / 5;
+training_opts.ScoreAveragingWindowLength = learn_speed * 20;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';
