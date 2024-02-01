@@ -7,14 +7,12 @@ if nneurons % This prevents error caused by running script after deleting all ne
     motor_command = zeros(1, 5);
     
     % Extract motor out from spiking neurons
-    left_backward = sum([sum(neuron_contacts(firing,6)) sum(neuron_contacts(firing,8))]) / 2;
-    left_forward = sum([sum(neuron_contacts(firing,7)) sum(neuron_contacts(firing,9))]) / 2;
+    
+    left_forward = sum(neuron_contacts(firing,12));
+    left_backward = sum(neuron_contacts(firing,13));    
 
-%     right_backward = sum([sum(neuron_contacts(firing,10)) sum(neuron_contacts(firing,12))]) / 2;
-%     right_forward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;
-
-    right_forward = sum([sum(neuron_contacts(firing,10)) sum(neuron_contacts(firing,12))]) / 2;
-    right_backward = sum([sum(neuron_contacts(firing,11)) sum(neuron_contacts(firing,13))]) / 2;    
+    right_forward = sum(neuron_contacts(firing,8));
+    right_backward = sum(neuron_contacts(firing,9));
 
     % Extract speaker out from spiking neurons
     these_speaker_neurons = find(neuron_contacts(:, 4) & firing);
@@ -148,6 +146,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
         motor_command = [0 0 0 0 1000];
     end
 
+    disp(num2str(motor_command))
     % Repackage
     r_torque = motor_command(1,1);
     r_dir = motor_command(1,2);
@@ -156,9 +155,13 @@ if nneurons % This prevents error caused by running script after deleting all ne
     end
     l_torque = motor_command(1,3);
     l_dir = motor_command(1,4);
-    if l_dir == 2
+    if l_dir == 1
         l_dir = -1;
     end 
+
+    % if sum(l_torque)
+    %     1
+    % end
         
 %     % Update motor contact colors
 %     if l_torque

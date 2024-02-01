@@ -30,7 +30,7 @@ for ncam = 1:2
             [i, j] = max(cellfun(@numel,blob.PixelIdxList));
             npx = i;
             [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
-            this_score = sigmoid(npx, 1000, 0.0075) * 50;
+            this_score = sigmoid(npx, 200, 0.05) * 50;
             this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
             this_right_score = sigmoid(((mean(x)) / 227), 0.85, 10) * this_score;
         else
