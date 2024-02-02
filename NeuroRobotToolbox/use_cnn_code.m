@@ -1,7 +1,5 @@
 
-if ~exist('gnet', 'var')
-    gnet = googlenet;
-end
+gnet = googlenet;
 net_input_size = gnet.Layers(1).InputSize(1:2);
 labels = readcell('alllabels.txt');
 object_ns = [47, 292, 418, 969, 447, 479, 527, 606, 621, 771, 847, 951, 955];

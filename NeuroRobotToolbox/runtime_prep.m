@@ -171,11 +171,9 @@ if exist('rak_only', 'var') && brain_support
         use_cnn_code
     end   
     if use_rcnn
-        if ~exist('rcnn', 'var')
-            load('rcnn');
-        end
-        labels = {'red_cone', 'green_code', 'blue_code', 'robot'};
-        cust_object_ns = [1, 2, 3, 4];
+        load(horzcat(nets_dir_name, 'rcnn'))
+        labels = {'cone', 'robot'};
+        cust_object_ns = [1, 2];
         cust_object_strs = labels(cust_object_ns);
         vis_pref_names = [basic_vis_pref_names, cust_object_strs];  
         n_vis_prefs = size(vis_pref_names, 2);

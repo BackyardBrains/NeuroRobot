@@ -88,22 +88,47 @@ end
 
 % Run custom r-cnn net
 if use_rcnn
-    [bbox, score, label] = detect(rcnn, large_frame);
 
-    % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
-    %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
+    [bbox, score, label] = detect(rcnn, large_frame);
+    % , 'threshold', 0, 'ExecutionEnvironment', 'gpu');
     
-    [mscore, midx] = max(score);
-    mbbox = bbox(midx, :);
-    mlabel = char(label(midx));
-    
-    qi = 0.5;
-    x = bbox(score > qi,1) + bbox(score > qi,3)/2;
-    y = bbox(score > qi,2) + bbox(score > qi,4)/2;
-    mx = mbbox(:,1) + mbbox(:,3)/2;
-    my = mbbox(:,2) + mbbox(:,4)/2;
-    
-    nboxes = length(x);
+    cone_inds = find(label == 'cone');
+    robot_inds = find(label == 'robot');
+
+    if ~isempty(cone_inds)
+        cone_score = max(score(cone_inds));
+    else
+        cone_score = 0;
+    end
+
+    if ~isempty(robot_inds)
+        robot_score = max(score(robot_inds));
+    else
+        robot_score = 0;        
+    end
+
+    disp(horzcat('cone: ', num2str(cone_score), ', robot: ', num2str(robot_score)))
+
+    if ~use_cnn
+        vis_pref_vals(8:8+1, 1) = [cone_score robot_score] * 50;
+        vis_pref_vals(8:8+1, 2) = [cone_score robot_score] * 50;
+    else
+        vis_pref_vals(12:12+1, 1) = [cone_score robot_score] * 50;
+        vis_pref_vals(12:12+1, 2) = [cone_score robot_score] * 50;
+    end
+
+    % [mscore, midx] = max(score);
+    % mbbox = bbox(midx, :);
+    % mlabel = char(label(midx));
+    % 
+    % qi = 0.5;
+    % x = bbox(score > qi,1) + bbox(score > qi,3)/2;
+    % y = bbox(score > qi,2) + bbox(score > qi,4)/2;
+    % mx = mbbox(:,1) + mbbox(:,3)/2;
+    % my = mbbox(:,2) + mbbox(:,4)/2;
+    % 
+    % nboxes = length(x);
+
 end
 
 % Lesson 3 nets
@@ -116,7 +141,7 @@ if use_custom_net
     inds(j) = [];
     scores(inds) = 0;
 
-    if ~use_cnn
+    if ~use_cnn % Needs rcnn fix
         vis_pref_vals(8:end, 1) = scores * 50;
         vis_pref_vals(8:end, 2) = scores * 50;
     else

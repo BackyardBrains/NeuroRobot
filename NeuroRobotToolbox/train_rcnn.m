@@ -1,32 +1,38 @@
 
 
+%% Get base net
+anet = alexnet;
+
+
 %% Get data
 image_dir_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\';
 image_dir = dir(image_dir_name);
-nims = size(image_dir, 1);
+nims = size(image_dir, 1)-2;
 disp(horzcat('nims: ', num2str(nims)))
 
 
 %% Label images manually
-% imageLabeler(image_dir_name)
-% save('gTruth', 'gTruth')
-load('gTruth')
+imageLabeler(image_dir_name)
+
+
+%% Save
+save('gTruth24', 'gTruth24')
 
 
 %% Train net
-trainingData = objectDetectorTrainingData(gTruth);
-anet = alexnet;
+load('gTruth24')
+
+trainingData = objectDetectorTrainingData(gTruth24);
 
 options = trainingOptions('sgdm', ...
-    'MiniBatchSize', 8, ...
-    'MaxEpochs', 20, ...
+    'MiniBatchSize', 32, ...
     'InitialLearnRate', 1e-6, ...
-    'LearnRateSchedule', "piecewise", ...
-    'LearnRateDropFactor', 0.25, ...
-    'LearnRateDropPeriod', 5, ...
+    'MaxEpochs', 10, ...
     'executionenvironment', 'gpu', ...
-    'verbosefrequency', 10, ...
+    'verbosefrequency', 5, ...
     'plots', 'training-progress');
-rcnn = trainFasterRCNNObjectDetector(trainingData, anet, options);
 
-save('rcnn', 'rcnn')
+rcnn = trainRCNNObjectDetector(trainingData, anet, options);
+
+save(horzcat(nets_dir_name, 'rcnn'), 'rcnn')
+
