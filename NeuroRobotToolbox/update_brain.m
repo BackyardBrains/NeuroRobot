@@ -40,12 +40,7 @@ if nneurons
     for t = 1:ms_per_step
 
         % Add noise
-        I = 5 * randn(nneurons, 1);      
-
-%         % rl ticker
-%         if ~isdeployed && t == ms_per_step && ~rem(xstep, 4)
-%             I(1) = 50;
-%         end
+        I = 5 * randn(nneurons, 1);
 
         % Find spiking neurons
         fired_now = v >= 30;

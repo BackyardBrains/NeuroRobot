@@ -27,7 +27,14 @@ else
     use_cnn = 0;
 end
 
-% 2 = 'Custom net'
+% 2 = 'CustomRCNN'
+if sum(select_nets.Value == 2)
+    use_rcnn = 1;
+else
+    use_rcnn = 0;
+end
+
+% 3 = 'Custom net'
 if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
@@ -77,7 +84,7 @@ clear neuron_xys
 
 %% Add path
 if ~isdeployed
-    addpath(genpath("MatlabWebSocket\"))
+    addpath(genpath(".\MatlabWebSocket\"))
 end
 
 %% Calibrate distance sensor

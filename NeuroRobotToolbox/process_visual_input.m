@@ -73,27 +73,29 @@ for ncam = 1:2
     end
 
     % Run custom r-cnn net
-    [bbox, score, label] = detect(trainedDetector, frame);
+    if use_rcnn
+        [bbox, score, label] = detect(rcnn, frame);
     
-    % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
-    %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
-    
-    [mscore, midx] = max(score);
-    mbbox = bbox(midx, :);
-    mlabel = char(label(midx));
-    
-    for nobject = 1:5
-        if ~isempty(max(score(label == object_strs{nobject})))
-            object_scores(nobject) = max(score(label == object_strs{nobject}));
+        % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
+        %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
+        
+        [mscore, midx] = max(score);
+        mbbox = bbox(midx, :);
+        mlabel = char(label(midx));
+        
+        for nobject = 1:5
+            if ~isempty(max(score(label == object_strs{nobject})))
+                object_scores(nobject) = max(score(label == object_strs{nobject}));
+            end
         end
+        
+        x = bbox(score > qi,1) + bbox(score > qi,3)/2;
+        y = bbox(score > qi,2) + bbox(score > qi,4)/2;
+        mx = mbbox(:,1) + mbbox(:,3)/2;
+        my = mbbox(:,2) + mbbox(:,4)/2;
+        
+        nboxes = length(x);
     end
-    
-    x = bbox(score > qi,1) + bbox(score > qi,3)/2;
-    y = bbox(score > qi,2) + bbox(score > qi,4)/2;
-    mx = mbbox(:,1) + mbbox(:,3)/2;
-    my = mbbox(:,2) + mbbox(:,4)/2;
-    
-    nboxes = length(x);
     
 
     %% Step

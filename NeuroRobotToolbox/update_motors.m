@@ -146,7 +146,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
         motor_command = [0 0 0 0 1000];
     end
 
-    disp(num2str(motor_command))
     % Repackage
     r_torque = motor_command(1,1);
     r_dir = motor_command(1,2);
@@ -158,10 +157,6 @@ if nneurons % This prevents error caused by running script after deleting all ne
     if l_dir == 1
         l_dir = -1;
     end 
-
-    % if sum(l_torque)
-    %     1
-    % end
         
 %     % Update motor contact colors
 %     if l_torque
