@@ -63,7 +63,7 @@ for ncam = 1:2
 
     vis_pref_vals(7, ncam) = this_score;
     
-    % Get complex features
+    % Run pretrained object detector googlenet
     if use_cnn
         [~, scores] = classify(gnet, frame);
         cup_score = max(scores([505 739 969]));
@@ -71,7 +71,32 @@ for ncam = 1:2
         scores(4) = cup_score;
         vis_pref_vals(8:8+12, ncam) = scores * 50;
     end
+
+    % Run custom r-cnn net
+    [bbox, score, label] = detect(trainedDetector, frame);
     
+    % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
+    %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
+    
+    [mscore, midx] = max(score);
+    mbbox = bbox(midx, :);
+    mlabel = char(label(midx));
+    
+    for nobject = 1:5
+        if ~isempty(max(score(label == object_strs{nobject})))
+            object_scores(nobject) = max(score(label == object_strs{nobject}));
+        end
+    end
+    
+    x = bbox(score > qi,1) + bbox(score > qi,3)/2;
+    y = bbox(score > qi,2) + bbox(score > qi,4)/2;
+    mx = mbbox(:,1) + mbbox(:,3)/2;
+    my = mbbox(:,2) + mbbox(:,4)/2;
+    
+    nboxes = length(x);
+    
+
+    %% Step
     if ncam == 1
         prev_left_eye_frame = uframe;
     elseif ncam == 2
