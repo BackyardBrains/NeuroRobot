@@ -76,6 +76,10 @@ available_dirs(1:2) = [];
 nrecs = length(available_dirs);
 
 
+%% Specific rec
+rec_dir_name = '';
+
+
 %% Workspace
 if ispc
     workspace_dir_name = strcat(userpath, '\Workspace\');
@@ -87,8 +91,6 @@ if ~exist(workspace_dir_name, 'dir')
     mkdir(workspace_dir_name)
     disp('Workspace directory not found')
     disp(horzcat('Created new workspace directory: ', workspace_dir_name))
-else
-%     disp(horzcat('Workspace directory: ', workspace_dir_name))
 end
   
 
@@ -102,8 +104,6 @@ end
 if ~exist(nets_dir_name, 'dir')
     mkdir(nets_dir_name)
     disp(horzcat('Created new nets directory: ', nets_dir_name))
-else
-%     disp(horzcat('Nets dir: ', nets_dir_name))
 end
 
 
@@ -118,8 +118,6 @@ if ~exist(sounds_dir_name, 'dir')
     mkdir(sounds_dir_name)
     disp('Sounds directory not found')
     disp(horzcat('Created new sounds directory: ', sounds_dir_name))
-else
-%     disp(horzcat('Sounds dir: ', sounds_dir_name))
 end
 
 available_sounds = dir(strcat(sounds_dir_name, '*.wav'));

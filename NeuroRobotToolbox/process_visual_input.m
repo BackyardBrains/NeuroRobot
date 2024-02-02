@@ -72,31 +72,6 @@ for ncam = 1:2
         vis_pref_vals(8:8+12, ncam) = scores * 50;
     end
 
-    % Run custom r-cnn net
-    if use_rcnn
-        [bbox, score, label] = detect(rcnn, frame);
-    
-        % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
-        %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
-        
-        [mscore, midx] = max(score);
-        mbbox = bbox(midx, :);
-        mlabel = char(label(midx));
-        
-        for nobject = 1:5
-            if ~isempty(max(score(label == object_strs{nobject})))
-                object_scores(nobject) = max(score(label == object_strs{nobject}));
-            end
-        end
-        
-        x = bbox(score > qi,1) + bbox(score > qi,3)/2;
-        y = bbox(score > qi,2) + bbox(score > qi,4)/2;
-        mx = mbbox(:,1) + mbbox(:,3)/2;
-        my = mbbox(:,2) + mbbox(:,4)/2;
-        
-        nboxes = length(x);
-    end
-    
 
     %% Step
     if ncam == 1
@@ -111,6 +86,27 @@ if use_esp32 && use_webcam
     external_camera
 end
 
+% Run custom r-cnn net
+if use_rcnn
+    [bbox, score, label] = detect(rcnn, large_frame);
+
+    % [bbox, score, label] = detect(trainedDetector, frame, 'NumStrongestRegions', 500, ...
+    %     'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);    
+    
+    [mscore, midx] = max(score);
+    mbbox = bbox(midx, :);
+    mlabel = char(label(midx));
+    
+    qi = 0.5;
+    x = bbox(score > qi,1) + bbox(score > qi,3)/2;
+    y = bbox(score > qi,2) + bbox(score > qi,4)/2;
+    mx = mbbox(:,1) + mbbox(:,3)/2;
+    my = mbbox(:,2) + mbbox(:,4)/2;
+    
+    nboxes = length(x);
+end
+
+% Lesson 3 nets
 if use_custom_net
     lframe = imresize(large_frame, [227 302]);
     [~, scores] = classify(net, lframe);

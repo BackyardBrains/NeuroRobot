@@ -104,7 +104,7 @@ load_brain
 spikes_step = zeros(nneurons, ms_per_step);
 
 brain_support = 1;
-if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn
+if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_cnn %% This needs a look to support new customrcnn
     brain_support = 0;
     disp(horzcat('Error: Brain needs GoogLeNet'))
 end
@@ -169,12 +169,28 @@ if exist('rak_only', 'var') && brain_support
     vis_pref_names = basic_vis_pref_names;
     if use_cnn
         use_cnn_code
-    end    
+    end   
+    if use_rcnn
+        if ~exist('rcnn', 'var')
+            load('rcnn');
+        end
+        labels = {'red_cone', 'green_code', 'blue_code', 'robot'};
+        cust_object_ns = [1, 2, 3, 4];
+        cust_object_strs = labels(cust_object_ns);
+        vis_pref_names = [basic_vis_pref_names, cust_object_strs];  
+        n_vis_prefs = size(vis_pref_names, 2);
+        if length(trained_nets) > 1
+            trained_nets{2} = 'CustomRCNN';
+        elseif length(trained_nets) == 1
+            trained_nets{1} = 'CustomRCNN';
+        end
+    end
+
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
         full_net_name = option_nets{select_nets.Value(this_ind)};        
-        trained_nets{2} = full_net_name;
+        trained_nets{3} = full_net_name; %% Only supports one custom net
 
         cnet_temp = strfind(full_net_name, '-go2-');
         if cnet_temp >= 1
@@ -374,11 +390,12 @@ if exist('rak_only', 'var') && brain_support
         rak_cam_h = 720;
         rak_cam_w = 1280;
     end
+    
     % left_cut = [16 rak_cam_h - 30 1 rak_cam_h]; 
     % right_cut = [1 rak_cam_h (rak_cam_w - rak_cam_h + 1) rak_cam_w];    
     
-    left_cut = [16 (rak_cam_h-30) 16 (rak_cam_h-30)]
-    right_cut = [16 (rak_cam_h-30) (rak_cam_w-(rak_cam_h-30)+1) rak_cam_w]  
+    left_cut = [16 (rak_cam_h-30) 16 (rak_cam_h-30)];
+    right_cut = [16 (rak_cam_h-30) (rak_cam_w-(rak_cam_h-30)+1) rak_cam_w] ;
 
     left_yx = [length(left_cut(1):left_cut(2)) length(left_cut(3):left_cut(4))];
     right_yx = [length(right_cut(1):right_cut(2)) length(right_cut(3):right_cut(4))];

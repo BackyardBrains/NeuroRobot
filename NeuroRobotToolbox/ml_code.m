@@ -12,11 +12,6 @@ set(button_new_brain, 'enable', 'off')
 drawnow
 
 
-%% Prepare
-% rec_dir_name = 'Rec3';
-rec_dir_name = '';
-
-
 %% Prepare figure
 fig_ml = figure(3);
 clf
