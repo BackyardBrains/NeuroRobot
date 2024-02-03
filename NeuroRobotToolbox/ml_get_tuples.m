@@ -120,8 +120,14 @@ load(strcat(nets_dir_name, state_net_name, '-tuples'))
 tx7.String = 'tuples aquired successfully';
 drawnow
 
+figure(72)
+clf
 
-
-figure(72); subplot(1,2,1); histogram(states); title('states'); subplot(1,2,2); histogram(actions); title('actions');
+subplot(1,2,1)
+histogram(states)
+title('states')
+subplot(1,2,2)
+histogram(actions)
+title('actions')
 
 
