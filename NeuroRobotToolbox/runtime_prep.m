@@ -108,10 +108,14 @@ if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_c
     brain_support = 0;
     disp(horzcat('Error: Brain needs GoogLeNet'))
 end
-if length(trained_nets) > 1 && isempty(trained_nets{2})
-    brain_support = 0;
-    disp(horzcat('Error: Brain needs ', trained_nets{1}))
-end
+% if length(trained_nets) > 1 && ~use_rcnn
+% 
+% 
+% 
+%     && isempty(trained_nets{2})
+%     brain_support = 0;
+%     disp(horzcat('Error: Brain needs ', trained_nets{2}))
+% end
 
 if exist('rak_only', 'var') && brain_support
     
