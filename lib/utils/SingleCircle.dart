@@ -7,27 +7,27 @@ class SingleCircle extends CustomPainter {
   final double arrowSize = 1.0;
   late Offset centerPos;
   late Paint circlePaint;
+  double zoomScale = 1.0;
+
   // SingleCircle({
   //   required ValueNotifier<int> notifier, required bool isActive,
   // }):super(repaint:notifier){
   SingleCircle({
     required bool isActive,
-  }){
+  }) {
     centerPos = Offset(circleRadius, circleRadius);
     circlePaint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = inactiveColor
-          ..strokeWidth = 1;
-    if (isActive){
+      ..style = PaintingStyle.fill
+      ..color = inactiveColor
+      ..strokeWidth = 1;
+    if (isActive) {
       circlePaint.color = activeColor;
     }
-
   }
-
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawCircle(centerPos, circleRadius, circlePaint);
+    canvas.drawCircle(centerPos, circleRadius * zoomScale, circlePaint);
   }
 
   @override

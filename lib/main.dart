@@ -8,12 +8,12 @@ import 'package:neurorobot/pages/designbrain_page.dart';
 import 'package:neurorobot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // WEB CHANGE
-/*
+// /*
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-*/
+// */
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
@@ -27,7 +27,7 @@ void main() async {
   );
 
   // WEB CHANGE
-  /*
+  // /*
   const fatalError = true;
   // Non-async exceptions
   FlutterError.onError = (errorDetails) {
@@ -52,9 +52,9 @@ void main() async {
     }
     return true;
   };
-  */
+  // */
   // WEB CHANGE
-  /*
+  // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
 
@@ -73,7 +73,7 @@ void main() async {
   } else {
     AutoOrientation.landscapeLeftMode();
   }
-  */
+  // */
 
   runApp(const MyApp());
 }
@@ -112,9 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController ctlBrainName = TextEditingController(text: "");
   TextEditingController ctlBrainDescription = TextEditingController(text: "");
   // WEB CHANGE
-  /*
+  // /*
   late Future<void> _initializeFlutterFireFuture;
-  */
+  // */
 
   int isInitialized = 0;
   late SharedPreferences prefs;
@@ -234,9 +234,9 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() => {});
     });
     // WEB CHANGE
-    /*
+    // /*
     _initializeFlutterFireFuture = _initializeFlutterFire();
-    */
+    // */
   }
 
   @override

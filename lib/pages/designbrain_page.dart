@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
+import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:native_opencv/native_opencv.dart';
 import 'package:native_opencv/nativec.dart';
@@ -23,6 +24,7 @@ import 'package:neurorobot/bloc/bloc.dart';
 import 'package:neurorobot/dialogs/load_brain.dart';
 import 'package:neurorobot/dialogs/save_brain.dart';
 import 'package:neurorobot/utils/Allocator.dart';
+import 'package:neurorobot/utils/Debouncers.dart';
 import 'package:neurorobot/utils/ProtoNeuron.dart';
 import 'package:neurorobot/utils/Simulations.dart';
 import 'package:neurorobot/utils/SingleCircle.dart';
@@ -76,6 +78,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   static const int motorCommandsLength = 6 * 2;
   static const int maxPosBuffer = 220;
   int epochs = 30;
+  late List<SingleSquare> squareActiveCirclesPainter;
+  late List<SingleSquare> squareInactiveCirclesPainter;
+  late List<SingleCircle> neuronActiveCirclesPainter;
+  late List<SingleCircle> neuronInactiveCirclesPainter;
 
   late Nativec nativec;
   // static ffi.Pointer<ffi.Uint32> npsBuf =
@@ -237,6 +243,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   late Widget mainBody;
 
+  double prevTransformScale = 1;
+  Debouncer debouncerSnapNeuron = Debouncer(milliseconds: 3);
+
+  late List<Offset> rawPos;
+
   void runNativeC() {
     const level = 1;
     const envelopeSize = 200;
@@ -307,7 +318,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: MotorMessageLength, sizeOfType: ffi.sizeOf<ffi.Uint8>());
   }
 
-  void initNativeC() {
+  void initNativeC(bool isInitialized) {
     double a = 0.02;
     double b = 0.18;
     int c = -65;
@@ -366,12 +377,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         nativec.simulationCallback(updateFromSimulation);
       }
     }
-    aBufView.fillRange(0, neuronSize, a);
-    bBufView.fillRange(0, neuronSize, b);
-    cBufView.fillRange(0, neuronSize, c);
-    dBufView.fillRange(0, neuronSize, d);
-    iBufView.fillRange(0, neuronSize, i);
-    wBufView.fillRange(0, neuronSize, w);
+
+    if (isInitialized) {
+      aBufView.fillRange(0, neuronSize, a);
+      bBufView.fillRange(0, neuronSize, b);
+      cBufView.fillRange(0, neuronSize, c);
+      dBufView.fillRange(0, neuronSize, d);
+      iBufView.fillRange(0, neuronSize, i);
+      wBufView.fillRange(0, neuronSize, w);
+    }
     positionsBufView.fillRange(0, 1, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0.0);
     visPrefsBufView.fillRange(0, neuronSize * neuronSize, -1);
@@ -382,9 +396,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     print("neuronSize * neuronSize");
     print(neuronSize * neuronSize);
 
+    squareActiveCirclesPainter = List<SingleSquare>.generate(
+        neuronSize, (index) => SingleSquare(isActive: true));
+    squareInactiveCirclesPainter = List<SingleSquare>.generate(
+        neuronSize, (index) => SingleSquare(isActive: false));
+
     squareActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx) {
       return CustomPaint(
-        painter: SingleSquare(isActive: true),
+        // painter: SingleSquare(isActive: true),
+        painter: squareActiveCirclesPainter[idx],
         willChange: false,
         isComplex: false,
       );
@@ -401,9 +421,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         List<ValueNotifier<int>>.generate(neuronSize, (_) => ValueNotifier(0));
     neuronCircleKeys = List<GlobalKey>.generate(neuronSize,
         (i) => GlobalKey(debugLabel: "neuronWidget${i.toString()}"));
+
+    neuronActiveCirclesPainter = List<SingleCircle>.generate(
+        neuronSize, (index) => SingleCircle(isActive: true));
+    neuronInactiveCirclesPainter = List<SingleCircle>.generate(
+        neuronSize, (index) => SingleCircle(isActive: true));
+
     neuronActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx) {
       return CustomPaint(
-        painter: SingleCircle(isActive: true),
+        painter: neuronActiveCirclesPainter[idx],
         willChange: false,
         isComplex: false,
       );
@@ -411,7 +437,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     neuronInactiveCircles = List<CustomPaint>.generate(neuronSize, (int idx) {
       return CustomPaint(
-        painter: SingleCircle(isActive: false),
+        painter: neuronInactiveCirclesPainter[idx],
         willChange: false,
         isComplex: false,
       );
@@ -656,7 +682,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // Future.delayed(const Duration(milliseconds: 700), () {
     try {
       initMemoryAllocation();
-      initNativeC();
+      initNativeC(true);
       // final ocsvlib = ocv.OpenCVBindings(ffi.DynamicLibrary.open(_getPath()));
       // testColorCV();
 
@@ -990,65 +1016,67 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             child: RightToolbar(
                 key: GlobalKey(),
                 menuIdx: menuIdx,
+                isPlaying: isPlayingMenu,
                 callback: rightToolbarCallback),
           ),
-          if (!(Platform.isIOS || Platform.isAndroid)) ...[
-            Positioned(
-              right: 90,
-              bottom: 20,
-              child: Card(
-                surfaceTintColor: Colors.white,
-                // surfaceTintColor: Colors.transparent,
-                shadowColor: Colors.white,
-                // color: Colors.transparent,
-                child: Container(
-                  color: Colors.transparent,
-                  width: 129,
-                  child: Row(
-                    children: [
-                      MeTooltip(
-                        message: "Zoom Out",
-                        preferOri: PreferOrientation.up,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            controller.zoomOut();
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              surfaceTintColor: Colors.white,
-                              shadowColor: Colors.transparent
-                              // shadowColor: Colors.white,
-                              ),
-                          child: const Text("-",
-                              style: TextStyle(
-                                  fontSize: 25, color: Color(0xFF4e4e4e))),
-                        ),
-                      ),
-                      MeTooltip(
-                        message: "Zoom In",
-                        preferOri: PreferOrientation.up,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            controller.zoomIn();
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              surfaceTintColor: Colors.white,
-                              shadowColor: Colors.transparent
+          // ZOOM DESKTOP
+          // if (!(Platform.isIOS || Platform.isAndroid)) ...[
+          //   Positioned(
+          //     right: 90,
+          //     bottom: 20,
+          //     child: Card(
+          //       surfaceTintColor: Colors.white,
+          //       // surfaceTintColor: Colors.transparent,
+          //       shadowColor: Colors.white,
+          //       // color: Colors.transparent,
+          //       child: Container(
+          //         color: Colors.transparent,
+          //         width: 129,
+          //         child: Row(
+          //           children: [
+          //             MeTooltip(
+          //               message: "Zoom Out",
+          //               preferOri: PreferOrientation.up,
+          //               child: ElevatedButton(
+          //                 onPressed: () {
+          //                   controller.zoomOut();
+          //                 },
+          //                 style: ElevatedButton.styleFrom(
+          //                     backgroundColor: Colors.white,
+          //                     surfaceTintColor: Colors.white,
+          //                     shadowColor: Colors.transparent
+          //                     // shadowColor: Colors.white,
+          //                     ),
+          //                 child: const Text("-",
+          //                     style: TextStyle(
+          //                         fontSize: 25, color: Color(0xFF4e4e4e))),
+          //               ),
+          //             ),
+          //             MeTooltip(
+          //               message: "Zoom In",
+          //               preferOri: PreferOrientation.up,
+          //               child: ElevatedButton(
+          //                 onPressed: () {
+          //                   controller.zoomIn();
+          //                 },
+          //                 style: ElevatedButton.styleFrom(
+          //                     backgroundColor: Colors.white,
+          //                     surfaceTintColor: Colors.white,
+          //                     shadowColor: Colors.transparent
 
-                              // shadowColor: Colors.white,
-                              ),
-                          child: const Text("+",
-                              style: TextStyle(
-                                  fontSize: 25, color: Color(0xFF4e4e4e))),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          //                     // shadowColor: Colors.white,
+          //                     ),
+          //                 child: const Text("+",
+          //                     style: TextStyle(
+          //                         fontSize: 25, color: Color(0xFF4e4e4e))),
+          //               ),
+          //             )
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ],
           if (isPlayingMenu) ...[
             Positioned(
               left: 50,
@@ -1212,7 +1240,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   void runSimulation() {
     // neuronSize = controller.nodes.length;
-    initNativeC();
+    initNativeC(false);
     print("neuronSize");
     print(neuronSize);
     List<Offset> pos = [];
@@ -1429,7 +1457,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             // print( details.scaleVelocity );
           },
           onScaleUpdate: (details) {
-            // print(details);
+            print("details on scale update");
+            print(details);
             // details.scale
           },
           onLongPress: () {
@@ -1538,13 +1567,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             // }
           },
           onDoubleTap: () {
-            if (controller.scale == 1.5) {
-              controller.zoomReset();
-              controller.scale = 1;
+            if (controller.scale >= 1.5) {
+              if (isPlayingMenu) {
+                transformNeuronPosition(1.0);
+                // protoNeuron.generateCircle(neuronSize, pos, neuronTypes);
+              }
             } else {
-              controller.zoomReset();
-              controller.zoom(1.5);
-              controller.scale = 1.5;
+              if (isPlayingMenu) {
+                transformNeuronPosition(1.5);
+              }
             }
           },
           child: canvas);
@@ -1647,6 +1678,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // selectSavedBrain(filename);
       // controller.nodes.clear();
     } else if (menuIdx == 6) {
+      controller.spacePressed = false;
+      controller.mouseDown = false;
+      controller.setCanvasMove(false);
+      controller.zoomReset();
       // save
       // save neurons : position, index, color, shape, size
       // save edges : from node Id, to node Id
@@ -1657,6 +1692,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // print( json.encode(controller.edges) );
     } else if (menuIdx == 7) {
       controller.spacePressed = false;
+
       isPlayingMenu = !isPlayingMenu;
       // isSelected = false;
       print("MENU IDX 8");
@@ -1670,7 +1706,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       controller.mouseDown = false;
       controller.setCanvasMove(false);
 
+      // controller.zoomReset();
       controller.zoomReset();
+      rawPos = [];
+      controller.nodes.forEach((node) {
+        Offset position = controller.toLocal(node.offset);
+        rawPos.add(position);
+      });
 
       if (isPlayingMenu) {
         isCheckingColor = false;
@@ -1702,7 +1744,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         }
 
         // isolateWritePort.send("DISCONNECT");
-        Future.delayed(const Duration(milliseconds: 300), () {});
+        Future.delayed(const Duration(milliseconds: 300), () {
+          setState(() {});
+        });
       }
 
       // print("visPrefsBufView");
@@ -1991,6 +2035,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller = InfiniteCanvasController(
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
+      // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
       nodes: nodes,
       // edges: [
       //   InfiniteCanvasEdge(
@@ -2012,12 +2057,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller.maxScale = 2.7;
     controller.scale = 1;
     controller.minScale = 0.85;
+    // controller.minScale = 1;
 
     if (Platform.isAndroid || Platform.isIOS) {
       repositionSensoryNeuron();
     }
 
+    controller.transform.removeListener(transformNeuronListener);
+    controller.transform.addListener(transformNeuronListener);
     controller.addListener(() {
+      if (isPlayingMenu) {
+        return;
+      }
       if (controller.mouseDown) {
         // if (menuIdx == 6) {
         //   controller.spacePressed = isPanningCanvas;
@@ -2209,7 +2260,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           neuronSize++;
           neuronTypes.add(randomNeuronType());
           neuronsKey.add(UniqueKey());
-          initNativeC();
+          initNativeC(false);
           controller.add(InfiniteCanvasNode(
             key: neuronsKey[neuronsKey.length - 1],
             value: neuronSize - 1,
@@ -2642,7 +2693,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           "index": e.value,
           "position": [e.offset.dx, e.offset.dy],
           "color": [e.offset.dx, e.offset.dy],
-          "shape": "SizedBox"
+          "shape": "SizedBox",
         });
       } else if (e.value == -1) {
         nodesJson.add({
@@ -2686,6 +2737,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "mapSensoryNeuron": mapSensoryNeuron,
       "mapContactsNeuron": mapContactsNeuron,
       "mapDistanceNeuron": mapDistanceNeuron,
+      "a": aBufView.toList(),
+      "b": bBufView.toList(),
+      "c": cBufView.toList(),
+      "d": dBufView.toList(),
+      "i": iBufView.toList(),
+      "w": wBufView.toList(),
     });
     print("strNodesJson");
     // print(strNodesJson);
@@ -2696,13 +2753,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     Directory imgDirectory =
         Directory("${(await getApplicationDocumentsDirectory()).path}/images");
+    // Directory((await getApplicationDocumentsDirectory()).path);
     Directory txtDirectory =
         Directory("${(await getApplicationDocumentsDirectory()).path}/text");
+    // Directory((await getApplicationDocumentsDirectory()).path);
     if (!imgDirectory.existsSync()) imgDirectory.createSync();
     if (!txtDirectory.existsSync()) txtDirectory.createSync();
 
     print(directory.path);
-    final File file = File('${directory.path}/text/BrainText$fileName.txt');
+    String textPath = "/text";
+    // String textPath = "";
+    String imagesPath = "/images";
+    // String imagesPath = "";
+    final File file = File('${directory.path}$textPath/BrainText$fileName.txt');
     await file.writeAsString(strNodesJson);
 
     ScreenshotController screenshotController = ScreenshotController();
@@ -2717,7 +2780,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       description = description.replaceAll("@", "#");
       final directory = await getApplicationDocumentsDirectory();
       final imagePath = await File(
-              '${directory.path}/images/Brain$fileName@@@$title@@@$description.png')
+              '${directory.path}$imagesPath/Brain$fileName@@@$title@@@$description.png')
           .create();
       await imagePath.writeAsBytes(imageBytes);
       pd.close();
@@ -2726,6 +2789,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void selectSavedBrain(String filename) async {
+    String textPath = "/text";
+    // String textPath = "";
+
     if (filename == "") return;
     controller.edges.clear();
     int len = controller.nodes.length;
@@ -2735,7 +2801,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     final Directory directory = await getApplicationDocumentsDirectory();
     final File savedFile =
-        File('${directory.path}/text/BrainText$filename.txt');
+        File('${directory.path}$textPath/BrainText$filename.txt');
     String savedFileText = await savedFile.readAsString();
     Map savedFileJson = json.decode(savedFileText);
 
@@ -2772,12 +2838,163 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     mapSensoryNeuron = savedFileJson["mapSensoryNeuron"];
     mapContactsNeuron = savedFileJson["mapContactsNeuron"];
     mapDistanceNeuron = savedFileJson["mapDistanceNeuron"];
+
     neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
 
     neuronSize = controller.nodes.length - 2;
     neuronsKey = tempNeuronsKey;
+
+    initNativeC(true);
+    print(savedFileJson["a"]);
+    // aBufView = Float64List.fromList(savedFileJson["a"].map((v)=>v as double).toList());
+    aBufView = Float64List.fromList(List<double>.from(savedFileJson["a"]));
+    bBufView = Float64List.fromList(List<double>.from(savedFileJson["b"]));
+    cBufView = Int16List.fromList(List<int>.from(savedFileJson["c"]));
+    dBufView = Int16List.fromList(List<int>.from(savedFileJson["d"]));
+    iBufView = Float64List.fromList(List<double>.from(savedFileJson["i"]));
+    wBufView = Float64List.fromList(List<double>.from(savedFileJson["w"]));
+
     // print("Loaded Neuron Type : ");
     // print(neuronTypes);
+  }
+
+  void setCirclesZoom(double scale, List<Offset> pos) {
+    // squareActiveCirclesPainter.forEach((SingleSquare square) {
+    //   square.zoomScale = scale;
+    // });
+    // squareInactiveCirclesPainter.forEach((SingleSquare square) {
+    //   square.zoomScale = scale;
+    // });
+
+    int len = neuronActiveCircles.length;
+    for (int i = 0; i < len; i++) {
+      neuronActiveCirclesPainter[i].zoomScale = scale;
+      neuronInactiveCirclesPainter[i].zoomScale = scale;
+    }
+
+    protoNeuron.generateCircle(neuronSize, pos, neuronTypes);
+    len = protoNeuron.circles.length;
+    for (int i = 0; i < len; i++) {
+      SingleNeuron circle = protoNeuron.circles[i];
+      circle.centerPos = pos[allNeuronStartIdx + i];
+    }
+
+    // print("scale");
+    // print(scale);
+    // print("circle");
+    // print(protoNeuron.circles.last.centerPos);
+
+    setState(() {});
+  }
+
+  void transformNeuronPositionWrapper() {
+    MatrixDecomposedValues matrixValues =
+        MatrixGestureDetector.decomposeToValues(controller.transform.value);
+
+    if (matrixValues.scale > 1 && prevTransformScale != matrixValues.scale) {
+      prevTransformScale = matrixValues.scale;
+      transformNeuronPosition(matrixValues.scale);
+    } else if (matrixValues.scale < 1 &&
+        prevTransformScale != matrixValues.scale) {
+      prevTransformScale = matrixValues.scale;
+      transformNeuronPosition(matrixValues.scale);
+    } else {
+      if (matrixValues.scale < 0.86 || matrixValues.scale > 2.7) {
+        debouncerSnapNeuron.run(() {
+          transformNeuronPosition(matrixValues.scale);
+        });
+      }
+    }
+  }
+
+  void transformNeuronPosition(scale) {
+    if (scale == 1) {
+      List<Offset> pos = rawPos;
+      // controller.zoomReset();
+      controller.scale = 1;
+
+      debouncerSnapNeuron.run(() {
+        controller.nodes.forEach((node) {
+          pos.add(controller.toLocal(node.offset));
+        });
+
+        // print("pos");
+        // print(pos);
+
+        setCirclesZoom(controller.scale, pos);
+      });
+    } else {
+      // controller.zoomReset();
+      // if (scale < 0.85) scale = 0.85;
+      // controller.zoom(scale);
+      controller.scale = scale;
+      MatrixDecomposedValues matrixValues =
+          MatrixGestureDetector.decomposeToValues(controller.transform.value);
+      // controller.scale = 1.5;
+      controller.scale = matrixValues.scale;
+      List<Offset> pos = [];
+      List<Offset> rawDelta = [];
+      int idx = 0;
+      double gap = -(10 * matrixValues.scale - 10);
+      // double gap = (0 * matrixValues.scale);
+      Offset space = Offset(gap, gap);
+
+      // Future.delayed(const Duration(milliseconds: 10), () {
+      debouncerSnapNeuron.run(() {
+        controller.nodes.forEach((node) {
+          Offset position = controller.toLocal(node.offset);
+          Offset rawPosition = rawPos[idx];
+          Offset delta = (position - rawPosition) * matrixValues.scale;
+          delta = delta + space;
+
+          pos.add(rawPosition - delta);
+          rawDelta.add(delta); // inverse it
+          idx++;
+
+          // print("--------" + idx.toString());
+          // print(controller.toLocal(node.offset));
+          // print(rawPosition);
+          // print(rawPosition - delta);
+          // print(rawDelta);
+
+          // pos.add(Offset(position.dx, position.dy));
+          // pos.add(node.offset);
+        });
+        // print("======= controller.toLocal(node.offset) 1.5");
+        // print(pos.last);
+        // print(rawPos.last);
+
+        setCirclesZoom(matrixValues.scale, pos);
+      });
+      // protoNeuron.generateCircle(neuronSize, pos, neuronTypes);
+    }
+  }
+
+  void transformNeuronListener() {
+    MatrixDecomposedValues matrixValues =
+        MatrixGestureDetector.decomposeToValues(controller.transform.value);
+
+    if (matrixValues.scale > 1 && prevTransformScale != matrixValues.scale) {
+      prevTransformScale = matrixValues.scale;
+      transformNeuronPosition(matrixValues.scale);
+      // debouncerSnapNeuron.run(() {
+      //   transformNeuronPosition(matrixValues.scale);
+      // });
+    } else if (matrixValues.scale < 1 &&
+        prevTransformScale != matrixValues.scale) {
+      prevTransformScale = matrixValues.scale;
+      // debouncerSnapNeuron.run(() {
+      //   transformNeuronPosition(matrixValues.scale);
+      // });
+
+      transformNeuronPosition(matrixValues.scale);
+    } else {
+      if (matrixValues.scale < 0.86 || matrixValues.scale > 2.7) {
+        debouncerSnapNeuron.run(() {
+          transformNeuronPosition(matrixValues.scale);
+        });
+      }
+    }
   }
 }
 
@@ -2794,9 +3011,9 @@ class EyeClipper extends CustomClipper<Rect> {
     //   return const Rect.fromLTWH(50, 25, 150, 150);
     // }
     if (isLeft) {
-      return const Rect.fromLTWH(0, 0, 260 / 2, 240 / 2);
+      return const Rect.fromLTWH(0, 15, 210 / 2, 210 / 2);
     } else {
-      return const Rect.fromLTWH(50 / 2, 0, 260 / 2, 240 / 2);
+      return const Rect.fromLTWH(110 / 2, 15, 210 / 2, 210 / 2);
     }
   }
 

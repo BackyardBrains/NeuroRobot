@@ -2,7 +2,7 @@ name: neurorobot
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+38
+version: 1.2.0+41
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -19,6 +19,7 @@ dependencies:
     path: "./PLUGINS/flutter_audio_waveforms1.1.1.3/"
   intl: 0.18.1
   another_xlider: 3.0.1
+  matrix_gesture_detector_pro: 1.0.0
 
   web_socket_channel: 2.4.0
   socket_io_client: 2.0.3+1

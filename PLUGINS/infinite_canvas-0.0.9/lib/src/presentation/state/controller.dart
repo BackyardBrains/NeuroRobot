@@ -18,10 +18,12 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   bool isSelectingEdge = false;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
+  // final VoidCallback transformNeuronPositionWrapper;
 
   InfiniteCanvasController({
     required this.onLongPress,
     required this.onDoubleTap,
+    // required this.transformNeuronPositionWrapper,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],
   }) {
@@ -220,10 +222,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         selection.add(child.key);
       }
     }
-    if (kIsWeb){
-
-    }else
-    if (Platform.isIOS || Platform.isAndroid) {
+    if (kIsWeb) {
+    } else if (Platform.isIOS || Platform.isAndroid) {
       isSelectingEdge = false;
     }
     for (final edge in edges) {
@@ -260,9 +260,11 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       double perpDy = unitDx;
 
       double pairSpace = edge.isReciprocate * 7;
-      var iFrom = Offset(eFrom.offset.dx - perpDx * lineWidth + radius + pairSpace,
+      var iFrom = Offset(
+          eFrom.offset.dx - perpDx * lineWidth + radius + pairSpace,
           eFrom.offset.dy - perpDy * lineWidth + radius + pairSpace);
-      var oFrom = Offset(eFrom.offset.dx + perpDx * lineWidth + radius + pairSpace,
+      var oFrom = Offset(
+          eFrom.offset.dx + perpDx * lineWidth + radius + pairSpace,
           eFrom.offset.dy + perpDy * lineWidth + radius + pairSpace);
 
       var iTo = Offset(eTo.offset.dx - perpDx * lineWidth + radius + pairSpace,
@@ -282,10 +284,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       if (p.contains(offset)) {
         edgeFound = edge;
         isFoundEdge = true;
-        if (kIsWeb){
-
-        }else
-        if (Platform.isIOS || Platform.isAndroid) {
+        if (kIsWeb) {
+        } else if (Platform.isIOS || Platform.isAndroid) {
           isSelectingEdge = true;
           edgeSelected = edge;
         }
@@ -303,7 +303,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         break;
       } else {
         isFoundEdge = false;
-
       }
 
       // Rect rect = Rect.fromLTRB(

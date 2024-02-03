@@ -6,9 +6,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
 
 class RightToolbar extends StatefulWidget {
-  RightToolbar({super.key, required this.callback, required this.menuIdx});
+  RightToolbar(
+      {super.key,
+      required this.callback,
+      required this.isPlaying,
+      required this.menuIdx});
   late Function callback;
   final int menuIdx;
+  final bool isPlaying;
   @override
   State<RightToolbar> createState() => _RightToolbarState();
 }
@@ -43,11 +48,13 @@ class _RightToolbarState extends State<RightToolbar> {
   // static List<String> activeSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
   // static List<String> inactiveSimulationIconsStr = ["assets/icons/Home.svg","assets/icons/Play.svg","assets/icons/Save.svg"];
   static List<String> activeSimulationIconsStr = [
-    "assets/icons/Home.svg",
+    // "assets/icons/Home.svg",
+    "assets/icons/Load.svg",
     "assets/icons/Save.svg"
   ];
   static List<String> inactiveSimulationIconsStr = [
-    "assets/icons/Home.svg",
+    // "assets/icons/Home.svg",
+    "assets/icons/Load.svg",
     "assets/icons/Save.svg"
   ];
   static List<ColorFilter> colorSimulationFilters = List<ColorFilter>.generate(
@@ -93,7 +100,7 @@ class _RightToolbarState extends State<RightToolbar> {
     );
   });
 
-  List<String> tooltipSimulations = ["Home", "Save Brain"];
+  List<String> tooltipSimulations = ["Load Brain", "Save Brain"];
   List<Widget> activeSimulationIcons =
       List.generate(totalSimulationIcons, (index) {
     return SvgPicture.asset(
@@ -127,20 +134,30 @@ class _RightToolbarState extends State<RightToolbar> {
     Future.delayed(const Duration(milliseconds: 200), () {
       // WEB CHANGE
       if (kIsWeb) {
-        _actionController.animateTo(1,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(1,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        if (_actionController.hasClients) {
+          _actionController.animateTo(1,
+              duration: const Duration(milliseconds: 10), curve: Curves.linear);
+          _simulationController.animateTo(1,
+              duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        }
       } else if (Platform.isAndroid) {
-        _actionController.animateTo(20,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(20,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        if (_actionController.hasClients) {
+          _actionController.animateTo(20,
+              duration: const Duration(milliseconds: 10), curve: Curves.linear);
+          _simulationController.animateTo(20,
+              duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        }
       } else {
-        _actionController.animateTo(1,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        _simulationController.animateTo(1,
-            duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        try {
+          if (_actionController.hasClients) {
+            _actionController.animateTo(1,
+                duration: const Duration(milliseconds: 10),
+                curve: Curves.linear);
+            _simulationController.animateTo(1,
+                duration: const Duration(milliseconds: 10),
+                curve: Curves.linear);
+          }
+        } catch (err) {}
       }
     });
     activeIdx = widget.menuIdx;
@@ -199,6 +216,8 @@ class _RightToolbarState extends State<RightToolbar> {
                 preferOri: PreferOrientation.left,
                 child: GestureDetector(
                   onTap: () {
+                    if (widget.isPlaying) return;
+
                     activeIdx = idx;
                     widget.callback({"menuIdx": activeIdx});
                     setState(() {});
@@ -360,6 +379,8 @@ class _RightToolbarState extends State<RightToolbar> {
                 preferOri: PreferOrientation.left,
                 child: GestureDetector(
                   onTap: () {
+                    if (widget.isPlaying) return;
+
                     int prevIdx = activeIdx;
                     // activeIdx = idx + 7;//6//5;
                     activeIdx = idx + 5;

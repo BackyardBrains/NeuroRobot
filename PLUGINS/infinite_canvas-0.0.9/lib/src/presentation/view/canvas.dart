@@ -213,13 +213,14 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
+            // print("mouse down");
+            // print(controller.scale);
+
             controller.mouseDown = true;
             controller.mousePosition = details.localPosition;
             // WEB CHANGE
-            if (kIsWeb){
-
-            }else
-            if (Platform.isAndroid || Platform.isIOS) {
+            if (kIsWeb) {
+            } else if (Platform.isAndroid || Platform.isIOS) {
               lastPointerDownTime = DateTime.now().millisecondsSinceEpoch;
               Future.delayed(holdDuration, () {
                 if (lastPointerDownTime != 0 &&
@@ -255,6 +256,21 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
               controller.linkStart = selected.key;
               controller.linkEnd = null;
             }
+
+            if (!controller.canvasMoveEnabled) {
+              // print("123");
+              // controller.transformNeuronPositionWrapper();
+              // final mat = controller.transform.value.clone();
+              // mat.scale(controller.scale, controller.scale);
+              // mat.translate(0, 0);
+              // controller.transform.value = mat;
+              // controller.notifyMousePosition();
+              // controller.zoomReset();
+              // Future.delayed(Duration(milliseconds: 10), () {
+              // controller.zoom(controller.scale);
+              // });
+              //   return;
+            }
             // }
           },
           onPointerUp: (details) {
@@ -264,7 +280,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             //     controller.marqueeEnd != null) {
             //   controller.checkMarqueeSelection();
             // }
-            print("mouse down");
+
+            // print("mouse UP");
             // WEB CHANGE
             // if (kIsWeb){
 
@@ -302,6 +319,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             controller.marqueeEnd = null;
             controller.linkStart = null;
             controller.linkEnd = null;
+            if (!controller.canvasMoveEnabled) {
+              // controller.transformNeuronPositionWrapper();
+            }
           },
           onPointerCancel: (details) {
             controller.mouseDown = false;
@@ -336,17 +356,17 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
               return InteractiveViewer.builder(
                 transformationController: controller.transform,
                 panEnabled: controller.canvasMoveEnabled,
-                scaleEnabled: controller.canvasMoveEnabled,
+                // scaleEnabled: controller.canvasMoveEnabled,
+                scaleEnabled: true,
                 onInteractionStart: (details) {
                   // print("controller.mousePosition");
                   // print(details.focalPoint);
+
                   controller.mousePosition = details.focalPoint;
                   controller.mouseDragStart = controller.mousePosition;
                   // WEB CHANGE
-                  if (kIsWeb){
-
-                  }else
-                  if (Platform.isIOS) {
+                  if (kIsWeb) {
+                  } else if (Platform.isIOS) {
                     // print(controller.mousePosition);
                     controller.notifyMousePosition();
                   }
@@ -382,7 +402,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
                     child: Stack(
-                      clipBehavior: Clip.none,
+                      // clipBehavior: Clip.none,
                       children: [
                         Positioned.fill(
                           child: buildBackground(context, quad),
