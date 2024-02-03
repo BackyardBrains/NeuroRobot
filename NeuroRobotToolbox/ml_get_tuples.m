@@ -48,7 +48,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 12;
 
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;
@@ -119,4 +119,9 @@ load(strcat(nets_dir_name, state_net_name, '-tuples'))
 %% Output
 tx7.String = 'tuples aquired successfully';
 drawnow
+
+
+
+figure(72); subplot(1,2,1); histogram(states); title('states'); subplot(1,2,2); histogram(actions); title('actions');
+
 

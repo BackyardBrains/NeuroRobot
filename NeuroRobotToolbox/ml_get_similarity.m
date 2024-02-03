@@ -18,9 +18,13 @@ image_ds_tiny.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manual
 image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
-ps = parallel.Settings;
-ps.Pool.AutoCreate = false;
-ps.Pool.IdleTimeout = Inf;
+try
+    ps = parallel.Settings;
+    ps.Pool.AutoCreate = false;
+    ps.Pool.IdleTimeout = Inf;
+catch
+    disp('no gpu (ml_get_similarity')
+end
 
 axes(im_ax1)
 montage(image_ds_tiny)
