@@ -18,7 +18,7 @@ script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'not in use', 'T
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
-bfsize = 12;
+bfsize = 11;
 
 
 %% Background
@@ -61,7 +61,7 @@ end
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 4.3')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 4.4')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 
