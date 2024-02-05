@@ -177,10 +177,8 @@ if exist('rak_only', 'var') && brain_support
 
     if use_rcnn
         load(horzcat(nets_dir_name, 'rcnn'))
-        labels = 'cone';
-        cust_object_ns = 1;
-        cust_object_strs = labels(cust_object_ns);
-        vis_pref_names = [basic_vis_pref_names, cust_object_strs];  
+        this_label = 'cone';
+        vis_pref_names = [basic_vis_pref_names, this_label];  
         n_vis_prefs = size(vis_pref_names, 2);
         if length(trained_nets) > 1
             trained_nets{2} = 'CustomRCNN';

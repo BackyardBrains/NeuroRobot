@@ -89,45 +89,22 @@ end
 % Run custom r-cnn net
 if use_rcnn
 
-    [bbox, score, label] = detect(rcnn, large_frame);
-    % , 'threshold', 0, 'ExecutionEnvironment', 'gpu');
-    
-    cone_inds = find(label == 'cone');
-    robot_inds = find(label == 'robot');
-
-    if ~isempty(cone_inds)
-        cone_score = max(score(cone_inds));
-    else
+    this_im = imresize(large_frame, 0.5);
+    [bbox, score, label] = detect(rcnn, this_im);
+    cone_score = max(score);
+    if isempty(cone_score)
         cone_score = 0;
     end
 
-    if ~isempty(robot_inds)
-        robot_score = max(score(robot_inds));
-    else
-        robot_score = 0;        
-    end
-
-    disp(horzcat('cone: ', num2str(cone_score), ', robot: ', num2str(robot_score)))
+    disp(horzcat('cone: ', num2str(cone_score)))
 
     if ~use_cnn
-        vis_pref_vals(8:8+1, 1) = [cone_score robot_score] * 50;
-        vis_pref_vals(8:8+1, 2) = [cone_score robot_score] * 50;
+        vis_pref_vals(8, 1) = cone_score * 50;
+        vis_pref_vals(8, 2) = cone_score * 50;
     else
-        vis_pref_vals(12:12+1, 1) = [cone_score robot_score] * 50;
-        vis_pref_vals(12:12+1, 2) = [cone_score robot_score] * 50;
+        vis_pref_vals(12, 1) = cone_score * 50;
+        vis_pref_vals(12, 2) = cone_score * 50;
     end
-
-    % [mscore, midx] = max(score);
-    % mbbox = bbox(midx, :);
-    % mlabel = char(label(midx));
-    % 
-    % qi = 0.5;
-    % x = bbox(score > qi,1) + bbox(score > qi,3)/2;
-    % y = bbox(score > qi,2) + bbox(score > qi,4)/2;
-    % mx = mbbox(:,1) + mbbox(:,3)/2;
-    % my = mbbox(:,2) + mbbox(:,4)/2;
-    % 
-    % nboxes = length(x);
 
 end
 
