@@ -18,7 +18,7 @@ script_names = {'Red LEDs on', 'Green LEDs on', 'Blue LEDs on', 'not in use', 'T
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
-bfsize = 11;
+bfsize = 10;
 
 
 %% Background
