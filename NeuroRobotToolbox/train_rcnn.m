@@ -8,8 +8,8 @@ end
 
 
 % %% Get data
-image_dir_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office\';
-image_dir2_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office2\';
+image_dir_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\livingroomWebcam\';
+image_dir2_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\livingroomWebcam2\';
 
 image_dir = dir(horzcat(image_dir2_name, '*.png'));
 nims = size(image_dir, 1);
