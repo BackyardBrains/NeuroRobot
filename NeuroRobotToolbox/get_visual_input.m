@@ -1,8 +1,8 @@
 rak_fail = 0;
 try
     if rak_only && ~use_webcam
-        large_frame = rak_cam.readVideo();
-        large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);
+        % large_frame = rak_cam.readVideo();
+        % large_frame = permute(reshape(large_frame, 3, rak_cam.readVideoWidth(), rak_cam.readVideoHeight()),[3,2,1]);
     elseif use_esp32 && ~use_webcam
         large_frame = snapshot(rak_cam);
     elseif use_webcam && ~(rak_only || use_esp32)

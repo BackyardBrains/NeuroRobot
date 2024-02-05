@@ -161,19 +161,23 @@ if nneurons % This prevents error caused by running script after deleting all ne
     
     %% Sending serial to RAK
     if rak_only      
-        send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
-        try
-            rak_cam.writeSerial(send_this)
-        catch
-            disp('Cannot send RAK serial')
-        end
-    elseif use_esp32        
+        % send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
+        % try
+        %     rak_cam.writeSerial(send_this)
+        % catch
+        %     disp('Cannot send RAK serial')
+        % end
+    elseif use_esp32
         send_this = horzcat('l:', num2str(l_torque * l_dir), ';', 'r:', num2str(r_torque * r_dir),';', 's:', num2str(speaker_tone), ';');
         try
             esp32WebsocketClient.send(send_this);
         catch
             disp('Cannot send ESP32 serial')
         end
+        % disp(horzcat('xstep: ', num2str(xstep)))
+        % disp(send_this)
+        % send_this_2 = horzcat('motor command: ', num2str(motor_command));
+        % disp(send_this_2)
     end
 end
 

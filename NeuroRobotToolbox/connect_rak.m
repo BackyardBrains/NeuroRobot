@@ -13,46 +13,46 @@ set(button_to_quit, 'enable', 'off')
 set(button_new_brain, 'enable', 'off')
 drawnow
 
-if rak_only
-    try
-        try
-            rak_cam_base = evalin('base','rak_cam');
-            if rak_cam_base.isRunning()
-                rak_cam_base.stop();
-            end
-            clear rak_cam_base
-            disp('Previous rak_cam cleared')
-        catch
-            disp('may23 connect_rak error')
-        end
-        clear rak_cam
-        disp('Attempting RAK connect...')
-        rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
-        disp('rak_cam created')
-
-        rak_cam.start();
-        if ~rak_cam.isRunning()
-            disp('rak_cam created but not running')
-            if hd_camera
-                rak_cam_h = 1080;
-                rak_cam_w = 1920;
-            else
-                rak_cam_h = 720;
-                rak_cam_w = 1280;                
-            end
-        else
-            disp('rak_cam is running')
-            rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
-            rak_cam_h = rak_cam.readVideoHeight();
-            rak_cam_w = rak_cam.readVideoWidth();
-            connect_success = 1;
-        end
-    catch exception
-        disp('rak connect failed')
-        this_error = exception.message;
-        msgbox(this_error)
-    end
-end
+% if rak_only
+%     try
+%         try
+%             rak_cam_base = evalin('base','rak_cam');
+%             if rak_cam_base.isRunning()
+%                 rak_cam_base.stop();
+%             end
+%             clear rak_cam_base
+%             disp('Previous rak_cam cleared')
+%         catch
+%             disp('may23 connect_rak error')
+%         end
+%         clear rak_cam
+%         disp('Attempting RAK connect...')
+%         rak_cam = NeuroRobot_matlab('192.168.100.1', '80');
+%         disp('rak_cam created')
+% 
+%         rak_cam.start();
+%         if ~rak_cam.isRunning()
+%             disp('rak_cam created but not running')
+%             if hd_camera
+%                 rak_cam_h = 1080;
+%                 rak_cam_w = 1920;
+%             else
+%                 rak_cam_h = 720;
+%                 rak_cam_w = 1280;                
+%             end
+%         else
+%             disp('rak_cam is running')
+%             rak_cam.writeSerial('d:121;d:221;d:321;d:421;d:521;d:621;')
+%             rak_cam_h = rak_cam.readVideoHeight();
+%             rak_cam_w = rak_cam.readVideoWidth();
+%             connect_success = 1;
+%         end
+%     catch exception
+%         disp('rak connect failed')
+%         this_error = exception.message;
+%         msgbox(this_error)
+%     end
+% end
 
 if use_esp32
     try
@@ -69,8 +69,7 @@ if use_esp32
     try
         clear rak_cam
         
-        url = 'http://192.168.4.1:81/stream';%robot is AP
-        %url = 'http://192.168.0.14:81/stream';%use local AP
+        url = 'http://192.168.4.1:81/stream';
         rak_cam = ipcam(url);
         rak_cam_h = 240;
         rak_cam_w = 320;   
@@ -82,8 +81,7 @@ if use_esp32
             esp32WebsocketClient.delete();
             evalin('base','clear esp32WebsocketClient');
         end
-        esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');%robot is AP
-        %esp32WebsocketClient = ESP32SocketClient('ws://192.168.0.14/ws');%use local AP
+        esp32WebsocketClient = ESP32SocketClient('ws://192.168.4.1/ws');
         esp32WebsocketClient.send('d:121;d:221;d:321;d:421;d:521;d:621;');
 
         connect_success = 1;

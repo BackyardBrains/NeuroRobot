@@ -17,8 +17,6 @@ critic = rlQValueFunction(qTable,obsInfo,actInfo);
 n_unique_states = size(obsInfo.Elements, 1);
 n_unique_actions = size(actInfo.Elements, 1);
 
-% delete(gcp('nocreate'))
-% parpool
 
 %% Train Agent 2
 agent_opt = rlDQNAgentOptions;

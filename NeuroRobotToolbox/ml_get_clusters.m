@@ -8,9 +8,6 @@ tx3 = text(0.03, 0.5, horzcat('Clustering...'));
 drawnow
 disp('Clustering... ')
 
-% n_unique_states = 100;
-% group_inds = kmeans(xdata, n_unique_states);
-
 dists = pdist(xdata, 'correlation');
 links = linkage(dists, 'weighted');
 group_inds = cluster(links,'MaxClust', n_unique_states);

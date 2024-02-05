@@ -54,7 +54,7 @@ end
 
 %% Serial
 if rak_only
-    rak_get_serial
+    % rak_get_serial
 elseif use_esp32
     esp_get_serial    
 end
