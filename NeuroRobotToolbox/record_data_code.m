@@ -1,5 +1,4 @@
 
-% imdim = 227;
 imdim_h = 227;
 imdim_w = 302;
 
@@ -12,14 +11,7 @@ if record_data > 0
     
     this_time = string(datetime('now', 'Format', 'yyyy-MM-dd-hh-mm-ss-ms'));
 
-    % Save eye frames
-%     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-left_uframe.png');    
-%     left_uframe = imresize(left_uframe, [imdim imdim]);
-%     imwrite(left_uframe, fname);
-%     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-right_uframe.png');
-%     right_uframe = imresize(right_uframe, [imdim imdim]);
-%     imwrite(right_uframe, fname);  
-
+    % Save image
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-large_frame_x.png');    
     this_frame = imresize(large_frame, [imdim_h imdim_w]);
     imwrite(this_frame, fname);
@@ -29,7 +21,7 @@ if record_data > 0
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-torques.mat');
     save(fname, 'torques', '-mat')
 
-    % Save serial input (incl. distance)
+    % Save serial input
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-serial_data.mat');
     if rak_only || use_esp32
         save(fname, 'serial_data', '-mat');
