@@ -1,4 +1,7 @@
 
+dataset_dir_name = 'C:\SpikerBot ML Datasets\office3\';
+
+
 %% Brains
 if ispc
     brain_dir = strcat(userpath, '\Brains\');
@@ -60,7 +63,7 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 %         dataset_dir_name = strcat(userpath, './Datasets/');
 %     end
 % else
-    dataset_dir_name = 'C:\SpikerBot ML Datasets\livingroomWebcam\';
+    % dataset_dir_name = 'C:\SpikerBot ML Datasets\office1\';
 % end
 
 if ~exist(dataset_dir_name, 'dir')
