@@ -89,8 +89,10 @@ end
 % Run custom r-cnn net
 if use_rcnn
 
-    this_im = imresize(large_frame, 0.5);
-    [bbox, score, label] = detect(rcnn, this_im);
+    this_im = imresize(large_frame, [227 302]);
+    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 2000, ...
+        'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
+    
     cone_score = max(score);
     if isempty(cone_score)
         cone_score = 0;
