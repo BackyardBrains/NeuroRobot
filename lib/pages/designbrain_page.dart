@@ -445,7 +445,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     neuronActiveCirclesPainter = List<SingleCircle>.generate(
         neuronSize, (index) => SingleCircle(isActive: true));
     neuronInactiveCirclesPainter = List<SingleCircle>.generate(
-        neuronSize, (index) => SingleCircle(isActive: true));
+        neuronSize, (index) => SingleCircle(isActive: false));
 
     neuronActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx) {
       return CustomPaint(
@@ -804,6 +804,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }
       if (isPlayingMenu) {
         // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
+        // print("neuronCircleBridge");
+        // print(neuronCircleBridge);
         try {
           for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
             int neuronIndex = i;
@@ -1255,7 +1257,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         if (mapDistanceNeuron.containsKey(connectionKey)) {
           neuronDistanceBufView[ctr] = mapDistanceNeuron[connectionKey];
         } else {
-          neuronDistanceBufView[ctr] = 0;
+          neuronDistanceBufView[ctr] = -1;
         }
 
         // connectome
