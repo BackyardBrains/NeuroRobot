@@ -13,7 +13,7 @@ else
     
     axes(ml_load_status)
     cla
-    txx = text(0.03, 0.5, 'Loading...');
+    txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 6);
     drawnow
     
     openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
