@@ -475,20 +475,20 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         Mat imageHsv, imageMask;
         cvtColor(imageRgb, imageHsv, COLOR_BGR2HSV);
         // inRange(imageHsv, lowerB, upperB, imgMask);
-        platform_log("CPP - findColorInImage\n");
+        // platform_log("CPP - findColorInImage\n");
 
         inRange(imageHsv, Scalar(lowerB[0], lowerB[1], lowerB[2]), Scalar(upperB[0], upperB[1], upperB[2]), imageMask);
         
-        platform_log(std::to_string(imageMask.rows).c_str());
-        platform_log("\n");
-        platform_log(std::to_string(imageMask.step).c_str());
-        platform_log("\n");
+        // platform_log(std::to_string(imageMask.rows).c_str());
+        // platform_log("\n");
+        // platform_log(std::to_string(imageMask.step).c_str());
+        // platform_log("\n");
 
         int sum=0;
         sum = countNonZero(imageMask);
-        platform_log("SUM:\n");
-        platform_log(std::to_string(sum).c_str());
-        platform_log("\n");
+        // platform_log("SUM:\n");
+        // platform_log(std::to_string(sum).c_str());
+        // platform_log("\n");
 
         // unsigned char *input = (unsigned char*)(imageMask.data);
         // namedWindow("window_detection_name");

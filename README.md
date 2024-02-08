@@ -12,3 +12,5 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 Firebase Analytics & Crashlytics Implementation
 Fix iPhone X issue - long pressed neuron pop up
 Update on servo motor calculation
+
+Always build windows for release

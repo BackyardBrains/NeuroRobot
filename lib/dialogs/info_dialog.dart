@@ -1,3 +1,6 @@
+// WEB CHANGE
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -14,13 +17,14 @@ Future<void> neuronDialogBuilder(
     String neuronType,
     neuronTypeChangecallback,
     deleteCallback) {
-  MyApp.analytics.logEvent(
-    name: 'neuron_dialog',
-    parameters: <String, dynamic>{
-      'neuron_dialog': 'true',
-    },
-  );
-
+  if (!Platform.isWindows) {
+    MyApp.analytics.logEvent(
+      name: 'neuron_dialog',
+      parameters: <String, dynamic>{
+        'neuron_dialog': 'true',
+      },
+    );
+  }
   if (!isNeuronDialog) {
     isNeuronDialog = true;
     String val = neuronType;
@@ -69,7 +73,8 @@ Future<void> neuronDialogBuilder(
                         title,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text("#$nodeId"),
+                      // Text("#$nodeId"),
+                      Text(nodeId),
                       const VerticalDivider(),
                       DropdownButton(
                         value: val,
@@ -118,12 +123,14 @@ Future<void> axonDialogBuilder(
     return Future<void>.value();
   }
 
-  MyApp.analytics.logEvent(
-    name: 'axon_dialog',
-    parameters: <String, dynamic>{
-      'axondialog': 'true',
-    },
-  );
+  if (!Platform.isWindows) {
+    MyApp.analytics.logEvent(
+      name: 'axon_dialog',
+      parameters: <String, dynamic>{
+        'axondialog': 'true',
+      },
+    );
+  }
 
   isAxonDialog = true;
   List<String> linkTypesLabel = [
@@ -165,8 +172,8 @@ Future<void> axonDialogBuilder(
   TextEditingController txtNeuronWeightController =
       TextEditingController(text: map["connectomeContact"].floor().toString());
 
-  TextEditingController txtNeuronDistanceController =
-      TextEditingController(text: map["distanceContact"].floor().toString());
+  // TextEditingController txtNeuronDistanceController =
+  //     TextEditingController(text: map["distanceContact"].floor().toString());
 
   txtContactWeightController.addListener(() {
     linkMotorCallback(txtContactWeightController.text);
@@ -190,7 +197,8 @@ Future<void> axonDialogBuilder(
     );
   });
 
-  int distanceVal = 0;
+  double distanceVal = 0;
+  if (map["distanceContact"] != null) distanceVal = map["distanceContact"] + 1;
 
   return showDialog<void>(
     context: context,
@@ -272,10 +280,10 @@ Future<void> axonDialogBuilder(
                 ] else if (isSensoryType == 3) ...[
                   Text("Distance Preferences : "),
                   DropdownButton(
-                    value: distanceVal,
+                    value: distanceVal.floor(),
                     items: dropdownDistanceItems,
                     onChanged: (value) {
-                      distanceVal = value;
+                      distanceVal = value.floor().toDouble();
                       linkDistanceConnection(value - 1);
                       setState(() {});
                       // Navigator.pop(context);
@@ -305,13 +313,14 @@ Future<void> axonDialogBuilder(
 bool isLinkDialog = false;
 Future<void> linkDialogBuilder(
     BuildContext context, String linkType, linkTypeChangecallback) {
-  MyApp.analytics.logEvent(
-    name: 'link_dialog',
-    parameters: <String, dynamic>{
-      'link_dialog': 'true',
-    },
-  );
-
+  if (!Platform.isWindows) {
+    MyApp.analytics.logEvent(
+      name: 'link_dialog',
+      parameters: <String, dynamic>{
+        'link_dialog': 'true',
+      },
+    );
+  }
   String val = linkType;
   List<String> linkTypesLabel = [
     "Select Visual Preference",

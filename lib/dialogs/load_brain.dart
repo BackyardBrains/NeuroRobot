@@ -26,22 +26,7 @@ Future<void> loadBrainDialog(
   if (!directory.existsSync()) {
     // if (entity.isEmpty) {
     // ignore: use_build_context_synchronously
-    customAlertDialog(
-      context,
-      const Text("Load Brain"),
-      const Text("There is no saved brain."),
-      titleIcon: const Icon(Icons.save),
-      positiveButtonText: "OK",
-      positiveButtonAction: () {},
-      negativeButtonText: "",
-      negativeButtonAction: () {},
-      neutralButtonText: "",
-      neutralButtonAction: () {},
-      hideNeutralButton: true,
-      closeOnBackPress: false,
-      confirmationDialog: false,
-      confirmationMessage: "",
-    );
+    noSavedBrainAlert(context);
     return;
   }
   List<FileSystemEntity> entity = directory.listSync(recursive: false);
@@ -49,6 +34,11 @@ Future<void> loadBrainDialog(
       .map((item) => item.path)
       .where((item) => item.endsWith('.png'))
       .toList(growable: false);
+  if (fileList.isEmpty) {
+    noSavedBrainAlert(context);
+    return;
+  }
+
   var statResults = await Future.wait([
     for (var path in fileList) FileStat.stat(path),
   ]);
@@ -79,7 +69,8 @@ Future<void> loadBrainDialog(
             height: 400,
             // width: MediaQuery.of(context).size.width * 0.7,
             // height: MediaQuery.of(context).size.height * 0.7,
-            child: showBrainDisplay(context, fileNames, selectCallback),
+            child:
+                showBrainDisplay(context, fileNames, selectCallback, setState),
           ),
         );
       });
@@ -87,7 +78,27 @@ Future<void> loadBrainDialog(
   ).whenComplete(() => isLoadBrainDialog = false);
 }
 
-showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback) {
+void noSavedBrainAlert(context) {
+  customAlertDialog(
+    context,
+    const Text("Load Brain"),
+    const Text("There is no saved brain."),
+    titleIcon: const Icon(Icons.save),
+    positiveButtonText: "OK",
+    positiveButtonAction: () {},
+    negativeButtonText: "",
+    negativeButtonAction: () {},
+    neutralButtonText: "",
+    neutralButtonAction: () {},
+    hideNeutralButton: true,
+    closeOnBackPress: false,
+    confirmationDialog: false,
+    confirmationMessage: "",
+  );
+}
+
+showBrainDisplay(
+    BuildContext context, List<File> fileNames, selectCallback, setState) {
   return LayoutBuilder(builder: (ctx, constraints) {
     List<String> imageIds = [];
     List<String> imageTitles = [];
@@ -133,37 +144,86 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback) {
             //   );
             // } else {
 
-            return GestureDetector(
-              onTap: () {
-                String filename =
-                    basename(fileNames[i].path).replaceAll("Brain", "");
-                filename = filename.replaceAll(".png", "");
-                List<String> arrImageInfo = filename.split("@@@");
-                String imageId = arrImageInfo[0];
-                selectCallback(imageId);
-                Navigator.pop(context);
-              },
-              child: Card(
-                margin: const EdgeInsets.all(7),
-                child: Container(
-                  height: 270,
-                  padding: const EdgeInsets.all(7),
-                  // alignment: const Alignment(0, 0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.file(
-                        fileNames[i],
-                        fit: BoxFit.contain,
-                        height: 150,
+            return Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    String filename =
+                        basename(fileNames[i].path).replaceAll("Brain", "");
+                    filename = filename.replaceAll(".png", "");
+                    List<String> arrImageInfo = filename.split("@@@");
+                    String imageId = arrImageInfo[0];
+                    selectCallback(imageId);
+                    Navigator.pop(context);
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.all(7),
+                    child: Container(
+                      height: 270,
+                      padding: const EdgeInsets.all(7),
+                      // alignment: const Alignment(0, 0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.file(
+                            fileNames[i],
+                            fit: BoxFit.contain,
+                            height: 150,
+                          ),
+                          Text(imageTitles[i], style: headerStyle),
+                          Text(imageDescriptions[i], style: subHeaderStyle),
+                        ],
                       ),
-                      Text(imageTitles[i], style: headerStyle),
-                      Text(imageDescriptions[i], style: subHeaderStyle),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () async {
+                      String filename =
+                          basename(fileNames[i].path).replaceAll("Brain", "");
+                      filename = filename.replaceAll(".png", "");
+                      List<String> arrImageInfo = filename.split("@@@");
+                      String imageId = arrImageInfo[0];
+
+                      Directory txtDirectory = Directory(
+                          "${(await getApplicationDocumentsDirectory()).path}/text");
+                      // String textPath = "/text";
+                      final File file =
+                          File('${txtDirectory.path}/BrainText$imageId.txt');
+                      file.deleteSync();
+                      final File fileImage = File(fileNames[i].path);
+                      fileImage.deleteSync();
+                      fileNames.removeAt(i);
+
+                      setState(() {});
+                    },
+                    child: Container(
+                      width: 25,
+                      height: 25,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey,
+                            blurRadius: 5.0, // soften the shadow
+                            spreadRadius: 2.0, //extend the shadow
+                            offset: Offset(
+                              5.0, // Move to right 5  horizontally
+                              5.0, // Move to bottom 5 Vertically
+                            ),
+                          )
+                        ],
+                      ),
+                      child: const Icon(Icons.remove),
+                    ),
+                  ),
+                ),
+              ],
             );
             // }
           }).toList()),

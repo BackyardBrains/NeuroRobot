@@ -28,6 +28,7 @@
 
 #endif         
 
+// void platform_log(const char *fmt, ...);
 
 // MAIN CODE
 // std::mutex mtx;
@@ -65,14 +66,22 @@ short isThreadCreated=-1;
 // w = 2;
 double i_rand = 5;
 
+// WASM
+int *state_buf;
+uint8_t *motor_command_message;
+
+
 // OPENCV
-const short vis_pref_count = 7;
+short vis_prefs_count = 7;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
-short **visPrefs;
-double **vis_pref_vals;
-double **temp_vis_pref_vals;
+short *visPrefs;
+double *vis_pref_vals;
+// double **temp_vis_pref_vals;
 double *vis_I;
+short frameSize = 130;
+short frameSizeWidth = 210;
+short frameSizeHeight = 210;
 
 // std::vector<int> vis_I(1,0);
 // short *firing = new short[totalNumOfNeurons];
@@ -83,14 +92,25 @@ short *firing;
 // MOTOR
 double pulse_period = 0.1;
 short init_motor_block_in_s = 1;
-double **neuron_contacts;
+double *neuron_contacts;
 double *motor_command;
 // from neuron to sensory neuron
 //neuron_contacts = zeros(nneurons, ncontacts);
 // neuron_contacts = zeros(nneurons, ncontacts);
-short vis_prefs_count = 7;
 double sumVisPrefVals = 0;
 short motorCounter = 0;
 // CALLBACK
 std::string message;
 void (*onCallback)(const char*);
+
+
+// DISTANCE
+short *dist_I;
+short *dist_prefs;
+
+
+double dist_short = 0;
+double dist_medium = 0;
+double dist_long = 0;
+
+double sensor_distance = 0;

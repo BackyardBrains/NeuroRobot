@@ -153,6 +153,13 @@ class ProtoNeuron extends CustomPainter {
       circle.zIndex = 0;
       circles.add(circle);
     }
+    print("aBufList");
+    print(aBufList);
+    print(bBufList);
+    print(cBufList);
+    print(dBufList);
+    print(iBufList);
+    print(wBufList);
     // print("circles.length");
     // print(circles.length);
     // print(screenWidth);

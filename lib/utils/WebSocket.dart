@@ -4,7 +4,9 @@ import 'dart:isolate';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 void createWebSocket(List<dynamic> args) {
-  Timer heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (timer) { timer.cancel(); });
+  Timer heartbeatTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    timer.cancel();
+  });
   int heartbeatMissingLastTime = DateTime.now().millisecondsSinceEpoch;
   int heartbeatMissingCounter = 0;
 
@@ -16,6 +18,7 @@ void createWebSocket(List<dynamic> args) {
   channel.stream.listen((message) {
     // print("message");
     // print(message);
+    writeMainPort.send(message);
     heartbeatMissingCounter = 0;
     heartbeatMissingLastTime = DateTime.now().millisecondsSinceEpoch;
   });
@@ -26,20 +29,22 @@ void createWebSocket(List<dynamic> args) {
   rcvWriteChannelPort.listen((message) {
     // print("socketisolate message");
     // print(message);
-    if (message == "DISCONNECT"){
+    // print(message.length);
+    // print("=====================");
+    if (message == "DISCONNECT") {
       heartbeatTimer.cancel();
       channel.sink.close();
       rcvWriteChannelPort.close();
       writeMainPort.send("DISCONNECTED");
-    }else{
+    } else {
       channel.sink.add(message);
     }
   });
 
-  heartbeatTimer = Timer.periodic(const Duration(seconds: 1), (timer){
+  heartbeatTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
     var now = DateTime.now().millisecondsSinceEpoch;
-    if ( now - heartbeatMissingLastTime >= 1000){
-    // if ( DateTime.now().millisecondsSinceEpoch - heartbeatMissingLastTime >= 100000000){
+    if (now - heartbeatMissingLastTime >= 1000) {
+      // if ( DateTime.now().millisecondsSinceEpoch - heartbeatMissingLastTime >= 100000000){
       heartbeatMissingLastTime = now;
       heartbeatMissingCounter++;
     }

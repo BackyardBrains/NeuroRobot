@@ -6,7 +6,7 @@
 #include <android/log.h>
 #endif
 #include <opencv2/opencv.hpp>
-#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <vector>
 
 #include <istream>
@@ -144,11 +144,11 @@ class cca_opencv_wrapper{
         uint32_t get_max_component_area()
         {
             uint32_t max_ = 0;
-            for(auto iArea = 0; iArea < get_connected_component_count(); iArea++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                if(get_area_of_component(iArea) > max_ && iArea > 0){
-                    max_ = get_area_of_component(iArea);
-                    max_idx = iArea;
+                if(get_area_of_component(iStep) > max_ && iStep > 0){
+                    max_ = get_area_of_component(iStep);
+                    max_idx = iStep;
                 }
             }
             return max_;
@@ -157,10 +157,10 @@ class cca_opencv_wrapper{
         uint32_t get_min_component_area()
         {
             uint32_t min_ = inp.rows * inp.cols;
-            for(auto iArea = 0; iArea < get_connected_component_count(); iArea++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                if(get_area_of_component(iArea) < min_)
-                    min_ = get_area_of_component(iArea);
+                if(get_area_of_component(iStep) < min_)
+                    min_ = get_area_of_component(iStep);
             }
             return min_;
         }
@@ -168,9 +168,9 @@ class cca_opencv_wrapper{
         float get_average_component_area()
         {
             uint32_t sum = 0;
-            for(auto iArea = 0; iArea < get_connected_component_count(); iArea++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                sum = sum + get_area_of_component(iArea);
+                sum = sum + get_area_of_component(iStep);
             }
             return ((float) sum) / (float) get_connected_component_count();
         }
@@ -178,9 +178,9 @@ class cca_opencv_wrapper{
         float get_standard_deviation_of_connected_compenent_areas()
         {
             float sum = 0;
-            for(auto iArea = 0; iArea < get_connected_component_count(); iArea++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                sum = sum + ( abs( get_area_of_component(iArea) - get_average_component_area() ) );
+                sum = sum + ( abs( get_area_of_component(iStep) - get_average_component_area() ) );
             }
             return ((float) sum) / (float) get_connected_component_count();
         }
@@ -192,7 +192,7 @@ class cca_opencv_wrapper{
 double sigmoid(double xx, double cc, double aa) {
     return 1.0 / (1.0 + exp(-aa * (xx - cc)));
 }
-
+// GLOBAL Variable
 EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
 Size net_input_size = Size(224,224);
@@ -201,12 +201,20 @@ bool isInitialized = false;
 short resetCounter = 0;
 
 void initializeCameraConstant(){
-    vis_pref_vals = new double*[7];
-    for (short camIdx = 0; camIdx < 7; camIdx++){
-        vis_pref_vals[camIdx] = new double[ncam];
-    }
+    // vis_pref_vals = new double*[vis_prefs_count];
+    // // temp_vis_pref_vals = new double*[vis_prefs_count];
+    // for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
+    //     vis_pref_vals[featureIdx] = new double[ncam];
+    //     // temp_vis_pref_vals[featureIdx] = new double[ncam];
+    //     // temp_vis_pref_vals[featureIdx][0] = 100;
+    //     // temp_vis_pref_vals[featureIdx][1] = 100;
+    // }
 }
 
+void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, double value){
+// vis_pref_vals, ncol * 2, icam, per_row, temp);
+    arr[ pj * per_row + pi] =  value;
+}
 
 
 // Avoiding name mangling
@@ -225,27 +233,85 @@ void initializeCameraConstant(){
         return 1;
     }
 
+    EXTERNC FUNCTION_ATTRIBUTE
+    int passPreprocessPointers(int *p_state_buf, double *p_vis_pref_vals, short *p_vis_prefs, double *p_neuron_contacts){
+        // p_state_buf[7] = 12323333;
+        vis_pref_vals = p_vis_pref_vals;
+        visPrefs = p_vis_prefs;
+        neuron_contacts = p_neuron_contacts;
+        return 1;
+    }
+
+
     // __attribute__((visibility("default"))) __attribute__((used))
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
-    int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
-        platform_log("INITIALIZE CAMERA CONSTANT Start : \n");
-        initializeCameraConstant();
-        platform_log("INITIALIZE CAMERA CONSTANT DONE : \n");
-        // platform_log(std::to_string(epochs).c_str());
+    // int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
+    int findColorInImage(uint8_t *img, uint32_t imgLength, uint8_t* imgMask) {
+        // Mat rawImageRgb = Mat(240 * 320 * 4, 1, CV_8UC4, img);
+        // Mat matImageRgb = rawImageRgb.reshape(4, 240);
+        // // Mat matImageRgb = Mat(240, 320, CV_8UC4, img);
+        // Mat imageRgb;
+        // cvtColor(matImageRgb, imageRgb, COLOR_RGBA2BGR);
 
-        vector<uint8_t> buffer(img, img + imgLength);
-        Mat imageRgb = imdecode(buffer, IMREAD_COLOR);;
+        // Mat imageRgb = Mat(240, 320, CV_8UC3, cv::Scalar(0,0,255));
+        // cvtColor(src, imageRgb, COLOR_BGRA2BGR);
+
+        // EM_ASM({
+        //     console.log("pixVal[0] : ", $0,$1,$2,$3);
+        // },pixVal[0],pixVal[1],pixVal[2],pixVal[3]);
+        // EM_ASM({
+        //     console.log("pixVal[0] : ", $0,$1,$2,$3);
+        // },img[0],img[1],img[2],img[3]);
+        
+        // set pixels one by one
+        // int imgCounter = 0;
+        Mat srcImageRgb;
+        Mat imageRgb;
+ 
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb = Mat(240, 320, CV_8UC4, Scalar(0,0,0,255));
+            for (int i=0; i<240;i++){
+                for (int j=0; j<320; j++){
+                    Vec4b pixVal = srcImageRgb.at<Vec4b>(i, j);
+                    pixVal[2] = img[imgCounter++];
+                    pixVal[1] = img[imgCounter++];
+                    pixVal[0] = img[imgCounter++];
+                    // pixVal[0] = img[imgCounter];
+                    pixVal[3] = img[imgCounter++];
+                    srcImageRgb.at<Vec4b>(i, j)=pixVal;
+
+                }
+            }
+            cvtColor(srcImageRgb, imageRgb, COLOR_BGRA2BGR);            
+        #else
+            // platform_log("Start decode buffer");
+            vector<uint8_t> buffer(img, img + imgLength);
+            imageRgb = imdecode(buffer, IMREAD_COLOR);;
+            // platform_log("END decode buffer");
+
+        #endif
+        
+        // cvtColor(imageRgb, imageRgb, COLOR_RGBA2BGR);
+        
+        // Mat imageRgb = Mat(320, 240, CV_8UC4, img);
 
         Mat uframe, frame, grayFrame, xframe, leftFrame, rightFrame, bwframe;
         Mat leftGrayFrame, rightGrayFrame;
-        leftFrame = imageRgb(Rect(0, 0, 240, 240));
-        rightFrame = imageRgb(Rect(70, 0, 240, 240));
+        // leftFrame = imageRgb(Rect(0, 0, frameSize, frameSize));
+        // rightFrame = imageRgb(Rect(70, 0, frameSize, frameSize));
+        leftFrame = imageRgb(Rect(0, 15, frameSizeWidth, frameSizeHeight));
+        rightFrame = imageRgb(Rect(109, 15, frameSizeWidth, frameSizeHeight));
+//         leftFrame = imageRgb(Rect(0, 0, 240, 240));
+//         rightFrame = imageRgb(Rect(70, 0, 240, 240));
+
         if (!isPrevEyesSaved){
             resize(leftFrame, prev_left_eye_frame, net_input_size);            
             resize(rightFrame, prev_right_eye_frame, net_input_size);            
             isPrevEyesSaved = true;
         }
+
+
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
         double this_score = 0;
@@ -253,7 +319,7 @@ void initializeCameraConstant(){
         double this_right_score = 0;
         double meanx = 0;
 
-        for (int icam = 0; icam < 2; icam++){
+        for (short icam = 0; icam < 2; icam++){
             if (icam == 0){
                 resize(leftFrame, uframe, net_input_size);
                 cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
@@ -265,11 +331,8 @@ void initializeCameraConstant(){
                 cvtColor(prev_right_eye_frame, rightGrayFrame, COLOR_BGR2GRAY);
                 subtract(grayFrame, rightGrayFrame, xframe);
             }
-            // left_uframe = uframe;
-            //convertTo (OutputArray m, int rtype, double alpha=1, double beta=0) const
+
             uframe.convertTo(frame, CV_32FC3);
-            // cvtColor(prev_left_eye_frame, prev_left_eye_frame, COLOR_BGR2GRAY)
-            // subtract(, , xframe);
             for (int ncol = 0; ncol < 3; ncol++) {
                 Mat colframe;
                 if (ncol == 2) {
@@ -278,17 +341,12 @@ void initializeCameraConstant(){
                     Mat temp1 = channels[2];
                     Mat temp2 = channels[1] * 1.5;
                     Mat temp3 = channels[0] * 1.5;
-                    //cv::compare (InputArray src1, InputArray src2, OutputArray dst, int cmpop)
                     compare(temp1, temp2, colframe, CMP_GT);
                     compare(temp1, temp3, temp1, CMP_GT);
-                    //cv::bitwise_and (InputArray src1, InputArray src2, OutputArray dst, InputArray mask=noArray())
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
                 } else if (ncol == 1) {
-                    // Mat temp1 = uframe.col(1);
-                    // Mat temp2 = uframe.col(0) * 1.3;
-                    // Mat temp3 = uframe.col(2) * 1.3;
                     Mat channels[3];
                     split(uframe, channels);
                     Mat temp1 = channels[1];
@@ -301,9 +359,6 @@ void initializeCameraConstant(){
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
                 } else {
-                    // Mat temp1 = uframe.col(2);
-                    // Mat temp2 = uframe.col(1) * 1.2;
-                    // Mat temp3 = uframe.col(0) * 1.2;
                     Mat channels[3];
                     split(uframe, channels);
                     Mat temp1 = channels[0];
@@ -318,70 +373,40 @@ void initializeCameraConstant(){
                 }
 
 
-
-                // Mat blob;
-                //cv::connectedComponents (InputArray image, OutputArray labels, int connectivity, int ltype, int ccltype)
-                // connectedComponents(colframe, blob);
                 cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(colframe);
-                // int x = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx);
-                // int y = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx);
-                // int w = cca_wrapper.get_heigth_of_centroid(cca_wrapper.max_idx);
-                // int h = cca_wrapper.get_width_of_centroid(cca_wrapper.max_idx);
-
-                // rectangle(colframe, Rect( Point( x,y ), Point(x + w, y + h) ),  Scalar(255, 255, 255), 3);
                 if (cca_wrapper.get_connected_component_count() > 0) {
-                    // i = max area
-                    // j = max_idx
-                    // npx = max_idx
-                    // [i, j] = max(cellfun(@numel,blob.PixelIdxList));
-                    // npx = i;
-                    // [~, x] = ind2sub(blob.ImageSize, blob.PixelIdxList{j});
-                    // this_score = sigmoid(npx, 1000, 0.0075) * 50;
-                    // this_left_score = sigmoid(((228 - mean(x)) / 227), 0.85, 10) * this_score;
-                    // this_right_score = sigmoid(((mean(x)) / 227), 0.85, 10) * this_score;                    
                     uint32_t max_size = 0;
                     // int max_idx = 0;
 
                     max_size = cca_wrapper.get_max_component_area();
+                    // double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                     meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
-                    temp_vis_pref_vals[ncol * 2][icam] = sigmoid(max_size, 1000, 0.0075) * 50;;
+
+                    short tempCol = static_cast<short>(ncol * 2);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
 
                     if (icam == 0) {
-                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;;
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
                     }
                     else{                    
-                        temp_vis_pref_vals[ncol * 2+1][ncam] = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                    }                    
-                    // this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                    // this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    }
+
                 } else {
                     meanx = 0;
                     this_score = 0;
                     this_left_score = 0;
-                    this_right_score = 0;                    
-                    // platform_log(std::to_string(777788889999).c_str());
-                    // vis_pref_vals[ncol * 2] = 0;
-                    // vis_pref_vals[ncol * 2 + 1] = 0;
-                    temp_vis_pref_vals[ncol * 2][icam] = 0;
-                    temp_vis_pref_vals[ncol * 2+1][icam] = 0;                    
+                    this_right_score = 0;
+                    short tempCol = static_cast<short>(ncol * 2);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, 0);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, 0);
                 }
-                // platform_log("STRRRR\n");
-                // platform_log(std::to_string(ncol * 2 + 1).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(icam).c_str());
-                // platform_log(std::to_string(this_left_score).c_str());
-                // platform_log(std::to_string(this_right_score).c_str());
-                vis_pref_vals[ncol * 2][icam] = this_score;
-                if (icam == 0) {
-                    vis_pref_vals[ncol * 2+1][icam] = this_left_score;
-                }
-                else{                    
-                    vis_pref_vals[ncol * 2+1][icam] = this_right_score;
-                }
+
+            
 
             }
             
@@ -390,17 +415,6 @@ void initializeCameraConstant(){
             split(uframe, channels);
             // compare(xframe, 20, xframe, CMP_GT);
             threshold(xframe, bwframe, 20, 255, THRESH_BINARY);            
-            
-            // bwframe.setTo(0, xframe);
-            // platform_log("SIZE : \n");
-            // platform_log(std::to_string(bwframe.size().width).c_str());
-            // platform_log("\n");
-            // platform_log(std::to_string(bwframe.size().height).c_str());
-            // platform_log("\n");
-            // platform_log(std::to_string(bwframe.channels()).c_str());
-            // platform_log("\n");
-            // platform_log("@^ channels \n");
-
 
             cca_opencv_wrapper cca_wrapper_bw = cca_opencv_wrapper(bwframe);
             // break;
@@ -419,7 +433,8 @@ void initializeCameraConstant(){
             }
 
 
-            vis_pref_vals[6][icam] = this_score;
+            // vis_pref_vals[6][ncam] = this_score;
+            setPreprocessMatrixValue(vis_pref_vals, 6, icam, 7, this_score);
 
 
             if (icam == 0){
@@ -429,33 +444,54 @@ void initializeCameraConstant(){
             }
 
         }
+        // platform_log("Set preprocess matrix");
 
-        
+        // start = std::chrono::high_resolution_clock::now();
+        // duration = start.time_since_epoch();
+        // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        // platform_log( (std::to_string(microseconds)+" ENDmicroseconds\n" ).c_str());
+        // delete[] slicedImg;
+
+        // Mat uframe, frame, grayFrame, xframe, leftFrame, rightFrame, bwframe;
+        // Mat leftGrayFrame, rightGrayFrame;
+        uframe.release();
+        frame.release();
+        grayFrame.release();
+        xframe.release();
+        leftFrame.release();
+        rightFrame.release();
+        bwframe.release();
+        #ifdef __EMSCRIPTEN__
+            srcImageRgb.release();
+        #endif
+        // rawImageRgb.release();
+        // matImageRgb.release();
+        imageRgb.release();
         return 0;
     }
 
     FUNCTION_ATTRIBUTE
     int findColorInImageOld(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
         vector<uint8_t> buffer(img, img + imgLength);
-        Mat imageRgb = imdecode(buffer, IMREAD_COLOR);;
+        Mat imageRgb;// = imdecode(buffer, IMREAD_COLOR);;
 
         Mat imageHsv, imageMask;
         cvtColor(imageRgb, imageHsv, COLOR_BGR2HSV);
         // inRange(imageHsv, lowerB, upperB, imgMask);
-        platform_log("CPP - findColorInImage\n");
+        // platform_log("CPP - findColorInImage\n");
 
         inRange(imageHsv, Scalar(lowerB[0], lowerB[1], lowerB[2]), Scalar(upperB[0], upperB[1], upperB[2]), imageMask);
         
-        platform_log(std::to_string(imageMask.rows).c_str());
-        platform_log("\n");
-        platform_log(std::to_string(imageMask.step).c_str());
-        platform_log("\n");
+        // platform_log(std::to_string(imageMask.rows).c_str());
+        // platform_log("\n");
+        // platform_log(std::to_string(imageMask.step).c_str());
+        // platform_log("\n");
 
         int sum=0;
         sum = countNonZero(imageMask);
-        platform_log("SUM:\n");
-        platform_log(std::to_string(sum).c_str());
-        platform_log("\n");
+        // platform_log("SUM:\n");
+        // platform_log(std::to_string(sum).c_str());
+        // platform_log("\n");
 
         // unsigned char *input = (unsigned char*)(imageMask.data);
         // namedWindow("window_detection_name");

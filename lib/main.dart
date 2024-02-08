@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // */
 import 'package:firebase_core/firebase_core.dart';
 
@@ -22,12 +22,14 @@ const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (!Platform.isWindows) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   // WEB CHANGE
-  // /*
+  /*
   const fatalError = true;
   // Non-async exceptions
   FlutterError.onError = (errorDetails) {
@@ -52,7 +54,7 @@ void main() async {
     }
     return true;
   };
-  // */
+  */
   // WEB CHANGE
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
@@ -112,9 +114,9 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController ctlBrainName = TextEditingController(text: "");
   TextEditingController ctlBrainDescription = TextEditingController(text: "");
   // WEB CHANGE
-  // /*
+  /*
   late Future<void> _initializeFlutterFireFuture;
-  // */
+  */
 
   int isInitialized = 0;
   late SharedPreferences prefs;
@@ -220,9 +222,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     */
 
-    if (_kShouldTestAsyncErrorOnInit) {
-      await _testAsyncErrorOnInit();
-    }
+    // if (_kShouldTestAsyncErrorOnInit) {
+    //   await _testAsyncErrorOnInit();
+    // }
   }
 
   @override
@@ -234,9 +236,9 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() => {});
     });
     // WEB CHANGE
-    // /*
+    /*
     _initializeFlutterFireFuture = _initializeFlutterFire();
-    // */
+    */
   }
 
   @override
