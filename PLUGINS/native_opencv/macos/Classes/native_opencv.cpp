@@ -300,8 +300,8 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         Mat leftGrayFrame, rightGrayFrame;
         // leftFrame = imageRgb(Rect(0, 0, frameSize, frameSize));
         // rightFrame = imageRgb(Rect(70, 0, frameSize, frameSize));
-        leftFrame = imageRgb(Rect(0, 0, frameSizeWidth, frameSizeHeight));
-        rightFrame = imageRgb(Rect(50, 0, frameSizeWidth, frameSizeHeight));
+        leftFrame = imageRgb(Rect(0, 15, frameSizeWidth, frameSizeHeight));
+        rightFrame = imageRgb(Rect(109, 15, frameSizeWidth, frameSizeHeight));
 //         leftFrame = imageRgb(Rect(0, 0, 240, 240));
 //         rightFrame = imageRgb(Rect(70, 0, 240, 240));
 

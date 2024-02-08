@@ -415,7 +415,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, threadInitialTotalNumOfNeurons);
 
                         if (k > -1){ // selected Color detection
-                            platform_log( (std::to_string(k)+" END SELECTED COLOR\n" ).c_str());
+                            // platform_log( (std::to_string(k)+" END SELECTED COLOR\n" ).c_str());
                             // short k = ( visPrefs[jj][ii] );
                             // double val1 = vis_pref_vals[k][0];
                             // double val2 = vis_pref_vals[k][1];
