@@ -127,8 +127,8 @@ elseif ~camera_present
     button_camera.BackgroundColor = [0.6 0.95 0.6];
     drawnow
     rak_cam = 0;
-    rak_cam_h = 1;
-    rak_cam_w = 1;     
+    rak_cam_h = 240;
+    rak_cam_w = 320;     
     disp(horzcat('Blind connection created'))  
 else
     disp('error: rak_cam created but not running')

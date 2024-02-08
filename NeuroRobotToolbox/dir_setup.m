@@ -1,5 +1,5 @@
 
-dataset_dir_name = 'C:\SpikerBot ML Datasets\office1\';
+dataset_dir_name = 'C:\SpikerBot ML Datasets\livingroom1\';
 
 
 %% Brains

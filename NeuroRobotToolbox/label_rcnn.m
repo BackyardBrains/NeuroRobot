@@ -3,65 +3,86 @@ close all
 clear
 clc
 
-image_dir_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office1\';
+% anet = alexnet;
+nets_dir_name = strcat(userpath, '\Nets\');
+image_dir_name = 'C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office2\';
 image_dir = dir(horzcat(image_dir_name, '*.png'));
 nims = size(image_dir, 1);
 disp(horzcat('nims: ', num2str(nims)))
 
 % imageLabeler(image_dir_name)
 
-% save('livingroom_chris_gTruth', 'livingroom_chris_gTruth')
+%%
+% save('C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office2_gTruth', 'office2_gTruth')
 
-load('C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office1_prj.mat')
+load('C:\Users\chris\OneDrive\Documents\MATLAB\Selected\office2_gTruth')
 
-trainingData = objectDetectorTrainingData(gTruth);
+trainingData = objectDetectorTrainingData(office2_gTruth);
 
 
 %%
+filterSize = [5 5];
+numFilters = 128;
 
 layers = [
+    
     imageInputLayer([227 302 3])
-    convolution2dLayer(5, 20)
+    
+    convolution2dLayer(filterSize,numFilters,'Padding',2)
     reluLayer()
-    maxPooling2dLayer(2, 'Stride', 2)
-    fullyConnectedLayer(2)
-    softmaxLayer()
-    classificationLayer()
+    maxPooling2dLayer(3,'Stride',2)
+    
+    convolution2dLayer(filterSize,numFilters,'Padding',2)
+    reluLayer()
+    maxPooling2dLayer(3,'Stride',2)
+
+    convolution2dLayer(filterSize,numFilters/2,'Padding',2)
+    reluLayer()
+    maxPooling2dLayer(3,'Stride',2)
+
+    convolution2dLayer(filterSize,numFilters/2,'Padding',2)
+    reluLayer()
+    maxPooling2dLayer(3,'Stride',2)
+
+    fullyConnectedLayer(1000)
+    reluLayer
+
+    fullyConnectedLayer(800)
+    reluLayer    
+
+    fullyConnectedLayer(600)
+    reluLayer
+
+    fullyConnectedLayer(400)
+    reluLayer
+    
+    fullyConnectedLayer(3)
+    softmaxLayer
+    classificationLayer
+
     ];
 
 options = trainingOptions('sgdm', ...
-    'MiniBatchSize', 128, ...
+    'MiniBatchSize', 16, ...
     'InitialLearnRate', 1e-6, ...
-    'MaxEpochs', 5, ...
-    'LearnRateSchedule', 'piecewise', ...
-    'LearnRateDropFactor', 0.2, ...
-    'LearnRateDropPeriod', 2, ...
+    'MaxEpochs', 20, ...
     'Verbose', true, 'Plots','training-progress');
-    
-rcnn = trainRCNNObjectDetector(trainingData, layers, options, ...
-'NegativeOverlapRange', [0 0.3], 'PositiveOverlapRange',[0.5 1]);
 
-save(horzcat(nets_dir_name, 'rcnn'), 'rcnn')
+% rcnn = trainRCNNObjectDetector(trainingData, layers, options, ...
+% 'NegativeOverlapRange', [0 0.3]);
+% 
+% save(horzcat(nets_dir_name, 'rcnn4'), 'rcnn')
 
 
 %%
-% figure(1)
-% clf
-% im = imread(cell2mat(trainingData{1,1}));
-% image(im)
-% hold on
-% this_im = imresize(im, [227 302]);
-% load(horzcat(nets_dir_name, 'rcnn'))
-% [bbox, score, label] = detect(rcnn, this_im);
-% [cone_score, cone_ind] = max(score);
-% cbox = bbox(cone_ind, :)
-% hold on
-% plot(cbox(2) + cbox(4)/2, cbox(1) + cbox(3)/2, 'Marker', '.', 'color', [0.2 0.8 0.2], 'markersize', 30)
 
-nframe = randsample(243, 1);
+
+nframe = randsample(236, 1);
+
 
 filename = trainingData{nframe,1}{1,1};
 bbox = trainingData{nframe,2}{1,:};
+cbox = trainingData{nframe,3}{1,:};
 
 im = imread(filename);
 
@@ -76,11 +97,21 @@ for nbox = 1:size(bbox, 1)
     rectangle('position', bbox(nbox, :), 'linewidth', 2, 'edgecolor', 'r')
 end
 
-[bbox, score, label] = detect(rcnn, im, 'NumStrongestRegions', 2000, 'MiniBatchSize', 128);
-
-[cone_score, cone_ind] = max(score);
-
-if ~isempty(cone_ind)
-    title(horzcat('nframe: ', num2str(nframe), ', score: ', num2str(cone_score)))
-    rectangle('position', bbox(cone_ind, :), 'linewidth', 2, 'edgecolor', 'g');
+for nbox = 1:size(cbox, 1)
+    rectangle('position', cbox(nbox, :), 'linewidth', 2, 'edgecolor', 'g')
 end
+
+
+[bbox, score, label] = detect(rcnn, im, 'NumStrongestRegions', 500, 'MiniBatchSize', 16);
+
+[mscore, mind] = max(score);
+
+if ~isempty(mind)
+    title(horzcat('nframe: ', num2str(nframe), ', score: ', num2str(mscore)))
+    rectangle('position', bbox(mind, :), 'linewidth', 2, 'edgecolor', [1 0.5 0]);
+    disp(label(mind))
+else
+    title(horzcat('nframe: ', num2str(nframe), ', label: ', 'No label'))
+    disp('No label')
+end
+

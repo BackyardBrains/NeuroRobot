@@ -90,8 +90,9 @@ end
 if use_rcnn
 
     this_im = imresize(large_frame, [227 302]);
-    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 2000, ...
-        'threshold', 0, 'ExecutionEnvironment', 'gpu', 'MiniBatchSize', 128);
+    [bbox, score, label] = detect(rcnn, large_frame, ...
+        'NumStrongestRegions', 500, ...
+        'threshold', 0, 'MiniBatchSize', 16);
     
     cone_score = max(score);
     if isempty(cone_score)
