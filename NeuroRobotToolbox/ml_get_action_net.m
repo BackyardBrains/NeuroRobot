@@ -4,7 +4,7 @@
 %%
 axes(ml_train2_status)
 cla
-tx10 = text(0.03, 0.5, horzcat('Training decision net...'));
+tx10 = text(0.03, 0.5, horzcat('Training decision net...'), 'fontsize', bfsize + 4);
 drawnow
 
 
@@ -24,7 +24,7 @@ agent_opt = rlDQNAgentOptions;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
 training_opts.MaxEpisodes = learn_speed * 200;
-training_opts.MaxStepsPerEpisode = learn_speed * 200;
+training_opts.MaxStepsPerEpisode = learn_speed * 200 / 2;
 training_opts.StopTrainingValue = learn_speed * 200 * 5;
 training_opts.StopTrainingCriteria = "AverageReward";
 training_opts.ScoreAveragingWindowLength = learn_speed * 20;
