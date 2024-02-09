@@ -180,7 +180,7 @@ Future<void> axonDialogBuilder(
   });
 
   txtNeuronWeightController.addListener(() {
-    linkMotorCallback(txtNeuronWeightController.text);
+    linkNeuronConnection(txtNeuronWeightController.text);
   });
 
   List<String> neuronDistanceLabel = [

@@ -247,14 +247,14 @@ class ProtoNeuron extends CustomPainter {
           break;
         case "Highly active":
           aBufList[idx] = 0.02;
-          bBufList[idx] = 0.2;
+          bBufList[idx] = 0.24;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
           break;
         case "Generates bursts":
           aBufList[idx] = 0.02;
-          bBufList[idx] = 0.16;
-          cBufList[idx] = -8;
+          bBufList[idx] = 0.18; // 0.16;
+          cBufList[idx] = -20; //-8;
           dBufList[idx] = 2;
           break;
         case "Bursts when activated":

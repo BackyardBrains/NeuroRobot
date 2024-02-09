@@ -268,7 +268,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     const bufferSize = 2000;
     nativec.initialize();
     print("motorCommandBufView.length");
-    print(motorCommandBufView.length);
+    print(neuronSize);
+    // print(motorCommandBufView.length);
     // print(visPrefsBufView);
     nativec.changeNeuronSimulatorProcess(
         aBuf,
@@ -397,14 +398,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // }
     }
 
-    if (isInitialized) {
-      aBufView.fillRange(0, neuronSize, a);
-      bBufView.fillRange(0, neuronSize, b);
-      cBufView.fillRange(0, neuronSize, c);
-      dBufView.fillRange(0, neuronSize, d);
-      iBufView.fillRange(0, neuronSize, i);
-      wBufView.fillRange(0, neuronSize, w);
-    }
+    // if (isInitialized) {
+    // print("isInitialized anandasd");
+    aBufView.fillRange(0, neuronSize, a);
+    bBufView.fillRange(0, neuronSize, b);
+    cBufView.fillRange(0, neuronSize, c);
+    dBufView.fillRange(0, neuronSize, d);
+    iBufView.fillRange(0, neuronSize, i);
+    wBufView.fillRange(0, neuronSize, w);
+    // }
     positionsBufView.fillRange(0, 1, 0);
     distanceBufView.fillRange(0, 1, 0);
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0.0);
@@ -1046,7 +1048,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 callback: rightToolbarCallback),
           ),
           Positioned(
-            top: 50,
+            bottom: screenHeight * 0.35,
             left: 10,
             child: Text("Battery Voltage : $batteryVoltage"),
           ),
@@ -1229,8 +1231,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // LocalKey neuronFromKey = findNeuronByValue(i).key;
       // InfiniteCanvasNode neuronFrom = findNeuronByValue(i);
       InfiniteCanvasNode neuronFrom = controller.nodes[i + 2];
-      print("neuronFrom.value");
-      print(neuronFrom.value);
+      // print("neuronFrom.value");
+      // print(neuronFrom.value);
       for (int j = 0; j < neuronSize; j++) {
         // LocalKey neuronToKey = findNeuronByValue(j).key;
         // InfiniteCanvasNode neuronTo = findNeuronByValue(j);
@@ -1272,9 +1274,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     }
     print("neuronContactsBufView");
     print(neuronContactsBufView);
+    print(connectomeBufView);
+    print(neuronDistanceBufView);
+    print(visPrefsBufView);
   }
 
   void runSimulation() {
+    print("RUN SIMuLATION");
     // neuronSize = controller.nodes.length;
     initNativeC(false);
     print("neuronSize");
@@ -1323,12 +1329,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     protoNeuron.generateCircle(
         neuronSize, pos, neuronTypes.values.toList(growable: false));
     // protoNeuron.setConnectome(neuronSize, connectomeMatrix);
-    print("controller.nodes.map(((e) => e.id)).toList()");
-    print(controller.nodes.map(((e) => e.id)).toList());
+    // print("controller.nodes.map(((e) => e.id)).toList()");
+    // print(controller.nodes.map(((e) => e.id)).toList());
     populateMatrix();
-    print("===> controller.nodes.map(((e) => e.id)).toList()");
-    print(controller.nodes.map(((e) => e.id)).toList());
-    print(mapContactsNeuron.keys);
+    // print("===> controller.nodes.map(((e) => e.id)).toList()");
+    // print(controller.nodes.map(((e) => e.id)).toList());
+    // print(mapContactsNeuron.keys);
 
     // Future.delayed(const Duration(seconds:1), (){
     print("BUF");
@@ -1337,7 +1343,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     print(bBufView);
     print(cBufView);
     print(dBufView);
-
+    print(visPrefsBufView);
+    print(motorCommandBufView);
+    print(neuronContactsBufView);
     runNativeC();
 
     Future.delayed(const Duration(milliseconds: 1000), () {
@@ -1556,9 +1564,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             if (controller.hasSelection) {
               var selected = controller.selection[0];
               // int neuronIdx = selected.value - normalNeuronStartIdx - 1;
-              int neuronIdx = selected.value;
+              int neuronIdx = controller.nodes
+                      .map((e) => e.id)
+                      .toList()
+                      .indexOf(selected.id) -
+                  2;
               print("neuronIdx");
               print(neuronIdx);
+              // print(neuronTypes);
               isSelected = true;
               try {
                 nativec.changeIdxSelected(neuronIdx);
@@ -1593,9 +1606,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
               // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
               if (neuronFrom == nodeLeftEyeSensor ||
-                  neuronFrom == nodeRightEyeSensor)
+                  neuronFrom == nodeRightEyeSensor) {
                 isSensoryType = 1;
-              else if (neuronTo == nodeLeftMotorBackwardSensor ||
+              } else if (neuronTo == nodeLeftMotorBackwardSensor ||
                   neuronTo == nodeRightMotorBackwardSensor ||
                   neuronTo == nodeLeftMotorForwardSensor ||
                   neuronTo == nodeRightMotorForwardSensor)
@@ -1630,8 +1643,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                         .toDouble()
                     : -1,
               };
-              print("map sensory");
-              print(map);
+              // print("map sensory");
+              // print(mapConnectome);
+              // print(mapContactsNeuron);
               axonDialogBuilder(
                   context,
                   isSensoryType,
@@ -1782,7 +1796,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       isPlayingMenu = !isPlayingMenu;
       // isSelected = false;
       print("MENU IDX 8");
-      print("BUF");
+      print("BUF IDX 7");
       print(mapConnectome);
       print(aBufView);
       print(bBufView);
@@ -2443,7 +2457,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           print("selected.value");
           print(selected.value);
           isSelected = true;
-          nativec.changeIdxSelected(selected.value);
+
+          int neuronIdx =
+              controller.nodes.map((e) => e.id).toList().indexOf(selected.id) -
+                  2;
+
+          nativec.changeIdxSelected(neuronIdx);
           redrawNeuronLine.value = Random().nextInt(100);
           setState(() {});
         }
@@ -2530,8 +2549,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void linkNeuronConnection(value) {
-    print("neuron");
-    print(value);
+    // print("neuron");
+    // print(value);
     if (value.trim().length == 0) return;
     double val = double.parse(value);
     if (val > 30) {
@@ -2543,6 +2562,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     // mapConnectome["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
     mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = val;
+    // print("${neuronFrom.id}_${neuronTo.id}");
   }
 
   void linkMotorConnection(value) {
@@ -2607,7 +2627,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     );
     if (controller.hasSelection) {
       var selected = controller.selection[0];
-      int neuronIdx = selected.value;
+      int neuronIdx =
+          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
       // print(neuronIdx);
       if (neuronIdx < normalNeuronStartIdx) {
         return;
@@ -2626,14 +2647,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
       InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
       // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
-      if (neuronFrom == nodeLeftEyeSensor || neuronFrom == nodeRightEyeSensor)
+      if (neuronFrom == nodeLeftEyeSensor || neuronFrom == nodeRightEyeSensor) {
         isSensoryType = 1;
-      else if (neuronTo == nodeLeftMotorBackwardSensor ||
+      } else if (neuronTo == nodeLeftMotorBackwardSensor ||
           neuronTo == nodeRightMotorBackwardSensor ||
           neuronTo == nodeLeftMotorForwardSensor ||
-          neuronTo == nodeRightMotorForwardSensor)
+          neuronTo == nodeRightMotorForwardSensor) {
         isSensoryType = 2;
-      else if (neuronFrom == nodeDistanceSensor) isSensoryType = 3;
+      } else if (neuronFrom == nodeDistanceSensor) isSensoryType = 3;
 
       print("isVisualSensory");
       print(isSensoryType);
@@ -3008,12 +3029,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     print("mapContactsNeuron");
     print(mapContactsNeuron);
     // aBufView = Float64List.fromList(savedFileJson["a"].map((v)=>v as double).toList());
-    aBufView = Float64List.fromList(List<double>.from(savedFileJson["a"]));
-    bBufView = Float64List.fromList(List<double>.from(savedFileJson["b"]));
-    cBufView = Int16List.fromList(List<int>.from(savedFileJson["c"]));
-    dBufView = Int16List.fromList(List<int>.from(savedFileJson["d"]));
-    iBufView = Float64List.fromList(List<double>.from(savedFileJson["i"]));
-    wBufView = Float64List.fromList(List<double>.from(savedFileJson["w"]));
+    // aBufView = Float64List.fromList(List<double>.from(savedFileJson["a"]));
+    // bBufView = Float64List.fromList(List<double>.from(savedFileJson["b"]));
+    // cBufView = Int16List.fromList(List<int>.from(savedFileJson["c"]));
+    // dBufView = Int16List.fromList(List<int>.from(savedFileJson["d"]));
+    // iBufView = Float64List.fromList(List<double>.from(savedFileJson["i"]));
+    // wBufView = Float64List.fromList(List<double>.from(savedFileJson["w"]));
 
     // print("Loaded Neuron Type : ");
     // print(neuronTypes);

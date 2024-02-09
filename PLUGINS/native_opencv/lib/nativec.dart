@@ -97,6 +97,13 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Int16>,
 );
 
+typedef pass_input_func = ffi.Double Function(
+  ffi.Pointer<ffi.Double>,
+);
+typedef PassInput = double Function(
+  ffi.Pointer<ffi.Double>,
+);
+
 // typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
 // final _SimulationCallbackFunc _simulationCallbackFunc = _lib
 //   .lookup<ffi.NativeFunction<_find_color_in_image_func>>('simulationCallbackFunc')
@@ -124,6 +131,7 @@ class Nativec {
           : ffi.DynamicLibrary.open('libnative_opencv.so')
       : ffi.DynamicLibrary.process();
 
+  late PassInput _passInput;
   late PassPointers _passPointers;
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
@@ -180,6 +188,9 @@ class Nativec {
         .asFunction();
     _initialize = nativeLrsLib
         .lookup<ffi.NativeFunction<_initialize_func>>('initialize')
+        .asFunction();
+    _passInput = nativeLrsLib
+        .lookup<ffi.NativeFunction<pass_input_func>>('passInput')
         .asFunction();
 
     // C++ to Flutter
@@ -323,5 +334,12 @@ class Nativec {
     nativeHttpServe(callback.nativeFunction);
     // ignore: sdk_version_since
     callback.keepIsolateAlive = false;
+  }
+
+  void passInput(ffi.Pointer<ffi.Double> pSensorDistance) {
+    _passInput(
+      pSensorDistance,
+    );
+    return;
   }
 }
