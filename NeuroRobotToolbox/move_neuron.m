@@ -28,5 +28,5 @@ y = neuron_xys(presynaptic_neuron, 2);
 
 % Open selection props
 % Heading 
-text_heading = uicontrol('Style', 'text', 'String', 'Where do you want to move your neuron?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+text_heading = uicontrol('Style', 'text', 'String', 'Where do you want to move your neuron?', 'units', 'normalized', 'position', [0.02 0.92 0.29 0.06], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
 
