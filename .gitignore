@@ -1,11 +1,9 @@
 .DS_Store
 OGLdpf.log
 
-NeuroRobotToolbox/Nets/rcnn5heads.mat
 NeuroRobotToolbox/__pycache__/*
 NeuroRobotToolbox/ai.py
 NeuroRobotToolbox/logs*
 NeuroRobotToolbox/rcnn*
-NeuroRobotToolbox/Google_Credentials_Speech2text.json
 NeuroRobotToolbox/*.asv
-SpikerBot_4.4_Installer.zip
+NeuroRobot_BYBESP32S3_12_Feb_2024/
