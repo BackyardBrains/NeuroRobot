@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:native_opencv/native_opencv.dart';
 import 'package:native_opencv/nativec.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
@@ -162,7 +164,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late Int16List neuronDistanceBufView = Int16List(0);
   late Float64List distanceBufView = Float64List(0);
 
-  double batteryVoltage = 0.0;
+  String batteryVoltage = "0";
 
   List<double> varA = List<double>.filled(neuronSize, 0.02);
   List<double> varB = List<double>.filled(neuronSize, 0.18);
@@ -261,6 +263,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   //     'd:110;d:210;d:310;d:410;d:510;d:610;d:120;d:220;d:320;d:420;d:520;d:620;d:130;d:230;d:330;d:430;d:530;d:630;'; // off
   String offLEDCmd = "d:120;d:220;d:320;d:420;d:520;d:620;";
   String stopMotorCmd = "l:0;r:0;s:0;";
+
+  GlobalKey rightToolbarGlobalKey = GlobalKey();
+  LocalKey rightToolbarKey = UniqueKey();
+
+  late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
     const level = 1;
@@ -693,7 +700,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         distanceBufView[0] = int.parse(arr[2]).toDouble();
         // print("distanceBufView[0]");
         // print(distanceBufView[0]);
-        batteryVoltage = int.parse(arr[3]).toDouble();
+        int baseBottomBattery = int.parse(arr[3]) - 590;
+        // print("baseBottomBattery");
+        // print(baseBottomBattery);
+        // print(baseBottomBattery / 278 * 100);
+        String batteryPercentage =
+            "${(baseBottomBattery / 278 * 100).floor()}%";
+        batteryVoltage = "${int.parse(arr[3]).toDouble()} ($batteryPercentage)";
+        setState(() {});
       }
     });
 
@@ -705,6 +719,46 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   @override
   void initState() {
     super.initState();
+    subscriptionWifi = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) async {
+      // Got a new connectivity status!
+      print("Connectivity result");
+      print(result);
+      // isolateWritePort.send("DISCONNECT");
+      final info = NetworkInfo();
+
+      final wifiName = await info.getWifiName(); // "FooNetwork"
+      print(wifiName);
+      if (wifiName == null) {
+        try {
+          isolateWritePort.send("DISCONNECT");
+          isPlayingMenu = false;
+          isEmergencyPause = false;
+          setState(() {});
+        } catch (err) {
+          print("ERR change network");
+        }
+      } else if (wifiName.toLowerCase().contains("neurobot")) {
+        // if (isPlayingMenu) {
+        //   isCheckingColor = false;
+        //   try {
+        //     startWebSocket();
+        //   } catch (err) {
+        //     print("reconnect");
+        //   }
+        // }
+      } else {
+        try {
+          isolateWritePort.send("DISCONNECT");
+          isPlayingMenu = false;
+          isEmergencyPause = false;
+          setState(() {});
+        } catch (err) {
+          print("ERR change network");
+        }
+      }
+    });
 
     print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
@@ -1042,7 +1096,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             right: 10 + safePadding,
             top: 10,
             child: RightToolbar(
-                key: GlobalKey(),
+                key: rightToolbarKey,
                 menuIdx: menuIdx,
                 isPlaying: isPlayingMenu,
                 callback: rightToolbarCallback),
@@ -1770,7 +1824,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // Navigator.pop(context);
 
       await loadBrainDialog(context, "Load Brain", selectSavedBrain);
-      Future.delayed(const Duration(seconds: 1), () {
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        // menuIdx = 0;
+        rightToolbarKey = UniqueKey();
         rightToolbarCallback({"menuIdx": 0});
         setState(() {});
       });
@@ -1849,6 +1905,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
         // isolateWritePort.send("DISCONNECT");
         Future.delayed(const Duration(milliseconds: 300), () {
+          // rightToolbarGlobalKey = GlobalKey();
+          rightToolbarKey = UniqueKey();
           setState(() {});
         });
       }

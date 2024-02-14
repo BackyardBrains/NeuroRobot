@@ -2,7 +2,7 @@ name: neurorobot
 description: A new Flutter project.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+41
+version: 1.2.0+45
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -21,6 +21,8 @@ dependencies:
   another_xlider: 3.0.1
   matrix_gesture_detector_pro: 1.0.0
 
+  connectivity_plus: 5.0.2
+  network_info_plus: 4.1.0+1
   web_socket_channel: 2.4.0
   socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4

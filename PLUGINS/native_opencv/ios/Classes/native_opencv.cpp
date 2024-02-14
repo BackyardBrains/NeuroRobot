@@ -123,17 +123,17 @@ class cca_opencv_wrapper{
         
         uint16_t get_label_of_pixel(int x_pos, int y_pos)
         {
-            return labels.at<int>(x_pos, y_pos);
+            return labels.at<uint16_t>(x_pos, y_pos);
         }
 
         uint8_t get_centroid_x(int index)
         {
-            return centroids.at<int>(index, 0);
+            return centroids.at<uint8_t>(index, 0);
         }
 
         uint8_t get_centroid_y(int index)
         {
-            return centroids.at<int>(index, 1);
+            return centroids.at<uint8_t>(index, 1);
         }
 
         size_t get_connected_component_count()
@@ -144,11 +144,11 @@ class cca_opencv_wrapper{
         uint32_t get_max_component_area()
         {
             uint32_t max_ = 0;
-            for(auto i = 0; i < get_connected_component_count(); i++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                if(get_area_of_component(i) > max_ && i > 0){
-                    max_ = get_area_of_component(i);
-                    max_idx = i;
+                if(get_area_of_component(iStep) > max_ && iStep > 0){
+                    max_ = get_area_of_component(iStep);
+                    max_idx = iStep;
                 }
             }
             return max_;
@@ -157,10 +157,10 @@ class cca_opencv_wrapper{
         uint32_t get_min_component_area()
         {
             uint32_t min_ = inp.rows * inp.cols;
-            for(auto i = 0; i < get_connected_component_count(); i++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                if(get_area_of_component(i) < min_)
-                    min_ = get_area_of_component(i);
+                if(get_area_of_component(iStep) < min_)
+                    min_ = get_area_of_component(iStep);
             }
             return min_;
         }
@@ -168,9 +168,9 @@ class cca_opencv_wrapper{
         float get_average_component_area()
         {
             uint32_t sum = 0;
-            for(auto i = 0; i < get_connected_component_count(); i++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                sum = sum + get_area_of_component(i);
+                sum = sum + get_area_of_component(iStep);
             }
             return ((float) sum) / (float) get_connected_component_count();
         }
@@ -178,9 +178,9 @@ class cca_opencv_wrapper{
         float get_standard_deviation_of_connected_compenent_areas()
         {
             float sum = 0;
-            for(auto i = 0; i < get_connected_component_count(); i++)
+            for(auto iStep = 0; iStep < get_connected_component_count(); iStep++)
             {
-                sum = sum + ( abs( get_area_of_component(i) - get_average_component_area() ) );
+                sum = sum + ( abs( get_area_of_component(iStep) - get_average_component_area() ) );
             }
             return ((float) sum) / (float) get_connected_component_count();
         }
@@ -189,8 +189,8 @@ class cca_opencv_wrapper{
 
 
 
-double sigmoid(double x, double c, double a) {
-    return 1.0 / (1.0 + exp(-a * (x - c)));
+double sigmoid(double xx, double cc, double aa) {
+    return 1.0 / (1.0 + exp(-aa * (xx - cc)));
 }
 // GLOBAL Variable
 EXTERNC bool isPrevEyesSaved = false;
@@ -211,9 +211,9 @@ void initializeCameraConstant(){
     // }
 }
 
-void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, double value){
+void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, double value){
 // vis_pref_vals, ncol * 2, icam, per_row, temp);
-    arr[ j * per_row + i] =  value;
+    arr[ pj * per_row + pi] =  value;
 }
 
 
@@ -265,7 +265,7 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         // },img[0],img[1],img[2],img[3]);
         
         // set pixels one by one
-        int imgCounter = 0;
+        // int imgCounter = 0;
         Mat srcImageRgb;
         Mat imageRgb;
  
@@ -319,8 +319,8 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         double this_right_score = 0;
         double meanx = 0;
 
-        for (int ncam = 0; ncam < 2; ncam++){
-            if (ncam == 0){
+        for (short icam = 0; icam < 2; icam++){
+            if (icam == 0){
                 resize(leftFrame, uframe, net_input_size);
                 cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
                 cvtColor(prev_left_eye_frame, leftGrayFrame, COLOR_BGR2GRAY);
@@ -376,31 +376,44 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
                 cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(colframe);
                 if (cca_wrapper.get_connected_component_count() > 0) {
                     uint32_t max_size = 0;
-                    int max_idx = 0;
+                    // int max_idx = 0;
 
                     max_size = cca_wrapper.get_max_component_area();
-                    double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
+                    // double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
+                    meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 50;
 
-                    setPreprocessMatrixValue(vis_pref_vals, ncol * 2, ncam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
+                    short tempCol = static_cast<short>(ncol * 2);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
 
-                    if (ncam == 0) {
-                        setPreprocessMatrixValue(vis_pref_vals, ncol * 2 + 1, ncam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
+
+                    if (icam == 0) {
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
+                        setPreprocessMatrixValue(vis_pref_vals, ncol * 2 + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
                     }
-                    else{                    
-                        setPreprocessMatrixValue(vis_pref_vals, ncol * 2 + 1, ncam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
+                    else {
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        setPreprocessMatrixValue(vis_pref_vals, ncol * 2 + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
                     }
+
+                    // if (icam == 0) {
+                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
+                    //     this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
+                    // }
+                    // else{                    
+                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
+                    //     this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    // }
 
                 } else {
                     meanx = 0;
                     this_score = 0;
                     this_left_score = 0;
                     this_right_score = 0;
-                    setPreprocessMatrixValue(vis_pref_vals, ncol * 2, ncam, 7, 0);
-                    setPreprocessMatrixValue(vis_pref_vals, ncol * 2 + 1, ncam, 7, 0);
+                    short tempCol = static_cast<short>(ncol * 2);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, 0);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, 0);
                 }
 
             
@@ -417,7 +430,7 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
             // break;
             if (cca_wrapper_bw.get_connected_component_count() > 0) {
                 uint32_t max_size = 0;
-                int max_idx = 0;
+                // int max_idx = 0;
 
                 max_size = cca_wrapper_bw.get_max_component_area();
                 // double meanx = cca_wrapper_bw.get_centroid_x(cca_wrapper_bw.max_idx);
@@ -431,10 +444,10 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
 
 
             // vis_pref_vals[6][ncam] = this_score;
-            setPreprocessMatrixValue(vis_pref_vals, 6, ncam, 7, this_score);
+            setPreprocessMatrixValue(vis_pref_vals, 6, icam, 7, this_score);
 
 
-            if (ncam == 0){
+            if (icam == 0){
                 prev_left_eye_frame = uframe;
             }else{
                 prev_right_eye_frame = uframe;
@@ -475,20 +488,20 @@ void setPreprocessMatrixValue(double *arr, short i, short j, short per_row, doub
         Mat imageHsv, imageMask;
         cvtColor(imageRgb, imageHsv, COLOR_BGR2HSV);
         // inRange(imageHsv, lowerB, upperB, imgMask);
-        platform_log("CPP - findColorInImage\n");
+        // platform_log("CPP - findColorInImage\n");
 
         inRange(imageHsv, Scalar(lowerB[0], lowerB[1], lowerB[2]), Scalar(upperB[0], upperB[1], upperB[2]), imageMask);
         
-        platform_log(std::to_string(imageMask.rows).c_str());
-        platform_log("\n");
-        platform_log(std::to_string(imageMask.step).c_str());
-        platform_log("\n");
+        // platform_log(std::to_string(imageMask.rows).c_str());
+        // platform_log("\n");
+        // platform_log(std::to_string(imageMask.step).c_str());
+        // platform_log("\n");
 
         int sum=0;
         sum = countNonZero(imageMask);
-        platform_log("SUM:\n");
-        platform_log(std::to_string(sum).c_str());
-        platform_log("\n");
+        // platform_log("SUM:\n");
+        // platform_log(std::to_string(sum).c_str());
+        // platform_log("\n");
 
         // unsigned char *input = (unsigned char*)(imageMask.data);
         // namedWindow("window_detection_name");

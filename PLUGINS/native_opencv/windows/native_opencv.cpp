@@ -387,14 +387,24 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     short tempCol = static_cast<short>(ncol * 2);
                     setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
 
+
                     if (icam == 0) {
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
                     }
-                    else{                    
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
+                    else {
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol +1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
                     }
+
+                    // if (icam == 0) {
+                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
+                    //     this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
+                    // }
+                    // else{                    
+                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
+                    //     this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
+                    // }
 
                 } else {
                     meanx = 0;

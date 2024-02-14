@@ -12,7 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
-// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// WINDOWS CHANGE
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // */
 import 'package:firebase_core/firebase_core.dart';
 
@@ -28,8 +29,8 @@ void main() async {
     );
   }
 
-  // WEB CHANGE
-  /*
+  // WEB CHANGE & windows Change
+  // /*
   const fatalError = true;
   // Non-async exceptions
   FlutterError.onError = (errorDetails) {
@@ -54,7 +55,7 @@ void main() async {
     }
     return true;
   };
-  */
+  // */
   // WEB CHANGE
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
@@ -113,10 +114,10 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   TextEditingController ctlBrainName = TextEditingController(text: "");
   TextEditingController ctlBrainDescription = TextEditingController(text: "");
-  // WEB CHANGE
-  /*
+  // WEB CHANGE & WINDOWS CHANGE
+  // /*
   late Future<void> _initializeFlutterFireFuture;
-  */
+  // */
 
   int isInitialized = 0;
   late SharedPreferences prefs;
@@ -235,10 +236,10 @@ class _MyHomePageState extends State<MyHomePage> {
       isInitialized = 1;
       setState(() => {});
     });
-    // WEB CHANGE
-    /*
+    // WEB CHANGE & WINDOWS CHANGE
+    // /*
     _initializeFlutterFireFuture = _initializeFlutterFire();
-    */
+    // */
   }
 
   @override
