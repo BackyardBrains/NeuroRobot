@@ -1,5 +1,5 @@
 
-dataset_dir_name = 'C:\SpikerBot ML Datasets\livingroom1\';
+% dataset_dir_name = 'C:\SpikerBot ML Datasets\livingroom1\';
 
 
 %% Brains
@@ -63,15 +63,15 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
 %% Datasets
-% if isdeployed
-%     if ispc
-%         dataset_dir_name = strcat(userpath, '\Datasets\');
-%     elseif ismac
-%         dataset_dir_name = strcat(userpath, './Datasets/');
-%     end
-% else
-    % dataset_dir_name = 'C:\SpikerBot ML Datasets\office1\';
-% end
+if isdeployed
+    if ispc
+        dataset_dir_name = strcat(userpath, '\Datasets\');
+    elseif ismac
+        dataset_dir_name = strcat(userpath, './Datasets/');
+    end
+else
+    dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+end
 
 if ~exist(dataset_dir_name, 'dir')
     mkdir(dataset_dir_name)
