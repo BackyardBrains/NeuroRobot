@@ -10,3 +10,5 @@ elseif rak_only
     this_audio = double(rak_cam.readAudio());
     serial_receive = rak_cam.readSerial();
 end
+
+% disp(serial_receive)

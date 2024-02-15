@@ -89,9 +89,9 @@ end
 
 %% Calibrate distance sensor
 esp_get_serial
-dist_short = 500;
-dist_med = 700;
-dist_long = 900;
+dist_short = 16;
+dist_med = 21;
+dist_long = 26;
 scores = 0;
 
 

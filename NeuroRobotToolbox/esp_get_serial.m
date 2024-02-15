@@ -9,6 +9,7 @@ if exist('serial_receive', 'var') && ~isempty(serial_receive)
     try       
         this_distance = str2double(serial_data{3});
         this_distance(this_distance == 0) = 4000;
+        % disp(this_distance)
         
         % this_battery = str2double(serial_data{4});
         % disp(num2str(this_battery))
