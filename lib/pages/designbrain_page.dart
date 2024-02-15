@@ -6,7 +6,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/foundation.dart';
@@ -19,7 +19,7 @@ import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:native_opencv/native_opencv.dart';
 import 'package:native_opencv/nativec.dart';
-import 'package:network_info_plus/network_info_plus.dart';
+// import 'package:network_info_plus/network_info_plus.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
@@ -254,7 +254,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   double prevTransformScale = 1;
   Debouncer debouncerSnapNeuron = Debouncer(milliseconds: 3);
 
-  late List<Offset> rawPos;
+  List<Offset> rawPos = [];
 
   String redLEDCmd = 'd:111;d:211;d:311;d:411;d:511;d:611;'; // red
   String blueLEDCmd = 'd:131;d:231;d:331;d:431;d:531;d:631;'; // blue
@@ -267,7 +267,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   GlobalKey rightToolbarGlobalKey = GlobalKey();
   LocalKey rightToolbarKey = UniqueKey();
 
-  late StreamSubscription<ConnectivityResult> subscriptionWifi;
+  // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
     const level = 1;
@@ -719,46 +719,46 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   @override
   void initState() {
     super.initState();
-    subscriptionWifi = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) async {
-      // Got a new connectivity status!
-      print("Connectivity result");
-      print(result);
-      // isolateWritePort.send("DISCONNECT");
-      final info = NetworkInfo();
+    // subscriptionWifi = Connectivity()
+    //     .onConnectivityChanged
+    //     .listen((ConnectivityResult result) async {
+    //   // Got a new connectivity status!
+    //   print("Connectivity result");
+    //   print(result);
+    //   // isolateWritePort.send("DISCONNECT");
+    //   final info = NetworkInfo();
 
-      final wifiName = await info.getWifiName(); // "FooNetwork"
-      print(wifiName);
-      if (wifiName == null) {
-        try {
-          isolateWritePort.send("DISCONNECT");
-          isPlayingMenu = false;
-          isEmergencyPause = false;
-          setState(() {});
-        } catch (err) {
-          print("ERR change network");
-        }
-      } else if (wifiName.toLowerCase().contains("neurobot")) {
-        // if (isPlayingMenu) {
-        //   isCheckingColor = false;
-        //   try {
-        //     startWebSocket();
-        //   } catch (err) {
-        //     print("reconnect");
-        //   }
-        // }
-      } else {
-        try {
-          isolateWritePort.send("DISCONNECT");
-          isPlayingMenu = false;
-          isEmergencyPause = false;
-          setState(() {});
-        } catch (err) {
-          print("ERR change network");
-        }
-      }
-    });
+    //   final wifiName = await info.getWifiName(); // "FooNetwork"
+    //   print(wifiName);
+    //   if (wifiName == null) {
+    //     try {
+    //       isolateWritePort.send("DISCONNECT");
+    //       isPlayingMenu = false;
+    //       isEmergencyPause = false;
+    //       setState(() {});
+    //     } catch (err) {
+    //       print("ERR change network");
+    //     }
+    //   } else if (wifiName.toLowerCase().contains("neurobot")) {
+    //     // if (isPlayingMenu) {
+    //     //   isCheckingColor = false;
+    //     //   try {
+    //     //     startWebSocket();
+    //     //   } catch (err) {
+    //     //     print("reconnect");
+    //     //   }
+    //     // }
+    //   } else {
+    //     try {
+    //       isolateWritePort.send("DISCONNECT");
+    //       isPlayingMenu = false;
+    //       isEmergencyPause = false;
+    //       setState(() {});
+    //     } catch (err) {
+    //       print("ERR change network");
+    //     }
+    //   }
+    // });
 
     print("INIT STATEEE");
     // Future.delayed(const Duration(milliseconds: 700), () {
