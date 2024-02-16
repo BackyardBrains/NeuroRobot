@@ -21,7 +21,8 @@ save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 %%
 axes(ml_train1_status)
 cla
-tx6 = text(0.03, 0.5, horzcat('training pattern recognition net on ', num2str(n_unique_states), ' states'));
+tx6 = text(0.03, 0.5, horzcat('training pattern recognition net on ', ...
+    num2str(n_unique_states), ' states'), 'FontSize', bfsize + 4);
 drawnow
 
 

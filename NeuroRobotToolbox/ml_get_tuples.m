@@ -4,7 +4,7 @@
 axes(ml_train1_status)
 
 cla
-tx7 = text(0.03, 0.5, horzcat('loading net...'));
+tx7 = text(0.03, 0.5, horzcat('loading net...'), 'FontSize', bfsize + 4);
 drawnow
 disp('Loading state net...')
 
@@ -48,7 +48,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 12;
+n_unique_actions = 9;
 
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;

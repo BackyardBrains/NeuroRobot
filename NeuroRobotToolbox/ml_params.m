@@ -7,7 +7,7 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 disp(horzcat('learn speed: ', num2str(learn_speed)))
 
 nsmall = round((0.001 * ntuples + 1000) * learn_speed * 2);
-bof_branching = round((0.0003 * ntuples + 200) * learn_speed);
+bof_branching = max([600 round((0.0003 * ntuples + 200) * learn_speed)]);
 nmedium = round((0.005 * ntuples + 3000) * learn_speed);
 init_n_unique_states = max([100 round(0.0005 * ntuples * learn_speed) + 10 * learn_speed]);
 min_size = max([40 round((0.00015 * ntuples * learn_speed) + 5 * learn_speed)]);
