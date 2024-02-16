@@ -1,4 +1,4 @@
-// NeuroRobot firmware 12. Feb. 2024
+// NeuroRobot firmware 16. Feb. 2024
 // Made for BYB ESP32 S3 
 // Programmed by selecting "ESP32S3 Dev Module" in Arduino
 // and set board parameters in Arduino IDE:
@@ -88,8 +88,8 @@ char commandBuffer[256];
   int pos = 90;
   int motorSpeedLeft;
   int motorSpeedRight;
-  int rServoPin = 5; 
-  int lServoPin = 2; 
+  int rServoPin = 5; //
+  int lServoPin = 2; //
 #endif
 
 int this_speed = 0;
@@ -123,6 +123,15 @@ void sendDataViaSocket(char * dataToSend, int lengthOfData);
     int halfPeriodTone = 0;
     int fullPeriodTone = 0;
     int counterForTone = 0;
+
+
+
+
+//Sound command example s:440;
+//  s - sound command name
+//  : - separator between name and value
+//  440 - frequency of sound in Hz
+//  ; - end of the command (separator)
 
     void setToneOnSpeaker(int toneFrequency)
     {
