@@ -18,7 +18,7 @@ close(10)
 
 axes(im_ax1)
 cla
-imagesc(xdata(o, o), [0 1])
+imagesc(xdata(o, o), [0 0.5])
 title('Clustered similarity scores')
 
 

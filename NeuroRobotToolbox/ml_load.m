@@ -8,8 +8,6 @@ if isempty(state_net_name)
     ml_name1_edit.BackgroundColor = [0.94 0.94 0.94];
 
 else
-
-    ml_get_learn_speed
     
     axes(ml_load_status)
     cla
