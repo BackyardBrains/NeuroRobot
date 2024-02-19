@@ -14,13 +14,13 @@ elseif ml_speed_select.Value == 2 % Medium
     bof_branching = 400;
     nmedium = 5000;
     init_n_unique_states = 125;
-    min_size = 75;
+    min_size = 60;
 elseif ml_speed_select.Value == 3 % Slow
     nsmall = 8000;
     bof_branching = 500;
     nmedium = 8000;
     init_n_unique_states = 150;
-    min_size = 100;
+    min_size = 80;
 end
 
 disp(horzcat('nsmall = ', num2str(nsmall)))
