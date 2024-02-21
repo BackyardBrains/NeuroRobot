@@ -32,7 +32,7 @@
 
 // MAIN CODE
 // std::mutex mtx;
-
+short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
 short ms_per_step = 30;
 short steps_per_loop = 200;
@@ -114,3 +114,25 @@ double dist_medium = 70;
 double dist_long = 90;
 
 double *sensor_distance;
+
+
+// SPEAKER 
+short *speaker_buf;
+short neuronSpeakerIdx = 8;
+// MICROPHONE
+short *microphone_buf;
+
+// LED
+short *led_buf;
+short neuronLedRedIdx = 9;
+short neuronLedGreenIdx = 10;
+short neuronLedBlueIdx = 11;
+
+// std::string redLEDCmd = "d:111;d:211;d:311;d:411;d:511;d:611;"; // red
+// std::string blueLEDCmd = "d:131;d:231;d:331;d:431;d:531;d:631;"; // blue
+// std::string greenLEDCmd = "d:121;d:221;d:321;d:421;d:521;d:621;"; // green
+// std::string offLEDCmd = "d:120;d:220;d:320;d:420;d:520;d:620;"; // off
+std::string redLEDCmd = "d:111;d:211;d:311;d:411;"; // red
+std::string blueLEDCmd = "d:131;d:231;d:331;d:431;"; // blue
+std::string greenLEDCmd = "d:121;d:221;d:321;d:421;"; // green
+std::string offLEDCmd = "d:120;d:220;d:320;d:420;"; // off

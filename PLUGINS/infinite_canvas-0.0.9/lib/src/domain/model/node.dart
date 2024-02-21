@@ -16,7 +16,8 @@ class InfiniteCanvasNode<T> {
 
   String get id => key.toString();
 
-  final LocalKey key;
+  LocalKey key;
+  String valKey = "";
   late Size size;
   late Offset offset;
   String? label;

@@ -242,7 +242,7 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs, short *p_speaker_buf, short *p_microphone_buf, short *p_led_buf){
     canvasBuffer = _canvasBuffer;
     positions = _positions;
     neuronCircles = _neuronCircle;        
@@ -254,6 +254,10 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
     motor_command_message = p_motor_command_message;
     neuron_contacts = p_neuron_contacts;
     dist_prefs = p_dist_prefs;
+
+    speaker_buf = p_speaker_buf;
+    microphone_buf = p_microphone_buf;
+    led_buf = p_led_buf;
 
     return 1.0;
 }
@@ -420,9 +424,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // end 
 
                 // VISUAL INPUT
-                for (short ii = 9; ii < threadInitialTotalNumOfNeurons; ii++){
+                for (short ii = normalNeuronFirstIndex; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
-                    for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
+                    // for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
+                    for (short jj = 0; jj < normalNeuronFirstIndex; jj++){
                         // if (visPrefs[jj][ii] > -1){ // selected Color detection
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, (threadInitialTotalNumOfNeurons));
 
@@ -441,13 +446,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         }
                     }
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
-                    // if (sumVisPrefVals > 0){
-                    //     platform_log( "\n4 - idx\n");
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 4, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 4, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( "\n5 - idx\n");
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 5, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 5, 7))+" END VIS SCORE\n" ).c_str());
+                    // if (speaker_connection_sum > 0){
+                        // platform_log( "\n4 - idx\n");
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( "\n5 - idx\n");
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+
+// short getSimulationMatrixValue(short *arr, short pi, short pj, int32_t per_row){
+//     return arr[ pi * per_row + pj];
+// }
+
                     // }
                     // 3 - idx
                     // 0.024184 END VIS SCORE
@@ -669,19 +679,33 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 left_forward = 0;
                 right_backward = 0;
                 right_forward = 0;
-                for (short iStep =0; iStep < threadTotalNumOfNeurons;iStep++){
+
+                
+                short speaker_connection_count = 0;
+                short speaker_connection_sum = 0;
+                short isRedLed = -1;
+                short isGreenLed = -1;
+                short isBlueLed = -1;
+                for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
                     if ( isStepSpiking[iStep] == 1 ){
-                        // left_forward += ( neuron_contacts[i][7]);
-                        // left_backward += ( neuron_contacts[i][5]);
 
-                        // right_forward += ( neuron_contacts[i][6] );
-                        // right_backward += ( neuron_contacts[i][8] );
-                        
-                        // left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 7, threadTotalNumOfNeurons));
-                        // left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
+                        // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
+                        short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
+                        if (speaker_val > -1){
+                            speaker_connection_sum += speaker_val;
+                            speaker_connection_count++;
+                        }
 
-                        // right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
-                        // right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 8, threadTotalNumOfNeurons));
+                        if (isRedLed == -1 ) {
+                            isRedLed= getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                        }
+                        if (isGreenLed == -1 ) {
+                            isGreenLed= getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                        }
+                        if (isBlueLed == -1 ) {
+                            isBlueLed= getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                        }
+
                         left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
                         left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
 
@@ -700,22 +724,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                     }
                 }
-
-                // platform_log("Motor Commands :\n");
-                // platform_log(std::to_string(left_forward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(left_backward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(right_forward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(right_backward).c_str());
-                // platform_log("\n-----\n");
-
-                left_forward *= 0.5;
-                right_forward *= 0.5;
-                left_backward *= 0.5;
-                right_backward *= 0.5;
-
 
                 // scale
                 left_forward *= 2.5;
@@ -813,40 +821,37 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 
 
 
-                // if (left_forward != 0 || left_backward != 0 || right_forward != 0 || right_backward != 0 ){
-                //     platform_log("Left Forward :\n");
-                //     platform_log(std::to_string(left_forward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Left Backward :\n");
-                //     platform_log(std::to_string(left_backward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Left DIR :\n");
-                //     platform_log(std::to_string(left_dir).c_str());
-                //     platform_log("\n");
 
-
-                //     platform_log("Right Forward :\n");
-                //     platform_log(std::to_string(right_forward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Right Backward :\n");
-                //     platform_log(std::to_string(right_backward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Right DIR :\n");
-                //     platform_log(std::to_string(right_dir).c_str());
-                //     platform_log("\n");
-
-                // }
                 // // print("wheel message");
                 // // print(processedMotorCounter.toString() + "__" + message);
                 // message = "l:" + std::to_string(r_torque * r_dir) + ";r:" + std::to_string(l_torque * l_dir) + ";s:2;";
                 // message = "l:" + std::to_string(r_torque * r_dir * -1) + ";r:" + std::to_string(l_torque * l_dir * -1) + ";s:0;";
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:0;";
+                int speaker_tone = 0;
+                if (speaker_connection_count > 0){
+                    speaker_tone = (speaker_connection_sum / speaker_connection_count);
+                }
+                // short speaker_tone = 0;
+                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
+                if (isRedLed != -1){
+                    message += redLEDCmd;
+                }
+                if (isGreenLed != -1){
+                    message += greenLEDCmd;
+                }
+                if (isBlueLed != -1){
+                    message += blueLEDCmd;
+                }
+
+                if (isRedLed == -1 && isGreenLed == -1 && isBlueLed == -1){
+                    message += offLEDCmd;
+                }
+
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
-                //     platform_log("Motor Commands :\n");
-                //     platform_log(message.c_str());
-                //     platform_log("\n");
+                    // platform_log("Motor Commands :\n");
+                    // platform_log(message.c_str());
+                    // platform_log("\n");
                 // }else{
-                //     platform_log("EMPTY Commands :\n");
+                //     // platform_log("EMPTY Commands :\n");
                 // }
                 #ifdef __EMSCRIPTEN__
                     std::fill(motor_command_message, motor_command_message + 300, 0);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class SingleCircle extends CustomPainter {
   Color activeColor = Colors.green.shade700;
-  Color inactiveColor = Colors.grey;
+  Color inactiveColor = const Color.fromRGBO(158, 158, 158, 1);
   final double circleRadius = 10.0;
   final double arrowSize = 1.0;
   late Offset centerPos;
@@ -14,6 +14,7 @@ class SingleCircle extends CustomPainter {
   // }):super(repaint:notifier){
   SingleCircle({
     required bool isActive,
+    required double circleRadius,
   }) {
     centerPos = Offset(circleRadius, circleRadius);
     circlePaint = Paint()

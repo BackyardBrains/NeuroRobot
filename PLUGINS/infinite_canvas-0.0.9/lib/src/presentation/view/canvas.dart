@@ -385,12 +385,12 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     controller.moveSelection(details.focalPoint);
                   }
                   controller.mousePosition = details.focalPoint;
-                  // if (Platform.isIOS) {
-                  //   print("controller.mousePosition2");
-                  //   print(details.focalPoint);
-                  //   print(controller.mousePosition);
-                  //   controller.notifyMousePosition();
-                  // }
+                  if (Platform.isIOS) {
+                    print("controller.mousePosition2");
+                    print(details.focalPoint);
+                    print(controller.mousePosition);
+                    controller.notifyMousePosition();
+                  }
                 },
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
                 minScale: controller.minScale,

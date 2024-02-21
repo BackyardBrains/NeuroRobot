@@ -68,6 +68,33 @@ class _WaveWidgetState extends State<WaveWidget> {
           );
         }),
       );
+    } else if (Platform.isIOS || Platform.isAndroid) {
+      return Container(
+        height: widget.screenHeight / 2 - 70,
+        width: widget.screenWidth - 20,
+        color: Colors.white,
+        child: PolygonWaveform(
+          key: waveKey,
+          activeColor: Colors.black,
+          inactiveColor: Colors.black,
+          gain: widget.chartGain,
+          channelIdx: 0,
+          channelActive: 0,
+          levelMedian: widget.levelMedian,
+          // levelMedian:0,
+          strokeWidth: 1.0,
+
+          height: widget.screenHeight / 2 - 70,
+          width: widget.screenWidth - 20,
+          // WEB CHANGE
+          // samples: WaveWidget.canvasBufferBytes1,
+          samples: Nativec.canvasBufferBytes1,
+          // samples: Float64List(0),
+          maxDuration: const Duration(seconds: 3),
+          elapsedDuration: const Duration(seconds: 1),
+          eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],
+        ),
+      );
     } else {
       return Container(
         height: widget.screenHeight / 2 - 130,

@@ -50,12 +50,12 @@ Future<void> loadBrainDialog(
   fileList.sort((a, b) => mtimes[a]!.compareTo(mtimes[b]!));
 
   fileList.forEach((fileString) {
-    print(fileString);
+    // print(fileString);
     if (fileString.contains(".png")) fileNames.insert(0, File(fileString));
     // if (element.path.contains(".png")) fileNames.add(File(element.path));
   });
-  print("fileNames");
-  print(fileNames);
+  // print("fileNames");
+  // print(fileNames);
 
   // ignore: use_build_context_synchronously
   return showDialog<void>(
@@ -110,8 +110,8 @@ showBrainDisplay(
       String filename = basename(file.path).replaceAll("Brain", "");
       filename = filename.replaceAll(".png", "");
       List<String> arrImageInfo = filename.split("@@@");
-      print("arrImageInfo");
-      print(arrImageInfo);
+      // print("arrImageInfo");
+      // print(arrImageInfo);
 
       imageIds.add(arrImageInfo[0]);
       imageTitles.add(arrImageInfo[1]);

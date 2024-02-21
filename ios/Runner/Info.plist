@@ -49,5 +49,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+<!--    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>-->
+<!--    <string>Program requires GPS to get WiFi Info</string>-->
+<!--    <key>NSLocationWhenInUseUsageDescription</key>-->
+<!--    <string>Program requires GPS to track cars and job orders</string>-->
 </dict>
 </plist>
