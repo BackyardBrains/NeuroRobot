@@ -342,10 +342,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   double neuronDrawSize = 20;
 
-  int isSavingBrain = 0;
-  String selectedFileName = "-";
-  Map pMapStatus = {};
-
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
@@ -878,8 +874,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     if (Platform.isIOS || Platform.isAndroid) {
       neuronDrawSize = 20;
     }
-    pMapStatus["isSavingBrain"] = 1;
-    pMapStatus["currentFileName"] = "-";
     // subscriptionWifi = Connectivity()
     //     .onConnectivityChanged
     //     .listen((ConnectivityResult result) async {
@@ -2596,17 +2590,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // home
       // Navigator.pop(context);
       // Navigator.pop(context);
-      if (pMapStatus["currentFilename"] == "-") {
-        isSavingBrain = 1;
-        pMapStatus["isSavingBrain"] = isSavingBrain;
-        pMapStatus["currentFileName"] = "-";
-      } else {
-        // isSavingBrain == 10 - Saved
-        // isSavingBrain == 1 - Default
-        // isSavingBrain == 2 - There is a change in the design
-      }
-      await showBrainDialog(context, "Load Brain", selectSavedBrain,
-          saveCurrentBrain, pMapStatus);
+
+      await loadBrainDialog(context, "Load Brain", selectSavedBrain);
       Future.delayed(const Duration(milliseconds: 1200), () {
         // menuIdx = 0;
         rightToolbarKey = UniqueKey();
@@ -3844,7 +3829,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller.nodes.add(tempNode);
   }
 
-  Future<String> saveCurrentBrain(String title, String description) async {
+  void saveCurrentBrain(String title, String description) async {
     // mainBloc.setLoading(1);
     ProgressDialog pd = ProgressDialog(context: context);
     pd.show(msg: 'Saving Brain...');
@@ -3917,27 +3902,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     });
     print("strNodesJson");
     // print(strNodesJson);
-    String imagesPath = "${Platform.pathSeparator}images";
-    String textPath = "${Platform.pathSeparator}text";
-    String infoPath = "${Platform.pathSeparator}info";
+
     String fileName = DateTime.now().microsecondsSinceEpoch.toString();
     Directory directory =
         (await getApplicationDocumentsDirectory()); //from path_provide package
 
-    Directory imgDirectory = Directory(
-        "${(await getApplicationDocumentsDirectory()).path}/$imagesPath");
+    Directory imgDirectory =
+        Directory("${(await getApplicationDocumentsDirectory()).path}/images");
     // Directory((await getApplicationDocumentsDirectory()).path);
-    Directory txtDirectory = Directory(
-        "${(await getApplicationDocumentsDirectory()).path}/$textPath");
-    Directory infoDirectory = Directory(
-        "${(await getApplicationDocumentsDirectory()).path}/$infoPath");
+    Directory txtDirectory =
+        Directory("${(await getApplicationDocumentsDirectory()).path}/text");
     // Directory((await getApplicationDocumentsDirectory()).path);
     if (!imgDirectory.existsSync()) imgDirectory.createSync();
     if (!txtDirectory.existsSync()) txtDirectory.createSync();
-    if (!infoDirectory.existsSync()) infoDirectory.createSync();
 
     print(directory.path);
+    String textPath = "/text";
     // String textPath = "";
+    String imagesPath = "/images";
     // String imagesPath = "";
     final File file = File('${directory.path}$textPath/BrainText$fileName.txt');
     await file.writeAsString(strNodesJson);
@@ -3954,13 +3936,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       description = description.replaceAll("@", "#");
       final directory = await getApplicationDocumentsDirectory();
       final imagePath = await File(
-              // '${directory.path}$imagesPath/Brain$fileName@@@$title@@@$description.png')
-              '${imgDirectory.path}${Platform.pathSeparator}Brain$fileName.png')
+              '${directory.path}$imagesPath/Brain$fileName@@@$title@@@$description.png')
           .create();
       await imagePath.writeAsBytes(imageBytes);
-      final File file = File('${infoDirectory.path}/BrainInfo$fileName.txt');
-      await file.writeAsString("$title@@@$description");
-
       pd.close();
 
       Future.delayed(const Duration(seconds: 1), () {
@@ -3970,13 +3948,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
       // mainBloc.setLoading(0);
     });
-    print("SAVED fileName");
-    print(fileName);
-    return fileName;
   }
 
   void selectSavedBrain(String filename) async {
-    String textPath = "${Platform.pathSeparator}text";
+    String textPath = "/text";
     // String textPath = "";
     controller.deselectAll();
     isDrawTail = false;
@@ -3998,17 +3973,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       controller.nodes.removeLast();
     }
     clearBridge();
-
-    if (filename == "-1") {
-      return;
-    }
-
-    // if selectedFilename is not default and not the same then we need to delete the old file
-    if (selectedFileName != "-" && selectedFileName != filename) {
-      // delete the old file
-    }
-    selectedFileName = filename;
-    pMapStatus["currentFileName"] = filename;
 
     final Directory directory = await getApplicationDocumentsDirectory();
     final File savedFile =
