@@ -3,7 +3,7 @@
 %% Get Markov Decision Process
 axes(ml_train1_status)
 cla
-tx8 = text(0.03, 0.5, horzcat('Creating world model (MDP)...'));
+tx8 = text(0.03, 0.5, horzcat('Creating transition matrix...'), 'FontSize', bfsize + 4);
 drawnow
 
 mdp = createMDP(n_unique_states, n_unique_actions);

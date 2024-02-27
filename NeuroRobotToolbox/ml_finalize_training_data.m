@@ -3,7 +3,7 @@
 %% Create datasets for training nets
 axes(ml_train1_status)
 cla
-tx5 = text(0.03, 0.5, horzcat('Creating training datasets...'));
+tx5 = text(0.03, 0.5, horzcat('Creating training datasets...'), 'FontSize', bfsize + 4);
 drawnow
 
 try

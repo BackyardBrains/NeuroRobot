@@ -169,7 +169,7 @@ if length(cnet_temp) >= 1
         this_action = getAction(agent, counter);
         this_action = cell2mat(this_action);
         this_neuron = postsyn(this_action);
-        connectome(ii, this_neuron) = 20;
+        connectome(ii, this_neuron) = 12;
     end
 end
 

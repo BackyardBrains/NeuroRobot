@@ -23,11 +23,11 @@ agent_opt = rlDQNAgentOptions;
 % agent_opt.DiscountFactor = 0.1;
 agent = rlDQNAgent(critic, agent_opt);
 training_opts = rlTrainingOptions;
-training_opts.MaxEpisodes = learn_speed * 200;
-training_opts.MaxStepsPerEpisode = learn_speed * 200 / 2;
-training_opts.StopTrainingValue = learn_speed * 200 * 5;
+training_opts.MaxEpisodes = ml_speed_select.Value * 200;
+training_opts.MaxStepsPerEpisode = ml_speed_select.Value * 200 / 2;
+training_opts.StopTrainingValue = 1000000;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = learn_speed * 20;
+training_opts.ScoreAveragingWindowLength = ml_speed_select.Value * 20;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';

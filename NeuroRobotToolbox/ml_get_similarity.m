@@ -4,7 +4,7 @@ axes(ml_train1_status)
 cla
 
 this_msg = horzcat('Finding features...');
-tx2 = text(0.03, 0.5, this_msg, 'fontsize', bfsize + 6);
+tx2 = text(0.03, 0.5, this_msg, 'fontsize', bfsize + 4);
 drawnow
 disp(this_msg)
 

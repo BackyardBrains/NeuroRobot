@@ -8,12 +8,10 @@ if isempty(state_net_name)
     ml_name1_edit.BackgroundColor = [0.94 0.94 0.94];
 
 else
-
-    ml_get_learn_speed
     
     axes(ml_load_status)
     cla
-    txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 6);
+    txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 4);
     drawnow
     
     openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))

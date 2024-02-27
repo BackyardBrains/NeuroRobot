@@ -27,11 +27,12 @@ bad_action = [];
 % disp(horzcat('bad action (backward) = ', num2str(bad_action)))
 % disp(horzcat('bad action torque: ',  num2str(round(mean(torque_data(actions == bad_action, :), 1)))))
 
+
 %% Create reward landscape
 disp('Creating reward landscape...')
 axes(ml_train2_status)
 cla
-tx9 = text(0.03, 0.5, 'Creating reward landscape ');
+tx9 = text(0.03, 0.5, 'Creating reward landscape...', 'FontSize', bfsize + 4);
 drawnow
 
 reward_counter = zeros(size(mdp.R));

@@ -1,9 +1,9 @@
 
 update_robot_select
 
-% if use_esp32 && ~isdeployed
-%     addpath('.\MatlabWebSocket\src\')
-% end
+if use_esp32 && ~isdeployed
+    addpath('.\MatlabWebSocket\src\')
+end
 if ~exist('esp32WebsocketClient', 'var')
     esp32WebsocketClient = 0;
 end
