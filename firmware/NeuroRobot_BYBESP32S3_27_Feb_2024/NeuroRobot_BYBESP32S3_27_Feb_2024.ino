@@ -305,8 +305,6 @@ void newDataArrivedFromSocket(char * data, int lengthOfData)
         {
           separator = separator + 2;
           #if defined(USE_LEDS)
-            // Serial.println("------------------");
-            // Serial.println(*separator);
             char tempBuffer[4];
             int diodeParameters[4];
             int parameterIndex = 0;
@@ -317,14 +315,10 @@ void newDataArrivedFromSocket(char * data, int lengthOfData)
                 int tempBufferIndex = 0;
                 while(tempBufferIndex<4)
                 {
-                  // Serial.print(".");
-                  // Serial.println(separator[characterIndex]);
                     if(separator[characterIndex]==',' || separator[characterIndex]==';' || separator[characterIndex]==0)
                     {
-                        // Serial.println(tempBuffer);
                         tempBuffer[tempBufferIndex] = 0;
                         diodeParameters[parameterIndex] = atoi(tempBuffer);
-                        // Serial.println(diodeParameters[parameterIndex]);
                         parameterIndex++;
                         if(separator[characterIndex]==';' || separator[characterIndex]==0)
                         {
@@ -350,10 +344,6 @@ void newDataArrivedFromSocket(char * data, int lengthOfData)
             {
               executeRGBDiodeCommand(diodeParameters);
             }
-            
-            // diodeCommand = atoi(separator);//read diode command number
-            // executeDiodeCommand(diodeCommand);
-
           #endif
         }
         if (*separator == 's') //command for sound generator
