@@ -17,42 +17,42 @@ else
     disp(horzcat('Brain directory: ', brain_dir))
 end
 
-brain_name = 'L1C1';
+brain_name = 'L1E1';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L1C2';
+brain_name = 'L1E2';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L1C3';
+brain_name = 'L1E3';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L1C3B';
+brain_name = 'L1E3B';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L1C4';
+brain_name = 'L1E4';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
     save_brain
 end
 
-brain_name = 'L2C2';
+brain_name = 'L2E2';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
