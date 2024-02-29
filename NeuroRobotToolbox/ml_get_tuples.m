@@ -63,10 +63,21 @@ end
 tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
 
+figure(11)
+h = histogram(actions);
+drawnow
+ns = h.Values;
+close(11)
+
+[~, xinds] = sort(ns, 'ascend');
+actions(actions == xinds(1)) = mode(actions);
+actions(actions == xinds(2)) = mode(actions);
+
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
+
 save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, state_net_name, '-actions'))
 
@@ -90,7 +101,7 @@ clf
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
 for naction = 1:n_unique_actions
-    text(-motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
+    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold')
 end
 axis padded
 set(gca, 'yscale', 'linear')
@@ -120,14 +131,14 @@ load(strcat(nets_dir_name, state_net_name, '-tuples'))
 tx7.String = 'tuples aquired successfully';
 drawnow
 
-figure(72)
-clf
-
-subplot(1,2,1)
-histogram(states)
-title('states')
-subplot(1,2,2)
-histogram(actions)
-title('actions')
+% figure(72)
+% clf
+% 
+% subplot(1,2,1)
+% histogram(states)
+% title('states')
+% subplot(1,2,2)
+% histogram(actions)
+% title('actions')
 
 
