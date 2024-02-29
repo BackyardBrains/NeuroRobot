@@ -41,12 +41,12 @@ ml_9_train2_status_pos =    [0.26 0.1 0.28 0.05];
 
 
 %% UI objects
-ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_1_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 8, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
+ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_1_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 12, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 available_dirs = dir(dataset_dir_name);
 available_dirs(1:2) = [];
 ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_2_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_data_status = uicontrol('Style', 'popupmenu', 'String', {dataset_dir_name, available_dirs.name}, 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_data_status = uicontrol('Style', 'text', 'String', dataset_dir_name, 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
 ml_speeds = {'Fast', 'Medium', 'Slow'};
 ml_speed_str = uicontrol('Style', 'text', 'String', 'Training speed:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);

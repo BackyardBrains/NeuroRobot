@@ -1,5 +1,5 @@
 
-% dataset_dir_name = 'C:\SpikerBot ML Datasets\livingroom1\';
+dataset_dir_name = 'C:\SpikerBot\Datasets\';
 
 
 %% Brains
@@ -62,28 +62,28 @@ end
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
-%% Datasets
-if isdeployed
-    if ispc
-        dataset_dir_name = strcat(userpath, '\Datasets\');
-    elseif ismac
-        dataset_dir_name = strcat(userpath, './Datasets/');
-    end
-else
-    dataset_dir_name = 'C:\SpikerBot ML Datasets\';
-end
-
-if ~exist(dataset_dir_name, 'dir')
-    mkdir(dataset_dir_name)
-    disp('Dataset directory not found')
-    disp(horzcat('Created new dataset directory: ', dataset_dir_name))
-else
-    disp(horzcat('Dataset dir: ', dataset_dir_name))
-end
-
-available_dirs = dir(dataset_dir_name);
-available_dirs(1:2) = [];
-nrecs = length(available_dirs);
+% %% Datasets
+% if isdeployed
+%     if ispc
+%         dataset_dir_name = strcat(userpath, '\Datasets\');
+%     elseif ismac
+%         dataset_dir_name = strcat(userpath, './Datasets/');
+%     end
+% else
+%     dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+% end
+% 
+% if ~exist(dataset_dir_name, 'dir')
+%     mkdir(dataset_dir_name)
+%     disp('Dataset directory not found')
+%     disp(horzcat('Created new dataset directory: ', dataset_dir_name))
+% else
+%     disp(horzcat('Dataset dir: ', dataset_dir_name))
+% end
+% 
+% available_dirs = dir(dataset_dir_name);
+% available_dirs(1:2) = [];
+% nrecs = length(available_dirs);
 
 
 %% Specific rec
