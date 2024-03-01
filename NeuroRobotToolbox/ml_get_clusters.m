@@ -4,15 +4,18 @@ n_unique_states = init_n_unique_states;
 axes(ml_train1_status)
 cla
 
-tx3 = text(0.03, 0.5, horzcat('Clustering...'), 'FontSize', bfsize + 4);
+tx3 = text(0.03, 0.5, 'Clustering...', 'FontSize', bfsize + 4);
 drawnow
 disp('Clustering... ')
+
+figure(10)
+clf
 
 dists = pdist(xdata, 'correlation');
 links = linkage(dists, 'weighted');
 group_inds = cluster(links,'MaxClust', n_unique_states);
 
-figure(10)
+clf
 [~, ~, o] = dendrogram(links, 0);
 close(10)
 
@@ -25,7 +28,7 @@ title('Clustered similarity scores')
 %% Remove small groups
 axes(ml_train1_status)
 cla
-tx3.String = 'Removing small clusters...';
+tx3 = text(0.03, 0.5, 'Removing small clusters...', 'FontSize', bfsize + 4);
 drawnow
 
 n_unique_states = length(unique(group_inds));
@@ -47,7 +50,7 @@ state_info(state_info(:,1)==0, :) = [];
 
 n_unique_states = sum(state_info(:,1));
 this_msg = horzcat('N unique states: ', num2str(n_unique_states));
-cla
+
 tx3.String = this_msg;
 drawnow
 disp(this_msg)

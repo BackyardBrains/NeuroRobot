@@ -80,10 +80,11 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 % else
 %     disp(horzcat('Dataset dir: ', dataset_dir_name))
 % end
-% 
-% available_dirs = dir(dataset_dir_name);
-% available_dirs(1:2) = [];
-% nrecs = length(available_dirs);
+
+disp(horzcat('Dataset dir: ', dataset_dir_name))
+available_dirs = dir(dataset_dir_name);
+available_dirs(1:2) = [];
+nrecs = length(available_dirs);
 
 
 %% Specific rec
