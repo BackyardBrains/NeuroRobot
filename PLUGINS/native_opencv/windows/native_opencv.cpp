@@ -382,19 +382,19 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     // double meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                     meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
-                    this_score = sigmoid(max_size, 1000, 0.0075) * 50;
+                    this_score = sigmoid(max_size, 1000, 0.0075) * 70;
 
                     short tempCol = static_cast<short>(ncol * 2);
-                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 50);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
 
 
                     if (icam == 0) {
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
                     }
                     else {
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol +1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
                     }
 
                     // if (icam == 0) {

@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.backyardbrains.neurorobot">
    <application
-        android:label="neurorobot"
+        android:label="Spikerbot"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

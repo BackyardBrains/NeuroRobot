@@ -124,6 +124,7 @@ short *microphone_buf;
 
 // LED
 short *led_buf;
+short *led_pos_buf;
 short neuronLedRedIdx = 9;
 short neuronLedGreenIdx = 10;
 short neuronLedBlueIdx = 11;
@@ -132,7 +133,15 @@ short neuronLedBlueIdx = 11;
 // std::string blueLEDCmd = "d:131;d:231;d:331;d:431;d:531;d:631;"; // blue
 // std::string greenLEDCmd = "d:121;d:221;d:321;d:421;d:521;d:621;"; // green
 // std::string offLEDCmd = "d:120;d:220;d:320;d:420;d:520;d:620;"; // off
-std::string redLEDCmd = "d:111;d:211;d:311;d:411;"; // red
-std::string blueLEDCmd = "d:131;d:231;d:331;d:431;"; // blue
-std::string greenLEDCmd = "d:121;d:221;d:321;d:421;"; // green
-std::string offLEDCmd = "d:120;d:220;d:320;d:420;"; // off
+
+// std::string redLEDCmd = "d:111;d:211;d:311;d:411;"; // red
+// std::string blueLEDCmd = "d:131;d:231;d:331;d:431;"; // blue
+// std::string greenLEDCmd = "d:121;d:221;d:321;d:421;"; // green
+// std::string offLEDCmd = "d:120;d:220;d:320;d:420;"; // off
+
+std::string redLEDCmd = "d:0,255,0,0;d:1,255,0,0;d:2,255,0,0;d:3,255,0,0;"; // red
+std::string blueLEDCmd ="d:0,0,0,255;d:1,0,0,255;d:2,0,0,255;d:3,0,0,255;"; // blue
+std::string greenLEDCmd ="d:0,0,255,0;d:1,0,255,0;d:2,0,255,0;d:3,0,255,0;"; // green
+std::string offLEDCmd = "d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;"; // off
+
+std::string prevMessage = "";

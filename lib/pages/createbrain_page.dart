@@ -10,7 +10,6 @@ class CreateBrainPage extends StatefulWidget {
   State<CreateBrainPage> createState() => _CreateBrainPageState();
 }
 
-
 class _CreateBrainPageState extends State<CreateBrainPage> {
   @override
   Widget build(BuildContext context) {
@@ -18,50 +17,50 @@ class _CreateBrainPageState extends State<CreateBrainPage> {
       appBar: AppBar(
         centerTitle: false,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("NeuroRobot"),
-        
+        title: const Text("Spikerbot"),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: brandBlue,
-              ), 
-              child: const Text("Drawer Header"),
+          child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: brandBlue,
             ),
-            const ListTile(
-              leading: Icon(Icons.ac_unit_sharp),
-              title: Text("All Brains"),
-            ),
-            const ListTile(
-              leading: Icon(Icons.ac_unit_sharp),
-              title: Text("Templates"),
-            ),
-            const ListTile(
-              leading: Icon(Icons.ac_unit_sharp),
-              title: Text("My Brain"),
-            ),
-          ],
-        )
-      ),
+            child: const Text("Drawer Header"),
+          ),
+          const ListTile(
+            leading: Icon(Icons.ac_unit_sharp),
+            title: Text("All Brains"),
+          ),
+          const ListTile(
+            leading: Icon(Icons.ac_unit_sharp),
+            title: Text("Templates"),
+          ),
+          const ListTile(
+            leading: Icon(Icons.ac_unit_sharp),
+            title: Text("My Brain"),
+          ),
+        ],
+      )),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: createMainBody(context),
       ),
     );
-
   }
-  
+
   List<Widget> createMainBody(context) {
     return [
       Padding(
-        padding: const EdgeInsets.fromLTRB(12,0,0,0),
-        child: Text("Create or Select a Brain", style: headerStyle..copyWith(fontWeight: FontWeight.bold),),
+        padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
+        child: Text(
+          "Create or Select a Brain",
+          style: headerStyle..copyWith(fontWeight: FontWeight.bold),
+        ),
       ),
       EasyAnimatedTab(
-        buttonTitles: const ['All Brains', 'Templates','My Brains', 'Search'],
+        buttonTitles: const ['All Brains', 'Templates', 'My Brains', 'Search'],
         onSelected: (index) {},
         animationDuration: 500,
         minWidthOfItem: 70,
@@ -69,35 +68,38 @@ class _CreateBrainPageState extends State<CreateBrainPage> {
         deActiveItemColor: Colors.grey,
         activeItemColor: Colors.redAccent,
         activeTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
-        deActiveTextStyle: const TextStyle(color: Colors.redAccent, fontSize: 14),
-      ),      
+        deActiveTextStyle:
+            const TextStyle(color: Colors.redAccent, fontSize: 14),
+      ),
       Expanded(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Container(
-              width:constraints.maxWidth,
-              height:constraints.maxHeight,
-              child: ResponsiveGridList(
-                desiredItemWidth: MediaQuery.of(context).size.width*0.2,
+        child: LayoutBuilder(builder: (context, constraints) {
+          return Container(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: ResponsiveGridList(
+                desiredItemWidth: MediaQuery.of(context).size.width * 0.2,
                 minSpacing: 10,
-                children: List.generate(20, (index)=> index).map((i) {
-                  if (i==0){
+                children: List.generate(20, (index) => index).map((i) {
+                  if (i == 0) {
                     return GestureDetector(
-                      onTap:(){
+                      onTap: () {
                         widget.callback("add_brain");
                       },
                       child: Card(
                         child: SizedBox(
-                          height: 270,
-                          child:Center(
-                            child: Text("+", style: TextStyle(fontSize: 70,color: brandBlue),),
-                          )
-                        ),
+                            height: 270,
+                            child: Center(
+                              child: Text(
+                                "+",
+                                style:
+                                    TextStyle(fontSize: 70, color: brandBlue),
+                              ),
+                            )),
                       ),
                     );
-                  }else{
+                  } else {
                     return Card(
-                      margin: const EdgeInsets.all(7),                    
+                      margin: const EdgeInsets.all(7),
                       child: Container(
                         height: 270,
                         padding: const EdgeInsets.all(7),
@@ -109,18 +111,16 @@ class _CreateBrainPageState extends State<CreateBrainPage> {
                             const SizedBox(
                               height: 150,
                             ),
-                            Text("Lab 1", style:headerStyle),
-                            Text("Description", style:subHeaderStyle),
+                            Text("Lab 1", style: headerStyle),
+                            Text("Description", style: subHeaderStyle),
                           ],
                         ),
                       ),
                     );
                   }
-                }).toList()
-              ),
-            );
-          }
-        ),
+                }).toList()),
+          );
+        }),
       ),
     ];
   }

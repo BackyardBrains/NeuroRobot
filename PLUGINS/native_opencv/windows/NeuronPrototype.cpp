@@ -18,6 +18,7 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <bitset>
 // C++ to FLUTTER
 #ifdef __EMSCRIPTEN__
 #else
@@ -143,6 +144,8 @@ double randoms(){
     // return (double) rand() / RAND_MAX * negative;    
 }
 
+
+
 double matrixMultiply(){
     return (double)rand() / RAND_MAX; // for generating random points between 0 to 1
 }
@@ -180,6 +183,16 @@ EXTERNC void platform_log(const char *fmt, ...) {
 #endif
     va_end(args);
 }
+
+std::string decimalToBinaryString(int decimal) {
+    // std::string str = std::bitset<4>(decimal).to_string();
+    // platform_log("str\n");
+    // platform_log(str.c_str());
+    // platform_log("\n");
+    // return str; // Adjust bit width as needed
+    return std::bitset<4>(decimal).to_string();
+}
+
 
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
@@ -242,7 +255,7 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs, short *p_speaker_buf, short *p_microphone_buf, short *p_led_buf, short *p_led_pos_buf){
     canvasBuffer = _canvasBuffer;
     positions = _positions;
     neuronCircles = _neuronCircle;        
@@ -254,6 +267,11 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
     motor_command_message = p_motor_command_message;
     neuron_contacts = p_neuron_contacts;
     dist_prefs = p_dist_prefs;
+
+    speaker_buf = p_speaker_buf;
+    microphone_buf = p_microphone_buf;
+    led_buf = p_led_buf;
+    led_pos_buf = p_led_pos_buf;
 
     return 1.0;
 }
@@ -420,9 +438,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // end 
 
                 // VISUAL INPUT
-                for (short ii = 9; ii < threadInitialTotalNumOfNeurons; ii++){
+                for (short ii = normalNeuronFirstIndex; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
-                    for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
+                    // for (short jj = 0; jj < threadInitialTotalNumOfNeurons; jj++){
+                    for (short jj = 0; jj < normalNeuronFirstIndex; jj++){
                         // if (visPrefs[jj][ii] > -1){ // selected Color detection
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, (threadInitialTotalNumOfNeurons));
 
@@ -441,13 +460,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         }
                     }
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
-                    // if (sumVisPrefVals > 0){
-                    //     platform_log( "\n4 - idx\n");
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 4, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 4, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( "\n5 - idx\n");
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 0, 5, 7))+" END VIS SCORE\n" ).c_str());
-                    //     platform_log( (std::to_string(getSimulationMatrixValue(vis_pref_vals, 1, 5, 7))+" END VIS SCORE\n" ).c_str());
+                    // if (speaker_connection_sum > 0){
+                        // platform_log( "\n4 - idx\n");
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( "\n5 - idx\n");
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
+
+// short getSimulationMatrixValue(short *arr, short pi, short pj, int32_t per_row){
+//     return arr[ pi * per_row + pj];
+// }
+
                     // }
                     // 3 - idx
                     // 0.024184 END VIS SCORE
@@ -669,19 +693,106 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 left_forward = 0;
                 right_backward = 0;
                 right_forward = 0;
-                for (short iStep =0; iStep < threadTotalNumOfNeurons;iStep++){
+
+                
+                short speaker_connection_count = 0;
+                short speaker_connection_sum = 0;
+                short isRedLed = -1;
+                short isGreenLed = -1;
+                short isBlueLed = -1;
+                short colorSum[4][3]= {{0}};
+                short colorCount[4][3]= {{0}};
+                std::string binaryString = "";
+                short tempWeight = 0;
+
+                for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
                     if ( isStepSpiking[iStep] == 1 ){
-                        // left_forward += ( neuron_contacts[i][7]);
-                        // left_backward += ( neuron_contacts[i][5]);
+                        // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
+                        short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
+                        if (speaker_val > -1){
+                            speaker_connection_sum += speaker_val;
+                            speaker_connection_count++;
+                        }
 
-                        // right_forward += ( neuron_contacts[i][6] );
-                        // right_backward += ( neuron_contacts[i][8] );
-                        
-                        // left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 7, threadTotalNumOfNeurons));
-                        // left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
+                        isRedLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                        if (isRedLed > -1){ // red
+                            binaryString = decimalToBinaryString(isRedLed);
+                            if (binaryString[0] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[0][0]++;
+                            }
+                            if (binaryString[1] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[1][0]++;
+                            }
+                            if (binaryString[2] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[2][0]++;
+                            }
+                            if (binaryString[3] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[3][0]++;
+                            }
+                        }
 
-                        // right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
-                        // right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 8, threadTotalNumOfNeurons));
+                        isGreenLed= getSimulationMatrixValue(led_pos_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                        if (isGreenLed > -1 ) { // green
+                            binaryString = decimalToBinaryString(isGreenLed);
+                            if (binaryString[0] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[0][1]++;
+                            }
+                            if (binaryString[1] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[1][1]++;
+                            }
+                            if (binaryString[2] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[2][1]++;
+                            }
+                            if (binaryString[3] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[3][1]++;
+                            }
+
+                        }
+
+                        isBlueLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                        if (isBlueLed > -1 ) {
+                            binaryString = decimalToBinaryString(isBlueLed);
+                            // platform_log("there is blue \n");
+                            // platform_log(binaryString.c_str());
+                            // platform_log("\n");
+                            if (binaryString[0] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[0][2]++;
+                            }
+                            if (binaryString[1] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[1][2]++;
+                            }
+                            if (binaryString[2] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[2][2]++;
+                            }
+                            if (binaryString[3] == '1'){
+                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                colorCount[3][2]++;
+                            }
+                        }
+
                         left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
                         left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
 
@@ -700,22 +811,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                     }
                 }
-
-                // platform_log("Motor Commands :\n");
-                // platform_log(std::to_string(left_forward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(left_backward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(right_forward).c_str());
-                // platform_log("\n");
-                // platform_log(std::to_string(right_backward).c_str());
-                // platform_log("\n-----\n");
-
-                left_forward *= 0.5;
-                right_forward *= 0.5;
-                left_backward *= 0.5;
-                right_backward *= 0.5;
-
 
                 // scale
                 left_forward *= 2.5;
@@ -813,40 +908,94 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 
 
 
-                // if (left_forward != 0 || left_backward != 0 || right_forward != 0 || right_backward != 0 ){
-                //     platform_log("Left Forward :\n");
-                //     platform_log(std::to_string(left_forward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Left Backward :\n");
-                //     platform_log(std::to_string(left_backward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Left DIR :\n");
-                //     platform_log(std::to_string(left_dir).c_str());
-                //     platform_log("\n");
 
-
-                //     platform_log("Right Forward :\n");
-                //     platform_log(std::to_string(right_forward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Right Backward :\n");
-                //     platform_log(std::to_string(right_backward).c_str());
-                //     platform_log("\n");
-                //     platform_log("Right DIR :\n");
-                //     platform_log(std::to_string(right_dir).c_str());
-                //     platform_log("\n");
-
-                // }
                 // // print("wheel message");
                 // // print(processedMotorCounter.toString() + "__" + message);
                 // message = "l:" + std::to_string(r_torque * r_dir) + ";r:" + std::to_string(l_torque * l_dir) + ";s:2;";
                 // message = "l:" + std::to_string(r_torque * r_dir * -1) + ";r:" + std::to_string(l_torque * l_dir * -1) + ";s:0;";
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:0;";
+                int speaker_tone = 0;
+                if (speaker_connection_count > 0){
+                    speaker_tone = (speaker_connection_sum / speaker_connection_count);
+                }
+                // short speaker_tone = 0;
+                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
+                // if (isRedLed != -1){
+                //     message += redLEDCmd;
+                // }
+                // if (isGreenLed != -1){
+                //     message += greenLEDCmd;
+                // }
+                // if (isBlueLed != -1){
+                //     message += blueLEDCmd;
+                // }
+
+                // if not spiking turn off
+                if (isRedLed == -1 && isGreenLed == -1 && isBlueLed == -1){
+                    message += offLEDCmd;
+                }else{
+                    std::string colorMsg = "";
+                    int red = 0;
+                    int green = 0;
+                    int blue = 0;
+                    int redCount = 0;
+                    int greenCount = 0;
+                    int blueCount = 0;
+                    for (int ledIdx = 0; ledIdx < 4; ledIdx++){
+                        redCount = colorCount[ledIdx][0];
+                        greenCount = colorCount[ledIdx][1];
+                        blueCount = colorCount[ledIdx][2];
+                        if (redCount == 0) {
+                            redCount = 1;
+                        }
+                        if (greenCount == 0) {
+                            greenCount = 1;
+                        }
+                        if (blueCount == 0) {
+                            blueCount = 1;
+                        }
+                        red = static_cast<short>(floor(colorSum[ledIdx][0] / redCount));
+                        green = static_cast<short>(floor(colorSum[ledIdx][1] / greenCount));
+                        blue = static_cast<short>(floor(colorSum[ledIdx][2] / blueCount));
+                        if (red> 255) red = 255;
+                        if (green> 255) green = 255;
+                        if (blue> 255) blue = 255;
+
+                        if (red< 0) red = 0;
+                        if (green< 0) green = 0;
+                        if (blue < 0) blue = 0;
+
+                        colorMsg += "d:" + std::to_string(ledIdx) + "," + std::to_string(red) + "," + std::to_string(green) + "," + std::to_string(blue)+";";
+                        // if (ledIdx ==2 || ledIdx ==3){
+                        //     platform_log("colorMsgx :\n");
+                        //     platform_log(colorMsg.c_str());
+                        //     platform_log(std::to_string(colorSum[ledIdx][0]).c_str());
+                        //     platform_log(std::to_string(colorCount[ledIdx][0]).c_str());
+                        //     platform_log(std::to_string(colorSum[ledIdx][1]).c_str());
+                        //     platform_log(std::to_string(colorCount[ledIdx][1]).c_str());
+                        //     platform_log(std::to_string(colorSum[ledIdx][2]).c_str());
+                        //     platform_log(std::to_string(colorCount[ledIdx][2]).c_str());
+                        //     platform_log("==========\n");
+                        //     platform_log("\n");
+
+                        // }
+                    }
+                    message += colorMsg;
+                }
+
+                // elapsed = std::chrono::high_resolution_clock::now() - start;
+                // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                //     // int microtime = microseconds;
+                //     nps[0] = static_cast<int>(microseconds);
+                // }
+
+                // platform_log( (std::to_string(microseconds)+" microseconds\n" ).c_str());
+
                 // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
-                //     platform_log("Motor Commands :\n");
-                //     platform_log(message.c_str());
-                //     platform_log("\n");
+                    // platform_log("Motor Commands :\n");
+                    // platform_log(message.c_str());
+                    // platform_log("\n");
                 // }else{
-                //     platform_log("EMPTY Commands :\n");
+                //     // platform_log("EMPTY Commands :\n");
                 // }
                 #ifdef __EMSCRIPTEN__
                     std::fill(motor_command_message, motor_command_message + 300, 0);
@@ -863,7 +1012,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }, state_buf, cstr, state_buf[4], motor_command_message);
                 #else
                     // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
-                    onCallback(message.c_str());
+                    if (prevMessage != message){
+                        prevMessage = message;
+                        // platform_log("COLORMSG\n");
+                        // platform_log(message.c_str());
+                        // platform_log("\n");
+                        onCallback(message.c_str());
+                    }
+
                     // }
 
                 #endif                        
