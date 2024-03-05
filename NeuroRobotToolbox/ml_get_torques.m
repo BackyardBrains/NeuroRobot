@@ -11,8 +11,8 @@ if get_torques
         torque_fname = horzcat(torque_dir(ntuple).folder, '\', torque_dir(ntuple).name);
         load(torque_fname)
         torques(torques > 250) = 250;
-        torques(torques < -250) = -250;    
-        torque_data(ntuple, :) = torques;
+        torques(torques < -250) = -250;
+        torque_data(ntuple, :) = fliplr(torques); %% !!!!! FIX (240304)
     end
     save(strcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 else
