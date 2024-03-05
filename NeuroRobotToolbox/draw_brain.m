@@ -8,7 +8,7 @@ if nneurons > 100
 else
     small_neurons = 0;
 end
-if nneurons > 100
+if nneurons > 1000
     draw_synapses = 0;
 else
     draw_synapses = 1;
