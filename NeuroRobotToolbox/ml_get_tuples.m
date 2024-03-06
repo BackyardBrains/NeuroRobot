@@ -48,7 +48,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 9;
+n_unique_actions = 16; % This needs to be settable
 
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;
@@ -70,8 +70,8 @@ ns = h.Values;
 close(11)
 
 [~, xinds] = sort(ns, 'ascend');
-actions(actions == xinds(1)) = mode(actions);
-actions(actions == xinds(2)) = mode(actions);
+% actions(actions == xinds(1)) = mode(actions);
+% actions(actions == xinds(2)) = mode(actions);
 
 n_unique_actions = length(unique(actions));
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))

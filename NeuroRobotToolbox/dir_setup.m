@@ -1,6 +1,4 @@
 
-dataset_dir_name = 'C:\SpikerBot\Datasets\';
-
 
 %% Brains
 if ispc
@@ -62,7 +60,7 @@ end
 available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
-% %% Datasets
+%% Datasets
 % if isdeployed
 %     if ispc
 %         dataset_dir_name = strcat(userpath, '\Datasets\');
@@ -70,16 +68,20 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 %         dataset_dir_name = strcat(userpath, './Datasets/');
 %     end
 % else
-%     dataset_dir_name = 'C:\SpikerBot ML Datasets\';
+%     dataset_dir_name = 'C:\SpikerBot\Datasets\livingroom\';
 % end
-% 
-% if ~exist(dataset_dir_name, 'dir')
-%     mkdir(dataset_dir_name)
-%     disp('Dataset directory not found')
-%     disp(horzcat('Created new dataset directory: ', dataset_dir_name))
-% else
-%     disp(horzcat('Dataset dir: ', dataset_dir_name))
-% end
+
+dataset_dir_name = 'C:\SpikerBot\Datasets\livingroom\';
+
+if ~exist(dataset_dir_name, 'dir')
+    mkdir(dataset_dir_name)
+    disp('Dataset directory not found')
+    disp(horzcat('Created new dataset directory: ', dataset_dir_name))
+else
+    disp(horzcat('Dataset dir: ', dataset_dir_name))
+end
+
+rec_dir_name = '';
 
 disp(horzcat('Dataset dir: ', dataset_dir_name))
 available_dirs = dir(dataset_dir_name);
@@ -87,8 +89,18 @@ available_dirs(1:2) = [];
 nrecs = length(available_dirs);
 
 
-%% Specific rec
-rec_dir_name = '';
+%% Network algorithms
+if ispc
+    netalgo_dir_name = strcat(userpath, '\Netalgos\');
+elseif ismac
+    netalgo_dir_name = strcat(userpath, './Netalgos/');
+end
+
+if ~exist(netalgo_dir_name, 'dir')
+    mkdir(netalgo_dir_name)
+    disp('Netalgo directory not found')
+    disp(horzcat('Created new netalgo directory: ', netalgo_dir_name))
+end
 
 
 %% Workspace
