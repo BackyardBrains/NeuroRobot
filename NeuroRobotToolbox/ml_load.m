@@ -44,7 +44,7 @@ else
     drawnow
 
     try
-        load(horzcat(nets_dir_name, state_net_name, '-go2-', action_net_name, '-ml'))
+        load(horzcat(nets_dir_name, state_net_name, '->-', action_net_name, '-ml'))
         figure
         hold on
         scan_agent
