@@ -41,6 +41,7 @@ load(horzcat(nets_dir_name, state_net_name, '-states'))
 tx7.String = 'loading torques..';
 drawnow
 get_torques
+torque_data = fliplr(torque_data); % 240309 fix
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 tx7.String = horzcat('ntorques loaded: ', num2str(ntuples), ' LR torque value pairs, ...');
@@ -48,7 +49,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 16; % This needs to be settable
+n_unique_actions = 7; % This needs to be settable
 
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;

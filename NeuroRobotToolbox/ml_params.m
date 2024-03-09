@@ -4,21 +4,21 @@ ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 if ml_speed_select.Value == 1 % Fast
-    nsmall = 2000;
+    nsmall = 1000;
     bof_branching = 200;
-    nmedium = 2000;
-    init_n_unique_states = 140;
-    min_size = 30;    
+    nmedium = 1000;
+    init_n_unique_states = 100;
+    min_size = 25;
 elseif ml_speed_select.Value == 2 % Medium
-    nsmall = 5000;
+    nsmall = 3000;
     bof_branching = 400;
-    nmedium = 5000;
-    init_n_unique_states = 160;
+    nmedium = 3000;
+    init_n_unique_states = 150;
     min_size = 50;
 elseif ml_speed_select.Value == 3 % Slow
-    nsmall = 8000;
+    nsmall = 7000;
     bof_branching = 500;
-    nmedium = 8000;
+    nmedium = 7000;
     init_n_unique_states = 200;
     min_size = 70;
 end

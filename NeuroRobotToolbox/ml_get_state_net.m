@@ -60,7 +60,7 @@ else
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
     MiniBatchSize = 64, Plots=this_str, Shuffle ='every-epoch', ...
-    MaxEpochs=30, VerboseFrequency= 1);
+    MaxEpochs=15, VerboseFrequency= 1);
 
 net = trainNetwork(classifier_ds, net, options);
 
