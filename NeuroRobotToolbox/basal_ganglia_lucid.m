@@ -15,7 +15,7 @@ nseqs = 500;
 % dataset_dir_name = 'C:\SpikerBot ML Datasets\';
 % nets_dir_name = strcat(userpath, '\Nets\');
 % 
-% steps_per_sequence = 100;
+steps_per_sequence = 100;
 
 %%
 figure(9)
@@ -54,7 +54,7 @@ for start_tuple = rand_inds'
     
         this_motor_vector = torque_data(ntuple, :);
         this_action = actions(ntuple);
-        tx3.String = horzcat('Action: ', num2str(this_action), ', left: ', num2str(this_motor_vector(1)), ', right: ', num2str(this_motor_vector(2)));
+        tx3.String = horzcat('Action: ', num2str(this_action), ', left: ', num2str(this_motor_vector(2)), ', right: ', num2str(this_motor_vector(1)));
         
         this_reward = rewards(ntuple);
         tx4.String = horzcat('Reward: ', num2str(this_reward));

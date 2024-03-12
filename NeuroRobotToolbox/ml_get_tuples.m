@@ -40,8 +40,9 @@ load(horzcat(nets_dir_name, state_net_name, '-states'))
 %% Torques
 tx7.String = 'loading torques..';
 drawnow
+clear get_torques
 get_torques
-torque_data = fliplr(torque_data); % 240309 fix
+% torque_data = fliplr(torque_data); % 240309 fix
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 tx7.String = horzcat('ntorques loaded: ', num2str(ntuples), ' LR torque value pairs, ...');
@@ -49,9 +50,14 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 7; % This needs to be settable
+n_unique_actions = 10; % This needs to be settable
+actions = kmeans(torque_data, n_unique_actions);
+h = histogram(actions, 'binwidth', 1);
+h2 = h.Values/nactions > 0.01;
 
+n_unique_actions = sum(h2);
 motor_combs = zeros(n_unique_actions, 2);
+
 counter = 0;
 while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
     counter = counter + 1;
@@ -61,16 +67,16 @@ while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
     end
 end
 
-tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
-drawnow
 
-figure(11)
-h = histogram(actions);
-drawnow
-ns = h.Values;
-close(11)
+% tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
+% drawnow
 
-[~, xinds] = sort(ns, 'ascend');
+% figure(11)
+% h = histogram(actions);
+% drawnow
+% ns = h.Values;
+% close(11)
+% [~, xinds] = sort(ns, 'ascend');
 % actions(actions == xinds(1)) = mode(actions);
 % actions(actions == xinds(2)) = mode(actions);
 
@@ -107,8 +113,8 @@ end
 axis padded
 set(gca, 'yscale', 'linear')
 title('Actions')
-xlabel('Torque 1')
-ylabel('Torque 2')
+xlabel('Right motor torque')
+ylabel('Left motor torque')
 drawnow
 
 %% Get tuples
@@ -132,14 +138,15 @@ load(strcat(nets_dir_name, state_net_name, '-tuples'))
 tx7.String = 'tuples aquired successfully';
 drawnow
 
-% figure(72)
-% clf
-% 
-% subplot(1,2,1)
-% histogram(states)
-% title('states')
-% subplot(1,2,2)
-% histogram(actions)
-% title('actions')
+figure(12)
+clf
+set(gcf, 'position', [201 241 1200 420], 'color', 'w')
+
+subplot(1,3,1:2)
+histogram(states)
+title('States')
+subplot(1,3,3)
+histogram(actions)
+title('Actions')
 
 

@@ -120,9 +120,9 @@ if get_rewards
         rewards(ntuple) = this_reward;
         disp(horzcat('ntuple = ', num2str(ntuple), ', done = ', num2str(100*(ntuple/ntuples)), '%, reward = ', num2str(this_reward)))
     end
-    save(strcat(nets_dir_name, state_net_name, '->-', agent_name, '-rewards'), 'rewards')
+    save(strcat(nets_dir_name, state_net_name, '---', agent_name, '-rewards'), 'rewards')
 else
-    load(strcat(nets_dir_name, state_net_name, '->-', agent_name, '-rewards'))
+    load(strcat(nets_dir_name, state_net_name, '---', agent_name, '-rewards'))
 end
 
 
@@ -203,25 +203,25 @@ nfiles = length(fds.Files);
 
 % Net
 criticNet = [
-    imageInputLayer([imdim_h imdim_w 3])
+    imageInputLayer([image_size(1) image_size(2)], 'Normalization', 'none')
     
     convolution2dLayer(3,16,'Padding','same')
-    batchNormalizationLayer
+    % batchNormalizationLayer
     reluLayer
     
     maxPooling2dLayer(2,'Stride',2)
     
     convolution2dLayer(3,16,'Padding','same')
-    batchNormalizationLayer
+    % batchNormalizationLayer
     reluLayer
 
     maxPooling2dLayer(2,'Stride',2)
     
     convolution2dLayer(3,8,'Padding','same')
-    batchNormalizationLayer
+    % batchNormalizationLayer
     reluLayer
     
-    fullyConnectedLayer(n_unique_states)
+    fullyConnectedLayer(n_unique_actions)
     softmaxLayer];
 
 % criticNet = [
@@ -242,7 +242,7 @@ criticNet = [
 % Critic
 criticNet = dlnetwork(criticNet);
 critic = rlVectorQValueFunction(criticNet,obsInfo,actInfo);
-critic.UseDevice = 'gpu';
+% critic.UseDevice = 'gpu';
 
 % Agent
 agentOptions = rlDQNAgentOptions;
@@ -262,7 +262,7 @@ tfdOpts.NumStepsPerEpoch = steps_per_sequence;
 trainFromData(agent, fds, tfdOpts);
 
 % Save
-agent_fname = horzcat(nets_dir_name, state_net_name, '->-', agent_name, '-ml');
+agent_fname = horzcat(nets_dir_name, state_net_name, '---', agent_name, '-ml');
 save(agent_fname, 'agent')
 disp(horzcat('agent net saved as ', agent_fname))
 

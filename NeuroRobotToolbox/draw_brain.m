@@ -3,12 +3,12 @@ thick_axon = 1;
 thick_synapse = 1;
 thick_neuron = 1;
 
-if nneurons > 100
+if nneurons > 300
     small_neurons = 1;
 else
     small_neurons = 0;
 end
-if nneurons > 1000
+if nneurons > 300
     draw_synapses = 0;
 else
     draw_synapses = 1;

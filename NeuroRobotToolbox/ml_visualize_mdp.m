@@ -16,7 +16,7 @@ for naction = 1:n_unique_actions
     
     subplot(x, x, naction)
     imagesc(mean(mdp.T(:,:,naction), 3), [0 1])
-    title(horzcat('Action: ', num2str(naction), '.  L: ', num2str(motor_out(1)), ',  R: ', num2str(motor_out(2))))
+    title(horzcat('Action: ', num2str(naction), '.  L: ', num2str(motor_out(2)), ',  R: ', num2str(motor_out(1))))
     ylabel('State')
     xlabel('Next State')
 end

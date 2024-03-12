@@ -193,7 +193,7 @@ if exist('rak_only', 'var') && brain_support
         full_net_name = option_nets{select_nets.Value(this_ind)};        
         trained_nets{3} = full_net_name; %% Only supports one custom net
 
-        cnet_temp = strfind(full_net_name, '->-');
+        cnet_temp = strfind(full_net_name, '---');
         if cnet_temp >= 1
             state_net_name = full_net_name(1:cnet_temp(1)-1);
             action_net_name = full_net_name(cnet_temp(1)+1:end);            
