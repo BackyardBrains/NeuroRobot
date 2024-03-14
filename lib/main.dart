@@ -1,7 +1,9 @@
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:neurorobot/pages/createbrain_page.dart';
 import 'package:neurorobot/pages/designbrain_page.dart';
@@ -16,17 +18,21 @@ import 'package:window_manager/window_manager.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // */
 import 'package:firebase_core/firebase_core.dart';
-
 import 'firebase_options.dart';
 
 const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!Platform.isWindows) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+
+  if (Platform.isAndroid || Platform.isIOS) {
+    AutoOrientation.fullAutoMode();
   }
 
   // WEB CHANGE & windows Change
@@ -86,7 +92,7 @@ void main() async {
       await windowManager.focus();
     });
   } else {
-    AutoOrientation.landscapeLeftMode();
+    // AutoOrientation.landscapeLeftMode();
   }
   // */
 

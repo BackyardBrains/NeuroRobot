@@ -286,6 +286,10 @@ class Nativec {
     ffi.Pointer<ffi.Uint8> p_motor_command_message,
     ffi.Pointer<ffi.Double> p_neuron_contacts,
     ffi.Pointer<ffi.Int16> p_dist_prefs,
+    ffi.Pointer<ffi.Int16> neuronSpeakerBuf,
+    ffi.Pointer<ffi.Int16> neuronMicrophoneBuf,
+    ffi.Pointer<ffi.Int16> neuronLedBuf,
+    ffi.Pointer<ffi.Int16> neuronLedPositionBuf,
   ) {
     var test = _passPointers(
       pCanvasbuffer1,
