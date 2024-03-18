@@ -87,12 +87,17 @@ clear neuron_xys
 %     addpath(genpath(".\MatlabWebSocket\"))
 % end
 
+
 %% Calibrate distance sensor
 esp_get_serial
 dist_short = 16;
 dist_med = 21;
 dist_long = 26;
 scores = 0;
+
+
+%%
+this_key = 0;
 
 
 %% Select brain

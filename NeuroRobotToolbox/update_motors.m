@@ -101,7 +101,34 @@ if nneurons % This prevents error caused by running script after deleting all ne
     if vocal_buffer
         vocal_buffer = vocal_buffer - 1;
     end
-    
+
+    % Manual control
+    hGUIData = guidata(fig_design);
+    if ~isempty(hGUIData)
+        this_key = hGUIData.outputVar;
+        if strcmp(this_key, 'leftarrow')
+            left_forward = 75;
+            left_backward = 0;
+            right_forward = 0;
+            right_backward = 75;
+        elseif strcmp(this_key, 'rightarrow')
+            left_forward = 0;
+            left_backward = 50;
+            right_forward = 50;
+            right_backward = 0;
+        elseif strcmp(this_key, 'uparrow')
+            left_forward = 50;
+            left_backward = 0;
+            right_forward = 50;
+            right_backward = 0;
+        elseif strcmp(this_key, 'downarrow')
+            left_forward = 0;
+            left_backward = 75;
+            right_forward = 0;
+            right_backward = 75;
+        end
+    end
+
     % Scale
     left_forward = left_forward * 2.5;
     right_forward = right_forward * 2.5;

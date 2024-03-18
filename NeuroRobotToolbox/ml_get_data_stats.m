@@ -23,7 +23,6 @@ torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.m
 
 ndists = size(serial_dir, 1);
 ntorques = size(torque_dir, 1);
-% ntuples = nimages/2;
 ntuples = nimages;
 
 if ntuples ~= ndists || ntuples ~= ntorques
