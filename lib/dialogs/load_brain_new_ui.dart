@@ -19,6 +19,7 @@ Map mapStatus = {};
 String infoPath = "${Platform.pathSeparator}info";
 String imagesPath = "${Platform.pathSeparator}images";
 String textPath = "${Platform.pathSeparator}text";
+List<File> fileNames = [];
 
 Directory? documentPath;
 List<Map<String, String>> fileInfos = [];
@@ -28,7 +29,7 @@ Future<List<File>> loadBrainFiles(fileInfos) async {
   // String imagesPath = "";
 
   List<File> fileNames = [];
-  // List<Map<String,String>> fileInfos = [];
+  // fileInfos = [];
 
   isLoadBrainDialog = true;
   documentPath = await getApplicationDocumentsDirectory();
@@ -63,22 +64,27 @@ Future<List<File>> loadBrainFiles(fileInfos) async {
     // print(fileString);
     if (fileString.contains(".png")) {
       fileNames.insert(0, File(fileString));
-      String fileInfoString = fileString
-          .substring(fileString.lastIndexOf(Platform.pathSeparator))
-          .replaceAll("Brain", "BrainInfo")
-          .replaceAll(".png", ".txt");
+      String fileNameOnly = fileString
+          .substring(fileString.lastIndexOf(Platform.pathSeparator) + 1)
+          .replaceFirst("Brain", "BrainText")
+          .replaceAll(".png", "");
+      // String fileInfoString = fileString
+      //     .substring(fileString.lastIndexOf(Platform.pathSeparator))
+      //     .replaceAll("Brain", "BrainInfo")
+      //     .replaceAll(".png", ".txt");
+      List<String> arr = fileNameOnly.split("@@@");
+      print("arr");
+      print(fileNameOnly);
+      print(arr);
+      String fileInfoString = "${arr[0]}.txt";
+      final File savedFile = File(
+          '${documentPath!.path}$textPath${Platform.pathSeparator}$fileInfoString');
       print("fileInfoString");
-      print(fileInfoString);
-      final File savedFile =
-          File('${documentPath!.path}$infoPath$fileInfoString');
+      print(savedFile.path);
       if (savedFile.existsSync()) {
-        String savedFileText = await savedFile.readAsString();
-        print("savedFileText");
-        print(savedFileText);
-        List<String> arr = savedFileText.split("@@@");
         Map<String, String> brainInfo = {};
-        brainInfo.putIfAbsent("title", () => arr[0]);
-        brainInfo.putIfAbsent("description", () => arr[1]);
+        brainInfo.putIfAbsent("title", () => arr[1]);
+        brainInfo.putIfAbsent("description", () => arr[2]);
         fileInfos.insert(0, brainInfo);
       } else {
         Map<String, String> brainInfo = {
@@ -101,17 +107,20 @@ String brainNameFromFileName(String filename) {
   return filename;
 }
 
-Future<void> showBrainDialog(BuildContext context, String title, selectCallback,
-    saveCallback, pMapStatus) async {
+Future<void> showLoadBrainDialog(BuildContext context, String title,
+    selectCallback, saveCallback, pMapStatus) async {
   mapStatus = pMapStatus;
+  print("mapStatus");
   print(mapStatus);
   isSavingMode = pMapStatus["isSavingBrain"];
   currentFileName = pMapStatus["currentFileName"];
 
   fileInfos = [];
-  var fileNames = await loadBrainFiles(fileInfos);
+  fileNames = await loadBrainFiles(fileInfos);
   if (fileNames.isEmpty) return;
 
+  print("currentFileName");
+  print(currentFileName);
   if (currentFileName != "-") {
     int tempIdx = 0;
     int loadedIdx = -1;
@@ -124,7 +133,10 @@ Future<void> showBrainDialog(BuildContext context, String title, selectCallback,
       }
       tempIdx++;
     });
-    tecBrainName.text = fileInfos[loadedIdx]["title"]!;
+    if (loadedIdx >= 0) {
+      tecBrainName.text = fileInfos[loadedIdx]["title"]!;
+      tecBrainDescription.text = fileInfos[loadedIdx]["description"]!;
+    }
   }
 
   print("fileNames");
@@ -136,6 +148,7 @@ Future<void> showBrainDialog(BuildContext context, String title, selectCallback,
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(builder: (ctx, setState) {
+        print("REDRAW");
         return AlertDialog(
           // title: const Text('Basic dialog title'),
           content: SizedBox(
@@ -171,7 +184,7 @@ void noSavedBrainAlert(context) {
   );
 }
 
-showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
+showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
     saveCallback, setState) {
   return LayoutBuilder(builder: (ctx, constraints) {
     List<String> imageIds = [];
@@ -229,7 +242,9 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                             isEditingMenu = !isEditingMenu;
                             setState(() {});
                           },
-                          child: const Icon(Icons.menu)),
+                          child: isEditingMenu
+                              ? const Icon(Icons.keyboard_arrow_up)
+                              : const Icon(Icons.menu)),
                       Expanded(
                         child: Container(
                           color: isSavingMode < 10 || isEditingMenu
@@ -242,6 +257,9 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                             decoration: const InputDecoration(
                                 counterText: "", hintText: 'Name this brain'),
                             controller: tecBrainName,
+                            enabled: isSavingMode < 10 || isEditingMenu
+                                ? true
+                                : false,
                           ),
                         ),
                       ),
@@ -249,15 +267,33 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                       GestureDetector(
                         child: const Icon(Icons.save),
                         onTap: () async {
+                          // if it is a new file
+                          //    do nothing
+                          // if not
+                          //    delete old file
+
+                          if (isSavingMode == 1) {
+                          } else if (isSavingMode == 10) {
+                            // delete old file
+                            File deleteFile = File(currentFileName);
+                            deleteFile.deleteSync();
+                          }
+
+                          // create new file
                           currentFileName = await saveCallback(
                             tecBrainName.text,
                             tecBrainDescription.text,
                           );
-                          mapStatus["currentFileName"] =
-                              "Brain$currentFileName.png";
-                          currentFileName = mapStatus["currentFileName"];
+                          print("currentFileName");
+                          print(currentFileName);
+                          mapStatus["isSavingBrain"] = 10;
+                          mapStatus["currentFileName"] = currentFileName;
+                          // "${(documentPath)?.path}$imagesPath${Platform.pathSeparator}Brain$currentFileName.png";
+                          // currentFileName = mapStatus["currentFileName"];
                           fileInfos = [];
-                          await loadBrainFiles(fileInfos);
+                          fileNames = await loadBrainFiles(fileInfos);
+                          print("fileNames");
+                          print(fileNames);
                           isSavingMode = 10;
                           setState(() {});
                         },
@@ -278,8 +314,19 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                   print(value);
                                 }),
                             positiveButtonText: "Yes",
-                            positiveButtonAction: (value) {
-                              print(value);
+                            positiveButtonAction: (title) async {
+                              tecBrainDescription.text = "";
+                              currentFileName = await saveCallback(
+                                  title, tecBrainDescription.text);
+                              mapStatus["isSavingBrain"] = 10;
+                              mapStatus["currentFileName"] = currentFileName;
+                              tecBrainName.text = title;
+
+                              fileInfos = [];
+                              fileNames = await loadBrainFiles(fileInfos);
+                              isSavingMode = 10;
+
+                              setState(() {});
                             },
                             negativeButtonText: "Cancel",
                             negativeButtonAction: () {},
@@ -293,9 +340,16 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                         child: const Icon(Icons.edit_document),
                         onTap: () {
                           if (isSavingMode < 10) {
+                            tecBrainName.clear();
+                            tecBrainDescription.clear();
+                            mapStatus["isSavingBrain"] = 1;
+                            mapStatus["currentFileName"] = "-";
+                            currentFileName = "-";
+                            selectCallback("-1");
+                            Navigator.pop(context);
                           } else {
                             confirmationDialog(context, "Creating new brain",
-                                "Are you sure to discard this brain, and create a new one?",
+                                "Are you sure to start a new workspace?",
                                 titleIcon: const Icon(Icons.warning),
                                 hideNeutralButton: true,
                                 negativeButtonText: "Cancel",
@@ -304,7 +358,9 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                 },
                                 positiveButtonText: "Yes",
                                 positiveButtonAction: () {
-                                  mapStatus["isSavingMode"] = 1;
+                                  tecBrainName.clear();
+                                  tecBrainDescription.clear();
+                                  mapStatus["isSavingBrain"] = 1;
                                   mapStatus["currentFileName"] = "-";
                                   currentFileName = "-";
                                   selectCallback("-1");
@@ -358,12 +414,11 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                         //     ),
                         //   );
                         // } else {
-                        String currentFullFilePath =
-                            "${documentPath?.path}/images/$currentFileName";
-                        // print("currentFullFilePath");
-                        // print(currentFullFilePath);
-                        // print(fileNames[i].path);
-                        // print(fileNames[i].path == currentFullFilePath);
+                        String currentFullFilePath = currentFileName;
+                        print("currentFullFilePath");
+                        print(currentFullFilePath);
+                        print(fileNames[i].path);
+                        print(fileNames[i].path == currentFullFilePath);
 
                         return Stack(
                           children: [
@@ -375,9 +430,12 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                 List<String> arrImageInfo =
                                     filename.split("@@@");
                                 String imageId = arrImageInfo[0];
-                                selectCallback(imageId);
+                                mapStatus["isSavingBrain"] = 10;
                                 mapStatus["currentFileName"] =
-                                    "Brain$filename.png";
+                                    fileNames[i].path;
+
+                                selectCallback(imageId,
+                                    filePath: fileNames[i].path);
                                 Navigator.pop(context);
                               },
                               child: Container(
@@ -414,7 +472,9 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // Text(fileNames[i].path),
+                                        // Text((fileNames[i].path ==
+                                        //         currentFileName)
+                                        //     .toString()),
                                         // Text(currentFileName),
                                         Image.file(
                                           fileNames[i],
@@ -447,6 +507,16 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                             filename.split("@@@");
                                         String imageId = arrImageInfo[0];
 
+                                        if (fileNames[i].path ==
+                                            currentFileName) {
+                                          tecBrainName.clear();
+                                          tecBrainDescription.clear();
+                                          currentFileName = "-";
+                                          isSavingMode = 0;
+                                          mapStatus["isSavingBrain"] = 0;
+                                          mapStatus["currentFileName"] = "-1";
+                                        }
+
                                         Directory txtDirectory = Directory(
                                             "${(await getApplicationDocumentsDirectory()).path}$textPath");
                                         // String textPath = "/text";
@@ -457,6 +527,9 @@ showBrainDisplay(BuildContext context, List<File> fileNames, selectCallback,
                                             File(fileNames[i].path);
                                         fileImage.deleteSync();
                                         fileNames.removeAt(i);
+                                        imageTitles.removeAt(i);
+                                        imageDescriptions.removeAt(i);
+                                        fileInfos.removeAt(i);
 
                                         setState(() {});
                                       },

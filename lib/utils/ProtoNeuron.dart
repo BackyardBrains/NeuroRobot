@@ -275,6 +275,10 @@ class ProtoNeuron extends CustomPainter {
           cBufList[idx] = -65;
           dBufList[idx] = 2;
           break;
+        case "Custom":
+          aBufList[idx] = 0.02;
+          dBufList[idx] = 2;
+        break;
       }
     } catch (ex) {}
     neuron.a = aBufList[idx];

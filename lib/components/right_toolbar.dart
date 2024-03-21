@@ -23,7 +23,7 @@ class _RightToolbarState extends State<RightToolbar> {
   ScrollController _simulationController = ScrollController();
 
   static int totalActionIcons = 5;
-  static int totalSimulationIcons = 2;
+  static int totalSimulationIcons = 1;
   // static List<String> activeActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/NeuronActive.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
   // static List<String> inactiveActionIconsStr = ["assets/icons/ArrowSelect.svg","assets/icons/Neuron.svg", "assets/icons/Axon.svg", "-", "assets/icons/Undo.svg","assets/icons/Redo.svg","pan_tool_rounded"];
   static List<String> activeActionIconsStr = [
@@ -366,7 +366,8 @@ class _RightToolbarState extends State<RightToolbar> {
         child: Container(
           padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
           width: 54,
-          height: 70,
+          // height: 70,
+          height: 70 / 2,
           child: ListView.builder(
             controller: _simulationController,
             shrinkWrap: true,
