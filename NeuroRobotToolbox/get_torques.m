@@ -8,12 +8,18 @@ for ntuple = 1:ntuples
         disp(horzcat('done = ', num2str(round((100 * (ntuple/ntuples)))), '%'))
     end
 
-    torque_fname = horzcat(torque_dir(ntuple).folder, '\', torque_dir(ntuple).name);
-    load(torque_fname)
-    torques(torques > 250) = 250;
-    torques(torques < -250) = -250;
+    torque_fname = horzcat(torque_dir(ntuple).folder, '\', torque_dir(ntuple).name)
+    fileID = fopen(torque_fname,'r');
+    formatSpec = '%f';
+    data = fscanf(fileID,formatSpec)
 
-    torque_data(ntuple, :) = torques;
+    % load(torque_fname)
+    % torques(torques > 250) = 250;
+    % torques(torques < -250) = -250;
 
+    % torque_data(ntuple, :) = torques;
+
+    pause
+    
 end
 

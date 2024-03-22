@@ -1,7 +1,7 @@
 
-thick_axon = 1;
-thick_synapse = 1;
-thick_neuron = 1;
+thick_axon = 2;
+thick_synapse = 2;
+thick_neuron = 2;
 
 if nneurons > 300
     small_neurons = 1;
@@ -337,7 +337,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     end
     if draw_neuron_numbers && ~small_neurons
         for nneuron = 1:nneurons
-            neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize + 2, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+            neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2), num2str(nneuron), 'fontsize', bfsize + 8, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             if exist('fig_design', 'var') && isvalid(fig_design) && (length(fig_design.UserData) > 1 || (fig_design.UserData == 0 || fig_design.UserData == 4))
                 neuron_annotation(nneuron).ButtonDownFcn = 'neuron_selected';
             end
