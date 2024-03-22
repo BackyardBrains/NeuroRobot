@@ -43,7 +43,7 @@ if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     save_brain
 end
 
-brain_name = 'L2E2';
+brain_name = 'L2E3';
 if ~exist(horzcat(brain_dir, brain_name, '.mat'), 'file')
     load(horzcat(brain_name, '.mat'))
     load_brain
