@@ -18,8 +18,8 @@ tx7.String = 'indexing data..';
 drawnow
 disp('indexing data...')
 
-image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_x.png'));
-torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
+image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.jpg'));
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torque.txt'));
 
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
@@ -52,10 +52,12 @@ drawnow
 %% Actions
 n_unique_actions = 10; % This needs to be settable
 actions = kmeans(torque_data, n_unique_actions);
-h = histogram(actions, 'binwidth', 1);
-h2 = h.Values/nactions > 0.01;
 
-n_unique_actions = sum(h2);
+% h = histogram(actions, 'binwidth', 1);
+% h2 = h.Values/n_unique_actions > 0.01;
+% 
+% n_unique_actions = sum(h2);
+
 motor_combs = zeros(n_unique_actions, 2);
 
 counter = 0;
@@ -69,7 +71,7 @@ end
 
 
 % tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
-% drawnow
+drawnow
 
 % figure(11)
 % h = histogram(actions);
@@ -80,7 +82,8 @@ end
 % actions(actions == xinds(1)) = mode(actions);
 % actions(actions == xinds(2)) = mode(actions);
 
-n_unique_actions = length(unique(actions));
+% n_unique_actions = length(unique(actions));
+
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
@@ -135,7 +138,7 @@ load(strcat(nets_dir_name, state_net_name, '-tuples'))
 
 
 %% Output
-tx7.String = 'tuples aquired successfully';
+% tx7.String = 'tuples aquired successfully';
 drawnow
 
 figure(12)

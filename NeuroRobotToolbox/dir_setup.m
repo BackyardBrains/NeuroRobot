@@ -54,10 +54,14 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
 %% Datasets
-if ispc
-    dataset_dir_name = strcat(userpath, '\Datasets\');
-elseif ismac
-    dataset_dir_name = strcat(userpath, './Datasets/');
+if isdeployed
+    if ispc
+        dataset_dir_name = strcat(userpath, '\Datasets\');
+    elseif ismac
+        dataset_dir_name = strcat(userpath, './Datasets/');
+    end
+else
+    dataset_dir_name = 'C:\SpikerBot\';
 end
 
 if ~exist(dataset_dir_name, 'dir')

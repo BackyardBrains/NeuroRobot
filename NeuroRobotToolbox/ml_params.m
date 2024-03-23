@@ -1,6 +1,6 @@
 
 %% Get vals
-ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat')));
+ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial.txt')));
 disp(horzcat('ntuples: ', num2str(ntuples)))
 
 if ml_speed_select.Value == 1 % Fast
@@ -10,17 +10,17 @@ if ml_speed_select.Value == 1 % Fast
     init_n_unique_states = 100;
     min_size = 25;
 elseif ml_speed_select.Value == 2 % Medium
-    nsmall = 3000;
-    bof_branching = 400;
-    nmedium = 3000;
-    init_n_unique_states = 150;
-    min_size = 50;
-elseif ml_speed_select.Value == 3 % Slow
-    nsmall = 7000;
+    nsmall = 5000;
     bof_branching = 500;
-    nmedium = 7000;
+    nmedium = 5000;
+    init_n_unique_states = 150;
+    min_size = 40;
+elseif ml_speed_select.Value == 3 % Slow
+    nsmall = 7500;
+    bof_branching = 500;
+    nmedium = 7500;
     init_n_unique_states = 200;
-    min_size = 70;
+    min_size = 50;
 end
 
 disp(horzcat('nsmall = ', num2str(nsmall)))

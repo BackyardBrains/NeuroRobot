@@ -14,16 +14,16 @@ medium_inds = randsample(ntuples, nmedium);
 image_ds_tiny = subset(image_ds, tiny_inds);
 image_ds_small = subset(image_ds, small_inds);
 image_ds_medium = subset(image_ds, medium_inds);
-image_ds_tiny.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% image_ds_tiny.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
+% image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 try
     ps = parallel.Settings;
     ps.Pool.AutoCreate = false;
     ps.Pool.IdleTimeout = Inf;
 catch
-    disp('no gpu (ml_get_similarity')
+    disp('no gpu (ml_get_similarity)')
 end
 
 axes(im_ax1)

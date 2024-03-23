@@ -2,9 +2,8 @@
 
 
 %% Hardcoded image size
-% imdim = 224;
-imdim_h = 227;
-imdim_w = 302;
+imdim_h = 240;
+imdim_w = 320;
 
 
 %% Get labels

@@ -11,15 +11,17 @@ drawnow
 disp(this_msg)
 
 try
-    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_x.png'));
+    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.jpg'));
 catch
     error('Datasets folder is missing or empty')
 end
-image_ds.ReadFcn = @customReadFcn; % imdim = 224
+% image_ds.ReadFcn = @customReadFcn; % imdim = 224
 nimages = length(image_ds.Files);
 
-serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
-torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
+% serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
+% torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
+serial_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*serial.txt'));
+torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torque.txt'));
 
 ndists = size(serial_dir, 1);
 ntorques = size(torque_dir, 1);

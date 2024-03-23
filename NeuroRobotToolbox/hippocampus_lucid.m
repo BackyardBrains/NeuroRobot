@@ -4,8 +4,8 @@
 close all
 clear
 
-localdata_dir_name = 'C:\Users\chris\OneDrive\Documents\capture\';
-% localdata_dir_name = 'C:\SpikerBot\livingroom-cairo-240322a\';
+% localdata_dir_name = 'C:\Users\chris\OneDrive\Documents\capture\';
+localdata_dir_name = 'C:\SpikerBot\';
 shared_data_dir_name = '.\Brains\';
 rec_dir_name = '';
 
