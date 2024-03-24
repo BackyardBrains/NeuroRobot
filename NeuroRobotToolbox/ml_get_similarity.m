@@ -8,15 +8,12 @@ tx2 = text(0.03, 0.5, this_msg, 'fontsize', bfsize + 4);
 drawnow
 disp(this_msg)
 
-tiny_inds = randsample(ntuples, 100);
+tiny_inds = randsample(ntuples, 99);
 small_inds = randsample(ntuples, nsmall);
 medium_inds = randsample(ntuples, nmedium);
 image_ds_tiny = subset(image_ds, tiny_inds);
 image_ds_small = subset(image_ds, small_inds);
 image_ds_medium = subset(image_ds, medium_inds);
-% image_ds_tiny.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-% image_ds_small.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
-% image_ds_medium.ReadFcn = @customReadFcn; % Must add imdim to customReadFcn manually
 
 try
     ps = parallel.Settings;

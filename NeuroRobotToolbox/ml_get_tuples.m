@@ -54,9 +54,13 @@ n_unique_actions = 10; % This needs to be settable
 actions = kmeans(torque_data, n_unique_actions);
 
 % h = histogram(actions, 'binwidth', 1);
-% h2 = h.Values/n_unique_actions > 0.01;
-% 
+% h2 = h.Values/sum(h.Values) > 0.01;
+% sum(h2)
 % n_unique_actions = sum(h2);
+% actions = kmeans(torque_data, n_unique_actions);
+% h = histogram(actions, 'binwidth', 1);
+% h2 = h.Values/sum(h.Values) > 0.01;
+% sum(h2)
 
 motor_combs = zeros(n_unique_actions, 2);
 
@@ -68,7 +72,6 @@ while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
         motor_combs(naction, :) = mean(torque_data(actions == naction, :));
     end
 end
-
 
 % tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
@@ -90,7 +93,6 @@ disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == 
 
 save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
 load(strcat(nets_dir_name, state_net_name, '-actions'))
-
 
 axes(im_ax1)
 cla
