@@ -46,7 +46,7 @@ ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized
 available_dirs = dir(dataset_dir_name);
 available_dirs(1:2) = [];
 ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_2_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_data_status = uicontrol('Style', 'text', 'String', dataset_dir_name, 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_data_status = uicontrol('Style', 'popupmenu', 'String', hyper_dirs, 'callback', 'dataset_dir_name = hyper_dirs{ml_data_status.Value};', 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
 ml_speeds = {'Fast', 'Medium', 'Slow'};
 ml_speed_str = uicontrol('Style', 'text', 'String', 'Training speed:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
@@ -81,24 +81,17 @@ axis([0 1 0 1])
 im_ax1_pos = [0.58 0.2 0.39 0.65];
 im_ax1 = axes('position', im_ax1_pos);
 set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
-
 disp('Ready to train')
 
 
-% %% Advanced settings button
-% button_exit_ml_pos = [0.75 0.11 0.2 0.05];
-% button_exit_ml = uicontrol('Style', 'pushbutton', 'String', 'Advanced Settings', 'units', 'normalized', 'position', button_exit_ml_pos);
-% set(button_exit_ml,'Callback', 'ml_interface', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
-
-
-%% Data dir button
-button_chop_pos = [0.58 0.04 0.15 0.05];
-button_chop = uicontrol('Style', 'pushbutton', 'String', 'Data dir', 'units', 'normalized', 'position', button_chop_pos);
-set(button_chop,'Callback', 'dataset_dir_name = uigetdir; ml_data_status.String = dataset_dir_name; drawnow', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+% %% Data dir button
+% button_chop_pos = [0.58 0.04 0.15 0.05];
+% button_chop = uicontrol('Style', 'pushbutton', 'String', 'Data dir', 'units', 'normalized', 'position', button_chop_pos);
+% set(button_chop,'Callback', 'dataset_dir_name = uigetdir; ml_data_status.String = dataset_dir_name; drawnow', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
 %% Exit button
-button_advanced_ml_pos = [0.75 0.04 0.2 0.05];
+button_advanced_ml_pos = [0.58 0.04 0.37 0.05];
 button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'units', 'normalized', 'position', button_advanced_ml_pos);
 set(button_advanced_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 

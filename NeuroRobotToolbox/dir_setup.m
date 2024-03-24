@@ -54,15 +54,8 @@ available_brains = dir(strcat(brain_dir, '*.mat'));
 
 
 %% Datasets
-if isdeployed
-    if ispc
-        dataset_dir_name = strcat(userpath, '\Datasets\');
-    elseif ismac
-        dataset_dir_name = strcat(userpath, './Datasets/');
-    end
-else
-    dataset_dir_name = 'C:\SpikerBot\';
-end
+dataset_dir_name = strcat(userpath, '\Datasets\');
+rec_dir_name = '';
 
 if ~exist(dataset_dir_name, 'dir')
     mkdir(dataset_dir_name)
@@ -72,12 +65,20 @@ else
     disp(horzcat('Dataset dir: ', dataset_dir_name))
 end
 
-rec_dir_name = '';
-
-disp(horzcat('Dataset dir: ', dataset_dir_name))
 available_dirs = dir(dataset_dir_name);
 available_dirs(1:2) = [];
 nrecs = length(available_dirs);
+
+clear hyper_dirs
+hyper_dirs{1} = strcat(userpath, '\Datasets\');
+
+if exist('C:\SpikerBot\Livingroom\', 'dir') && ~isempty('C:\SpikerBot\Livingroom\')
+    hyper_dirs{2} = 'C:\SpikerBot\Livingroom\';
+end
+
+if exist('C:\SpikerBot\Office\', 'dir') && ~isempty('C:\SpikerBot\Office\')
+    hyper_dirs{length(hyper_dirs)+1} = 'C:\SpikerBot\Office\';
+end
 
 
 %% Network algorithms

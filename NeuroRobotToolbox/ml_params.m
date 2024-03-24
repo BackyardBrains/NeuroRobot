@@ -1,7 +1,5 @@
 
 %% Get vals
-ntuples = numel(dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial.txt')));
-disp(horzcat('ntuples: ', num2str(ntuples)))
 
 if ml_speed_select.Value == 1 % Fast
     nsmall = 1000;
@@ -14,13 +12,13 @@ elseif ml_speed_select.Value == 2 % Medium
     bof_branching = 500;
     nmedium = 5000;
     init_n_unique_states = 150;
-    min_size = 40;
+    min_size = 45;
 elseif ml_speed_select.Value == 3 % Slow
     nsmall = 7500;
     bof_branching = 500;
     nmedium = 7500;
     init_n_unique_states = 200;
-    min_size = 50;
+    min_size = 65;
 end
 
 disp(horzcat('nsmall = ', num2str(nsmall)))

@@ -19,7 +19,7 @@ drawnow
 disp('indexing data...')
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.jpg'));
-torque_dir = dir(fullfile(strcat(localdata_dir_name, rec_dir_name), '**\*torque.txt'));
+torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torque.txt'));
 
 ntorques = size(torque_dir, 1);
 nimages = size(image_dir, 1);
