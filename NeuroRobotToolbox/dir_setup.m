@@ -80,6 +80,10 @@ if exist('C:\SpikerBot\Office\', 'dir') && ~isempty('C:\SpikerBot\Office\')
     hyper_dirs{length(hyper_dirs)+1} = 'C:\SpikerBot\Office\';
 end
 
+if exist('C:\SpikerBot\Temp\', 'dir') && ~isempty('C:\SpikerBot\Temp\')
+    hyper_dirs{length(hyper_dirs)+1} = 'C:\SpikerBot\Temp\';
+end
+
 
 %% Network algorithms
 if ispc

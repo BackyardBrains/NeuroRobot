@@ -23,6 +23,7 @@ end
 disp(horzcat('n transitions: ', num2str(sum(transition_counter(:)))))
 transition_counter_save = transition_counter;
 
+%% Normalize mdp
 for ii_state = 1:n_unique_states
     for naction = 1:n_unique_actions
         this_sum = sum(transition_counter(ii_state, :, naction));
@@ -41,16 +42,7 @@ for ii_state = 1:n_unique_states
                 end
             end
         end
-
-
-        % if naction == mode(actions)
-        %     transition_counter(ii_state, :, naction) = 0;
-        %     transition_counter(ii_state, ii_state, naction) = 1;
-        % else
-        %     transition_counter(ii_state, :, naction) = this_val;
-        % end
         transition_counter(ii_state, :, naction) = this_val;
-
     end
 end
 

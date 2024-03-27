@@ -39,8 +39,8 @@ else
     axis padded
     set(gca, 'yscale', 'linear')
     title('Actions')
-    xlabel('Torque 1')
-    ylabel('Torque 2')
+    xlabel('Left Motor')
+    ylabel('Right Motor')
     drawnow
 
     try

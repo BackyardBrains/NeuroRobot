@@ -50,7 +50,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 10; % This needs to be settable
+n_unique_actions = 2; % This needs to be settable
 actions = kmeans(torque_data, n_unique_actions);
 
 % h = histogram(actions, 'binwidth', 1);
@@ -104,8 +104,8 @@ end
 axis padded
 set(gca, 'yscale', 'linear')
 title('Actions')
-xlabel('Torque 1')
-ylabel('Torque 2')
+xlabel('Left Motor')
+ylabel('Right Motor')
 drawnow
 
 figure(9)
@@ -118,8 +118,8 @@ end
 axis padded
 set(gca, 'yscale', 'linear')
 title('Actions')
-xlabel('Right motor torque')
-ylabel('Left motor torque')
+xlabel('Left Motor')
+ylabel('Right Motor')
 drawnow
 
 %% Get tuples

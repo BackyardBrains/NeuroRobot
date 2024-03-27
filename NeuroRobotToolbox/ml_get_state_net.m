@@ -27,7 +27,7 @@ drawnow
 
 %% Train classifier net
 classifier_ds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'), 'FileExtensions', '.png', 'IncludeSubfolders', true, 'LabelSource','foldernames');
-classifier_ds.ReadFcn = @customReadFcn; % imdim = 100
+% classifier_ds.ReadFcn = @customReadFcn; % imdim = 100
 
 net = [
     imageInputLayer([imdim_h imdim_w 3])
@@ -59,7 +59,7 @@ else
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
     MiniBatchSize = 64, Plots=this_str, Shuffle ='every-epoch', ...
-    MaxEpochs=15, VerboseFrequency= 1);
+    MaxEpochs=10, VerboseFrequency= 1);
 
 net = trainNetwork(classifier_ds, net, options);
 

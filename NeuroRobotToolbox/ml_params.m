@@ -2,23 +2,23 @@
 %% Get vals
 
 if ml_speed_select.Value == 1 % Fast
-    nsmall = 1000;
-    bof_branching = 200;
-    nmedium = 1000;
+    nsmall = 2000;
+    bof_branching = 500;
+    nmedium = 2000;
     init_n_unique_states = 100;
-    min_size = 25;
+    min_size = 50;
 elseif ml_speed_select.Value == 2 % Medium
-    nsmall = 5000;
+    nsmall = 4000;
     bof_branching = 500;
-    nmedium = 5000;
+    nmedium = 4000;
     init_n_unique_states = 150;
-    min_size = 45;
+    min_size = 60;
 elseif ml_speed_select.Value == 3 % Slow
-    nsmall = 7500;
+    nsmall = 8000;
     bof_branching = 500;
-    nmedium = 7500;
+    nmedium = 8000;
     init_n_unique_states = 200;
-    min_size = 65;
+    min_size = 70;
 end
 
 disp(horzcat('nsmall = ', num2str(nsmall)))
