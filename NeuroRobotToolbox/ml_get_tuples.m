@@ -50,7 +50,7 @@ drawnow
 
 
 %% Actions
-n_unique_actions = 2; % This needs to be settable
+n_unique_actions = 6; % This needs to be settable
 actions = kmeans(torque_data, n_unique_actions);
 
 % h = histogram(actions, 'binwidth', 1);
