@@ -6,7 +6,7 @@ if ml_speed_select.Value == 1 % Fast
     bof_branching = 500;
     nmedium = 2000;
     init_n_unique_states = 200;
-    min_size = 50;
+    min_size = 40;
 elseif ml_speed_select.Value == 2 % Medium
     nsmall = 4000;
     bof_branching = 500;
@@ -17,8 +17,8 @@ elseif ml_speed_select.Value == 3 % Slow
     nsmall = 8000;
     bof_branching = 500;
     nmedium = 8000;
-    init_n_unique_states = 200;
-    min_size = 70;
+    init_n_unique_states = 280;
+    min_size = 80;
 end
 
 disp(horzcat('nsmall = ', num2str(nsmall)))

@@ -89,7 +89,7 @@ end
 % Run custom r-cnn net
 if use_rcnn
 
-    this_im = imresize(large_frame, [227 302]);
+    % this_im = imresize(large_frame, [227 302]);
     [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 500, 'MiniBatchSize', 8);
     
     cone_score = max(score);
@@ -111,8 +111,8 @@ end
 
 % Lesson 3 nets
 if use_custom_net
-    lframe = imresize(large_frame, [227 302]);
-    [~, scores] = classify(net, lframe);
+    % lframe = imresize(large_frame, [227 302]);
+    [~, scores] = classify(net, large_frame);
     
     [i, j] = max(scores);
     inds = 1:n_unique_states;
