@@ -60,10 +60,16 @@ x = ceil(sqrt(n_unique_states));
 for nstate = 1:n_unique_states
     these_inds = state_inds(nstate, :);
     these_scores = mean(xdata(these_inds,these_inds), 2);
-    [i, j] = max(these_scores);
     subplot(x, x, nstate)
-    img = readimage(image_ds_medium, these_inds(j));
-    image(img)
+    ninds = length(these_inds);
+    imgs = zeros(240, 320, 3, ninds);
+    for i = 1:ninds
+        imgs(:,:,:,i) = readimage(image_ds_medium, these_inds(i));
+    end
+    I = mean(imgs, 4);
+    I2 = 255*(I - min(I(:))) ./ (max(I(:)) - min(I(:)));
+    I2 = cast(I2,'uint8');
+    image(I2)
     set(gca, 'xtick', [], 'ytick', [])
     mean_score = mean(these_scores);
     label_str = char(labels(nstate));

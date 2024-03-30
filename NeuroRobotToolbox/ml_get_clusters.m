@@ -1,5 +1,9 @@
 
 
+% init_n_unique_states = 900;
+% min_size = 30;
+
+
 %% Cluster on similarity
 n_unique_states = init_n_unique_states;
 axes(ml_train1_status)
