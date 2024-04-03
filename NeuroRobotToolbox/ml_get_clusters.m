@@ -1,5 +1,8 @@
 
 
+% init_n_unique_states = 200;
+% min_size = 50;
+
 
 %% Cluster on similarity
 n_unique_states = init_n_unique_states;

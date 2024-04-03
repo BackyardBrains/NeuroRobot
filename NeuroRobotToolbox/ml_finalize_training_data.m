@@ -12,7 +12,7 @@ catch
     disp(horzcat('Could not find or delete any previous training data for ', state_net_name))
 end
 
-n_unique_states = sum(state_info(:,1));
+n_unique_states = size(state_inds, 1);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 for nstate = 1:n_unique_states
