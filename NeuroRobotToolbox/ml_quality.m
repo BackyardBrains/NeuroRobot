@@ -44,3 +44,13 @@ tx4.String = this_msg;
 drawnow
 catch
 end
+
+this_med = mean(intra_state_similarity);
+state_inds(intra_state_similarity < this_med, :) = [];
+state_info(intra_state_similarity < this_med, :) = [];
+
+n_unique_states = sum(state_info(:,1));
+
+
+
+

@@ -42,7 +42,6 @@ tx7.String = 'loading torques..';
 drawnow
 clear get_torques
 get_torques
-% torque_data = fliplr(torque_data); % 240309 fix
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 tx7.String = horzcat('ntorques loaded: ', num2str(ntuples), ' LR torque value pairs, ...');
@@ -53,17 +52,7 @@ drawnow
 n_unique_actions = 12; % This needs to be settable
 actions = kmeans(torque_data, n_unique_actions);
 
-% h = histogram(actions, 'binwidth', 1);
-% h2 = h.Values/sum(h.Values) > 0.01;
-% sum(h2)
-% n_unique_actions = sum(h2);
-% actions = kmeans(torque_data, n_unique_actions);
-% h = histogram(actions, 'binwidth', 1);
-% h2 = h.Values/sum(h.Values) > 0.01;
-% sum(h2)
-
 motor_combs = zeros(n_unique_actions, 2);
-
 counter = 0;
 while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
     counter = counter + 1;
@@ -73,19 +62,8 @@ while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
     end
 end
 
-% tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
+tx7.String = horzcat('clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
-
-% figure(11)
-% h = histogram(actions);
-% drawnow
-% ns = h.Values;
-% close(11)
-% [~, xinds] = sort(ns, 'ascend');
-% actions(actions == xinds(1)) = mode(actions);
-% actions(actions == xinds(2)) = mode(actions);
-
-% n_unique_actions = length(unique(actions));
 
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))

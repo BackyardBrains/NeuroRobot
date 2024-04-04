@@ -58,8 +58,8 @@ else
     this_str = 'training-progress';
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    MiniBatchSize = 128, Plots=this_str, Shuffle ='every-epoch', ...
-    MaxEpochs=8, VerboseFrequency= 1);
+    MiniBatchSize=128, Plots=this_str, Shuffle ='every-epoch', ...
+    MaxEpochs=10, VerboseFrequency= 1);
 
 net = trainNetwork(classifier_ds, net, options);
 
