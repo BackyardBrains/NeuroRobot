@@ -45,7 +45,7 @@ drawnow
 catch
 end
 
-this_med = mean(intra_state_similarity);
+this_med = prctile(intra_state_similarity, 50);
 state_inds(intra_state_similarity < this_med, :) = [];
 state_info(intra_state_similarity < this_med, :) = [];
 
