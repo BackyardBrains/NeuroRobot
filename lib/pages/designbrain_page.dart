@@ -1201,6 +1201,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     safePadding = MediaQuery.of(context).padding.right;
+    final deviceOrientation = MediaQuery.of(context).orientation;
+
     // aspectRatio = MediaQuery.of(context).devicePixelRatio;
     // Future.delayed(const Duration(milliseconds: 2000), (){
     //   repositionSensoryNeuron();
@@ -1237,6 +1239,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // }
 
     if (isResizingFlag) {
+      if (deviceOrientation == Orientation.landscape &&
+          (Platform.isAndroid || Platform.isIOS)) {
+        print("this is landscape");
+        repositionSensoryNeuron_Landscape();
+      }
+
+      if (deviceOrientation == Orientation.portrait &&
+          (Platform.isAndroid || Platform.isIOS)) {
+        print("this is portrait");
+        repositionSensoryNeuron_Portrait();
+      }
       // print("isResizingFlag");
       viewPortNode.update(offset: Offset(screenWidth, screenHeight));
       controller.getNode(viewportKey)?.offset =
@@ -1244,10 +1257,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       int idx = 0;
       // double scaleX = screenWidth / prevScreenWidth;
       double scaleX = screenWidth / prevScreenWidth;
+      double scaleY = screenHeight / prevScreenHeight;
       if (Platform.isIOS || Platform.isAndroid) {
         scaleX = 1;
+        scaleY = 1;
       }
-      double scaleY = screenHeight / prevScreenHeight;
 
       constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
       constraintOffsetTopRight = constraintOffsetTopRight.scale(scaleX, scaleY);
@@ -1285,6 +1299,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           // constraintBrainRight += (element.offset.dx - prevOffset.dx);
           // constraintBrainTop += (element.offset.dy - prevOffset.dy);
           // constraintBrainBottom += (element.offset.dy - prevOffset.dy);
+        }
+        if (idx > 13) {
+          double diffX = prevScreenWidth / 2 - element.offset.dx;
+          double diffY = prevScreenHeight / 2 - element.offset.dy;
+          element.offset =
+              Offset(screenWidth / 2 - diffX, screenHeight / 2 - diffY);
         }
         idx++;
       }
@@ -2165,13 +2185,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     ),
                     const Divider(height: 2),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
+                      width: MediaQuery.of(context).orientation ==
+                              Orientation.landscape
+                          ? MediaQuery.of(context).size.width / 4
+                          : MediaQuery.of(context).size.width / 2,
                       // height: MediaQuery.of(context).size.width / 4,
                       child: Row(
                         children: [
                           SizedBox(
                             width: 30,
-                            height: 40,
+                            height: 50,
                             child: TextField(
                               keyboardType: TextInputType.number,
                               inputFormatters: whiteListingTextInputFormatter,
@@ -2260,13 +2283,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     ),
                     const Divider(height: 2),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
+                      width: MediaQuery.of(context).orientation ==
+                              Orientation.landscape
+                          ? MediaQuery.of(context).size.width / 4
+                          : MediaQuery.of(context).size.width / 2,
                       // height: MediaQuery.of(context).size.width / 4,
                       child: Row(
                         children: [
                           SizedBox(
                             width: 30,
-                            height: 40,
+                            height: 50,
                             child: TextField(
                               keyboardType: TextInputType.number,
                               inputFormatters: whiteListingTextInputFormatter,
@@ -2507,7 +2533,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           if (!isPlayingMenu) ...{
             Positioned(
               right: 10 + safePadding,
-              top: 10,
+              top: MediaQuery.of(context).orientation == Orientation.landscape
+                  ? 10
+                  : 40,
               child: RightToolbar(
                   key: rightToolbarKey,
                   menuIdx: menuIdx,
@@ -3562,100 +3590,253 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // add nodes into canvas
   }
 
-  void repositionSensoryNeuron() {
-    // double screenHeight = MediaQuery.of(context).size.height/2;
-    // double ratio = screenHeight / 600;
-    double screenWidth = MediaQuery.of(context).size.width;
-    // print("controller.toLocal(Offset(screenWidth / 2, 0))");
-    // print(controller.toLocal(Offset(screenWidth / 2, 0)));
+  // void repositionSensoryNeuron() {
+  //   // double screenHeight = MediaQuery.of(context).size.height/2;
+  //   // double ratio = screenHeight / 600;
+  //   double screenWidth = MediaQuery.of(context).size.width;
+  //   // print("controller.toLocal(Offset(screenWidth / 2, 0))");
+  //   // print(controller.toLocal(Offset(screenWidth / 2, 0)));
+  //   if (Platform.isIOS || Platform.isAndroid) {
+  //     if (MediaQuery.of(context).padding.left == 0 &&
+  //         MediaQuery.of(context).padding.right == 0 &&
+  //         MediaQuery.of(context).padding.top == 0 &&
+  //         MediaQuery.of(context).padding.bottom == 0) {
+  //       screenWidth += 140;
+  //     } else {}
+  //   }
+  //   int platformAdjuster = 0;
+  //   if (Platform.isIOS || Platform.isAndroid) {
+  //     platformAdjuster = 7;
+  //   }
+  //
+  //   Offset middleScreenOffset = Offset(screenWidth / 2 - platformAdjuster, 150);
+  //
+  //   // Offset offset = middleScreenOffset.scale(0.5, 0.5);
+  //   // Offset offset = middleScreenOffset.scale(ratio, ratio);
+  //   nodeDistanceSensor.offset = middleScreenOffset;
+  //   // print("nodeDistanceSensor.offset");
+  //   // print(nodeDistanceSensor.offset);
+  //
+  //   Offset diff = Offset(screenHeight / 8, 0);
+  //   Offset offset = middleScreenOffset - diff;
+  //   nodeLeftEyeSensor.offset = offset;
+  //
+  //   Offset offsetMic = Offset(screenWidth / 2 - 12 - 1.725 * screenHeight / 8,
+  //       nodeMicrophoneSensor.offset.dy);
+  //   nodeMicrophoneSensor.offset = offsetMic;
+  //
+  //   Offset offsetLMF = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
+  //       nodeLeftMotorForwardSensor.offset.dy);
+  //   nodeLeftMotorForwardSensor.offset = offsetLMF;
+  //
+  //   Offset offsetLMB = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
+  //       nodeLeftMotorBackwardSensor.offset.dy);
+  //   nodeLeftMotorBackwardSensor.offset = offsetLMB;
+  //
+  //   Offset diffRight = Offset(screenHeight / 8, 0);
+  //   Offset offsetRight = middleScreenOffset + diffRight;
+  //   nodeRightEyeSensor.offset = offsetRight;
+  //
+  //   Offset offsetSpeaker = Offset(
+  //       screenWidth / 2 - 12 + platformAdjuster + 1.725 * screenHeight / 8,
+  //       nodeSpeakerSensor.offset.dy);
+  //   nodeSpeakerSensor.offset = offsetSpeaker;
+  //
+  //   Offset offsetRMF = Offset(
+  //       screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
+  //       nodeRightMotorForwardSensor.offset.dy);
+  //   nodeRightMotorForwardSensor.offset = offsetRMF;
+  //
+  //   Offset offsetRMB = Offset(
+  //       screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
+  //       nodeRightMotorBackwardSensor.offset.dy);
+  //   nodeRightMotorBackwardSensor.offset = offsetRMB;
+  //
+  //   constraintOffsetTopLeft =
+  //       Offset(nodeMicrophoneSensor.offset.dx + 20, middleScreenOffset.dy + 30);
+  //   constraintOffsetTopRight =
+  //       Offset(nodeSpeakerSensor.offset.dx - 20, middleScreenOffset.dy + 30);
+  //   constraintOffsetBottomLeft = Offset(nodeMicrophoneSensor.offset.dx + 20,
+  //       nodeRightMotorBackwardSensor.offset.dy);
+  //   constraintOffsetBottomRight = Offset(nodeSpeakerSensor.offset.dx - 20,
+  //       nodeRightMotorBackwardSensor.offset.dy);
+  //
+  //   constraintBrainLeft = constraintOffsetTopLeft.dx;
+  //   constraintBrainRight = constraintOffsetTopRight.dx;
+  //   constraintBrainTop = constraintOffsetTopLeft.dy;
+  //   constraintBrainBottom = constraintOffsetBottomLeft.dy;
+  //
+  //   triangleNode.offset = constraintOffsetTopRight;
+  //   rectangleNode.offset = constraintOffsetTopLeft;
+  //   circleNode.offset = constraintOffsetBottomLeft;
+  //
+  //   Offset verticalLedSpacer = const Offset(0, 20);
+  //   Offset ledGreenOffset =
+  //       Offset(middleScreenOffset.dx, nodeGreenLed.offset.dy - 10);
+  //   nodeGreenLed.offset = ledGreenOffset;
+  //
+  //   Offset offsetRed = ledGreenOffset - diff + verticalLedSpacer;
+  //   nodeRedLed.offset = offsetRed;
+  //
+  //   Offset offsetBlue = ledGreenOffset + diff + verticalLedSpacer;
+  //   nodeBlueLed.offset = offsetBlue;
+  //
+  //   // Offset diffLMB = Offset(2 * screenHeight/10, 0);
+  //   // Offset offsetLMB = Offset(MediaQuery.of(context).size.width/2-10, nodeLeftMotorBackwardSensor.offset.dy); - (diffLMB);
+  //   // nodeLeftMotorBackwardSensor.offset = offsetLMB;
+  // }
+
+  void repositionSensoryNeuron_Landscape() {
+    if (!isDrawTail) {
+      tailNode.update(offset: const Offset(0, 0));
+    }
+    print(" ");
+    print("repositionSensoryNeuron_Landscape");
     if (Platform.isIOS || Platform.isAndroid) {
       if (MediaQuery.of(context).padding.left == 0 &&
           MediaQuery.of(context).padding.right == 0 &&
           MediaQuery.of(context).padding.top == 0 &&
           MediaQuery.of(context).padding.bottom == 0) {
-        screenWidth += 140;
       } else {}
     }
-    int platformAdjuster = 0;
-    if (Platform.isIOS || Platform.isAndroid) {
-      platformAdjuster = 7;
-    }
 
-    Offset middleScreenOffset = Offset(screenWidth / 2 - platformAdjuster, 150);
+    //Middle, Left, Right Distance Sensor
+    Offset middleScreenOffset = Offset(screenWidth / 2.0325, screenHeight / 4);
+    Offset diffSensor = Offset(screenHeight / 8, 0);
 
-    // Offset offset = middleScreenOffset.scale(0.5, 0.5);
-    // Offset offset = middleScreenOffset.scale(ratio, ratio);
     nodeDistanceSensor.offset = middleScreenOffset;
-    // print("nodeDistanceSensor.offset");
-    // print(nodeDistanceSensor.offset);
-
-    Offset diff = Offset(screenHeight / 8, 0);
-    Offset offset = middleScreenOffset - diff;
-    nodeLeftEyeSensor.offset = offset;
-
-    Offset offsetMic = Offset(screenWidth / 2 - 12 - 1.725 * screenHeight / 8,
-        nodeMicrophoneSensor.offset.dy);
-    nodeMicrophoneSensor.offset = offsetMic;
-
-    Offset offsetLMF = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
-        nodeLeftMotorForwardSensor.offset.dy);
-    nodeLeftMotorForwardSensor.offset = offsetLMF;
-
-    Offset offsetLMB = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
-        nodeLeftMotorBackwardSensor.offset.dy);
-    nodeLeftMotorBackwardSensor.offset = offsetLMB;
-
-    Offset diffRight = Offset(screenHeight / 8, 0);
-    Offset offsetRight = middleScreenOffset + diffRight;
+    Offset offsetLeft = middleScreenOffset - diffSensor;
+    nodeLeftEyeSensor.offset = offsetLeft;
+    Offset offsetRight = middleScreenOffset + diffSensor;
     nodeRightEyeSensor.offset = offsetRight;
 
-    Offset offsetSpeaker = Offset(
-        screenWidth / 2 - 12 + platformAdjuster + 1.725 * screenHeight / 8,
-        nodeSpeakerSensor.offset.dy);
+    //Mic and Speaker Sensor
+    Offset middleMicSpeaker =
+        Offset(screenWidth / 2.0325, screenHeight / 4 + screenHeight / 9);
+    Offset diffMicSpeaker = Offset(screenHeight / 4.8, 0);
+
+    Offset offsetMic = middleMicSpeaker - diffMicSpeaker;
+    nodeMicrophoneSensor.offset = offsetMic;
+    Offset offsetSpeaker = middleMicSpeaker + diffMicSpeaker;
     nodeSpeakerSensor.offset = offsetSpeaker;
 
-    Offset offsetRMF = Offset(
-        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
-        nodeRightMotorForwardSensor.offset.dy);
-    nodeRightMotorForwardSensor.offset = offsetRMF;
+    //Left, Right Forward/Backward Motor Sensor
+    Offset middleMF =
+        Offset(screenWidth / 2.0325, screenHeight / 4 + screenHeight / 3.9);
+    Offset middleMB =
+        Offset(screenWidth / 2.0325, screenHeight / 4 + screenHeight / 2.45);
+    Offset diffMotor = Offset(screenHeight / 4, 0);
 
-    Offset offsetRMB = Offset(
-        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
-        nodeRightMotorBackwardSensor.offset.dy);
+    Offset offsetLMF = middleMF - diffMotor;
+    nodeLeftMotorForwardSensor.offset = offsetLMF;
+    Offset offsetRMF = middleMF + diffMotor;
+    nodeRightMotorForwardSensor.offset = offsetRMF;
+    Offset offsetLMB = middleMB - diffMotor;
+    nodeLeftMotorBackwardSensor.offset = offsetLMB;
+    Offset offsetRMB = middleMB + diffMotor;
     nodeRightMotorBackwardSensor.offset = offsetRMB;
 
     constraintOffsetTopLeft =
-        Offset(nodeMicrophoneSensor.offset.dx + 20, middleScreenOffset.dy + 30);
+        Offset(nodeMicrophoneSensor.offset.dx, nodeMicrophoneSensor.offset.dy);
     constraintOffsetTopRight =
-        Offset(nodeSpeakerSensor.offset.dx - 20, middleScreenOffset.dy + 30);
-    constraintOffsetBottomLeft = Offset(nodeMicrophoneSensor.offset.dx + 20,
+        Offset(nodeSpeakerSensor.offset.dx, nodeSpeakerSensor.offset.dy);
+    constraintOffsetBottomLeft = Offset(nodeLeftMotorBackwardSensor.offset.dx,
+        nodeLeftMotorBackwardSensor.offset.dy);
+    constraintOffsetBottomRight = Offset(nodeRightMotorBackwardSensor.offset.dx,
         nodeRightMotorBackwardSensor.offset.dy);
-    constraintOffsetBottomRight = Offset(nodeSpeakerSensor.offset.dx - 20,
-        nodeRightMotorBackwardSensor.offset.dy);
-
-    constraintBrainLeft = constraintOffsetTopLeft.dx;
-    constraintBrainRight = constraintOffsetTopRight.dx;
-    constraintBrainTop = constraintOffsetTopLeft.dy;
-    constraintBrainBottom = constraintOffsetBottomLeft.dy;
-
-    triangleNode.offset = constraintOffsetTopRight;
-    rectangleNode.offset = constraintOffsetTopLeft;
-    circleNode.offset = constraintOffsetBottomLeft;
 
     Offset verticalLedSpacer = const Offset(0, 20);
-    Offset ledGreenOffset =
-        Offset(middleScreenOffset.dx, nodeGreenLed.offset.dy - 10);
+    Offset ledGreenOffset = Offset(middleScreenOffset.dx, middleMB.dy + 20);
     nodeGreenLed.offset = ledGreenOffset;
 
-    Offset offsetRed = ledGreenOffset - diff + verticalLedSpacer;
+    Offset offsetRed = ledGreenOffset - diffSensor + verticalLedSpacer;
     nodeRedLed.offset = offsetRed;
 
-    Offset offsetBlue = ledGreenOffset + diff + verticalLedSpacer;
+    Offset offsetBlue = ledGreenOffset + diffSensor + verticalLedSpacer;
     nodeBlueLed.offset = offsetBlue;
 
-    // Offset diffLMB = Offset(2 * screenHeight/10, 0);
-    // Offset offsetLMB = Offset(MediaQuery.of(context).size.width/2-10, nodeLeftMotorBackwardSensor.offset.dy); - (diffLMB);
-    // nodeLeftMotorBackwardSensor.offset = offsetLMB;
+    if (controller.selection.isNotEmpty) {
+      tailNode.update(
+          offset: Offset(controller.selection[0].offset.dx + gapTailX,
+              controller.selection[0].offset.dy + gapTailY));
+    }
+  }
+
+  void repositionSensoryNeuron_Portrait() {
+    if (!isDrawTail) {
+      tailNode.update(offset: const Offset(0, 0));
+    }
+    print(" ");
+    print("repositionSensoryNeuron_Portrait");
+    if (Platform.isIOS || Platform.isAndroid) {
+      if (MediaQuery.of(context).padding.left == 0 &&
+          MediaQuery.of(context).padding.right == 0 &&
+          MediaQuery.of(context).padding.top == 0 &&
+          MediaQuery.of(context).padding.bottom == 0) {
+      } else {}
+    }
+
+    //Middle, Left, Right Distance Sensor
+    Offset middleScreenOffset =
+        Offset(screenWidth / 2.07, screenHeight / 2 - screenWidth / 4);
+    Offset diffSensor = Offset(screenWidth / 8, 0);
+
+    nodeDistanceSensor.offset = middleScreenOffset;
+    Offset offsetLeft = middleScreenOffset - diffSensor;
+    nodeLeftEyeSensor.offset = offsetLeft;
+    Offset offsetRight = middleScreenOffset + diffSensor;
+    nodeRightEyeSensor.offset = offsetRight;
+
+    //Mic, Speaker Sensor
+    Offset middleMicSpeaker =
+        Offset(screenWidth / 2.07, screenHeight / 2 - screenWidth / 7);
+    Offset diffMicSpeaker = Offset(screenWidth / 4.5, 0);
+
+    Offset offsetMic = middleMicSpeaker - diffMicSpeaker;
+    nodeMicrophoneSensor.offset = offsetMic;
+    Offset offsetSpeaker = middleMicSpeaker + diffMicSpeaker;
+    nodeSpeakerSensor.offset = offsetSpeaker;
+
+    //Left, Right Forward/Backward Motor Sensor
+    Offset middleMF =
+        Offset(screenWidth / 2.07, screenHeight / 2 + screenWidth / 200);
+    Offset middleMB =
+        Offset(screenWidth / 2.07, screenHeight / 2 + screenWidth / 6.25);
+    Offset diffMotor = Offset(screenWidth / 4, 0);
+
+    Offset offsetLMF = middleMF - diffMotor;
+    nodeLeftMotorForwardSensor.offset = offsetLMF;
+    Offset offsetRMF = middleMF + diffMotor;
+    nodeRightMotorForwardSensor.offset = offsetRMF;
+    Offset offsetLMB = middleMB - diffMotor;
+    nodeLeftMotorBackwardSensor.offset = offsetLMB;
+    Offset offsetRMB = middleMB + diffMotor;
+    nodeRightMotorBackwardSensor.offset = offsetRMB;
+
+    constraintOffsetTopLeft =
+        Offset(nodeMicrophoneSensor.offset.dx, nodeMicrophoneSensor.offset.dy);
+    constraintOffsetTopRight =
+        Offset(nodeSpeakerSensor.offset.dx, nodeSpeakerSensor.offset.dy);
+    constraintOffsetBottomLeft = Offset(nodeLeftMotorBackwardSensor.offset.dx,
+        nodeLeftMotorBackwardSensor.offset.dy);
+    constraintOffsetBottomRight = Offset(nodeRightMotorBackwardSensor.offset.dx,
+        nodeRightMotorBackwardSensor.offset.dy);
+
+    Offset verticalLedSpacer = const Offset(0, 20);
+    Offset ledGreenOffset = Offset(middleScreenOffset.dx, middleMB.dy + 20);
+    nodeGreenLed.offset = ledGreenOffset;
+
+    Offset offsetRed = ledGreenOffset - diffSensor + verticalLedSpacer;
+    nodeRedLed.offset = offsetRed;
+
+    Offset offsetBlue = ledGreenOffset + diffSensor + verticalLedSpacer;
+    nodeBlueLed.offset = offsetBlue;
+
+    if (controller.selection.isNotEmpty) {
+      tailNode.update(
+          offset: Offset(controller.selection[0].offset.dx + gapTailX,
+              controller.selection[0].offset.dy + gapTailY));
+    }
   }
 
   void clearBridge() {
@@ -3928,9 +4109,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     controller.minScale = 0.85;
     // controller.minScale = 1;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      repositionSensoryNeuron();
-    }
+    // if (Platform.isAndroid || Platform.isIOS) {
+    //   repositionSensoryNeuron();
+    // }
 
     controller.transform.removeListener(transformNeuronListener);
     controller.transform.addListener(transformNeuronListener);

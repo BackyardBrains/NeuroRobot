@@ -201,6 +201,7 @@ class _RightToolbarState extends State<RightToolbar> {
           width: 54,
           height: 150,
           child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             itemCount: totalActionIcons,
             reverse: false,
             shrinkWrap: true,
@@ -366,9 +367,9 @@ class _RightToolbarState extends State<RightToolbar> {
         child: Container(
           padding: const EdgeInsets.fromLTRB(7, 0, 8, 0),
           width: 54,
-          // height: 70,
-          height: 70 / 2,
+          height: 35,
           child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
             controller: _simulationController,
             shrinkWrap: true,
             itemCount: totalSimulationIcons,

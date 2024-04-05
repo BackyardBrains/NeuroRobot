@@ -23,15 +23,15 @@ dependencies:
 
   # connectivity_plus: 5.0.2
   # network_info_plus: 4.1.0+1
-  # web_socket_channel: 2.4.0
-  web_socket_channel: 2.4.4
+  web_socket_channel: 2.4.0
+  #web_socket_channel: 2.4.4
   # websocket_universal: 1.2.4
   
   # socket_io_client: 2.0.3+1
   flutter_mjpeg: 2.0.4
   path_provider: 2.1.1
-  # path: 1.8.3
-  path: 1.9.0
+  path: ^1.8.3
+  #path: 1.9.0
   # opencv_ffi:
   #   path: ./PLUGINS/opencv_ffi/
     

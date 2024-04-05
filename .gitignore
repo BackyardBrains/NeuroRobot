@@ -8,6 +8,7 @@ PLUGINS/native_opencv/macos/opencv2.xcframework/
 PLUGINS/native_opencv/web/classes/opencv/
 PLUGINS/native_opencv/web/classes/opencv4.5/
 PLUGINS/native_opencv/ios/opencv2.xcframework/
+PLUGINS/native_opencv/ios/opencv2.framework/
 
 # Miscellaneous
 *.class
