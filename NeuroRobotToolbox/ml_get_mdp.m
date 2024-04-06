@@ -23,6 +23,7 @@ end
 disp(horzcat('n transitions: ', num2str(sum(transition_counter(:)))))
 transition_counter_save = transition_counter;
 
+
 %% Normalize mdp
 for ii_state = 1:n_unique_states
     for naction = 1:n_unique_actions
@@ -56,3 +57,4 @@ tx8.String = 'Ready to train decision network';
 drawnow
 
 ml_visualize_mdp
+

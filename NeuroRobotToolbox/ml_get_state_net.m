@@ -32,19 +32,19 @@ classifier_ds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'), 
 net = [
     imageInputLayer([imdim_h imdim_w 3])
     
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer(3,ml_l1,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,32,'Padding','same')
+    convolution2dLayer(3,ml_l2,'Padding','same')
     batchNormalizationLayer
     reluLayer
 
     maxPooling2dLayer(2,'Stride',2)
     
-    convolution2dLayer(3,16,'Padding','same')
+    convolution2dLayer(3,ml_l3,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
@@ -58,8 +58,8 @@ else
     this_str = 'training-progress';
 end
 options = trainingOptions('adam', 'ExecutionEnvironment', 'auto', ...
-    MiniBatchSize=128, Plots=this_str, Shuffle ='every-epoch', ...
-    MaxEpochs=10, VerboseFrequency= 1);
+    MiniBatchSize=ml_bs, Plots=this_str, Shuffle ='every-epoch', ...
+    MaxEpochs=ml_me, VerboseFrequency= 1);
 
 net = trainNetwork(classifier_ds, net, options);
 

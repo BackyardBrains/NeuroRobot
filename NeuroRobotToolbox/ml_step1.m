@@ -12,8 +12,13 @@ else
     ml_get_clusters
     ml_quality
     ml_finalize_training_data
+    if redo_state_clustering
+    end
     ml_get_state_net
-    ml_get_tuples
+    ml_get_tuples_part1
+    ml_get_tuples_part2
+    if redo_action_clustering
+    end
     ml_get_mdp
 end
 

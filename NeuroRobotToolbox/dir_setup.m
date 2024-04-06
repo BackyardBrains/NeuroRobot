@@ -98,6 +98,14 @@ if ~exist(netalgo_dir_name, 'dir')
     disp(horzcat('Created new netalgo directory: ', netalgo_dir_name))
 end
 
+available_settings = dir(strcat(netalgo_dir_name, '*.csv'));
+nsettings = size(available_settings, 1);
+if nsettings
+    disp('Settings found: ', num2str(nsettings))
+else
+    disp('No parameter settings found')
+end
+
 
 %% Workspace
 if ispc

@@ -45,11 +45,20 @@ drawnow
 catch
 end
 
-this_med = prctile(intra_state_similarity, 50);
-state_inds(intra_state_similarity < this_med, :) = [];
-state_info(intra_state_similarity < this_med, :) = [];
 
+%% Manual trim
 n_unique_states = sum(state_info(:,1));
+[~, j] = sort(intra_state_similarity);
+if trim_size >= n_unique_states
+    disp('Trim size >= n unique states. No trim.')
+else
+    state_inds = state_inds(j(1:trim_size), :);
+    state_info = state_info(j(1:trim_size), :);
+    disp(horzcat('Cut ', num2str(n_unique_states - trim_size), ' noisiest clusters'))
+end
+n_unique_states = sum(state_info(:,1));
+this_msg = horzcat('N unique states: ', num2str(n_unique_states));
+disp(this_msg)
 
 
 

@@ -1,9 +1,5 @@
 
 
-% init_n_unique_states = 200;
-% min_size = 50;
-
-
 %% Cluster on similarity
 n_unique_states = init_n_unique_states;
 try
@@ -21,7 +17,7 @@ clf
 
 dists = pdist(xdata, 'correlation');
 links = linkage(dists, 'weighted');
-group_inds = cluster(links,'MaxClust', n_unique_states);
+group_inds = cluster(links, 'MaxClust', n_unique_states);
 
 clf
 [~, ~, o] = dendrogram(links, 0);

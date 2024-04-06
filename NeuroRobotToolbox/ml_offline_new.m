@@ -4,11 +4,11 @@
 close all
 clear
 
-get_images = 0;
-get_torques = 0;
-get_combs = 1;
-get_rewards = 1;
-get_buffer = 1;
+e2e_get_images = 0;
+e2e_get_torques = 0;
+e2e_get_combs = 1;
+e2e_get_rewards = 1;
+e2e_get_buffer = 1;
 
 rec_dir_name = '';
 dataset_dir_name = 'C:\SpikerBot\Datasets\livingroom\';
@@ -20,7 +20,7 @@ agent_name = 'smith';
 %% Get images
 
 disp('Getting images...')
-if get_images
+if e2e_get_images
     image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*_x.png'));
     save(strcat(nets_dir_name, state_net_name, '-image_dir'), 'image_dir')
 else
@@ -34,7 +34,7 @@ disp(horzcat('nimages / ntuples: ', num2str(ntuples)))
 
 %% Get torques
 disp('Getting torques...')
-if get_torques
+if e2e_get_torques
     torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
     ntorques = size(torque_dir, 1);
     torque_data = zeros(ntuples, 2);
@@ -59,7 +59,7 @@ end
 n_unique_actions = 7;
 
 disp('Getting actions / combs...')
-if get_combs
+if e2e_get_combs
     
     % rng(1)
     actions = kmeans(torque_data, n_unique_actions);
@@ -95,7 +95,7 @@ end
 
 %% Get rewards
 disp('Getting rewards...')
-if get_rewards
+if e2e_get_rewards
 
     % gnet = googlenet;
     
@@ -140,7 +140,7 @@ actInfo.Name = "Actions";
 small_inds = randsample(1:(ntuples-steps_per_sequence-5), nsmall);
 mode_action = mode(actions);
 
-if get_buffer
+if e2e_get_buffer
     disp('Getting buffer...')
     
     try

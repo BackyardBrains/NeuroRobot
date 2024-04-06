@@ -3,7 +3,7 @@
 axes(ml_train1_status)
 cla
 
-this_msg = horzcat('Finding features...');
+this_msg = horzcat('ntuples: ', num2str(ntuples), ', finding features in subsample 1...');
 tx2 = text(0.03, 0.5, this_msg, 'fontsize', bfsize + 4);
 drawnow
 disp(this_msg)
@@ -30,18 +30,12 @@ drawnow
 
 bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching], 'BlockWidth', 64);
 
-this_msg = 'Creating image index...';
-tx2.String = this_msg;
+this_msg = horzcat('ntuples: ', num2str(ntuples), ', getting similarity matrix in subsample 2...');
+txt2.String = this_msg;
 drawnow
 disp(this_msg)
 
 imageIndex = indexImages(image_ds_medium, bag);
-
-this_msg = 'Getting similarity matrix...';
-tx2.String = this_msg;
-drawnow
-disp(this_msg)
-
 xdata = zeros(nmedium, nmedium);
 
 for ntuple = 1:nmedium
@@ -56,17 +50,11 @@ for ntuple = 1:nmedium
 
 end
 
-avg_sim = mean(xdata(:));
-this_msg = horzcat('Avgerage image similarity = ', num2str(avg_sim));
-disp(this_msg)
-tx2.String = horzcat(this_msg);
-drawnow
-
 
 %% Plot similarity matrix
 axes(im_ax1)
 histogram(xdata(:), [0 0.5])
 set(gca, 'yscale', 'log')
-title('Image similarity scores')
+title('Image Similarity in Subsample 2')
 
 drawnow

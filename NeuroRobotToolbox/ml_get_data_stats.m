@@ -28,7 +28,5 @@ if ntuples ~= nserial || ntuples ~= ntorques
 end
 
 this_msg = horzcat('ntuples: ', num2str(ntuples));
-tx1.String = this_msg;
-drawnow
 disp(this_msg)
 
