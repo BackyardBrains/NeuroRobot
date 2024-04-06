@@ -5,7 +5,7 @@ disp(horzcat('Getting ', num2str(ntuples), ' states from camera frames'))
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/10))
-        disp(horzcat('Counter: ', num2str(round(10*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
+        disp(horzcat('Counter: ', num2str(round(100*(ntuple/ntuples))), '%, ntuple: ', num2str(ntuple)))
     end
 
     try
