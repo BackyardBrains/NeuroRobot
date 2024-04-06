@@ -3,7 +3,7 @@
 axes(ml_train1_status)
 cla
 
-this_msg = horzcat('ntuples: ', num2str(ntuples), ', finding features in subsample 1...');
+this_msg = horzcat('Found ', num2str(ntuples), ' tuples. Getting features...');
 tx2 = text(0.03, 0.5, this_msg, 'fontsize', bfsize + 4);
 drawnow
 disp(this_msg)
@@ -20,7 +20,7 @@ try
     ps.Pool.AutoCreate = false;
     ps.Pool.IdleTimeout = Inf;
 catch
-    disp('no gpu (ml_get_similarity)')
+    disp('no gpu')
 end
 
 axes(im_ax1)
@@ -30,7 +30,7 @@ drawnow
 
 bag = bagOfFeatures(image_ds_small, 'treeproperties', [2 bof_branching], 'BlockWidth', 64);
 
-this_msg = horzcat('ntuples: ', num2str(ntuples), ', getting similarity matrix in subsample 2...');
+this_msg = horzcat('Getting similarity matrix...');
 txt2.String = this_msg;
 drawnow
 disp(this_msg)

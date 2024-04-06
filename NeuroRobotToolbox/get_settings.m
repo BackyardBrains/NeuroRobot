@@ -23,28 +23,24 @@ if nsettings
         raw_settings = readtable(settings_fname);
         nparams = size(raw_settings, 1);
         for nparam = 1:nparams
-            expression = char(strcat(raw_settings{nparam, 2}, '=', num2str(raw_settings{nparam, 3})));
+            expression = char(strcat(raw_settings{nparam, 2}, '=', num2str(raw_settings{nparam, 3}), ';'));
             eval(expression);
-        end
+        end        
     catch
         disp('Cannot read settings')
     end
 end
 
-disp(horzcat('nsmall = ', num2str(nsmall)))
-disp(horzcat('nmedium = ', num2str(nmedium)))
-disp(horzcat('init n unique states = ', num2str(init_n_unique_states)))
-disp(horzcat('min size = ', num2str(min_size)))
-disp(horzcat('trim size = ', num2str(trim_size)))
-disp(horzcat('redo state clustering = ', num2str(redo_state_clustering)))
-disp(horzcat('redo_action_clustering = ', num2str(ml_l1)))
-disp(horzcat('ml_l2 = ', num2str(ml_l2)))
-disp(horzcat('ml_l3 = ', num2str(ml_l3)))
-disp(horzcat('ml_bs = ', num2str(ml_bs)))
-disp(horzcat('ml_me = ', num2str(ml_me)))
-disp(horzcat('n_unique_actions = ', num2str(n_unique_actions)))
-disp(horzcat('redo action clustering = ', num2str(redo_action_clustering)))
-disp(horzcat('ml_rl_d = ', num2str(ml_rl_d)))
-disp(horzcat('ml_rl_me = ', num2str(ml_rl_me)))
-disp(horzcat('ml_rl_mspe = ', num2str(ml_rl_mspe)))
+disp(horzcat('Clustering. nsmall = ', num2str(nsmall), ', nmedium = ', num2str(nmedium), ...
+    ', init n unique states = ', num2str(init_n_unique_states), ...
+    ', min size = ', num2str(min_size), ', trim size = ', num2str(trim_size), ...
+    ', redo state clustering = ', num2str(redo_state_clustering)))
 
+disp(horzcat('Convnet training. ml_l1 = ', num2str(ml_l1), ', ml_l2 = ', num2str(ml_l2), ...
+    ', ml_l3 = ', num2str(ml_l3), ', ml_bs = ', num2str(ml_bs), ...
+    ', ml_me = ', num2str(ml_me)))
+
+disp(horzcat('MDP. n unique actions = ', num2str(n_unique_actions), ', redo action clustering = ', num2str(redo_action_clustering)))
+
+disp(horzcat('DQN. ml_rl_d = ', num2str(ml_rl_d), ', ml_rl_me = ', ...
+    num2str(ml_rl_me), ', ml_rl_mspe = ', num2str(ml_rl_mspe)))

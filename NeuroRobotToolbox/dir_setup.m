@@ -101,7 +101,7 @@ end
 available_settings = dir(strcat(netalgo_dir_name, '*.csv'));
 nsettings = size(available_settings, 1);
 if nsettings
-    disp('Settings found: ', num2str(nsettings))
+    disp(horzcat('Settings found: ', num2str(nsettings)))
 else
     disp('No parameter settings found')
 end
