@@ -46,7 +46,6 @@ end
 ntuples = size(tuples, 1);
 disp('Tuples assembled successfully')
 save(strcat(nets_dir_name, state_net_name, '-tuples'), 'tuples')
-load(strcat(nets_dir_name, state_net_name, '-tuples'))
 
 
 %% Lucid sleep?
