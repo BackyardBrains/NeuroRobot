@@ -386,9 +386,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   }
                   controller.mousePosition = details.focalPoint;
                   if (Platform.isIOS) {
-                    print("controller.mousePosition2");
-                    print(details.focalPoint);
-                    print(controller.mousePosition);
+                    // print("controller.mousePosition2");
+                    // print(details.focalPoint);
+                    // print(controller.mousePosition);
                     controller.notifyMousePosition();
                   }
                 },

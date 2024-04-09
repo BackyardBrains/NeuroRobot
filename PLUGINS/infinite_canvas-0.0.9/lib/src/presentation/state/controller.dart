@@ -362,6 +362,13 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void addLink(LocalKey from, LocalKey to, [String? label]) {
+    var tailNode = nodes[0];
+
+    if (from == tailNode.key || to == tailNode.key) {
+      linkStart = null;
+      return;
+    }
+
     final edge = InfiniteCanvasEdge(
       from: from,
       to: to,

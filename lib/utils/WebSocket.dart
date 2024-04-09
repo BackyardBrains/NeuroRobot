@@ -13,6 +13,7 @@ void createWebSocket(List<dynamic> args) async {
   // String offLEDCmd = "d:120;d:220;d:320;d:420;";
   String offLEDCmd = "d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;";
   bool isReady = false;
+  bool gracefulDisconnect = false;
   String stopMotorCmd = "l:0;r:0;s:0;";
   // Timer heartbeatTimer = Ti  mer.periodic(const Duration(seconds: 10), (timer) {
   //   timer.cancel();
@@ -146,7 +147,10 @@ void createWebSocket(List<dynamic> args) async {
       // writeMainPort.send("DISCONNECTED");
       isReady = false;
 
-      if (channel.closeCode == 1000 || channel.closeCode == 1005) {
+      if (channel.closeCode == 1000) {
+      } else if (channel.closeCode == 1005 && gracefulDisconnect) {
+        print("Graceful disconnect");
+        gracefulDisconnect = false;
       } else {
         writeMainPort.send("RESTART");
       }
@@ -161,8 +165,9 @@ void createWebSocket(List<dynamic> args) async {
       // print("socketisolate message");
       // print(message.length);
       if (message == "DISCONNECT") {
+        gracefulDisconnect = true;
         print("=====================DISCONNECT");
-        await channel.sink.close();
+        await channel.sink.close(1000, "Stop Button");
         rcvWriteChannelPort.close();
         print(message);
         // heartbeatTimer.cancel();

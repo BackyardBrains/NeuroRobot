@@ -23,26 +23,29 @@ Future<bool> _dataCaptureSave(rawData) async {
   final curDate = DateTime.now();
   String fileName = curDate.millisecondsSinceEpoch.toString();
   final strDateNow = dateFormat.format(curDate);
+  const String singleFileName = "_InformationData";
 
   if (frameData.isNotEmpty) {
-    final File file = File(
-        '$captureDirectoryPath$pathSeparator$strDateNow-$fileName-large_frame_x.jpg');
+    final File file =
+        File('$captureDirectoryPath$pathSeparator$strDateNow-$fileName.jpg');
     // file.createSync();
     file.writeAsBytesSync(frameData);
   }
 
   // if (serialData.isNotEmpty) {
-  final File serialFile = File(
-      '$captureDirectoryPath$pathSeparator$strDateNow-$fileName-serial.txt');
+  // final File serialFile =
+  //     File('$captureDirectoryPath$pathSeparator${singleFileName}.txt');
   // serialFile.createSync();
-  serialFile.writeAsStringSync(serialData);
+  // serialFile.writeAsStringSync("$serialData\r\n", mode: FileMode.append);
   // }
 
   // if (torqueData.isNotEmpty) {
-  final File torqueFile = File(
-      '$captureDirectoryPath$pathSeparator$strDateNow-$fileName-torque.txt');
+  final File torqueFile =
+      File('$captureDirectoryPath$pathSeparator${singleFileName}.txt');
   // torqueFile.createSync();
-  torqueFile.writeAsStringSync(torqueData);
+  torqueFile.writeAsStringSync(
+      "$strDateNow-$fileName\r\n$serialData\r\n$torqueData\r\n",
+      mode: FileMode.append);
   // }
 
   return true;

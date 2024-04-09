@@ -912,6 +912,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         Future.delayed(const Duration(milliseconds: 1000), () async {
           if (isPlayingMenu) {
             startWebSocket();
+            mjpegComponent = Mjpeg(
+              stream: httpdStream,
+              // stream: "http://192.168.1.4:8081/",
+              preprocessor: processor,
+              width: 320 / 2,
+              height: 240 / 2,
+
+              isLive: true,
+              fit: BoxFit.fitHeight,
+              timeout: const Duration(seconds: 60),
+            );
           }
           // writePort = ReceivePort();
           // webSocket = await Isolate.spawn(
@@ -1543,7 +1554,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
                           nativec.changeIdxSelected(neuronIdx);
                         } catch (err) {
-                          print("err");
+                          print("err on changed");
                           print(err);
                         }
 
@@ -3168,7 +3179,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           behavior: HitTestBehavior.opaque,
           onTapUp: (details) {
             print("controller.isFoundEdge");
-            // print(controller.isFoundEdge);
+            print(controller.isFoundEdge);
             if (controller.isFoundEdge) {
               controller.isSelectingEdge = true;
               controller.edgeSelected = controller.edgeFound;

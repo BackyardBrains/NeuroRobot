@@ -209,7 +209,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       path.close();
       canvas.drawPath(path, brush);
     } catch (err) {
-      print("err");
+      print("err edge renderer");
       print(err);
       return;
     }
