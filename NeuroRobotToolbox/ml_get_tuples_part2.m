@@ -12,8 +12,11 @@ while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
     end
 end
 
+try
 tx7.String = horzcat('Clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
 drawnow
+catch
+end
 
 disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))

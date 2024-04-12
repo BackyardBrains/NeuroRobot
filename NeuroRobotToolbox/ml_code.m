@@ -81,12 +81,12 @@ ml_train2_status = axes('position', ml_4_train2_status_pos, 'xtick', [], 'ytick'
 box on
 axis([0 1 0 1])
 
-ml_train3_button = uicontrol('Style', 'pushbutton', 'String', 'Train from convnet', 'Callback', 'ml_flag = 3; ml_step1', 'units', 'normalized', 'position', ml_5_train3_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train3_button = uicontrol('Style', 'pushbutton', 'String', 'Get states and torques', 'Callback', 'ml_flag = 3; ml_step1', 'units', 'normalized', 'position', ml_5_train3_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 ml_train3_status = axes('position', ml_5_train3_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 
-ml_train4_button = uicontrol('Style', 'pushbutton', 'String', 'Train from states and torques', 'Callback', 'ml_flag = 4; ml_step1', 'units', 'normalized', 'position', ml_6_train4_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train4_button = uicontrol('Style', 'pushbutton', 'String', 'Get actions and MDP', 'Callback', 'ml_flag = 4; ml_step1', 'units', 'normalized', 'position', ml_6_train4_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 ml_train4_status = axes('position', ml_6_train4_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
