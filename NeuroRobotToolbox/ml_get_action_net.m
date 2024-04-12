@@ -42,6 +42,7 @@ save(horzcat(nets_dir_name, state_net_name, '---', action_net_name, '-ml'), 'age
 
 
 %% Show Agent
+try
 axes(im_ax1)
 cla
 
@@ -52,6 +53,8 @@ set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
 
 tx10.String = horzcat('Finished training agent net');
 drawnow
+catch
+end
 
 disp('Finished training agent net')
 

@@ -1,10 +1,13 @@
 
 
 %% Get Markov Decision Process
+try
 axes(ml_train1_status)
 cla
 tx8 = text(0.03, 0.5, horzcat('Creating transition matrix...'), 'FontSize', bfsize + 4);
 drawnow
+catch
+end
 
 mdp = createMDP(n_unique_states, n_unique_actions);
 transition_counter = zeros(size(mdp.T));
@@ -53,8 +56,11 @@ disp('Ready to train decision network')
 
 
 %% Output
+try
 tx8.String = 'Ready to train decision network';
 drawnow
+catch
+end
 
 ml_visualize_mdp
 

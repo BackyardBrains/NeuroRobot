@@ -1,10 +1,18 @@
 
 
+%% Hardcoded image size
+imdim_h = 240;
+imdim_w = 320;
+
+
 %% Create datasets for training nets
+try
 axes(ml_train1_status)
 cla
 tx5 = text(0.03, 0.5, horzcat('Creating training datasets...'), 'FontSize', bfsize + 4);
 drawnow
+catch
+end
 
 try
     rmdir(strcat(workspace_dir_name, state_net_name), 's')
@@ -28,6 +36,7 @@ for nstate = 1:n_unique_states
     for nimage = 1:min_size
         this_ind = state_inds(nstate, nimage);
         this_im = imread(imageIndex.ImageLocation{this_ind});
+        this_im = imresize(this_im, [imdim_h imdim_w]);
         fname = strcat(workspace_dir_name, state_net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
         imwrite(this_im, fname);
     end
@@ -46,41 +55,32 @@ tx5.String = horzcat('Created ', num2str(n_unique_states), ' state folders. visu
 drawnow
 
 
-%% Prepare figure
+%% Visualize groups
 fig_ml = figure(4);
 clf
 set(fig_ml, 'NumberTitle', 'off', 'Name', 'States')
 set(fig_ml, 'toolbar', 'none')
 set(fig_ml, 'position', [175 70 1200 720], 'color', fig_bg_col) 
 
-
-%% Visualize
-data = zeros(n_unique_states, 1);
 x = ceil(sqrt(n_unique_states));
 for nstate = 1:n_unique_states
     these_inds = state_inds(nstate, :);
-    these_scores = mean(xdata(these_inds,these_inds), 2);
+    these_scores = mean(xdata(these_inds,these_inds), 2); % Assuming you still need scores for something else
     subplot(x, x, nstate)
     ninds = length(these_inds);
-    imgs = zeros(240, 320, 3, ninds);
-    for i = 1:ninds
-        imgs(:,:,:,i) = readimage(image_ds_medium, these_inds(i));
-    end
-    I = mean(imgs, 4);
-    I2 = 255*(I - min(I(:))) ./ (max(I(:)) - min(I(:)));
-    I2 = cast(I2,'uint8');
-    image(I2)
+    rand_inds = randsample(these_inds, 6);
+    this_ds = subset(image_ds_medium, rand_inds);
+    montage(this_ds)
     set(gca, 'xtick', [], 'ytick', [])
     mean_score = mean(these_scores);
     label_str = char(labels(nstate));
-    label_str(label_str == '_') = [];
+    label_str(label_str == '_') = ' ';
     title(horzcat('state: ', num2str(nstate), ', s: ', num2str(mean_score)))
-    data(nstate) = mean_score;
 end
 drawnow
 
 title(state_net_name)
-saveas(fig_ml, horzcat(nets_dir_name, state_net_name, '-examples.fig'))
+saveas(gcf, horzcat(nets_dir_name, state_net_name, '-examples.fig'))
 
 
 %% Output

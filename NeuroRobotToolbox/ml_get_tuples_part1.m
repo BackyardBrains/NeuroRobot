@@ -1,11 +1,14 @@
 
 
 %%
+try
 axes(ml_train1_status)
-
 cla
 tx7 = text(0.03, 0.5, horzcat('Getting tuples...'), 'FontSize', bfsize + 4);
 drawnow
+catch
+end
+
 disp('Getting tuples')
 
 load(strcat(nets_dir_name, state_net_name, '-ml'))

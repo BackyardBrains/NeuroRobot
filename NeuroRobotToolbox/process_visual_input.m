@@ -111,7 +111,7 @@ end
 
 % Lesson 3 nets
 if use_custom_net
-    % lframe = imresize(large_frame, [227 302]);
+    lframe = imresize(large_frame, [240 320]);
     [~, scores] = classify(net, large_frame);
     
     [i, j] = max(scores);

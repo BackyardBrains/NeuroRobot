@@ -1,11 +1,6 @@
 
 
 
-%% Hardcoded image size
-imdim_h = 240;
-imdim_w = 320;
-
-
 %% Get labels
 labels = folders2labels(strcat(workspace_dir_name, state_net_name, '\'));
 labels = unique(labels);
@@ -18,11 +13,14 @@ save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 
 
 %%
+try
 axes(ml_train1_status)
 cla
 tx6 = text(0.03, 0.5, horzcat('training pattern recognition net on ', ...
     num2str(n_unique_states), ' states'), 'FontSize', bfsize + 4);
 drawnow
+catch
+end
 
 
 %% Train classifier net
@@ -67,6 +65,9 @@ save(strcat(nets_dir_name, state_net_name, '-ml'), 'net')
 
 
 %% End message
+try
 tx6.String = horzcat(state_net_name, ' trained successfully');
 drawnow
+catch
+end
 

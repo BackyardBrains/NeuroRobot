@@ -21,6 +21,7 @@ disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == 
 
 save(strcat(nets_dir_name, state_net_name, '-actions'), 'actions')
 
+try
 axes(im_ax1)
 cla
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
@@ -34,6 +35,8 @@ title('Actions')
 xlabel('Left Motor')
 ylabel('Right Motor')
 drawnow
+catch
+end
 
 
 %% Get tuples
