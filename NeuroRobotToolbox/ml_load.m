@@ -14,7 +14,7 @@ else
     txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 4);
     drawnow
     
-    openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'));
+    % openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'));
     load(strcat(nets_dir_name, state_net_name, '-states'))
     load(strcat(nets_dir_name, state_net_name, '-torque_data'))
     load(strcat(nets_dir_name, state_net_name, '-actions'))
