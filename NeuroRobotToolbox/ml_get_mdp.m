@@ -2,7 +2,7 @@
 
 %% Get Markov Decision Process
 try
-axes(ml_train1_status)
+axes(ml_train4_status)
 cla
 tx8 = text(0.03, 0.5, horzcat('Creating transition matrix...'), 'FontSize', bfsize + 4);
 drawnow

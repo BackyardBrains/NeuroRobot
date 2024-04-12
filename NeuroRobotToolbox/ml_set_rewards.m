@@ -30,7 +30,7 @@ bad_action = [];
 
 %% Create reward landscape
 disp('Creating reward landscape...')
-axes(ml_train2_status)
+axes(ml_train4_status)
 cla
 tx9 = text(0.03, 0.5, 'Creating reward landscape...', 'FontSize', bfsize + 4);
 drawnow

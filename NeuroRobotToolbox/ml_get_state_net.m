@@ -5,7 +5,7 @@
 labels = folders2labels(strcat(workspace_dir_name, state_net_name, '\'));
 labels = unique(labels);
 n_unique_states = length(labels);
-disp(horzcat('Training pattern recogniztion net for ', num2str(n_unique_states), ' states'))
+disp(horzcat('Training classifier net for ', num2str(n_unique_states), ' states'))
 
 
 %% Save labels
@@ -14,9 +14,9 @@ save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 
 %%
 try
-axes(ml_train1_status)
+axes(ml_train2_status)
 cla
-tx6 = text(0.03, 0.5, horzcat('training pattern recognition net on ', ...
+tx6 = text(0.03, 0.5, horzcat('Training classifier net on ', ...
     num2str(n_unique_states), ' states'), 'FontSize', bfsize + 4);
 drawnow
 catch

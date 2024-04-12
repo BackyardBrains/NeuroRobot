@@ -2,7 +2,7 @@
 
 
 %%
-axes(ml_train2_status)
+axes(ml_train4_status)
 cla
 tx10 = text(0.03, 0.5, horzcat('Training agent net...'), 'fontsize', bfsize + 4);
 drawnow
@@ -27,7 +27,7 @@ training_opts.MaxEpisodes = ml_rl_me;
 training_opts.MaxStepsPerEpisode = ml_rl_mspe;
 training_opts.StopTrainingValue = 1000000;
 training_opts.StopTrainingCriteria = "AverageReward";
-training_opts.ScoreAveragingWindowLength = ml_rl_me/10;
+training_opts.ScoreAveragingWindowLength = ml_rl_me/50;
 training_opts.UseParallel = 0;
 if isdeployed
     this_str = 'none';

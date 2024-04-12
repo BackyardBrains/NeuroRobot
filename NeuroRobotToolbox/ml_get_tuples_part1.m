@@ -2,7 +2,7 @@
 
 %%
 try
-axes(ml_train1_status)
+axes(ml_train3_status)
 cla
 tx7 = text(0.03, 0.5, horzcat('Getting tuples...'), 'FontSize', bfsize + 4);
 drawnow

@@ -12,6 +12,12 @@ set(button_new_brain, 'enable', 'off')
 drawnow
 
 
+%% Prep
+ml_flag = 1;
+imdim_h = 240;
+imdim_w = 320;
+
+
 %% Prepare figure
 fig_ml = figure(3);
 clf
@@ -21,59 +27,83 @@ set(fig_ml, 'position', fig_pos, 'color', fig_bg_col)
 
 
 %% Positions
-ml_1_title_pos =            [0.03 0.9 0.94 0.05];
-ml_2_data_str_pos =         [0.03 0.8 0.2 0.05];
-ml_2_data_status_pos =      [0.26 0.8 0.28 0.05];
-ml_3_speed_str_pos =        [0.03 0.7 0.2 0.05];
-ml_3_speed_select_pos =     [0.26 0.7 0.28 0.05];
-ml_4_name1_str_pos =        [0.03 0.6 0.2 0.05];
-ml_4_name1_edit_pos =       [0.26 0.6 0.28 0.05];
-ml_5_train1_button_pos =    [0.03 0.5 0.2 0.05];
-ml_5_train1_status_pos =    [0.26 0.5 0.28 0.05];
-ml_6_load_button_pos =      [0.03 0.4 0.2 0.05];
-ml_6_load_status_pos =      [0.26 0.4 0.28 0.05];
-ml_7_goals_str_pos =        [0.03 0.3 0.2 0.05];
-ml_7_goals_edit_pos =       [0.26 0.3 0.28 0.05];
-ml_8_name2_str_pos =        [0.03 0.2 0.2 0.05];
-ml_8_name2_edit_pos =       [0.26 0.2 0.28 0.05];
-ml_9_train2_button_pos =    [0.03 0.1 0.2 0.05];
-ml_9_train2_status_pos =    [0.26 0.1 0.28 0.05];
+ml_title_pos =            [0.03 0.9 0.94 0.05];
+
+ml_1_data_str_pos =         [0.05 0.81 0.2 0.05];
+ml_1_data_status_pos =      [0.26 0.81 0.28 0.05];
+
+ml_2_name1_str_pos =        [0.05 0.74 0.2 0.05];
+ml_2_name1_edit_pos =       [0.26 0.74 0.28 0.05];
+
+ml_3_train1_button_pos =    [0.05 0.67 0.2 0.05];
+ml_3_train1_status_pos =    [0.26 0.67 0.28 0.05];
+
+ml_4_train2_button_pos =    [0.05 0.6 0.2 0.05];
+ml_4_train2_status_pos =    [0.26 0.6 0.28 0.05];
+
+ml_5_train3_button_pos =    [0.05 0.53 0.2 0.05];
+ml_5_train3_status_pos =    [0.26 0.53 0.28 0.05];
+
+ml_6_train4_button_pos =    [0.05 0.46 0.2 0.05];
+ml_6_train4_status_pos =    [0.26 0.46 0.28 0.05];
+
+ml_7_load_button_pos =      [0.05 0.39 0.2 0.05];
+ml_7_load_status_pos =      [0.26 0.39 0.28 0.05];
+
+ml_8_goals_str_pos =        [0.05 0.32 0.2 0.05];
+ml_8_goals_edit_pos =       [0.26 0.32 0.28 0.05];
+
+ml_9_name2_str_pos =        [0.05 0.25 0.2 0.05];
+ml_9_name2_edit_pos =       [0.26 0.25 0.28 0.05];
+
+ml_10_train2_button_pos =    [0.05 0.18 0.2 0.05];
+ml_10_train2_status_pos =    [0.26 0.18 0.28 0.05];
 
 
 %% UI objects
-ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_1_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 12, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
+ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 12, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 available_dirs = dir(dataset_dir_name);
 available_dirs(1:2) = [];
-ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_2_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_data_status = uicontrol('Style', 'popupmenu', 'String', hyper_dirs, 'callback', 'dataset_dir_name = hyper_dirs{ml_data_status.Value};', 'units', 'normalized', 'position', ml_2_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_1_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_data_status = uicontrol('Style', 'popupmenu', 'String', hyper_dirs, 'callback', 'dataset_dir_name = hyper_dirs{ml_data_status.Value};', 'units', 'normalized', 'position', ml_1_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
-% available_settings = dir(netalgo_dir_name);
-% available_dirs(1:2) = [];
-% ml_speed_str = uicontrol('Style', 'text', 'String', 'Settings:', 'units', 'normalized', 'position', ml_3_speed_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-% ml_speed_select = uicontrol('Style', 'popupmenu', 'String', ml_speeds, 'callback', 'get_settings', 'units', 'normalized', 'position', ml_3_speed_select_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_name1_str = uicontrol('Style', 'text', 'String', 'Classifier network name:', 'units', 'normalized', 'position', ml_2_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
+ml_name1_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_2_name1_edit_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
-ml_name1_str = uicontrol('Style', 'text', 'String', 'Classifier network name:', 'units', 'normalized', 'position', ml_4_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_name1_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_4_name1_edit_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
-
-ml_train1_button = uicontrol('Style', 'pushbutton', 'String', 'Train classifier network', 'Callback', 'ml_step1', 'units', 'normalized', 'position', ml_5_train1_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
-ml_train1_status = axes('position', ml_5_train1_status_pos, 'xtick', [], 'ytick', []);
+ml_train1_button = uicontrol('Style', 'pushbutton', 'String', 'Train new network', 'Callback', 'ml_step1', 'units', 'normalized', 'position', ml_3_train1_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train1_status = axes('position', ml_3_train1_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 
-ml_load_button = uicontrol('Style', 'pushbutton', 'String', 'Load classifier network', 'Callback', 'ml_load', 'units', 'normalized', 'position', ml_6_load_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
-ml_load_status = axes('position', ml_6_load_status_pos, 'xtick', [], 'ytick', []);
+ml_train2_button = uicontrol('Style', 'pushbutton', 'String', 'Train from clustered data', 'Callback', 'ml_flag = 2; ml_step1', 'units', 'normalized', 'position', ml_4_train2_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train2_status = axes('position', ml_4_train2_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 
-ml_goals_str = uicontrol('Style', 'text', 'String', 'Goal states:', 'units', 'normalized', 'position', ml_7_goals_str_pos, 'fontsize', bfsize + 4);
-ml_goals_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_7_goals_edit_pos, 'fontsize', bfsize + 4);
+ml_train3_button = uicontrol('Style', 'pushbutton', 'String', 'Train from convnet', 'Callback', 'ml_flag = 3; ml_step1', 'units', 'normalized', 'position', ml_5_train3_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train3_status = axes('position', ml_5_train3_status_pos, 'xtick', [], 'ytick', []);
+box on
+axis([0 1 0 1])
 
-ml_name2_str = uicontrol('Style', 'text', 'String', 'Decision network name:', 'units', 'normalized', 'position', ml_8_name2_str_pos, 'fontsize', bfsize + 4);
-ml_name2_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_8_name2_edit_pos, 'fontsize', bfsize + 4);
+ml_train4_button = uicontrol('Style', 'pushbutton', 'String', 'Train from states and torques', 'Callback', 'ml_flag = 4; ml_step1', 'units', 'normalized', 'position', ml_6_train4_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train4_status = axes('position', ml_6_train4_status_pos, 'xtick', [], 'ytick', []);
+box on
+axis([0 1 0 1])
 
-ml_train2_button = uicontrol('Style', 'pushbutton', 'String', 'Train decision network', 'Callback', 'ml_step2', 'units', 'normalized', 'position', ml_9_train2_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
-ml_train2_status = axes('position', ml_9_train2_status_pos, 'xtick', [], 'ytick', []);
+ml_load_button = uicontrol('Style', 'pushbutton', 'String', 'Load MDP', 'Callback', 'ml_load', 'units', 'normalized', 'position', ml_7_load_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_load_status = axes('position', ml_7_load_status_pos, 'xtick', [], 'ytick', []);
+box on
+axis([0 1 0 1])
+
+ml_goals_str = uicontrol('Style', 'text', 'String', 'Goal states:', 'units', 'normalized', 'position', ml_8_goals_str_pos, 'fontsize', bfsize + 4);
+ml_goals_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_8_goals_edit_pos, 'fontsize', bfsize + 4);
+
+ml_name2_str = uicontrol('Style', 'text', 'String', 'Decision network name:', 'units', 'normalized', 'position', ml_9_name2_str_pos, 'fontsize', bfsize + 4);
+ml_name2_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_9_name2_edit_pos, 'fontsize', bfsize + 4);
+
+ml_train5_button = uicontrol('Style', 'pushbutton', 'String', 'Train decision network', 'Callback', 'ml_step2', 'units', 'normalized', 'position', ml_10_train2_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_train5_status = axes('position', ml_10_train2_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
 

@@ -1,9 +1,5 @@
 
 
-%% Hardcoded image size
-imdim_h = 240;
-imdim_w = 320;
-
 
 %% Create datasets for training nets
 try
