@@ -34,6 +34,7 @@ for ii_state = 1:n_unique_states
         if this_sum
             this_val = transition_counter(ii_state, :, naction) / this_sum;
         else
+            % transition_counter(ii_state, :, naction) = 0;
             this_val = zeros(size(transition_counter(ii_state, :, naction)));
             flag = 0;
             disp('padding mdp')

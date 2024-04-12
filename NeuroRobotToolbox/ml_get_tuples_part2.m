@@ -1,6 +1,9 @@
 
 
 %% Actions
+load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
+ntuples = size(torque_data, 1);
+
 actions = kmeans(torque_data, n_unique_actions);
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;
@@ -13,7 +16,9 @@ while ~(sum(sum(motor_combs, 2) < 0) == 1) && counter < 5
 end
 
 try
-tx7.String = horzcat('Clustering torques to into ', num2str(n_unique_actions), ' unique actions...');
+axes(ml_train4_status)
+cla
+tx8 = text(0.03, 0.5, horzcat('Clustering torques to into ', num2str(n_unique_actions), ' unique actions...'), 'FontSize', bfsize + 4);
 drawnow
 catch
 end
@@ -59,18 +64,16 @@ save(strcat(nets_dir_name, state_net_name, '-tuples'), 'tuples')
 
 
 %% Output
-% tx7.String = 'tuples aquired successfully';
+try
+tx8.String = 'tuples aquired successfully';
 drawnow
+catch
+end
 
 figure(12)
 clf
-set(gcf, 'position', [201 241 1200 420], 'color', 'w')
+set(gcf, 'position', [251 291 400 420], 'color', 'w')
 
-subplot(1,3,1:2)
-histogram(states)
-title('States')
-subplot(1,3,3)
 histogram(actions)
 title('Actions')
-
 

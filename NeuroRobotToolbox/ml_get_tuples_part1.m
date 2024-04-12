@@ -30,6 +30,13 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 get_states
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 
+figure(13)
+clf
+set(gcf, 'position', [201 241 800 420], 'color', 'w')
+
+histogram(states)
+title('States')
+
 
 %% Torques
 get_torques
