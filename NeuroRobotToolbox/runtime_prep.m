@@ -224,7 +224,7 @@ if exist('rak_only', 'var') && brain_support
             % try    
                 load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
 
-                openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
+                % openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
                 load(strcat(nets_dir_name, state_net_name, '-states'))
                 load(strcat(nets_dir_name, state_net_name, '-torque_data'))
                 load(strcat(nets_dir_name, state_net_name, '-actions'))

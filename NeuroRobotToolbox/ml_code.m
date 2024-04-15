@@ -91,7 +91,7 @@ ml_train4_status = axes('position', ml_6_train4_status_pos, 'xtick', [], 'ytick'
 box on
 axis([0 1 0 1])
 
-ml_load_button = uicontrol('Style', 'pushbutton', 'String', 'Continue from MDP', 'Callback', 'ml_load', 'units', 'normalized', 'position', ml_7_load_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_load_button = uicontrol('Style', 'pushbutton', 'String', 'Load MDP', 'Callback', 'ml_load', 'units', 'normalized', 'position', ml_7_load_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 ml_load_status = axes('position', ml_7_load_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])

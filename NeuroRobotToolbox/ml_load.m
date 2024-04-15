@@ -1,14 +1,14 @@
 
-state_net_name = ml_name1_edit.String;
-
-if isempty(state_net_name)
-    
-    ml_name1_edit.BackgroundColor = [1 0.25 0.25];
-    pause(0.75)
-    ml_name1_edit.BackgroundColor = [0.94 0.94 0.94];
-
+this_net_name = ml_name1_edit.String;
+this_ind = strfind(this_net_name, '---');
+if ~isempty(this_ind)
+    state_net_name = this_net_name(1:this_ind - 1);
+    action_net_name = this_net_name(this_ind + 3:end);
 else
-    
+    state_net_name = this_net_name;
+end
+
+try    
     axes(ml_load_status)
     cla
     txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 4);
@@ -49,13 +49,19 @@ else
         clf
         hold on
         scan_agent
-        title(horzcat(state_net_name, '-', action_net_name))
+        title(horzcat(state_net_name, '---', action_net_name))
         set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
         drawnow
     catch
     end
     
     txx.String = 'Ready to train decision network';
+
+catch
+
+    ml_name1_edit.BackgroundColor = [1 0.25 0.25];
+    pause(0.75)
+    ml_name1_edit.BackgroundColor = [0.94 0.94 0.94];
 
 end
 
