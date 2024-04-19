@@ -181,8 +181,8 @@ if exist('rak_only', 'var') && brain_support
     end
 
     if use_rcnn
-        load(horzcat(nets_dir_name, 'rcnn'))
-        this_label = 'cone';
+        load(horzcat(nets_dir_name, 'rcnn1'))
+        this_label = 'robot';
         vis_pref_names = [basic_vis_pref_names, this_label];  
         n_vis_prefs = size(vis_pref_names, 2);
         if length(trained_nets) > 1

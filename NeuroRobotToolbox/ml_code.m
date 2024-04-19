@@ -59,6 +59,8 @@ ml_9_name2_edit_pos =       [0.26 0.25 0.28 0.05];
 ml_10_train2_button_pos =    [0.05 0.18 0.2 0.05];
 ml_10_train2_status_pos =    [0.26 0.18 0.28 0.05];
 
+ml_11_advanced_button_pos =    [0.05 0.10 0.2 0.05];
+
 
 %% UI objects
 ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 12, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
@@ -106,6 +108,9 @@ ml_train5_button = uicontrol('Style', 'pushbutton', 'String', 'Train decision ne
 ml_train5_status = axes('position', ml_10_train2_status_pos, 'xtick', [], 'ytick', []);
 box on
 axis([0 1 0 1])
+
+ml_sc_button = uicontrol('Style', 'pushbutton', 'String', 'SC', 'Callback', 'rcnn_dev', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+
 
 
 %% Image Panels
