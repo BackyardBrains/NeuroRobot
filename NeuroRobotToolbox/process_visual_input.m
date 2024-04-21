@@ -89,10 +89,7 @@ end
 % Run custom r-cnn net
 if use_rcnn
 
-    lframe = imresize(large_frame, [240 320]);
-
-    % this_im = imresize(large_frame, [227 302]);
-    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 2000, 'MiniBatchSize', 8);
+    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 500, 'MiniBatchSize', 128);
     
     this_score = max(score);
     if isempty(this_score)
@@ -100,6 +97,8 @@ if use_rcnn
     end
 
     disp(horzcat('robot score: ', num2str(this_score)))
+
+    this_score = sigmoid(this_score, 0.95, 100);
 
     if ~use_cnn
         vis_pref_vals(8, 1) = this_score * 50;
