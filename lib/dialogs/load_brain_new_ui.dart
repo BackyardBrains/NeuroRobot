@@ -25,7 +25,7 @@ Directory? documentPath;
 List<Map<String, String>> fileInfos = [];
 
 bool isLoadBrainDialog = false;
-Future<List<File>> loadBrainFiles(fileInfos) async {
+Future<List<File>> loadBrainFiles(fileInfos, context) async {
   // String imagesPath = "";
 
   List<File> fileNames = [];
@@ -37,7 +37,7 @@ Future<List<File>> loadBrainFiles(fileInfos) async {
   if (!directory.existsSync()) {
     // if (entity.isEmpty) {
     // ignore: use_build_context_synchronously
-    noSavedBrainAlert(context);
+    // noSavedBrainAlert(context);
     return [];
   }
   List<FileSystemEntity> entity = directory.listSync(recursive: false);
@@ -46,7 +46,7 @@ Future<List<File>> loadBrainFiles(fileInfos) async {
       .where((item) => item.endsWith('.png'))
       .toList(growable: false);
   if (fileList.isEmpty) {
-    noSavedBrainAlert(context);
+    // noSavedBrainAlert(context);
     return [];
   }
 
@@ -116,8 +116,8 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
   currentFileName = pMapStatus["currentFileName"];
 
   fileInfos = [];
-  fileNames = await loadBrainFiles(fileInfos);
-  if (fileNames.isEmpty) return;
+  fileNames = await loadBrainFiles(fileInfos, context);
+  // if (fileNames.isEmpty) return;
 
   print("currentFileName");
   print(currentFileName);
@@ -291,7 +291,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           // "${(documentPath)?.path}$imagesPath${Platform.pathSeparator}Brain$currentFileName.png";
                           // currentFileName = mapStatus["currentFileName"];
                           fileInfos = [];
-                          fileNames = await loadBrainFiles(fileInfos);
+                          fileNames = await loadBrainFiles(fileInfos, context);
                           print("fileNames");
                           print(fileNames);
                           isSavingMode = 10;
@@ -323,7 +323,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                               tecBrainName.text = title;
 
                               fileInfos = [];
-                              fileNames = await loadBrainFiles(fileInfos);
+                              fileNames =
+                                  await loadBrainFiles(fileInfos, context);
                               isSavingMode = 10;
 
                               setState(() {});

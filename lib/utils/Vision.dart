@@ -13,7 +13,7 @@ ffi.Pointer<ffi.Uint8> ptrResizedFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 ffi.Pointer<ffi.Uint32> ptrResizedFrameLength =
     allocate<ffi.Uint32>(count: 1, sizeOfType: ffi.sizeOf<ffi.Uint32>());
-Uint32List resizedFrameLength = ptrResizedFrameLength.asTypedList(1);    
+Uint32List resizedFrameLength = ptrResizedFrameLength.asTypedList(1);
 // Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
 initializeOpenCV() {
   NativeOpenCV ocv = NativeOpenCV();
@@ -24,6 +24,7 @@ Future<bool> resizeImageFrame(frameData) async {
   await compute(_resizeImageFrame, frameData);
   return true;
 }
+
 bool _resizeImageFrame(rawFrameData) {
   NativeOpenCV nativeocv = NativeOpenCV();
 
@@ -41,7 +42,8 @@ bool _resizeImageFrame(rawFrameData) {
   }
 
   // nativeocv
-  nativeocv.resizeImage(ptrRawFrame, rawFrameData.length, ptrResizedFrame, ptrResizedFrameLength);
+  nativeocv.resizeImage(
+      ptrRawFrame, rawFrameData.length, ptrResizedFrame, ptrResizedFrameLength);
   try {
     // freeMemory(ptrResizedFrame);
     freeMemory(ptrRawFrame);
@@ -50,6 +52,9 @@ bool _resizeImageFrame(rawFrameData) {
   return true;
 }
 
+Future<bool> checkImageAi(frameData) async {
+  return true;
+}
 
 Future<bool> checkColorCV(frameData) async {
   // print("testColorCV");

@@ -2,14 +2,16 @@ name: neurorobot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1+53
+version: 1.2.1+57
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
 dependencies:
   flutter:
     sdk: flutter
-  
+  tflite_flutter: 0.10.4
+  image: 4.0.17
+
   # http: ^1.1.0
   async: 2.11.0
   cupertino_icons: ^1.0.2
@@ -86,4 +88,5 @@ flutter:
   assets:
     - assets/icons/
     - assets/bg/
+    - assets/models/
   uses-material-design: true
