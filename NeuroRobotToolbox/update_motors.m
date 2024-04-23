@@ -135,26 +135,13 @@ if nneurons % This prevents error caused by running script after deleting all ne
     left_backward = left_backward * 2.5;
     right_backward = right_backward * 2.5;
     
-       
-    % this_neuron = find(neuron_scripts & firing, 1);
-    % if ~isempty(this_neuron) && ~sum(script_running == [4 5])
-    %     script_running = neuron_scripts(this_neuron);
-    %     script_trigger = this_neuron;
-    % end
-    % 
-    % if script_running == 4
-    %     script_step_count = script_step_count + 1;
-    %     if script_step_count > 40
-    %         script_step_count = 0;
-    %         script_running = 0;
-    %     end
-    % elseif script_running == 5 && firing(script_trigger)
-    %     script_spike_count = script_spike_count + 1;
-    %     if script_spike_count > 100
-    %         script_spike_count = 0;
-    %         script_running = 0;
-    %     end    
-    % end
+    % Run scripts
+    this_neuron = find(neuron_scripts & firing, 1);
+    if ~isempty(this_neuron)
+        script_running = neuron_scripts(this_neuron);
+    else
+        script_running = 0;
+    end
     
     if rak_only || use_esp32
         if script_running == 1

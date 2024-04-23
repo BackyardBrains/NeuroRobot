@@ -35,13 +35,14 @@ if nneurons
         end
     end
 
+    % Delays
     delays = delays - 1;
     audio_I(delays == 1) = 50;
 
     % Run brain simulation
     for t = 1:ms_per_step
         
-        % Voltage clamp custom neurons unless triggered by delay
+        % Delays
         delays(v > 30 & neuron_scripts == 4 & delays < 1) = 30;
         v(v > 30 & neuron_scripts == 4 & delays ~= 1) = -65;
         

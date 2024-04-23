@@ -115,8 +115,6 @@ if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_c
 end
 % if length(trained_nets) > 1 && ~use_rcnn
 % 
-% 
-% 
 %     && isempty(trained_nets{2})
 %     brain_support = 0;
 %     disp(horzcat('Error: Brain needs ', trained_nets{2}))

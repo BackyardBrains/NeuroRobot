@@ -30,10 +30,11 @@ nnetworks = length(unique(network_ids)); % There used to be a +1 hack here, remo
 
 network_drive = zeros(nnetworks, 3); 
 bg_neurons = brain.bg_neurons;
+delays = zeros(nneurons, 1);
 
 trained_nets = brain.trained_nets;
 if isempty(trained_nets)
     trained_nets = cell(1);
 end
 
-delays = zeros(nneurons, 1);
+
