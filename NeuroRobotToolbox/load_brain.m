@@ -35,3 +35,5 @@ trained_nets = brain.trained_nets;
 if isempty(trained_nets)
     trained_nets = cell(1);
 end
+
+delays = zeros(nneurons, 1);

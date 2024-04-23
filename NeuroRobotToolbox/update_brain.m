@@ -35,13 +35,19 @@ if nneurons
         end
     end
 
+    delays = delays - 1;
+    audio_I(delays == 1) = 50;
 
     % Run brain simulation
     for t = 1:ms_per_step
-
+        
+        % Voltage clamp custom neurons unless triggered by delay
+        delays(v > 30 & neuron_scripts == 4 & delays < 1) = 30;
+        v(v > 30 & neuron_scripts == 4 & delays ~= 1) = -65;
+        
         % Add noise
         I = 5 * randn(nneurons, 1);
-
+        
         % Find spiking neurons
         fired_now = v >= 30;
         spikes_step(fired_now, t) = 1;
@@ -70,7 +76,7 @@ if nneurons
         v(isnan(v)) = c(isnan(v));
 
     end
-    
+
     try
 
     % BG select

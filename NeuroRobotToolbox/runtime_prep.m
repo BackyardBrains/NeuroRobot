@@ -280,11 +280,11 @@ if exist('rak_only', 'var') && brain_support
     sens_thresholds = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10];
     encoding_pattern = ones(size(sens_thresholds));
     
-    pulse_led_flag_1 = 0;
-    pulse_led_flag_2 = 0;
-    pulse_led_flag_3 = 0;
+    script_flag = 0;
     script_running = 0;
     script_step_count = 0;
+    script_spike_count = 0;
+    script_trigger = 0;
     for nscript = 1:size(script_names, 2)
         script_strs(nscript).name = script_names{nscript};
     end
