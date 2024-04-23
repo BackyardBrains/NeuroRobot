@@ -80,6 +80,7 @@ steps_since_last_spike(nneurons + 1 : nneurons + n) = nan;
 neuron_tones(nneurons + 1 : nneurons + n, 1) = 0;
 neuron_scripts(nneurons + 1 : nneurons + n, 1) = 0;
 delays(nneurons + 1 : nneurons + n, 1) = 0;
+counters(nneurons + 1 : nneurons + n, 1) = 0;
 nneurons = nneurons + n;
 
 disp('Netalgo created')

@@ -373,7 +373,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if neuron_scripts(nneuron)
-                if neuron_scripts(nneuron) == 5
+                if neuron_scripts(nneuron) == 6
                     try
                         this_str = horzcat(state_net_name, '-', action_net_name);
                     catch
