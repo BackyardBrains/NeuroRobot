@@ -73,6 +73,24 @@ for ncam = 1:2
     end
 
 
+    % Run custom r-cnn net
+    if use_rcnn
+        [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', 500, 'MiniBatchSize',128);
+        
+        this_score = max(score);
+        if isempty(this_score)
+            this_score = 0;
+        end
+        disp(horzcat('p(robot) = ', num2str(this_score)));
+        this_score = sigmoid(this_score, 0.99, 100);
+        
+        if ~use_cnn
+            vis_pref_vals(8, ncam) = this_score * 50;
+        else
+            vis_pref_vals(21, ncam) = this_score * 50;
+        end
+    end    
+
     %% Step
     if ncam == 1
         prev_left_eye_frame = uframe;
@@ -86,29 +104,6 @@ if use_esp32 && use_webcam
     external_camera
 end
 
-% Run custom r-cnn net
-if use_rcnn
-
-    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', 500, 'MiniBatchSize', 128);
-    
-    this_score = max(score);
-    if isempty(this_score)
-        this_score = 0;
-    end
-
-    disp(horzcat('robot score: ', num2str(this_score)))
-
-    this_score = sigmoid(this_score, 0.95, 100);
-
-    if ~use_cnn
-        vis_pref_vals(8, 1) = this_score * 50;
-        vis_pref_vals(8, 2) = this_score * 50;
-    else
-        vis_pref_vals(12, 1) = this_score * 50;
-        vis_pref_vals(12, 2) = this_score * 50;
-    end
-
-end
 
 % Lesson 3 nets
 if use_custom_net

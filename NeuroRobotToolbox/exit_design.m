@@ -5,6 +5,8 @@ u = b .* v;
 spikes_loop = zeros(size(spikes_loop));
 run_button = 0;
 firing = false(nneurons, 1);
+delays = zeros(nneurons, 1);
+counters = zeros(nneurons, 1);
 
 % Command log
 if save_data_and_commands

@@ -452,6 +452,8 @@ if exist('rak_only', 'var') && brain_support
     this_distance = 4000;
     reward = 0;
     firing = false(nneurons, 1);
+    delays = zeros(nneurons, 1);
+    counters = zeros(nneurons, 1);
     manual_control = 0;
     nasal_color_discount = [linspace(2, 0, left_yx(2)); linspace(0, 2, left_yx(2))];
     

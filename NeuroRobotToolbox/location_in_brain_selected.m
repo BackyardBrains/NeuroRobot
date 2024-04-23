@@ -64,8 +64,6 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
             da_rew_neurons(nneurons, 1) = 0;
             bg_neurons(nneurons, 1) = 0;
             save_firing = zeros(nneurons, 1);
-            delays = zeros(nneurons, 1);
-            counters = zeros(nneurons, 1);
 
             % Open selection menu
             text_heading = uicontrol('Style', 'text', 'String', 'What kind of neuron is this?', 'units', 'normalized', 'position', [0.02 0.95 0.29 0.03], 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
