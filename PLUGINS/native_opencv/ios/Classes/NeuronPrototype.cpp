@@ -287,7 +287,8 @@ EXTERNC FUNCTION_ATTRIBUTE double passInput(double *p_sensor_distance){
 //     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts,
-    void (*onRequest)(const char*)){  
+    short* p_mapNeuronType, short* p_mapDelayNeuron, short* p_mapRhytmicNeuron, short* p_mapCountingNeuron
+    ){
     // platform_log("changeNeuronSimulatorProcess 0");
     initializeConstant(_neuronLength);
 
@@ -301,15 +302,44 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     u=new double[_neuronLength];
     motor_command = _motor_command;
 
+    isNeuronBurstingTriggered = new short[_neuronLength];
+    isNeuronInhibitor = new short[_neuronLength];
+    isNeuronDelaying = new short[_neuronLength];
+    isRhytmicDelaying = new short[_neuronLength];
+    neuronDelayTime = new long long[_neuronLength];
+    neuronRhytmicTime = new long long[_neuronLength];
+    neuronCountingTime = new long long[_neuronLength];
     
     // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
     // visPrefs = new short*[_neuronLength];
     // neuron_contacts = new double*[_neuronLength];
+    mapNeuronType = p_mapNeuronType;
+
+    mapDelayNeuron = p_mapDelayNeuron;
+    mapRhytmicNeuron = p_mapRhytmicNeuron;
+    mapCountingNeuron = p_mapCountingNeuron;
+    
+    mapDelayCounter = new short[_neuronLength];
+    mapRhytmicCounter = new short[_neuronLength];
+    mapCountingCounter = new short[_neuronLength];
+    // mapAdditionalNeuronTypes = new short*[_neuronLength];
+
     int ctr = 0;
     double flagcounter = 0;
     for (int ii = 0; ii < _neuronLength; ii++){
+        isNeuronInhibitor[ii] = 0;
+        isNeuronDelaying[ii] = 0;
+        isRhytmicDelaying[ii] = 0;
+        neuronDelayTime[ii] = 0;
+        neuronRhytmicTime[ii] = 0;
+        neuronCountingTime[ii] = 0;
         connectome[ii] = new double[_neuronLength]();
+        mapDelayCounter[ii] = -1;
+        mapRhytmicCounter[ii] = -1;
+        mapCountingCounter[ii] = -1;
+
+        // mapAdditionalNeuronTypes[ii] = new short[_neuronLength];
         // visPrefs[ii] = new short[_neuronLength]();
         // neuron_contacts[ii] = new double[_neuronLength]();
         for (int j = 0; j < _neuronLength; j++){
@@ -361,12 +391,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             spikes_step = new short*[threadInitialTotalNumOfNeurons];
+            auto start = std::chrono::high_resolution_clock::now();
             for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                 spikes_step[iStep] = new short[epochs];
+                neuronDelayTime[iStep] = start.time_since_epoch().count()/1000000;
+                neuronRhytmicTime[iStep] = neuronDelayTime[iStep];
+                neuronCountingTime[iStep] = neuronDelayTime[iStep];
             }
             // firing = new short[threadInitialTotalNumOfNeurons];
 
-            // auto start = std::chrono::high_resolution_clock::now();
             // auto elapsed = std::chrono::high_resolution_clock::now() - start;
             // long long microseconds = 0;
             // bool isNeuronPerSecond = false;
@@ -451,10 +484,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             // double val1 = vis_pref_vals[k][0];
                             // double val2 = vis_pref_vals[k][1];
                             if (jj == 1){
-                                double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
+                                // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
+                                double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
                                 sumVisPrefVals += val1;
                             }else{
-                                double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, 7);
+                                double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
                                 sumVisPrefVals += val2;
                             }
                         }
@@ -506,12 +540,40 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         #endif                        
                         //find spiking neurons
                         isSpiking[neuronIndex] = 0;
-
+                        isNeuronBurstingTriggered[neuronIndex] = 0;
+                        
                         if (v[neuronIndex] >= 30) {
                             isSpiking[neuronIndex] = 1;
                             isStepSpiking[neuronIndex] = 1;
                             spikingNow.push_back(neuronIndex);
                             spikes_step[neuronIndex][t] = 1;
+
+                            // Additional Neuron Type
+                            short delayVal = mapDelayNeuron[neuronIndex];
+                            short rhytmicVal = mapRhytmicNeuron[neuronIndex];
+                            short countingVal = mapCountingNeuron[neuronIndex];
+                            
+                            short neuronType = mapNeuronType[neuronIndex];
+                            bool isInhibitor = false;
+                            if (neuronType >= 1000){
+                                isInhibitor = true;
+                                neuronType %= 1000;
+                            }
+
+                            if (neuronType == 8 && delayVal != -1){ //delay
+                                isNeuronDelaying[neuronIndex] = 1;
+                            }else
+                            if (neuronType == 9 && rhytmicVal != -1){ //rhytmic
+                                isRhytmicDelaying[neuronIndex] = 1;
+                            }else
+                            if (neuronType == 10 && countingVal != -1){ //rhytmic
+                                isCountingDelaying[neuronIndex] = 1;
+                            }
+
+                            if (isInhibitor){ // if spiking again, decayMultipliers reset to 1
+                                decayMultipliers[neuronIndex] = 1;
+                            }
+
                         }
                     }
 
@@ -529,12 +591,93 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         u[neuronIndex] = u[neuronIndex] + d[neuronIndex];
                     }
 
+                    for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++){
+
+                        if (isNeuronDelaying[neuronIndex] == 0 || isRhytmicDelaying[neuronIndex] == 0 || isRhytmicDelaying[neuronIndex] == 0) continue;
+                        int isBursting = 0;
+
+                        short neuronType = mapNeuronType[neuronIndex];
+                        if (neuronType >= 1000){
+                            isNeuronInhibitor[neuronIndex] = 1;
+                            neuronType %= 1000;
+                        }
+
+                        short delayVal = mapDelayNeuron[neuronIndex];
+                        short rhytmicVal = mapRhytmicNeuron[neuronIndex];
+                        short countingVal = mapCountingNeuron[neuronIndex];
+                        
+                        if (neuronType == 8 && delayVal != -1){ //delay
+
+                            start = std::chrono::high_resolution_clock::now();
+                            long long now = start.time_since_epoch().count()/1000000;
+
+                            if (now - neuronDelayTime[neuronIndex] > delayVal){
+                                isNeuronDelaying[neuronIndex] = 0; // run only once, 
+                                isBursting = 2;
+                            } else {
+                                isBursting = 1;
+                            }
+                        }else
+                        if (neuronType == 9 && rhytmicVal != -1){ // rhytmic neuron type
+                            start = std::chrono::high_resolution_clock::now();
+                            long long now = start.time_since_epoch().count()/1000000;
+
+                            if (now - neuronRhytmicTime[neuronIndex] > rhytmicVal){
+                                neuronRhytmicTime[neuronIndex] = now; // run intervally, because isRhytmicDelaying still 1
+                                isBursting = 2;
+                            }else{
+                                isBursting = 1;
+                            }
+
+                        }else
+                        if (neuronType == 10 && countingVal != -1){ // counting neuron type
+                            start = std::chrono::high_resolution_clock::now();
+                            long long now = start.time_since_epoch().count()/1000000;
+
+                            if (now - neuronCountingTime[neuronIndex] > countingTimeTrigger){
+                                neuronCountingTime[neuronIndex] = now; // run intervally, because isRhytmicDelaying still 1
+                                mapCountingCounter[neuronIndex]++;
+                            }
+                            
+                            if (mapCountingCounter[neuronIndex]> countingVal) {
+                                isCountingDelaying[neuronIndex] = 0;
+                                isBursting = 2;
+                            }else{
+                                isBursting = 1;
+                            }
+                        }
+                        // update if there is any delay
+                        isNeuronBurstingTriggered[neuronIndex] = isBursting;
+                    }
+
                     double *sumConnectome = new double[threadTotalNumOfNeurons]();
+                    // get all neurons 
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         short spikingNeuronIndex = static_cast<short>(spikingNow[idx]);
+                        short neuronType = mapNeuronType[spikingNeuronIndex];
+                        bool isInhibitor = false;
+                        if (neuronType >= 1000){
+                            isInhibitor = true;
+                        }
 
                         for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
-                            sumConnectome[j] += connectome[spikingNeuronIndex][j];
+                            if (connectome[spikingNeuronIndex][j] != 0){
+                                if (isNeuronBurstingTriggered[spikingNeuronIndex] == 0){
+                                    sumConnectome[j] += connectome[spikingNeuronIndex][j];
+                                }else
+                                if (isNeuronBurstingTriggered[spikingNeuronIndex] == 2){
+                                    // sumConnectome[j] += decayMultipliers[spikingNeuronIndex] * connectome[spikingNeuronIndex][j];
+                                    sumConnectome[j] += decayMultipliers[spikingNeuronIndex] * 100;
+                                    if (isInhibitor){ // decay multiplier
+                                        decayMultipliers[spikingNeuronIndex] -= 0.1;
+                                        if (decayMultipliers[spikingNeuronIndex] < 0.1){
+                                            decayMultipliers = 0;
+                                        }
+                                    }
+                                }
+
+                            }
+                            // the line above is saying add weight from a spiking neuron to target neuron 
                         }
                     }
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
@@ -562,7 +705,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         // Adjust for continuous time
                         v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
                         //Update u
+
                         u[neuronIndex] = u[neuronIndex] + a[neuronIndex] * (b[neuronIndex]*v[neuronIndex] - u[neuronIndex]);
+
                     }
                 }
 
@@ -603,9 +748,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 std::string str = "S|";
                 // short isFlagSpikingNow = 0;
-                for (int idx=0; idx<threadTotalNumOfNeurons; idx++){
-                    neuronCircles[idx] = isStepSpiking[idx];
-                }
+                // for (int idx=0; idx<threadTotalNumOfNeurons; idx++){
+                //     neuronCircles[idx] = isStepSpiking[idx];
+                // }
 
                 // #ifdef __EMSCRIPTEN__
                 //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
@@ -706,7 +851,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 short tempWeight = 0;
 
                 for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
-                    if ( isStepSpiking[iStep] == 1 ){
+                    short isSpiking = isStepSpiking[iStep];
+                    if (isNeuronBurstingTriggered[iStep] == 1){ // still delaying bursting
+                        isSpiking = 100;
+                    }else
+                    if (isNeuronBurstingTriggered[iStep] == 2){ // burst now
+                        isSpiking = 101;
+                    }
+                    neuronCircles[iStep] = isSpiking % 100;
+                    if ( isSpiking == 1 || isSpiking == 101 ){
                         // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
                         short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
                         if (speaker_val > -1){
@@ -1063,6 +1216,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] v_traces;
                 delete[] vis_I;
                 delete[] dist_I;
+
+                delete[] isNeuronInhibitor;
+                delete[] isNeuronDelaying;
+                delete[] isRhytmicDelaying;
+                delete[] mapDelayCounter;
+                delete[] mapRhytmicCounter;
+                delete[] mapCountingCounter;
+                delete[] neuronDelayTime;
 
                 #ifdef __EMSCRIPTEN__
                     std::terminate();

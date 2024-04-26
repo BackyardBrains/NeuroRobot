@@ -133,7 +133,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     "Bursts when activated",
     "Dopaminergic",
     "Striatal",
-    "Custom"
+    "Custom",
+    "Delay",
+    "Rhytmic",
   ];
 
   List<String> neuronMenuTypes = [
@@ -144,7 +146,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     "Bursts when activated",
     "Dopaminergic",
     "Striatal",
-    "Custom"
+    "Custom",
+    "Delay",
+    "Rhytmic",
   ];
   late List<DropdownMenuItem> dropdownNeuronItems;
 
@@ -157,16 +161,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     "Red",
     "Red (side)",
     "Movement", // 7
+    "person",
+    "backpack",
+    "bottle",
+    "cup",
+    "bowl",
     "banana",
     "apple",
-    "sandwich",
     "orange",
-    "broccoli",
-    "carrot",
-    "hot dog",
-    "pizza",
-    "donut",
-    "cake",
+    "chair",
+    "couch",
+    "potted plant",
+    "laptop",
+    "cell phone",
+    "book",
+    "vase",
   ];
   late List<DropdownMenuItem> dropdownCameraItems;
 
@@ -245,6 +254,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ffi.Pointer<ffi.Int16> neuronLedPositionBuf;
   late ffi.Pointer<ffi.Double> distanceBuf;
 
+  late ffi.Pointer<ffi.Int16> mapNeuronTypeBuf;
+  late ffi.Pointer<ffi.Int16> mapDelayNeuronBuf;
+  late ffi.Pointer<ffi.Int16> mapRhytmicNeuronBuf;
+  late ffi.Pointer<ffi.Int16> mapCountingNeuronBuf;
+
   late ffi.Pointer<ffi.Int32> stateBuf;
   late ffi.Pointer<ffi.Double> visPrefsValsBuf;
   late ffi.Pointer<ffi.Uint8> motorCommandMessageBuf;
@@ -270,6 +284,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late Int16List neuronLedBufView = Int16List(0);
   late Int16List neuronLedPositionBufView = Int16List(0);
   late Float64List distanceBufView = Float64List(0);
+
+  late Int16List mapNeuronTypeBufView = Int16List(0);
+  late Int16List mapDelayNeuronBufView = Int16List(0);
+  late Int16List mapRhytmicNeuronBufView = Int16List(0);
+  late Int16List mapCountingNeuronBufView = Int16List(0);
 
   String batteryVoltage = "0";
 
@@ -355,7 +374,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int StateLength = 20;
   int MotorMessageLength = 300;
   // int VisualPrefLength = 7 * 2;
-  int VisualPrefLength = 17 * 2;
+  final rightEyeConstant = 15 + 7;
+  int VisualPrefLength = 22 * 2;
 
   late Widget mainBody;
 
@@ -458,7 +478,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   String prevStrTorqueDataBuff = "";
 
-  int aiTypeLength = 10; // total labels of the TFLite Model
+  int aiTypeLength = 15; // total labels of the TFLite Model
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -472,21 +492,26 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // print(motorCommandBufView.length);
     // print(visPrefsBufView);
     nativec.changeNeuronSimulatorProcess(
-        aBuf,
-        bBuf,
-        cBuf,
-        dBuf,
-        iBuf,
-        wBuf,
-        connectomeBuf,
-        level,
-        neuronSize,
-        envelopeSize,
-        bufferSize,
-        1,
-        visPrefsBuf,
-        motorCommandBuf,
-        neuronContactsBuf);
+      aBuf,
+      bBuf,
+      cBuf,
+      dBuf,
+      iBuf,
+      wBuf,
+      connectomeBuf,
+      level,
+      neuronSize,
+      envelopeSize,
+      bufferSize,
+      1,
+      visPrefsBuf,
+      motorCommandBuf,
+      neuronContactsBuf,
+      mapNeuronTypeBuf,
+      mapDelayNeuronBuf,
+      mapRhytmicNeuronBuf,
+      mapCountingNeuronBuf,
+    );
   }
 
   void initMemoryAllocation() {
@@ -508,6 +533,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
     wBuf = allocate<ffi.Double>(
         count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Double>());
+
+    mapNeuronTypeBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer, sizeOfType: ffi.sizeOf<ffi.Int16>());
+    mapDelayNeuronBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer * maxPosBuffer,
+        sizeOfType: ffi.sizeOf<ffi.Int16>());
+    mapRhytmicNeuronBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer * maxPosBuffer,
+        sizeOfType: ffi.sizeOf<ffi.Int16>());
+    mapCountingNeuronBuf = allocate<ffi.Int16>(
+        count: maxPosBuffer * maxPosBuffer,
+        sizeOfType: ffi.sizeOf<ffi.Int16>());
 
     visPrefsBuf = allocate<ffi.Int16>(
         count: maxPosBuffer * maxPosBuffer,
@@ -617,6 +654,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       neuronLedPositionBufView =
           neuronLedPositionBuf.asTypedList(neuronSize * neuronSize);
 
+      mapNeuronTypeBufView = mapNeuronTypeBuf.asTypedList(neuronSize);
+      mapDelayNeuronBufView = mapDelayNeuronBuf.asTypedList(neuronSize);
+      mapRhytmicNeuronBufView = mapRhytmicNeuronBuf.asTypedList(neuronSize);
+      mapCountingNeuronBufView = mapCountingNeuronBuf.asTypedList(neuronSize);
       // if (!isSimulationCallbackAttached) {
       //   isSimulationCallbackAttached = true;
       nativec.simulationCallback(updateFromSimulation);
@@ -637,6 +678,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     connectomeBufView.fillRange(0, neuronSize * neuronSize, 0.0);
     visPrefsBufView.fillRange(0, neuronSize * neuronSize, -1);
     visPrefsValsBufView.fillRange(0, VisualPrefLength, 0);
+
+    mapNeuronTypeBufView.fillRange(0, neuronSize, -1);
+    mapDelayNeuronBufView.fillRange(0, neuronSize, -1);
+    mapRhytmicNeuronBufView.fillRange(0, neuronSize, -1);
+    mapCountingNeuronBufView.fillRange(0, neuronSize, -1);
 
     neuronContactsBufView.fillRange(0, neuronSize * neuronSize, 0);
     motorCommandBufView.fillRange(0, motorCommandsLength, 0.0);
@@ -915,6 +961,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     freeMemory(visPrefsValsBuf);
     freeMemory(Nativec.canvasBuffer1);
     // freeMemory(nativec.canvasBuffer2);
+    freeMemory(mapNeuronTypeBuf);
+    freeMemory(mapDelayNeuronBuf);
+    freeMemory(mapRhytmicNeuronBuf);
+    freeMemory(mapCountingNeuronBuf);
   }
 
   Future<String> startWebSocket() async {
@@ -1067,6 +1117,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           setState(() {
             isCheckingImage = false;
             results = values['recognitions'];
+            // print("results");
+            // print(results);
             aiStats = values['stats'];
             if (results!.isNotEmpty) {
               aiStats?["Confidence Score"] =
@@ -1079,28 +1131,35 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
           for (int i = 0; i < aiTypeLength; i++) {
             visPrefsValsBufView[7 + i] = 0;
-            visPrefsValsBufView[7 + i + 17] = 0;
+            visPrefsValsBufView[7 + i + rightEyeConstant] = 0;
           }
 
           if (results != null && results!.isNotEmpty) {
-            int foundIdx = cameraMenuTypes.indexOf(results![0].label.trim());
-            // reset value
-            // set new value
-            for (String key in mapSensoryNeuron.keys) {
-              if (mapSensoryNeuron[key] == foundIdx) {
-                // print("results");
+            // int detectionLength = results!.length;
+            int detectionLength = 1;
+            for (int i = 0; i < 1; i++) {
+              int foundIdx = cameraMenuTypes.indexOf(results![i].label.trim());
+              // reset value
+              // set new value
+              for (String key in mapSensoryNeuron.keys) {
+                if (mapSensoryNeuron[key] == foundIdx) {
+                  // print("results");
+                  Recognition r = results![i];
+                  if (key.contains(nodeLeftEyeSensor.key.toString()) &&
+                      containImage(r.location, false)) {
+                    visPrefsValsBufView[foundIdx] = results![i].score * 50;
+                  } else if (key.contains(nodeRightEyeSensor.key.toString()) &&
+                      containImage(r.location, true)) {
+                    visPrefsValsBufView[foundIdx + rightEyeConstant] =
+                        results![i].score * 50;
+                  }
+                  // print(foundIdx);
+                  // print(visPrefsValsBufView);
 
-                if (key.contains(nodeLeftEyeSensor.key.toString())) {
-                  visPrefsValsBufView[foundIdx] = results![0].score * 50;
-                } else if (key.contains(nodeRightEyeSensor.key.toString())) {
-                  visPrefsValsBufView[foundIdx + 17] = results![0].score * 50;
+                  // set visual preference = score * 50
+                } else {
+                  // set visual preference = 0;
                 }
-                // print(foundIdx);
-                // print(visPrefsValsBufView);
-
-                // set visual preference = score * 50
-              } else {
-                // set visual preference = 0;
               }
             }
           }
@@ -1108,7 +1167,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             // print("AI Visual Input run");
             for (int i = 0; i < aiTypeLength; i++) {
               visPrefsValsBufView[7 + i] = 0;
-              visPrefsValsBufView[7 + i + 17] = 0;
+              visPrefsValsBufView[7 + i + rightEyeConstant] = 0;
             }
             // print(visPrefsValsBufView);
           });
@@ -2844,7 +2903,38 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     for (int i = 0; i < neuronSize; i++) {
       // LocalKey neuronFromKey = findNeuronByValue(i).key;
       // InfiniteCanvasNode neuronFrom = findNeuronByValue(i);
+      bool isRhytmicNeuron = false;
       InfiniteCanvasNode neuronFrom = controller.nodes[i + 2];
+
+      int sign = 1;
+      int inhibitor = 0;
+      if (neuronStyles.containsKey(neuronFrom.id)) {
+        if (neuronStyles[neuronFrom.id] == "Inhibitory") {
+          sign = -1;
+          inhibitor = 1000;
+        }
+      }
+
+      if (neuronSize >= 2) {
+        String? neuronType = neuronTypes[neuronFrom.id];
+        if (neuronType != null) {
+          int neuronTypeIdx = neuronTypesLabel.indexOf(neuronType);
+
+          mapNeuronTypeBufView[i] = neuronTypeIdx + inhibitor;
+          if (neuronTypeIdx == 8) {
+            mapDelayNeuronBufView[i] = 3000;
+          } else if (neuronTypeIdx == 9) {
+            // isRhytmicNeuron = true;
+            mapDelayNeuronBufView[i] = 0;
+            // if (isRhytmicNeuron) {
+            mapRhytmicNeuronBufView[i] = 7000;
+            // }
+          }
+        }
+
+        if (sign == 1) {
+        } else {}
+      }
       // print("neuronFrom.value");
       // print(neuronFrom.value);
       for (int j = 0; j < neuronSize; j++) {
@@ -2854,12 +2944,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // String connectionKey = "${neuronFrom.value}_${neuronTo.value}";
         String connectionKey = "${neuronFrom.id}_${neuronTo.id}";
 
-        int sign = 1;
-        if (neuronStyles.containsKey(neuronFrom.id)) {
-          if (neuronStyles[neuronFrom.id] == "Inhibitory") {
-            sign = -1;
-          }
-        }
         // sensory neuron
         if (mapSensoryNeuron.containsKey(connectionKey)) {
           visPrefsBufView[ctr] = (mapSensoryNeuron[connectionKey]).floor();
@@ -2929,6 +3013,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // print(neuronLedBufView);
     // print(neuronMicrophoneBufView);
     // print(visPrefsBufView);
+    print("mapDelayNeuronBufView");
+    print(mapDelayNeuronBufView);
   }
 
   void runSimulation() {
@@ -5585,6 +5671,37 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     print(mapSensoryNeuron);
     print(aiVisualTypes);
     print(imageVisualTypes);
+  }
+
+  void refillMapNeuronType() {
+    mapNeuronTypeBufView.fillRange(0, neuronSize, -1);
+  }
+
+  bool containImage(Rect location, bool isRight) {
+    // double spaceDeterminer = 80; // 320 x 240
+    int centerX = 160; // 320/2
+    if (isRight) {
+      // print("location.left - centerX");
+      // print(centerX - location.left);
+      // print(location.right - centerX);
+
+      if (centerX - location.left < location.right - centerX) {
+        // right eye
+        return true;
+      } else if (centerX - location.left > location.right - centerX) {
+        // left eye
+        return false;
+      }
+    } else {
+      if (centerX - location.left > location.right - centerX) {
+        // left eye
+        return true;
+      } else if (centerX - location.left < location.right - centerX) {
+        // right eye
+        return false;
+      }
+    }
+    return false;
   }
 }
 

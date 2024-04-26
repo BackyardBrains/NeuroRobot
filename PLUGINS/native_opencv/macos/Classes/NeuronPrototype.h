@@ -72,7 +72,8 @@ uint8_t *motor_command_message;
 
 
 // OPENCV
-short vis_prefs_count = 7;
+// short vis_prefs_count = 7;
+short vis_prefs_count = 22;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short *visPrefs;
@@ -145,3 +146,35 @@ std::string greenLEDCmd ="d:0,0,255,0;d:1,0,255,0;d:2,0,255,0;d:3,0,255,0;"; // 
 std::string offLEDCmd = "d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;"; // off
 
 std::string prevMessage = "";
+
+
+// CUSTOM NEURON TYPES
+short* mapNeuronType;
+
+short* mapDelayCounter;
+short* mapRhytmicCounter;
+short* mapCountingCounter;
+
+short* mapDelayNeuron;
+short* mapRhytmicNeuron;
+short* mapCountingNeuron;
+// short** mapAdditionalNeuronTypes;
+
+short* isNeuronBurstingTriggered;
+short* isNeuronInhibitor;
+
+short* isNeuronDelaying;
+short* isRhytmicDelaying;
+short* isCountingDelaying;
+short* isNeuronDelayingValue;
+short* isRhytmicDelayingValue;
+short* isCountingDelayingValue;
+
+double* decayMultipliers;
+short countingTimeTrigger = 500;
+// The rate of this decay determines how long the target neuron remains inhibited.
+
+// std::chrono::milliseconds* neuronDelayTime;
+long long* neuronDelayTime;
+long long* neuronRhytmicTime;
+long long* neuronCountingTime;
