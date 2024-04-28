@@ -1,6 +1,6 @@
 
-imdim_h = 227;
-imdim_w = 302;
+imdim_h = 240;
+imdim_w = 320;
 
 if record_data > 0
 

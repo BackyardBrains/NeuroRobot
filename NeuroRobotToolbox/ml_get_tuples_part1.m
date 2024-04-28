@@ -18,6 +18,9 @@ n_unique_states = length(labels);
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 image_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.jpg'));
+
+% read ml_data_type here and load correctly, this is the adapted v1
+% process, original process and adapted v2 not currently implemented
 torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torque.txt'));
 
 ntorques = size(torque_dir, 1);

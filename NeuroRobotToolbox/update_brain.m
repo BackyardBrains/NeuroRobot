@@ -45,8 +45,8 @@ if nneurons
     for t = 1:ms_per_step
         
         % Delays
-        delays(v > 30 & neuron_scripts == 4 & delays < 1) = 30;
-        counters(v > 30 & neuron_scripts == 5 & counters < 1) = 30;
+        delays(v > 30 & neuron_scripts == 4 & delays < 1) = 10;
+        counters(v > 30 & neuron_scripts == 5 & counters < 1) = 10;
         v(v > 30 & neuron_scripts == 4 & delays ~= 2) = -65;
         
         % Add noise

@@ -145,7 +145,7 @@ if ~isempty(neuron_contacts) % This is until I've figured out the contacts for t
                     plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, char(vis_pref_names(this_vis_pref)), 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold'); % Seems to give error when drawing object detecting brain without use_cnn
                 end
                 
-                if ncontact == 3 && audio_prefs(nneuron)
+                if ncontact == 3 && ~isempty(audio_prefs) && audio_prefs(nneuron)
 %                     plot_contact_synapses(nneuron, ncontact, 3) = plot(x2b, y2b, 'marker', 'd', 'markerfacecolor', [0.8 0.8 0.8], 'markeredgecolor', [0.8 0.8 0.8], 'markersize', fs);
                     plot_contact_synapses(nneuron, ncontact, 4) = text(x2b, y2b, horzcat(num2str(audio_prefs(nneuron)), ' Hz'), 'fontsize', (bfsize + 2) * thick_synapse, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'FontWeight', 'bold');
                 end
@@ -226,7 +226,7 @@ if draw_synapses
                         end
                     end
                 end
-                if bg_neurons(p2)
+                if ~isempty(bg_neurons) && bg_neurons(p2)
                     adjust3 = adjust2 * 1.2;
                 else
                     adjust3 = adjust2;
@@ -256,9 +256,9 @@ if draw_synapses
                     lw = 2;
                     s = 9 - (small_neurons * 9);
                     m = 'square';
-                    if da_connectome(p1, p2) == 1
+                    if ~isempty(da_connectome) && da_connectome(p1, p2) == 1
                         mf = [1 0.7 0.4];
-                    elseif da_connectome(p1, p2) == 2
+                    elseif ~isempty(da_connectome) && da_connectome(p1, p2) == 2
                         mf = [0.6 0.7 1];
                     else
                         mf = 'w';
@@ -270,7 +270,7 @@ if draw_synapses
                     mf = 'w';
                 end
                 plot_neuron_synapses(p1, p2, 2) = plot(x2, y2, 'marker', m, 'markersize', s + (abs(w) / 10) * thick_synapse, 'linewidth', lw, 'markerfacecolor', mf, 'markeredgecolor', 'k');
-                if draw_synapse_strengths && ~small_neurons && ~bg_neurons(p2)
+                if draw_synapse_strengths && ~small_neurons && ~isempty(bg_neurons) && ~bg_neurons(p2)
                     w = round(w);
                     plot_neuron_synapses(p1, p2, 3) = text(x2, y2 + 0.15, num2str(w), 'fontsize', (bfsize + 2) * thick_neuron, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'color', [0.4 0.2 0]);
                 end
@@ -370,9 +370,9 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
 %             end
 %         end
 %     end
-    if exist('neuron_scripts', 'var')
+    if exist('neuron_scripts', 'var') && exist('full_net_name', 'var')
         for nneuron = 1:nneurons
-            if neuron_scripts(nneuron)
+            if ~isempty(neuron_scripts) && neuron_scripts(nneuron)
                 if neuron_scripts(nneuron) == 6
                     try
                         this_str = horzcat(state_net_name, '-', action_net_name);

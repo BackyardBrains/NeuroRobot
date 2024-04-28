@@ -283,7 +283,9 @@ if exist('rak_only', 'var') && brain_support
     script_step_count = 0;
     script_spike_count = 0;
     script_trigger = 0;
-    for nscript = 1:size(script_names, 2)
+    nscript = size(script_names, 2);
+    script_strs = struct;
+    for nscript = 1:nscript
         script_strs(nscript).name = script_names{nscript};
     end
     efferent_copy = 0;

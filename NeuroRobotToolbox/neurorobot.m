@@ -77,8 +77,8 @@ network_colors = [1 0.9 0.8; 0.4940 0.1840 0.5560; ...
     0.9 0.4250 0.0980; 1 0 1; 1 1 0; 1 0 1; ...
     0.4660 0.6740 0.1880; 0 1 1; 0.6350 0.0780 0.1840; ...
     0, 0.75, 0.75; 0, 0, 0.5];
-    basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
-    n_basic_vis_features = size(basic_vis_pref_names, 2);
+basic_vis_pref_names = {'Red', 'Red (side)', 'Green', 'Green (side)', 'Blue', 'Blue (side)', 'Movement'};
+n_basic_vis_features = size(basic_vis_pref_names, 2);
     
 
 %% Selection
