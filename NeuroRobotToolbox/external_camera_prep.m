@@ -26,5 +26,5 @@ ext_frame_zoom = ext_frame(yy-xpadding:yy+xpadding,xx-xpadding:xx+xpadding,:);
 subplot(2,1,2)
 draw_ext_zoom = image(ext_frame_zoom);
 hold on
-rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'r', 'linewidth', 2);
+rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'b', 'linewidth', 2);
 gblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'g', 'linewidth', 2);

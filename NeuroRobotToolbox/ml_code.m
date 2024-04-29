@@ -59,7 +59,7 @@ ml_9_name2_edit_pos =       [0.26 0.25 0.28 0.05];
 ml_10_train2_button_pos =    [0.05 0.18 0.2 0.05];
 ml_10_train2_status_pos =    [0.26 0.18 0.28 0.05];
 
-ml_11_advanced_button_pos =    [0.05 0.10 0.2 0.05];
+ml_11_advanced_button_pos =    [0.05 0.08 0.2 0.05];
 
 
 %% UI objects
@@ -109,8 +109,7 @@ ml_train5_status = axes('position', ml_10_train2_status_pos, 'xtick', [], 'ytick
 box on
 axis([0 1 0 1])
 
-ml_sc_button = uicontrol('Style', 'pushbutton', 'String', 'SC', 'Callback', 'rcnn_dev', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
-
+ml_custom_button = uicontrol('Style', 'pushbutton', 'String', 'Custom', 'Callback', 'ml_custom', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 
 
 %% Image Panels
@@ -118,12 +117,6 @@ im_ax1_pos = [0.58 0.2 0.39 0.65];
 im_ax1 = axes('position', im_ax1_pos);
 set(im_ax1, 'xtick', [], 'ytick', [], 'xcolor', fig_bg_col, 'ycolor', fig_bg_col)
 disp('Ready to train')
-
-
-% %% Data dir button
-% button_chop_pos = [0.58 0.04 0.15 0.05];
-% button_chop = uicontrol('Style', 'pushbutton', 'String', 'Data dir', 'units', 'normalized', 'position', button_chop_pos);
-% set(button_chop,'Callback', 'dataset_dir_name = uigetdir; ml_data_status.String = dataset_dir_name; drawnow', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
 %% Exit button
