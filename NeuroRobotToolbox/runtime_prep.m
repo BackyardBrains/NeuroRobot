@@ -27,14 +27,21 @@ else
     use_cnn = 0;
 end
 
-% 2 = 'CustomRCNN'
+% 2 = 'Robots R-CNN'
 if sum(select_nets.Value == 2)
     use_rcnn = 1;
 else
     use_rcnn = 0;
 end
 
-% 3 = 'Custom net'
+% 3 = 'XYO CNN'
+if sum(select_nets.Value == 3)
+    use_xyocnn = 1;
+else
+    use_xyocnn = 0;
+end
+
+% 4 = 'Custom net'
 if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
@@ -190,6 +197,10 @@ if exist('rak_only', 'var') && brain_support
         end
     end
 
+    if use_xyocnn
+        load(horzcat(nets_dir_name, 'xyoNet'))
+    end
+
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
@@ -208,37 +219,31 @@ if exist('rak_only', 'var') && brain_support
         try
             load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
             load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
-            regression_flag = 0;
+            
             unique_states = unique(labels);
             n_unique_states = length(unique_states);
             vis_pref_names = [vis_pref_names, labels'];
         catch
             disp('Unable to load convnet / state net')
-            % regression_flag = 1;
-            % vis_pref_names = [vis_pref_names, 'scalar'];
         end
         
         if length(cnet_temp) >= 1
-            % try    
-                load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
+            load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
 
-                % openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
-                load(strcat(nets_dir_name, state_net_name, '-states'))
-                load(strcat(nets_dir_name, state_net_name, '-torque_data'))
-                load(strcat(nets_dir_name, state_net_name, '-actions'))
-                load(strcat(nets_dir_name, state_net_name, '-tuples'))
-                load(strcat(nets_dir_name, state_net_name, '-mdp'))
-                
-                n_unique_states = length(unique(states));
-                n_unique_actions = length(unique(actions));
-                ntuples = size(states, 1);
-                disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
-                
-                % ml_visualize_mdp
-                ml_get_combs_quick
-            % catch
-                % disp('Unable to load agent / action net')
-            % end
+            % openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
+            load(strcat(nets_dir_name, state_net_name, '-states'))
+            load(strcat(nets_dir_name, state_net_name, '-torque_data'))
+            load(strcat(nets_dir_name, state_net_name, '-actions'))
+            load(strcat(nets_dir_name, state_net_name, '-tuples'))
+            load(strcat(nets_dir_name, state_net_name, '-mdp'))
+            
+            n_unique_states = length(unique(states));
+            n_unique_actions = length(unique(actions));
+            ntuples = size(states, 1);
+            disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
+            
+            % ml_visualize_mdp
+            ml_get_combs_quick
         end
     else
         state_net_name = '';

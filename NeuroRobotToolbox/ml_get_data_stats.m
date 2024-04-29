@@ -17,7 +17,7 @@ try
     serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial.txt'));
     image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.jpg'));
     ml_data_type = 1;
-    disp('Datasets found and indexed (original type')
+    disp('Datasets found and indexed (adapted type 1)')
 catch
 end
 
@@ -26,7 +26,7 @@ try
     serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
     torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
     ml_data_type = 2;
-    disp('Datasets found and indexed (adapted type v1)')
+    disp('Datasets found and indexed (original type)')
 catch
 end
 
@@ -38,7 +38,7 @@ try
     % Not yet implemented
 
     ml_data_type = 3;
-    disp('Datasets found and indexed (adapted type v2)')
+    disp('Datasets found and indexed (adapted type 2)')
 catch
 end
 
