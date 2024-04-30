@@ -134,8 +134,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     "Dopaminergic",
     "Striatal",
     "Custom",
-    "Delay",
-    "Rhytmic",
+    "Delay", //8
+    "Rhytmic", //9
+    "Counting", //10
   ];
 
   List<String> neuronMenuTypes = [
@@ -149,6 +150,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     "Custom",
     "Delay",
     "Rhytmic",
+    "Counting", //10
   ];
   late List<DropdownMenuItem> dropdownNeuronItems;
 
@@ -3005,7 +3007,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         ctr++;
       }
     }
-    // print("neuronContactsBufView");
+    print("neuronContactsBufView");
+    print(mapNeuronTypeBufView);
+    print(mapConnectome);
     // print(neuronContactsBufView);
     // print(connectomeBufView);
     // print(neuronDistanceBufView);
@@ -3681,10 +3685,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       print("MENU IDX 8");
       print("BUF IDX 7");
       print(mapConnectome);
-      print(aBufView);
-      print(bBufView);
-      print(cBufView);
-      print(dBufView);
+      // print(aBufView);
+      // print(bBufView);
+      // print(cBufView);
+      // print(dBufView);
 
       controller.mouseDown = false;
       controller.setCanvasMove(false);
