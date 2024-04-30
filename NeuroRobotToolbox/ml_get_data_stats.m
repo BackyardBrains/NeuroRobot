@@ -30,17 +30,17 @@ try
 catch
 end
 
-try
-    image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.png'));
+% try
+    % image_ds = imageDatastore(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*large_frame_x.png'));
     % serial_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*serial_data.mat'));
     % torque_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*torques.mat'));
 
     % Not yet implemented
 
-    ml_data_type = 3;
-    disp('Datasets found and indexed (adapted type 2)')
-catch
-end
+    % ml_data_type = 3;
+    % disp('Datasets found and indexed (adapted type 2)')
+% catch
+% end
 
 nimages = length(image_ds.Files);
 
