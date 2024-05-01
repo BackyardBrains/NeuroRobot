@@ -27,14 +27,14 @@ else
     use_cnn = 0;
 end
 
-% 2 = 'Robots R-CNN'
+% 2 = 'robotNet'
 if sum(select_nets.Value == 2)
     use_rcnn = 1;
 else
     use_rcnn = 0;
 end
 
-% 3 = 'XYO CNN'
+% 3 = 'xyoNet'
 if sum(select_nets.Value == 3)
     use_xyocnn = 1;
 else
@@ -191,9 +191,9 @@ if exist('rak_only', 'var') && brain_support
         vis_pref_names = [basic_vis_pref_names, this_label];  
         n_vis_prefs = size(vis_pref_names, 2);
         if length(trained_nets) > 1
-            trained_nets{2} = 'CustomRCNN';
+            trained_nets{2} = 'xyoNet';
         elseif length(trained_nets) == 1
-            trained_nets{1} = 'CustomRCNN';
+            trained_nets{1} = 'xyoNet';
         end
     end
 

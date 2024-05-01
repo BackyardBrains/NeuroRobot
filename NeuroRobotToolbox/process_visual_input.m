@@ -108,7 +108,7 @@ end
 % XYO Net
 if use_xyocnn
     lframe = imresize(large_frame, [240 320]);
-    xyo = predict(net, double(lframe));
+    xyo = predict(xyoNet, double(lframe));
     disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
 end
 
