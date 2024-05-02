@@ -1,9 +1,11 @@
 
 ml_get_data_stats
 
+image_ds.ReadFcn = @resize_read;
+
 ext_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*ext_data.mat'));
 
-net_name = 'xyoNet';
+net_name = 'xyoNet_livingroom3';
 
 ntuples = size(ext_dir, 1);
 
@@ -65,6 +67,7 @@ n1 = sum(thetas > 360);
 ns = randsample(360, n1, 1);
 thetas(thetas > 360) = ns;
 
+
 %%
 
 figure(3)
@@ -82,22 +85,16 @@ subplot(3,2,3)
 histogram(thetas)
 title('o')
 
+
 %%
-% xyo_l1 = 4;
-% xyo_l2 = 4;
-% xyo_l3 = 4;
-% xyo_l4 = 10;
-% xyo_l5 = 10;
-% xyo_drop = 1; % LearnRateDropPeriod
-% xyo_maxeps = 2;
-% xyo_minbatch = 128;
 
 xyos = arrayDatastore([robot_xys(:,1) robot_xys(:,2) thetas]);
 training_data = combine(image_ds, xyos);
 numResponses = 3;
 
 layers = [
-    imageInputLayer([240 320 3])    
+    % imageInputLayer([240 320 3])    
+    imageInputLayer([48 64 3]) 
     convolution2dLayer(3,xyo_l1,'Padding','same')
     batchNormalizationLayer
     reluLayer    
@@ -145,7 +142,7 @@ save(strcat(nets_dir_name, net_name), 'xyoNet')
 xyo_net_vals = zeros(ntuples, 3);
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/100))
-        disp(num2str((ntuple+1)/ntuples))
+        disp(num2str(ntuple/ntuples))
     end
     im = readimage(image_ds, ntuple);
     xyo_net_vals(ntuple, :) = predict(xyoNet, double(im));
