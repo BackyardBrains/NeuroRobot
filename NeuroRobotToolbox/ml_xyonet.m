@@ -47,8 +47,8 @@ for ntuple = 1:ntuples
 
 end
 
-thetas = round(thetas);
-robot_xys = round(robot_xys);
+% thetas = round(thetas);
+% robot_xys = round(robot_xys);
 
 x = robot_xys(:,1);
 y = robot_xys(:,2);
@@ -139,7 +139,7 @@ xyoNet = trainnet(training_data, layers, 'mse', options);
 
 save(strcat(nets_dir_name, net_name), 'xyoNet')
 
-load(strcat(nets_dir_name, net_name))
+% load(strcat(nets_dir_name, net_name))
 
 %%
 xyo_net_vals = zeros(ntuples, 3);
