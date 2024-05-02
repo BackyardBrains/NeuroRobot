@@ -144,8 +144,8 @@ save(strcat(nets_dir_name, net_name), 'xyoNet')
 %%
 xyo_net_vals = zeros(ntuples, 3);
 for ntuple = 1:ntuples
-    if ~rem(ntuple, round(ntuples/10))
-        disp(num2str(ntuple/ntuples))
+    if ~rem(ntuple, round(ntuples/100))
+        disp(num2str((ntuple+1)/ntuples))
     end
     im = readimage(image_ds, ntuple);
     xyo_net_vals(ntuple, :) = predict(xyoNet, double(im));
