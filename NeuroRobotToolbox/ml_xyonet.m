@@ -1,4 +1,5 @@
 
+state_net_name = ml_name1_edit.String;
 ml_get_data_stats
 n_unique_states = init_n_unique_states;
 
@@ -150,7 +151,7 @@ end
 
 
 %%
-figure(3)
+figure(12)
 
 subplot(3,2,4)
 scatter(robot_xys(:,1), xyo_net_vals(:,1))
@@ -171,61 +172,65 @@ title('O')
 %%
 states = zeros(ntuples, 1);
 
-if init_n_unique_states == 16
+if n_unique_states == 16
 
     for ntuple = 1:ntuples
 
-        if thetas(ntuple) >= 0 && thetas(ntuple) < 90
-            if y(ntuple) <= 200
-                if x(ntuple) < 250
+        x = xyo_net_vals(ntuple, 1);
+        y = xyo_net_vals(ntuple, 2);
+        o = xyo_net_vals(ntuple, 3);
+
+        if o >= 0 && o < 90
+            if y <= 200
+                if x < 250
                     states(ntuple) = 1;
                 else
                     states(ntuple) = 2;
                 end
             else
-                if x(ntuple) < 250
+                if x < 250
                     states(ntuple) = 3;
                 else
                     states(ntuple) = 4;
                 end
             end
-        elseif thetas(ntuple) >= 90 && thetas(ntuple) < 180
-            if y(ntuple) <= 200
-                if x(ntuple) < 250
+        elseif o >= 90 && o < 180
+            if y <= 200
+                if x < 250
                     states(ntuple) = 5;
                 else
                     states(ntuple) = 6;
                 end
             else
-                if x(ntuple) < 250
+                if x < 250
                     states(ntuple) = 7;
                 else
                     states(ntuple) = 8;
                 end
             end
-        elseif thetas(ntuple) >= 180 && thetas(ntuple) < 270
-            if y(ntuple) <= 200
-                if x(ntuple) < 250
+        elseif o >= 180 && o < 270
+            if y <= 200
+                if x < 250
                     states(ntuple) = 9;
                 else
                     states(ntuple) = 10;
                 end
             else
-                if x(ntuple) < 250
+                if x < 250
                     states(ntuple) = 11;
                 else
                     states(ntuple) = 12;
                 end
             end    
         else
-            if y(ntuple) <= 250
-                if x(ntuple) < 250
+            if y <= 250
+                if x < 250
                     states(ntuple) = 13;
                 else
                     states(ntuple) = 14;
                 end
             else
-                if x(ntuple) < 250
+                if x < 250
                     states(ntuple) = 15;
                 else
                     states(ntuple) = 16;
@@ -234,108 +239,108 @@ if init_n_unique_states == 16
         end
     end
 
-elseif init_n_unique_states == 36
+elseif n_unique_states == 36
 
     for ntuple = 1:ntuples
-        if thetas(ntuple) >= 0 && thetas(ntuple) < 90
-            if y(ntuple) <= 200
-                if x(ntuple) < 233
+        if o >= 0 && o < 90
+            if y <= 200
+                if x < 233
                     states(ntuple) = 1;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 2;
                 else
                     states(ntuple) = 3;
                 end
-            elseif y(ntuple) <= 300
-                if x(ntuple) < 233
+            elseif y <= 300
+                if x < 233
                     states(ntuple) = 4;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 5;
                 else
                     states(ntuple) = 6;
                 end
             else
-                if x(ntuple) < 233
+                if x < 233
                     states(ntuple) = 7;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 8;
                 else
                     states(ntuple) = 9;
                 end
             end
-        elseif thetas(ntuple) >= 90 && thetas(ntuple) < 180
-            if y(ntuple) <= 200
-                if x(ntuple) < 233
+        elseif o >= 90 && o < 180
+            if y <= 200
+                if x < 233
                     states(ntuple) = 10;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 11;
                 else
                     states(ntuple) = 12;
                 end
-            elseif y(ntuple) <= 300
-                if x(ntuple) < 233
+            elseif y <= 300
+                if x < 233
                     states(ntuple) = 13;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 14;
                 else
                     states(ntuple) = 15;
                 end
             else
-                if x(ntuple) < 233
+                if x < 233
                     states(ntuple) = 16;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 17;
                 else
                     states(ntuple) = 18;
                 end
             end
-        elseif thetas(ntuple) >= 180 && thetas(ntuple) < 270
-            if y(ntuple) <= 200
-                if x(ntuple) < 233
+        elseif o >= 180 && o < 270
+            if y <= 200
+                if x < 233
                     states(ntuple) = 19;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 20;
                 else
                     states(ntuple) = 21;
                 end
-            elseif y(ntuple) <= 300
-                if x(ntuple) < 233
+            elseif y <= 300
+                if x < 233
                     states(ntuple) = 22;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 23;
                 else
                     states(ntuple) = 24;
                 end
             else
-                if x(ntuple) < 233
+                if x < 233
                     states(ntuple) = 25;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 26;
                 else
                     states(ntuple) = 27;
                 end
             end
         else
-            if y(ntuple) <= 200
-                if x(ntuple) < 233
+            if y <= 200
+                if x < 233
                     states(ntuple) = 28;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 29;
                 else
                     states(ntuple) = 30;
                 end
-            elseif y(ntuple) <= 300
-                if x(ntuple) < 233
+            elseif y <= 300
+                if x < 233
                     states(ntuple) = 31;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 32;
                 else
                     states(ntuple) = 33;
                 end
             else
-                if x(ntuple) < 233
+                if x < 233
                     states(ntuple) = 34;
-                elseif x(ntuple) < 366
+                elseif x < 366
                     states(ntuple) = 35;
                 else
                     states(ntuple) = 36;
