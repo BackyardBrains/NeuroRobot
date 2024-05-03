@@ -28,7 +28,7 @@ classifier_ds = imageDatastore(strcat(workspace_dir_name, state_net_name, '\'), 
 % classifier_ds.ReadFcn = @customReadFcn; % imdim = 100
 
 net = [
-    imageInputLayer([imdim_h imdim_w 3])
+    imageInputLayer([ml_h ml_w 3])
     
     convolution2dLayer(3,ml_l1,'Padding','same')
     batchNormalizationLayer

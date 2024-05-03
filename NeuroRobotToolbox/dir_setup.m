@@ -65,45 +65,18 @@ else
     disp(horzcat('Dataset dir: ', dataset_dir_name))
 end
 
-available_dirs = dir(dataset_dir_name);
-available_dirs(1:2) = [];
-nrecs = length(available_dirs);
 
-clear hyper_dirs
-hyper_dirs{1} = strcat(userpath, '\Datasets\');
-
-if exist('C:\SpikerBot\Livingroom\', 'dir') && ~isempty('C:\SpikerBot\Livingroom\')
-    hyper_dirs{2} = 'C:\SpikerBot\Livingroom\';
-end
-
-if exist('C:\SpikerBot\Office\', 'dir') && ~isempty('C:\SpikerBot\Office\')
-    hyper_dirs{length(hyper_dirs)+1} = 'C:\SpikerBot\Office\';
-end
-
-if exist('C:\SpikerBot\Temp\', 'dir') && ~isempty('C:\SpikerBot\Temp\')
-    hyper_dirs{length(hyper_dirs)+1} = 'C:\SpikerBot\Temp\';
-end
-
-
-%% Network algorithms
+%% Settings
 if ispc
-    netalgo_dir_name = strcat(userpath, '\Netalgos\');
+    settings_dir_name = strcat(userpath, '\Settings\');
 elseif ismac
-    netalgo_dir_name = strcat(userpath, './Netalgos/');
+    settings_dir_name = strcat(userpath, './Settings/');
 end
 
-if ~exist(netalgo_dir_name, 'dir')
-    mkdir(netalgo_dir_name)
-    disp('Netalgo directory not found')
-    disp(horzcat('Created new netalgo directory: ', netalgo_dir_name))
-end
-
-available_settings = dir(strcat(netalgo_dir_name, '*.csv'));
-nsettings = size(available_settings, 1);
-if nsettings
-    disp(horzcat('Settings found: ', num2str(nsettings)))
-else
-    disp('No parameter settings found')
+if ~exist(settings_dir_name, 'dir')
+    mkdir(settings_dir_name)
+    disp('Settings directory not found')
+    disp(horzcat('Created new settings directory: ', settings_dir_name))
 end
 
 

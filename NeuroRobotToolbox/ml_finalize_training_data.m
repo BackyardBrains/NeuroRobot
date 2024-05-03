@@ -32,7 +32,7 @@ for nstate = 1:n_unique_states
     for nimage = 1:min_size
         this_ind = state_inds(nstate, nimage);
         this_im = imread(imageIndex.ImageLocation{this_ind});
-        this_im = imresize(this_im, [imdim_h imdim_w]);
+        this_im = imresize(this_im, [ml_h ml_w]);
         fname = strcat(workspace_dir_name, state_net_name, '\', this_dir, '\', 'im', num2str(this_ind), '.png');
         imwrite(this_im, fname);
     end

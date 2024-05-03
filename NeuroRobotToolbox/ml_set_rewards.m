@@ -29,11 +29,14 @@ bad_action = [];
 
 
 %% Create reward landscape
-disp('Creating reward landscape...')
-axes(ml_train5_status)
-cla
-tx9 = text(0.03, 0.5, 'Creating reward landscape...', 'FontSize', bfsize + 4);
-drawnow
+try
+    disp('Creating reward landscape...')
+    axes(ml_train5_status)
+    cla
+    tx9 = text(0.03, 0.5, 'Creating reward landscape...', 'FontSize', bfsize + 4);
+    drawnow
+catch
+end
 
 reward_counter = zeros(size(mdp.R));
 reward_counter(:, :, bad_action) = -1;

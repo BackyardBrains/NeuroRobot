@@ -46,6 +46,22 @@ drawnow
 catch
 end
 
+try
+figure(7)
+clf
+gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+hold on
+for naction = 1:n_unique_actions
+    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold');
+end
+axis padded
+set(gca, 'yscale', 'linear')
+title('Actions')
+xlabel('Left Motor')
+ylabel('Right Motor')
+catch
+end
+
 
 %% Get tuples
 tuples = zeros(ntuples, 3);
@@ -74,6 +90,8 @@ figure(12)
 clf
 set(gcf, 'position', [251 291 400 420], 'color', 'w')
 
-histogram(actions)
+histogram(actions, 'binwidth', 0.4)
 title('Actions')
 
+xlim([0 n_unique_actions + 1])
+set(gca, 'xtick', 1:n_unique_actions)

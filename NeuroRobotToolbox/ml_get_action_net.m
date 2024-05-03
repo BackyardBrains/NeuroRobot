@@ -2,10 +2,13 @@
 
 
 %%
-axes(ml_train5_status)
-cla
-tx10 = text(0.03, 0.5, horzcat('Training agent net...'), 'fontsize', bfsize + 4);
-drawnow
+try
+    axes(ml_train5_status)
+    cla
+    tx10 = text(0.03, 0.5, horzcat('Training agent net...'), 'fontsize', bfsize + 4);
+    drawnow
+catch
+end
 
 
 %% Unpack environment

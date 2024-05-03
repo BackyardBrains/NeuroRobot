@@ -1,7 +1,4 @@
 
-imdim_h = 240;
-imdim_w = 320;
-
 if record_data > 0
 
     if ~rem(xstep, 500)
@@ -13,8 +10,7 @@ if record_data > 0
 
     % Save image
     fname = strcat(dataset_dir_name, rec_dir_name, computer_name, '-', user_name, '-', this_time, '-', brain_name, '-', num2str(xstep), '-large_frame_x.png');    
-    this_frame = imresize(large_frame, [imdim_h imdim_w]);
-    imwrite(this_frame, fname);
+    imwrite(large_frame, fname);
     
     % Save torques
     torques = [left_torque_mem right_torque_mem];    
