@@ -174,14 +174,11 @@ n_unique_states = init_n_unique_states;
 
 states = zeros(ntuples, 1);
 
-if n_unique_states == 16
-
-    for ntuple = 1:ntuples
-
-        x = xyo_net_vals(ntuple, 1);
-        y = xyo_net_vals(ntuple, 2);
-        o = xyo_net_vals(ntuple, 3);
-
+for ntuple = 1:ntuples
+    x = xyo_net_vals(ntuple, 1);
+    y = xyo_net_vals(ntuple, 2);
+    o = xyo_net_vals(ntuple, 3);
+    if n_unique_states == 16
         if o >= 0 && o < 90
             if y <= 200
                 if x < 250
@@ -239,11 +236,7 @@ if n_unique_states == 16
                 end
             end            
         end
-    end
-
-elseif n_unique_states == 36
-
-    for ntuple = 1:ntuples
+    elseif n_unique_states == 36
         if o >= 0 && o < 90
             if y <= 200
                 if x < 233
@@ -349,9 +342,9 @@ elseif n_unique_states == 36
                 end
             end
         end
+    else
+        error('No xyo to states transform found')
     end
-else
-    error('No xyo to states transform found')
 end
 
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
