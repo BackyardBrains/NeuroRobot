@@ -12,10 +12,38 @@ set(button_new_brain, 'enable', 'off')
 drawnow
 
 
+%% Get settings
+available_settings = dir(strcat(settings_dir_name, 'settings.csv'));
+if ~isempty(available_settings)
+    disp('ML settings found')
+else
+    disp('No ML settings found')
+end
+
+
+%% Get directories
+available_dirs = dir(dataset_dir_name);
+available_dirs(1:2) = [];
+nrecs = length(available_dirs);
+
+clear dataset_dirs
+dataset_dirs{1} = strcat(userpath, '\Datasets\');
+
+if exist('C:\SpikerBot\Livingroom\', 'dir') && ~isempty('C:\SpikerBot\Livingroom\')
+    dataset_dirs{2} = 'C:\SpikerBot\Livingroom\';
+end
+
+if exist('C:\SpikerBot\Office\', 'dir') && ~isempty('C:\SpikerBot\Office\')
+    dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\Office\';
+end
+
+if exist('C:\SpikerBot\Temp\', 'dir') && ~isempty('C:\SpikerBot\Temp\')
+    dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\Temp\';
+end
+
+
 %% Prep
 ml_flag = 1;
-imdim_h = 240;
-imdim_w = 320;
 
 
 %% Prepare figure
@@ -65,10 +93,8 @@ ml_11_advanced_button_pos =    [0.05 0.08 0.2 0.05];
 %% UI objects
 ml_title = uicontrol('Style', 'text', 'String', 'Learning', 'units', 'normalized', 'position', ml_title_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 12, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
-available_dirs = dir(dataset_dir_name);
-available_dirs(1:2) = [];
 ml_data_str = uicontrol('Style', 'text', 'String', 'Data source:', 'units', 'normalized', 'position', ml_1_data_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
-ml_data_status = uicontrol('Style', 'popupmenu', 'String', hyper_dirs, 'callback', 'dataset_dir_name = hyper_dirs{ml_data_status.Value};', 'units', 'normalized', 'position', ml_1_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
+ml_data_status = uicontrol('Style', 'popupmenu', 'String', dataset_dirs, 'callback', 'dataset_dir_name = dataset_dirs{ml_data_status.Value};', 'units', 'normalized', 'position', ml_1_data_status_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
 
 ml_name1_str = uicontrol('Style', 'text', 'String', 'Classifier network name:', 'units', 'normalized', 'position', ml_2_name1_str_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'right', 'fontweight', gui_font_weight);
 ml_name1_edit = uicontrol('Style', 'edit', 'String', '', 'units', 'normalized', 'position', ml_2_name1_edit_pos, 'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 4, 'horizontalalignment', 'left', 'fontweight', gui_font_weight);
@@ -109,7 +135,7 @@ ml_train5_status = axes('position', ml_10_train2_status_pos, 'xtick', [], 'ytick
 box on
 axis([0 1 0 1])
 
-ml_custom_button = uicontrol('Style', 'pushbutton', 'String', 'Custom', 'Callback', 'ml_xyonet', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_custom_button = uicontrol('Style', 'pushbutton', 'String', 'Train xyoNet', 'Callback', 'ml_xyonet', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 
 
 %% Image Panels
@@ -126,5 +152,20 @@ set(button_advanced_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, '
 
 
 %% Set hyperparameters
-get_settings
+if ~isempty(available_settings)
+    settings_fname = horzcat(available_settings(1).folder, '\', available_settings(1).name);
+    disp(horzcat('Loading settings: ', settings_fname))
+    try
+        raw_settings = readtable(settings_fname);
+        nparams = size(raw_settings, 1);
+        for nparam = 1:nparams
+            expression = char(strcat(raw_settings{nparam, 2}, '=', num2str(raw_settings{nparam, 3}), ';'));
+            eval(expression);
+        end        
+    catch
+        disp('Cannot read settings')
+    end
+else
+    disp('Cannot load settings')
+end
 
