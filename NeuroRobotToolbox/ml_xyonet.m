@@ -1,7 +1,7 @@
 
 state_net_name = ml_name1_edit.String;
+
 ml_get_data_stats
-n_unique_states = init_n_unique_states;
 
 if ml_h == 240
     image_ds.ReadFcn = @default_read;
@@ -74,20 +74,20 @@ thetas(thetas > 360) = ns;
 
 %%
 
-figure(3)
+figure(6)
 clf
 
 subplot(3,2,1)
 histogram(x)
-title('x')
+title('True X')
 
 subplot(3,2,2)
 histogram(y)
-title('y')
+title('True Y')
 
 subplot(3,2,3)
 histogram(thetas)
-title('o')
+title('True O')
 
 
 %%
@@ -151,25 +151,27 @@ end
 
 
 %%
-figure(12)
+figure(6)
 
 subplot(3,2,4)
 scatter(robot_xys(:,1), xyo_net_vals(:,1))
 axis tight
-title('X')
+title('X accuracy')
 
 subplot(3,2,5)
 scatter(robot_xys(:,2), xyo_net_vals(:,2))
 axis tight
-title('Y')
+title('Y accuracy')
 
 subplot(3,2,6)
 scatter(thetas, xyo_net_vals(:,3))
 axis tight
-title('O')
+title('O accuracy')
 
 
 %%
+n_unique_states = init_n_unique_states;
+
 states = zeros(ntuples, 1);
 
 if n_unique_states == 16
@@ -354,7 +356,7 @@ end
 
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 
-figure(13)
+figure(17)
 clf
 set(gcf, 'position', [201 241 800 420], 'color', 'w')
 
@@ -364,7 +366,7 @@ title('States')
 
 
 %%
-figure(3)
+figure(6)
 
 subplot(3,2,4)
 scatter(robot_xys(:,1), xyo_net_vals(:,1))

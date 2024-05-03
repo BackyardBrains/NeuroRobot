@@ -28,7 +28,7 @@ disp(horzcat('n unique actions: ', num2str(n_unique_actions)))
 disp(horzcat('mode action: ', num2str(mode(actions))))
 disp(horzcat('mode action torque: ',  num2str(round(mean(torque_data(actions == mode(actions), :), 1)))))
 
-figure(4)
+figure(10)
 clf
 gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
 hold on
@@ -61,7 +61,7 @@ disp('Tuples assembled successfully')
 % tx7.String = 'tuples aquired successfully';
 drawnow
 
-figure(12)
+figure(15)
 clf
 set(gcf, 'position', [201 241 1200 420], 'color', 'w')
 

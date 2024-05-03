@@ -69,7 +69,7 @@ intended_timer_period = ms_per_step/1000;
 
 
 %% Prepare figure
-fig_2ns = figure(5);
+fig_2ns = figure(8);
 clf
 fig_bg_col = [0.94 0.94 0.94];
 % fig_bg_col = [1 1 1];

@@ -23,7 +23,7 @@ disp(horzcat('ntuples: ', num2str(ntuples)))
 
 
 %% Prepare
-figure(6)
+figure(11)
 clf
 set(gcf, 'position', [80 80 1320 600], 'color', 'w')
 ax1 = axes('position', [0.05 0.1 0.4 0.85]);

@@ -1,5 +1,5 @@
 
-fig_mdp = figure(5);
+fig_mdp = figure(14);
 clf
 set(fig_mdp, 'NumberTitle', 'off', 'Name', 'MDP')
 set(fig_mdp, 'toolbar', 'none')

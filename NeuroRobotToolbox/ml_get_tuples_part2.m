@@ -87,7 +87,7 @@ drawnow
 catch
 end
 
-figure(12)
+figure(16)
 clf
 set(gcf, 'position', [251 291 400 420], 'color', 'w')
 

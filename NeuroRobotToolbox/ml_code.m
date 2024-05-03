@@ -151,7 +151,7 @@ button_advanced_ml = uicontrol('Style', 'pushbutton', 'String', 'Main Menu', 'un
 set(button_advanced_ml,'Callback', 'ml_exit_callback', 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 
 
-%% Set hyperparameters
+%% Get settings
 if ~isempty(available_settings)
     settings_fname = horzcat(available_settings(1).folder, '\', available_settings(1).name);
     disp(horzcat('Loading settings: ', settings_fname))

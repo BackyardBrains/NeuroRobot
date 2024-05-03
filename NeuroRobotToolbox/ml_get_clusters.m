@@ -12,7 +12,7 @@ tx3 = text(0.03, 0.5, 'Clustering...', 'FontSize', bfsize + 4);
 drawnow
 disp('Clustering... ')
 
-figure(10)
+figure(12)
 clf
 
 dists = pdist(xdata, 'correlation');
