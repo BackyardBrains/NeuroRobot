@@ -9,6 +9,8 @@ drawnow
 catch
 end
 
+n_unique_actions = n_unique_actions - 2;
+
 mdp = createMDP(n_unique_states, n_unique_actions);
 transition_counter = zeros(size(mdp.T));
 for ntuple = 1:ntuples
@@ -16,7 +18,7 @@ for ntuple = 1:ntuples
     this_state = tuples(ntuple, 1);
     this_next_state = tuples(ntuple, 2);
     this_action = tuples(ntuple, 3);
-    if ~isnan(this_state) && ~isnan(this_next_state)
+    if ~isnan(this_state) && ~isnan(this_next_state) && ~sum(this_action == [n_unique_actions + 1 n_unique_actions + 2])
         if this_state && this_next_state
             transition_counter(this_state, this_next_state, this_action) = transition_counter(this_state, this_next_state, this_action) + 1;
         end

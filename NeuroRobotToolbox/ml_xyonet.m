@@ -5,8 +5,10 @@ ml_get_data_stats
 
 if ml_h == 240
     image_ds.ReadFcn = @default_read;
-else
-    image_ds.ReadFcn = @resize_read;
+elseif ml_h == 48
+    image_ds.ReadFcn = @resize_read_48;
+elseif ml_h == 24
+    image_ds.ReadFcn = @resize_read_24;
 end    
 
 ext_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*ext_data.mat'));
@@ -77,15 +79,15 @@ thetas(thetas > 360) = ns;
 figure(6)
 clf
 
-subplot(3,2,1)
+subplot(3,3,1)
 histogram(x)
 title('True X')
 
-subplot(3,2,2)
+subplot(3,3,2)
 histogram(y)
 title('True Y')
 
-subplot(3,2,3)
+subplot(3,3,3)
 histogram(thetas)
 title('True O')
 
@@ -153,20 +155,35 @@ end
 %%
 figure(6)
 
-subplot(3,2,4)
+subplot(3,3,4)
+histogram(xyo_net_vals(:,1))
+axis tight
+title('Estimated X')
+
+subplot(3,3,5)
+histogram(xyo_net_vals(:,2))
+axis tight
+title('Estimated Y')
+
+subplot(3,3,6)
+histogram(xyo_net_vals(:,3))
+axis tight
+title('Estimated O')
+
+subplot(3,3,7)
 scatter(robot_xys(:,1), xyo_net_vals(:,1))
 axis tight
-title('X accuracy')
+title('True vs Estimated X')
 
-subplot(3,2,5)
+subplot(3,3,8)
 scatter(robot_xys(:,2), xyo_net_vals(:,2))
 axis tight
-title('Y accuracy')
+title('True vs Estimated Y')
 
-subplot(3,2,6)
+subplot(3,3,9)
 scatter(thetas, xyo_net_vals(:,3))
 axis tight
-title('O accuracy')
+title('True vs Estimated O')
 
 
 %%
@@ -356,25 +373,6 @@ set(gcf, 'position', [201 241 800 420], 'color', 'w')
 histogram(states, 'binwidth', 0.4)
 xlim([0 n_unique_states + 1])
 title('States')
-
-
-%%
-figure(6)
-
-subplot(3,2,4)
-scatter(robot_xys(:,1), xyo_net_vals(:,1))
-axis tight
-title('X')
-
-subplot(3,2,5)
-scatter(robot_xys(:,2), xyo_net_vals(:,2))
-axis tight
-title('Y')
-
-subplot(3,2,6)
-scatter(thetas, xyo_net_vals(:,3))
-axis tight
-title('O')
 
 
 %% Torques
