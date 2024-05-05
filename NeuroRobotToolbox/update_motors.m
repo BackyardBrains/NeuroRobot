@@ -150,6 +150,30 @@ if nneurons % This prevents error caused by running script after deleting all ne
             just_green
         elseif script_running == 3
             just_blue
+        elseif script_running == 4
+            disp('Delayer')
+        elseif script_running == 5            
+            this_action = getAction(agent, this_state);
+            this_action = cell2mat(this_action);
+            this_motor_vector = motor_combs(this_action, :);
+            disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
+            
+            left_forward = 0;
+            left_backward = 0;
+            right_forward = 0;
+            right_backward = 0;
+        
+            if this_motor_vector(1) > 0
+                left_forward = this_motor_vector(1);
+            else
+                left_backward = this_motor_vector(1);
+            end
+            
+            if this_motor_vector(2) > 0
+                right_forward = this_motor_vector(2);
+            else
+                right_backward = -this_motor_vector(2);
+            end            
         end
         script_running = 0;   
     end

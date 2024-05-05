@@ -58,16 +58,16 @@ end
 % thetas = round(thetas);
 % robot_xys = round(robot_xys);
 
-x = robot_xys(:,1);
-y = robot_xys(:,2);
+this_x = robot_xys(:,1);
+this_y = robot_xys(:,2);
 
-n1 = sum(x < 100 | x > 500);
+n1 = sum(this_x < 100 | this_x > 500);
 ns = randsample(100:500, n1, 1);
-x(x < 100 | x > 500) = ns;
+this_x(this_x < 100 | this_x > 500) = ns;
 
-n1 = sum(y < 100 | y > 400);
+n1 = sum(this_y < 100 | this_y > 400);
 ns = randsample(100:400, n1, 1);
-y(y < 100 | y > 400) = ns;
+this_y(this_y < 100 | this_y > 400) = ns;
 
 n1 = sum(thetas > 360);
 ns = randsample(360, n1, 1);
@@ -80,11 +80,11 @@ figure(6)
 clf
 
 subplot(3,3,1)
-histogram(x)
+histogram(this_x)
 title('True X')
 
 subplot(3,3,2)
-histogram(y)
+histogram(this_y)
 title('True Y')
 
 subplot(3,3,3)
@@ -192,167 +192,155 @@ n_unique_states = init_n_unique_states;
 states = zeros(ntuples, 1);
 
 for ntuple = 1:ntuples
-    x = xyo_net_vals(ntuple, 1);
-    y = xyo_net_vals(ntuple, 2);
-    o = xyo_net_vals(ntuple, 3);
+    this_x = xyo_net_vals(ntuple, 1);
+    this_y = xyo_net_vals(ntuple, 2);
+    this_o = xyo_net_vals(ntuple, 3);
     if n_unique_states == 16
-        if o >= 0 && o < 90
-            if y <= 200
-                if x < 250
+        if this_y <= 200
+            if this_x < 250
+                if this_o >= 0 && this_o < 90
                     states(ntuple) = 1;
-                else
+                elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 2;
+                elseif this_o >= 180 && this_o < 270
+                    states(ntuple) = 3;                    
+                elseif this_o >= 270 && this_o <= 360
+                    states(ntuple) = 4;                    
                 end
             else
-                if x < 250
-                    states(ntuple) = 3;
-                else
-                    states(ntuple) = 4;
-                end
-            end
-        elseif o >= 90 && o < 180
-            if y <= 200
-                if x < 250
+                if this_o >= 0 && this_o < 90
                     states(ntuple) = 5;
-                else
+                elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 6;
-                end
-            else
-                if x < 250
-                    states(ntuple) = 7;
-                else
-                    states(ntuple) = 8;
+                elseif this_o >= 180 && this_o < 270
+                    states(ntuple) = 7;                    
+                elseif this_o >= 270 && this_o <= 360
+                    states(ntuple) = 8;                    
                 end
             end
-        elseif o >= 180 && o < 270
-            if y <= 200
-                if x < 250
-                    states(ntuple) = 9;
-                else
-                    states(ntuple) = 10;
-                end
-            else
-                if x < 250
-                    states(ntuple) = 11;
-                else
-                    states(ntuple) = 12;
-                end
-            end    
         else
-            if y <= 250
-                if x < 250
-                    states(ntuple) = 13;
-                else
-                    states(ntuple) = 14;
+            if this_x < 250
+                if this_o >= 0 && this_o < 90
+                    states(ntuple) = 9;
+                elseif this_o >= 90 && this_o < 180
+                    states(ntuple) = 10;
+                elseif this_o >= 180 && this_o < 270
+                    states(ntuple) = 11;                    
+                elseif this_o >= 270 && this_o <= 360
+                    states(ntuple) = 12;                    
                 end
             else
-                if x < 250
-                    states(ntuple) = 15;
-                else
-                    states(ntuple) = 16;
+                if this_o >= 0 && this_o < 90
+                    states(ntuple) = 13;
+                elseif this_o >= 90 && this_o < 180
+                    states(ntuple) = 14;
+                elseif this_o >= 180 && this_o < 270
+                    states(ntuple) = 15;                    
+                elseif this_o >= 270 && this_o <= 360
+                    states(ntuple) = 16;                    
                 end
-            end            
+            end          
         end
     elseif n_unique_states == 36
-        if o >= 0 && o < 90
-            if y <= 200
-                if x < 233
+        if this_o >= 0 && this_o < 90
+            if this_y <= 200
+                if this_x < 233
                     states(ntuple) = 1;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 2;
                 else
                     states(ntuple) = 3;
                 end
-            elseif y <= 300
-                if x < 233
+            elseif this_y <= 300
+                if this_x < 233
                     states(ntuple) = 4;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 5;
                 else
                     states(ntuple) = 6;
                 end
             else
-                if x < 233
+                if this_x < 233
                     states(ntuple) = 7;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 8;
                 else
                     states(ntuple) = 9;
                 end
             end
-        elseif o >= 90 && o < 180
-            if y <= 200
-                if x < 233
+        elseif this_o >= 90 && this_o < 180
+            if this_y <= 200
+                if this_x < 233
                     states(ntuple) = 10;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 11;
                 else
                     states(ntuple) = 12;
                 end
-            elseif y <= 300
-                if x < 233
+            elseif this_y <= 300
+                if this_x < 233
                     states(ntuple) = 13;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 14;
                 else
                     states(ntuple) = 15;
                 end
             else
-                if x < 233
+                if this_x < 233
                     states(ntuple) = 16;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 17;
                 else
                     states(ntuple) = 18;
                 end
             end
-        elseif o >= 180 && o < 270
-            if y <= 200
-                if x < 233
+        elseif this_o >= 180 && this_o < 270
+            if this_y <= 200
+                if this_x < 233
                     states(ntuple) = 19;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 20;
                 else
                     states(ntuple) = 21;
                 end
-            elseif y <= 300
-                if x < 233
+            elseif this_y <= 300
+                if this_x < 233
                     states(ntuple) = 22;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 23;
                 else
                     states(ntuple) = 24;
                 end
             else
-                if x < 233
+                if this_x < 233
                     states(ntuple) = 25;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 26;
                 else
                     states(ntuple) = 27;
                 end
             end
         else
-            if y <= 200
-                if x < 233
+            if this_y <= 200
+                if this_x < 233
                     states(ntuple) = 28;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 29;
                 else
                     states(ntuple) = 30;
                 end
-            elseif y <= 300
-                if x < 233
+            elseif this_y <= 300
+                if this_x < 233
                     states(ntuple) = 31;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 32;
                 else
                     states(ntuple) = 33;
                 end
             else
-                if x < 233
+                if this_x < 233
                     states(ntuple) = 34;
-                elseif x < 366
+                elseif this_x < 366
                     states(ntuple) = 35;
                 else
                     states(ntuple) = 36;

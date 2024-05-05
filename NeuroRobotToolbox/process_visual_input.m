@@ -110,6 +110,54 @@ if use_xyocnn
     lframe = imresize(large_frame, [240 320]);
     xyo = predict(xyoNet, double(lframe));
     disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
+    this_x = xyo(1);
+    this_y = xyo(2);
+    this_o = xyo(3);
+    if this_y <= 200
+        if this_x < 250
+            if this_o >= 0 && this_o < 90
+                xyo_state = 1;
+            elseif this_o >= 90 && this_o < 180
+                xyo_state = 2;
+            elseif this_o >= 180 && this_o < 270
+                xyo_state = 3;                    
+            elseif this_o >= 270 && this_o <= 360
+                xyo_state = 4;                    
+            end
+        else
+            if this_o >= 0 && this_o < 90
+                xyo_state = 5;
+            elseif this_o >= 90 && this_o < 180
+                xyo_state = 6;
+            elseif this_o >= 180 && this_o < 270
+                xyo_state = 7;                    
+            elseif this_o >= 270 && this_o <= 360
+                xyo_state = 8;                    
+            end
+        end
+    else
+        if this_x < 250
+            if this_o >= 0 && this_o < 90
+                xyo_state = 9;
+            elseif this_o >= 90 && this_o < 180
+                xyo_state = 10;
+            elseif this_o >= 180 && this_o < 270
+                xyo_state = 11;                    
+            elseif this_o >= 270 && this_o <= 360
+                xyo_state = 12;                    
+            end
+        else
+            if this_o >= 0 && this_o < 90
+                xyo_state = 13;
+            elseif this_o >= 90 && this_o < 180
+                xyo_state = 14;
+            elseif this_o >= 180 && this_o < 270
+                xyo_state = 15;                    
+            elseif this_o >= 270 && this_o <= 360
+                xyo_state = 16;                    
+            end
+        end          
+    end
 end
 
 

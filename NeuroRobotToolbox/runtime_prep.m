@@ -105,6 +105,7 @@ scores = 0;
 
 %%
 this_key = 0;
+xyo_state = 1;
 
 
 %% Select brain
