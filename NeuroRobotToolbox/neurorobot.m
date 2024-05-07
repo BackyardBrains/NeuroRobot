@@ -107,7 +107,7 @@ select_app = uicontrol('Style', 'list', 'units', 'normalized', 'Position',[0.05 
 select_app.Value = [];
 
 % Nets
-option_nets = {'GoogLeNet', 'robotNet', 'xyoNet'}; % Imported nets
+option_nets = {'GoogLeNet', 'robotNet'}; % Imported nets
 nimported = length(option_nets);
 available_nets = dir(strcat(nets_dir_name, '*-ml.mat'));
 nnets = length(available_nets); % Trained nets

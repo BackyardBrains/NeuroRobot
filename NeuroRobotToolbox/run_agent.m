@@ -23,12 +23,8 @@ if use_custom_net
    
     if length(cnet_temp) >= 1
 
-        % this_im_small = imresize(large_frame, rl_image_size);
-        % this_im_g = rgb2gray(this_im_small);
-
         % Get action
         this_action = getAction(agent, this_state);
-        % this_action = getAction(agent, this_im_g);
         this_action = cell2mat(this_action);
         this_motor_vector = motor_combs(this_action, :);
         disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
@@ -50,32 +46,7 @@ if use_custom_net
             right_backward = -this_motor_vector(2);
         end
     end
-    
-elseif use_xyocnn
 
-    this_state = xyo_state;
-    this_action = getAction(agent, this_state);
-    % this_action = getAction(agent, this_im_g);
-    this_action = cell2mat(this_action);
-    this_motor_vector = motor_combs(this_action, :);
-    disp(horzcat('action: ', num2str(this_action), ', torques: ', num2str(this_motor_vector)))
-    
-    left_forward = 0;
-    left_backward = 0;
-    right_forward = 0;
-    right_backward = 0;
-
-    if this_motor_vector(1) > 0
-        left_forward = this_motor_vector(1);
-    else
-        left_backward = this_motor_vector(1);
-    end
-    
-    if this_motor_vector(2) > 0
-        right_forward = this_motor_vector(2);
-    else
-        right_backward = -this_motor_vector(2);
-    end    
 
 else
 

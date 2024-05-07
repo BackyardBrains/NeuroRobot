@@ -34,14 +34,7 @@ else
     use_rcnn = 0;
 end
 
-% 3 = 'xyoNet'
-if sum(select_nets.Value == 3)
-    use_xyocnn = 1;
-else
-    use_xyocnn = 0;
-end
-
-% 4 = 'Custom net'
+% 3 = 'Custom net'
 if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
@@ -103,7 +96,7 @@ dist_long = 26;
 scores = 0;
 
 
-%%
+%% Variables
 this_key = 0;
 xyo_state = 1;
 
@@ -121,22 +114,22 @@ if ~isempty(trained_nets{1}) && sum(strcmp(trained_nets, 'GoogLeNet')) && ~use_c
     brain_support = 0;
     disp(horzcat('Error: Brain needs GoogLeNet'))
 end
+
 % if length(trained_nets) > 1 && ~use_rcnn
-% 
 %     && isempty(trained_nets{2})
 %     brain_support = 0;
 %     disp(horzcat('Error: Brain needs ', trained_nets{2}))
 % end
 
-if exist('rak_only', 'var') && brain_support
+if exist('rak_only', 'var') && brain_support    
     
-    %% Clear timers - why is this used?
+    % Clear timers - why is this used?
     if exist('runtime_pulse', 'var')
         try
             stop(runtime_pulse)
         catch
         end
-        pause(1)
+        pause(0.5)
         delete(runtime_pulse)
     end
     clear step_timer
@@ -158,12 +151,10 @@ if exist('rak_only', 'var') && brain_support
         'F', 'G', 'H', 'I', 'J',...
         'K', 'L', 'M', 'N', 'O', ...
         'P', 'Q'};
-    net_input_size = [224 224];
     brain_view_tiled = 0;
     if ~exist('esp32WebsocketClient', 'var')
 	    esp32WebsocketClient = 0;
     end
-    spinled = 1;
 
     if ~exist('neuron_tones', 'var')
         neuron_tones = 0;
@@ -191,22 +182,14 @@ if exist('rak_only', 'var') && brain_support
         this_label = 'robot';
         vis_pref_names = [basic_vis_pref_names, this_label];  
         n_vis_prefs = size(vis_pref_names, 2);
-        if length(trained_nets) > 1
-            trained_nets{2} = 'xyoNet';
-        elseif length(trained_nets) == 1
-            trained_nets{1} = 'xyoNet';
-        end
-    end
-
-    if use_xyocnn
-        load(horzcat(nets_dir_name, 'xyoNet'))
+        net_input_size = [32 32];
     end
 
     if use_custom_net
         these_nets = option_nets(select_nets.Value);        
         this_ind = find(~strcmp(these_nets, 'GoogLeNet'));
         full_net_name = option_nets{select_nets.Value(this_ind)};        
-        trained_nets{3} = full_net_name; %% Only supports one custom net
+        trained_nets{1 + use_cnn + use_rcnn} = full_net_name; %% Only supports one custom net
 
         cnet_temp = strfind(full_net_name, '---');
         if cnet_temp >= 1
@@ -217,21 +200,47 @@ if exist('rak_only', 'var') && brain_support
             action_net_name = '';        
         end
 
-        try
-            load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
-            load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
-            
-            unique_states = unique(labels);
-            n_unique_states = length(unique_states);
-            vis_pref_names = [vis_pref_names, labels'];
-        catch
-            disp('Unable to load convnet / state net')
+        if strcmp(state_net_name(1:6), 'xyoNet')
+            use_xyo_net = 1;         
+        else
+            use_xyo_net = 0;
         end
+
+        available_settings = dir(strcat(settings_dir_name, 'settings.csv'));
+        if ~isempty(available_settings)
+            settings_fname = horzcat(available_settings(1).folder, '\', available_settings(1).name);
+            disp(horzcat('Loading settings: ', settings_fname))
+            try
+                raw_settings = readtable(settings_fname);
+                nparams = size(raw_settings, 1);
+                for nparam = 1:nparams
+                    expression = char(strcat(raw_settings{nparam, 2}, '=', num2str(raw_settings{nparam, 3}), ';'));
+                    eval(expression);
+                end        
+            catch
+                disp('Cannot read settings')
+            end
+        else
+            disp('Cannot load settings')
+        end
+
+        net_input_size = [ml_h ml_w];
+
+        load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
+        load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
+        
+        if iscell(labels)
+            unique_states = length(labels);
+        else
+            unique_states = unique(labels);
+        end
+        
+        n_unique_states = length(labels);
+        vis_pref_names = [vis_pref_names, labels'];
         
         if length(cnet_temp) >= 1
             load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
 
-            % openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'))
             load(strcat(nets_dir_name, state_net_name, '-states'))
             load(strcat(nets_dir_name, state_net_name, '-torque_data'))
             load(strcat(nets_dir_name, state_net_name, '-actions'))
@@ -249,6 +258,7 @@ if exist('rak_only', 'var') && brain_support
     else
         state_net_name = '';
         action_net_name = '';
+        nert_input_size = [];
     end
     
     n_vis_prefs = size(vis_pref_names, 2);

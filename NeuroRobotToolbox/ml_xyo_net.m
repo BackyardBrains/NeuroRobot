@@ -2,6 +2,7 @@
 state_net_name = ml_name1_edit.String;
 
 ml_get_data_stats
+tx1.String = 'xyo alternative';
 
 if ml_h == 240
     image_ds.ReadFcn = @default_read;
@@ -25,7 +26,9 @@ y2 = 1;
 
 thetas = zeros(ntuples, 1);
 robot_xys = zeros(ntuples, 2);
-disp(horzcat('Getting ', num2str(ntuples), ' xyos'))
+this_msg = horzcat('Getting ', num2str(ntuples), ' xyos');
+disp(horzcat(this_msg))
+tx1.String = this_msg;
 
 for ntuple = 1:ntuples
 
@@ -54,9 +57,6 @@ for ntuple = 1:ntuples
     thetas(ntuple) = theta;
 
 end
-
-% thetas = round(thetas);
-% robot_xys = round(robot_xys);
 
 this_x = robot_xys(:,1);
 this_y = robot_xys(:,2);
@@ -93,6 +93,9 @@ title('True O')
 
 
 %%
+this_msg = 'Training...';
+disp(horzcat(this_msg))
+tx1.String = this_msg;
 
 xyos = arrayDatastore([robot_xys(:,1) robot_xys(:,2) thetas]);
 training_data = combine(image_ds, xyos);
@@ -110,11 +113,19 @@ layers = [
     maxPooling2dLayer(2,'Stride',2)
     convolution2dLayer(3,xyo_l3,'Padding','same')
     batchNormalizationLayer
-    reluLayer
-    fullyConnectedLayer(xyo_l4)
+    reluLayer    
+    maxPooling2dLayer(2,'Stride',2)
+    convolution2dLayer(3,xyo_l4,'Padding','same')
+    batchNormalizationLayer
     reluLayer
     fullyConnectedLayer(xyo_l5)
     reluLayer
+    fullyConnectedLayer(xyo_l6)
+    reluLayer
+    fullyConnectedLayer(xyo_l7)
+    reluLayer
+    fullyConnectedLayer(xyo_l8)
+    reluLayer    
     fullyConnectedLayer(numResponses)];
 
 if isdeployed
@@ -138,10 +149,14 @@ options = trainingOptions("adam", ...
     Verbose=1);
 
 xyoNet = trainnet(training_data, layers, 'mse', options);
-save(strcat(nets_dir_name, state_net_name), 'xyoNet')
+save(strcat(nets_dir_name, state_net_name, '-ml'), 'xyoNet')
 
 
 %%
+this_msg = 'Inference...';
+disp(horzcat(this_msg))
+tx1.String = this_msg;
+
 xyo_net_vals = zeros(ntuples, 3);
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/20))
@@ -187,9 +202,13 @@ title('True vs Estimated O')
 
 
 %%
-n_unique_states = init_n_unique_states;
+this_msg = 'Generating states from XYOs...';
+disp(horzcat(this_msg))
+% tx1.String = this_msg;
 
+n_unique_states = init_n_unique_states;
 states = zeros(ntuples, 1);
+labels = cell(n_unique_states, 1);
 
 for ntuple = 1:ntuples
     this_x = xyo_net_vals(ntuple, 1);
@@ -200,152 +219,62 @@ for ntuple = 1:ntuples
             if this_x < 250
                 if this_o >= 0 && this_o < 90
                     states(ntuple) = 1;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
                 elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 2;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
                 elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 3;                    
+                    states(ntuple) = 3;   
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
                 elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 4;                    
+                    states(ntuple) = 4; 
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
                 end
             else
                 if this_o >= 0 && this_o < 90
                     states(ntuple) = 5;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
                 elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 6;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
                 elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 7;                    
+                    states(ntuple) = 7;   
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));              
                 elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 8;                    
+                    states(ntuple) = 8;  
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
                 end
             end
         else
             if this_x < 250
                 if this_o >= 0 && this_o < 90
                     states(ntuple) = 9;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));            
                 elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 10;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
                 elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 11;                    
+                    states(ntuple) = 11;  
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
                 elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 12;                    
+                    states(ntuple) = 12;    
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
                 end
             else
                 if this_o >= 0 && this_o < 90
                     states(ntuple) = 13;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
                 elseif this_o >= 90 && this_o < 180
                     states(ntuple) = 14;
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
                 elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 15;                    
+                    states(ntuple) = 15;    
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
                 elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 16;                    
+                    states(ntuple) = 16;  
+                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
                 end
             end          
-        end
-    elseif n_unique_states == 36
-        if this_o >= 0 && this_o < 90
-            if this_y <= 200
-                if this_x < 233
-                    states(ntuple) = 1;
-                elseif this_x < 366
-                    states(ntuple) = 2;
-                else
-                    states(ntuple) = 3;
-                end
-            elseif this_y <= 300
-                if this_x < 233
-                    states(ntuple) = 4;
-                elseif this_x < 366
-                    states(ntuple) = 5;
-                else
-                    states(ntuple) = 6;
-                end
-            else
-                if this_x < 233
-                    states(ntuple) = 7;
-                elseif this_x < 366
-                    states(ntuple) = 8;
-                else
-                    states(ntuple) = 9;
-                end
-            end
-        elseif this_o >= 90 && this_o < 180
-            if this_y <= 200
-                if this_x < 233
-                    states(ntuple) = 10;
-                elseif this_x < 366
-                    states(ntuple) = 11;
-                else
-                    states(ntuple) = 12;
-                end
-            elseif this_y <= 300
-                if this_x < 233
-                    states(ntuple) = 13;
-                elseif this_x < 366
-                    states(ntuple) = 14;
-                else
-                    states(ntuple) = 15;
-                end
-            else
-                if this_x < 233
-                    states(ntuple) = 16;
-                elseif this_x < 366
-                    states(ntuple) = 17;
-                else
-                    states(ntuple) = 18;
-                end
-            end
-        elseif this_o >= 180 && this_o < 270
-            if this_y <= 200
-                if this_x < 233
-                    states(ntuple) = 19;
-                elseif this_x < 366
-                    states(ntuple) = 20;
-                else
-                    states(ntuple) = 21;
-                end
-            elseif this_y <= 300
-                if this_x < 233
-                    states(ntuple) = 22;
-                elseif this_x < 366
-                    states(ntuple) = 23;
-                else
-                    states(ntuple) = 24;
-                end
-            else
-                if this_x < 233
-                    states(ntuple) = 25;
-                elseif this_x < 366
-                    states(ntuple) = 26;
-                else
-                    states(ntuple) = 27;
-                end
-            end
-        else
-            if this_y <= 200
-                if this_x < 233
-                    states(ntuple) = 28;
-                elseif this_x < 366
-                    states(ntuple) = 29;
-                else
-                    states(ntuple) = 30;
-                end
-            elseif this_y <= 300
-                if this_x < 233
-                    states(ntuple) = 31;
-                elseif this_x < 366
-                    states(ntuple) = 32;
-                else
-                    states(ntuple) = 33;
-                end
-            else
-                if this_x < 233
-                    states(ntuple) = 34;
-                elseif this_x < 366
-                    states(ntuple) = 35;
-                else
-                    states(ntuple) = 36;
-                end
-            end
         end
     else
         error('No xyo to states transform found')
@@ -353,6 +282,10 @@ for ntuple = 1:ntuples
 end
 
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
+save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
+
+
+%%
 
 figure(17)
 clf
@@ -364,5 +297,13 @@ title('States')
 
 
 %% Torques
+this_msg = 'Getting torques...';
+disp(horzcat(this_msg))
+tx1.String = this_msg;
+
 get_torques
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
+
+this_msg = 'xyoNet and torques ready';
+disp(horzcat(this_msg))
+tx1.String = this_msg;

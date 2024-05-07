@@ -106,13 +106,16 @@ end
 
 
 % XYO Net
-if use_xyocnn
-    lframe = imresize(large_frame, [240 320]);
+if use_xyo_net
+    
+    lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
     xyo = predict(xyoNet, double(lframe));
-    disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
+    % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
+    
     this_x = xyo(1);
     this_y = xyo(2);
     this_o = xyo(3);
+    
     if this_y <= 200
         if this_x < 250
             if this_o >= 0 && this_o < 90
@@ -158,12 +161,15 @@ if use_xyocnn
             end
         end          
     end
-end
+    vis_pref_vals(7 + 1 : end, 1) = 0;
+    vis_pref_vals(7 + 1 : end, 2) = 0;
 
+    vis_pref_vals(7 + xyo_state, 1) = 50;
+    vis_pref_vals(7 + xyo_state, 2) = 50;
 
-% Custom ML
-if use_custom_net
-    lframe = imresize(large_frame, [240 320]);
+elseif use_custom_net
+
+    lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
     [~, scores] = classify(net, lframe);
     
     [i, j] = max(scores);

@@ -15,7 +15,9 @@ n = n_vis_prefs - n_basic_vis_features;
 % xx = 0.005 * n + 0.4;
 % npoints = round(2*sqrt(n));
 % phi = (sqrt(5)+1)/2;
+
 for nneuron = 1:n
+
 %     if nneuron > n - npoints
 %         r = 1;
 %     else
@@ -25,6 +27,7 @@ for nneuron = 1:n
 %     xys = [r*cos(theta), r*sin(theta)];
 %     xys = xys * xx;
 %     xys(:,2) = xys(:,2) + this_fix;
+
     xys = [-0.5 ((nneuron/n)-0.5)*3];
     neuron_xys(nneurons + nneuron, :) = xys + mouse_location(1,1:2);
 end
