@@ -32,6 +32,7 @@
 
 // MAIN CODE
 // std::mutex mtx;
+int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
 short ms_per_step = 30;
@@ -151,24 +152,12 @@ std::string prevMessage = "";
 // CUSTOM NEURON TYPES
 short* mapNeuronType;
 
-short* mapDelayCounter;
-short* mapRhytmicCounter;
-short* mapCountingCounter;
-
 short* mapDelayNeuron;
 short* mapRhytmicNeuron;
 short* mapCountingNeuron;
 // short** mapAdditionalNeuronTypes;
 
-short* isNeuronBurstingTriggered;
 short* isNeuronInhibitor;
-
-short* isNeuronDelaying;
-short* isRhytmicDelaying;
-short* isCountingDelaying;
-short* isNeuronDelayingValue;
-short* isRhytmicDelayingValue;
-short* isCountingDelayingValue;
 
 double* decayMultipliers;
 short countingTimeTrigger = 500;
@@ -178,3 +167,8 @@ short countingTimeTrigger = 500;
 long long* neuronDelayTime;
 long long* neuronRhytmicTime;
 long long* neuronCountingTime;
+
+
+double* maxV;
+double* maxU;
+

@@ -32,6 +32,7 @@
 
 // MAIN CODE
 // std::mutex mtx;
+int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
 short ms_per_step = 30;
@@ -73,7 +74,7 @@ uint8_t *motor_command_message;
 
 // OPENCV
 // short vis_prefs_count = 7;
-short vis_prefs_count = 17;
+short vis_prefs_count = 22;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short *visPrefs;
@@ -151,10 +152,23 @@ std::string prevMessage = "";
 // CUSTOM NEURON TYPES
 short* mapNeuronType;
 
-short** mapDelayCounter;
-short** mapRhytmicCounter;
-short** mapCountingCounter;
-
 short* mapDelayNeuron;
 short* mapRhytmicNeuron;
 short* mapCountingNeuron;
+// short** mapAdditionalNeuronTypes;
+
+short* isNeuronInhibitor;
+
+double* decayMultipliers;
+short countingTimeTrigger = 500;
+// The rate of this decay determines how long the target neuron remains inhibited.
+
+// std::chrono::milliseconds* neuronDelayTime;
+long long* neuronDelayTime;
+long long* neuronRhytmicTime;
+long long* neuronCountingTime;
+
+
+double* maxV;
+double* maxU;
+

@@ -423,6 +423,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   double sldCWeight = -65.0;
   double sldDWeight = 2;
 
+  double sldTimeValue = 0;
+  TextEditingController tecTimeValue = TextEditingController();
+
   final double defaultA = 0.02;
   final double defaultB = 0.18;
   final int defaultC = -65;
@@ -480,7 +483,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   String prevStrTorqueDataBuff = "";
 
-  int aiTypeLength = 15; // total labels of the TFLite Model
+  int aiTypeLength = 15;
+
+  bool isShowDelayTime = false;
+  int maxDelayTimeValue = 10000;
+  int minDelayTimeValue = 1000;
+
+  late List<int> mapDelayNeuronList = [];
+  late List<int> mapRhytmicNeuronList = [];
+  late List<int> mapCountingNeuronList = [];
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -1709,6 +1720,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                       onChanged: (value) {
                         neuronMenuType = value;
                         neuronTypeChangeCallback(neuronMenuType);
+                        if (value == "Delay") {
+                          isShowDelayTime = true;
+                          sldTimeValue = 3000;
+                        } else {
+                          isShowDelayTime = false;
+                          sldTimeValue = 1000;
+                        }
+                        tecTimeValue.text = sldTimeValue.floor().toString();
                         try {
                           InfiniteCanvasNode selected = controller.selection[0];
                           int neuronIdx = controller.nodes
@@ -1718,6 +1737,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                               2;
 
                           nativec.changeIdxSelected(neuronIdx);
+
+                          mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
                         } catch (err) {
                           print("err");
                           print(err);
@@ -1750,6 +1771,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                           bBufView[neuronIdx] = 0.18;
                           cBufView[neuronIdx] = -65;
                         }
+
                         try {
                           InfiniteCanvasNode selected = controller.selection[0];
                           neuronStyles[selected.id] = value;
@@ -2119,7 +2141,87 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                           ],
                         ),
                       ),
-                    ]
+                    ],
+                    if (isShowDelayTime) ...[
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 4,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 50,
+                              height: 40,
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                inputFormatters: whiteListingTextInputFormatter,
+                                maxLines: 1,
+                                controller: tecTimeValue,
+                                onChanged: (value) {
+                                  try {
+                                    sldTimeValue = double.parse(value);
+                                    if (sldTimeValue > maxDelayTimeValue) {
+                                      sldTimeValue = 100;
+                                    } else if (sldTimeValue < 0) {
+                                      sldTimeValue = 0;
+                                    }
+                                    sldTimeValue = sldTimeValue.roundToDouble();
+                                    tecTimeValue.text =
+                                        sldTimeValue.round().toString();
+
+                                    InfiniteCanvasNode selected =
+                                        controller.selection[0];
+                                    int neuronIdx = controller.nodes
+                                            .map((e) => e.id)
+                                            .toList()
+                                            .indexOf(selected.id) -
+                                        2;
+
+                                    mapDelayNeuronList[neuronIdx] =
+                                        sldTimeValue.floor();
+
+                                    setState(() {});
+                                  } catch (err) {}
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  showValueIndicator: ShowValueIndicator.never,
+                                ),
+                                child: Slider(
+                                  value: sldTimeValue,
+                                  max: maxDelayTimeValue.toDouble(),
+                                  min: minDelayTimeValue.toDouble(),
+                                  divisions: 9,
+                                  label: maxDelayTimeValue.toString(),
+                                  onChanged: (double value) {
+                                    try {
+                                      sldTimeValue = value;
+                                      sldTimeValue =
+                                          sldTimeValue.roundToDouble();
+                                      tecTimeValue.text =
+                                          value.round().toString();
+
+                                      InfiniteCanvasNode selected =
+                                          controller.selection[0];
+                                      int neuronIdx = controller.nodes
+                                              .map((e) => e.id)
+                                              .toList()
+                                              .indexOf(selected.id) -
+                                          2;
+
+                                      mapDelayNeuronList[neuronIdx] =
+                                          sldTimeValue.floor();
+                                      setState(() {});
+                                    } catch (err) {}
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ],
                 ),
               ),
@@ -2924,13 +3026,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
           mapNeuronTypeBufView[i] = neuronTypeIdx + inhibitor;
           if (neuronTypeIdx == 8) {
-            mapDelayNeuronBufView[i] = 3000;
+            mapDelayNeuronBufView[i] = mapDelayNeuronList[i];
+            // mapDelayNeuronBufView[i] = 3000;
           } else if (neuronTypeIdx == 9) {
-            // isRhytmicNeuron = true;
-            mapDelayNeuronBufView[i] = 0;
-            // if (isRhytmicNeuron) {
-            mapRhytmicNeuronBufView[i] = 7000;
+            mapRhytmicNeuronBufView[i] = mapRhytmicNeuronList[i];
             // }
+          } else if (neuronTypeIdx == 9) {
+            mapCountingNeuronBufView[i] = mapCountingNeuronList[i];
           }
         }
 
@@ -3708,7 +3810,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           isPreventPlayClick = true;
 
           startWebSocket();
-          Future.delayed(const Duration(milliseconds: 1770), () {
+          Future.delayed(const Duration(milliseconds: 2770), () {
             isSimulatingBrain = true;
             isPreventPlayClick = false;
             setState(() => {});
@@ -3754,7 +3856,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           rightToolbarKey = UniqueKey();
           setState(() {});
         });
-        Future.delayed(const Duration(milliseconds: 3000), () {
+        Future.delayed(const Duration(milliseconds: 4000), () {
           isPreventPlayClick = false;
           setState(() => {});
         });
@@ -4269,6 +4371,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               isSpeakerMenu = false;
               isMicrophoneMenu = false;
               isLedMenu = false;
+              isShowDelayTime = false;
               neuronMenuType = neuronTypes[selected.id]!;
               neuronStyle = neuronStyles[selected.id] != null
                   ? neuronStyles[selected.id]!
@@ -4281,6 +4384,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     2;
 
                 nativec.changeIdxSelected(neuronIdx);
+                print("neuronIdx");
+                print(neuronIdx);
+                print(mapDelayNeuronList);
+                print(mapDelayNeuronList[neuronIdx]);
+                if (mapDelayNeuronList[neuronIdx] > 0) {
+                  isShowDelayTime = true;
+                  tecTimeValue.text = mapDelayNeuronList[neuronIdx].toString();
+                  sldTimeValue = mapDelayNeuronList[neuronIdx].toDouble();
+                } else {
+                  sldTimeValue = minDelayTimeValue.toDouble();
+                }
 
                 sldAWeight = aDesignArray[selected.id];
                 sldBWeight = bDesignArray[selected.id];
@@ -5005,6 +5119,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "mapMicrophoneNeuron": mapMicrophoneNeuron,
       "mapLedNeuron": mapLedNeuron,
       "mapLedNeuronPosition": mapLedNeuronPosition,
+
+      "mapDelayNeuron": mapDelayNeuronBufView.toList(),
+      "mapRhytmicNeuron": mapRhytmicNeuronBufView.toList(),
+      "mapCountingNeuron": mapCountingNeuronBufView.toList(),
       "a": aBufView.toList(),
       "b": bBufView.toList(),
       "c": cBufView.toList(),
@@ -5198,7 +5316,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     Int16List dBufList = Int16List.fromList(List<int>.from(savedFileJson["d"]));
 
     List<String> neuronKeys = neuronTypes.keys.toList();
-    int n = aBufList.length;
+    print("neuronTypes.length");
+    print(neuronTypes.length);
+    print(aBufList.length);
+    int n = neuronKeys.length;
     aDesignArray = {};
     bDesignArray = {};
     cDesignArray = {};
@@ -5210,6 +5331,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       cDesignArray[key] = cBufList[i];
       dDesignArray[key] = dBufList[i];
     }
+
+    try {
+      Int16List delayBufList =
+          Int16List.fromList(List<int>.from(savedFileJson["mapDelayNeuron"]));
+      Int16List rhytmicBufList =
+          Int16List.fromList(List<int>.from(savedFileJson["mapRhytmicNeuron"]));
+      Int16List countingBufList = Int16List.fromList(
+          List<int>.from(savedFileJson["mapCountingNeuron"]));
+
+      print("delayBufList");
+      print(delayBufList);
+      mapDelayNeuronList = List.generate(n, (index) => -1);
+      mapRhytmicNeuronList = List.generate(n, (index) => -1);
+      mapCountingNeuronList = List.generate(n, (index) => -1);
+      for (int i = 0; i < n; i++) {
+        mapDelayNeuronList[i] = delayBufList[i];
+        mapRhytmicNeuronList[i] = rhytmicBufList[i];
+        mapCountingNeuronList[i] = countingBufList[i];
+      }
+      print(mapDelayNeuronBufView);
+    } catch (err) {
+      print("err");
+      print(err);
+    }
+
     // }
     // aDesignArray = List<double>.from(savedFileJson["a"]);
     // bDesignArray = List<double>.from(savedFileJson["b"]);

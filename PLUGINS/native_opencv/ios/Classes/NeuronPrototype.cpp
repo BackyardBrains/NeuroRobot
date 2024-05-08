@@ -100,6 +100,8 @@
 #endif         
 
 #include "NeuronPrototype.h"
+#include "GuidedList.cpp"
+
 // #include "NeuronPrototypeHeader.cpp"
 // #include "native_opencv.cpp"
 // C++ to Flutter
@@ -115,6 +117,7 @@ EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const
 
 
 std::thread simulatorThread;
+std::thread guidedQueueThread;
 
 
 void setSimulationMatrixValue(double *arr, short pi, short pj, short per_row, double value){
@@ -150,6 +153,7 @@ double matrixMultiply(){
     return (double)rand() / RAND_MAX; // for generating random points between 0 to 1
 }
 void initializeConstant(int neuronLength){
+    totalNeuron = neuronLength;
     intended_timer_period = ms_per_step/1000;
     epochs = ms_per_step;
     vis_I = new double[neuronLength];
@@ -220,6 +224,18 @@ EXTERNC FUNCTION_ATTRIBUTE short initialize(){
 #endif
 
 EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess(short _idxSelected){
+    short delayTime = 0;
+    for (int idx = 0; idx < totalNeuron; idx++){
+        if (guidedDelayList[idx].mode == 1){
+            guidedDelayList[idx].isInterrupted = true;
+            delayTime = std::max(delayTime,mapDelayNeuron[idx]);
+        }
+        guidedDelayList[idx].isDecayInterrupted = true;
+    }
+    if (delayTime > 0){
+        std::this_thread::sleep_for(std::chrono::milliseconds(delayTime *3/4 ));
+    }
+
     isThreadRunning = false;
     isThreadCreated = -1;
 
@@ -283,6 +299,47 @@ EXTERNC FUNCTION_ATTRIBUTE double passInput(double *p_sensor_distance){
     sensor_distance = p_sensor_distance;
     return 1.0;
 }
+
+
+// void compareLinkedList(GuidedList* glSrc, GuidedList* glDest){
+    // Node* srcTail = glSrc->getList().tail;
+    // Node* destTail = glSrc->getList().tail;
+void compareLinkedList(Node* srcTail, Node*  destTail){
+    std::string srcString = "Source: ";
+    std::string destString = "Destination: ";
+    while ( true ){
+        if (srcTail->prev != nullptr){
+            srcString = srcString + std::to_string(srcTail->data) +",";
+            destString = destString + std::to_string(destTail->data) +",";
+            srcTail = srcTail->prev;
+            destTail = destTail->prev;
+        }else{
+            break;
+        }
+    }
+    platform_log(srcString.c_str());
+    platform_log("\n");
+    platform_log(destString.c_str());
+    platform_log("\n");
+}
+
+void getLinkedListValue(GuidedList* psrcHead, GuidedList* psrcTail, int listSize){
+    std::string srcString = "Source: ";
+    int counter = 0;
+    // Node* srcHead = psrcHead[13].getList().head;
+    while ( counter< 5 ){
+        // if (srcHead->next != psrcTail){
+            srcString = srcString + std::to_string(123) +",";
+            // srcHead = srcHead->next;
+        // }else{
+        // }
+        counter++;
+    }
+    // delete srcHead;
+    platform_log(srcString.c_str());
+    platform_log("\n");
+    platform_log("\n");
+}
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
 //     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
 EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
@@ -302,14 +359,14 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     u=new double[_neuronLength];
     motor_command = _motor_command;
 
-    isNeuronBurstingTriggered = new short[_neuronLength];
-    isNeuronInhibitor = new short[_neuronLength];
-    isNeuronDelaying = new short[_neuronLength];
-    isRhytmicDelaying = new short[_neuronLength];
-    neuronDelayTime = new long long[_neuronLength];
-    neuronRhytmicTime = new long long[_neuronLength];
-    neuronCountingTime = new long long[_neuronLength];
-    
+    // neuronDelayTime = new long long[_neuronLength];
+    // neuronRhytmicTime = new long long[_neuronLength];
+    // neuronCountingTime = new long long[_neuronLength];
+    delayLinkedList = new DoublyLinkedList[_neuronLength];
+    guidedDelayList = new GuidedList[_neuronLength];
+    maxV = new double[_neuronLength];
+    maxU = new double[_neuronLength];
+
     // v_step = new double*[_neuronLength];
     connectome = new double*[_neuronLength];
     // visPrefs = new short*[_neuronLength];
@@ -320,46 +377,48 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     mapRhytmicNeuron = p_mapRhytmicNeuron;
     mapCountingNeuron = p_mapCountingNeuron;
     
-    mapDelayCounter = new short[_neuronLength];
-    mapRhytmicCounter = new short[_neuronLength];
-    mapCountingCounter = new short[_neuronLength];
     // mapAdditionalNeuronTypes = new short*[_neuronLength];
 
     int ctr = 0;
     double flagcounter = 0;
     for (int ii = 0; ii < _neuronLength; ii++){
-        isNeuronInhibitor[ii] = 0;
-        isNeuronDelaying[ii] = 0;
-        isRhytmicDelaying[ii] = 0;
-        neuronDelayTime[ii] = 0;
-        neuronRhytmicTime[ii] = 0;
-        neuronCountingTime[ii] = 0;
+        short neuronType = mapNeuronType[ii];
+        bool isInhibited = false;
+        // if (neuronType >= 1000){
+        //     isInhibitor = true;
+        //     neuronType %= 1000;
+        // }
+
+        delayLinkedList[ii] = DoublyLinkedList();
+        guidedDelayList[ii].setParameters(ii, delayLinkedList, neuronType, isInhibited, mapDelayNeuron[ii]);
+        // neuronDelayTime[ii] = 0;
+        // neuronRhytmicTime[ii] = 0;
+        // neuronCountingTime[ii] = 0;
         connectome[ii] = new double[_neuronLength]();
-        mapDelayCounter[ii] = -1;
-        mapRhytmicCounter[ii] = -1;
-        mapCountingCounter[ii] = -1;
 
         // mapAdditionalNeuronTypes[ii] = new short[_neuronLength];
         // visPrefs[ii] = new short[_neuronLength]();
         // neuron_contacts[ii] = new double[_neuronLength]();
         for (int j = 0; j < _neuronLength; j++){
             connectome[ii][j] = _connectome[ctr];
-            // visPrefs[ii][j] = vis_prefs[ctr];
-            // setSimulationMatrixValue(visPrefs, ii, j, _neuronLength, vis_prefs[ctr]);
             if (vis_prefs[ctr]>-1){
                 flagcounter++;
-                // platform_log(std::to_string(visPrefs[ii][j]).c_str());
-                // platform_log("\n");
             }
 
-            //setSimulationMatrixValue
-            //neuron_contacts[ii][j] = _neuronContacts[ctr];
             ctr++;
         }
     }
+    // guidedDelayList[0].push_front(23);
+    // guidedDelayList[0].push_front(81);
+    // guidedDelayList[0].push_front(82);
+    // guidedDelayList[0].push_front(83);
+    // guidedDelayList[0].push_front(87);
+    // // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    // platform_log("eatt");
-    // platform_log2(std::to_string(ctr).c_str());
+    // short tempData = guidedDelayList[0].pop_back();
+    // tempData = guidedDelayList[0].pop_back();
+
+    // platform_log( (std::to_string(tempData)+" microseconds\n" ).c_str());    
 
     double rand = 1;
     for (short neuronIndex = 0 ; neuronIndex < _neuronLength; neuronIndex++){
@@ -394,15 +453,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             auto start = std::chrono::high_resolution_clock::now();
             for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                 spikes_step[iStep] = new short[epochs];
-                neuronDelayTime[iStep] = start.time_since_epoch().count()/1000000;
-                neuronRhytmicTime[iStep] = neuronDelayTime[iStep];
-                neuronCountingTime[iStep] = neuronDelayTime[iStep];
+                // neuronDelayTime[iStep] = start.time_since_epoch().count()/1000000;
+                // neuronRhytmicTime[iStep] = neuronDelayTime[iStep];
+                // neuronCountingTime[iStep] = neuronDelayTime[iStep];
             }
-            // firing = new short[threadInitialTotalNumOfNeurons];
 
-            // auto elapsed = std::chrono::high_resolution_clock::now() - start;
+            auto elapsed = std::chrono::high_resolution_clock::now() - start;
             // long long microseconds = 0;
-            // bool isNeuronPerSecond = false;
 
             double left_backward = 0;
             double left_forward = 0;
@@ -421,15 +478,20 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             int l_torque = 0;
             int l_dir = 0;
 
+            /* what being pushed and popped is the same values
+            int listSize = INT32_MAX;
+            int counterListPush = 0;
+            int counterListPop = 0;
+            std::string strPush = "";
+            std::string strPop = "";
+            int exiter = 0;
+            */
 
+            short isSmartNeuronReady = 0;
             while(isThreadRunning){
-                // mtx.lock();
-
                 int32_t threadTotalNumOfNeurons = totalNumOfNeurons;
                 short *isSpiking = new short[threadTotalNumOfNeurons];
                 short *isStepSpiking = new short[threadTotalNumOfNeurons];
-
-
 
                 double *tI = new double[threadTotalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
@@ -437,9 +499,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     continue;
                 }else{
                     // std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step*2));
-                    std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 2));
+                    // std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 2));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 1));
                 }
+                // start = std::chrono::high_resolution_clock::now();
 
+                // get distance
                 for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                     for (short jStep = 0; jStep < epochs; jStep++){
                         spikes_step[iStep][jStep] = 0;
@@ -462,14 +527,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 }
 
-                // for nneuron = 1:nneurons % ugly for loop, fix this
-                //     for ncam = 1:2
-                //         these_prefs = logical(vis_prefs(nneuron, :, ncam));
-                //         %%% GoogleNet/Alexnet missing error here
-                //         vis_I(nneuron) = vis_I(nneuron) + sum(vis_pref_vals(these_prefs, ncam));
-                //     end
-                // end 
-
                 // VISUAL INPUT
                 for (short ii = normalNeuronFirstIndex; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
@@ -479,10 +536,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, (threadInitialTotalNumOfNeurons));
 
                         if (k > -1){ // selected Color detection
-                            // platform_log( (std::to_string(k)+" END SELECTED COLOR\n" ).c_str());
-                            // short k = ( visPrefs[jj][ii] );
-                            // double val1 = vis_pref_vals[k][0];
-                            // double val2 = vis_pref_vals[k][1];
+
                             if (jj == 1){
                                 // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
                                 double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
@@ -494,26 +548,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         }
                     }
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
-                    // if (speaker_connection_sum > 0){
-                        // platform_log( "\n4 - idx\n");
-                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
-                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 9, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
-                        // platform_log( "\n5 - idx\n");
-                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 10, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
-                        // platform_log( (std::to_string(getSimulationMatrixValue(speaker_buf, 9, 8, threadInitialTotalNumOfNeurons))+" END VIS SCORE\n" ).c_str());
-
-// short getSimulationMatrixValue(short *arr, short pi, short pj, int32_t per_row){
-//     return arr[ pi * per_row + pj];
-// }
-
-                    // }
-                    // 3 - idx
-                    // 0.024184 END VIS SCORE
-                    // 0.517687 END VIS SCORE
-                    // 4 - idx
-                    // 50.000000 END VIS SCORE
-                    // 0.000000 END VIS SCORE
-                    // vis_I[ii] = 0;
                 }
 
                 
@@ -530,6 +564,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // platform_log( (std::to_string(microseconds)+" STARTmicroseconds\n" ).c_str());
 
                 for (int t = 0; t < epochs; t++) {
+                    // start = std::chrono::high_resolution_clock::now();
+
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         #ifdef __EMSCRIPTEN__
@@ -539,40 +575,111 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                         #endif                        
                         //find spiking neurons
+                        guidedDelayList[neuronIndex].isSpiking = 0;
+
                         isSpiking[neuronIndex] = 0;
-                        isNeuronBurstingTriggered[neuronIndex] = 0;
-                        
-                        if (v[neuronIndex] >= 30) {
+                        isSmartNeuronReady = 0;
+                        if (guidedDelayList[neuronIndex].neuronType == 8){
+                            if (guidedDelayList[neuronIndex].mode == 2){
+                                short freshDelayedValue = guidedDelayList[neuronIndex].pop_back();
+                                // if (neuronIndex == 13){
+                                //     listSize = guidedDelayList[13].listSize *2;
+                                //     if (counterListPop<listSize){
+                                //         strPop = strPop + std::to_string(freshDelayedValue) +",";
+                                //         counterListPop++;
+                                //     }else{
+                                //         // STEVE
+                                //         // platform_log( ("CounterList Pop : " + std::to_string(counterListPop)+"\n CounterList Push: "+ std::to_string(counterListPush)+"\n" ).c_str());                                        
+                                //         // platform_log( ("StrPush : " + strPush +"\n Str Pop: "+ strPop +"\n" ).c_str());
+                                //         // getLinkedListValue(guidedDelayList[0].getList().head, guidedDelayList[0].getList().tail,listSize);
+                                //     }
+                                // }
+                                // if (isSpiking[13]==1){
+                                //     counterList++;
+                                //     guidedDelayList[0].push_front(freshDelayedValue);
+                                // }
+                                // if (counterList < listSize){
+                                //     guidedDelayList[0].push_front(freshDelayedValue);
+                                //     counterList++;
+                                // }else{
+                                //     // getLinkedListValue(guidedDelayList[0].getList().tail);
+
+                                // }
+
+
+                                if (freshDelayedValue == 1){
+                                    isSmartNeuronReady = 2;
+                                }else{
+                                    isSmartNeuronReady = 1;
+                                }
+                            }else
+                            if (guidedDelayList[neuronIndex].mode == 1){
+                                isSmartNeuronReady = 1;
+                            }else{ // mode == 0
+                                isSmartNeuronReady = 1;
+                            }
+
+                        }
+                        if (guidedDelayList[neuronIndex].isInhibited){
+                            isSmartNeuronReady = -1;
+                        }
+
+                        if (isSmartNeuronReady == -1){
+                            isSpiking[neuronIndex] = 0;
+                            isStepSpiking[neuronIndex] = 0;
+                            spikes_step[neuronIndex][t] = 0;
+                        }else                       
+                        if (isSmartNeuronReady == 1){ // SMART NEURON mode =0 OR mode =1
+                            isSpiking[neuronIndex] = 0;
+                            isStepSpiking[neuronIndex] = 0;
+                            spikes_step[neuronIndex][t] = 0;
+                            short srcNeuronType = mapNeuronType[neuronIndex];
+
+                            if (srcNeuronType >=8 && srcNeuronType <= 10){
+                                // platform_log( ("NeuronIdx : " + std::to_string(neuronIndex)+"\nSmartNeuron: "+ std::to_string(guidedDelayList[neuronIndex])+"\n" ).c_str());
+                                if (guidedDelayList[neuronIndex].mode == 0 && guidedDelayList[neuronIndex].isWaiting == 1){
+                                    guidedDelayList[neuronIndex].isWaiting = 2;
+                                    guidedDelayList[neuronIndex].mode = 1;
+                                    if (srcNeuronType == 8){
+                                        guidedDelayList[neuronIndex].startDelayThread();
+                                    }else{
+                                        guidedDelayList[neuronIndex].startRhytmicBursting();
+                                    }
+                                }
+                            }
+                            // if (v[neuronIndex] >= 30){
+                            //     v[neuronIndex]= c[neuronIndex];
+                            //     u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
+                            // }
+                        }else
+                        if (isSmartNeuronReady == 2){
+                            isSpiking[neuronIndex] = 1;
+                            isStepSpiking[neuronIndex] = 1;
+                            spikingNow.push_back(neuronIndex);
+                            spikes_step[neuronIndex][t] = 1;
+                            // v[neuronIndex]= c[neuronIndex];
+                            // u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
+                        }else //NON SMART NEURON
+                        if ( (v[neuronIndex] >= 30 && isSmartNeuronReady == 0) ) {
                             isSpiking[neuronIndex] = 1;
                             isStepSpiking[neuronIndex] = 1;
                             spikingNow.push_back(neuronIndex);
                             spikes_step[neuronIndex][t] = 1;
 
-                            // Additional Neuron Type
-                            short delayVal = mapDelayNeuron[neuronIndex];
-                            short rhytmicVal = mapRhytmicNeuron[neuronIndex];
-                            short countingVal = mapCountingNeuron[neuronIndex];
-                            
-                            short neuronType = mapNeuronType[neuronIndex];
-                            bool isInhibitor = false;
-                            if (neuronType >= 1000){
-                                isInhibitor = true;
-                                neuronType %= 1000;
-                            }
+                            // short srcNeuronType = mapNeuronType[neuronIndex];
+                            // bool isSourceInhibitor = false;
+                            // if (srcNeuronType >= 1000){ // if spikingNeuron is inhibitor
+                            //     isSourceInhibitor = true;
+                            //     srcNeuronType %= 1000;
+                            // }
 
-                            if (neuronType == 8 && delayVal != -1){ //delay
-                                isNeuronDelaying[neuronIndex] = 1;
-                            }else
-                            if (neuronType == 9 && rhytmicVal != -1){ //rhytmic
-                                isRhytmicDelaying[neuronIndex] = 1;
-                            }else
-                            if (neuronType == 10 && countingVal != -1){ //rhytmic
-                                isCountingDelaying[neuronIndex] = 1;
-                            }
+                            // if (srcNeuronType >=8 && srcNeuronType <= 10){
+                            //     if (guidedDelayList[neuronIndex].mode == 0){
+                            //         guidedDelayList[neuronIndex].mode = 1;
+                            //         guidedDelayList[neuronIndex].startDelayThread();
 
-                            if (isInhibitor){ // if spiking again, decayMultipliers reset to 1
-                                decayMultipliers[neuronIndex] = 1;
-                            }
+                            //     }
+                            // }
 
                         }
                     }
@@ -583,6 +690,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     v_step.push_back(copyV);
                     
                     short numberOfSpikingNow = static_cast<short>(spikingNow.size());
+                    // initialize v & u
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         int neuronIndex = spikingNow[idx];
                         //Reset spiking v to c
@@ -591,95 +699,79 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         u[neuronIndex] = u[neuronIndex] + d[neuronIndex];
                     }
 
-                    for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++){
-
-                        if (isNeuronDelaying[neuronIndex] == 0 || isRhytmicDelaying[neuronIndex] == 0 || isRhytmicDelaying[neuronIndex] == 0) continue;
-                        int isBursting = 0;
-
-                        short neuronType = mapNeuronType[neuronIndex];
-                        if (neuronType >= 1000){
-                            isNeuronInhibitor[neuronIndex] = 1;
-                            neuronType %= 1000;
-                        }
-
-                        short delayVal = mapDelayNeuron[neuronIndex];
-                        short rhytmicVal = mapRhytmicNeuron[neuronIndex];
-                        short countingVal = mapCountingNeuron[neuronIndex];
-                        
-                        if (neuronType == 8 && delayVal != -1){ //delay
-
-                            start = std::chrono::high_resolution_clock::now();
-                            long long now = start.time_since_epoch().count()/1000000;
-
-                            if (now - neuronDelayTime[neuronIndex] > delayVal){
-                                isNeuronDelaying[neuronIndex] = 0; // run only once, 
-                                isBursting = 2;
-                            } else {
-                                isBursting = 1;
-                            }
-                        }else
-                        if (neuronType == 9 && rhytmicVal != -1){ // rhytmic neuron type
-                            start = std::chrono::high_resolution_clock::now();
-                            long long now = start.time_since_epoch().count()/1000000;
-
-                            if (now - neuronRhytmicTime[neuronIndex] > rhytmicVal){
-                                neuronRhytmicTime[neuronIndex] = now; // run intervally, because isRhytmicDelaying still 1
-                                isBursting = 2;
-                            }else{
-                                isBursting = 1;
-                            }
-
-                        }else
-                        if (neuronType == 10 && countingVal != -1){ // counting neuron type
-                            start = std::chrono::high_resolution_clock::now();
-                            long long now = start.time_since_epoch().count()/1000000;
-
-                            if (now - neuronCountingTime[neuronIndex] > countingTimeTrigger){
-                                neuronCountingTime[neuronIndex] = now; // run intervally, because isRhytmicDelaying still 1
-                                mapCountingCounter[neuronIndex]++;
-                            }
-                            
-                            if (mapCountingCounter[neuronIndex]> countingVal) {
-                                isCountingDelaying[neuronIndex] = 0;
-                                isBursting = 2;
-                            }else{
-                                isBursting = 1;
-                            }
-                        }
-                        // update if there is any delay
-                        isNeuronBurstingTriggered[neuronIndex] = isBursting;
-                    }
-
                     double *sumConnectome = new double[threadTotalNumOfNeurons]();
-                    // get all neurons 
+                    // Sum Connectome
+                        /*
+                            Normal Spiking
+                            =====================
+                            POV - Smart Neuron should be Burst When Activated
+                            if the mode is 0 then push, 
+                            if the mode is 2 the push and pop
+
+                            Inhibition that check the Smart Neuron status
+                            ======
+                            POV - Smart Neuron is not spiking using burst when activated 
+                                - ?? do we need it if spiking then it means the inhibition lose
+                            State 0 - inhibition from previous neuron was set previously but not processed 
+
+                            Inhibition that don't check the Smart Neuron status
+                            ===========
+                            POV - if there is an inhibition neuron that send inhibition signal 
+                                regardless of the value that make smart neuron active or not, it will proses the inhibition process
+                        */
+
                     for (short idx = 0; idx < numberOfSpikingNow; idx++){
                         short spikingNeuronIndex = static_cast<short>(spikingNow[idx]);
-                        short neuronType = mapNeuronType[spikingNeuronIndex];
-                        bool isInhibitor = false;
-                        if (neuronType >= 1000){
-                            isInhibitor = true;
+                        bool isSourceInhibitor = false;
+                        short srcNeuronType = mapNeuronType[spikingNeuronIndex];
+                        // platform_log( ("Source inhibition type : " + std::to_string(srcNeuronType)+"\n" ).c_str());
+                        if (srcNeuronType >= 1000){ // if spikingNeuron is inhibitor
+                            isSourceInhibitor = true;
+                            srcNeuronType %= 1000;
+                            guidedDelayList[idx].isInhibited = true;
                         }
+
+
+                        // platform_log( ("Is Spiking? : " + std::to_string(isSpiking[spikingNeuronIndex])+"\n" ).c_str());                                
 
                         for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
                             if (connectome[spikingNeuronIndex][j] != 0){
-                                if (isNeuronBurstingTriggered[spikingNeuronIndex] == 0){
-                                    sumConnectome[j] += connectome[spikingNeuronIndex][j];
-                                }else
-                                if (isNeuronBurstingTriggered[spikingNeuronIndex] == 2){
-                                    // sumConnectome[j] += decayMultipliers[spikingNeuronIndex] * connectome[spikingNeuronIndex][j];
-                                    sumConnectome[j] += decayMultipliers[spikingNeuronIndex] * 100;
-                                    if (isInhibitor){ // decay multiplier
-                                        decayMultipliers[spikingNeuronIndex] -= 0.1;
-                                        if (decayMultipliers[spikingNeuronIndex] < 0.1){
-                                            decayMultipliers = 0;
+                                if (isSourceInhibitor){
+                                    // platform_log( ("Source inhibition calculation : " + std::to_string(isSourceInhibitor)+"\n" ).c_str());
+                                    guidedDelayList[j].isInhibited = true;
+                                }
+
+                                if (isSpiking[spikingNeuronIndex]){
+
+                                    if (guidedDelayList[spikingNeuronIndex].neuronType == 8){// Source : Spiking DELAY NEURON
+                                        if (guidedDelayList[j].neuronType == 8 && guidedDelayList[spikingNeuronIndex].mode == 2){
+                                            guidedDelayList[j].isSpiking = 1;
+                                            if (guidedDelayList[j].isWaiting == 0){
+                                                guidedDelayList[j].isWaiting = 1; // prepare to start the thread, 2-If it has invoked
+                                            }
+                                        }
+                                        
+                                    }else
+                                    if (guidedDelayList[spikingNeuronIndex].neuronType < 8){ // Source : Spiking Normal NEURON
+                                        if (guidedDelayList[j].neuronType == 8){
+                                            guidedDelayList[j].isSpiking = 1;
+                                            if (guidedDelayList[j].isWaiting == 0){
+                                                guidedDelayList[j].isWaiting = 1; // prepare to start the thread, 2-If it has invoked
+                                            }
                                         }
                                     }
                                 }
-
+                                if (srcNeuronType<8){
+                                    sumConnectome[j] += (connectome[spikingNeuronIndex][j] - guidedDelayList[idx].decayMultipliers * connectome[spikingNeuronIndex][j]);
+                                }else{
+                                    sumConnectome[j] += (connectome[spikingNeuronIndex][j]);
+                                }
                             }
                             // the line above is saying add weight from a spiking neuron to target neuron 
                         }
                     }
+
+                    // if isInhibited - it will reset everything before pushing anything
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
                         tI[idx] += sumConnectome[idx];
                     }
@@ -687,102 +779,155 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
                         tI[idx] += (vis_I[idx] + dist_I[idx]);
-                        // tI[idx] += vis_I[idx];
-                        // tI[idx] += 100;
-                        // if (vis_I[idx] >= 100){
-                        //     platform_log("\nNOISE\n");
-                        //     platform_log(std::to_string(vis_I[idx]).c_str());
-                        //     platform_log("\n");
-                        //     platform_log(std::to_string(idx).c_str());
-                        //     platform_log("\n");                        
+                    }
+
+                    // update v & u
+                    for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
+                        // double previousV = v[neuronIndex];
+                        /*
+                        if (guidedDelayList[neuronIndex].isInhibited){ //neuron got inhibited
+                            // platform_log( ("Decay Multipliers : " + std::to_string(guidedDelayList[neuronIndex].decayMultipliers)+"\n" ).c_str());
+                            v[neuronIndex] = maxV[neuronIndex] -guidedDelayList[neuronIndex].decayMultipliers * maxV[neuronIndex];
+                            u[neuronIndex]= maxU[neuronIndex] -guidedDelayList[neuronIndex].decayMultipliers * maxU[neuronIndex];
+                            // platform_log( ("V : " + std::to_string(v[neuronIndex])+"\n" ).c_str());
+
+                            if (v[neuronIndex] < c[neuronIndex]){
+                               v[neuronIndex] = c[neuronIndex]; 
+                            }
+                            if (u[neuronIndex] < b[neuronIndex] * v[neuronIndex]){
+                               u[neuronIndex] = b[neuronIndex] * v[neuronIndex];
+                            }
+                        }else{
+                        */
+                            // if (guidedDelayList[neuronIndex].neuronType == 8 && guidedDelayList[neuronIndex].mode < 2 || guidedDelayList[neuronIndex].isWaiting){
+                            // platform_log( ("targetNeuron Spikes : " + std::to_string(guidedDelayList[j].neuronType)+"\n" ).c_str());                                
+                            // platform_log( ("targetNeuron Spikes22 : " + std::to_string(guidedDelayList[j].isWaiting)+"\n" ).c_str());                                
+
+                            if (guidedDelayList[neuronIndex].neuronType == 8 && guidedDelayList[neuronIndex].isWaiting < 3){
+                               v[neuronIndex] = c[neuronIndex];
+                               u[neuronIndex] = b[neuronIndex] * v[neuronIndex];
+                            }else
+                            if (guidedDelayList[neuronIndex].neuronType == 8 && guidedDelayList[neuronIndex].isWaiting == 3){
+                                
+                                // platform_log( ("targetNeuron Spikes2 : " + std::to_string(guidedDelayList[neuronIndex].isSpiking)+"\n" ).c_str());
+                                if (guidedDelayList[neuronIndex].isSpiking == 1){
+
+                                    v[neuronIndex] = 70; 
+                                    u[neuronIndex] = b[neuronIndex] * v[neuronIndex];
+                                }else{
+                                    v[neuronIndex] = c[neuronIndex];
+                                    u[neuronIndex] = b[neuronIndex] * v[neuronIndex];
+                                }
+                            }else{
+                                // Propagate v  
+                                v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
+                                // Adjust for continuous time
+                                v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
+                                //Update u
+                            }
+
+                            maxV[neuronIndex] = v[neuronIndex];
+                            maxU[neuronIndex] = u[neuronIndex];
+                        /*
+                        }
+                        */
+
+                        u[neuronIndex] = u[neuronIndex] + a[neuronIndex] * (b[neuronIndex]*v[neuronIndex] - u[neuronIndex]);
+
+                        if (v[neuronIndex] == v[neuronIndex]) {
+                        }else{
+                            v[neuronIndex] = c[neuronIndex];
+                        }
+                        if (isinf(v[neuronIndex])) {
+                            v[neuronIndex] = c[neuronIndex];
+                        }
+
+                        if (u[neuronIndex] == u[neuronIndex]) {
+                        }else{
+                            u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
+                        }
+                        if (isinf(u[neuronIndex])) {
+                            u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
+                        }
+                    }
+
+                    // Process Smart Neuron
+                    for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
+                        // if (isSpiking[idx]){ // smart neuron - burst when activated - spiking
+                            if (guidedDelayList[idx].isInhibited && guidedDelayList[idx].neuronType < 8){
+                                // source inhibitor
+                                // start decay
+                                guidedDelayList[idx].processDecaying(); 
+                            }else
+                            if (guidedDelayList[idx].isInhibited && guidedDelayList[idx].neuronType == 8){
+                                guidedDelayList[idx].processInhibition(true);// need to clear linkedlist reset timer
+                                // previously we inject a value to be low --> to prevent spiking we still need to clear 
+                            }else
+                            if (guidedDelayList[idx].neuronType == 8){ //delay neuron
+                                // platform_log( ("freshDelayedValue : " + std::to_string(v[idx])+"\n" ).c_str());
+
+                                if (v[idx] >= 30){
+                                    // platform_log( ("List Size2: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
+                                    guidedDelayList[idx].push_front(1);
+                                    /* what being pushed and popped is the same values
+                                    if (idx == 13){
+                                        if( counterListPush < listSize){
+                                            strPush = strPush+ "1,";
+                                            counterListPush++;
+                                        }else{
+                                            platform_log( ("ListSize2 : " + std::to_string(listSize)+"\n"+"CounterList Po2 : " + std::to_string(counterListPop)+"\n CounterList Push: "+ std::to_string(counterListPush)+"\n" ).c_str());                                        
+                                            platform_log( ("StrPush2 : " + strPush +"\n" ).c_str());
+                                            platform_log( ("\n Str Pop: "+ strPop +"\n" ).c_str());
+                                        }
+                                    } 
+                                    */
+                                    // platform_log( ("List Size3: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
+                                }else{
+                                    guidedDelayList[idx].push_front(0);
+                                    /* what being pushed and popped is the same values
+                                    if (idx == 13){
+                                        if( counterListPush < listSize){
+                                            strPush = strPush+ "0,";
+                                            counterListPush++;
+                                        }else{
+                                            // platform_log( ("ListSize3 : " + std::to_string(listSize)+"\n"+"CounterList Po3 : " + std::to_string(counterListPop)+"\n CounterList Push: "+ std::to_string(counterListPush)+"\n" ).c_str());                                        
+                                            // platform_log( ("StrPush3 : " + strPush +"\n Str Pop: "+ strPop +"\n" ).c_str());
+
+                                        }
+                                    } 
+                                    */
+                                    // platform_log( ("List Size1: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
+                                }
+                                // platform_log( ("tI[idx] : " + std::to_string(tI[idx])+"\n" ).c_str());
+                                // platform_log( ("u[idx] : " + std::to_string(u[idx])+"\n" ).c_str());
+                                // platform_log( ("V[idx] : " + std::to_string(v[idx])+"\n" ).c_str());
+                                // platform_log( ("a[idx] : " + std::to_string(a[idx])+"\n" ).c_str());
+                                // platform_log( ("b[idx] : " + std::to_string(b[idx])+"\n" ).c_str());
+                                // platform_log( ("c[idx] : " + std::to_string(c[idx])+"\n" ).c_str());
+                                // platform_log( ("d[idx] : " + std::to_string(d[idx])+"\n" ).c_str());
+                                // platform_log( ("GuidedDelayListVal : " + std::to_string(guidedDelayList[idx].getFront())+"\n" ).c_str());
+                                // if (guidedDelayList[idx].mode == 1){
+                                //     guidedDelayList[idx].push_front(isSpiking[idx]);
+                                //     // in the delay process set v,u, spiking status, tI to 0 --> no need, neuron takes care of himself, 
+                                //     // queue parameters like v, u, Spiking Status --> no need, neuron takes care of himself, 
+                                // }else
+                                // if (guidedDelayList[idx].mode == 2){
+                                //     // short freshDelayedValue = guidedDelayList[idx].pushFrontPopBack();
+                                //     guidedDelayList[idx].push_front(isSpiking[idx]);
+
+                                // }
+                            }
                         // }
                     }
 
 
-                    for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
-                        // Propagate v  
-                        v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
-                        // Adjust for continuous time
-                        v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
-                        //Update u
-
-                        u[neuronIndex] = u[neuronIndex] + a[neuronIndex] * (b[neuronIndex]*v[neuronIndex] - u[neuronIndex]);
-
-                    }
+                    // elapsed = std::chrono::high_resolution_clock::now() - start;
+                    // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                    // platform_log( (std::to_string(microseconds)+" microseconds\n" ).c_str());
                 }
 
 
-                // short* tempFiring = new short[threadTotalNumOfNeurons];
-                // for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
-                //     for (short t = 0; t<epochs; t++){
-                //         tempFiring[neuronIdx] += spikes_step[neuronIdx][t];
-                //     }
-                // }
-                // for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
-                //     if (tempFiring[neuronIdx] > 0){
-                //         firing[neuronIdx] = 1;
-                //     }else{
-                //         firing[neuronIdx] = 0;
-                //     }
-                // }
-                // for (short neuronIdx = 0; neuronIdx < threadTotalNumOfNeurons; neuronIdx++){
-                //     firing[neuronIdx] = isStepSpiking[neuronIdx];
-                // }
-
-
-
-                // if (isNeuronPerSecond){
-                //     isNeuronPerSecond = false;
-                    // elapsed = std::chrono::high_resolution_clock::now() - start;
-                    // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-                //     // int microtime = microseconds;
-                //     nps[0] = static_cast<int>(microseconds);
-                // }
-                // platform_log( (std::to_string(microseconds)+" microseconds\n" ).c_str());
-                
-                // start = std::chrono::high_resolution_clock::now();
-                // duration = start.time_since_epoch();
-                // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-                // platform_log( (std::to_string(microseconds)+" ENDmicroseconds\n" ).c_str());
-                // mtx.unlock();
-
-                std::string str = "S|";
-                // short isFlagSpikingNow = 0;
-                // for (int idx=0; idx<threadTotalNumOfNeurons; idx++){
-                //     neuronCircles[idx] = isStepSpiking[idx];
-                // }
-
-                // #ifdef __EMSCRIPTEN__
-                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
-                //         neuronCircles[idx] = isStepSpiking[idx];
-                //     }
-                // #else
-                //     for (unsigned idx=0; idx<threadTotalNumOfNeurons; idx++){
-                //         str.append(std::to_string(isStepSpiking[idx]).c_str());
-                //         if (idx < threadTotalNumOfNeurons-1) str.append("|");
-                //         if (isStepSpiking[idx] == 1){
-                //             isFlagSpikingNow = 1;
-                //         }
-                //     }
-                //     if (prevFlagSpiking == 0 && isFlagSpikingNow == 0){
-                //     }else
-                //     if (prevFlagSpiking == 1 && isFlagSpikingNow == 1){
-                //         #ifdef __EMSCRIPTEN__
-                //         #else
-                //             debug_print(str.c_str());
-                //         #endif                        
-                //     }else{
-                //         prevFlagSpiking = isFlagSpikingNow;
-                //         #ifdef __EMSCRIPTEN__
-                //         #else
-                //             debug_print(str.c_str());
-                //         #endif                        
-                //     }
-
-                // #endif        
-
                 short startPos = static_cast<short>( (currentStep) * ms_per_step );
-                // for (int idx = 0; idx < v_step.size(); idx++) {
 
                 for (short idx = 0; idx < static_cast<short>(epochs); idx++) {
                     // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
@@ -791,11 +936,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                 }
                 positions[0] = startPos + static_cast<short>(epochs);
-                // debug_print( (std::to_string(positions[0])+" | " ).c_str());
-
-                // for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
-                //     positions[neuronIndex] = startPos + epochs;
-                // }
                 currentStep++;
                 if (currentStep >= steps_per_loop){
                     currentStep = 0;            
@@ -808,31 +948,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                 }
 
-                // % Step data
-                // spikes_step ==== spikingNow;
-
-                // firing = sum(spikes_step, 2) > 0;
-                // steps_since_last_spike(firing) = 0;
-                // steps_since_last_spike = steps_since_last_spike + 1;
-                
-                // double *sumFiring = new double[threadTotalNumOfNeurons]();
-                
-                // for (short idx = 0; idx < numberOfSpikingNow; idx++){
-                //     short spikingNeuronIndex = static_cast<short>(spikingNow[idx]);
-
-                //     for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
-                //         sumConnectome[j] += connectome[spikingNeuronIndex][j];
-                //     }
-                // }
-                // platform_log("Update Motor Commands :\n");
-
                 // UPDATE MOTORS
+
                 for (short idx=0; idx<5; idx++){
                     motor_command[idx] = 0;
                 }
-                // debug_print( " !!!microseconds"  );
-                // debug_print( (std::to_string(sizeof(motor_command)/8)+" microseconds" ).c_str() );
-                // std::fill(motor_command, motor_command + 5 * 8, 0);
 
                 left_backward = 0;
                 left_forward = 0;
@@ -851,15 +971,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 short tempWeight = 0;
 
                 for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
-                    short isSpiking = isStepSpiking[iStep];
-                    if (isNeuronBurstingTriggered[iStep] == 1){ // still delaying bursting
-                        isSpiking = 100;
-                    }else
-                    if (isNeuronBurstingTriggered[iStep] == 2){ // burst now
-                        isSpiking = 101;
-                    }
-                    neuronCircles[iStep] = isSpiking % 100;
-                    if ( isSpiking == 1 || isSpiking == 101 ){
+                    short isNeuronSpiking = isStepSpiking[iStep];
+                    // neuronCircles[iStep] = isSpiking % 100;
+                    neuronCircles[iStep] = isNeuronSpiking;
+// platform_log( ("isSmartNeuronReady : " + std::to_string(isNeuronSpiking)+"\n" ).c_str());
+
+                    if ( isNeuronSpiking == 1 ){
                         // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
                         short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
                         if (speaker_val > -1){
@@ -951,16 +1068,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                         right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons));
                         right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
-
-                        // platform_log("Motor Commands :\n");
-                        // platform_log(std::to_string(getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons)).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons)).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons)).c_str());
-                        // platform_log("\n");
-                        // platform_log(std::to_string(getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons)).c_str());
-                        // platform_log("\n-----\n");
 
                     }
                 }
@@ -1170,7 +1277,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         // platform_log("COLORMSG\n");
                         // platform_log(message.c_str());
                         // platform_log("\n");
-                        onCallback(message.c_str());
+                        onCallback(prevMessage.c_str());
                     }
 
                     // }
@@ -1188,6 +1295,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] isSpiking;
                 delete[] isStepSpiking;
                 delete[] tI;
+                // elapsed = std::chrono::high_resolution_clock::now() - start;
+                // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                // platform_log( (std::to_string(microseconds)+" while thread loop microseconds\n" ).c_str());
 
             }
             if (!isThreadRunning){
@@ -1217,13 +1327,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] vis_I;
                 delete[] dist_I;
 
-                delete[] isNeuronInhibitor;
-                delete[] isNeuronDelaying;
-                delete[] isRhytmicDelaying;
-                delete[] mapDelayCounter;
-                delete[] mapRhytmicCounter;
-                delete[] mapCountingCounter;
-                delete[] neuronDelayTime;
+                delete[] delayLinkedList;
+                delete[] guidedDelayList;
+
+                // delete[] neuronDelayTime;
+                // delete[] neuronRhytmicTime;
+                // delete[] neuronCountingTime;
 
                 #ifdef __EMSCRIPTEN__
                     std::terminate();
@@ -1233,6 +1342,22 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         });        
 
         simulatorThread.detach();
+
+        // guidedQueueThread = std::thread([&]() {
+        //     // auto start = std::chrono::high_resolution_clock::now();
+        //     // auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        //     // long long microseconds = 0;
+        //     while (isThreadRunning){
+        //         // start = std::chrono::high_resolution_clock::now();
+        //         // elapsed = std::chrono::high_resolution_clock::now() - start;
+        //         // microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();            
+        //         // platform_log( (std::to_string(microseconds)+" guided microseconds\n" ).c_str());
+        //     }
+
+        // });
+        // // if (there is delay/rhytmic neuron start the thread)
+        // guidedQueueThread.detach();
+
         isThreadRunning = true;
         // debug_print("t detach");
 

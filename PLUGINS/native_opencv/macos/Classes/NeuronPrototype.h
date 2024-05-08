@@ -32,6 +32,7 @@
 
 // MAIN CODE
 // std::mutex mtx;
+int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
 short ms_per_step = 30;
