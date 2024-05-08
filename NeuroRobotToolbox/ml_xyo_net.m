@@ -61,9 +61,9 @@ end
 this_x = robot_xys(:,1);
 this_y = robot_xys(:,2);
 
-n1 = sum(this_x < 100 | this_x > 500);
-ns = randsample(100:500, n1, 1);
-this_x(this_x < 100 | this_x > 500) = ns;
+n1 = sum(this_x < 160 | this_x > 500);
+ns = randsample(160:500, n1, 1);
+this_x(this_x < 160 | this_x > 500) = ns;
 
 n1 = sum(this_y < 100 | this_y > 400);
 ns = randsample(100:400, n1, 1);
@@ -97,7 +97,7 @@ this_msg = 'Training...';
 disp(horzcat(this_msg))
 tx1.String = this_msg;
 
-xyos = arrayDatastore([robot_xys(:,1) robot_xys(:,2) thetas]);
+xyos = arrayDatastore([this_x this_y thetas]);
 training_data = combine(image_ds, xyos);
 numResponses = 3;
 
@@ -210,77 +210,80 @@ n_unique_states = init_n_unique_states;
 states = zeros(ntuples, 1);
 labels = cell(n_unique_states, 1);
 
+medx = median(this_x);
+medy = median(this_y);
+
 for ntuple = 1:ntuples
     this_x = xyo_net_vals(ntuple, 1);
     this_y = xyo_net_vals(ntuple, 2);
     this_o = xyo_net_vals(ntuple, 3);
-    if n_unique_states == 16
-        if this_y <= 200
-            if this_x < 250
-                if this_o >= 0 && this_o < 90
-                    states(ntuple) = 1;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
-                elseif this_o >= 90 && this_o < 180
-                    states(ntuple) = 2;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-                elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 3;   
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-                elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 4; 
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-                end
-            else
-                if this_o >= 0 && this_o < 90
-                    states(ntuple) = 5;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-                elseif this_o >= 90 && this_o < 180
-                    states(ntuple) = 6;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-                elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 7;   
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));              
-                elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 8;  
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-                end
+    if this_y <= medy
+        if this_x < medx
+            if this_o >= 0 && this_o < 90
+                states(ntuple) = 1;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
+            elseif this_o >= 90 && this_o < 180
+                states(ntuple) = 2;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
+            elseif this_o >= 180 && this_o < 270
+                states(ntuple) = 3;   
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
+            elseif this_o >= 270 && this_o <= 360
+                states(ntuple) = 4; 
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
             end
         else
-            if this_x < 250
-                if this_o >= 0 && this_o < 90
-                    states(ntuple) = 9;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));            
-                elseif this_o >= 90 && this_o < 180
-                    states(ntuple) = 10;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
-                elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 11;  
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-                elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 12;    
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-                end
-            else
-                if this_o >= 0 && this_o < 90
-                    states(ntuple) = 13;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-                elseif this_o >= 90 && this_o < 180
-                    states(ntuple) = 14;
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-                elseif this_o >= 180 && this_o < 270
-                    states(ntuple) = 15;    
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
-                elseif this_o >= 270 && this_o <= 360
-                    states(ntuple) = 16;  
-                    labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-                end
-            end          
+            if this_o >= 0 && this_o < 90
+                states(ntuple) = 5;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
+            elseif this_o >= 90 && this_o < 180
+                states(ntuple) = 6;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
+            elseif this_o >= 180 && this_o < 270
+                states(ntuple) = 7;   
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));              
+            elseif this_o >= 270 && this_o <= 360
+                states(ntuple) = 8;  
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
+            end
         end
     else
-        error('No xyo to states transform found')
+        if this_x < medx
+            if this_o >= 0 && this_o < 90
+                states(ntuple) = 9;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));            
+            elseif this_o >= 90 && this_o < 180
+                states(ntuple) = 10;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
+            elseif this_o >= 180 && this_o < 270
+                states(ntuple) = 11;  
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
+            elseif this_o >= 270 && this_o <= 360
+                states(ntuple) = 12;    
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
+            end
+        else
+            if this_o >= 0 && this_o < 90
+                states(ntuple) = 13;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
+            elseif this_o >= 90 && this_o < 180
+                states(ntuple) = 14;
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
+            elseif this_o >= 180 && this_o < 270
+                states(ntuple) = 15;    
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
+            elseif this_o >= 270 && this_o <= 360
+                states(ntuple) = 16;  
+                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
+            end
+        end          
     end
+    % if states(ntuple) == 0
+    %     1
+    % end
 end
 
+% states(states==0)
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 
