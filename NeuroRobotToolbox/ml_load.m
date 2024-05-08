@@ -25,6 +25,9 @@ try
     load(strcat(nets_dir_name, state_net_name, '-mdp'))
     n_unique_states = length(unique(states));
     n_unique_actions = length(unique(actions));
+    if strcmp(state_net_name(1:6), 'xyoNet')
+        n_unique_actions = n_unique_actions - 2;         
+    end    
     ntuples = size(torque_data, 1);
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
 

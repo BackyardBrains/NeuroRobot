@@ -65,6 +65,9 @@ end
 
 %% Get tuples
 load(horzcat(nets_dir_name, state_net_name, '-states'))
+n_unique_states = length(unique(states));
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
+
 tuples = zeros(ntuples, 3);
 for ntuple = 6:ntuples - 1
     tuples(ntuple - 5, 1) = states(ntuple - 5);
