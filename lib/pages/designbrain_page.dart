@@ -596,6 +596,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: StateLength, sizeOfType: ffi.sizeOf<ffi.Int>());
     motorCommandMessageBuf = allocate<ffi.Uint8>(
         count: MotorMessageLength, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+
+    mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
+    mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
+    mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
   }
 
   void initNativeC(bool isInitialized) {
@@ -671,6 +675,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       mapDelayNeuronBufView = mapDelayNeuronBuf.asTypedList(neuronSize);
       mapRhytmicNeuronBufView = mapRhytmicNeuronBuf.asTypedList(neuronSize);
       mapCountingNeuronBufView = mapCountingNeuronBuf.asTypedList(neuronSize);
+
       // if (!isSimulationCallbackAttached) {
       //   isSimulationCallbackAttached = true;
       nativec.simulationCallback(updateFromSimulation);
@@ -1725,7 +1730,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                           sldTimeValue = 3000;
                         } else {
                           isShowDelayTime = false;
-                          sldTimeValue = 1000;
+                          // sldTimeValue = 1000;
                         }
                         tecTimeValue.text = sldTimeValue.floor().toString();
                         try {
@@ -1737,8 +1742,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                               2;
 
                           nativec.changeIdxSelected(neuronIdx);
-
-                          mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
+                          if (value == "Delay") {
+                            mapDelayNeuronList[neuronIdx] =
+                                sldTimeValue.floor();
+                          }
                         } catch (err) {
                           print("err");
                           print(err);
@@ -2193,7 +2200,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                                   max: maxDelayTimeValue.toDouble(),
                                   min: minDelayTimeValue.toDouble(),
                                   divisions: 9,
-                                  label: maxDelayTimeValue.toString(),
+                                  // label: maxDelayTimeValue.round().toString(),
                                   onChanged: (double value) {
                                     try {
                                       sldTimeValue = value;
@@ -2212,8 +2219,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
                                       mapDelayNeuronList[neuronIdx] =
                                           sldTimeValue.floor();
-                                      setState(() {});
                                     } catch (err) {}
+                                    setState(() {});
                                   },
                                 ),
                               ),
@@ -3393,12 +3400,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         controller.edges.remove(outwardEdge);
       }
 
+      int deleteIdx = neuronTypes.keys.toList().indexOf(selected.id);
+      mapDelayNeuronList.removeAt(deleteIdx);
+
       neuronTypes.remove(selected.id);
       neuronStyles.remove(selected.id);
       aDesignArray.remove(selected.id);
       bDesignArray.remove(selected.id);
       cDesignArray.remove(selected.id);
       dDesignArray.remove(selected.id);
+
       // remove, still preserve order of the hashmap data.
       // print("neuronTypes");
       // print(neuronTypes);
@@ -4393,6 +4404,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   tecTimeValue.text = mapDelayNeuronList[neuronIdx].toString();
                   sldTimeValue = mapDelayNeuronList[neuronIdx].toDouble();
                 } else {
+                  isShowDelayTime = false;
                   sldTimeValue = minDelayTimeValue.toDouble();
                 }
 
@@ -4514,6 +4526,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           neuronSize++;
           UniqueKey newNodeKey = UniqueKey();
           neuronsKey.add(newNodeKey);
+          mapDelayNeuronList.add(-1);
           // neuronTypes[newNodeKey.toString()] = (randomNeuronType());
           neuronTypes[newNodeKey.toString()] = "Quiet";
           neuronStyles[newNodeKey.toString()] = "Excitatory";
@@ -4799,6 +4812,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   void initNeuronType() {
     neuronTypes = {};
+    mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
+    mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
+    mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
 
     for (int i = 0; i < neuronSize; i++) {
       if (i < normalNeuronStartIdx) {
@@ -5120,9 +5136,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "mapLedNeuron": mapLedNeuron,
       "mapLedNeuronPosition": mapLedNeuronPosition,
 
-      "mapDelayNeuron": mapDelayNeuronBufView.toList(),
-      "mapRhytmicNeuron": mapRhytmicNeuronBufView.toList(),
-      "mapCountingNeuron": mapCountingNeuronBufView.toList(),
+      "mapDelayNeuron": mapDelayNeuronList,
+      "mapRhytmicNeuron": mapRhytmicNeuronList,
+      "mapCountingNeuron": mapCountingNeuronList,
       "a": aBufView.toList(),
       "b": bBufView.toList(),
       "c": cBufView.toList(),
@@ -5131,7 +5147,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "w": wBufView.toList(),
     });
     print("strNodesJson");
-    // print(strNodesJson);
+    print(strNodesJson);
 
     String fileName = DateTime.now().microsecondsSinceEpoch.toString();
     Directory directory =
