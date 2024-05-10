@@ -186,12 +186,12 @@ axis tight
 title('Estimated O')
 
 subplot(3,3,7)
-scatter(robot_xys(:,1), xyo_net_vals(:,1))
+scatter(this_x, xyo_net_vals(:,1))
 axis tight
 title('True vs Estimated X')
 
 subplot(3,3,8)
-scatter(robot_xys(:,2), xyo_net_vals(:,2))
+scatter(this_y, xyo_net_vals(:,2))
 axis tight
 title('True vs Estimated Y')
 
@@ -278,9 +278,9 @@ for ntuple = 1:ntuples
             end
         end          
     end
-    % if states(ntuple) == 0
-    %     1
-    % end
+    if states(ntuple) == 0
+        disp('State = 0!')
+    end
 end
 
 % states(states==0)
