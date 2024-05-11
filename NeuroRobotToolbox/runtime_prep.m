@@ -34,7 +34,7 @@ else
     use_rcnn = 0;
 end
 
-% 3 = 'Custom net'
+% 4 = 'Custom net'
 if sum(select_nets.Value > nimported)
     use_custom_net = 1;
 else
@@ -99,6 +99,8 @@ scores = 0;
 %% Variables
 this_key = 0;
 xyo_state = 1;
+net_input_size = [240 320];
+use_xyo_net = 0;
 
 
 %% Select brain

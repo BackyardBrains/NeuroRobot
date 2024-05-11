@@ -135,7 +135,7 @@ ml_train5_status = axes('position', ml_10_train2_status_pos, 'xtick', [], 'ytick
 box on
 axis([0 1 0 1])
 
-ml_custom_button = uicontrol('Style', 'pushbutton', 'String', 'Train xyoNet', 'Callback', 'ml_xyo_net', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
+ml_custom_button = uicontrol('Style', 'pushbutton', 'String', 'Train custom net', 'Callback', 'train_eeg_net_ml', 'units', 'normalized', 'position', ml_11_advanced_button_pos, 'FontSize', bfsize + 4, 'fontname', gui_font_name, 'fontweight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8]);
 
 
 %% Image Panels
