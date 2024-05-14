@@ -107,15 +107,32 @@ end
 
 % XYO Net
 if use_xyo_net
-    
-    lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
-    xyo = predict(xyoNet, double(lframe));
-    % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
-    
-    this_x = xyo(1);
-    this_y = xyo(2);
-    this_o = xyo(3);
-    
+
+    % lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
+    % xyo = predict(xyoNet, double(lframe));
+    % % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
+    % 
+    % this_x = xyo(1);
+    % this_y = xyo(2);
+    % this_o = xyo(3);
+
+    robot_xy = ext_data.robot_xy;
+    rblob_xy = ext_data.rblob_xy;
+    gblob_xy = ext_data.gblob_xy;
+
+    this_x = robot_xy(1);
+    this_y = robot_xy(2);
+
+    x1 = rblob_xy(1);
+    y1 = rblob_xy(2);
+    x2 = gblob_xy(1);
+    y2 = gblob_xy(2);
+
+    sepx = x1-x2;
+    sepy = y1-y2;
+
+    theta = mod(atan2d(sepy,sepx),360); 
+      
     if this_y <= 200
         if this_x < 250
             if this_o >= 0 && this_o < 90
