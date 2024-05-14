@@ -33,7 +33,6 @@ for fileIdx = 1:nfiles
     textFileName = strrep(waveFilename,'.wav','-events.txt');
 
     [wave,sample_frequency] = audioread([data_dir waveFilename]);
-    sample_frequency = 3333;
     wave = wave(1:30*sample_frequency, 1);
 
     clear eventData
@@ -64,8 +63,8 @@ for fileIdx = 1:nfiles
     for jj = 1:30
         counter = counter + 1;
         this_data = squeeze(data(fileIdx, jj, :));
-        this_data = reshape(this_data,1,[]); 
-        xdata{counter} = this_data;        
+        this_data = reshape(this_data,1,[]);
+        xdata{counter} = this_data;
         xlabels(counter) = labels(fileIdx, jj);
     end
 end
@@ -93,11 +92,11 @@ if network_type == 1
         cwtLayer("SignalLength",round(sequence_length/2),"IncludeLowpass",true,"Wavelet","amor")
         maxPooling2dLayer([5,10])
         convolution2dLayer([5,10],5,"Padding","same")
-        maxPooling2dLayer([5,10])  
+        maxPooling2dLayer([5,10])
         batchNormalizationLayer
         reluLayer
         convolution2dLayer([5,10],10,"Padding","same")
-        maxPooling2dLayer([2,4])   
+        maxPooling2dLayer([2,4])
         batchNormalizationLayer
         reluLayer
         flattenLayer
@@ -107,7 +106,7 @@ if network_type == 1
         softmaxLayer
         classificationLayer
         ];
-    
+
     options = trainingOptions("adam", ...
         "MaxEpochs",10, ...
         "MiniBatchSize",32, ...
@@ -128,15 +127,14 @@ elseif network_type == 2
         softmaxLayer
         classificationLayer
         ];
-    
+
     options = trainingOptions('adam', ...
         'MaxEpochs', 5, ...
         'MiniBatchSize', 16, ...
         'Verbose', true, ...
         "Shuffle","every-epoch",...
-        "Plots","training-progress",...
-        "ValidationData",{validation_data,validation_labels},...        
-        'Plots', 'training-progress');
+        "ValidationData",{validation_data,validation_labels},...
+        'Plots', 'none');
 
 end
 
