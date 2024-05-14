@@ -33,6 +33,7 @@ for fileIdx = 1:nfiles
     textFileName = strrep(waveFilename,'.wav','-events.txt');
 
     [wave,sample_frequency] = audioread([data_dir waveFilename]);
+    sample_frequency = 3333;
     wave = wave(1:30*sample_frequency, 1);
 
     clear eventData
