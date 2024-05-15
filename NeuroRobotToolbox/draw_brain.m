@@ -370,7 +370,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
 %             end
 %         end
 %     end
-    if exist('neuron_scripts', 'var') && exist('full_net_name', 'var')
+    if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if ~isempty(neuron_scripts) && neuron_scripts(nneuron)
                 if neuron_scripts(nneuron) == 6
@@ -382,7 +382,7 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
                 else
                     this_str = script_strs(neuron_scripts(nneuron)).name;
                 end
-                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, num2str(this_str), 'fontsize', bfsize + 4, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
+                neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, this_str, 'fontsize', bfsize + 10, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end
     end
