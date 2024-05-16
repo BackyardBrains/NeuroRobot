@@ -11,9 +11,15 @@ recording_length_in_sec = 30;
 sample_frequency = 3333;
 target_frequency = 250;
 data_dir = 'C:\Users\chris\EEG\Data1\';
-network_type = 1; % 1 = CWT, 2 = LSTM
 nclasses = 2; % Eyes open (1) & Eyes closed (2)
 sample_length = recording_length_in_sec * target_frequency;
+
+if ~exist('raw_settings', 'var')
+    network_type = 1; % 1 = CWT, 2 = LSTM
+    ml_me = 20; % Max epochs
+else
+
+end
 
 
 %% Get data
@@ -35,7 +41,7 @@ for fileIdx = 1:nfiles
     textFileName = strrep(waveFilename,'.wav','-events.txt');
 
     [wave,sample_frequency] = audioread([data_dir waveFilename]);
-    wave = wave(1:30*sample_frequency, 1);
+    wave = wave(1:recording_length_in_sec*sample_frequency, 1);
     wave_downsampled = resample(wave,target_frequency,sample_frequency);
 
     clear eventData
@@ -60,11 +66,11 @@ for fileIdx = 1:nfiles
     end
 end
 
-xdata = cell(nfiles*sample_length-target_frequency+1, 1);
-xlabels = zeros(nfiles*sample_length-target_frequency+1, 1);
+xdata = cell(nfiles*(sample_length-target_frequency), 1);
+xlabels = zeros(nfiles*(sample_length-target_frequency), 1);
 counter = 0;
 for fileIdx = 1:nfiles
-    for jj = 1:sample_length-target_frequency+1
+    for jj = 1:sample_length-target_frequency
         counter = counter + 1;
         this_data = squeeze(data(fileIdx, jj, :));
         this_data = reshape(this_data,1,[]);
@@ -112,8 +118,8 @@ if network_type == 1
         ];
 
     options = trainingOptions("adam", ...
-        "MaxEpochs",20, ...
-        "MiniBatchSize",32, ...
+        "MaxEpochs",ml_me, ...
+        "MiniBatchSize",ml_bs, ...
         "Shuffle","every-epoch",...
         "ValidationData",{validation_data,validation_labels},...
         "L2Regularization",1e-2,...
@@ -132,8 +138,8 @@ elseif network_type == 2
         ];
 
     options = trainingOptions('adam', ...
-        'MaxEpochs', 20, ...
-        'MiniBatchSize', 16, ...
+        'MaxEpochs', ml_me, ...
+        'MiniBatchSize', ml_bs, ...
         'Verbose', true, ...
         "Shuffle","every-epoch",...
         "ValidationData",{validation_data,validation_labels},...
@@ -144,6 +150,7 @@ end
 
 %%
 net = trainNetwork(xdata, xlabels, layers, options);
+% net = trainnet(xdata, xlabels, layers, 'crossentropy', options)
 save(strcat(data_dir, 'eegNet'), 'net')
 
 
