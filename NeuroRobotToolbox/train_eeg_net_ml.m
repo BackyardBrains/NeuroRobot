@@ -9,9 +9,11 @@
 %% Settings
 recording_length_in_sec = 30;
 sample_frequency = 3333;
+target_frequency = 250;
 data_dir = 'C:\Users\chris\EEG\Data1\';
 network_type = 1; % 1 = CWT, 2 = LSTM
 nclasses = 2; % Eyes open (1) & Eyes closed (2)
+sample_length = recording_length_in_sec * target_frequency;
 
 
 %% Get data
@@ -20,7 +22,7 @@ noteFiles = dir(fullfile(data_dir, '*-events.txt'));
 
 nfiles = length(wavFiles);
 
-data = zeros(nfiles, recording_length_in_sec, sample_frequency);
+data = zeros(nfiles, target_frequency * recording_length_in_sec - target_frequency, target_frequency);
 labels = zeros(nfiles, 1);
 
 for fileIdx = 1:nfiles
@@ -34,21 +36,23 @@ for fileIdx = 1:nfiles
 
     [wave,sample_frequency] = audioread([data_dir waveFilename]);
     wave = wave(1:30*sample_frequency, 1);
+    wave_downsampled = resample(wave,target_frequency,sample_frequency);
 
     clear eventData
     eventData = importdata([data_dir textFileName], '\t', 2);
     marker_times = eventData.data;
+    marker_times_downsampled = marker_times * target_frequency;
 
-    for ii = 1:30
-        this_data = wave(1 + ((ii-1) * sample_frequency) : ii * sample_frequency);
+    for ii = 1:sample_length-target_frequency+1
+        this_data = wave_downsampled(ii : ii + target_frequency - 1);
         data(fileIdx, ii, :) = this_data;
-        if ii * sample_frequency < marker_times(1) * sample_frequency
+        if ii < marker_times_downsampled(1)
             labels(fileIdx, ii) = 1;
-        elseif ii * sample_frequency < marker_times(2) * sample_frequency
+        elseif ii < marker_times_downsampled(2)
             labels(fileIdx, ii) = 0;
-        elseif ii * sample_frequency < marker_times(3) * sample_frequency
+        elseif ii < marker_times_downsampled(3)
             labels(fileIdx, ii) = 1;
-        elseif ii * sample_frequency < marker_times(4) * sample_frequency
+        elseif ii < marker_times_downsampled(4)
             labels(fileIdx, ii) = 0;
         else
             labels(fileIdx, ii) = 1;
@@ -56,11 +60,11 @@ for fileIdx = 1:nfiles
     end
 end
 
-xdata = cell(nfiles * 30, 1);
-xlabels = zeros(nfiles * 30, 1);
+xdata = cell(nfiles*sample_length-target_frequency+1, 1);
+xlabels = zeros(nfiles*sample_length-target_frequency+1, 1);
 counter = 0;
 for fileIdx = 1:nfiles
-    for jj = 1:30
+    for jj = 1:sample_length-target_frequency+1
         counter = counter + 1;
         this_data = squeeze(data(fileIdx, jj, :));
         this_data = reshape(this_data,1,[]);
@@ -82,7 +86,7 @@ validation_labels = xlabels(idx{3});
 
 
 %% Prepare network
-sequence_length = sample_frequency;
+sequence_length = target_frequency;
 
 if network_type == 1
 
