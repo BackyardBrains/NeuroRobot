@@ -10,7 +10,7 @@
 recording_length_in_sec = 30;
 sample_frequency = 3333;
 data_dir = 'C:\Users\chris\EEG\Data1\';
-network_type = 2; % 1 = CWT, 2 = LSTM
+network_type = 1; % 1 = CWT, 2 = LSTM
 nclasses = 2; % Eyes open (1) & Eyes closed (2)
 
 
@@ -108,7 +108,7 @@ if network_type == 1
         ];
 
     options = trainingOptions("adam", ...
-        "MaxEpochs",10, ...
+        "MaxEpochs",20, ...
         "MiniBatchSize",32, ...
         "Shuffle","every-epoch",...
         "ValidationData",{validation_data,validation_labels},...
@@ -150,4 +150,3 @@ predicted_labels = classify(net, test_data);
 % Evaluate the predictions
 accuracy = sum(predicted_labels == test_labels) / length(predicted_labels);
 disp(['Accuracy: ', num2str(accuracy * 100), '%']);
-
