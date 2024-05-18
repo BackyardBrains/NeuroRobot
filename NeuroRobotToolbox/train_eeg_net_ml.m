@@ -28,9 +28,11 @@ noteFiles = dir(fullfile(data_dir, '*-events.txt'));
 
 nfiles = length(wavFiles);
 
-data = zeros(nfiles, target_frequency * recording_length_in_sec - target_frequency, target_frequency);
+nsamples_per_recording = (target_frequency * recording_length_in_sec - target_frequency) / 10;
+data = zeros(nfiles, nsamples_per_recording, target_frequency);
 labels = zeros(nfiles, 1);
 
+disp('Getting data...')
 for fileIdx = 1:nfiles
 
     if ~rem(fileIdx+1, round(nfiles/10))
@@ -49,33 +51,63 @@ for fileIdx = 1:nfiles
     marker_times = eventData.data;
     marker_times_downsampled = marker_times * target_frequency;
 
-    for ii = 1:sample_length-target_frequency+1
+    dcounter = 0;
+    for ii = 1:10:sample_length-target_frequency
+        dcounter = dcounter + 1;
         this_data = wave_downsampled(ii : ii + target_frequency - 1);
-        data(fileIdx, ii, :) = this_data;
+        data(fileIdx, dcounter, :) = this_data;
         if ii < marker_times_downsampled(1)
-            labels(fileIdx, ii) = 1;
+            labels(fileIdx, dcounter) = 1;
         elseif ii < marker_times_downsampled(2)
-            labels(fileIdx, ii) = 0;
+            labels(fileIdx, dcounter) = 0;
         elseif ii < marker_times_downsampled(3)
-            labels(fileIdx, ii) = 1;
+            labels(fileIdx, dcounter) = 1;
         elseif ii < marker_times_downsampled(4)
-            labels(fileIdx, ii) = 0;
+            labels(fileIdx, dcounter) = 0;
         else
-            labels(fileIdx, ii) = 1;
+            labels(fileIdx, dcounter) = 1;
         end
     end
 end
 
-xdata = cell(nfiles*(sample_length-target_frequency), 1);
-xlabels = zeros(nfiles*(sample_length-target_frequency), 1);
+disp('Pre-processing...')
+xdata = cell(nfiles*nsamples_per_recording, 1);
+xlabels = zeros(nfiles*nsamples_per_recording, 1);
+xspectrum = zeros(nfiles*nsamples_per_recording, 2);
 counter = 0;
 for fileIdx = 1:nfiles
-    for jj = 1:sample_length-target_frequency
+    fileIdx 
+    for jj = 1:nsamples_per_recording
         counter = counter + 1;
         this_data = squeeze(data(fileIdx, jj, :));
         this_data = reshape(this_data,1,[]);
         xdata{counter} = this_data;
         xlabels(counter) = labels(fileIdx, jj);
+
+        % Get pspectrum alpha
+        [p, f, ~] = pspectrum(...
+            zscore(this_data),...
+            target_frequency,...
+            'spectrogram',...
+            'TimeResolution', 0.01,...
+            'OverlapPercent',0,...
+            'FrequencyLimits',[0 25]);
+        alpha = mean(p(f > 8 & f < 12));
+
+        % Get fft alpha
+        n = target_frequency;
+        nyq = fix(n/2);
+        p = abs(fft(this_data));
+        f = (0:(n-1))/n*target_frequency; 
+        p = p(1:nyq);
+        f = f(1:nyq);
+        these_fs = find(f > 8 & f < 12);
+        t = (0:(n-1))/target_frequency;
+        alpha2 = mean(p(these_fs));        
+
+        xspectrum(counter, 1) = alpha;
+        xspectrum(counter, 2) = alpha2;        
+
     end
 end
 xlabels = categorical(xlabels);
