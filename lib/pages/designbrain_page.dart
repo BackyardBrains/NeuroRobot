@@ -19,6 +19,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
+import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
+import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
@@ -486,12 +488,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int aiTypeLength = 15;
 
   bool isShowDelayTime = false;
-  int maxDelayTimeValue = 10000;
+  int maxDelayTimeValue = 5000;
   int minDelayTimeValue = 1000;
 
   late List<int> mapDelayNeuronList = [];
   late List<int> mapRhytmicNeuronList = [];
   late List<int> mapCountingNeuronList = [];
+
+  List<SyntheticNeuron> rawSyntheticNeuronList = [];
+  List<SyntheticNeuron> syntheticNeuronList = [];
+  List<Connection> syntheticConnections = [];
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -596,7 +602,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         count: StateLength, sizeOfType: ffi.sizeOf<ffi.Int>());
     motorCommandMessageBuf = allocate<ffi.Uint8>(
         count: MotorMessageLength, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-
+    print("Init memory allocation");
     mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
     mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
     mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
@@ -813,7 +819,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         width: 0,
         height: 0,
       ));
-
   InfiniteCanvasNode nodeDistanceSensor = InfiniteCanvasNode(
     key: UniqueKey(),
     value: 0,
@@ -2199,7 +2204,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                                   value: sldTimeValue,
                                   max: maxDelayTimeValue.toDouble(),
                                   min: minDelayTimeValue.toDouble(),
-                                  divisions: 9,
+                                  divisions: 40,
                                   // label: maxDelayTimeValue.round().toString(),
                                   onChanged: (double value) {
                                     try {
@@ -2481,6 +2486,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                                     linkMotorConnection(
                                         sldSynapticWeight.toString());
                                   }
+
+                                  updateSyntheticConnection(
+                                      controller.edgeSelected.from,
+                                      controller.edgeSelected.to,
+                                      sldSynapticWeight);
 
                                   setState(() {});
                                 } catch (err) {}
@@ -3402,6 +3412,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
       int deleteIdx = neuronTypes.keys.toList().indexOf(selected.id);
       mapDelayNeuronList.removeAt(deleteIdx);
+      syntheticNeuronList.removeAt(deleteIdx);
+      rawSyntheticNeuronList.removeAt(deleteIdx);
 
       neuronTypes.remove(selected.id);
       neuronStyles.remove(selected.id);
@@ -3513,7 +3525,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             if (!isDrawTail && !controller.hasSelection) {
               isDeleteMenu = controller.isSelectingEdge;
               if (controller.isSelectingEdge) {
-                selectEdgeMenuType();
+                try {
+                  selectEdgeMenuType();
+                } catch (err) {
+                  print("err");
+                  print(err);
+                }
                 setState(() {});
               }
             }
@@ -4006,6 +4023,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     mapSensoryNeuron = {};
     mapSpeakerNeuron = {};
     neuronSize = normalNeuronStartIdx;
+    syntheticNeuronList.clear();
+    rawSyntheticNeuronList.clear();
+
     initNeuronType();
   }
 
@@ -4209,6 +4229,47 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // triangleNode,
       // circleNode,
     ];
+    List<InfiniteCanvasNode> syntheticNeurons = [
+      nodeDistanceSensor,
+      nodeLeftEyeSensor,
+      nodeRightEyeSensor,
+      nodeLeftMotorForwardSensor,
+      nodeRightMotorForwardSensor,
+      nodeLeftMotorBackwardSensor,
+      nodeRightMotorBackwardSensor,
+      nodeMicrophoneSensor,
+      nodeSpeakerSensor,
+      nodeRedLed,
+      nodeGreenLed,
+      nodeBlueLed,
+    ];
+    for (InfiniteCanvasNode node in syntheticNeurons) {
+      SyntheticNeuron synNeuron = SyntheticNeuron(
+          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+      synNeuron.node = node;
+      synNeuron.setupDrawingNeuron();
+      syntheticNeuronList.add(synNeuron);
+
+      SyntheticNeuron rawSynNeuron = SyntheticNeuron(
+          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+      rawSynNeuron.node = node;
+      rawSynNeuron.copyDrawingNeuron(synNeuron);
+      rawSyntheticNeuronList.add(rawSynNeuron);
+      synNeuron.rawSyntheticNeuron = rawSynNeuron;
+    }
+
+    nodeDistanceSensor.syntheticNeuron = syntheticNeuronList[0];
+    nodeLeftEyeSensor.syntheticNeuron = syntheticNeuronList[1];
+    nodeRightEyeSensor.syntheticNeuron = syntheticNeuronList[2];
+    nodeLeftMotorForwardSensor.syntheticNeuron = syntheticNeuronList[3];
+    nodeRightMotorForwardSensor.syntheticNeuron = syntheticNeuronList[4];
+    nodeLeftMotorBackwardSensor.syntheticNeuron = syntheticNeuronList[5];
+    nodeRightMotorBackwardSensor.syntheticNeuron = syntheticNeuronList[6];
+    nodeMicrophoneSensor.syntheticNeuron = syntheticNeuronList[7];
+    nodeSpeakerSensor.syntheticNeuron = syntheticNeuronList[8];
+    nodeRedLed.syntheticNeuron = syntheticNeuronList[9];
+    nodeGreenLed.syntheticNeuron = syntheticNeuronList[10];
+    nodeBlueLed.syntheticNeuron = syntheticNeuronList[11];
 
     listDefaultSensorLabel = [
       "Distance Sensor",
@@ -4236,7 +4297,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       nodeBlueLed,
     ];
     print("Create Canvas Controller");
+    // neuronTypes["abc"] = "1";
     controller = InfiniteCanvasController(
+      rawSyntheticNeuronList: rawSyntheticNeuronList,
+      syntheticNeuronList: syntheticNeuronList,
+      syntheticConnections: syntheticConnections,
+      neuronTypes: neuronTypes,
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
       // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
@@ -4274,14 +4340,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         return;
       }
       if (controller.mouseDown) {
-        // if (menuIdx == 6) {
-        //   controller.spacePressed = isPanningCanvas;
-        // } else
-        // print("menuIdx == 0");
-        // print(menuIdx);
-        // print(controller.hasSelection);
-        // print(isCreatePoint);
-
         if (menuIdx == 0 && !controller.hasSelection) {
           clearUIMenu();
 
@@ -4384,6 +4442,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               isLedMenu = false;
               isShowDelayTime = false;
               neuronMenuType = neuronTypes[selected.id]!;
+              // print("neuronTypes");
+              // print(neuronTypes);
               neuronStyle = neuronStyles[selected.id] != null
                   ? neuronStyles[selected.id]!
                   : "Excitatory";
@@ -4527,6 +4587,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           UniqueKey newNodeKey = UniqueKey();
           neuronsKey.add(newNodeKey);
           mapDelayNeuronList.add(-1);
+          mapRhytmicNeuronList.add(-1);
+          mapCountingNeuronList.add(-1);
           // neuronTypes[newNodeKey.toString()] = (randomNeuronType());
           neuronTypes[newNodeKey.toString()] = "Quiet";
           neuronStyles[newNodeKey.toString()] = "Excitatory";
@@ -4541,7 +4603,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           dDesignArray[newNodeKey.toString()] = sldDWeight;
 
           initNativeC(false);
-          controller.add(InfiniteCanvasNode(
+          SyntheticNeuron syntheticNeuron = SyntheticNeuron(
+              // neuronKey: newNodeKey,
+              isActive: false,
+              isIO: false,
+              circleRadius: neuronDrawSize / 2);
+          InfiniteCanvasNode newNode = InfiniteCanvasNode(
             key: neuronsKey[neuronsKey.length - 1],
             value: neuronSize - 1,
             allowMove: false,
@@ -4551,17 +4618,34 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             child: CustomPaint(
               isComplex: true,
               willChange: true,
-              painter: InlineCustomPainter(
-                brush: Paint(),
-                builder: (brush, canvas, rect) {
-                  // brush.color = Theme.of(context).colorScheme.secondary;
-                  brush.color = neuronColor.color;
-                  canvas.drawCircle(rect.center, rect.width / 2, brush);
-                },
-              ),
+              painter: syntheticNeuron,
+              // painter: InlineCustomPainter(
+              //   brush: Paint(),
+              //   builder: (brush, canvas, rect) {
+              //     // brush.color = Theme.of(context).colorScheme.secondary;
+              //     brush.color = neuronColor.color;
+              //     canvas.drawCircle(rect.center, rect.width / 2, brush);
+              //   },
+              // ),
             ),
             // child: Container(width: 0,height:0, color:Colors.green),
-          ));
+          );
+          newNode.syntheticNeuron = syntheticNeuron;
+          syntheticNeuron.node = newNode;
+          syntheticNeuron.setupDrawingNeuron();
+          syntheticNeuronList.add(syntheticNeuron);
+
+          SyntheticNeuron rawSyntheticNeuron = SyntheticNeuron(
+              // neuronKey: newNodeKey,
+              isActive: false,
+              isIO: false,
+              circleRadius: neuronDrawSize / 2);
+          rawSyntheticNeuron.node = newNode;
+          rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
+          rawSyntheticNeuronList.add(rawSyntheticNeuron);
+          syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
+
+          controller.add(newNode);
           Future.delayed(const Duration(milliseconds: 100), () {
             controller.deselect(neuronsKey[neuronsKey.length - 1]);
           });
@@ -4601,6 +4685,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               print('axon to selected');
               if (isAddUniqueEdge) {
                 print('axon unique to selected');
+                // addSyntheticConnection(axonFrom, axonTo);
 
                 controller.edges
                     .add(InfiniteCanvasEdge(from: axonFrom, to: axonTo));
@@ -4811,7 +4896,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void initNeuronType() {
-    neuronTypes = {};
+    // neuronTypes = {};
+    print("init neuron tyep");
+    neuronTypes.clear();
     mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
     mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
     mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
@@ -5358,6 +5445,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
       print("delayBufList");
       print(delayBufList);
+      print(rhytmicBufList);
+      print(countingBufList);
+      // print("delayBufList");
+      // print(delayBufList);
+      // print(rhytmicBufList);
+      // print(countingBufList);
       mapDelayNeuronList = List.generate(n, (index) => -1);
       mapRhytmicNeuronList = List.generate(n, (index) => -1);
       mapCountingNeuronList = List.generate(n, (index) => -1);
@@ -5868,6 +5961,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }
     }
     return false;
+  }
+
+  void updateSyntheticConnection(
+      LocalKey from, LocalKey to, double sldSynapticWeight) {
+    int fromIdx = neuronTypes.keys.toList().indexOf(axonFrom.toString());
+    int toIdx = neuronTypes.keys.toList().indexOf(axonTo.toString());
+    for (Connection con in syntheticConnections) {
+      if (con.neuronIndex1 == from && con.neuronIndex2 == to) {
+        con.connectionStrength = sldSynapticWeight;
+      }
+    }
   }
 }
 

@@ -385,16 +385,16 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     this_score = sigmoid(max_size, 1000, 0.0075) * 70;
 
                     short tempCol = static_cast<short>(ncol * 2);
-                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
 
 
                     if (icam == 0) {
                         this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
                     }
                     else {
                         this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(max_size, 1000, 0.0075) * 70);
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
                     }
 
                     // if (icam == 0) {
@@ -412,8 +412,8 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     this_left_score = 0;
                     this_right_score = 0;
                     short tempCol = static_cast<short>(ncol * 2);
-                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, 7, 0);
-                    setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, 0);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, 0);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, 0);
                 }
 
             
@@ -444,7 +444,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
 
 
             // vis_pref_vals[6][ncam] = this_score;
-            setPreprocessMatrixValue(vis_pref_vals, 6, icam, 7, this_score);
+            setPreprocessMatrixValue(vis_pref_vals, 6, icam, vis_prefs_count, this_score);
 
 
             if (icam == 0){
