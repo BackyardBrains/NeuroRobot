@@ -35,8 +35,8 @@
 #if defined(USE_SPEAKER)
 
     //change this acording to the absolute path to your esp32 library
-    #include "C:/Users/Admin/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.14/tools/sdk/esp32s3/include/hal/include/hal/timer_types.h"// find this two header files in the tools/sdk/esp32s2/** directories, should be in similar places
-    #include "C:/Users/Admin/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.14/tools/sdk/esp32s3/include/driver/include/driver/timer.h"// possibly usable just by including last two path names?
+    #include "C:\Users\chris\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.16\tools\sdk\esp32s3\include\hal\include\hal\timer_types.h"// find this two header files in the tools/sdk/esp32s2/** directories, should be in similar places
+    #include "C:\Users\chris\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.16\tools\sdk\esp32s3\include\driver\include\driver\timer.h"// possibly usable just by including last two path names?
     #include <stdio.h>
     #include "esp_types.h"
     #include "driver/timer.h"
