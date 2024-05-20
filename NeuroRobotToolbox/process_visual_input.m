@@ -108,6 +108,7 @@ end
 % XYO Net
 if use_xyo_net
 
+    %% Subjective xyo
     % lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
     % xyo = predict(xyoNet, double(lframe));
     % % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
@@ -116,6 +117,7 @@ if use_xyo_net
     % this_y = xyo(2);
     % this_o = xyo(3);
 
+    %% Objective xyo
     robot_xy = ext_data.robot_xy;
     rblob_xy = ext_data.rblob_xy;
     gblob_xy = ext_data.gblob_xy;
@@ -132,7 +134,9 @@ if use_xyo_net
     sepy = y1-y2;
 
     theta = mod(atan2d(sepy,sepx),360); 
-      
+    this_o = theta;
+
+    %% Get discrete state
     if this_y <= 200
         if this_x < 250
             if this_o >= 0 && this_o < 90
@@ -178,12 +182,20 @@ if use_xyo_net
             end
         end          
     end
+
+    % Print xyo
+    this_ext_str.Str = horzcat('x: ', num2str(this_x),...
+        ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
+        ', s: ', num2str(xyo_state));
+
+    %% Synaptic adjust
     vis_pref_vals(7 + 1 : end, 1) = 0;
     vis_pref_vals(7 + 1 : end, 2) = 0;
 
     vis_pref_vals(7 + xyo_state, 1) = 50;
     vis_pref_vals(7 + xyo_state, 2) = 50;
 
+    
 elseif use_custom_net
 
     lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);

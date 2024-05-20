@@ -1,6 +1,8 @@
 
 % run this after connenct camera but before runtime
 % dock it
+ext_cam_h = 720;
+ext_cam_w = 1280;
 
 ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
 robot_xy = [300 244];
@@ -28,3 +30,5 @@ draw_ext_zoom = image(ext_frame_zoom);
 hold on
 rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'b', 'linewidth', 2);
 gblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'g', 'linewidth', 2);
+this_ext_str = 'x: y: o: s: ';
+title(this_ext_str)

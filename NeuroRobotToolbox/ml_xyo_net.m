@@ -23,7 +23,6 @@ y2 = 1;
 
 
 %%
-
 thetas = zeros(ntuples, 1);
 robot_xys = zeros(ntuples, 2);
 this_msg = horzcat('Getting ', num2str(ntuples), ' xyos');
@@ -75,7 +74,6 @@ thetas(thetas > 360) = ns;
 
 
 %%
-
 figure(6)
 clf
 
