@@ -164,6 +164,7 @@ if exist('rak_only', 'var') && brain_support
 
     %% Record data
     if record_data
+        nrecs = length(dir(dataset_dir_name)) - 2;
         if ispc
             rec_dir_name = strcat('Rec', num2str(nrecs + 1), '\');
         elseif ismac

@@ -140,10 +140,10 @@ if use_xyo_net
     xyo_state_transform = 1;
     xyo_state = get_xyo_state(this_x, this_y, this_o, xyo_state_transform);
 
-    % Print xyo
-    ext_title.Str = horzcat('x: ', num2str(this_x),...
-        ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
-        ', s: ', num2str(xyo_state));
+    % % Print xyo
+    % ext_title.String = horzcat('x: ', num2str(this_x),...
+    %     ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
+    %     ', s: ', num2str(xyo_state));
 
     % Synaptic adjust
     vis_pref_vals(7 + 1 : end, 1) = 0;

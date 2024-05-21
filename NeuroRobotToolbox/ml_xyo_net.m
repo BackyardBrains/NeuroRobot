@@ -60,18 +60,17 @@ end
 this_x = robot_xys(:,1);
 this_y = robot_xys(:,2);
 
-n1 = sum(this_x < 160 | this_x > 500);
-ns = randsample(160:500, n1, 1);
-this_x(this_x < 160 | this_x > 500) = ns;
+xlim1 = prctile(this_x, 10);
+xlim2 = prctile(this_x, 90);
+n1 = sum(this_x < xlim1 | this_x > xlim2);
+ns = randsample(xlim1:xlim2, n1, 1);
+this_x(this_x < xlim1 | this_x > xlim2) = ns;
 
-n1 = sum(this_y < 100 | this_y > 400);
-ns = randsample(100:400, n1, 1);
-this_y(this_y < 100 | this_y > 400) = ns;
-
-n1 = sum(thetas > 360);
-ns = randsample(360, n1, 1);
-thetas(thetas > 360) = ns;
-
+ylim1 = prctile(this_y, 10);
+ylim2 = prctile(this_y, 90);
+n1 = sum(this_y < ylim1 | this_y > ylim2);
+ns = randsample(ylim1:ylim2, n1, 1);
+this_y(this_y < ylim1 | this_y > ylim2) = ns;
 
 %%
 figure(6)
@@ -208,86 +207,64 @@ n_unique_states = init_n_unique_states;
 states = zeros(ntuples, 1);
 labels = cell(n_unique_states, 1);
 
-medx = median(this_x);
-medy = median(this_y);
+xs = round(linspace(xlim1,xlim2,4));
+ys = round(linspace(ylim1,ylim2,4));
 
 for ntuple = 1:ntuples
     this_x = xyo_net_vals(ntuple, 1);
     this_y = xyo_net_vals(ntuple, 2);
     this_o = xyo_net_vals(ntuple, 3);
-    if this_y <= medy
-        if this_x < medx
-            if this_o >= 0 && this_o < 90
-                states(ntuple) = 1;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
-            elseif this_o >= 90 && this_o < 180
-                states(ntuple) = 2;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-            elseif this_o >= 180 && this_o < 270
-                states(ntuple) = 3;   
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-            elseif this_o >= 270 && this_o <= 360
-                states(ntuple) = 4; 
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-            end
+
+    if this_y <= ys(2)
+        if this_x < xs(2)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 0 + this_o_state;
+            states(ntuple) = 1;
+            labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
+        elseif this_x < xs(3)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 1 + this_o_state;            
         else
-            if this_o >= 0 && this_o < 90
-                states(ntuple) = 5;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-            elseif this_o >= 90 && this_o < 180
-                states(ntuple) = 6;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-            elseif this_o >= 180 && this_o < 270
-                states(ntuple) = 7;   
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));              
-            elseif this_o >= 270 && this_o <= 360
-                states(ntuple) = 8;  
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-            end
+            this_o_state = get_o_state(this_o);
+            xyo_state = 2 + this_o_state;      
+        end
+    elseif this_y < ys(3)
+        if this_x < xs(2)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 3 + this_o_state;
+        elseif this_x < xs(3)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 4 + this_o_state;            
+        else
+            this_o_state = get_o_state(this_o);
+            xyo_state = 5 + this_o_state;      
         end
     else
-        if this_x < medx
-            if this_o >= 0 && this_o < 90
-                states(ntuple) = 9;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));            
-            elseif this_o >= 90 && this_o < 180
-                states(ntuple) = 10;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
-            elseif this_o >= 180 && this_o < 270
-                states(ntuple) = 11;  
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-            elseif this_o >= 270 && this_o <= 360
-                states(ntuple) = 12;    
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                  
-            end
+        if this_x < xs(2)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 6 + this_o_state;
+        elseif this_x < xs(3)
+            this_o_state = get_o_state(this_o);
+            xyo_state = 7 + this_o_state;            
         else
-            if this_o >= 0 && this_o < 90
-                states(ntuple) = 13;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-            elseif this_o >= 90 && this_o < 180
-                states(ntuple) = 14;
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));               
-            elseif this_o >= 180 && this_o < 270
-                states(ntuple) = 15;    
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                
-            elseif this_o >= 270 && this_o <= 360
-                states(ntuple) = 16;  
-                labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));                 
-            end
-        end          
+            this_o_state = get_o_state(this_o);
+            xyo_state = 8 + this_o_state;      
+        end
     end
-    if states(ntuple) == 0
-        disp('State = 0!')
+    if xyo_state == 0
+        ntuple
+        error('State = 0!')
+    else
+        states(ntuple) = xyo_state;
     end
 end
 
-% states(states==0)
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
+disp('XYO states generates')
 
 
 %%
-
 figure(17)
 clf
 set(gcf, 'position', [201 241 800 420], 'color', 'w')

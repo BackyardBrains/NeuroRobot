@@ -1,8 +1,8 @@
 
 % run this after connenct camera but before runtime
 % dock it
-ext_cam_h = 720;
-ext_cam_w = 1280;
+ext_cam_h = 480;
+ext_cam_w = 640;
 
 ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
 robot_xy = [300 244];

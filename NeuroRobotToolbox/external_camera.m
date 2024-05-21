@@ -26,15 +26,17 @@ ext_frame_zoom = ext_frame(yy-xpadding:yy+xpadding,xx-xpadding:xx+xpadding,:);
 
 draw_ext_zoom.CData = ext_frame_zoom;
 
-colframe = ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,2) * 1.5 & ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,3) * 1.5;
-colframe(ext_frame_zoom(:,:,1) < 75) = 0;
-rblob = bwconncomp(colframe);
-
-% % actually blue
-% colframe = ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,2) * 1.2 & ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,1) * 1.2;
-% colframe(ext_frame_zoom(:,:,3) < 50) = 0;
+% red
+% colframe = ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,2) * 1.5 & ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,3) * 1.5;
+% colframe(ext_frame_zoom(:,:,1) < 75) = 0;
 % rblob = bwconncomp(colframe);
 
+% red but actually blue
+colframe = ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,2) * 1.2 & ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,1) * 1.2;
+colframe(ext_frame_zoom(:,:,3) < 50) = 0;
+rblob = bwconncomp(colframe);
+
+% green
 colframe = ext_frame_zoom(:,:,2) > ext_frame_zoom(:,:,1) * 1.3 & ext_frame_zoom(:,:,2) > ext_frame_zoom(:,:,3) * 1.3;
 colframe(ext_frame_zoom(:,:,2) < 75) = 0;
 gblob = bwconncomp(colframe);
@@ -72,3 +74,4 @@ gblob_marker.YData = gblob_xy(2);
 % gblob_marker.YData = gblob_xy(2) + yy - padding;
 
 prev_ext_frame = ext_frame;
+
