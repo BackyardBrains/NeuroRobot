@@ -7,7 +7,7 @@ ext_cam_w = 1280;
 ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
 robot_xy = [300 244];
 
-figure(5)
+figure(21)
 clf
 
 subplot(2,1,1)
@@ -31,4 +31,5 @@ hold on
 rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'b', 'linewidth', 2);
 gblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'g', 'linewidth', 2);
 this_ext_str = 'x: y: o: s: ';
-title(this_ext_str)
+ext_title = title(this_ext_str);
+

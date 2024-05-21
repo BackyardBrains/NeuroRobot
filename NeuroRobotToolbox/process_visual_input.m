@@ -136,59 +136,16 @@ if use_xyo_net
     theta = mod(atan2d(sepy,sepx),360); 
     this_o = theta;
 
-    %% Get discrete state
-    if this_y <= 200
-        if this_x < 250
-            if this_o >= 0 && this_o < 90
-                xyo_state = 1;
-            elseif this_o >= 90 && this_o < 180
-                xyo_state = 2;
-            elseif this_o >= 180 && this_o < 270
-                xyo_state = 3;                    
-            elseif this_o >= 270 && this_o <= 360
-                xyo_state = 4;                    
-            end
-        else
-            if this_o >= 0 && this_o < 90
-                xyo_state = 5;
-            elseif this_o >= 90 && this_o < 180
-                xyo_state = 6;
-            elseif this_o >= 180 && this_o < 270
-                xyo_state = 7;                    
-            elseif this_o >= 270 && this_o <= 360
-                xyo_state = 8;                    
-            end
-        end
-    else
-        if this_x < 250
-            if this_o >= 0 && this_o < 90
-                xyo_state = 9;
-            elseif this_o >= 90 && this_o < 180
-                xyo_state = 10;
-            elseif this_o >= 180 && this_o < 270
-                xyo_state = 11;                    
-            elseif this_o >= 270 && this_o <= 360
-                xyo_state = 12;                    
-            end
-        else
-            if this_o >= 0 && this_o < 90
-                xyo_state = 13;
-            elseif this_o >= 90 && this_o < 180
-                xyo_state = 14;
-            elseif this_o >= 180 && this_o < 270
-                xyo_state = 15;                    
-            elseif this_o >= 270 && this_o <= 360
-                xyo_state = 16;                    
-            end
-        end          
-    end
+    %% Get xyo state
+    xyo_state_transform = 1;
+    xyo_state = get_xyo_state(this_x, this_y, this_o, xyo_state_transform);
 
     % Print xyo
-    this_ext_str.Str = horzcat('x: ', num2str(this_x),...
+    ext_title.Str = horzcat('x: ', num2str(this_x),...
         ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
         ', s: ', num2str(xyo_state));
 
-    %% Synaptic adjust
+    % Synaptic adjust
     vis_pref_vals(7 + 1 : end, 1) = 0;
     vis_pref_vals(7 + 1 : end, 2) = 0;
 
