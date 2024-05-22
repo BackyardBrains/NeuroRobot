@@ -16,7 +16,7 @@ draw_ext = image(ext_frame);
 hold on
 robot_marker = plot(0, 0, 'marker', 'o', 'markersize', 50, 'color', 'k', 'linewidth', 3);
 
-padding = 100;
+padding = 75;
 xx = max([robot_xy(1) padding]);
 xx = min([xx ext_cam_w - padding]);
 yy = max([robot_xy(2) padding]);

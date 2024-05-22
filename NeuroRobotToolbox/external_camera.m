@@ -15,7 +15,6 @@ end
 robot_marker.XData = robot_xy(1);
 robot_marker.YData = robot_xy(2);
 
-padding = 100;
 xx = max([robot_xy(1) padding]);
 xx = min([xx ext_cam_w - padding]);
 yy = max([robot_xy(2) padding]);
@@ -26,14 +25,13 @@ ext_frame_zoom = ext_frame(yy-xpadding:yy+xpadding,xx-xpadding:xx+xpadding,:);
 
 draw_ext_zoom.CData = ext_frame_zoom;
 
-% red
 % colframe = ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,2) * 1.5 & ext_frame_zoom(:,:,1) > ext_frame_zoom(:,:,3) * 1.5;
 % colframe(ext_frame_zoom(:,:,1) < 75) = 0;
 % rblob = bwconncomp(colframe);
 
-% red but actually blue
-colframe = ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,2) * 1.2 & ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,1) * 1.2;
-colframe(ext_frame_zoom(:,:,3) < 50) = 0;
+% actually blue
+colframe = ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,2) * 1 & ext_frame_zoom(:,:,3) > ext_frame_zoom(:,:,1) * 1;
+colframe(ext_frame_zoom(:,:,3) < 25) = 0;
 rblob = bwconncomp(colframe);
 
 % green
