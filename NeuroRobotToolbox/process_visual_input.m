@@ -137,7 +137,7 @@ if use_xyo_net
     this_o = theta;
 
     %% Get xyo state
-    xyo_state_transform = 1;
+    xyo_state_transform = 2;
     xyo_state = get_xyo_state(this_x, this_y, this_o, xyo_state_transform);
 
     % % Print xyo

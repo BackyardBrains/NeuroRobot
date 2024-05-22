@@ -72,6 +72,9 @@ n1 = sum(this_y < ylim1 | this_y > ylim2);
 ns = randsample(ylim1:ylim2, n1, 1);
 this_y(this_y < ylim1 | this_y > ylim2) = ns;
 
+xs = round(linspace(xlim1,xlim2,4));
+ys = round(linspace(ylim1,ylim2,4));
+
 %%
 figure(6)
 clf
@@ -87,6 +90,8 @@ title('True Y')
 subplot(3,3,3)
 histogram(thetas)
 title('True O')
+
+drawnow
 
 
 %%
@@ -197,18 +202,16 @@ scatter(thetas, xyo_net_vals(:,3))
 axis tight
 title('True vs Estimated O')
 
+drawnow
+
 
 %%
 this_msg = 'Generating states from XYOs...';
 disp(horzcat(this_msg))
 % tx1.String = this_msg;
 
-n_unique_states = init_n_unique_states;
+n_unique_states = 72;
 states = zeros(ntuples, 1);
-labels = cell(n_unique_states, 1);
-
-xs = round(linspace(xlim1,xlim2,4));
-ys = round(linspace(ylim1,ylim2,4));
 
 for ntuple = 1:ntuples
     this_x = xyo_net_vals(ntuple, 1);
@@ -218,52 +221,49 @@ for ntuple = 1:ntuples
     if this_y <= ys(2)
         if this_x < xs(2)
             this_o_state = get_o_state(this_o);
-            xyo_state = 0 + this_o_state;
-            states(ntuple) = 1;
-            labels{states(ntuple)} = horzcat('state ', num2str(states(ntuple)));
+            states(ntuple) = this_o_state;
         elseif this_x < xs(3)
             this_o_state = get_o_state(this_o);
-            xyo_state = 1 + this_o_state;            
+            states(ntuple) = 8*1 + this_o_state;            
         else
             this_o_state = get_o_state(this_o);
-            xyo_state = 2 + this_o_state;      
+            states(ntuple) = 8*2 + this_o_state;      
         end
     elseif this_y < ys(3)
         if this_x < xs(2)
             this_o_state = get_o_state(this_o);
-            xyo_state = 3 + this_o_state;
+            states(ntuple) = 8*3 + this_o_state;
         elseif this_x < xs(3)
             this_o_state = get_o_state(this_o);
-            xyo_state = 4 + this_o_state;            
+            states(ntuple) = 8*4 + this_o_state;            
         else
             this_o_state = get_o_state(this_o);
-            xyo_state = 5 + this_o_state;      
+            states(ntuple) = 8*5 + this_o_state;
         end
     else
         if this_x < xs(2)
             this_o_state = get_o_state(this_o);
-            xyo_state = 6 + this_o_state;
+            states(ntuple) = 8*6 + this_o_state;
         elseif this_x < xs(3)
             this_o_state = get_o_state(this_o);
-            xyo_state = 7 + this_o_state;            
+            states(ntuple) = 8*7 + this_o_state;            
         else
             this_o_state = get_o_state(this_o);
-            xyo_state = 8 + this_o_state;      
+            states(ntuple) = 8*8 + this_o_state;      
         end
     end
-    if xyo_state == 0
-        ntuple
-        error('State = 0!')
-    else
-        states(ntuple) = xyo_state;
-    end
+end
+
+labels = cell(n_unique_states, 1);
+for nstate = 1:n_unique_states
+    labels{nstate} = horzcat('State ', num2str(nstate));
 end
 
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
 disp('XYO states generates')
 
-
+ 
 %%
 figure(17)
 clf
@@ -272,6 +272,8 @@ set(gcf, 'position', [201 241 800 420], 'color', 'w')
 histogram(states, 'binwidth', 0.4)
 xlim([0 n_unique_states + 1])
 title('States')
+
+drawnow
 
 
 %% Torques
