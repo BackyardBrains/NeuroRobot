@@ -2,9 +2,6 @@
 
 %% Get Markov Decision Process
 
-tuples = xtuples;
-actions = xtuples(:,3);
-
 try
 axes(ml_train4_status)
 cla
