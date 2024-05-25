@@ -19,7 +19,8 @@ end
 
 reward_action = mode(actions);
 disp(horzcat('reward action (mode) = ', num2str(reward_action)))
-disp(horzcat('reward action torque: ',  num2str(round(mean(torque_data(actions == reward_action, :), 1)))))
+disp(horzcat('reward action torque: ',  num2str(motor_combs(reward_action, :))))
+% disp(horzcat('reward action torque: ',  num2str(round(mean(torque_data(actions == reward_action, :), 1)))))
 
 bad_action = [];
 
