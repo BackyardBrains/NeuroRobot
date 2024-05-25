@@ -65,7 +65,6 @@ end
 
 %% Get tuples
 load(horzcat(nets_dir_name, state_net_name, '-states'))
-n_unique_states = length(unique(states));
 disp(horzcat('n unique states: ', num2str(n_unique_states)))
 
 tuples = zeros(ntuples, 3);
@@ -94,8 +93,11 @@ figure(16)
 clf
 set(gcf, 'position', [251 291 400 420], 'color', 'w')
 
-histogram(actions, 'binwidth', 0.4)
+h3 = histogram(actions, 'binwidth', 0.99);
 title('Actions')
 
 xlim([0 n_unique_actions + 1])
 set(gca, 'xtick', 1:n_unique_actions)
+
+[~, main_actions] = sort(h3.Values, 'descend');
+main_actions = main_actions(1:5);

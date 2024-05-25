@@ -22,7 +22,7 @@ x2 = 1;
 y2 = 1;
 
 
-%%
+%% Get objective XYOs
 thetas = zeros(ntuples, 1);
 robot_xys = zeros(ntuples, 2);
 this_msg = horzcat('Getting ', num2str(ntuples), ' xyos');
@@ -57,34 +57,47 @@ for ntuple = 1:ntuples
 
 end
 
-this_x = robot_xys(:,1);
-this_y = robot_xys(:,2);
+allx = robot_xys(:,1);
+ally = robot_xys(:,2);
 
-xlim1 = prctile(this_x, 10);
-xlim2 = prctile(this_x, 90);
-n1 = sum(this_x < xlim1 | this_x > xlim2);
+xlim1 = prctile(allx, 10);
+xlim2 = prctile(allx, 90);
+n1 = sum(allx < xlim1 | allx > xlim2);
 ns = randsample(xlim1:xlim2, n1, 1);
-this_x(this_x < xlim1 | this_x > xlim2) = ns;
+allx(allx < xlim1 | allx > xlim2) = ns;
 
-ylim1 = prctile(this_y, 10);
-ylim2 = prctile(this_y, 90);
-n1 = sum(this_y < ylim1 | this_y > ylim2);
+ylim1 = prctile(ally, 10);
+ylim2 = prctile(ally, 90);
+n1 = sum(ally < ylim1 | ally > ylim2);
 ns = randsample(ylim1:ylim2, n1, 1);
-this_y(this_y < ylim1 | this_y > ylim2) = ns;
+ally(ally < ylim1 | ally > ylim2) = ns;
 
-xs = round(linspace(xlim1,xlim2,4));
-ys = round(linspace(ylim1,ylim2,4));
+xlims = round(linspace(xlim1,xlim2,4));
+ylims = round(linspace(ylim1,ylim2,4));
+disp(horzcat('xlims: ', num2str(xlims)))
+disp(horzcat('ylims: ', num2str(ylims)))
+
 
 %%
 figure(6)
 clf
 
 subplot(3,3,1)
-histogram(this_x)
+h1 = histogram(allx);
+hold on
+for ii = 1:4
+    plot([xlims(ii) xlims(ii)], [0 max(h1.Values)], 'linewidth', 2, 'color', 'k')
+    plot([mean(xlims(2:3)) mean(xlims(2:3))], [0 max(h1.Values)], 'linewidth', 2, 'color', 'r')
+end
 title('True X')
 
 subplot(3,3,2)
-histogram(this_y)
+h2 = histogram(ally);
+hold on
+for ii = 1:4
+    plot([ylims(ii) ylims(ii)], [0 max(h2.Values)], 'linewidth', 2, 'color', 'k')
+    plot([mean(ylims(2:3)) mean(ylims(2:3))], [0 max(h2.Values)], 'linewidth', 2, 'color', 'r')
+end
 title('True Y')
 
 subplot(3,3,3)
@@ -97,9 +110,8 @@ drawnow
 %%
 this_msg = 'Training...';
 disp(horzcat(this_msg))
-tx1.String = this_msg;
 
-xyos = arrayDatastore([this_x this_y thetas]);
+xyos = arrayDatastore([allx ally thetas]);
 training_data = combine(image_ds, xyos);
 numResponses = 3;
 
@@ -154,6 +166,11 @@ xyoNet = trainnet(training_data, layers, 'mse', options);
 save(strcat(nets_dir_name, state_net_name, '-ml'), 'xyoNet')
 
 
+% %% Alternatively load a different xyoNet here
+% state_net_name = 'xyoNetSupreme';
+% load(strcat(nets_dir_name, state_net_name, '-ml'))
+
+
 %%
 this_msg = 'Inference...';
 disp(horzcat(this_msg))
@@ -188,12 +205,12 @@ axis tight
 title('Estimated O')
 
 subplot(3,3,7)
-scatter(this_x, xyo_net_vals(:,1))
+scatter(allx, xyo_net_vals(:,1))
 axis tight
 title('True vs Estimated X')
 
 subplot(3,3,8)
-scatter(this_y, xyo_net_vals(:,2))
+scatter(ally, xyo_net_vals(:,2))
 axis tight
 title('True vs Estimated Y')
 
@@ -208,50 +225,24 @@ drawnow
 %%
 this_msg = 'Generating states from XYOs...';
 disp(horzcat(this_msg))
-% tx1.String = this_msg;
 
-n_unique_states = 72;
+n_unique_states = 32;
 states = zeros(ntuples, 1);
 
 for ntuple = 1:ntuples
-    this_x = xyo_net_vals(ntuple, 1);
-    this_y = xyo_net_vals(ntuple, 2);
-    this_o = xyo_net_vals(ntuple, 3);
 
-    if this_y <= ys(2)
-        if this_x < xs(2)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = this_o_state;
-        elseif this_x < xs(3)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*1 + this_o_state;            
-        else
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*2 + this_o_state;      
-        end
-    elseif this_y < ys(3)
-        if this_x < xs(2)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*3 + this_o_state;
-        elseif this_x < xs(3)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*4 + this_o_state;            
-        else
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*5 + this_o_state;
-        end
-    else
-        if this_x < xs(2)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*6 + this_o_state;
-        elseif this_x < xs(3)
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*7 + this_o_state;            
-        else
-            this_o_state = get_o_state(this_o);
-            states(ntuple) = 8*8 + this_o_state;      
-        end
-    end
+    % this_x = xyo_net_vals(ntuple, 1);
+    % this_y = xyo_net_vals(ntuple, 2);
+    % this_o = xyo_net_vals(ntuple, 3);
+
+    this_x = allx(ntuple, 1);
+    this_y = ally(ntuple, 1);
+    this_o = thetas(ntuple, 1);
+
+    xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
+
+    states(ntuple) = xyo_state;
+
 end
 
 labels = cell(n_unique_states, 1);
@@ -261,7 +252,7 @@ end
 
 save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
 save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
-disp('XYO states generates')
+disp('XYO states generated')
 
  
 %%
@@ -279,11 +270,9 @@ drawnow
 %% Torques
 this_msg = 'Getting torques...';
 disp(horzcat(this_msg))
-tx1.String = this_msg;
 
 get_torques
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 
 this_msg = 'xyoNet and torques ready';
 disp(horzcat(this_msg))
-tx1.String = this_msg;
