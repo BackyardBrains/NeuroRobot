@@ -3,7 +3,8 @@
 %% Actions
 n_unique_actions = 10;
 
-load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
+load(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'))
+torque_data = raw_torque_data;
 ntuples = size(torque_data, 1);
 
 actions = kmeans(torque_data, n_unique_actions);
@@ -32,6 +33,7 @@ set(gca, 'xtick', 1:n_unique_actions)
 accidental_actions = main_actions(6:10);
 acc_inds = sum(actions == accidental_actions, 2) > 0;
 torque_data(acc_inds, :) = [];
+save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 
 
 %%

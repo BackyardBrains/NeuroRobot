@@ -14,27 +14,26 @@ try
     txx = text(0.03, 0.5, 'Loading...', 'fontsize', bfsize + 4);
     drawnow
     
-    try
-    openfig(strcat(nets_dir_name, state_net_name, '-examples.fig'));
-    catch
-    end
     load(strcat(nets_dir_name, state_net_name, '-states'))
     load(strcat(nets_dir_name, state_net_name, '-torque_data'))
     load(strcat(nets_dir_name, state_net_name, '-actions'))
     load(strcat(nets_dir_name, state_net_name, '-tuples'))
     load(strcat(nets_dir_name, state_net_name, '-mdp'))
     n_unique_states = length(unique(states));
-    n_unique_actions = length(unique(actions));
-    if strcmp(state_net_name(1:6), 'xyoNet')
-        n_unique_actions = n_unique_actions - 2;         
-    end    
+    n_unique_actions = length(unique(actions)); 
     ntuples = size(torque_data, 1);
     disp(horzcat('loaded ntuples: ', num2str(ntuples)))
 
+    ml_get_combs_quick    
     ml_visualize_mdp
     
-    ml_get_combs_quick
-    
+    figure(22)
+    clf
+    hold on
+    scan_agent
+    title(horzcat(state_net_name, '-', action_net_name))
+    set(gca, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
+
     txx.String = 'Ready to train decision network';
 
 catch

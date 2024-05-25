@@ -274,7 +274,9 @@ this_msg = 'Getting torques...';
 disp(horzcat(this_msg))
 
 get_torques
-save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
+raw_torque_data = torque_data;
+clear torque_data
+save(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'), 'raw_torque_data')
 
 this_msg = 'xyoNet and torques ready';
 disp(horzcat(this_msg))
