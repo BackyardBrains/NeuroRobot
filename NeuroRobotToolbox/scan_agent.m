@@ -1,13 +1,9 @@
 
-% data = zeros(n_unique_states, 2);
-% motor_combs = zeros(n_unique_actions, 2);
 for naction = 1:n_unique_actions
     y = naction * (n_unique_states/n_unique_actions);
     plot(4, y, 'marker', '.', 'markersize', 50, 'color', [0.8 0.8 0.8])
-    motor_combs(naction, :) = round(mean(torque_data(actions == naction, :), 1));
     mvec = motor_combs(naction, :);    
-    text(4.2, y, strcat('action: ', num2str(naction), '.  L: ', num2str(mvec(1)), ...
-        ',  R: ', num2str(mvec(2))), 'HorizontalAlignment','left')    
+    text(4.2, y, strcat('action: ', num2str(naction), '.  L: ', num2str(mvec(1)), ',  R: ', num2str(mvec(2))), 'HorizontalAlignment','left')    
 end
 for this_state = 1:n_unique_states
     this_action = getAction(agent, this_state);
