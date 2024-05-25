@@ -1,6 +1,8 @@
 
 
 %% Actions
+n_unique_actions = 10;
+
 load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 ntuples = size(torque_data, 1);
 
@@ -63,25 +65,6 @@ catch
 end
 
 
-%% Get tuples
-load(horzcat(nets_dir_name, state_net_name, '-states'))
-disp(horzcat('n unique states: ', num2str(n_unique_states)))
-
-tuples = zeros(ntuples, 3);
-for ntuple = 6:ntuples - 1
-    tuples(ntuple - 5, 1) = states(ntuple - 5);
-    tuples(ntuple - 5, 2) = states(ntuple);
-    tuples(ntuple - 5, 3) = actions(ntuple - 5);
-end
-ntuples = size(tuples, 1);
-disp('Tuples assembled successfully')
-save(strcat(nets_dir_name, state_net_name, '-tuples'), 'tuples')
-
-
-%% Lucid sleep?
-% basal_ganglia_lucid
-
-
 %% Output
 try
 tx8.String = 'tuples aquired successfully';
@@ -101,3 +84,56 @@ set(gca, 'xtick', 1:n_unique_actions)
 
 [~, main_actions] = sort(h3.Values, 'descend');
 main_actions = main_actions(1:5);
+motor_combs = motor_combs(main_actions, :);
+
+
+%% Get tuples
+load(horzcat(nets_dir_name, state_net_name, '-states'))
+n_unique_states = length(unique(states));
+disp(horzcat('n unique states: ', num2str(n_unique_states)))
+
+tuples = zeros(ntuples, 3);
+for ntuple = 6:ntuples - 1
+    if sum(actions(ntuple - 5) == main_actions)
+        tuples(ntuple - 5, 1) = states(ntuple - 5);
+        tuples(ntuple - 5, 2) = states(ntuple);
+        tuples(ntuple - 5, 3) = actions(ntuple - 5);
+    end
+end
+
+
+%%
+xtuples = tuples;
+xtuples(tuples(:,3) == 0, :) = [];
+
+flag = 0;
+for ii = 1:5
+    unique_actions = unique(xtuples(:,3));
+    if unique_actions(ii) ~= ii
+        xtuples(xtuples(:,3) == unique_actions(ii), 3) = ii;
+    end
+end
+
+
+%%
+n_unique_actions = length(unique(xtuples(:,3)));
+ntuples = size(xtuples, 1);
+disp(horzcat(num2str(ntuples), ' tuples assembled successfully'))
+save(strcat(nets_dir_name, state_net_name, '-xtuples'), 'xtuples')
+
+
+%% Lucid sleep?
+% basal_ganglia_lucid
+
+
+%%
+figure(26)
+clf
+set(gcf, 'position', [251 291 400 420], 'color', 'w')
+
+h3 = histogram(xtuples(:,3), 'binwidth', 0.99);
+title('Actions')
+
+xlim([0.5 n_unique_actions + 1.5])
+set(gca, 'xtick', 1:n_unique_actions)
+

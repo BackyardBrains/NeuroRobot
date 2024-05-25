@@ -8,16 +8,14 @@ set(fig_mdp, 'position', [262 62 828 732], 'color', 'w')
 fig_mdp.Color = 'w';
 
 % data = zeros(n_unique_actions, 1);
-x = ceil(sqrt(length(main_actions)));
+x = ceil(sqrt(n_unique_actions));
+% x = ceil(sqrt(length(main_actions)));
 
-counter = 0;
-for naction = main_actions
-
-    counter = counter + 1;
-
-    motor_out = round(mean(torque_data(actions == naction, :), 1));
+for naction = 1:n_unique_actions
     
-    subplot(x, x, counter)
+    motor_out = motor_combs(naction, :);
+    
+    subplot(x, x, naction)
     imagesc(mdp.T(:,:,naction), [0 0.5])
     title(horzcat('Action: ', num2str(naction), '.  L: ', num2str(motor_out(1)), ',  R: ', num2str(motor_out(2))))
     ylabel('State')

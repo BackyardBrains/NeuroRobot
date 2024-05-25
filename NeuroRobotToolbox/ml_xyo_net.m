@@ -231,10 +231,12 @@ states = zeros(ntuples, 1);
 
 for ntuple = 1:ntuples
 
+    %%% Estimated XYO
     % this_x = xyo_net_vals(ntuple, 1);
     % this_y = xyo_net_vals(ntuple, 2);
     % this_o = xyo_net_vals(ntuple, 3);
 
+    %%% Objective XYO
     this_x = allx(ntuple, 1);
     this_y = ally(ntuple, 1);
     this_o = thetas(ntuple, 1);

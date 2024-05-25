@@ -32,8 +32,8 @@ for ntuple = 1:ntuples
     % end
 
     raw_torques = load(torque_fname);
-    torques(1) = raw_torques.torques(1);
-    torques(2) = raw_torques.torques(2);
+    torques(2) = raw_torques.torques(1); % torque flip 240525
+    torques(1) = raw_torques.torques(2); % torque flip 240525
 
     torques(torques > 250) = 250;
     torques(torques < -250) = -250;

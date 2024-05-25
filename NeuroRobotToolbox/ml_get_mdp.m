@@ -1,6 +1,10 @@
 
 
 %% Get Markov Decision Process
+
+tuples = xtuples;
+actions = xtuples(:,3);
+
 try
 axes(ml_train4_status)
 cla
@@ -16,7 +20,7 @@ for ntuple = 1:ntuples
     this_state = tuples(ntuple, 1);
     this_next_state = tuples(ntuple, 2);
     this_action = tuples(ntuple, 3);
-    if ~isnan(this_state) && ~isnan(this_next_state) && sum(this_action == main_actions)
+    if ~isnan(this_state) && ~isnan(this_next_state)
         if this_state && this_next_state
             transition_counter(this_state, this_next_state, this_action) = transition_counter(this_state, this_next_state, this_action) + 1;
         end
