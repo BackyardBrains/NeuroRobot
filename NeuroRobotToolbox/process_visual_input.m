@@ -136,9 +136,9 @@ if use_xyo_net
     theta = mod(atan2d(sepy,sepx),360); 
     this_o = theta;
 
+    
     %% Get xyo state
-    xyo_state_transform = 2;
-    xyo_state = get_xyo_state(this_x, this_y, this_o, xyo_state_transform);
+    xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
 
     % % Print xyo
     % ext_title.String = horzcat('x: ', num2str(this_x),...

@@ -3,6 +3,8 @@
 % dock it
 ext_cam_h = 480;
 ext_cam_w = 640;
+xlims = [215 309 403 497];
+ylims = [82 165 248 331];
 
 ext_frame = zeros(ext_cam_h, ext_cam_w, 3, 'uint8');
 robot_xy = [300 244];

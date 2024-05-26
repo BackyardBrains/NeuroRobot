@@ -5,7 +5,6 @@ n_unique_actions = 10;
 
 load(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'))
 torque_data = raw_torque_data;
-ntuples = size(torque_data, 1);
 
 actions = kmeans(torque_data, n_unique_actions);
 motor_combs = zeros(n_unique_actions, 2);
