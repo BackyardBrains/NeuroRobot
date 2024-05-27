@@ -174,6 +174,9 @@ if nneurons % This prevents error caused by running script after deleting all ne
             else
                 right_backward = -this_motor_vector(2);
             end            
+        elseif script_running == 6
+            % disp('CPP')
+            [left_forward, right_forward] = script_cpp(this_x, this_y, this_o);
         end
         script_running = 0;   
     end

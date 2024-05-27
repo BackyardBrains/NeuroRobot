@@ -373,15 +373,19 @@ if exist('neuron_xys', 'var') && ~isempty(neuron_xys)
     if exist('neuron_scripts', 'var')
         for nneuron = 1:nneurons
             if ~isempty(neuron_scripts) && neuron_scripts(nneuron)
-                if neuron_scripts(nneuron) == 6
-                    try
-                        this_str = horzcat(state_net_name, '-', action_net_name);
-                    catch
-                        this_str = full_net_name;
-                    end
-                else
-                    this_str = script_strs(neuron_scripts(nneuron)).name;
-                end
+                
+                this_str = script_strs(neuron_scripts(nneuron)).name;
+
+                % if neuron_scripts(nneuron) == 6
+                %     try
+                %         this_str = horzcat(state_net_name, '-', action_net_name);
+                %     catch
+                %         this_str = full_net_name;
+                %     end
+                % else
+                %     this_str = script_strs(neuron_scripts(nneuron)).name;
+                % end
+
                 neuron_annotation(nneuron, 1) = text(neuron_xys(nneuron,1), neuron_xys(nneuron,2) - 0.2, this_str, 'fontsize', bfsize + 10, 'verticalalignment', 'middle', 'horizontalalignment', 'center', 'fontname', gui_font_name, 'fontweight', gui_font_weight);
             end
         end

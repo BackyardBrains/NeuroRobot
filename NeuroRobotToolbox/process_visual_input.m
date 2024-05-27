@@ -106,7 +106,7 @@ end
 
 
 % XYO Net
-if use_xyo_net
+if use_xyo_net || sum(neuron_scripts == 6)
 
     %% Subjective xyo
     % lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
@@ -137,21 +137,25 @@ if use_xyo_net
     this_o = theta;
 
     
-    %% Get xyo state
-    xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
+    if use_xyo_net
 
-    % % Print xyo
-    % ext_title.String = horzcat('x: ', num2str(this_x),...
-    %     ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
-    %     ', s: ', num2str(xyo_state));
-
-    % Synaptic adjust
-    vis_pref_vals(7 + 1 : end, 1) = 0;
-    vis_pref_vals(7 + 1 : end, 2) = 0;
-
-    vis_pref_vals(7 + xyo_state, 1) = 50;
-    vis_pref_vals(7 + xyo_state, 2) = 50;
-
+        %% Get xyo state
+        xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
+    
+        %% Print xyo
+        new_str = horzcat('x: ', num2str(this_x),...
+            ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
+            ', s: ', num2str(xyo_state), ', l: ', num2str(left_torque), ...
+            ', r:', num2str(right_torque));
+        disp(new_str)
+        
+        % Synaptic adjust
+        vis_pref_vals(7 + 1 : end, 1) = 0;
+        vis_pref_vals(7 + 1 : end, 2) = 0;
+    
+        vis_pref_vals(7 + xyo_state, 1) = 50;
+        vis_pref_vals(7 + xyo_state, 2) = 50;
+    end
     
 elseif use_custom_net
 

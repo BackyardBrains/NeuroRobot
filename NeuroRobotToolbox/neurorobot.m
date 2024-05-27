@@ -14,7 +14,7 @@ night_vision = 0;           % Use histeq to enhance image contrast
 use_speech2text = 0;        % In progress, requires key
 save_data_and_commands = 0;
 bg_brain = 1;
-script_names = {'Red LEDs', 'Green LEDs', 'Blue LEDs', 'Delayer', 'Agent'};
+script_names = {'Red LEDs', 'Green LEDs', 'Blue LEDs', 'Delayer', 'Agent', 'CPP'};
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
@@ -55,6 +55,8 @@ if ismac
 else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
+    startup_fig_pos = startup_fig_pos/2;
+    fig_pos = fig_pos/2;
 end
 
 

@@ -136,6 +136,7 @@ layers = [
     reluLayer
     fullyConnectedLayer(xyo_l6)
     reluLayer
+    dropoutLayer
     fullyConnectedLayer(xyo_l7)
     reluLayer
     fullyConnectedLayer(xyo_l8)
