@@ -1,8 +1,10 @@
 
 % run this after connenct camera but before runtime
 % dock it
+
 ext_cam_h = 480;
 ext_cam_w = 640;
+
 xlims = [215 309 403 497];
 ylims = [82 165 248 331];
 
