@@ -34,6 +34,5 @@ draw_ext_zoom = image(ext_frame_zoom);
 hold on
 rblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'b', 'linewidth', 2);
 gblob_marker = plot(0, 0, 'marker', 'o', 'markersize', 25, 'color', 'g', 'linewidth', 2);
-this_ext_str = 'x: y: o: s: ';
-ext_title = title(this_ext_str);
+
 
