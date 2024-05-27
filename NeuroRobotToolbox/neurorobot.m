@@ -55,8 +55,10 @@ if ismac
 else
     startup_fig_pos = get(0, 'screensize') + [0 49 0 -71];
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
-    startup_fig_pos = startup_fig_pos/2;
-    fig_pos = fig_pos/2;
+    startup_fig_pos(3:4) = startup_fig_pos(3:4) * 0.8;
+    fig_pos(3:4) = fig_pos(3:4) * 0.8;
+    startup_fig_pos = startup_fig_pos + 50;
+    fig_pos = fig_pos + 50;
 end
 
 
