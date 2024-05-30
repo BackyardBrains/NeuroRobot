@@ -95,10 +95,14 @@ dist_med = 21;
 dist_long = 26;
 scores = 0;
 
+
 %% XYO
 this_x = 370;
 this_y = 220;
 this_o = 90;
+xlims = [215 309 403 497];
+ylims = [82 165 248 331];
+
 
 %% Variables
 this_key = 0;

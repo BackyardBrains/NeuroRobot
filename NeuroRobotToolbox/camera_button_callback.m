@@ -19,3 +19,7 @@ end
 rak_pulse = timer('period', pulse_period, 'timerfcn', 'rak_pulse_code', 'executionmode', 'fixedrate');
 start(rak_pulse)
 
+if select_robot.Value == 6
+    external_camera_prep
+end
+

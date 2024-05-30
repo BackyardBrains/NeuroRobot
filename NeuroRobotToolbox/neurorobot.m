@@ -162,7 +162,7 @@ button5_pos = [0.79 0.02 0.17 0.05];
 
 % Camera button
 button_camera = uicontrol('Style', 'pushbutton', 'String', 'Connect', 'units', 'normalized', 'position', button1_pos);
-set(button_camera, 'Callback', 'camera_button_callback; camera_button_col', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
+set(button_camera, 'Callback', 'camera_button_callback', 'FontSize', bfsize + 6, 'FontName', gui_font_name, 'FontWeight', gui_font_weight, 'BackgroundColor', [0.8 0.8 0.8])
 camera_button_col
 
 % Start button
