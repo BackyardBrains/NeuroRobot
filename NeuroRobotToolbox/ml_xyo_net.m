@@ -113,7 +113,7 @@ drawnow
 this_msg = 'Training...';
 disp(horzcat(this_msg))
 
-cv = cvpartition(ntuples,'HoldOut',0.3);
+cv = cvpartition(ntuples,'HoldOut',0.1);
 idx = cv.test;
 
 x_train = allx(~idx);
