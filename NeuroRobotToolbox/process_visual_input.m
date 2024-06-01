@@ -108,46 +108,38 @@ end
 % XYO Net
 if use_xyo_net || sum(neuron_scripts == 6)
 
-    %% Subjective xyo
-    lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
-    xyo = predict(xyoNet, double(lframe));
-    % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
-
-    this_x = xyo(1);
-    this_y = xyo(2);
-    this_o = xyo(3);
+    % %% Subjective xyo
+    % lframe = imresize(large_frame, [net_input_size(1) net_input_size(2)]);
+    % xyo = predict(xyoNet, double(lframe));
+    % % disp(horzcat('x: ', num2str(xyo(1)), ', y: ', num2str(xyo(2)), ', o:', num2str(xyo(3))))
+    % 
+    % this_x = xyo(1);
+    % this_y = xyo(2);
+    % this_o = xyo(3);
 
     %% Objective xyo
-    % robot_xy = ext_data.robot_xy;
-    % rblob_xy = ext_data.rblob_xy;
-    % gblob_xy = ext_data.gblob_xy;
-    % 
-    % this_x = robot_xy(1);
-    % this_y = robot_xy(2);
-    % 
-    % x1 = rblob_xy(1);
-    % y1 = rblob_xy(2);
-    % x2 = gblob_xy(1);
-    % y2 = gblob_xy(2);
-    % 
-    % sepx = x1-x2;
-    % sepy = y1-y2;
-    % 
-    % theta = mod(atan2d(sepy,sepx),360); 
-    % this_o = theta;
+    robot_xy = ext_data.robot_xy;
+    rblob_xy = ext_data.rblob_xy;
+    gblob_xy = ext_data.gblob_xy;
+
+    this_x = robot_xy(1);
+    this_y = robot_xy(2);
+
+    x1 = rblob_xy(1);
+    y1 = rblob_xy(2);
+    x2 = gblob_xy(1);
+    y2 = gblob_xy(2);
+
+    sepx = x1-x2;
+    sepy = y1-y2;
+
+    this_o = mod(atan2d(sepy,sepx),360); 
 
 
     %% Get xyo state    
     if use_xyo_net
 
         xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
-    
-        % %% Print xyo
-        % new_str = horzcat('x: ', num2str(this_x),...
-        %     ', y: ', num2str(this_y), ', o: ', num2str(this_o), ...
-        %     ', s: ', num2str(xyo_state), ', l: ', num2str(left_torque), ...
-        %     ', r:', num2str(right_torque));
-        % disp(new_str)
         
         % Synaptic adjust
         vis_pref_vals(7 + 1 : end, 1) = 0;

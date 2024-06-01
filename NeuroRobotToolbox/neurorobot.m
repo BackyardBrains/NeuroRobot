@@ -18,7 +18,7 @@ script_names = {'Red LEDs', 'Green LEDs', 'Blue LEDs', 'Delayer', 'Agent', 'CPP'
 init_motor_block_in_s = 1;
 gui_font_name = 'Comic Book';
 gui_font_weight = 'normal';
-bfsize = 10;
+bfsize = 9;
 
 
 %% Background
@@ -57,20 +57,20 @@ else
     fig_pos = get(0, 'screensize') + [0 49 0 -71];
     startup_fig_pos(3:4) = startup_fig_pos(3:4) * 0.8;
     fig_pos(3:4) = fig_pos(3:4) * 0.8;
-    startup_fig_pos = startup_fig_pos + 70;
-    fig_pos = fig_pos + 70;
+    startup_fig_pos = startup_fig_pos + [30 20 70 70];
+    fig_pos = fig_pos + [60 70 70 70];
 end
 
 
 %% Prepare figure
 fig_startup = figure(1);
 clf
-set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 6.6')
+set(fig_startup, 'NumberTitle', 'off', 'Name', 'SpikerBot 6.7')
 set(fig_startup, 'menubar', 'none', 'toolbar', 'none')
 set(fig_startup, 'position', startup_fig_pos, 'color', fig_bg_col)
 
 % Title
-text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 6.6', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
+text_title = uicontrol('Style', 'text', 'String', 'SpikerBot 6.7', 'units', 'normalized', 'position', [0.05 0.7 0.9 0.25], ...
     'FontName', gui_font_name, 'backgroundcolor', fig_bg_col, 'fontsize', bfsize + 40, 'horizontalalignment', 'center', 'fontweight', gui_font_weight);
 
 

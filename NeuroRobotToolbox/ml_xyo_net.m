@@ -6,8 +6,10 @@ tx1.String = 'xyo alternative';
 
 if ml_h == 240
     image_ds.ReadFcn = @default_read;
+elseif ml_h == 120
+    image_ds.ReadFcn = @resize_read_120;
 elseif ml_h == 48
-    image_ds.ReadFcn = @resize_read_48;
+    image_ds.ReadFcn = @resize_read_48;    
 elseif ml_h == 24
     image_ds.ReadFcn = @resize_read_24;
 end    
@@ -60,14 +62,14 @@ end
 allx = robot_xys(:,1);
 ally = robot_xys(:,2);
 
-xlim1 = prctile(allx, 10);
-xlim2 = prctile(allx, 90);
+xlim1 = prctile(allx, 5);
+xlim2 = prctile(allx, 95);
 n1 = sum(allx < xlim1 | allx > xlim2);
 ns = randsample(xlim1:xlim2, n1, 1);
 allx(allx < xlim1 | allx > xlim2) = ns;
 
-ylim1 = prctile(ally, 10);
-ylim2 = prctile(ally, 90);
+ylim1 = prctile(ally, 5);
+ylim2 = prctile(ally, 95);
 n1 = sum(ally < ylim1 | ally > ylim2);
 ns = randsample(ylim1:ylim2, n1, 1);
 ally(ally < ylim1 | ally > ylim2) = ns;
@@ -111,9 +113,29 @@ drawnow
 this_msg = 'Training...';
 disp(horzcat(this_msg))
 
-xyos = arrayDatastore([allx ally thetas]);
-training_data = combine(image_ds, xyos);
+cv = cvpartition(ntuples,'HoldOut',0.3);
+idx = cv.test;
+
+x_train = allx(~idx);
+x_test = allx(idx);
+y_train = ally(~idx);
+y_test = ally(idx);
+o_train = thetas(~idx);
+o_test = thetas(idx);
+
+xyo_train = arrayDatastore([x_train y_train o_train]);
+xyo_test = arrayDatastore([x_test y_test o_test]);
+
+image_ds_train = subset(image_ds, ~idx);
+image_ds_test = subset(image_ds, idx);
+
+training_data = combine(image_ds_train, xyo_train);
+test_data = combine(image_ds_test, xyo_test);
+
 numResponses = 3;
+
+
+%%
 
 layers = [
     imageInputLayer([ml_h ml_w 3]) 
@@ -128,15 +150,6 @@ layers = [
     convolution2dLayer(3,xyo_l3,'Padding','same')
     batchNormalizationLayer
     reluLayer    
-    maxPooling2dLayer(2,'Stride',2)
-    convolution2dLayer(3,xyo_l4,'Padding','same')
-    batchNormalizationLayer
-    reluLayer
-    fullyConnectedLayer(xyo_l5)
-    reluLayer
-    fullyConnectedLayer(xyo_l6)
-    reluLayer
-    dropoutLayer
     fullyConnectedLayer(xyo_l7)
     reluLayer
     fullyConnectedLayer(xyo_l8)
@@ -160,12 +173,13 @@ options = trainingOptions("adam", ...
     MiniBatchSize=xyo_minbatch, ...
     Plots=this_str, ...
     Metrics="rmse", ...
+    ValidationData=test_data, ...
+    ValidationFrequency=30, ...
     VerboseFrequency=1, ...
     Verbose=1);
 
 xyoNet = trainnet(training_data, layers, 'mse', options);
 save(strcat(nets_dir_name, state_net_name, '-ml'), 'xyoNet')
-
 
 % %% Alternatively load a different xyoNet here
 % state_net_name = 'xyoNetSupreme';
@@ -224,60 +238,60 @@ drawnow
 
 
 %%
-this_msg = 'Generating states from XYOs...';
-disp(horzcat(this_msg))
+% this_msg = 'Generating states from XYOs...';
+% disp(horzcat(this_msg))
+% 
+% n_unique_states = 32;
+% states = zeros(ntuples, 1);
+% 
+% for ntuple = 1:ntuples
+% 
+%     %%% Estimated XYO
+%     % this_x = xyo_net_vals(ntuple, 1);
+%     % this_y = xyo_net_vals(ntuple, 2);
+%     % this_o = xyo_net_vals(ntuple, 3);
+% 
+%     %%% Objective XYO
+%     this_x = allx(ntuple, 1);
+%     this_y = ally(ntuple, 1);
+%     this_o = thetas(ntuple, 1);
+% 
+%     xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
+% 
+%     states(ntuple) = xyo_state;
+% 
+% end
+% 
+% labels = cell(n_unique_states, 1);
+% for nstate = 1:n_unique_states
+%     labels{nstate} = horzcat('State ', num2str(nstate));
+% end
+% 
+% save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
+% save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
+% disp('XYO states generated')
+% 
+% 
+% %%
+% figure(17)
+% clf
+% set(gcf, 'position', [201 241 800 420], 'color', 'w')
+% 
+% histogram(states, 'binwidth', 0.4)
+% xlim([0 n_unique_states + 1])
+% title('States')
+% 
+% drawnow
 
-n_unique_states = 32;
-states = zeros(ntuples, 1);
 
-for ntuple = 1:ntuples
+% %% Torques
+% this_msg = 'Getting torques...';
+% disp(horzcat(this_msg))
 
-    %%% Estimated XYO
-    % this_x = xyo_net_vals(ntuple, 1);
-    % this_y = xyo_net_vals(ntuple, 2);
-    % this_o = xyo_net_vals(ntuple, 3);
+% get_torques
+% raw_torque_data = torque_data;
+% clear torque_data
+% save(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'), 'raw_torque_data')
 
-    %%% Objective XYO
-    this_x = allx(ntuple, 1);
-    this_y = ally(ntuple, 1);
-    this_o = thetas(ntuple, 1);
-
-    xyo_state = get_xyo_state(this_x, this_y, this_o, xlims, ylims, n_unique_states);
-
-    states(ntuple) = xyo_state;
-
-end
-
-labels = cell(n_unique_states, 1);
-for nstate = 1:n_unique_states
-    labels{nstate} = horzcat('State ', num2str(nstate));
-end
-
-save(horzcat(nets_dir_name, state_net_name, '-states'), 'states')
-save(strcat(nets_dir_name, state_net_name, '-labels'), 'labels')
-disp('XYO states generated')
-
- 
-%%
-figure(17)
-clf
-set(gcf, 'position', [201 241 800 420], 'color', 'w')
-
-histogram(states, 'binwidth', 0.4)
-xlim([0 n_unique_states + 1])
-title('States')
-
-drawnow
-
-
-%% Torques
-this_msg = 'Getting torques...';
-disp(horzcat(this_msg))
-
-get_torques
-raw_torque_data = torque_data;
-clear torque_data
-save(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'), 'raw_torque_data')
-
-this_msg = 'xyoNet and torques ready';
-disp(horzcat(this_msg))
+% this_msg = 'xyoNet and torques ready';
+% disp(horzcat(this_msg))
