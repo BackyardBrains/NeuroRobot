@@ -34,7 +34,7 @@ tx1.String = this_msg;
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/10))
-        disp(num2str(ntuple/ntuples))
+        disp(horzcat(num2str((round(ntuple/ntuples)*100))))
     end
 
     ext_fname = horzcat(ext_dir(ntuple).folder, '\', ext_dir(ntuple).name);
@@ -113,7 +113,7 @@ drawnow
 this_msg = 'Training...';
 disp(horzcat(this_msg))
 
-cv = cvpartition(ntuples,'HoldOut',0.1);
+cv = cvpartition(ntuples,'HoldOut',0.05);
 idx = cv.test;
 
 x_train = allx(~idx);

@@ -1,0 +1,29 @@
+ML H,ml_h,48
+ML W,ml_w,64
+Initial N unique states,init_n_unique_states,36
+N images in subsample 1,nsmall,1000
+BoF branching,bof_branching,10
+N images in subsample 2,nmedium,1000
+Image cluster min size,min_size,20
+No more than N states,trim_size,16
+Convlayer 1 filtersize numfilters,ml_l1,32
+Convlayer 2 filtersize numfilters,ml_l2,32
+Convlayer 3 filtersize numfilters,ml_l3,16
+MiniBatchSize,ml_bs,64
+MaxEpochs,ml_me,10
+N unique actions,n_unique_actions,10
+DiscountFactor,ml_rl_d,0.99
+MaxEpisodes,ml_rl_me,500
+MaxStepsPerEpisode,ml_rl_mspe,200
+xyoNet,xyo_l1,8
+xyoNet,xyo_l2,8
+xyoNet,xyo_l3,8
+xyoNet,xyo_l4,8
+xyoNet,xyo_l5,100
+xyoNet,xyo_l6,100
+xyoNet,xyo_l7,100
+xyoNet,xyo_l8,100
+xyoNet,xyo_minbatch,64
+xyoNet,xyo_maxeps,1
+xyoNet,xyo_drop,2
+EEG network type,network_type,1
