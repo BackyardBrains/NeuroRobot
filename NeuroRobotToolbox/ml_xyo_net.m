@@ -193,8 +193,8 @@ tx1.String = this_msg;
 
 xyo_net_vals = zeros(ntuples, 3);
 for ntuple = 1:ntuples
-    if ~rem(ntuple, round(ntuples/20))
-        disp(num2str(ntuple/ntuples))
+    if ~rem(ntuple, round(ntuples/10))
+        disp(horzcat(num2str((round(ntuple/ntuples)*100))))
     end
     im = readimage(image_ds, ntuple);
     xyo_net_vals(ntuple, :) = predict(xyoNet, double(im));
@@ -220,17 +220,17 @@ axis tight
 title('Estimated O')
 
 subplot(3,3,7)
-scatter(allx, xyo_net_vals(:,1))
+scatter(allx, xyo_net_vals(:,1), 1)
 axis tight
 title('True vs Estimated X')
 
 subplot(3,3,8)
-scatter(ally, xyo_net_vals(:,2))
+scatter(ally, xyo_net_vals(:,2), 1)
 axis tight
 title('True vs Estimated Y')
 
 subplot(3,3,9)
-scatter(thetas, xyo_net_vals(:,3))
+scatter(thetas, xyo_net_vals(:,3), 1)
 axis tight
 title('True vs Estimated O')
 
