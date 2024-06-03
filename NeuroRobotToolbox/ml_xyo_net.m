@@ -34,7 +34,7 @@ tx1.String = this_msg;
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/10))
-        disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
+        disp(horzcat(num2str(round(100*(ntuple/ntuples))), '%'))
     end
 
     ext_fname = horzcat(ext_dir(ntuple).folder, '\', ext_dir(ntuple).name);
