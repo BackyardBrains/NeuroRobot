@@ -34,7 +34,7 @@ tx1.String = this_msg;
 for ntuple = 1:ntuples
 
     if ~rem(ntuple, round(ntuples/10))
-        disp(horzcat(num2str((round(ntuple/ntuples)*100))))
+        disp(horzcat(num2str(round(100*(ntuple/ntuples))), ' %'))
     end
 
     ext_fname = horzcat(ext_dir(ntuple).folder, '\', ext_dir(ntuple).name);
@@ -150,10 +150,18 @@ layers = [
     convolution2dLayer(3,xyo_l3,'Padding','same')
     batchNormalizationLayer
     reluLayer    
+    maxPooling2dLayer(2,'Stride',2)  
+    convolution2dLayer(3,xyo_l4,'Padding','same')
+    batchNormalizationLayer
+    reluLayer      
+    fullyConnectedLayer(xyo_l5)
+    reluLayer
+    fullyConnectedLayer(xyo_l6)
+    reluLayer 
     fullyConnectedLayer(xyo_l7)
     reluLayer
     fullyConnectedLayer(xyo_l8)
-    reluLayer    
+    reluLayer     
     fullyConnectedLayer(numResponses)];
 
 if isdeployed
@@ -174,16 +182,12 @@ options = trainingOptions("adam", ...
     Plots=this_str, ...
     Metrics="rmse", ...
     ValidationData=test_data, ...
-    ValidationFrequency=30, ...
+    ValidationFrequency=100, ...
     VerboseFrequency=1, ...
     Verbose=1);
 
 xyoNet = trainnet(training_data, layers, 'mse', options);
 save(strcat(nets_dir_name, state_net_name, '-ml'), 'xyoNet')
-
-% %% Alternatively load a different xyoNet here
-% state_net_name = 'xyoNetSupreme';
-% load(strcat(nets_dir_name, state_net_name, '-ml'))
 
 
 %%
