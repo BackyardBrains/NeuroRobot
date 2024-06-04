@@ -2163,11 +2163,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                               width: 50,
                               height: 40,
                               child: TextField(
+                                enabled: false,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: whiteListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecTimeValue,
                                 onChanged: (value) {
+                                  return;
                                   try {
                                     sldTimeValue = double.parse(value);
                                     if (sldTimeValue > maxDelayTimeValue) {
@@ -4455,10 +4457,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     2;
 
                 nativec.changeIdxSelected(neuronIdx);
-                print("neuronIdx");
-                print(neuronIdx);
-                print(mapDelayNeuronList);
-                print(mapDelayNeuronList[neuronIdx]);
+                // print("neuronIdx");
+                // print(neuronIdx);
+                // print(mapDelayNeuronList);
+                // print(mapDelayNeuronList[neuronIdx]);
                 if (mapDelayNeuronList[neuronIdx] > 0) {
                   isShowDelayTime = true;
                   tecTimeValue.text = mapDelayNeuronList[neuronIdx].toString();
@@ -4625,6 +4627,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               //     // brush.color = Theme.of(context).colorScheme.secondary;
               //     brush.color = neuronColor.color;
               //     canvas.drawCircle(rect.center, rect.width / 2, brush);
+
+              //     // canvas.drawCircle(
+              //     //     rect.center, rect.width / 2 / controller.scale, brush);
               //   },
               // ),
             ),
@@ -4650,8 +4655,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             controller.deselect(neuronsKey[neuronsKey.length - 1]);
           });
         } else if (menuIdx == 2 && !isCreatePoint && controller.hasSelection) {
-          // print('design brain start');
-          // print("------------------");
+          print('design brain start');
+          print("------------------");
           // print(controller.hasSelection);
           // print(axonFromSelected);
           // print(axonToSelected);
@@ -4736,6 +4741,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             if (controller.edges.isNotEmpty) {
               final lastCreatedEdge =
                   controller.edges[controller.edges.length - 1];
+              print("rawSyntheticNeuronList.length");
+              print(rawSyntheticNeuronList.length);
+              rawSyntheticNeuronList.map((e) {
+                print("e.neuronIdx");
+                print(e.neuronIdx);
+              });
+
               InfiniteCanvasNode neuronFrom =
                   findNeuronByKey(lastCreatedEdge.from);
               InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
@@ -4782,6 +4794,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               if (isDefaultRobotEdge >= 2) {
                 controller.edges.remove(lastCreatedEdge);
               }
+              setState(() {});
             }
           });
           // int prevValue = neuronFrom.value;
@@ -5123,7 +5136,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     }
   }
 
-  void populateNode(v, nodeKey) {
+  void populateNode(
+      v, nodeKey, nIdx, Map<String, dynamic> syntheticNeuronJson) {
+    SyntheticNeuron syntheticNeuron = SyntheticNeuron(
+        // neuronKey: newNodeKey,
+        isActive: false,
+        isIO: false,
+        circleRadius: neuronDrawSize / 2);
+
     InfiniteCanvasNode tempNode = InfiniteCanvasNode(
       value: v["index"],
       key: nodeKey,
@@ -5135,18 +5155,74 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           return CustomPaint(
             isComplex: true,
             willChange: true,
-            painter: InlineCustomPainter(
-              brush: neuronColor,
-              // brush: rectangleColor,
-              builder: (brush, canvas, rect) {
-                canvas.drawCircle(rect.center, rect.width / 2, brush);
-              },
-            ),
+            painter: syntheticNeuronJson.containsKey("dendrites")
+                ? syntheticNeuron
+                : InlineCustomPainter(
+                    brush: neuronColor,
+                    // brush: rectangleColor,
+                    builder: (brush, canvas, rect) {
+                      canvas.drawCircle(rect.center, rect.width / 2, brush);
+                    },
+                  ),
           );
         },
       ),
     );
+
     tempNode.valKey = v["valKey"];
+    if (syntheticNeuronJson.containsKey("dendrites")) {
+      syntheticNeuron.node = tempNode;
+      syntheticNeuron.setupDrawingNeuron();
+
+      double centerX = syntheticNeuronJson["centerPos"][0];
+      double centerY = syntheticNeuronJson["centerPos"][1];
+      syntheticNeuron.centerPos = Offset(centerX, centerY);
+      syntheticNeuron.neuronIdx = nIdx;
+      syntheticNeuron.randomVariation1 =
+          syntheticNeuronJson["randomVariation1"];
+      syntheticNeuron.randomVariation2 =
+          syntheticNeuronJson["randomVariation2"];
+      // List<Dendrite> dendrites = [];
+      syntheticNeuron.dendrites.clear();
+      for (Map<String, dynamic> dendriteJson
+          in syntheticNeuronJson["dendrites"]) {
+        Dendrite tempDendrite = Dendrite(
+            hasSecondLevel: dendriteJson["hasSecondLevel"],
+            angle: dendriteJson["angle"],
+            sinapseFirstLevel: [],
+            sinapseSecondLevel: [],
+            xFirstLevel: dendriteJson["xFirstLevel"],
+            yFirstLevel: dendriteJson["yFirstLevel"],
+            xSecondLevel: dendriteJson["xSecondLevel"],
+            ySecondLevel: dendriteJson["ySecondLevel"],
+            xTriangleFirstLevel: dendriteJson["xTriangleFirstLevel"],
+            xTriangleSecondLevel: dendriteJson["xTriangleSecondLevel"],
+            yTriangleFirstLevel: dendriteJson["yTriangleFirstLevel"],
+            yTriangleSecondLevel: dendriteJson["yTriangleSecondLevel"]);
+
+        syntheticNeuron.dendrites.add(tempDendrite);
+        // dendrites.add(
+      }
+      print("syntheticNeuronJson['dendrites'].length");
+      print(syntheticNeuronJson["dendrites"].length);
+      // syntheticNeuron.dendrites = dendrites;
+    }
+    if (syntheticNeuronJson.containsKey("dendrites")) {
+      tempNode.syntheticNeuron = syntheticNeuron;
+      // syntheticNeuron.setupDrawingNeuron();
+      syntheticNeuronList.add(syntheticNeuron);
+
+      SyntheticNeuron rawSyntheticNeuron = SyntheticNeuron(
+          // neuronKey: newNodeKey,
+          isActive: false,
+          isIO: false,
+          circleRadius: neuronDrawSize / 2);
+      rawSyntheticNeuron.node = tempNode;
+      rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
+      syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
+
+      rawSyntheticNeuronList.add(rawSyntheticNeuron);
+    }
     print("tempNode.key");
     print(tempNode.id);
     controller.nodes.add(tempNode);
@@ -5205,6 +5281,44 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       edgesJson.add("${from.id}_#_${to.id}");
     }
 
+    var rawSyntheticNeuronListJson = [];
+    for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
+      List<Map<String, dynamic>> dendrites = [];
+      for (Dendrite dendrite in syntheticNeuron.dendrites) {
+        dendrites.add({
+          "angle": dendrite.angle,
+          "hasSecondLevel": dendrite.hasSecondLevel,
+          "sinapseFirstLevel": [],
+          "sinapseSecondLevel": dendrite.sinapseSecondLevel,
+          "xFirstLevel": dendrite.xFirstLevel,
+          "xSecondLevel": dendrite.xSecondLevel,
+          "xTriangleFirstLevel": dendrite.xTriangleFirstLevel,
+          "xTriangleSecondLevel": dendrite.xTriangleSecondLevel,
+          "yFirstLevel": dendrite.yFirstLevel,
+          "ySecondLevel": dendrite.ySecondLevel,
+          "yTriangleFirstLevel": dendrite.yTriangleFirstLevel,
+          "yTriangleSecondLevel": dendrite.yTriangleSecondLevel,
+        });
+      }
+
+      rawSyntheticNeuronListJson.add({
+        // "activeColor": syntheticNeuron.activeColor.toString(),
+        "arrowSize": syntheticNeuron.arrowSize,
+        "dendrites": dendrites,
+        "centerPos": [
+          syntheticNeuron.centerPos.dx,
+          syntheticNeuron.centerPos.dy
+        ],
+        "circleRadius": syntheticNeuron.circleRadius,
+        "neuronIdx": syntheticNeuron.neuronIdx,
+        // "random": syntheticNeuron.random,
+        "randomVariation1": syntheticNeuron.randomVariation1,
+        "randomVariation2": syntheticNeuron.randomVariation2,
+        // "randomVariation2": syntheticNeuron.zoomScale,
+      });
+    }
+    // print("json.encode(rawSyntheticNeuronListJson)");
+    // print(json.encode(rawSyntheticNeuronListJson));
     String strNodesJson = json.encode({
       "nodes": nodesJson,
       "edges": edgesJson,
@@ -5222,6 +5336,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "mapMicrophoneNeuron": mapMicrophoneNeuron,
       "mapLedNeuron": mapLedNeuron,
       "mapLedNeuronPosition": mapLedNeuronPosition,
+
+      "rawSyntheticNeuron": rawSyntheticNeuronListJson,
 
       "mapDelayNeuron": mapDelayNeuronList,
       "mapRhytmicNeuron": mapRhytmicNeuronList,
@@ -5301,6 +5417,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     if (filename == "") return;
     controller.edges.clear();
     int len = controller.nodes.length;
+    neuronTypes.clear();
     for (int i = normalNeuronStartIdx + 2; i < len; i++) {
       controller.nodes.removeLast();
     }
@@ -5331,6 +5448,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     Map<String, String> mapTranslateLoadKeys = {};
     // List<ValueKey> tempNeuronsKey =
     //     List.generate(neuronsKey.length, (index) => ValueKey(neuronsKey[index].toString()));
+    var rawSyntheticNeuronListJson = savedFileJson["rawSyntheticNeuron"];
+    int nIdx = 0;
 
     for (var v in nodesJson) {
       String loadedNeuronKey = v["valKey"];
@@ -5339,16 +5458,60 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
+
+        // SyntheticNeuron synNeuron = SyntheticNeuron(
+        //     isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+        // if (v["index"] == -2) {
+        //   synNeuron.node = controller.nodes[0];
+        // } else if (v["index"] == -1) {
+        //   synNeuron.node = controller.nodes[1];
+        // }
+        // synNeuron.setupDrawingNeuron();
+        // syntheticNeuronList.add(synNeuron);
+
+        // SyntheticNeuron rawSynNeuron = SyntheticNeuron(
+        //     isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+        // if (v["index"] == -2) {
+        //   rawSynNeuron.node = controller.nodes[0];
+        // } else if (v["index"] == -1) {
+        //   rawSynNeuron.node = controller.nodes[1];
+        // }
+
+        // rawSynNeuron.copyDrawingNeuron(synNeuron);
+        // rawSyntheticNeuronList.add(rawSynNeuron);
+        // synNeuron.rawSyntheticNeuron = rawSynNeuron;
+        // print("rawSyntheticNeuronList.length 0");
+        // print(rawSyntheticNeuronList.length);
       } else if (v["index"] < normalNeuronStartIdx) {
         InfiniteCanvasNode neuron = findNeuronByValue(v["index"]);
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
+
+        SyntheticNeuron synNeuron = SyntheticNeuron(
+            isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+        // print('v["index"]');
+        // print(v["index"]);
+        synNeuron.node = controller.nodes[v["index"]];
+        synNeuron.setupDrawingNeuron();
+        syntheticNeuronList.add(synNeuron);
+
+        SyntheticNeuron rawSynNeuron = SyntheticNeuron(
+            isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+        rawSynNeuron.node = controller.nodes[v["index"]];
+
+        rawSynNeuron.copyDrawingNeuron(synNeuron);
+        rawSyntheticNeuronList.add(rawSynNeuron);
+        synNeuron.rawSyntheticNeuron = rawSynNeuron;
+
+        nIdx++;
       } else {
         LocalKey nodeKey = UniqueKey();
         tempNeuronsKey.add(nodeKey);
-        populateNode(v, nodeKey);
+        populateNode(v, nodeKey, nIdx, rawSyntheticNeuronListJson[nIdx]);
         mapTranslateLoadKeys[loadedNeuronKey] = nodeKey.toString();
+
+        nIdx++;
       }
     }
     print("Map translated Load Keys");
@@ -5388,9 +5551,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             savedFileJson["mapLedNeuronPosition"], mapTranslateLoadKeys);
 
     // neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
-    neuronTypes = translateLoadedNeuron(
+    Map<String, String> tempNeuronTypes = translateLoadedNeuron(
         savedFileJson["neuronTypes"], mapTranslateLoadKeys);
 
+    neuronTypes.clear();
+    tempNeuronTypes.forEach((key, value) {
+      neuronTypes[key] = value;
+    });
     if (savedFileJson["neuronStyles"] != null) {
       neuronStyles = translateLoadedNeuron(
           savedFileJson["neuronStyles"], mapTranslateLoadKeys);

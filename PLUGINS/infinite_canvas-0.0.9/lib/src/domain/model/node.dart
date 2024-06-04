@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 
 /// A node in the [InfiniteCanvas].
 class InfiniteCanvasNode<T> {
@@ -28,6 +29,7 @@ class InfiniteCanvasNode<T> {
   Rect get rect => offset & size;
   static const double dragHandleSize = 10;
   static const double borderInset = 2;
+  late SyntheticNeuron syntheticNeuron;
 
   void update({
     Size? size,

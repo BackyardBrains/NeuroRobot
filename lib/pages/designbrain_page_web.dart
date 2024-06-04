@@ -63,8 +63,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
-  GlobalKey waveChartKey= GlobalKey();
-  GlobalKey canvasKey= GlobalKey();
+  GlobalKey waveChartKey = GlobalKey();
+  GlobalKey canvasKey = GlobalKey();
   List<String> neuronTypes = [];
   static int neuronSize = 10;
   static const int motorCommandsLength = 6 * 2;
@@ -212,27 +212,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   Uint8List dataMaskedImage = Uint8List(0);
 
   int bufPositionCount = 1;
-  
+
   // late ImagePreprocessor processor;
-  
+
   String httpdStream = "http://192.168.4.1:81/stream";
-  
+
   late Isolate webSocket;
-  
+
   bool isSimulationCallbackAttached = false;
-  
+
   late InfiniteCanvas infiniteCanvasWidget;
-  
-  
 
   void runNativeC() {
     const level = 1;
     const envelopeSize = 200;
     const bufferSize = 2000;
-    if (kIsWeb){
-      js.context.callMethod("initializeModels",
-        [ jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,positionsBufView, connectomeBufView,level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView]) ]
-      );        
+    if (kIsWeb) {
+      js.context.callMethod("initializeModels", [
+        jsonEncode([
+          aBufView,
+          bBufView,
+          cBufView,
+          dBufView,
+          iBufView,
+          wBufView,
+          positionsBufView,
+          connectomeBufView,
+          level,
+          neuronSize,
+          envelopeSize,
+          bufferSize,
+          1,
+          visPrefsBufView,
+          neuronContactsBufView,
+          motorCommandBufView
+        ])
+      ]);
     }
     // Web Change
     /*
@@ -303,20 +318,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     // int neuronSizeType = neuronSize;
     if (kIsWeb) {
-      aBufView  = Float64List(neuronSize);
-      bBufView  = Float64List(neuronSize);
-      cBufView  = Int16List(neuronSize);
-      dBufView  = Int16List(neuronSize);
-      iBufView  = Float64List(neuronSize);
-      wBufView  = Float64List(neuronSize);
-      positionsBufView  = Int16List(neuronSize);
-      connectomeBufView  = Float64List(neuronSize*neuronSize);
+      aBufView = Float64List(neuronSize);
+      bBufView = Float64List(neuronSize);
+      cBufView = Int16List(neuronSize);
+      dBufView = Int16List(neuronSize);
+      iBufView = Float64List(neuronSize);
+      wBufView = Float64List(neuronSize);
+      positionsBufView = Int16List(neuronSize);
+      connectomeBufView = Float64List(neuronSize * neuronSize);
 
       visPrefsBufView = Int16List(neuronSize * neuronSize);
       motorCommandBufView = Float64List(motorCommandsLength);
       neuronContactsBufView = Float64List(neuronSize * neuronSize);
-
-
     } else {
       // nativec = Nativec();
       // nativec.passPointers(
@@ -411,7 +424,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   int menuIdx = 0;
   bool isCreatePoint = false;
 
-  Map mapConnectome = {}; 
+  Map mapConnectome = {};
   Map mapSensoryNeuron = {}; // vis prefs
   Map mapContactsNeuron = {};
 
@@ -556,7 +569,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   void freeUsedMemory() {
-    if (!kIsWeb){
+    if (!kIsWeb) {
       /*
       freeMemory(npsBuf);
       freeMemory(neuronCircleBuf);
@@ -625,36 +638,35 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     return "";
   }
 
-  streamImageFrame(cameraFrames){
+  streamImageFrame(cameraFrames) {
     // print(cameraFrames);
     mainBloc.drawImageNow(cameraFrames);
   }
-  canvasDraw(params){
-    WaveWidget.canvasBufferBytes1 = Float64List.fromList((params[0]).toList().cast<double>());
+
+  canvasDraw(params) {
+    WaveWidget.canvasBufferBytes1 =
+        Float64List.fromList((params[0]).toList().cast<double>());
   }
 
   // setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps, pVisPrefs, pNeuronContacts, pMotorCommands, pConnectome){
-  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps){
+  setCanvasBuffer(buffer, positionsBuf, neuronBridge, nps) {
     WaveWidget.canvasBufferBytes1 = buffer;
     WaveWidget.positionsBufView = positionsBuf;
     neuronCircleBridge = neuronBridge;
-    npsBufView  = nps;
+    npsBufView = nps;
 
     // visPrefsBufView = pVisPrefs;
     // neuronContactsBufView = pNeuronContacts;
     // connectomeBufView = pConnectome;
     // motorCommandBufView = pMotorCommands;
-
   }
 
-  
   @override
   void initState() {
     super.initState();
-    if (kIsWeb){
+    if (kIsWeb) {
       js.context['streamImageFrame'] = streamImageFrame;
       js.context['setCanvasBuffer'] = setCanvasBuffer;
-
     }
 
     print("INIT STATEEE");
@@ -684,7 +696,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       // upperB[1] = 255;
       // upperB[2] = 255;
 
-      if (!kIsWeb){
+      if (!kIsWeb) {
         // rootBundle.load("assets/bg/ObjectColorRange.jpeg").then((raw) async {
         //   Uint8List redBg = raw.buffer.asUint8List();
         //   try {
@@ -731,7 +743,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         //   }
         // });
       }
-      
+
       // });
     } catch (err) {
       print("err Memory Allocation");
@@ -740,11 +752,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     initNeuronType();
 
-
     // processor = ImagePreprocessor();
     // processor.isRunning = true;
     imageJpegComponent = Image.memory(
-      Uint8List.fromList( cameraBuffer ),
+      Uint8List.fromList(cameraBuffer),
       gaplessPlayback: true,
     );
     mjpegComponent = Mjpeg(
@@ -1044,23 +1055,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               //   ),
               // )
               child: StreamBuilder<Uint8List>(
-                stream: mainBloc.imageStream,
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) return Container();
-                  
-                  cameraBuffer = snapshot.data!;
-                  imageJpegComponent = Image.memory(
-                    Uint8List.fromList( cameraBuffer ),
-                    gaplessPlayback: true,
-                  );
+                  stream: mainBloc.imageStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) return Container();
 
-                  return ClipRect(
-                    clipper: EyeClipper(
-                        isLeft: true, width: screenWidth, height: screenHeight),
-                    child: kIsWeb? imageJpegComponent : mjpegComponent,
-                  );
-                }
-              ),
+                    cameraBuffer = snapshot.data!;
+                    imageJpegComponent = Image.memory(
+                      Uint8List.fromList(cameraBuffer),
+                      gaplessPlayback: true,
+                    );
+
+                    return ClipRect(
+                      clipper: EyeClipper(
+                          isLeft: true,
+                          width: screenWidth,
+                          height: screenHeight),
+                      child: kIsWeb ? imageJpegComponent : mjpegComponent,
+                    );
+                  }),
             ),
             Positioned(
               right: 80,
@@ -1078,7 +1090,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                           width: screenWidth,
                           height: screenHeight),
                       child: Image.memory(
-                        Uint8List.fromList( cameraBuffer ),
+                        Uint8List.fromList(cameraBuffer),
                         gaplessPlayback: true,
                       ),
                     );
@@ -1329,7 +1341,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           controller.edges.where((e) => e.from == selected.key).toList();
       for (int i = 0; i < outwardEdges.length; i++) {
         InfiniteCanvasEdge outwardEdge = outwardEdges[i];
-        if (mapSensoryNeuron.containsKey("${outwardEdge.from}_${outwardEdge.to}"))
+        if (mapSensoryNeuron
+            .containsKey("${outwardEdge.from}_${outwardEdge.to}"))
           mapSensoryNeuron.remove("${outwardEdge.from}_${outwardEdge.to}");
         if (mapContactsNeuron
             .containsKey("${outwardEdge.from}_${outwardEdge.to}"))
@@ -1357,7 +1370,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       InfiniteCanvasEdge lastCreatedEdge = controller.edges[idx];
       if (mapSensoryNeuron
           .containsKey("${lastCreatedEdge.from}_${lastCreatedEdge.to}"))
-        mapSensoryNeuron.remove("${lastCreatedEdge.from}_${lastCreatedEdge.to}");
+        mapSensoryNeuron
+            .remove("${lastCreatedEdge.from}_${lastCreatedEdge.to}");
       if (mapContactsNeuron
           .containsKey("${lastCreatedEdge.from}_${lastCreatedEdge.to}"))
         mapContactsNeuron
@@ -1411,18 +1425,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               var selected = controller.selection[0];
               // int neuronIdx = selected.value - normalNeuronStartIdx - 1;
               int neuronIdx = selected.value;
-              print("neuronIdx");
-              print(neuronIdx);
+              // print("neuronIdx");
+              // print(neuronIdx);
               isSelected = true;
-              if (kIsWeb){
-                js.context.callMethod("changeSelectedIdx",[neuronIdx]);
+              if (kIsWeb) {
+                js.context.callMethod("changeSelectedIdx", [neuronIdx]);
               }
               // nativec.changeIdxSelected(neuronIdx);
               if (neuronIdx < normalNeuronStartIdx) {
                 return;
               }
 
-              if (isPlayingMenu){
+              if (isPlayingMenu) {
                 return;
               }
 
@@ -1515,7 +1529,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           },
           child: canvas);
     }
-
   }
 
   rightToolbarCallback(map) {
@@ -1607,8 +1620,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // }
 
         // isolateWritePort.send("DISCONNECT");
-        Future.delayed(const Duration(milliseconds: 300), () {
-        });
+        Future.delayed(const Duration(milliseconds: 300), () {});
       }
 
       // print("visPrefsBufView");
@@ -2242,8 +2254,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // setState((){});
       }
     });
-  
-  
+
     infiniteCanvasWidget = InfiniteCanvas(
       key: canvasKey,
       backgroundBuilder: (ctx, r) {
@@ -2270,8 +2281,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       menuVisible: false,
       controller: controller,
     );
-
-  
   }
 
   InfiniteCanvasNode findNeuronByValue(val) {
@@ -2376,10 +2385,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             mapContactsNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
                 ? mapContactsNeuron["${neuronFrom.key}_${neuronTo.key}"]
                 : 0,
-        "visualPref":
-            mapSensoryNeuron.containsKey("${neuronFrom.key}_${neuronTo.key}")
-                ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
-                : -1.0,
+        "visualPref": mapSensoryNeuron
+                .containsKey("${neuronFrom.key}_${neuronTo.key}")
+            ? mapSensoryNeuron["${neuronFrom.key}_${neuronTo.key}"].toDouble()
+            : -1.0,
       };
       axonDialogBuilder(
           context,
