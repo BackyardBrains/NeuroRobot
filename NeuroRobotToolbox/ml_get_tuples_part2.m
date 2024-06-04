@@ -2,6 +2,7 @@
 
 %% Actions
 n_unique_actions = 10;
+disp('hardcoded: n_unique_actions = 10')
 
 load(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'))
 torque_data = raw_torque_data;
@@ -31,12 +32,16 @@ set(gca, 'xtick', 1:n_unique_actions)
 
 accidental_actions = main_actions(6:10);
 acc_inds = sum(actions == accidental_actions, 2) > 0;
+disp('hardcoded: drop 5 least frequent actions')
+
 torque_data(acc_inds, :) = [];
 save(horzcat(nets_dir_name, state_net_name, '-torque_data'), 'torque_data')
 
 
 %%
 n_unique_actions = 5;
+disp('hardcoded: n_unique_actions = 5')
+
 actions = kmeans(torque_data, n_unique_actions);
 motor_combs = zeros(n_unique_actions, 2);
 counter = 0;
@@ -51,19 +56,19 @@ end
 
 %%
 try
-axes(im_ax1)
-cla
-gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
-hold on
-for naction = 1:n_unique_actions
-    text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold');
-end
-axis padded
-set(gca, 'yscale', 'linear')
-title('Actions')
-xlabel('Left Motor')
-ylabel('Right Motor')
-drawnow
+    axes(im_ax1)
+    cla
+    gscatter(torque_data(:,1)+randn(size(torque_data(:,1)))*4, torque_data(:,2)+randn(size(torque_data(:,2)))*4, actions, [],[],[], 'off')
+    hold on
+    for naction = 1:n_unique_actions
+        text(motor_combs(naction,1), motor_combs(naction,2), num2str(naction), 'fontsize', 16, 'fontweight', 'bold');
+    end
+    axis padded
+    set(gca, 'yscale', 'linear')
+    title('Actions')
+    xlabel('Left Motor')
+    ylabel('Right Motor')
+    drawnow
 catch
 end
 
@@ -73,7 +78,7 @@ figure(16)
 clf
 set(gcf, 'position', [251 291 400 420], 'color', 'w')
 
-h3 = histogram(actions, 'binwidth', 0.99);
+histogram(actions, 'binwidth', 0.99);
 title('Actions')
 
 xlim([0 n_unique_actions + 1])
@@ -81,10 +86,10 @@ set(gca, 'xtick', 1:n_unique_actions)
 
 
 try
-axes(ml_train4_status)
-cla
-tx8 = text(0.03, 0.5, horzcat('Clustering torques to into ', num2str(n_unique_actions), ' unique actions...'), 'FontSize', bfsize + 4);
-drawnow
+    axes(ml_train4_status)
+    cla
+    tx8 = text(0.03, 0.5, horzcat('Clustering torques to into ', num2str(n_unique_actions), ' unique actions...'), 'FontSize', bfsize + 4);
+    drawnow
 catch
 end
 
@@ -124,7 +129,7 @@ figure(26)
 clf
 set(gcf, 'position', [251 291 400 420], 'color', 'w')
 
-h3 = histogram(tuples(:,3), 'binwidth', 0.99);
+histogram(tuples(:,3), 'binwidth', 0.99);
 title('Actions')
 
 xlim([0.5 n_unique_actions + 1.5])

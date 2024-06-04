@@ -4,16 +4,6 @@ state_net_name = ml_name1_edit.String;
 ml_get_data_stats
 tx1.String = 'xyo alternative';
 
-if ml_h == 240
-    image_ds.ReadFcn = @default_read;
-elseif ml_h == 120
-    image_ds.ReadFcn = @resize_read_120;
-elseif ml_h == 48
-    image_ds.ReadFcn = @resize_read_48;    
-elseif ml_h == 24
-    image_ds.ReadFcn = @resize_read_24;
-end    
-
 ext_dir = dir(fullfile(strcat(dataset_dir_name, rec_dir_name), '**\*ext_data.mat'));
 
 ntuples = size(ext_dir, 1);
@@ -198,7 +188,7 @@ tx1.String = this_msg;
 xyo_net_vals = zeros(ntuples, 3);
 for ntuple = 1:ntuples
     if ~rem(ntuple, round(ntuples/10))
-        disp(horzcat(num2str((round(ntuple/ntuples)*100))))
+        disp(horzcat(num2str(round(100*(ntuple/ntuples))), '%'))
     end
     im = readimage(image_ds, ntuple);
     xyo_net_vals(ntuple, :) = predict(xyoNet, double(im));
@@ -288,14 +278,14 @@ drawnow
 % drawnow
 
 
-% %% Torques
-% this_msg = 'Getting torques...';
-% disp(horzcat(this_msg))
+%% Torques
+this_msg = 'Getting torques...';
+disp(horzcat(this_msg))
 
-% get_torques
-% raw_torque_data = torque_data;
-% clear torque_data
-% save(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'), 'raw_torque_data')
+get_torques
+raw_torque_data = torque_data;
+clear torque_data
+save(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'), 'raw_torque_data')
 
-% this_msg = 'xyoNet and torques ready';
-% disp(horzcat(this_msg))
+this_msg = 'xyoNet and torques ready';
+disp(horzcat(this_msg))
