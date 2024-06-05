@@ -5182,6 +5182,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           syntheticNeuronJson["randomVariation1"];
       syntheticNeuron.randomVariation2 =
           syntheticNeuronJson["randomVariation2"];
+
+      syntheticNeuron.newNeuron.xNucleus = syntheticNeuronJson["xNucleus"];
+      syntheticNeuron.newNeuron.yNucleus = syntheticNeuronJson["yNucleus"];
+      syntheticNeuron.newNeuron.widthNucleus =
+          syntheticNeuronJson["widthNucleus"];
+      syntheticNeuron.newNeuron.heightNucleus =
+          syntheticNeuronJson["heightNucleus"];
+
       // List<Dendrite> dendrites = [];
       syntheticNeuron.dendrites.clear();
       for (Map<String, dynamic> dendriteJson
@@ -5282,6 +5290,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     }
 
     var rawSyntheticNeuronListJson = [];
+    // for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
+    var idxSyntheticNeuron = 0;
     for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
       List<Map<String, dynamic>> dendrites = [];
       for (Dendrite dendrite in syntheticNeuron.dendrites) {
@@ -5304,6 +5314,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       rawSyntheticNeuronListJson.add({
         // "activeColor": syntheticNeuron.activeColor.toString(),
         "arrowSize": syntheticNeuron.arrowSize,
+        "xNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.xNucleus,
+        "yNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.yNucleus,
+        "widthNucleus":
+            syntheticNeuronList[idxSyntheticNeuron].newNeuron.widthNucleus,
+        "heightNucleus":
+            syntheticNeuronList[idxSyntheticNeuron].newNeuron.heightNucleus,
         "dendrites": dendrites,
         "centerPos": [
           syntheticNeuron.centerPos.dx,
@@ -5316,6 +5332,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         "randomVariation2": syntheticNeuron.randomVariation2,
         // "randomVariation2": syntheticNeuron.zoomScale,
       });
+      idxSyntheticNeuron++;
     }
     // print("json.encode(rawSyntheticNeuronListJson)");
     // print(json.encode(rawSyntheticNeuronListJson));
