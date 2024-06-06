@@ -238,16 +238,20 @@ if exist('rak_only', 'var') && brain_support
         net_input_size = [ml_h ml_w];
 
         load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
-        load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
-        
-        if iscell(labels)
-            unique_states = length(labels);
-        else
-            unique_states = unique(labels);
+        try
+            load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
+            
+            if iscell(labels)
+                unique_states = length(labels);
+            else
+                unique_states = unique(labels);
+            end
+            
+            n_unique_states = length(labels);
+            vis_pref_names = [vis_pref_names, labels'];
+        catch
+            n_unique_states = 0;
         end
-        
-        n_unique_states = length(labels);
-        vis_pref_names = [vis_pref_names, labels'];
         
         if length(cnet_temp) >= 1
             load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
