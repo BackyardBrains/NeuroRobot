@@ -80,4 +80,4 @@ end
 clear presynaptic_neuron
 clear postsynaptic_neuron
 
-
+draw_brain
