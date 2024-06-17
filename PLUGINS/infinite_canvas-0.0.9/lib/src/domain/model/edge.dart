@@ -12,4 +12,5 @@ class InfiniteCanvasEdge {
   final LocalKey to;
   final String? label;
   int isReciprocate = 0;
+  double connectionStrength = 0;
 }

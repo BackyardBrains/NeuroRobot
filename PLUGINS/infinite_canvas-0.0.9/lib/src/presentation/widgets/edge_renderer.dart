@@ -13,6 +13,8 @@ import 'inline_painter.dart';
 
 /// A widget that renders all the edges in the [InfiniteCanvas].
 class InfiniteCanvasEdgeRenderer extends StatelessWidget {
+  double widthClickMask = 15;
+
   InfiniteCanvasEdgeRenderer(
       {super.key,
       required this.controller,
@@ -48,6 +50,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     ..color = Colors.green
     ..style = PaintingStyle.stroke
     ..strokeWidth = 2;
+  Paint yellowBrush = Paint()
+    ..color = Colors.yellow
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +105,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // print(edge.from.toString());
             // print(edge.to.toString());
 
-            double connectionStrength =
-                50 / 2; // !! change it to connectome divide by 2
+            double connectionStrength = edge.connectionStrength /
+                2; // !! change it to connectome divide by 2
             // if (fromIdx > -1 && toIdx > -1) {
             //   // drawNeuralAxon(edge.from, edge.to, fromIdx, toIdx,
             //   //     connectionStrength, canvas);
@@ -112,6 +118,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             for (InfiniteCanvasEdge edge in controller.edges) {
               addSyntheticConnection(edge.from, edge.to);
             }
+
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas);
 
             // }
@@ -276,6 +283,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     var eFrom = controller.nodes.where((e) => edge.from == (e.key)).toList()[0];
     var eTo = controller.nodes.where((e) => edge.to == (e.key)).toList()[0];
 
+    String pathKey = "${eFrom.key.toString()}_${eTo.key.toString()}";
+    if (controller.axonPathMap.containsKey(pathKey)) {
+      canvas.drawPath(controller.axonPathMap[pathKey]!, yellowBrush);
+    }
+    return;
+
     double dx = eTo.offset.dx - eFrom.offset.dx;
     double dy = eTo.offset.dy - eFrom.offset.dy;
 
@@ -439,10 +452,30 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     double initialAxonExtensionSize = 0.5;
     List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
     // if (neurons.length <= toIdx || neurons.length <= fromIdx) return;
-
     Neuron neuronFrom = neurons[fromIdx].newNeuron;
     Neuron neuronTo = neurons[toIdx].newNeuron;
     double circleRadius = neurons[fromIdx].circleRadius;
+
+    if (toIdx == 12) {
+      // print(
+      //     "XFrom0: ${neurons[0].newNeuron.drawX} _ ${neurons[0].newNeuron.x}");
+      // print(
+      //     "YFrom0: ${neurons[0].newNeuron.drawY} _ ${neurons[0].newNeuron.y}");
+      // print(
+      //     "XFrom1: ${neurons[1].newNeuron.drawX} _ ${neurons[1].newNeuron.x}");
+      // print(
+      //     "YFrom1: ${neurons[1].newNeuron.drawY} _ ${neurons[1].newNeuron.y}");
+      // print(
+      //     "XFrom2: ${neurons[2].newNeuron.drawX} _ ${neurons[2].newNeuron.x}");
+      // print(
+      //     "YFrom2: ${neurons[2].newNeuron.drawY} _ ${neurons[2].newNeuron.y}");
+      // print("XTo: ${neuronTo.drawX} _ ${neuronTo.x}");
+      // print("YTo: ${neuronTo.drawY} _ ${neuronTo.y}");
+      // print(
+      //     "NeuronTypes : ${controller.neuronTypes.keys.toList()}, ${edge.from.toString()} -- ${edge.to.toString()}");
+      // print("fromIdx : $fromIdx");
+    }
+
     // double circleRadius = 0;
     // print("Draw AXON : $from, $to, $fromIdx, $toIdx, $connectionStrength");
     // neuronFrom.displayInfo();
@@ -470,7 +503,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     //     graykBrush..color = Colors.lightGreenAccent);
 
     double diameterOfNeuron = neurons[fromIdx].circleRadius;
-    int maxAbsoluteConnectionStrength = 50;
+    // int maxAbsoluteConnectionStrength = connectionStrength.floor();
+    int maxAbsoluteConnectionStrength = 70 - connectionStrength.floor();
     double minimalTicknessOfAxon = 1;
 
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
@@ -627,6 +661,22 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 double triangleCenterY =
                     (yt + yLeftTriangle + yRightTriangle) / 3;
 
+                Path clickPath = Path();
+                clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                    controlY, triangleCenterX, triangleCenterY);
+                String pathKey = "${from.key.toString()}_${to.key.toString()}";
+                controller.axonPathMap[pathKey] =
+                    getOutlinePath(clickPath, widthClickMask);
+                // if (!controller.axonPathMap.containsKey(pathKey)) {
+                // } else {
+                //   if (controller.axonPathMap[pathKey].toString() ==
+                //       clickPath.toString()) {}
+                // }
+
+                // con.outlinePath = getOutlinePath(clickPath, widthClickMask);
+                // canvas.drawPath(con.outlinePath, yellowBrush);
+
                 Path path = Path();
                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
                 path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
@@ -635,15 +685,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 //     "0--cX,cY:$controlX,$controlY - $xRightTriangle $yRightTriangle");
 
                 canvas.drawPath(path, blackBrush);
-                if (neuronFrom.dendriteIdx > -1) {
-                  canvas.drawCircle(
-                      Offset(
-                        neuronFrom.xAxon,
-                        neuronFrom.yAxon,
-                      ),
-                      10,
-                      greenBrush..color = Colors.red);
-                }
+                // if (neuronFrom.dendriteIdx > -1) {
+                //   canvas.drawCircle(
+                //       Offset(
+                //         neuronFrom.xAxon,
+                //         neuronFrom.yAxon,
+                //       ),
+                //       10,
+                //       greenBrush..color = Colors.red);
+                // }
                 // print("neuronTo.dendriteIdx");
                 // print(neuronTo.dendriteIdx);
                 //   canvas.drawCircle(
@@ -681,6 +731,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     (xDoubleHeight + xLeftTriangle + xRightTriangle) / 3;
                 double triangleCenterY =
                     (yDoubleHeight + yLeftTriangle + yRightTriangle) / 3;
+
+                Path clickPath = Path();
+                clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                    controlY, triangleCenterX, triangleCenterY);
+                String pathKey = "${from.key.toString()}_${to.key.toString()}";
+                controller.axonPathMap[pathKey] =
+                    getOutlinePath(clickPath, widthClickMask);
+
                 var path = Path();
                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
                 path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
@@ -721,6 +780,16 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               blackBrush.style = PaintingStyle.stroke;
               double controlX = xc + 3 * (xc - (neuronTo.x));
               double controlY = yc + 3 * (yc - (neuronTo.y));
+
+              // Create Mask for Click Detection
+              Path clickPath = Path();
+              clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+              clickPath.cubicTo(
+                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
+              String pathKey = "${from.key.toString()}_${to.key.toString()}";
+              controller.axonPathMap[pathKey] =
+                  getOutlinePath(clickPath, widthClickMask);
+
               var path = Path();
               path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
               path.cubicTo(
@@ -832,6 +901,16 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   (xDoubleHeight + xLeftTriangle + xRightTriangle) / 3;
               double centerOfTriangleY =
                   (yDoubleHeight + yLeftTriangle + yRightTriangle) / 3;
+
+              // Create Mask for Click Detection
+              Path clickPath = Path();
+              clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+              clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                  controlY, centerOfTriangleX, centerOfTriangleY);
+              String pathKey = "${from.key.toString()}_${to.key.toString()}";
+              controller.axonPathMap[pathKey] =
+                  getOutlinePath(clickPath, widthClickMask);
+
               Path path = Path();
               path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
               path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX, controlY,
@@ -843,8 +922,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
               blackBrush.strokeWidth = neuronFrom.diameter * (0.07);
               blackBrush.style = PaintingStyle.stroke;
-              path = Path();
 
+              path = Path();
               path.moveTo(xDoubleHeight, yDoubleHeight);
 
               path.lineTo(xLeftTriangle, yLeftTriangle);
@@ -865,6 +944,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               blackBrush.style = PaintingStyle.stroke;
               double controlX = xc + 3 * (xc - (neuronTo.x));
               double controlY = yc + 3 * (yc - (neuronTo.y));
+
+              // Create Mask for Click Detection
+              Path clickPath = Path();
+              clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+              clickPath.cubicTo(
+                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
+              String pathKey = "${from.key.toString()}_${to.key.toString()}";
+              controller.axonPathMap[pathKey] =
+                  getOutlinePath(clickPath, widthClickMask);
 
               path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
               path.cubicTo(
@@ -942,7 +1030,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    controller.syntheticConnections.add(Connection(axonFrom, axonTo, 25.0));
+    controller.syntheticConnections
+        .add(Connection(axonFrom, axonTo, 25.0, Path()));
     // print("Add Synthetic Connection ${syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {
@@ -1172,5 +1261,27 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
         }
       }
     }
+  }
+
+  Path getOutlinePath(Path path, double thickness) {
+    Path outlinePath = Path();
+    for (PathMetric pathMetric in path.computeMetrics()) {
+      for (double distance = 0.0;
+          distance < pathMetric.length;
+          distance += 1.0) {
+        Tangent? tangent = pathMetric.getTangentForOffset(distance);
+        if (tangent != null) {
+          // Create a rectangle path to simulate thickness
+          Rect rect = Rect.fromCenter(
+            center: tangent.position,
+            width: thickness,
+            height: thickness,
+          );
+          outlinePath.addRect(rect);
+        }
+      }
+    }
+    outlinePath.close();
+    return outlinePath;
   }
 }

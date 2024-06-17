@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
@@ -740,14 +741,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     neuronCircleKeys = List<GlobalKey>.generate(neuronSize,
         (i) => GlobalKey(debugLabel: "neuronWidget${i.toString()}"));
 
-    neuronActiveCirclesPainter = List<SingleCircle>.generate(
-        neuronSize,
-        (index) =>
-            SingleCircle(isActive: true, circleRadius: neuronDrawSize / 2));
-    neuronInactiveCirclesPainter = List<SingleCircle>.generate(
-        neuronSize,
-        (index) =>
-            SingleCircle(isActive: false, circleRadius: neuronDrawSize / 2));
+    neuronActiveCirclesPainter =
+        List<SingleCircle>.generate(neuronSize, (index) {
+      return SingleCircle(
+        isActive: true,
+        circleRadius: neuronDrawSize / 2,
+        xNucleus: syntheticNeuronList[index].newNeuron.xNucleus,
+        yNucleus: syntheticNeuronList[index].newNeuron.yNucleus,
+        widthNucleus: syntheticNeuronList[index].newNeuron.widthNucleus,
+        heightNucleus: syntheticNeuronList[index].newNeuron.heightNucleus,
+      );
+    });
+    neuronInactiveCirclesPainter =
+        List<SingleCircle>.generate(neuronSize, (index) {
+      return SingleCircle(
+        isActive: false,
+        circleRadius: neuronDrawSize / 2,
+        xNucleus: syntheticNeuronList[index].newNeuron.xNucleus,
+        yNucleus: syntheticNeuronList[index].newNeuron.yNucleus,
+        widthNucleus: syntheticNeuronList[index].newNeuron.widthNucleus,
+        heightNucleus: syntheticNeuronList[index].newNeuron.heightNucleus,
+      );
+    });
 
     neuronActiveCircles = List<CustomPaint>.generate(neuronSize, (int idx) {
       return CustomPaint(
@@ -1560,13 +1575,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                   color: Colors.white,
                   width: screenWidth,
                   height: screenHeight,
-                  child: Image.asset(
+                  child: SvgPicture.asset(
                       width: screenWidth,
                       height: screenHeight,
                       // scale: screenWidth/800,
                       fit: BoxFit.contain,
                       // scale: density,
-                      "assets/bg/bg1.0x.jpeg"),
+                      // "assets/bg/bg1.0x.jpeg"),
+                      "assets/bg/Spikerbot2Vector.svg"),
                 );
               },
               drawVisibleOnly: true,
@@ -4604,7 +4620,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           cDesignArray[newNodeKey.toString()] = sldCWeight;
           dDesignArray[newNodeKey.toString()] = sldDWeight;
 
-          initNativeC(false);
           SyntheticNeuron syntheticNeuron = SyntheticNeuron(
               // neuronKey: newNodeKey,
               isActive: false,
@@ -4651,6 +4666,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
 
           controller.add(newNode);
+
+          initNativeC(false);
+
           Future.delayed(const Duration(milliseconds: 100), () {
             controller.deselect(neuronsKey[neuronsKey.length - 1]);
           });
@@ -4788,6 +4806,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                     "1111";
               } else {
                 mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 50.0;
+                lastCreatedEdge.connectionStrength = 50.0;
               }
 
               // print(isDefaultRobotEdge);
@@ -4866,6 +4885,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     // mapConnectome["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
     mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = val;
+    lastCreatedEdge.connectionStrength = val;
     // print("${neuronFrom.id}_${neuronTo.id}");
   }
 
@@ -5368,6 +5388,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     });
     print("strNodesJson");
     print(strNodesJson);
+    // print("NEURON TYPES");
+    // print(neuronTypes);
 
     String fileName = DateTime.now().microsecondsSinceEpoch.toString();
     Directory directory =
@@ -5471,6 +5493,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     for (var v in nodesJson) {
       String loadedNeuronKey = v["valKey"];
       if (v["index"] == -2 || v["index"] == -1) {
+        print("shadow neuron");
         InfiniteCanvasNode neuron = findNeuronByValue(v["index"]);
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
@@ -5507,10 +5530,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
         SyntheticNeuron synNeuron = SyntheticNeuron(
             isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
-        // print('v["index"]');
-        // print(v["index"]);
-        synNeuron.node = controller.nodes[v["index"]];
+        // if (v["index"] == 0) {
+        //   print('v["index"]');
+        //   print(neuron.key.toString());
+        //   print(neuron.offset.dx);
+        //   print(neuron.offset.dy);
+        // }
+        synNeuron.node = controller.nodes[v["index"] + allNeuronStartIdx];
         synNeuron.setupDrawingNeuron();
+        synNeuron.newNeuron.x = synNeuron.newNeuron.drawX + neuron.offset.dx;
+        synNeuron.newNeuron.y = synNeuron.newNeuron.drawY + neuron.offset.dy;
+        print(
+            "XSynFrom: ${synNeuron.newNeuron.drawX} _ ${synNeuron.newNeuron.x}");
+        print(
+            "YSynFrom: ${synNeuron.newNeuron.drawY} _ ${synNeuron.newNeuron.y}");
+
         syntheticNeuronList.add(synNeuron);
 
         SyntheticNeuron rawSynNeuron = SyntheticNeuron(
@@ -5518,6 +5552,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         rawSynNeuron.node = controller.nodes[v["index"]];
 
         rawSynNeuron.copyDrawingNeuron(synNeuron);
+        // rawSynNeuron.newNeuron.x =
+        //     rawSynNeuron.newNeuron.drawX + neuron.offset.dx;
+        // rawSynNeuron.newNeuron.y =
+        //     rawSynNeuron.newNeuron.drawY + neuron.offset.dy;
+
         rawSyntheticNeuronList.add(rawSynNeuron);
         synNeuron.rawSyntheticNeuron = rawSynNeuron;
 
@@ -5531,7 +5570,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         nIdx++;
       }
     }
-    print("Map translated Load Keys");
+    print("Map translated Load Keys ${syntheticNeuronList.length}");
+
+    mapConnectome = translateLoadedMap(
+        savedFileJson["mapConnectome"], mapTranslateLoadKeys);
 
     List<dynamic> edgesJson = savedFileJson["edges"];
     for (var v in edgesJson) {
@@ -5543,12 +5585,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         from: nodeFrom.key,
         to: nodeTo.key,
       );
+      String connectionKey = "${nodeFrom.id}_${nodeTo.id}";
+      edge.connectionStrength = mapConnectome[connectionKey] ?? 0;
       controller.edges.add(edge);
     }
     print("Edges");
 
-    mapConnectome = translateLoadedMap(
-        savedFileJson["mapConnectome"], mapTranslateLoadKeys);
     mapSensoryNeuron = translateLoadedMap(
         savedFileJson["mapSensoryNeuron"], mapTranslateLoadKeys);
     mapContactsNeuron = translateLoadedMap(
@@ -5570,7 +5612,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
     Map<String, String> tempNeuronTypes = translateLoadedNeuron(
         savedFileJson["neuronTypes"], mapTranslateLoadKeys);
-
+    print("mapTranslateLoadKeys");
+    print(mapTranslateLoadKeys);
     neuronTypes.clear();
     tempNeuronTypes.forEach((key, value) {
       neuronTypes[key] = value;
@@ -5627,10 +5670,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       Int16List countingBufList = Int16List.fromList(
           List<int>.from(savedFileJson["mapCountingNeuron"]));
 
-      print("delayBufList");
-      print(delayBufList);
-      print(rhytmicBufList);
-      print(countingBufList);
+      // print("delayBufList");
+      // print(delayBufList);
+      // print(rhytmicBufList);
+      // print(countingBufList);
       // print("delayBufList");
       // print(delayBufList);
       // print(rhytmicBufList);
@@ -5807,8 +5850,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     print("mapTranslateLoadKeys");
     print(mapTranslateLoadKeys);
     targetMap.forEach((key, value) {
-      print("loaded Neuron");
-      print(key);
+      // print("loaded Neuron");
+      // print(key);
       String translatedKey = mapTranslateLoadKeys[key]!;
       transformedMap[translatedKey] = value;
     });

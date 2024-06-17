@@ -8,8 +8,10 @@ class Connection {
   // final int neuronKey1;
   // final int neuronKey2;
   double connectionStrength = 25;
+  Path outlinePath;
 
-  Connection(this.neuronIndex1, this.neuronIndex2, this.connectionStrength);
+  Connection(this.neuronIndex1, this.neuronIndex2, this.connectionStrength,
+      this.outlinePath);
 }
 
 class InputOutput {

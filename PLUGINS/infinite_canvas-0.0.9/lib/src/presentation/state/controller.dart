@@ -24,6 +24,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Map<String, String> neuronTypes;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
+
+  Map<String, Path> axonPathMap = {};
   // final VoidCallback transformNeuronPositionWrapper;
 
   InfiniteCanvasController({
@@ -282,35 +284,41 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       var oTo = Offset(eTo.offset.dx + perpDx * lineWidth + radius + pairSpace,
           eTo.offset.dy + perpDy * lineWidth + radius + pairSpace);
 
-      Path p = Path()
-        ..moveTo(iFrom.dx, iFrom.dy)
-        ..lineTo(iTo.dx, iTo.dy)
-        ..lineTo(oTo.dx, oTo.dy)
-        ..lineTo(oFrom.dx, oFrom.dy)
-        ..lineTo(iFrom.dx, iFrom.dy);
+      // Path p = Path()
+      //   ..moveTo(iFrom.dx, iFrom.dy)
+      //   ..lineTo(iTo.dx, iTo.dy)
+      //   ..lineTo(oTo.dx, oTo.dy)
+      //   ..lineTo(oFrom.dx, oFrom.dy)
+      //   ..lineTo(iFrom.dx, iFrom.dy);
 
-      p.close();
+      // p.close();
+      String pathKey = "${eFrom.key.toString()}_${eTo.key.toString()}";
+      if (axonPathMap.containsKey(pathKey)) {
+        Path p = axonPathMap[pathKey]!;
 
-      if (p.contains(offset)) {
-        edgeFound = edge;
-        isFoundEdge = true;
-        if (kIsWeb) {
-        } else if (Platform.isIOS || Platform.isAndroid) {
-          isSelectingEdge = true;
-          edgeSelected = edge;
+        if (p.contains(offset)) {
+          edgeFound = edge;
+          isFoundEdge = true;
+          if (kIsWeb) {
+          } else if (Platform.isIOS || Platform.isAndroid) {
+            isSelectingEdge = true;
+            edgeSelected = edge;
+          }
+          // print("OFFSET");
+          // print(isSelectingEdge);
+          // print(eFrom.value);
+          // print(eTo.value);
+          // print(eFrom.offset);
+          // print(eTo.offset);
+          // print(iFrom);
+          // print(oFrom);
+          // print(iTo);
+          // print(oTo);
+
+          break;
+        } else {
+          isFoundEdge = false;
         }
-        // print("OFFSET");
-        // print(isSelectingEdge);
-        // print(eFrom.value);
-        // print(eTo.value);
-        // print(eFrom.offset);
-        // print(eTo.offset);
-        // print(iFrom);
-        // print(oFrom);
-        // print(iTo);
-        // print(oTo);
-
-        break;
       } else {
         isFoundEdge = false;
       }
@@ -623,7 +631,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     final nodeTo = nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    syntheticConnections.add(Connection(axonFrom, axonTo, 25.0));
+    syntheticConnections.add(Connection(axonFrom, axonTo, 25.0, Path()));
     // print("Add Synthetic Connection ${syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {
