@@ -9,7 +9,7 @@ for ntuple = 1:ntuples
     end
 
     try
-        this_im = imread(strcat(image_dir(ntuple).folder, '\',  image_dir(ntuple).name));
+        this_im = imread(image_dir.Files{ntuple});
     catch
         disp(strcat('Cannot read image ', num2str(ntuple)))
     end

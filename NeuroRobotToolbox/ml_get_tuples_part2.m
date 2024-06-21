@@ -4,8 +4,7 @@
 n_unique_actions = 10;
 disp('hardcoded: n_unique_actions = 10')
 
-load(horzcat(nets_dir_name, state_net_name, '-raw_torque_data'))
-torque_data = raw_torque_data;
+load(horzcat(nets_dir_name, state_net_name, '-torque_data'))
 
 actions = kmeans(torque_data, n_unique_actions);
 motor_combs = zeros(n_unique_actions, 2);

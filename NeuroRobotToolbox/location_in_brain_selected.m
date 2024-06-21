@@ -213,7 +213,7 @@ if fig_design.UserData == 0 && ~exist('presynaptic_neuron', 'var')
                 create_population
             elseif multi_neuron_opt == 2 % Algorithm
                 create_from_algorithm
-                create_combo_brain
+                % create_combo_brain
             elseif multi_neuron_opt == 3 % Trained Net
                 if ~strcmp(popup_select_nets.String, '--')
                     create_from_net

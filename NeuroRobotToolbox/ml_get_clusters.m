@@ -21,7 +21,7 @@ group_inds = cluster(links, 'MaxClust', n_unique_states);
 
 clf
 [~, ~, o] = dendrogram(links, 0);
-close(10)
+close(12)
 
 try
 axes(im_ax1)

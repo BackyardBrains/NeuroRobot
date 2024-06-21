@@ -3,7 +3,8 @@
 im3 = flipud(255 - ((255 - imread('workspace4.jpg'))));
 
 fig_print = figure(3);
-set(fig_print, 'position', [400 100 1000 800]);
+set(fig_print, 'position', [420 160 800 620
+    ]);
 brain_axb = axes('position', [0 0 1 1]);
 image('CData',im3,'XData',[-3 3],'YData',[-3 3])
 set(brain_axb, 'xtick', [], 'ytick', [], 'xcolor', 'w', 'ycolor', 'w')
