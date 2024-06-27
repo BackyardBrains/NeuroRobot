@@ -33,13 +33,13 @@ if exist('C:\SpikerBot\Livingroom\', 'dir') && ~isempty('C:\SpikerBot\Livingroom
     dataset_dirs{2} = 'C:\SpikerBot\Livingroom\';
 end
 
-if exist('C:\SpikerBot\Office\', 'dir') && ~isempty('C:\SpikerBot\Office\')
-    dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\Office\';
+if exist('C:\SpikerBot\LivingroomArena\', 'dir') && ~isempty('C:\SpikerBot\LivingroomArena\')
+    dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\LivingroomArena\';
 end
 
-if exist('C:\SpikerBot\Temp\', 'dir') && ~isempty('C:\SpikerBot\Temp\')
-    dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\Temp\';
-end
+% if exist('C:\SpikerBot\Temp\', 'dir') && ~isempty('C:\SpikerBot\Temp\')
+%     dataset_dirs{length(dataset_dirs)+1} = 'C:\SpikerBot\Temp\';
+% end
 
 
 %% Prep
