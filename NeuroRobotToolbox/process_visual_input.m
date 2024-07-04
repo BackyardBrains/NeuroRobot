@@ -75,20 +75,24 @@ for ncam = 1:2
 
     % Run custom r-cnn net
     if use_rcnn
-        [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', 500, 'MiniBatchSize',128);
+        [bbox, score, label] = detect(frcnn, uframe, 'NumStrongestRegions', 500, 'MiniBatchSize', 256);
         
         this_score = max(score);
         if isempty(this_score)
             this_score = 0;
         end
-        disp(horzcat('p(robot) = ', num2str(this_score)));
-        this_score = sigmoid(this_score, 0.99, 100);
+        
+        this_score2 = sigmoid(this_score, 0.7, 100);
         
         if ~use_cnn
-            vis_pref_vals(8, ncam) = this_score * 50;
+            vis_pref_vals(8, ncam) = this_score2 * 50;
         else
-            vis_pref_vals(21, ncam) = this_score * 50;
+            vis_pref_vals(21, ncam) = this_score2 * 50;
         end
+
+        % if this_score > 0
+            disp(horzcat('p(robot) = ', num2str(this_score), ', excitation = ', num2str(this_score2 * 50)));
+        % end
     end    
 
     %% Step

@@ -20,15 +20,15 @@ xyoNet,xyo_l1,16
 xyoNet,xyo_l2,16
 xyoNet,xyo_l3,16
 xyoNet,xyo_l4,16
-xyoNet,xyo_l5,1000
-xyoNet,xyo_l6,1000
-xyoNet,xyo_l7,1000
+xyoNet,xyo_l5,400
+xyoNet,xyo_l6,400
+xyoNet,xyo_l7,400
 xyoNet,xyo_l8,2
 xyoNet,xyo_minbatch,32
 xyoNet,xyo_maxeps,2
 xyoNet,xyo_drop,2
 EEG network type,network_type,1
-MLC,ml_batch,16
+MLC,ml_batch,32
 MLC,ml_rate,1e-6
 MLC,ml_epochs,10
 
