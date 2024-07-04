@@ -27,3 +27,8 @@ xyoNet,xyo_minbatch,16
 xyoNet,xyo_maxeps,2
 xyoNet,xyo_drop,2
 EEG network type,network_type,1
+MLC,ml_batch,16
+MLC,ml_rate,1e-6
+MLC,ml_epochs,1
+
+
