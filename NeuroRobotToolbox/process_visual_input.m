@@ -75,7 +75,7 @@ for ncam = 1:2
 
     % Run custom r-cnn net
     if use_rcnn
-        [bbox, score, label] = detect(frcnn, uframe, 'NumStrongestRegions', 500, 'MiniBatchSize', 256);
+        [bbox, score, label] = detect(frcnn, uframe, 'NumStrongestRegions', 128, 'MiniBatchSize', 512);
         
         this_score = max(score);
         if isempty(this_score)

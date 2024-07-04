@@ -189,10 +189,9 @@ if exist('rak_only', 'var') && brain_support
     end
 
     if use_rcnn
-        load(horzcat(nets_dir_name, 'frcnn'))
+        load(horzcat(nets_dir_name, 'rcnn'))
         this_label = 'Robot';
-        vis_pref_names = [basic_vis_pref_names, this_label];  
-        net_input_size = [240 320];
+        vis_pref_names = [basic_vis_pref_names, this_label];
     end
 
     if use_custom_net
