@@ -6,8 +6,9 @@ BoF branching,bof_branching,10
 N images in subsample 2,nmedium,1000
 Image cluster min size,min_size,20
 No more than N states,trim_size,16
-Convlayer 1 filtersize numfilters,ml_l1,32
-Convlayer 2 filtersize numfilters,ml_l2,32
+Convlayer 1 filtersize numfilters,ml_l1,16
+Convlayer 2 filtersize numfilters,ml_l2,16
+Convlayer 3 filtersize numfilters,ml_l3,16
 Convlayer 3 filtersize numfilters,ml_l3,16
 MiniBatchSize,ml_bs,64
 MaxEpochs,ml_me,10
@@ -19,16 +20,16 @@ xyoNet,xyo_l1,16
 xyoNet,xyo_l2,16
 xyoNet,xyo_l3,16
 xyoNet,xyo_l4,16
-xyoNet,xyo_l5,600
-xyoNet,xyo_l6,600
-xyoNet,xyo_l7,600
-xyoNet,xyo_l8,600
-xyoNet,xyo_minbatch,16
+xyoNet,xyo_l5,1000
+xyoNet,xyo_l6,1000
+xyoNet,xyo_l7,1000
+xyoNet,xyo_l8,2
+xyoNet,xyo_minbatch,32
 xyoNet,xyo_maxeps,2
 xyoNet,xyo_drop,2
 EEG network type,network_type,1
 MLC,ml_batch,16
 MLC,ml_rate,1e-6
-MLC,ml_epochs,1
+MLC,ml_epochs,10
 
 
