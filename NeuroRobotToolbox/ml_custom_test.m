@@ -23,7 +23,7 @@ end
 %     rectangle('position', cbox(nbox, :), 'linewidth', 2, 'edgecolor', 'g')
 % end
 
-[bbox, score, label] = detect(rcnn, im, 'NumStrongestRegions', 500, 'MiniBatchSize', 128);
+[bbox, score, label] = detect(rcnn, im, 'NumStrongestRegions', 500, 'MiniBatchSize', 256);
 
 [mscore, mind] = max(score);
 
