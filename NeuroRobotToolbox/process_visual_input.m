@@ -75,14 +75,14 @@ for ncam = 1:2
 
     % Run custom r-cnn net
     if use_rcnn
-        [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', 2000, 'MiniBatchSize', 512);
+        [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', 2000, 'MiniBatchSize', 128);
         
         this_score = max(score);
         if isempty(this_score)
             this_score = 0;
         end
         
-        this_score2 = sigmoid(this_score, 0.98, 100);
+        this_score2 = sigmoid(this_score, 0.95, 100);
         
         if ~use_cnn
             vis_pref_vals(8, ncam) = this_score2 * 50;

@@ -214,6 +214,9 @@ if exist('rak_only', 'var') && brain_support
         else
             use_xyo_net = 0;
         end
+    end
+
+    if use_rcnn || use_custom_net
 
         available_settings = dir(strcat(settings_dir_name, 'settings.csv'));
         if ~isempty(available_settings)
@@ -235,43 +238,45 @@ if exist('rak_only', 'var') && brain_support
 
         net_input_size = [ml_h ml_w];
 
-        load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
-        try
-            load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
-            
-            if iscell(labels)
-                unique_states = length(labels);
-            else
-                unique_states = unique(labels);
+        if use_custom_net
+            load(strcat(nets_dir_name, state_net_name, '-ml')) %% state_net_name fix
+            try
+                load(strcat(nets_dir_name, state_net_name, '-labels')) %% state_net_name fix
+                
+                if iscell(labels)
+                    unique_states = length(labels);
+                else
+                    unique_states = unique(labels);
+                end
+                
+                n_unique_states = length(labels);
+                vis_pref_names = [vis_pref_names, labels'];
+            catch
+                n_unique_states = 0;
             end
             
-            n_unique_states = length(labels);
-            vis_pref_names = [vis_pref_names, labels'];
-        catch
-            n_unique_states = 0;
-        end
-        
-        if length(cnet_temp) >= 1
-            load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
-
-            load(strcat(nets_dir_name, state_net_name, '-states'))
-            load(strcat(nets_dir_name, state_net_name, '-torque_data'))
-            load(strcat(nets_dir_name, state_net_name, '-actions'))
-            load(strcat(nets_dir_name, state_net_name, '-tuples'))
-            load(strcat(nets_dir_name, state_net_name, '-mdp'))
-            
-            n_unique_states = length(unique(states));
-            n_unique_actions = length(unique(actions));
-            ntuples = size(states, 1);
-            disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
-            
-            % ml_visualize_mdp
-            ml_get_combs_quick
+            if length(cnet_temp) >= 1
+                load(horzcat(nets_dir_name, state_net_name, '-', action_net_name, '-ml'))
+    
+                load(strcat(nets_dir_name, state_net_name, '-states'))
+                load(strcat(nets_dir_name, state_net_name, '-torque_data'))
+                load(strcat(nets_dir_name, state_net_name, '-actions'))
+                load(strcat(nets_dir_name, state_net_name, '-tuples'))
+                load(strcat(nets_dir_name, state_net_name, '-mdp'))
+                
+                n_unique_states = length(unique(states));
+                n_unique_actions = length(unique(actions));
+                ntuples = size(states, 1);
+                disp(horzcat('loaded ntuples: ', num2str(ntuples)))               
+                
+                % ml_visualize_mdp
+                ml_get_combs_quick
+            end
         end
     else
         state_net_name = '';
         action_net_name = '';
-        nert_input_size = [];
+        % nert_input_size = [];
     end
     
     n_vis_prefs = size(vis_pref_names, 2);
