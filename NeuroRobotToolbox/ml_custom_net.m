@@ -9,31 +9,32 @@ disp('Creating training data')
 trainingData = objectDetectorTrainingData(gTruth);
 
 %%
-% disp('Loading alexnet')
-% net = alexnet;
+disp('Loading network')
+load(horzcat(nets_dir_name, 'cifar10Net'))
+net = cifar10Net;
 
-net = [imageInputLayer([ml_h ml_w 3])
-        convolution2dLayer(3,xyo_l1)
-        batchNormalizationLayer
-        reluLayer    
-        maxPooling2dLayer(2,'Stride',2)  
-        convolution2dLayer(3,xyo_l2)
-        batchNormalizationLayer
-        reluLayer    
-        maxPooling2dLayer(2,'Stride',2)
-        convolution2dLayer(3,xyo_l3)
-        batchNormalizationLayer
-        reluLayer    
-        maxPooling2dLayer(2,'Stride',2)        
-        fullyConnectedLayer(xyo_l5)
-        batchNormalizationLayer
-        reluLayer
-        fullyConnectedLayer(xyo_l6)
-        batchNormalizationLayer
-        reluLayer        
-        fullyConnectedLayer(2)
-        softmaxLayer()
-        classificationLayer()];
+% net = [imageInputLayer([ml_h ml_w 3])
+%         convolution2dLayer(3,xyo_l1)
+%         batchNormalizationLayer
+%         reluLayer    
+%         maxPooling2dLayer(2,'Stride',2)  
+%         convolution2dLayer(3,xyo_l2)
+%         batchNormalizationLayer
+%         reluLayer    
+%         maxPooling2dLayer(2,'Stride',2)
+%         convolution2dLayer(3,xyo_l3)
+%         batchNormalizationLayer
+%         reluLayer    
+%         maxPooling2dLayer(2,'Stride',2)        
+%         fullyConnectedLayer(xyo_l5)
+%         batchNormalizationLayer
+%         reluLayer
+%         fullyConnectedLayer(xyo_l6)
+%         batchNormalizationLayer
+%         reluLayer        
+%         fullyConnectedLayer(2)
+%         softmaxLayer()
+%         classificationLayer()];
 
 
 %%
