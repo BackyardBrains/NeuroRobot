@@ -10,8 +10,8 @@ trainingData = objectDetectorTrainingData(gTruth);
 
 %%
 disp('Loading network')
-load(horzcat(nets_dir_name, 'cifar10Net'))
-net = cifar10Net;
+load(horzcat(nets_dir_name, 'this_alexnet'))
+% net = alexnet;
 
 % net = [imageInputLayer([ml_h ml_w 3])
 %         convolution2dLayer(3,xyo_l1)

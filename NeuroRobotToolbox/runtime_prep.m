@@ -189,7 +189,7 @@ if exist('rak_only', 'var') && brain_support
     end
 
     if use_rcnn
-        load(horzcat(nets_dir_name, 'cifar10Net'))
+        load(horzcat(nets_dir_name, 'rcnn'))
         this_label = 'Robot';
         vis_pref_names = [basic_vis_pref_names, this_label];
     end
