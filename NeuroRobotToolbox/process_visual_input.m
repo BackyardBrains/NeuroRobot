@@ -74,26 +74,26 @@ for ncam = 1:2
 
 
     % Run custom r-cnn net
-    if use_rcnn
-        [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', 2000, 'MiniBatchSize', 128);
-        
-        this_score = max(score);
-        if isempty(this_score)
-            this_score = 0;
-        end
-        
-        this_score2 = sigmoid(this_score, 0.95, 100);
-        
-        if ~use_cnn
-            vis_pref_vals(8, ncam) = this_score2 * 50;
-        else
-            vis_pref_vals(21, ncam) = this_score2 * 50;
-        end
-
-        % if this_score > 0
-            disp(horzcat('p(robot) = ', num2str(this_score), ', excitation = ', num2str(this_score2 * 50)));
-        % end
-    end    
+    % if use_rcnn
+    %     [bbox, score, label] = detect(rcnn, uframe, 'NumStrongestRegions', ml_numreg, 'MiniBatchSize', ml_infbatch);
+    % 
+    %     this_score = max(score);
+    %     if isempty(this_score)
+    %         this_score = 0;
+    %     end
+    % 
+    %     this_score2 = sigmoid(this_score, 0.95, 100);
+    % 
+    %     if ~use_cnn
+    %         vis_pref_vals(8, ncam) = this_score2 * 50;
+    %     else
+    %         vis_pref_vals(21, ncam) = this_score2 * 50;
+    %     end
+    % 
+    %     % if this_score > 0
+    %         disp(horzcat('p(robot) = ', num2str(this_score), ', excitation = ', num2str(this_score2 * 50)));
+    %     % end
+    % end    
 
     %% Step
     if ncam == 1
@@ -108,6 +108,26 @@ if use_esp32 && use_webcam
     external_camera
 end
 
+if use_rcnn
+    [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', ml_numreg, 'MiniBatchSize', ml_infbatch);
+    
+    this_score = max(score);
+    if isempty(this_score)
+        this_score = 0;
+    end
+    
+    this_score2 = sigmoid(this_score, 0.95, 100);
+    
+    if ~use_cnn
+        vis_pref_vals(8, :) = this_score2 * 50;
+    else
+        vis_pref_vals(21, :) = this_score2 * 50;
+    end
+
+    % if this_score > 0
+        disp(horzcat('p(robot) = ', num2str(this_score), ', excitation = ', num2str(this_score2 * 50)));
+    % end
+end    
 
 % XYO Net
 if use_xyo_net || sum(neuron_scripts == 6)

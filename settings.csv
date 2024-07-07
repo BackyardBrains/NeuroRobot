@@ -1,5 +1,5 @@
-ML H,ml_h,60
-ML W,ml_w,80
+ML H,ml_h,240
+ML W,ml_w,320
 Initial N unique states,init_n_unique_states,36
 N images in subsample 1,nsmall,1000
 BoF branching,bof_branching,10
@@ -16,11 +16,11 @@ N unique actions,n_unique_actions,10
 DiscountFactor,ml_rl_d,0.99
 MaxEpisodes,ml_rl_me,500
 MaxStepsPerEpisode,ml_rl_mspe,200
-xyoNet,xyo_l1,20
-xyoNet,xyo_l2,20
-xyoNet,xyo_l3,20
-xyoNet,xyo_l4,20
-xyoNet,xyo_l5,200
+xyoNet,xyo_l1,16
+xyoNet,xyo_l2,32
+xyoNet,xyo_l3,16
+xyoNet,xyo_l4,16
+xyoNet,xyo_l5,400
 xyoNet,xyo_l6,200
 xyoNet,xyo_l7,200
 xyoNet,xyo_l8,2
@@ -28,8 +28,9 @@ xyoNet,xyo_minbatch,32
 xyoNet,xyo_maxeps,2
 xyoNet,xyo_drop,2
 EEG network type,network_type,1
-MLC,ml_batch,32
-MLC,ml_rate,1e-6
-MLC,ml_epochs,2
-
+MLC,ml_batch,64
+MLC,ml_rate,1e-5
+MLC,ml_epochs,5
+MLC,ml_numreg,10
+MLC,ml_infbatch,128
 
