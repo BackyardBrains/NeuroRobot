@@ -108,7 +108,7 @@ if use_esp32 && use_webcam
     external_camera
 end
 
-if use_rcnn
+if use_rcnn && ~rem(nstep, ml_dstep)
     [bbox, score, label] = detect(rcnn, large_frame, 'NumStrongestRegions', ml_numreg, 'MiniBatchSize', ml_infbatch);
     
     this_score = max(score);
@@ -116,7 +116,7 @@ if use_rcnn
         this_score = 0;
     end
     
-    this_score2 = sigmoid(this_score, 0.95, 100);
+    this_score2 = sigmoid(this_score, 0.9, 100);
     
     if ~use_cnn
         vis_pref_vals(8, :) = this_score2 * 50;
