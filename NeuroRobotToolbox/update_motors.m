@@ -151,7 +151,7 @@ if nneurons % This prevents error caused by running script after deleting all ne
         elseif script_running == 3
             just_blue
         elseif script_running == 4
-            disp('Delayer')
+            just_off
         elseif script_running == 5            
             this_action = getAction(agent, this_state);
             this_action = cell2mat(this_action);

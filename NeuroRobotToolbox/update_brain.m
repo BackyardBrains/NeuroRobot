@@ -35,19 +35,19 @@ if nneurons
         end
     end
 
-    % Delays
-    delays = delays - 1;
-    audio_I(delays == 2) = 50;
-    counters = counters - firing;
-    dist_I(counters < 6 & counters > 0) = 50;
+    % % Delays
+    % delays = delays - 1;
+    % audio_I(delays == 2) = 50;
+    % counters = counters - firing;
+    % dist_I(counters < 6 & counters > 0) = 50;
 
     % Run brain simulation
     for t = 1:ms_per_step
         
-        % Delays
-        delays(v > 30 & neuron_scripts == 4 & delays < 1) = 10;
-        counters(v > 30 & neuron_scripts == 5 & counters < 1) = 10;
-        v(v > 30 & neuron_scripts == 4 & delays ~= 2) = -65;
+        % % Delays
+        % delays(v > 30 & neuron_scripts == 4 & delays < 1) = 10;
+        % counters(v > 30 & neuron_scripts == 5 & counters < 1) = 10;
+        % v(v > 30 & neuron_scripts == 4 & delays ~= 2) = -65;
         
         % Add noise
         I = 5 * randn(nneurons, 1);
