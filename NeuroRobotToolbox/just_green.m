@@ -1,8 +1,1 @@
-
-send_this = 'd:121;d:221;d:321;d:421;d:521;d:621;';
-
-if rak_only
-    rak_cam.writeSerial(send_this)
-elseif use_esp32
-    esp32WebsocketClient.send(send_this);
-end
+esp32WebsocketClient.send('d:0,0,255,0;d:1,0,255,0;d:2,0,255,0;d:3,0,255,0;') %% off

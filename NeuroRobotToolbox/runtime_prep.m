@@ -397,7 +397,7 @@ if exist('rak_only', 'var') && brain_support
     if rak_only
         rak_cam.writeSerial('d:120;d:220;d:320;d:420;d:520;d:620;')
     elseif use_esp32
-        esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;');
+        just_off
     end
     
     button_startup_complete.BackgroundColor = [0.94 0.78 0.62];

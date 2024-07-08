@@ -20,7 +20,7 @@ if rak_only
 %     end
 elseif use_esp32
     esp32WebsocketClient.send('l:0;r:0;s:0;')
-    esp32WebsocketClient.send('d:120;d:220;d:320;d:420;d:520;d:620;')
+    just_off
 end
 
 
