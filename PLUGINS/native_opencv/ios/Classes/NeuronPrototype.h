@@ -32,11 +32,13 @@
 
 // MAIN CODE
 // std::mutex mtx;
+short configDelayNeuron = 8;
+short configCountingNeuron = 10;
 int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
-short ms_per_step = 30;
-short steps_per_loop = 200;
+short ms_per_step = 1;
+short steps_per_loop = 30 * 200;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
 double *a,*b, *v, *u,*i,*w;
@@ -51,6 +53,7 @@ const uint32_t bigBufferLength = 30 * 200;
 double **v_traces;
 double *canvasBuffer;
 double **connectome;
+double *inhibitionArray;
 int *nps;
 
 // double **v_step;
@@ -90,6 +93,16 @@ short frameSizeHeight = 210;
 short** spikes_step;
 short *firing;
 
+
+// DELAY BUFFER
+short delayInitialized = 1;
+short delayTriggered = 2;
+short delayBuffering = 3;
+short delayFullBuffer = 4;
+
+short delayModeNoSpike = 1;
+short delayModeAccumulatingSpike = 2;
+short delayModeTurnOffTimer = 3;
 
 // MOTOR
 double pulse_period = 0.1;
