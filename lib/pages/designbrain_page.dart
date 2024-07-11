@@ -18,6 +18,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
@@ -490,7 +491,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   bool isShowDelayTime = false;
   int maxDelayTimeValue = 5000;
-  int minDelayTimeValue = 1000;
+  int minDelayTimeValue = 100;
 
   late List<int> mapDelayNeuronList = [];
   late List<int> mapRhytmicNeuronList = [];
@@ -1386,6 +1387,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
         // print("neuronCircleBridge");
         // print(neuronCircleBridge);
+        /* MOVED TO PROCESS ROBOT MESSAGE
         try {
           for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
             int neuronIndex = i;
@@ -1404,6 +1406,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         } catch (err) {
           print(err);
         }
+        */
       }
     });
   }
@@ -1560,7 +1563,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         ));
       }
     }
-
+    // mainBody = Text(
+    //   // String.fromCharCode(0x1F48E),
+    //   String.fromCharCode(0x1F9E0),
+    //   style: const TextStyle(fontFamily: "BybHanddrawn"),
+    // );
     mainBody = !isInitialized
         ? const SizedBox()
         : prepareWidget(
@@ -3531,8 +3538,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapUp: (details) {
-            print("controller.isFoundEdge");
-            print(controller.isFoundEdge);
+            // print("controller.isFoundEdge");
+            // print(controller.isFoundEdge);
             if (controller.isFoundEdge) {
               controller.isSelectingEdge = true;
               controller.edgeSelected = controller.edgeFound;
@@ -4116,6 +4123,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           height: 0,
         ));
 
+    Path pathTail = Path();
+    bool isTailCreated = false;
+    Paint blackStroke = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
+    Paint whiteBrush = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill
+      ..strokeWidth = 2;
+
+    int tailSize = 5;
     tailNode = InfiniteCanvasNode(
       // allowMove: true,
       // allowResize: false,
@@ -4136,9 +4155,49 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 if (isDrawTail) {
                   Offset parentOffset =
                       Offset(rect.center.dx, rect.center.dy - gapTailY);
-                  canvas.drawCircle(rect.center, rect.width / 3, brush);
+                  // canvas.drawCircle(rect.center, rect.width / 3, brush);
+                  // canvas.drawRect(rect, brush);
+                  if (!isTailCreated) {
+                    int offset = 0;
+                    Offset topTriangle = Offset(offset + rect.center.dx,
+                        offset + rect.center.dy - tailSize);
+                    Offset rightTriangle = Offset(
+                        offset + rect.center.dx + tailSize * 2,
+                        offset + rect.center.dy + tailSize * 2);
+                    Offset leftTriangle = Offset(
+                        offset + rect.center.dx - tailSize * 2,
+                        offset + rect.center.dy + tailSize * 2);
+                    // print("topTriangle");
+                    // print(topTriangle);
+                    // print("rightTriangle");
+                    // print(rightTriangle);
+                    // print("leftTriangle");
+                    // print(leftTriangle);
+
+                    pathTail.moveTo(topTriangle.dx, topTriangle.dy);
+                    pathTail.lineTo(leftTriangle.dx, leftTriangle.dy);
+                    pathTail.lineTo(rightTriangle.dx, rightTriangle.dy);
+
+                    // pathTail.moveTo(rightTriangle.dx, rightTriangle.dy);
+
+                    // pathTail.moveTo(leftTriangle.dx, leftTriangle.dy);
+                    // pathTail.lineTo(topTriangle.dx, topTriangle.dy);
+
+                    pathTail.close();
+                    isTailCreated = true;
+                  }
+
+                  // print("pathTail");
+                  // print(pathTail.);
+                  // brush.color = Colors.white;
                   brush.color = Colors.black;
+                  // canvas.drawLine(topTriangle, rightTriangle, brush);
+                  // canvas.drawLine(rightTriangle, leftTriangle, brush);
+                  // canvas.drawLine(leftTriangle, topTriangle, brush);
                   canvas.drawLine(rect.center, parentOffset, brush);
+                  canvas.drawPath(pathTail, blackStroke);
+                  canvas.drawPath(pathTail, whiteBrush);
+
                   brush.color = tailColor.color;
                 }
               },
@@ -5143,7 +5202,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     if (isIsolateWritePortInitialized) {
       // print(message);
       await mutex.protectWrite(() async {
-        commandList.add(message);
+        commandList.add(message.toString());
       });
 
       if (flagCommandDataLength > 0) {
@@ -6050,10 +6109,26 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   List<String> empty = [];
   int robotMessageDelay = 100;
+  List<int> infoStatusMax = [];
+  List<List<int>> diodeStatusMax = [];
+  List<int> periodicNeuronSpikingFlags = [];
   void processRobotMessages() {
     Future.delayed(Duration(milliseconds: robotMessageDelay), () {
+      infoStatusMax = [0, 0, 0, 0, 0, 0, 0];
+      periodicNeuronSpikingFlags =
+          List<int>.generate(neuronSize - normalNeuronStartIdx, (_) {
+        return 0;
+      });
+      diodeStatusMax = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+      ];
+      int diodeCounter = 0;
       // print("processRobotMessages Delay");
       if (isPlayingMenu) {
+        // print("processRobotMessages");
         int nowTime = DateTime.now().millisecondsSinceEpoch;
         // print("nowTime");
         // print(nowTime);
@@ -6107,9 +6182,92 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             }
             captureSteps++;
           }
-
           if (commands.isNotEmpty) {
             // print(commands.length);
+            // print("commands.isNotEmpty");
+            // print(commands);
+            int len = commands.length;
+            for (int i = 0; i < len; i++) {
+              List<String> arr = commands[i].split(";");
+              // print("arr");
+              // print(arr);
+              for (int j = 0; j < 7; j++) {
+                List<String> arrStr = arr[j].split(":");
+                if (arrStr[0] == "l") {
+                  infoStatusMax[0] =
+                      max(infoStatusMax[0], int.parse(arrStr[1]));
+                } else if (arrStr[0] == "r") {
+                  infoStatusMax[1] =
+                      max(infoStatusMax[1], int.parse(arrStr[1]));
+                } else if (arrStr[0] == "s") {
+                  infoStatusMax[2] =
+                      max(infoStatusMax[2], int.parse(arrStr[1]));
+                } else if (arrStr[0] == "n") {
+                  List<String> spikingFlags = arrStr[1].split("|");
+                  // print("spikingFlags");
+                  // print(spikingFlags);
+
+                  for (int k = 0; k < spikingFlags.length; k++) {
+                    periodicNeuronSpikingFlags[k] = max(
+                        periodicNeuronSpikingFlags[k],
+                        int.parse(spikingFlags[k]));
+                  }
+                } else if (arrStr[0] == "d") {
+                  List<String> diodeSplit = arrStr[1].split(",");
+                  diodeCounter = int.parse(diodeSplit[0]);
+                  // diodeCounter %= 4;
+
+                  diodeStatusMax[diodeCounter][0] = max(
+                      diodeStatusMax[diodeCounter][0],
+                      int.parse(diodeSplit[1]));
+                  diodeStatusMax[diodeCounter][1] = max(
+                      diodeStatusMax[diodeCounter][1],
+                      int.parse(diodeSplit[2]));
+                  diodeStatusMax[diodeCounter][2] = max(
+                      diodeStatusMax[diodeCounter][2],
+                      int.parse(diodeSplit[3]));
+                }
+              }
+            }
+            // reconstruct motor message
+            // message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
+            String diodeString = "";
+
+            for (int c = 0; c < 3; c++) {
+              // [l:0, r:0, s:0, n:0|0|1, d:0,0,0,127, d:1,0,0,127, d:2,0,0,127, d:3,0,0,127, ]
+              diodeString =
+                  "${diodeString}d:$c,${diodeStatusMax[c][0]},${diodeStatusMax[c][1]},${diodeStatusMax[c][2]};";
+            }
+            String msg =
+                "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
+            // print("msg");
+            // print(msg);
+            // print(infoStatusMax);
+            // print(periodicNeuronSpikingFlags);
+            _DesignBrainPageState.isolateWritePort.send(msg);
+
+            try {
+              for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
+                int neuronIndex = i;
+                if (periodicNeuronSpikingFlags[i - normalNeuronStartIdx] == 1) {
+                  protoNeuron.circles[neuronIndex].isSpiking = 1;
+                  neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+                } else {
+                  try {
+                    protoNeuron.circles[neuronIndex].isSpiking = -1;
+                    neuronSpikeFlags[neuronIndex].value =
+                        Random().nextInt(10000);
+                  } catch (err) {
+                    print(err);
+                  }
+                }
+              }
+            } catch (err) {
+              print("err2");
+              print(err);
+            }
+
+            /* CHANGED : DUE TO GET MAXIMUM VALUE
             if (commands.length > 20) {
               List<String> lastTwenty = commands
                   .getRange(commands.length - 20, commands.length)
@@ -6127,10 +6285,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
                 _DesignBrainPageState.isolateWritePort.send(commands.join());
               }
             }
+            */
           }
-        } catch (err) {}
+        } catch (err) {
+          print("err");
+          print(err);
+        }
       }
       commandList.clear();
+      // print("command list clear");
+
       strCommandList = "";
       strSerialDataBuff = "";
       strTorqueDataBuff = "";

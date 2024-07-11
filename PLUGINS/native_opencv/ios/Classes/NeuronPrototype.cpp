@@ -955,13 +955,20 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 short colorCount[4][3]= {{0}};
                 std::string binaryString = "";
                 short tempWeight = 0;
-
+                std::string spikingMessage = "";
                 for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
                     short isNeuronSpiking = isStepSpiking[iStep];
+                    short isDelayedSpiking = isNeuronSpiking;
+                    if (guidedDelayList[iStep].neuronType == configDelayNeuron){
+                        if (arrFreshDelayedValue[iStep] >= 30){
+                            isDelayedSpiking = 1;
+                        }
+                    }
                     // neuronCircles[iStep] = isSpiking % 100;
-                    neuronCircles[iStep] = isNeuronSpiking;
-// platform_log( ("isSmartNeuronReady : " + std::to_string(isNeuronSpiking)+"\n" ).c_str());
+                    // neuronCircles[iStep] = isNeuronSpiking;
 
+                    spikingMessage = spikingMessage + std::to_string(isDelayedSpiking) + "|" ;
+                    // platform_log( ("isSmartNeuronReady : " + std::to_string(isNeuronSpiking)+"\n" ).c_str());
                     if ( isNeuronSpiking == 1 ){
                         // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
                         short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
@@ -1056,6 +1063,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
 
                     }
+                }
+                if (!spikingMessage.empty()) {
+                    spikingMessage = spikingMessage.substr(0, spikingMessage.size()-1);
+                    spikingMessage = "n:" + spikingMessage + ";";
+
                 }
 
                 // scale
@@ -1153,7 +1165,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     speaker_tone = (speaker_connection_sum / speaker_connection_count);
                 }
                 // short speaker_tone = 0;
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
+                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
 
                 // if not spiking turn off
                 if (isRedLed == -1 && isGreenLed == -1 && isBlueLed == -1){
@@ -1195,6 +1207,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     message += colorMsg;
                 }
 
+
+
                 #ifdef __EMSCRIPTEN__
                     std::fill(motor_command_message, motor_command_message + 300, 0);
                     for (std::size_t i = 0; i < message.length(); ++i) {
@@ -1210,13 +1224,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }, state_buf, cstr, state_buf[4], motor_command_message);
                 #else
                     // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
-                    if (prevMessage != message){
+                    // if (prevMessage != message){
                         prevMessage = message;
+                        // platform_log( "Spiking message : \n");
+                        // platform_log( prevMessage.c_str() );
+                        // platform_log( "\n");
+
                         // platform_log("COLORMSG\n");
                         // platform_log(message.c_str());
                         // platform_log("\n");
                         onCallback(prevMessage.c_str());
-                    }
+                    // }
 
                     // }
 
