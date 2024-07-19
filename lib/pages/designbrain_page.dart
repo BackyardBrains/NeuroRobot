@@ -36,6 +36,7 @@ import 'package:neurorobot/ai/utils/StatsWidget.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
+import 'package:neurorobot/components/left_toolbar.dart';
 import 'package:neurorobot/dialogs/load_brain.dart';
 import 'package:neurorobot/dialogs/save_brain.dart';
 import 'package:neurorobot/utils/Allocator.dart';
@@ -101,6 +102,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   // WEB SOCKET
   static late SendPort isolateWritePort;
   bool isIsolateWritePortInitialized = false;
+  bool isReceivingCalculation = true;
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
@@ -1413,6 +1415,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
   @override
   Widget build(BuildContext context) {
+    // print("BUILD WIDGET");
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     safePadding = MediaQuery.of(context).padding.right;
@@ -1600,6 +1603,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           );
 
     List<Widget> inlineWidgets = [];
+
+    List<Widget> dragTargetWidgets = getDragTargets();
     if (isPlayingMenu) {
       if (!isChartSelected) {
         inlineWidgets.add(Positioned(
@@ -3021,7 +3026,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           // )
         ]
           ..addAll(widgets)
-          ..addAll(inlineWidgets),
+          ..addAll(inlineWidgets)
+          ..addAll(dragTargetWidgets),
       ),
     );
   }
@@ -5199,7 +5205,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 //   }
 
   void updateFromSimulation(String message) async {
-    if (isIsolateWritePortInitialized) {
+    if (isReceivingCalculation) {
+      // print("message");
       // print(message);
       await mutex.protectWrite(() async {
         commandList.add(message.toString());
@@ -6141,6 +6148,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
         try {
           List<String> commands = commandList.toList();
+          // print("commands.isNotEmpty");
+          // print(commands);
 
           if (canCaptureData) {
             strTorqueDataBuff += strCommandList;
@@ -6184,14 +6193,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           }
           if (commands.isNotEmpty) {
             // print(commands.length);
-            // print("commands.isNotEmpty");
-            // print(commands);
             int len = commands.length;
             for (int i = 0; i < len; i++) {
               List<String> arr = commands[i].split(";");
               // print("arr");
               // print(arr);
-              for (int j = 0; j < 7; j++) {
+              int n = arr.length;
+              for (int j = 0; j < n; j++) {
                 List<String> arrStr = arr[j].split(":");
                 if (arrStr[0] == "l") {
                   infoStatusMax[0] =
@@ -6244,7 +6252,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
             // print(msg);
             // print(infoStatusMax);
             // print(periodicNeuronSpikingFlags);
-            _DesignBrainPageState.isolateWritePort.send(msg);
+            if (isIsolateWritePortInitialized) {
+              _DesignBrainPageState.isolateWritePort.send(msg);
+            }
 
             try {
               for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
@@ -6363,6 +6373,29 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         con.connectionStrength = sldSynapticWeight;
       }
     }
+  }
+
+  List<Widget> getDragTargets() {
+    List<Widget> list = [];
+    list.add(Positioned(
+      left: 100,
+      top: 100,
+      child: DragTarget(onWillAcceptWithDetails: (dragDetail) {
+        print("onWillAcceptWithDetails");
+        return true;
+      }, onAcceptWithDetails: (value) {
+        print("onAcceptWithDetails");
+      }, onLeave: (value) {
+        print("On Leave Drag Target");
+      }, builder: (ctx, candidates, rejects) {
+        return Container(
+          width: 230,
+          height: 230,
+          color: Colors.green,
+        );
+      }),
+    ));
+    return list;
   }
 }
 
