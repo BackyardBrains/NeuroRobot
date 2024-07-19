@@ -1604,7 +1604,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
     List<Widget> inlineWidgets = [];
 
-    List<Widget> dragTargetWidgets = getDragTargets();
+    // List<Widget> dragTargetWidgets = getDragTargets();
     if (isPlayingMenu) {
       if (!isChartSelected) {
         inlineWidgets.add(Positioned(
@@ -3026,8 +3026,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
           // )
         ]
           ..addAll(widgets)
-          ..addAll(inlineWidgets)
-          ..addAll(dragTargetWidgets),
+          ..addAll(inlineWidgets),
+        // ..addAll(dragTargetWidgets),
       ),
     );
   }
