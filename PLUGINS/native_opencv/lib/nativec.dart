@@ -43,6 +43,11 @@ typedef change_neuron_simulator_func = ffi.Double Function(
   ffi.Pointer<ffi.Int16>, // visualPreferences
   ffi.Pointer<ffi.Double>, //motorCommandBuf
   ffi.Pointer<ffi.Double>, //neuronContactsBuf
+
+  ffi.Pointer<ffi.Int16>, // mapNeuronType
+  ffi.Pointer<ffi.Int16>, // mapDelayNeuron
+  ffi.Pointer<ffi.Int16>, // mapRhytmicNeuron
+  ffi.Pointer<ffi.Int16>, // mapCountingNeuron
 );
 typedef ChangeNeuronSimulatorProcess = double Function(
   ffi.Pointer<ffi.Double>, // a
@@ -67,6 +72,11 @@ typedef ChangeNeuronSimulatorProcess = double Function(
   ffi.Pointer<ffi.Int16>, // visualPreferences
   ffi.Pointer<ffi.Double>, //motorCommandBuf
   ffi.Pointer<ffi.Double>, //neuronContactsBuf
+
+  ffi.Pointer<ffi.Int16>, // mapNeuronType
+  ffi.Pointer<ffi.Int16>, // mapDelayNeuron
+  ffi.Pointer<ffi.Int16>, // mapRhytmicNeuron
+  ffi.Pointer<ffi.Int16>, // mapCountingNeuron
 );
 
 typedef set_threshold_dart_port_func = ffi.Double Function(ffi.Int64);
@@ -83,6 +93,10 @@ typedef pass_pointers_func = ffi.Double Function(
   ffi.Pointer<ffi.Uint8>,
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
 );
 typedef PassPointers = double Function(
   ffi.Pointer<ffi.Double>,
@@ -94,6 +108,10 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Uint8>,
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
 );
 
@@ -251,23 +269,32 @@ class Nativec {
     ffi.Pointer<ffi.Int16> visPrefs,
     ffi.Pointer<ffi.Double> motorCommandBuf,
     ffi.Pointer<ffi.Double> neuronContactsBuf,
+    ffi.Pointer<ffi.Int16> mapNeuronType,
+    ffi.Pointer<ffi.Int16> mapDelayNeuron,
+    ffi.Pointer<ffi.Int16> mapRhytmicNeuron,
+    ffi.Pointer<ffi.Int16> mapCountingNeuron,
   ) {
     double res = _changeNeuronSimulatorProcess(
-        a,
-        b,
-        c,
-        d,
-        i,
-        w,
-        connectome,
-        level,
-        neuronLength,
-        envelopeSize,
-        bufferSize,
-        isPlaying,
-        visPrefs,
-        motorCommandBuf,
-        neuronContactsBuf);
+      a,
+      b,
+      c,
+      d,
+      i,
+      w,
+      connectome,
+      level,
+      neuronLength,
+      envelopeSize,
+      bufferSize,
+      isPlaying,
+      visPrefs,
+      motorCommandBuf,
+      neuronContactsBuf,
+      mapNeuronType,
+      mapDelayNeuron,
+      mapRhytmicNeuron,
+      mapCountingNeuron,
+    );
     print("res");
     print(res);
     return res;
@@ -286,6 +313,10 @@ class Nativec {
     ffi.Pointer<ffi.Uint8> p_motor_command_message,
     ffi.Pointer<ffi.Double> p_neuron_contacts,
     ffi.Pointer<ffi.Int16> p_dist_prefs,
+    ffi.Pointer<ffi.Int16> p_speaker_prefs,
+    ffi.Pointer<ffi.Int16> p_microphone_prefs,
+    ffi.Pointer<ffi.Int16> p_led_prefs,
+    ffi.Pointer<ffi.Int16> p_led_pos_prefs,
   ) {
     var test = _passPointers(
       pCanvasbuffer1,
@@ -298,6 +329,10 @@ class Nativec {
       p_motor_command_message,
       p_neuron_contacts,
       p_dist_prefs,
+      p_speaker_prefs,
+      p_microphone_prefs,
+      p_led_prefs,
+      p_led_pos_prefs,
     );
     // print("pPositions.asTypedList(20)");
     // print(pPositions.asTypedList(20));
@@ -323,7 +358,12 @@ class Nativec {
   void simulationCallback(void Function(String) onSimulationCallback) {
     // Create the NativeCallable.listener.
     void onNativeSimulationCallback(ffi.Pointer<Utf8> requestPointer) {
-      onSimulationCallback(requestPointer.toDartString().toString());
+      try {
+        onSimulationCallback(requestPointer.toDartString().toString());
+      } catch (err) {
+        print("ERROR! requestPointer.toDartString");
+        print(err);
+      }
       // calloc.free(requestPointer);
     }
 
