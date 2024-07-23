@@ -15,6 +15,8 @@ import 'inline_painter.dart';
 class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   double widthClickMask = 15;
 
+  int refreshRetainer = 0;
+
   InfiniteCanvasEdgeRenderer(
       {super.key,
       required this.controller,
@@ -75,6 +77,18 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           ..strokeWidth = 2,
         builder: (brush, canvas, rect) {
           // List<InfiniteCanvasEdge> reciprocateList = [];
+          controller.syntheticConnections.clear();
+          // in Stan code it create connections and then draw the neuron
+          if (refreshRetainer == 0) {
+            controller.syntheticConnections.clear();
+            for (InfiniteCanvasEdge edge in controller.edges) {
+              addSyntheticConnection(edge.from, edge.to);
+            }
+            // print("refresh build");
+          }
+          refreshRetainer++;
+          refreshRetainer %= 120;
+
           for (final edge in edges) {
             final from =
                 controller.nodes.firstWhere((node) => node.key == edge.from);
@@ -114,10 +128,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             //   //     from, to, fromIdx, toIdx, connectionStrength, canvas);
 
             // // this is the one working
-            controller.syntheticConnections.clear();
-            for (InfiniteCanvasEdge edge in controller.edges) {
-              addSyntheticConnection(edge.from, edge.to);
-            }
+
+            // print("refresh retainer");
+            // print(
+            //     "Add Synthetic Connection ${controller.syntheticConnections.length}");
 
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas);
 
@@ -456,51 +470,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     Neuron neuronTo = neurons[toIdx].newNeuron;
     double circleRadius = neurons[fromIdx].circleRadius;
 
-    if (toIdx == 12) {
-      // print(
-      //     "XFrom0: ${neurons[0].newNeuron.drawX} _ ${neurons[0].newNeuron.x}");
-      // print(
-      //     "YFrom0: ${neurons[0].newNeuron.drawY} _ ${neurons[0].newNeuron.y}");
-      // print(
-      //     "XFrom1: ${neurons[1].newNeuron.drawX} _ ${neurons[1].newNeuron.x}");
-      // print(
-      //     "YFrom1: ${neurons[1].newNeuron.drawY} _ ${neurons[1].newNeuron.y}");
-      // print(
-      //     "XFrom2: ${neurons[2].newNeuron.drawX} _ ${neurons[2].newNeuron.x}");
-      // print(
-      //     "YFrom2: ${neurons[2].newNeuron.drawY} _ ${neurons[2].newNeuron.y}");
-      // print("XTo: ${neuronTo.drawX} _ ${neuronTo.x}");
-      // print("YTo: ${neuronTo.drawY} _ ${neuronTo.y}");
-      // print(
-      //     "NeuronTypes : ${controller.neuronTypes.keys.toList()}, ${edge.from.toString()} -- ${edge.to.toString()}");
-      // print("fromIdx : $fromIdx");
-    }
-
-    // double circleRadius = 0;
-    // print("Draw AXON : $from, $to, $fromIdx, $toIdx, $connectionStrength");
-    // neuronFrom.displayInfo();
-    // print(
-    //     "ZDraw : $fromIdx,$toIdx ${neuronTo.dendrites.length} ${neuronFrom.axonAngle}");
-
     if (neuronFrom.axonAngle <= -1) return;
 
     double centerBeginAxon_x =
         neuronFrom.x + neuronFrom.diameter * cosDeg(neuronFrom.axonAngle);
     double centerBeginAxon_y =
         neuronFrom.y + neuronFrom.diameter * sinDeg(neuronFrom.axonAngle);
-    // double diameterOfNeuronFrom = neurons[fromIdx].circleRadius / 2;
-
-    // print("x,y: $centerBeginAxon_x $centerBeginAxon_y");
-    // canvas.drawCircle(
-    //     Offset(neurons[fromIdx].newNeuron.xCenterOfConnections,
-    //         neurons[fromIdx].newNeuron.yCenterOfConnections),
-    //     5,
-    //     greenBrush);
-    // canvas.drawCircle(
-    //     Offset(neurons[toIdx].newNeuron.xCenterOfConnections,
-    //         neurons[toIdx].newNeuron.yCenterOfConnections),
-    //     5,
-    //     graykBrush..color = Colors.lightGreenAccent);
 
     double diameterOfNeuron = neurons[fromIdx].circleRadius;
     // int maxAbsoluteConnectionStrength = connectionStrength.floor();
@@ -508,53 +483,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     double minimalTicknessOfAxon = 1;
 
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
-      // if (posin == 0) {
-      //   canvas.drawCircle(
-      //       Offset(
-      //         neuronTo.x - circleRadius + neuronTo.dendrites[posin].xFirstLevel,
-      //         neuronTo.y - circleRadius + neuronTo.dendrites[posin].yFirstLevel,
-      //       ),
-      //       10,
-      //       greenBrush..color = Colors.red);
-      // } else if (posin == 1) {
-      //   canvas.drawCircle(
-      //       Offset(
-      //         neuronTo.x - circleRadius + neuronTo.dendrites[posin].xFirstLevel,
-      //         neuronTo.y - circleRadius + neuronTo.dendrites[posin].yFirstLevel,
-      //       ),
-      //       10,
-      //       greenBrush..color = Colors.yellow);
-      // } else if (posin == 2) {
-      //   canvas.drawCircle(
-      //       Offset(
-      //         neuronTo.x - circleRadius + neuronTo.dendrites[posin].xFirstLevel,
-      //         neuronTo.y - circleRadius + neuronTo.dendrites[posin].yFirstLevel,
-      //       ),
-      //       10,
-      //       graykBrush..color = Colors.green);
-      // } else if (posin == 3) {
-      //   canvas.drawCircle(
-      //       Offset(
-      //         neuronTo.x - circleRadius + neuronTo.dendrites[posin].xFirstLevel,
-      //         neuronTo.y - circleRadius + neuronTo.dendrites[posin].yFirstLevel,
-      //       ),
-      //       10,
-      //       graykBrush..color = Colors.blue);
-      // }
-      // print(
-      //     "neuronTo.dendrites[posin].sinapseFirstLevel: ${neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty} --- neuronTo.dendrites[posin].sinapseSecondLevel.isNotEmpty : ${neuronTo.dendrites[posin].sinapseSecondLevel.isNotEmpty}");
-      // print(
-      //     "neuronTo.dendrites[posin].sinapseFirstLevel :$posin - ${neuronTo.dendrites[posin].sinapseFirstLevel}");
-      // print(
-      //     "neuronTo.dendrites[posin].sinapseSecondLevel :$posin - ${neuronTo.dendrites[posin].sinapseSecondLevel}");
-      // for (Sinapse sinapse in neuronTo.dendrites[posin].sinapseFirstLevel) {
-      //   print("sinapse.sinapticFirstValue : ${sinapse.presinapticNeuronIndex}");
-      // }
-      // for (Sinapse sinapse in neuronTo.dendrites[posin].sinapseSecondLevel) {
-      //   print(
-      //       "sinapse.sinapticSecondValue : ${sinapse.presinapticNeuronIndex}");
-      // }
-
       if (neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty) {
         for (int sinindex = 0;
             sinindex < neuronTo.dendrites[posin].sinapseFirstLevel.length;
@@ -668,14 +596,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 String pathKey = "${from.key.toString()}_${to.key.toString()}";
                 controller.axonPathMap[pathKey] =
                     getOutlinePath(clickPath, widthClickMask);
-                // if (!controller.axonPathMap.containsKey(pathKey)) {
-                // } else {
-                //   if (controller.axonPathMap[pathKey].toString() ==
-                //       clickPath.toString()) {}
-                // }
-
-                // con.outlinePath = getOutlinePath(clickPath, widthClickMask);
-                // canvas.drawPath(con.outlinePath, yellowBrush);
 
                 Path path = Path();
                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -685,31 +605,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 //     "0--cX,cY:$controlX,$controlY - $xRightTriangle $yRightTriangle");
 
                 canvas.drawPath(path, blackBrush);
-                // if (neuronFrom.dendriteIdx > -1) {
-                //   canvas.drawCircle(
-                //       Offset(
-                //         neuronFrom.xAxon,
-                //         neuronFrom.yAxon,
-                //       ),
-                //       10,
-                //       greenBrush..color = Colors.red);
-                // }
-                // print("neuronTo.dendriteIdx");
-                // print(neuronTo.dendriteIdx);
-                //   canvas.drawCircle(
-                //       Offset(
-                //         neuronTo.x -
-                //             circleRadius +
-                //             neuronTo
-                //                 .dendrites[neuronTo.dendriteIdx].xFirstLevel,
-                //         neuronTo.y +
-                //             neuronTo
-                //                 .dendrites[neuronTo.dendriteIdx].yFirstLevel,
-                //       ),
-                //       3,
-                //       greenBrush);
-                // }
-
                 //draw sinapse triangle
                 //draw triangle sinapse first level
                 blackBrush.strokeWidth = neuronFrom.diameter * (0.07);
@@ -1019,6 +914,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   void addSyntheticConnection(LocalKey axonFrom, LocalKey axonTo) {
     Map<String, String> neuronTypes = controller.neuronTypes;
     List<SyntheticNeuron> syntheticNeuronList = controller.syntheticNeuronList;
+    // we must use the default raw neuron to get the initial state of the neuron
     List<SyntheticNeuron> syntheticNeurons =
         copyFromRawSynthetics(syntheticNeuronList);
     syntheticNeuronList = syntheticNeurons;
@@ -1027,12 +923,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     int toIdx = neuronTypes.keys.toList().indexOf(axonTo.toString());
     final nodeFrom =
         controller.nodes.firstWhere((node) => node.key == axonFrom);
-    final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
+    // final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
     controller.syntheticConnections
         .add(Connection(axonFrom, axonTo, 25.0, Path()));
-    // print("Add Synthetic Connection ${syntheticConnections.length}");
+    // print("Add Synthetic Connection ${controller.syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {
       Neuron syntheticRawNeuron = syntheticNeurons[i].newNeuron;

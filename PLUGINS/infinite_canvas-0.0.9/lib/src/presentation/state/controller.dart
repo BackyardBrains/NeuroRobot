@@ -15,6 +15,7 @@ typedef NodeFormatter = void Function(InfiniteCanvasNode);
 
 /// A controller for the [InfiniteCanvas].
 class InfiniteCanvasController extends ChangeNotifier implements Graph {
+  late bool isPlaying = false;
   bool isInteractable = true;
   bool isFoundEdge = false;
   bool isSelectingEdge = false;
@@ -212,7 +213,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void notifyMousePosition() {
-    notifyListeners();
+    // notifyListeners();
   }
 
   Offset toLocal(Offset global) {

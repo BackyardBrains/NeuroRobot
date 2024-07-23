@@ -179,8 +179,13 @@ class SyntheticNeuron extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(covariant SyntheticNeuron oldDelegate) {
+    // bool flag = oldDelegate.newNeuron.x != newNeuron.x ||
+    //     oldDelegate.newNeuron.y != newNeuron.y;
+    // print("flag");
+    // print(flag);
     return true;
+    // return flag;
   }
 
   void recalculate(Canvas? canvas) {
@@ -390,49 +395,49 @@ class SyntheticNeuron extends CustomPainter {
 
       //draw left dendrite
       var path = Path();
-      path.moveTo(center_x, center_y);
-      path.quadraticBezierTo(
-          leftMiddleDendrites_x_plus,
-          leftMiddleDendrites_y_plus,
-          leftEndDendrites_x_plus,
-          leftEndDendrites_y_plus);
-      path.quadraticBezierTo(
-          leftEndDendrites_x_center,
-          leftEndDendrites_y_center,
-          leftEndDendrites_x_minus,
-          leftEndDendrites_y_minus);
-      path.quadraticBezierTo(
-          leftMiddleDendrites_x_minus,
-          leftMiddleDendrites_y_minus,
-          leftStartDendrites_x,
-          leftStartDendrites_y);
-      path.lineTo(leftStartDendrites_x, leftStartDendrites_y);
-      path.close();
       if (canvas != null) {
+        path.moveTo(center_x, center_y);
+        path.quadraticBezierTo(
+            leftMiddleDendrites_x_plus,
+            leftMiddleDendrites_y_plus,
+            leftEndDendrites_x_plus,
+            leftEndDendrites_y_plus);
+        path.quadraticBezierTo(
+            leftEndDendrites_x_center,
+            leftEndDendrites_y_center,
+            leftEndDendrites_x_minus,
+            leftEndDendrites_y_minus);
+        path.quadraticBezierTo(
+            leftMiddleDendrites_x_minus,
+            leftMiddleDendrites_y_minus,
+            leftStartDendrites_x,
+            leftStartDendrites_y);
+        path.lineTo(leftStartDendrites_x, leftStartDendrites_y);
+        path.close();
         canvas.drawPath(path, blackBrush);
       }
 
       //draw right dendrite
-      path = Path();
-      path.moveTo(center_x, center_y);
-      path.quadraticBezierTo(
-          rightMiddleDendrites_x_minus,
-          rightMiddleDendrites_y_minus,
-          rightEndDendrites_x_minus,
-          rightEndDendrites_y_minus);
-      path.quadraticBezierTo(
-          rightEndDendrites_x_center,
-          rightEndDendrites_y_center,
-          rightEndDendrites_x_plus,
-          rightEndDendrites_y_plus);
-      path.quadraticBezierTo(
-          rightMiddleDendrites_x_plus,
-          rightMiddleDendrites_y_plus,
-          rightStartDendrites_x,
-          rightStartDendrites_y);
-      path.lineTo(rightStartDendrites_x, rightStartDendrites_y);
-      path.close();
       if (canvas != null) {
+        path = Path();
+        path.moveTo(center_x, center_y);
+        path.quadraticBezierTo(
+            rightMiddleDendrites_x_minus,
+            rightMiddleDendrites_y_minus,
+            rightEndDendrites_x_minus,
+            rightEndDendrites_y_minus);
+        path.quadraticBezierTo(
+            rightEndDendrites_x_center,
+            rightEndDendrites_y_center,
+            rightEndDendrites_x_plus,
+            rightEndDendrites_y_plus);
+        path.quadraticBezierTo(
+            rightMiddleDendrites_x_plus,
+            rightMiddleDendrites_y_plus,
+            rightStartDendrites_x,
+            rightStartDendrites_y);
+        path.lineTo(rightStartDendrites_x, rightStartDendrites_y);
+        path.close();
         canvas.drawPath(path, blackBrush);
       }
 
@@ -646,50 +651,50 @@ class SyntheticNeuron extends CustomPainter {
 
         //draw left dendrite 2nd level
         var path = Path();
-        path.moveTo(newRightStartDendrites_x, newRightStartDendrites_y);
-        path.quadraticBezierTo(
-            newLeftMiddleDendrites_x_plus,
-            newLeftMiddleDendrites_y_plus,
-            newLeftEndDendrites_x_plus,
-            newLeftEndDendrites_y_plus);
-        path.quadraticBezierTo(
-            newLeftEndDendrites_x_center,
-            newLeftEndDendrites_y_center,
-            newLeftEndDendrites_x_minus,
-            newLeftEndDendrites_y_minus);
-        path.quadraticBezierTo(
-            newLeftMiddleDendrites_x_minus,
-            newLeftMiddleDendrites_y_minus,
-            newLeftStartDendrites_x,
-            newLeftStartDendrites_y);
-        path.lineTo(newRightStartDendrites_x, newRightStartDendrites_y);
-        path.close();
         if (canvas != null) {
+          path.moveTo(newRightStartDendrites_x, newRightStartDendrites_y);
+          path.quadraticBezierTo(
+              newLeftMiddleDendrites_x_plus,
+              newLeftMiddleDendrites_y_plus,
+              newLeftEndDendrites_x_plus,
+              newLeftEndDendrites_y_plus);
+          path.quadraticBezierTo(
+              newLeftEndDendrites_x_center,
+              newLeftEndDendrites_y_center,
+              newLeftEndDendrites_x_minus,
+              newLeftEndDendrites_y_minus);
+          path.quadraticBezierTo(
+              newLeftMiddleDendrites_x_minus,
+              newLeftMiddleDendrites_y_minus,
+              newLeftStartDendrites_x,
+              newLeftStartDendrites_y);
+          path.lineTo(newRightStartDendrites_x, newRightStartDendrites_y);
+          path.close();
           canvas.drawPath(path, blackBrush);
         }
 
         // //draw right dendrite 2nd level
         blackBrush.color = Colors.black;
-        path = Path();
-        path.moveTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
-        path.quadraticBezierTo(
-            newRightMiddleDendrites_x_minus,
-            newRightMiddleDendrites_y_minus,
-            newRightEndDendrites_x_minus,
-            newRightEndDendrites_y_minus);
-        path.quadraticBezierTo(
-            newRightEndDendrites_x_center,
-            newRightEndDendrites_y_center,
-            newRightEndDendrites_x_plus,
-            newRightEndDendrites_y_plus);
-        path.quadraticBezierTo(
-            newRightMiddleDendrites_x_plus,
-            newRightMiddleDendrites_y_plus,
-            newRightStartDendrites_x,
-            newRightStartDendrites_y);
-        path.lineTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
-        path.close();
         if (canvas != null) {
+          path = Path();
+          path.moveTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
+          path.quadraticBezierTo(
+              newRightMiddleDendrites_x_minus,
+              newRightMiddleDendrites_y_minus,
+              newRightEndDendrites_x_minus,
+              newRightEndDendrites_y_minus);
+          path.quadraticBezierTo(
+              newRightEndDendrites_x_center,
+              newRightEndDendrites_y_center,
+              newRightEndDendrites_x_plus,
+              newRightEndDendrites_y_plus);
+          path.quadraticBezierTo(
+              newRightMiddleDendrites_x_plus,
+              newRightMiddleDendrites_y_plus,
+              newRightStartDendrites_x,
+              newRightStartDendrites_y);
+          path.lineTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
+          path.close();
           canvas.drawPath(path, blackBrush);
         }
         blackBrush.color = Colors.black;

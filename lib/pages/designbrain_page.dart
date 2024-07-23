@@ -3930,6 +3930,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         Future.delayed(const Duration(milliseconds: 1650), () {
           isPlayingMenu = true;
           runSimulation();
+          controller.isPlaying = true;
         });
       } else {
         if (kIsWeb) {
@@ -3939,6 +3940,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         }
         controller.deselectAll();
         controller.setCanvasMove(true);
+        controller.isPlaying = false;
       }
       setState(() {});
     }

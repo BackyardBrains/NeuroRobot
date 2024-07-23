@@ -56,6 +56,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   int firstTapTime = 0;
   int secondTapTime = 0;
 
+  late Positioned edgesWidget;
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +88,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   }
 
   void onUpdate() {
+    // print("onUpdate");
     if (mounted) setState(() {});
   }
 
@@ -329,7 +332,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           },
           onPointerHover: (details) {
             controller.mousePosition = details.localPosition;
-            controller.checkSelection(controller.mousePosition, true);
+            // STEVANUS : Optimize?
+            // controller.checkSelection(controller.mousePosition, true);
           },
           onPointerMove: (details) {
             lastPointerDownTime = 0;
@@ -368,7 +372,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   if (kIsWeb) {
                   } else if (Platform.isIOS) {
                     // print(controller.mousePosition);
-                    controller.notifyMousePosition();
+                    // controller.notifyMousePosition();
                   }
                 },
                 onInteractionUpdate: (details) {
@@ -389,7 +393,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     // print("controller.mousePosition2");
                     // print(details.focalPoint);
                     // print(controller.mousePosition);
-                    controller.notifyMousePosition();
+                    // controller.notifyMousePosition();
                   }
                 },
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
@@ -399,6 +403,22 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 builder: (context, quad) {
                   final nodes = getNodes(constraints);
                   final edges = getEdges(constraints);
+                  if (!controller.isPlaying) {
+                    edgesWidget = Positioned.fill(
+                      child: InfiniteCanvasEdgeRenderer(
+                        controller: controller,
+                        edges: edges,
+                        linkStart: controller
+                            .getNode(controller.linkStart)
+                            ?.rect
+                            .center,
+                        linkEnd: controller.linkEnd,
+                        straightLines: widget.edgesUseStraightLines,
+                      ),
+                    );
+                  } else {
+                    // print("edges widget cache");
+                  }
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
                     child: Stack(
@@ -407,18 +427,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                         Positioned.fill(
                           child: buildBackground(context, quad),
                         ),
-                        Positioned.fill(
-                          child: InfiniteCanvasEdgeRenderer(
-                            controller: controller,
-                            edges: edges,
-                            linkStart: controller
-                                .getNode(controller.linkStart)
-                                ?.rect
-                                .center,
-                            linkEnd: controller.linkEnd,
-                            straightLines: widget.edgesUseStraightLines,
-                          ),
-                        ),
+                        edgesWidget,
                         Positioned.fill(
                           child: CustomMultiChildLayout(
                             delegate: InfiniteCanvasNodesDelegate(nodes),
