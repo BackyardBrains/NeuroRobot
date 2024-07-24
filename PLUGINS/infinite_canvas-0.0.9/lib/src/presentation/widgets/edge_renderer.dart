@@ -104,12 +104,16 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             } else {}
 
             double pairSpace = edge.isReciprocate * 7;
-            int fromIdx = controller.neuronTypes.keys
-                .toList()
-                .indexOf(edge.from.toString());
-            int toIdx = controller.neuronTypes.keys
-                .toList()
-                .indexOf(edge.to.toString());
+            int fromIdx = findSyntheticNeuronIdx(
+                edge.from.toString(), controller.syntheticNeuronList);
+            // controller.neuronTypes.keys
+            //     .toList()
+            //     .indexOf(edge.from.toString());
+            int toIdx = findSyntheticNeuronIdx(
+                edge.to.toString(), controller.syntheticNeuronList);
+            // controller.neuronTypes.keys
+            //     .toList()
+            //     .indexOf(edge.to.toString());
 
             // print("edge.from.toString()");
             // print(fromIdx);
@@ -919,8 +923,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
         copyFromRawSynthetics(syntheticNeuronList);
     syntheticNeuronList = syntheticNeurons;
 
-    int fromIdx = neuronTypes.keys.toList().indexOf(axonFrom.toString());
-    int toIdx = neuronTypes.keys.toList().indexOf(axonTo.toString());
+    int fromIdx = findSyntheticNeuronIdx(axonFrom.toString(), syntheticNeurons);
+    //neuronTypes.keys.toList().indexOf(axonFrom.toString());
+    int toIdx = findSyntheticNeuronIdx(axonTo.toString(), syntheticNeurons);
+    // neuronTypes.keys.toList().indexOf(axonTo.toString());
     final nodeFrom =
         controller.nodes.firstWhere((node) => node.key == axonFrom);
     // final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
@@ -942,10 +948,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       double averageY = syntheticRawNeuron.y;
       bool hasAxon = false;
       for (Connection con in controller.syntheticConnections) {
-        int fromNeuronIdx =
-            neuronTypes.keys.toList().indexOf(con.neuronIndex1.toString());
-        int toNeuronIdx =
-            neuronTypes.keys.toList().indexOf(con.neuronIndex2.toString());
+        int fromNeuronIdx = findSyntheticNeuronIdx(
+            con.neuronIndex1.toString(), syntheticNeurons);
+        // neuronTypes.keys.toList().indexOf(con.neuronIndex1.toString());
+        int toNeuronIdx = findSyntheticNeuronIdx(
+            con.neuronIndex2.toString(), syntheticNeurons);
+        // neuronTypes.keys.toList().indexOf(con.neuronIndex2.toString());
         if (fromNeuronIdx == i) {
           hasAxon = true;
           averageX +=
@@ -954,7 +962,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               (syntheticNeurons[toNeuronIdx].newNeuron.y - circleRadius);
           numberofConnections = numberofConnections + 1;
           // print(
-          //     "Connection ${con.neuronIndex1} $i == $fromNeuronIdx $numberofConnections $averageX, $averageY");
+          //     "Connection ${con.neuronIndex1} $i == $fromNeuronIdx NewNeuronX:${syntheticNeurons[toNeuronIdx].newNeuron.x} NewNeuronY:${syntheticNeurons[toNeuronIdx].newNeuron.y} $numberofConnections $averageX, $averageY");
         }
       }
       averageX = averageX / numberofConnections;
@@ -1011,14 +1019,26 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       int pfromIdx, int ptoIdx, double d) {
     List<SyntheticNeuron> neurons = syntheticNeurons;
     List<Connection> connections = controller.syntheticConnections;
+    // print("connections");
+    // print(connections);
     for (int i = 0; i < neurons.length; i++) {
       for (Connection con in connections) {
-        int fromIdx = controller.neuronTypes.keys
-            .toList()
-            .indexOf(con.neuronIndex1.toString());
-        int toIdx = controller.neuronTypes.keys
-            .toList()
-            .indexOf(con.neuronIndex2.toString());
+        int fromIdx = findSyntheticNeuronIdx(
+            con.neuronIndex1.toString(), syntheticNeurons);
+        // controller.neuronTypes.keys
+        //     .toList()
+        //     .indexOf(con.neuronIndex1.toString());
+        int toIdx = findSyntheticNeuronIdx(
+            con.neuronIndex2.toString(), syntheticNeurons);
+        // print("con.neuronIndex1.toString()");
+        // print(con.neuronIndex1.toString());
+        // print(con.neuronIndex2.toString());
+        // print(fromIdx);
+        // print(toIdx);
+
+        // controller.neuronTypes.keys
+        //     .toList()
+        //     .indexOf(con.neuronIndex2.toString());
         // if (fromIdx == -1 || toIdx == -1) {
         //   print("neuron");
         //   print(controller.neuronTypes.keys.toList().toString());
@@ -1179,5 +1199,16 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     }
     outlinePath.close();
     return outlinePath;
+  }
+
+  int findSyntheticNeuronIdx(
+      String key, List<SyntheticNeuron> syntheticNeurons) {
+    int len = syntheticNeurons.length;
+    for (int i = 0; i < len; i++) {
+      if (syntheticNeurons[i].node.id == key) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

@@ -52,6 +52,7 @@ import 'package:sn_progress_dialog/progress_dialog.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
+import 'package:window_manager/window_manager.dart';
 import '../dialogs/info_dialog.dart';
 
 // import 'package:path/path.dart' as p;
@@ -88,7 +89,7 @@ class DesignBrainPage extends StatefulWidget {
 bool isCheckingImage = false;
 bool isCheckingColor = false;
 
-class _DesignBrainPageState extends State<DesignBrainPage> {
+class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   // STEVE AI
   static Detector? detector;
   StreamSubscription? _imageDetectorSubscription;
@@ -817,6 +818,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   List<UniqueKey> neuronsKey = [];
   List<UniqueKey> axonsKey = [];
 
+  Offset constraintOffsetTopLeftRaw = const Offset(300, 170);
+  Offset constraintOffsetTopRightRaw = const Offset(500, 170);
+  Offset constraintOffsetBottomRightRaw = const Offset(500, 430);
+  Offset constraintOffsetBottomLeftRaw = const Offset(300, 430);
+
   Offset constraintOffsetTopLeft = const Offset(300, 170);
   Offset constraintOffsetTopRight = const Offset(500, 170);
   Offset constraintOffsetBottomRight = const Offset(500, 430);
@@ -962,6 +968,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   double prevScreenHeight = 600.0;
   double screenWidth = 800.0;
   double screenHeight = 600.0;
+
+  double prevWindowWidth = 800.0;
+  double prevWindowHeight = 600.0;
+  double windowWidth = 800.0;
+  double windowHeight = 600.0;
+
+  double currentImageWidth = 600.0;
+  double currentImageHeight = 600.0;
+  // double screenDensity = 1.0;
   double safePadding = 0.0;
   bool isResizingFlag = false;
 
@@ -978,6 +993,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   bool isPlayingMenu = false;
   @override
   void dispose() {
+    // windowManager.removeListener(this);
     detector?.stop();
     _imageDetectorSubscription?.cancel();
 
@@ -1222,8 +1238,71 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
   }
 
   @override
+  void onWindowResize() {
+    print("onWindowResize");
+    // get the current window size
+    windowWidth = MediaQuery.of(context).size.width;
+    windowHeight = MediaQuery.of(context).size.height;
+    // calculate imageSize
+    final Size containerSize =
+        Size(windowWidth, windowHeight); // Replace with your container size
+    final Size imageSize = Size(600, 600); // Replace with your image size
+
+    final fittedSizes = applyBoxFit(BoxFit.contain, imageSize, containerSize);
+    // reposition nodes
+    // double scaleX = windowWidth / prevWindowWidth;
+    // double scaleY = windowHeight / prevWindowHeight;
+    print("fittedSizes.destination.width");
+    print(fittedSizes.destination.width);
+    print("fittedSizes.destination.height");
+    print(fittedSizes.destination.height);
+    double scaleX = fittedSizes.destination.width / imageSize.width;
+    double scaleY = fittedSizes.destination.height / imageSize.height;
+    print("Scale X");
+    print(scaleX);
+    print("Scale Y");
+    print(scaleY);
+
+    viewPortNode.update(offset: Offset(windowWidth, windowHeight));
+    controller.getNode(viewportKey)?.offset = Offset(windowWidth, windowHeight);
+    // int idx = 0;
+
+    constraintOffsetTopLeft = Offset(
+        constraintOffsetBottomLeftRaw.dx, constraintOffsetBottomLeftRaw.dy);
+    constraintOffsetTopRight =
+        Offset(constraintOffsetTopRightRaw.dx, constraintOffsetTopRightRaw.dy);
+    constraintOffsetBottomRight = Offset(
+        constraintOffsetBottomRightRaw.dx, constraintOffsetBottomRightRaw.dy);
+    constraintOffsetBottomLeft = Offset(
+        constraintOffsetBottomLeftRaw.dx, constraintOffsetBottomLeftRaw.dy);
+
+    constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
+    constraintOffsetTopRight = constraintOffsetTopRight.scale(scaleX, scaleY);
+    constraintOffsetBottomRight =
+        constraintOffsetBottomRight.scale(scaleX, scaleY);
+    constraintOffsetBottomLeft =
+        constraintOffsetBottomLeft.scale(scaleX, scaleY);
+
+    constraintBrainLeft = constraintOffsetTopLeft.dx;
+    constraintBrainRight = constraintOffsetTopRight.dx;
+    constraintBrainTop = constraintOffsetTopLeft.dy;
+    constraintBrainBottom = constraintOffsetBottomLeft.dy;
+    int idx = 0;
+    for (var element in controller.nodes) {
+      if (idx > 1) {
+        element.offset = element.offset.scale(scaleX, scaleY);
+      }
+      idx++;
+    }
+    currentImageWidth = windowWidth;
+    currentImageHeight = windowHeight;
+  }
+
+  @override
   void initState() {
     super.initState();
+    // windowManager.addListener(this);
+
     initImageDetector();
     if (Platform.isIOS || Platform.isAndroid) {
       neuronDrawSize = 20;
@@ -1418,6 +1497,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
     // print("BUILD WIDGET");
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
+    // screenDensity = MediaQuery.of(context).devicePixelRatio;
+
     safePadding = MediaQuery.of(context).padding.right;
     // aspectRatio = MediaQuery.of(context).devicePixelRatio;
     // Future.delayed(const Duration(milliseconds: 2000), (){
@@ -1453,13 +1534,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }
     }
     // }
-
+    // STEVANUS :
+    // remove this
     if (isResizingFlag) {
       // print("isResizingFlag");
       viewPortNode.update(offset: Offset(screenWidth, screenHeight));
       controller.getNode(viewportKey)?.offset =
           Offset(screenWidth, screenHeight);
-      int idx = 0;
       // double scaleX = screenWidth / prevScreenWidth;
       double scaleX = screenWidth / prevScreenWidth;
       if (Platform.isIOS || Platform.isAndroid) {
@@ -1478,7 +1559,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       constraintBrainRight = constraintOffsetTopRight.dx;
       constraintBrainTop = constraintOffsetTopLeft.dy;
       constraintBrainBottom = constraintOffsetBottomLeft.dy;
-
+      // repositionSensoryNeuron();
+      // repositionNeurons();
+      int idx = 0;
       for (var element in controller.nodes) {
         if (idx > 1) {
           element.offset = element.offset.scale(scaleX, scaleY);
@@ -5453,6 +5536,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       "d": dBufView.toList(),
       "i": iBufView.toList(),
       "w": wBufView.toList(),
+      "windowWidth": MediaQuery.of(context).size.width,
+      "windowHeight": MediaQuery.of(context).size.height,
+      "screenDensity": MediaQuery.of(context).devicePixelRatio,
     });
     print("strNodesJson");
     print(strNodesJson);
@@ -5546,6 +5632,26 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
         '${directory.path}$textPath${Platform.pathSeparator}BrainText$filename.txt');
     String savedFileText = await savedFile.readAsString();
     Map savedFileJson = json.decode(savedFileText);
+
+    // END OF READING FILE
+
+    double tempWidth = MediaQuery.of(context).size.width;
+    double tempHeight = MediaQuery.of(context).size.height;
+
+    try {
+      double displayWidth = savedFileJson["windowWidth"] *
+          savedFileJson["screenDensity"] /
+          MediaQuery.of(context).devicePixelRatio;
+      double displayHeight = savedFileJson["windowHeight"] *
+          savedFileJson["screenDensity"] /
+          MediaQuery.of(context).devicePixelRatio;
+      windowManager.setSize(Size(displayWidth, displayHeight));
+    } catch (err) {
+      print("err");
+      print(err);
+    }
+
+    await Future.delayed(const Duration(milliseconds: 500), () {});
 
     List<dynamic> nodesJson = savedFileJson["nodes"];
     // List<String> tempNeuronTypes =
@@ -5759,6 +5865,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       print("err");
       print(err);
     }
+
+    await Future.delayed(const Duration(milliseconds: 370), () {
+      windowManager.setSize(Size(tempWidth, tempHeight));
+    });
 
     // }
     // aDesignArray = List<double>.from(savedFileJson["a"]);
@@ -6398,6 +6508,38 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
       }),
     ));
     return list;
+  }
+
+  void repositionNeurons() {
+    windowWidth = MediaQuery.of(context).size.width;
+    windowHeight = MediaQuery.of(context).size.height;
+    // calculate imageSize
+    final Size containerSize =
+        Size(windowWidth, windowHeight); // Replace with your container size
+    final Size imageSize = Size(
+        currentImageWidth, currentImageHeight); // Replace with your image size
+
+    final fittedSizes = applyBoxFit(BoxFit.contain, imageSize, containerSize);
+    // reposition nodes
+    double scaleX = fittedSizes.destination.width / imageSize.width;
+    double scaleY = fittedSizes.destination.height / imageSize.height;
+    if (windowWidth == 800) scaleX = 1;
+    if (windowHeight == 600) scaleY = 1;
+
+    print("====== scaleY");
+    print(scaleY);
+    print(currentImageHeight);
+    print(fittedSizes.destination.height);
+    print(windowHeight);
+    int idx = 0;
+    for (var element in controller.nodes) {
+      if (idx > 1 && idx < 14) {
+        element.offset = Offset(windowWidth / 2, element.offset.dy * scaleY);
+      }
+      idx++;
+    }
+    currentImageWidth = imageSize.width * scaleX;
+    currentImageHeight = imageSize.height * scaleY;
   }
 }
 
