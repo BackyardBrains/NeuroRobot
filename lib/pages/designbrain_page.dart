@@ -6362,7 +6362,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   // }
                   // if (infoStatusMax[1].abs() >= val.abs()) {
                   //   infoStatusMax[1] =
-                  //       infoStatusMax[0].sign * infoStatusMax[1].abs();
+                  //       infoStatusMax[1].sign * infoStatusMax[1].abs();
                   // } else {
                   //   infoStatusMax[1] = val.sign * val.abs();
                   // }
@@ -6409,8 +6409,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               diodeString =
                   "${diodeString}d:$c,${diodeStatusMax[c][0]},${diodeStatusMax[c][1]},${diodeStatusMax[c][2]};";
             }
-            // String msg =
-            //     "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
+            // print("infoStatusMax");
+            // print(infoStatusMax);
+
+            /*
+            String msg =
+                "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
+            */
+
             int avgLeft = (leftSumValue / len).floor();
             int avgRight = (rightSumValue / len).floor();
             // print("avgLeft");
