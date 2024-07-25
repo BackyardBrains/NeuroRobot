@@ -191,25 +191,26 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           if (event is KeyUpEvent) {
             if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
                 event.logicalKey == LogicalKeyboardKey.shiftRight) {
-              controller.shiftPressed = false;
+              // controller.shiftPressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
                 event.logicalKey == LogicalKeyboardKey.metaRight) {
-              controller.metaPressed = false;
+              // controller.metaPressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
                 event.logicalKey == LogicalKeyboardKey.controlRight) {
-              controller.controlPressed = false;
-              controller.linkStart = null;
-              controller.linkEnd = null;
+              // controller.controlPressed = false;
+              // controller.linkStart = null;
+              // controller.linkEnd = null;
             }
             if (event.logicalKey == LogicalKeyboardKey.space) {
-              controller.spacePressed = false;
+              // controller.spacePressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.delete ||
                 event.logicalKey == LogicalKeyboardKey.backspace) {
               if (controller.focusNode.hasFocus) {
-                controller.deleteSelection();
+                controller.onDeleteCallback();
+                // controller.deleteSelection();
               }
             }
           }

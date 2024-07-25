@@ -25,6 +25,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Map<String, String> neuronTypes;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
+  final VoidCallback onDeleteCallback;
 
   Map<String, Path> axonPathMap = {};
   // final VoidCallback transformNeuronPositionWrapper;
@@ -36,6 +37,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     required this.neuronTypes,
     required this.onLongPress,
     required this.onDoubleTap,
+    required this.onDeleteCallback,
     // required this.transformNeuronPositionWrapper,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],

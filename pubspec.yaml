@@ -2,7 +2,7 @@ name: neurorobot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1+62
+version: 1.2.1+63
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -36,6 +36,7 @@ dependencies:
   path_provider: 2.1.1
   # path: 1.8.3
   path: 1.9.0
+  package_info_plus: 8.0.0
   # opencv_ffi:
   #   path: ./PLUGINS/opencv_ffi/
     

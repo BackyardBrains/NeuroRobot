@@ -26,6 +26,7 @@ import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:native_opencv/native_opencv.dart';
 import 'package:native_opencv/nativec.dart';
@@ -93,6 +94,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   // STEVE AI
   static Detector? detector;
   StreamSubscription? _imageDetectorSubscription;
+  PackageInfo? packageInfo;
 
   /// Results to draw bounding boxes
   List<Recognition>? results;
@@ -1360,7 +1362,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // });
 
     print("INIT STATEEE");
-    // Future.delayed(const Duration(milliseconds: 700), () {
     try {
       initMemoryAllocation();
       initNativeC(true);
@@ -1495,6 +1496,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   @override
   Widget build(BuildContext context) {
     // print("BUILD WIDGET");
+    if (packageInfo == null) {
+      Future.delayed(const Duration(milliseconds: 10), () async {
+        packageInfo = await PackageInfo.fromPlatform();
+      });
+    }
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     // screenDensity = MediaQuery.of(context).devicePixelRatio;
@@ -3107,6 +3113,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           //   top:10,
           //   child: Image.memory(dataMaskedImage)
           // )
+          Positioned(
+            right: 5,
+            top: 5,
+            child: Text(
+              style: const TextStyle(fontSize: 7),
+              "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}",
+            ),
+          ),
         ]
           ..addAll(widgets)
           ..addAll(inlineWidgets),
@@ -4473,6 +4487,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       neuronTypes: neuronTypes,
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
+      onDeleteCallback: onDeleteCallback,
       // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
       nodes: nodes,
       // edges: [
@@ -5639,13 +5654,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     double tempHeight = MediaQuery.of(context).size.height;
 
     try {
-      double displayWidth = savedFileJson["windowWidth"] *
-          savedFileJson["screenDensity"] /
-          MediaQuery.of(context).devicePixelRatio;
-      double displayHeight = savedFileJson["windowHeight"] *
-          savedFileJson["screenDensity"] /
-          MediaQuery.of(context).devicePixelRatio;
-      windowManager.setSize(Size(displayWidth, displayHeight));
+      if (savedFileJson["windowWidth"] != null) {
+        double displayWidth = savedFileJson["windowWidth"] *
+            savedFileJson["screenDensity"] /
+            MediaQuery.of(context).devicePixelRatio;
+        double displayHeight = savedFileJson["windowHeight"] *
+            savedFileJson["screenDensity"] /
+            MediaQuery.of(context).devicePixelRatio;
+        windowManager.setSize(Size(displayWidth, displayHeight));
+      }
     } catch (err) {
       print("err");
       print(err);
@@ -5867,7 +5884,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
 
     await Future.delayed(const Duration(milliseconds: 370), () {
-      windowManager.setSize(Size(tempWidth, tempHeight));
+      try {
+        windowManager.setSize(Size(tempWidth, tempHeight));
+      } catch (err) {
+        print("windowmanager error");
+        print(err);
+      }
     });
 
     // }
@@ -6227,7 +6249,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   List<String> empty = [];
-  int robotMessageDelay = 100;
+  int robotMessageDelay = 75;
   List<int> infoStatusMax = [];
   List<List<int>> diodeStatusMax = [];
   List<int> periodicNeuronSpikingFlags = [];
@@ -6245,6 +6267,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         [0, 0, 0],
       ];
       int diodeCounter = 0;
+      Map<int, int> leftAttentionValue = {};
+      Map<int, int> rightAttentionValue = {};
+      int leftSumValue = 0;
+      int rightSumValue = 0;
       // print("processRobotMessages Delay");
       if (isPlayingMenu) {
         // print("processRobotMessages");
@@ -6308,17 +6334,38 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             int len = commands.length;
             for (int i = 0; i < len; i++) {
               List<String> arr = commands[i].split(";");
-              // print("arr");
-              // print(arr);
               int n = arr.length;
               for (int j = 0; j < n; j++) {
                 List<String> arrStr = arr[j].split(":");
                 if (arrStr[0] == "l") {
-                  infoStatusMax[0] =
-                      max(infoStatusMax[0], int.parse(arrStr[1]));
+                  int val = int.parse(arrStr[1]);
+                  leftSumValue += val;
+                  // if (leftAttentionValue[val] == null) {
+                  //   leftAttentionValue[val] = 0;
+                  // } else {
+                  //   leftAttentionValue[val] = (leftAttentionValue[val])! + 1;
+                  // }
+                  // if (infoStatusMax[0].abs() >= val.abs()) {
+                  //   infoStatusMax[0] =
+                  //       infoStatusMax[0].sign * infoStatusMax[0].abs();
+                  // } else {
+                  //   infoStatusMax[0] = val.sign * val.abs();
+                  // }
                 } else if (arrStr[0] == "r") {
-                  infoStatusMax[1] =
-                      max(infoStatusMax[1], int.parse(arrStr[1]));
+                  int val = int.parse(arrStr[1]);
+
+                  rightSumValue += val;
+                  // if (rightAttentionValue[val] == null) {
+                  //   rightAttentionValue[val] = 0;
+                  // } else {
+                  //   rightAttentionValue[val] = (rightAttentionValue[val])! + 1;
+                  // }
+                  // if (infoStatusMax[1].abs() >= val.abs()) {
+                  //   infoStatusMax[1] =
+                  //       infoStatusMax[0].sign * infoStatusMax[1].abs();
+                  // } else {
+                  //   infoStatusMax[1] = val.sign * val.abs();
+                  // }
                 } else if (arrStr[0] == "s") {
                   infoStatusMax[2] =
                       max(infoStatusMax[2], int.parse(arrStr[1]));
@@ -6348,6 +6395,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       int.parse(diodeSplit[3]));
                 }
               }
+              // print("arr");
+              // print(arr);
+              // print(infoStatusMax);
+              // print(diodeStatusMax);
             }
             // reconstruct motor message
             // message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
@@ -6358,13 +6409,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               diodeString =
                   "${diodeString}d:$c,${diodeStatusMax[c][0]},${diodeStatusMax[c][1]},${diodeStatusMax[c][2]};";
             }
+            // String msg =
+            //     "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
+            int avgLeft = (leftSumValue / len).floor();
+            int avgRight = (rightSumValue / len).floor();
+            // print("avgLeft");
+            // print(len);
+            // print(avgLeft);
+            // print(avgRight);
             String msg =
-                "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
-            // print("msg");
-            // print(msg);
-            // print(infoStatusMax);
-            // print(periodicNeuronSpikingFlags);
+                "l:${avgLeft};r:${avgRight};s:${infoStatusMax[2]};$diodeString";
             if (isIsolateWritePortInitialized) {
+              // print("msg");
+              // print(msg);
+              // print(infoStatusMax);
+              // print(periodicNeuronSpikingFlags);
               _DesignBrainPageState.isolateWritePort.send(msg);
             }
 
@@ -6540,6 +6599,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
     currentImageWidth = imageSize.width * scaleX;
     currentImageHeight = imageSize.height * scaleY;
+  }
+
+  void onDeleteCallback() {
+    if (isDrawTail) {
+      deleteNeuronCallback();
+      resetMouse();
+    } else {
+      deleteEdgeCallback();
+      resetMouse();
+    }
   }
 }
 
