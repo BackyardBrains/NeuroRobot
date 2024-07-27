@@ -506,6 +506,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   List<SyntheticNeuron> syntheticNeuronList = [];
   List<Connection> syntheticConnections = [];
 
+  late Positioned toolbarMenu;
+
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
@@ -1316,50 +1318,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     getApplicationDocumentsDirectory().then((documentDirectory) {
       captureDirectory = Directory("${documentDirectory.path}$capturePath");
       if (!captureDirectory.existsSync()) captureDirectory.createSync();
-      // print("captureDirectory.path");
-      // print(captureDirectory.path);
     });
-
-    // subscriptionWifi = Connectivity()
-    //     .onConnectivityChanged
-    //     .listen((ConnectivityResult result) async {
-    //   // Got a new connectivity status!
-    //   print("Connectivity result");
-    //   print(result);
-    //   // isolateWritePort.send("DISCONNECT");
-    //   final info = NetworkInfo();
-
-    //   final wifiName = await info.getWifiName(); // "FooNetwork"
-    //   print(wifiName);
-    //   if (wifiName == null) {
-    //     try {
-    //       isolateWritePort.send("DISCONNECT");
-    //       isPlayingMenu = false;
-    //       isEmergencyPause = false;
-    //       setState(() {});
-    //     } catch (err) {
-    //       print("ERR change network");
-    //     }
-    //   } else if (wifiName.toLowerCase().contains("neurobot")) {
-    //     // if (isPlayingMenu) {
-    //     //   isCheckingColor = false;
-    //     //   try {
-    //     //     startWebSocket();
-    //     //   } catch (err) {
-    //     //     print("reconnect");
-    //     //   }
-    //     // }
-    //   } else {
-    //     try {
-    //       isolateWritePort.send("DISCONNECT");
-    //       isPlayingMenu = false;
-    //       isEmergencyPause = false;
-    //       setState(() {});
-    //     } catch (err) {
-    //       print("ERR change network");
-    //     }
-    //   }
-    // });
 
     print("INIT STATEEE");
     try {
@@ -1682,6 +1641,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       // scale: density,
                       // "assets/bg/bg1.0x.jpeg"),
                       "assets/bg/Spikerbot2Vector.svg"),
+                  // "assets/bg/BrainDrawings/BrainFullBlack.svg"),
                 );
               },
               drawVisibleOnly: true,
@@ -1693,7 +1653,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     List<Widget> inlineWidgets = [];
 
-    // List<Widget> dragTargetWidgets = getDragTargets();
+    List<Widget> dragTargetWidgets = getDragTargets();
     if (isPlayingMenu) {
       if (!isChartSelected) {
         inlineWidgets.add(Positioned(
@@ -2877,6 +2837,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             )),
       ));
     }
+    if (!isPlayingMenu) {
+      toolbarMenu = Positioned(
+        right: 10 + safePadding,
+        // left: safePadding,
+        top: 10,
+        child: RightToolbar(
+            key: rightToolbarKey,
+            menuIdx: menuIdx,
+            isPlaying: isPlayingMenu,
+            callback: rightToolbarCallback),
+      );
+    }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -2918,91 +2890,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 height: screenHeight,
                 child: mainBody),
           ),
-          if (!isPlayingMenu) ...{
-            Positioned(
-              right: 10 + safePadding,
-              top: 10,
-              child: RightToolbar(
-                  key: rightToolbarKey,
-                  menuIdx: menuIdx,
-                  isPlaying: isPlayingMenu,
-                  callback: rightToolbarCallback),
-            ),
-          },
-          // Positioned(
-          //   bottom: screenHeight * 0.35,
-          //   left: 10,
-          //   child: Text("Battery Voltage : $batteryVoltage"),
-          // ),
-          // ZOOM DESKTOP
-          // if (!(Platform.isIOS || Platform.isAndroid)) ...[
-          //   Positioned(
-          //     right: 90,
-          //     bottom: 20,
-          //     child: Card(
-          //       surfaceTintColor: Colors.white,
-          //       // surfaceTintColor: Colors.transparent,
-          //       shadowColor: Colors.white,
-          //       // color: Colors.transparent,
-          //       child: Container(
-          //         color: Colors.transparent,
-          //         width: 129,
-          //         child: Row(
-          //           children: [
-          //             MeTooltip(
-          //               message: "Zoom Out",
-          //               preferOri: PreferOrientation.up,
-          //               child: ElevatedButton(
-          //                 onPressed: () {
-          //                   controller.zoomOut();
-          //                 },
-          //                 style: ElevatedButton.styleFrom(
-          //                     backgroundColor: Colors.white,
-          //                     surfaceTintColor: Colors.white,
-          //                     shadowColor: Colors.transparent
-          //                     // shadowColor: Colors.white,
-          //                     ),
-          //                 child: const Text("-",
-          //                     style: TextStyle(
-          //                         fontSize: 25, color: Color(0xFF4e4e4e))),
-          //               ),
-          //             ),
-          //             MeTooltip(
-          //               message: "Zoom In",
-          //               preferOri: PreferOrientation.up,
-          //               child: ElevatedButton(
-          //                 onPressed: () {
-          //                   controller.zoomIn();
-          //                 },
-          //                 style: ElevatedButton.styleFrom(
-          //                     backgroundColor: Colors.white,
-          //                     surfaceTintColor: Colors.white,
-          //                     shadowColor: Colors.transparent
-
-          //                     // shadowColor: Colors.white,
-          //                     ),
-          //                 child: const Text("+",
-          //                     style: TextStyle(
-          //                         fontSize: 25, color: Color(0xFF4e4e4e))),
-          //               ),
-          //             )
-          //           ],
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ],
           if (isPlayingMenu) ...[
             Positioned(
               left: 50,
               top: 0,
-              // child:Container(
-              //   width:100,height:200,
-              //   child: Mjpeg(
-              //     stream: "http://192.168.4.1:81/stream",
-              //     isLive: true,
-              //   ),
-              // )
               child: ClipRect(
                 clipper: EyeClipper(
                     isLeft: true, width: screenWidth, height: screenHeight),
@@ -3017,21 +2908,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   builder: (context, snapshot) {
                     // print(snapshot.data);
                     if (snapshot.data == null) return Container();
-                    // return Image.memory(
-                    //   snapshot.data!,
-                    //   gaplessPlayback: true,
-                    //   // width: 320 / 2,
-                    //   height: 240 / 2,
-                    //   fit: BoxFit.fitHeight,
-                    // );
-
-                    // captureSteps++;
-                    // if (captureSteps > 500) {
-                    //   // print("captureStep");
-                    //   // print(captureSteps);
-                    //   captureSteps = 0;
-                    // }
-
                     return ClipRect(
                       clipper: EyeClipper(
                           isLeft: false,
@@ -3123,8 +2999,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           ),
         ]
           ..addAll(widgets)
-          ..addAll(inlineWidgets),
-        // ..addAll(dragTargetWidgets),
+          ..addAll(inlineWidgets)
+          // ..addAll(dragTargetWidgets)
+          ..add(toolbarMenu),
       ),
     );
   }
@@ -6249,6 +6126,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   List<String> empty = [];
+  double multiplierConstant = 0.78;
   int robotMessageDelay = 75;
   List<int> infoStatusMax = [];
   List<List<int>> diodeStatusMax = [];
@@ -6269,8 +6147,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       int diodeCounter = 0;
       Map<int, int> leftAttentionValue = {};
       Map<int, int> rightAttentionValue = {};
-      int leftSumValue = 0;
-      int rightSumValue = 0;
+      double leftSumValue = 0;
+      double rightSumValue = 0;
       // print("processRobotMessages Delay");
       if (isPlayingMenu) {
         // print("processRobotMessages");
@@ -6332,6 +6210,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           if (commands.isNotEmpty) {
             // print(commands.length);
             int len = commands.length;
+            int validValueCounter = 0;
             for (int i = 0; i < len; i++) {
               List<String> arr = commands[i].split(";");
               int n = arr.length;
@@ -6339,12 +6218,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 List<String> arrStr = arr[j].split(":");
                 if (arrStr[0] == "l") {
                   int val = int.parse(arrStr[1]);
-                  leftSumValue += val;
-                  // if (leftAttentionValue[val] == null) {
-                  //   leftAttentionValue[val] = 0;
-                  // } else {
-                  //   leftAttentionValue[val] = (leftAttentionValue[val])! + 1;
-                  // }
+                  if (val.abs() >= 5) {
+                    validValueCounter++;
+                    leftSumValue += val;
+                  }
+                  if (leftAttentionValue[val] == null) {
+                    leftAttentionValue[val] = 1;
+                  } else {
+                    leftAttentionValue[val] = (leftAttentionValue[val])! + 1;
+                  }
+
                   // if (infoStatusMax[0].abs() >= val.abs()) {
                   //   infoStatusMax[0] =
                   //       infoStatusMax[0].sign * infoStatusMax[0].abs();
@@ -6353,13 +6236,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   // }
                 } else if (arrStr[0] == "r") {
                   int val = int.parse(arrStr[1]);
+                  if (val.abs() >= 5) {
+                    validValueCounter++;
+                    rightSumValue += val;
+                  }
+                  if (rightAttentionValue[val] == null) {
+                    rightAttentionValue[val] = 1;
+                  } else {
+                    rightAttentionValue[val] = (rightAttentionValue[val])! + 1;
+                  }
 
-                  rightSumValue += val;
-                  // if (rightAttentionValue[val] == null) {
-                  //   rightAttentionValue[val] = 0;
-                  // } else {
-                  //   rightAttentionValue[val] = (rightAttentionValue[val])! + 1;
-                  // }
                   // if (infoStatusMax[1].abs() >= val.abs()) {
                   //   infoStatusMax[1] =
                   //       infoStatusMax[1].sign * infoStatusMax[1].abs();
@@ -6395,10 +6281,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       int.parse(diodeSplit[3]));
                 }
               }
-              // print("arr");
-              // print(arr);
-              // print(infoStatusMax);
-              // print(diodeStatusMax);
             }
             // reconstruct motor message
             // message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";";
@@ -6416,15 +6298,41 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             String msg =
                 "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
             */
-
-            int avgLeft = (leftSumValue / len).floor();
-            int avgRight = (rightSumValue / len).floor();
+// /*
+            int avgLeft = 0;
+            int avgRight = 0;
+            String msg = "";
+            if (leftAttentionValue[0] == len) {
+              avgLeft = 0;
+            } else {
+              leftSumValue = leftSumValue / validValueCounter;
+              double calculatedValue = leftSumValue.sign *
+                  ((leftSumValue.abs() - 250) * multiplierConstant + 250);
+              // print("calculatedValue left");
+              // print(calculatedValue);
+              avgLeft = (calculatedValue).floor();
+            }
+            if (rightAttentionValue[0] == len) {
+              avgRight = 0;
+            } else {
+              rightSumValue = rightSumValue / validValueCounter;
+              double calculatedValue = rightSumValue.sign *
+                  ((rightSumValue.abs() - 250) * multiplierConstant + 250);
+              // print("calculatedValue right");
+              // print(calculatedValue);
+              avgRight = (calculatedValue).floor();
+            }
             // print("avgLeft");
             // print(len);
             // print(avgLeft);
             // print(avgRight);
-            String msg =
+            // print(validValueCounter);
+            // print("===============");
+            // avgLeft = -60;
+            // avgRight = 60;
+            msg =
                 "l:${avgLeft};r:${avgRight};s:${infoStatusMax[2]};$diodeString";
+// */
             if (isIsolateWritePortInitialized) {
               // print("msg");
               // print(msg);
@@ -6555,8 +6463,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   List<Widget> getDragTargets() {
     List<Widget> list = [];
     list.add(Positioned(
-      left: 100,
-      top: 100,
+      left: 630,
+      top: 200,
       child: DragTarget(onWillAcceptWithDetails: (dragDetail) {
         print("onWillAcceptWithDetails");
         return true;
@@ -6565,11 +6473,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       }, onLeave: (value) {
         print("On Leave Drag Target");
       }, builder: (ctx, candidates, rejects) {
-        return Container(
-          width: 230,
-          height: 230,
-          color: Colors.green,
+        return CustomPaint(
+          size: const Size(65, 250), // Adjust size as needed
+          painter: DistanceSensorPainter(),
         );
+        // return Container(
+        //   width: 230,
+        //   height: 230,
+        //   color: Colors.green,
+        // );
       }),
     ));
     return list;
@@ -6824,3 +6736,179 @@ class ImagePreprocessor extends MjpegPreprocessor {
     return frame;
   }
 }
+
+// REAL Motor Right
+// left: 110,
+// top: 0,
+// size: const Size(65, 250), // Adjust size as needed
+class DistanceSensorPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.blue;
+    // Customize color
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// REAL Microphone
+// left: 550,
+// top: 0,
+// size: const Size(130, 160), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// // REAL Speaker
+// // left: 540,
+// // top: 460,
+// // size: const Size(145, 140), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// REAL Compass
+// left: 310,
+// top: 500,
+// size: const Size(175, 100), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// REAL CAMERA
+// left: 310,
+// top: 0,
+// size: const Size(175, 100), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// // REAL LED
+// // left: 100,
+// // top: 480,
+// // size: const Size(165, 110), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// // REAL Motor Left
+// // left: 110,
+// // top: 0,
+// // size: const Size(65, 250), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
+
+// REAL DISTANCE SENSOR PAINTER
+// left: 110,
+// top: 0,
+// size: const Size(95, 130), // Adjust size as needed
+// class DistanceSensorPainter extends CustomPainter {
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()..color = Colors.blue;
+//     // Customize color
+//     final path = Path();
+//     path.moveTo(0, 0);
+//     path.lineTo(size.width, 0);
+//     path.lineTo(size.width + 5, size.height);
+//     path.lineTo(0, size.height);
+//     path.close();
+//     canvas.drawPath(path, paint);
+//   }
+
+//   @override
+//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+// }
