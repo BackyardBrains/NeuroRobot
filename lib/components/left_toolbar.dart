@@ -1,9 +1,14 @@
+/*
+  Belgrade 11 July 2024
+  We are using Draggable and DragTarget, https://www.youtube.com/watch?v=q4x2G_9-Mu0
+*/
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:metooltip/metooltip.dart';
+import 'package:neurorobot/components/menu_icon_animation.dart';
 
 class LeftToolbar extends StatefulWidget {
   LeftToolbar(
@@ -44,10 +49,38 @@ class _RightToolbarState extends State<LeftToolbar> {
     for (int idx = 0; idx < inactiveIconsPath.length; idx++) {
       menuIcons.add(Container(
         padding: const EdgeInsets.all(3),
-        child: SvgPicture.asset(inactiveIconsPath[idx],
+        child: Draggable(
+          data: idx,
+          onDragStarted: () {
+            // change the background to be gray
+            widget.callback({
+              "modeIdx": idx,
+            });
+            print("Drag started $idx");
+          },
+          onDraggableCanceled: (_, __) {
+            print('Drag Canceled');
+            // change the background to be black
+            widget.callback({
+              "modeIdx": -1,
+            });
+          },
+          feedback: MenuIconAnimation(
+            svgPath: activeIconsPath[idx],
+            width: 90,
+            height: 90,
+          ),
+          childWhenDragging: SvgPicture.asset(
+            // colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
+            inactiveIconsPath[idx],
             width: 70,
             height: 70,
-            semanticsLabel: 'Inactive Excitatory neuron'),
+          ),
+          child: SvgPicture.asset(inactiveIconsPath[idx],
+              width: 70,
+              height: 70,
+              semanticsLabel: 'Inactive Excitatory neuron'),
+        ),
       ));
     }
     // print("widget.menuIcons");

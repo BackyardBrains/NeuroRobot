@@ -60,21 +60,23 @@ void main() async {
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
+    double screenWidth = 800;
+    double screenHeight = 600;
 
-    WindowOptions windowOptions = const WindowOptions(
+    WindowOptions windowOptions = WindowOptions(
       title: "Spikerbot",
-      minimumSize: Size(800, 600),
-      size: Size(800, 600),
+      minimumSize: Size(screenWidth, screenHeight),
+      size: Size(screenWidth, screenHeight),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
     );
     if (Platform.isWindows) {
-      windowOptions = const WindowOptions(
+      windowOptions = WindowOptions(
         title: "Spikerbot",
-        minimumSize: Size(800, 600),
-        size: Size(800, 600),
+        minimumSize: Size(screenWidth, screenHeight),
+        size: Size(screenWidth, screenHeight),
         center: true,
         backgroundColor: Colors.transparent,
         skipTaskbar: false,
