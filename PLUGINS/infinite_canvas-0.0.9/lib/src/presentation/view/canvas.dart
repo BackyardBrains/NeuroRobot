@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:infinite_canvas/src/domain/model/drop_target.dart';
+import 'package:infinite_canvas/src/presentation/widgets/droptargets_renderer.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import '../widgets/delegate.dart';
@@ -28,6 +30,7 @@ class InfiniteCanvas extends StatefulWidget {
       this.gridSize = const Size.square(50),
       this.menuVisible = true,
       this.menus = const [],
+      this.activeComponent,
       this.backgroundBuilder,
       this.drawVisibleOnly = false,
       this.canAddEdges = false,
@@ -41,6 +44,7 @@ class InfiniteCanvas extends StatefulWidget {
   final bool canAddEdges;
   final bool edgesUseStraightLines;
   final Widget Function(BuildContext, Rect)? backgroundBuilder;
+  final Widget Function(BuildContext, Rect)? activeComponent;
 
   @override
   State<InfiniteCanvas> createState() => InfiniteCanvasState();
@@ -57,6 +61,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   int secondTapTime = 0;
 
   late Positioned edgesWidget;
+  late Widget dropTargetsWidget;
 
   @override
   void initState() {
@@ -125,6 +130,18 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
     final viewport = axisAlignedBoundingBox(quad);
     if (widget.backgroundBuilder != null) {
       return widget.backgroundBuilder!(context, viewport);
+    }
+    return GridBackgroundBuilder(
+      cellWidth: widget.gridSize.width,
+      cellHeight: widget.gridSize.height,
+      viewport: viewport,
+    );
+  }
+
+  Widget buildActiveComponent(BuildContext context, Quad quad) {
+    final viewport = axisAlignedBoundingBox(quad);
+    if (widget.activeComponent != null) {
+      return widget.activeComponent!(context, viewport);
     }
     return GridBackgroundBuilder(
       cellWidth: widget.gridSize.width,
@@ -420,6 +437,15 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   } else {
                     // print("edges widget cache");
                   }
+                  if (controller.modeIdx != -1 &&
+                      controller.dropTargets.isNotEmpty) {
+                    dropTargetsWidget = Positioned.fill(
+                      child: InfiniteDropTargetsRenderer(
+                        controller: controller,
+                        dropTargets: controller.dropTargets,
+                      ),
+                    );
+                  }
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
                     child: Stack(
@@ -427,6 +453,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                       children: [
                         Positioned.fill(
                           child: buildBackground(context, quad),
+                        ),
+                        Positioned.fill(
+                          child: buildActiveComponent(context, quad),
                         ),
                         edgesWidget,
                         Positioned.fill(
@@ -444,6 +473,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                                 .toList(),
                           ),
                         ),
+                        if (controller.dropTargets.isNotEmpty) ...[
+                          dropTargetsWidget
+                        ],
+
                         // CHANGE ME
                         // if (controller.marqueeStart != null &&
                         //     controller.marqueeEnd != null) ...[

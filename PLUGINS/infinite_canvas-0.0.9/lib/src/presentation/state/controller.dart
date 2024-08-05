@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
+import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 
 import '../../domain/model/edge.dart';
 import '../../domain/model/graph.dart';
@@ -28,6 +29,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final VoidCallback onDeleteCallback;
 
   Map<String, Path> axonPathMap = {};
+
+  int modeIdx = 0;
   // final VoidCallback transformNeuronPositionWrapper;
 
   InfiniteCanvasController({
@@ -54,6 +57,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   double maxScale = 4;
   final focusNode = FocusNode();
   Size? viewport;
+
+  List<InfiniteDropTarget> dropTargets = [];
 
   @override
   final List<InfiniteCanvasNode> nodes = [];
@@ -595,7 +600,11 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   void zoomIn() => zoom(1.1);
   void zoomOut() => zoom(0.9);
-  void zoomReset() => transform.value = Matrix4.identity();
+  void zoomReset() {
+    transform.value = Matrix4.identity();
+    // Future.delayed(
+    //     const Duration(milliseconds: 100), () => pan(const Offset(-60, 0)));
+  }
 
   void pan(Offset delta) {
     final matrix = transform.value.clone();

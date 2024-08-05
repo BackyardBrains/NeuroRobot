@@ -139,13 +139,13 @@ class SyntheticNeuron extends CustomPainter {
     double x = circleRadius + node.offset.dx;
     double y = circleRadius + node.offset.dy;
 
-    print("diameterOfNeuron");
-    print(node.key.toString());
-    print(diameterOfNeuron);
-    print(drawX);
-    print(drawY);
-    print(x);
-    print(y);
+    // print("diameterOfNeuron");
+    // print(node.key.toString());
+    // print(diameterOfNeuron);
+    // print(drawX);
+    // print(drawY);
+    // print(x);
+    // print(y);
 
     // drawX, drawY need to use this because nucleus and dendrite positions are relative to the neuron
     // x,y positions are need so we can use the drawing algorithm.
