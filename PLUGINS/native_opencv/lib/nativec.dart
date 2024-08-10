@@ -117,9 +117,13 @@ typedef PassPointers = double Function(
 
 typedef pass_input_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
 );
 typedef PassInput = double Function(
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
 );
 
 // typedef _SimulationCallbackFunc = int Function(ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint8>);
@@ -376,9 +380,14 @@ class Nativec {
     callback.keepIsolateAlive = false;
   }
 
-  void passInput(ffi.Pointer<ffi.Double> pSensorDistance) {
+  void passInput(
+      ffi.Pointer<ffi.Double> pSensorDistance,
+      ffi.Pointer<ffi.Int16> pSensorMinLimit,
+      ffi.Pointer<ffi.Int16> pSensorMaxLimit) {
     _passInput(
       pSensorDistance,
+      pSensorMinLimit,
+      pSensorMaxLimit,
     );
     return;
   }

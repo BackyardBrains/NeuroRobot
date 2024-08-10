@@ -60,7 +60,7 @@ void main() async {
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
-    double screenWidth = 800;
+    double screenWidth = 870;
     double screenHeight = 600;
 
     WindowOptions windowOptions = WindowOptions(

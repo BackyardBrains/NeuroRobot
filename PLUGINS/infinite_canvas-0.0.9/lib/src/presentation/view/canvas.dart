@@ -61,7 +61,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   int secondTapTime = 0;
 
   late Positioned edgesWidget;
-  late Widget dropTargetsWidget;
+  Widget? dropTargetsWidget;
 
   @override
   void initState() {
@@ -440,10 +440,19 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   if (controller.modeIdx != -1 &&
                       controller.dropTargets.isNotEmpty) {
                     dropTargetsWidget = Positioned.fill(
-                      child: InfiniteDropTargetsRenderer(
-                        controller: controller,
-                        dropTargets: controller.dropTargets,
-                      ),
+                      child: CustomMultiChildLayout(
+                          delegate: InfiniteCanvasDropTargetsDelegate(
+                              controller.dropTargets),
+                          children: controller.dropTargets
+                              .map((dropTarget) => LayoutId(
+                                    key: dropTarget.key,
+                                    id: dropTarget,
+                                    child: InfiniteDropTargetsRenderer(
+                                      dropTarget: dropTarget,
+                                      controller: controller,
+                                    ),
+                                  ))
+                              .toList()),
                     );
                   }
                   return SizedBox.fromSize(
@@ -473,9 +482,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                                 .toList(),
                           ),
                         ),
-                        if (controller.dropTargets.isNotEmpty) ...[
-                          dropTargetsWidget
-                        ],
+                        if (controller.dropTargets.isNotEmpty &&
+                            dropTargetsWidget != null) ...[dropTargetsWidget!],
 
                         // CHANGE ME
                         // if (controller.marqueeStart != null &&

@@ -24,7 +24,8 @@ class MenuIconAnimation extends StatefulWidget {
 class _MenuIconAnimationState extends State<MenuIconAnimation>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  late Animation<double> _rotationAnimation;
+  // late Animation<Offset> _translationAnimation;
 
   @override
   void initState() {
@@ -33,9 +34,13 @@ class _MenuIconAnimationState extends State<MenuIconAnimation>
       vsync: this,
       duration: widget.duration,
     )..repeat(reverse: true);
-    // _animation = Tween<double>(begin: 0, end: 2 * math.pi).animate(_controller);
-    _animation =
+    // _rotationAnimation = Tween<double>(begin: 0, end: 2 * math.pi).animate(_controller);
+    _rotationAnimation =
         Tween<double>(begin: 0, end: 10 * math.pi / 180).animate(_controller);
+    // _translationAnimation = Tween<Offset>(
+    //   begin: const Offset(-45, -45),
+    //   end: const Offset(-45, -45),
+    // ).animate(_controller);
   }
 
   @override
@@ -47,16 +52,18 @@ class _MenuIconAnimationState extends State<MenuIconAnimation>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _rotationAnimation,
       builder: (BuildContext context, Widget? child) {
         return Transform.rotate(
-          angle: _animation.value,
-          child: SvgPicture.asset(
-            widget.svgPath,
-            width: widget.width,
-            height: widget.height,
-          ),
-        );
+            angle: _rotationAnimation.value,
+            // child: Transform.translate(
+            //   offset: _translationAnimation.value,
+            child: SvgPicture.asset(
+              widget.svgPath,
+              width: widget.width,
+              height: widget.height,
+              // ),
+            ));
       },
     );
   }

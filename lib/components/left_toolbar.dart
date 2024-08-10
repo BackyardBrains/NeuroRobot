@@ -11,14 +11,17 @@ import 'package:metooltip/metooltip.dart';
 import 'package:neurorobot/components/menu_icon_animation.dart';
 
 class LeftToolbar extends StatefulWidget {
-  LeftToolbar(
-      {super.key,
-      required this.callback,
-      required this.isPlaying,
-      required this.menuIdx});
+  LeftToolbar({
+    super.key,
+    required this.callback,
+    required this.isPlaying,
+    required this.menuIdx,
+    //required this.startDragOffset
+  });
   late Function callback;
   final int menuIdx;
   final bool isPlaying;
+  // final Offset startDragOffset;
 
   @override
   State<LeftToolbar> createState() => _RightToolbarState();
@@ -70,6 +73,14 @@ class _RightToolbarState extends State<LeftToolbar> {
             width: 90,
             height: 90,
           ),
+          dragAnchorStrategy: (draggable, context, offset) {
+            // _dragOffset = offset;
+            // return Offset(offset.dx - draggable.size.width / 2, offset.dy - draggable.size.height / 2);
+            // print("draggable");
+            // print(draggable);
+            return const Offset(45, 45);
+            // return const Offset(0, 0);
+          },
           childWhenDragging: SvgPicture.asset(
             // colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
             inactiveIconsPath[idx],
@@ -104,10 +115,10 @@ class _RightToolbarState extends State<LeftToolbar> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5), // Shadow color
-            spreadRadius: 5.0, // Adjust shadow spread
-            blurRadius: 7.0, // Adjust shadow blur
-            offset: const Offset(4.0, 4.0), // Offset shadow slightly
+            color: Colors.black.withOpacity(0.5), // Shadow color
+            spreadRadius: 1.0, // Adjust shadow spread
+            blurRadius: 1.0, // Adjust shadow blur
+            offset: const Offset(1.0, 1.0), // Offset shadow slightly
           ),
         ],
       ),
