@@ -129,6 +129,8 @@ double dist_medium = 70;
 double dist_long = 90;
 
 double *sensor_distance;
+short *sensor_min_limit;
+short *sensor_max_limit;
 
 
 // SPEAKER 
