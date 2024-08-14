@@ -116,7 +116,7 @@ class GeneralSensorPainter extends CustomPainter {
   double yDiff = 4;
   Path path = Path();
   Paint painter = Paint();
-  Color myColor = Colors.transparent;
+  Color myColor = Colors.red.withOpacity(0.5);
   final List<Offset> polygonPath = [];
   final List<double> positionDiff = [];
 
@@ -434,4 +434,30 @@ List<List<Offset>> sensorPolygonPaths = [
     const Offset(457, 563),
     const Offset(432, 518),
   ], // speaker
+  [
+    const Offset(163, 69),
+    const Offset(218, 63),
+    const Offset(271, 96),
+    const Offset(309, 100),
+    const Offset(384, 55),
+    const Offset(451, 72),
+    const Offset(508, 131),
+    const Offset(523, 174),
+    const Offset(531, 229),
+    const Offset(544, 321),
+    const Offset(521, 422),
+    const Offset(465, 500),
+    const Offset(432, 518),
+    const Offset(378, 534),
+    const Offset(302, 495),
+    const Offset(229, 533),
+    const Offset(172, 529),
+    const Offset(134, 527),
+    const Offset(69, 459),
+    const Offset(68, 416),
+    const Offset(56, 322),
+    const Offset(68, 225),
+    const Offset(98, 139),
+    const Offset(123, 111),
+  ], // core brain
 ];

@@ -440,19 +440,23 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   if (controller.modeIdx != -1 &&
                       controller.dropTargets.isNotEmpty) {
                     dropTargetsWidget = Positioned.fill(
-                      child: CustomMultiChildLayout(
-                          delegate: InfiniteCanvasDropTargetsDelegate(
-                              controller.dropTargets),
-                          children: controller.dropTargets
-                              .map((dropTarget) => LayoutId(
-                                    key: dropTarget.key,
-                                    id: dropTarget,
-                                    child: InfiniteDropTargetsRenderer(
-                                      dropTarget: dropTarget,
-                                      controller: controller,
-                                    ),
-                                  ))
-                              .toList()),
+                      child: InfiniteDropTargetsRenderer(
+                        controller: controller,
+                        dropTargets: controller.dropTargets,
+                      ),
+                      // child: CustomMultiChildLayout(
+                      //     delegate: InfiniteCanvasDropTargetsDelegate(
+                      //         controller.dropTargets),
+                      //     children: controller.dropTargets
+                      //         .map((dropTarget) => LayoutId(
+                      //               key: dropTarget.key,
+                      //               id: dropTarget,
+                      //               child: InfiniteDropTargetsRenderer(
+                      //                 dropTarget: dropTarget,
+                      //                 controller: controller,
+                      //               ),
+                      //             ))
+                      //         .toList()),
                     );
                   }
                   return SizedBox.fromSize(

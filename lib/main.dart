@@ -64,7 +64,7 @@ void main() async {
     double screenHeight = 600;
 
     WindowOptions windowOptions = WindowOptions(
-      title: "Spikerbot",
+      // title: "Spikerbot",
       minimumSize: Size(screenWidth, screenHeight),
       size: Size(screenWidth, screenHeight),
       center: true,
@@ -74,7 +74,7 @@ void main() async {
     );
     if (Platform.isWindows) {
       windowOptions = WindowOptions(
-        title: "Spikerbot",
+        title: "SpikerBot",
         minimumSize: Size(screenWidth, screenHeight),
         size: Size(screenWidth, screenHeight),
         center: true,
@@ -83,7 +83,9 @@ void main() async {
         titleBarStyle: TitleBarStyle.normal,
       );
     }
+
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setSize(Size(screenWidth, screenHeight));
       await windowManager.show();
       await windowManager.focus();
     });
