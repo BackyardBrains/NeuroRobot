@@ -549,6 +549,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   TextEditingController txtDistanceMaxController =
       TextEditingController(text: "8");
 
+  int isBrainTargetOverlayTop = -1;
+
+  int containedIdx = -1;
+
+  int brainContainedIdx = -1;
+
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
@@ -1572,6 +1578,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     if (!isInitialized && screenWidth > screenHeight) {
       initCanvas();
       isInitialized = true;
+      repositionContactNeurons();
 
       if (!kIsWeb) {
         // WaveWidget.positionsBufView = positionsBufView;
@@ -4236,6 +4243,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   leftToolbarCallback(map) async {
     modeIdx = map["modeIdx"];
     controller.modeIdx = modeIdx;
+    isBrainTargetOverlayTop = -1;
+    containedIdx = -1;
     if (modeIdx != -1) {
       mapBg["activeBg"] = "assets/bg/BrainDrawings/BrainFullGrey.svg";
     } else {
@@ -4936,7 +4945,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     controller.maxScale = 2.7;
     controller.scale = 1;
     controller.minScale = 0.85;
-    controller.pan(const Offset(-60, 0));
+    // controller.pan(const Offset(-60, 0));
     // controller.zoom(0.97);
     // controller.minScale = 1;
 
@@ -7078,6 +7087,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
   }
 
+/*
+  Overlay with sensors first, then if it is not containing, check the background, and if it is not containing change to -1, if containing stay.
+ */
   String activeBrainComponent = "assets/bg/BrainDrawings/BrainSoloBlack.svg";
   String defaultBg = "assets/bg/BrainDrawings/BrainFullBlack.svg";
   String greyBg = "assets/bg/BrainDrawings/BrainFullGrey.svg";
@@ -7196,170 +7208,180 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         brainDiff.height,
       ],
     );
-    List<InfiniteDropTarget> list = [
-      InfiniteDropTarget(
-        key: UniqueKey(),
-        // offset: const Offset(200, 90),
-        offset: Offset(brainPosition.dx, brainPosition.dy),
-        size: brainSize,
-        // color: Colors.green,
-        child: Positioned(
-          top: brainPosition.dy,
-          left: brainPosition.dx,
-          child: DragTarget(
-              hitTestBehavior: HitTestBehavior.opaque,
-              onMove: (dragDetail) {
-                Offset localAreaOffset = controller.toLocal(
-                    Offset(dragDetail.offset.dx, dragDetail.offset.dy));
+    InfiniteDropTarget brainTarget = InfiniteDropTarget(
+      key: UniqueKey(),
+      // offset: const Offset(200, 90),
+      offset: Offset(brainPosition.dx, brainPosition.dy),
+      size: brainSize,
+      // color: Colors.green,
+      child: Positioned(
+        top: brainPosition.dy,
+        left: brainPosition.dx,
+        child: DragTarget(
+            // hitTestBehavior: HitTestBehavior.opaque,
+            onMove: (dragDetail) {
+          Offset localAreaOffset = controller
+              .toLocal(Offset(dragDetail.offset.dx, dragDetail.offset.dy));
 
-                GeneralSensorPainter painter = (coreBrainPainter);
-                Offset containOffset = localAreaOffset.translate(
-                    -brainPosition.dx + 45, -brainPosition.dy + 45);
-                // localAreaOffset.translate(-painter.xDiff, -painter.yDiff);
-                bool isContaining = painter.path.contains(containOffset);
-                print("------localAreaOffset");
-                print(containOffset);
-                print(isContaining);
-                if (isContaining) {
-                  if (mapBg["activeComponent"] == activeBrainComponent) {
-                  } else {
-                    mapBg["activeComponent"] = activeBrainComponent;
-                    Future.delayed(const Duration(milliseconds: 127), () {
-                      setState(() {});
-                    });
-                  }
-                } else {
-                  if (mapBg["activeComponent"] == noActiveComponent) {
-                  } else {
-                    mapBg["activeComponent"] = noActiveComponent;
-                    Future.delayed(const Duration(milliseconds: 127), () {
-                      setState(() {});
-                    });
-                  }
-                }
-              },
-              onWillAcceptWithDetails: (dragDetail) {
-                // print("onWillAcceptWithDetails brain" +
-                //     controller.toLocal(dragDetail.offset).toString());
-                // mapBg["activeBg"] = greyBg;
-                // mapBg["activeComponent"] = activeBrainComponent;
-                Future.delayed(const Duration(milliseconds: 127), () {
-                  setState(() {});
-                });
-                if (dragDetail.data as int < 2) {
-                  return true;
-                } else {
-                  print("return false");
-                  return false;
-                }
-              },
-              onAcceptWithDetails: (value) {
-                clearUIMenu();
-                // print("onAcceptWithDetails" +
-                //     controller.toLocal(value.offset).toString());
-                mapBg["activeBg"] = defaultBg;
-                mapBg["activeComponent"] = noActiveComponent;
+          GeneralSensorPainter painter = (coreBrainPainter);
+          Offset containOffset = localAreaOffset.translate(
+              -brainPosition.dx + 45, -brainPosition.dy + 45);
+          // localAreaOffset.translate(-painter.xDiff, -painter.yDiff);
+          bool isContaining = painter.path.contains(containOffset);
+          print("------localAreaOffset core brain");
+          print(containOffset);
+          print(isContaining);
+          if (isContaining) {
+            brainContainedIdx = 0;
 
-                isCreatePoint = true;
-                if (neuronSize + 1 >= maxPosBuffer) {
-                  return;
-                }
-                neuronSize++;
-                UniqueKey newNodeKey = UniqueKey();
-                neuronsKey.add(newNodeKey);
-                mapDelayNeuronList.add(-1);
-                mapRhytmicNeuronList.add(-1);
-                mapCountingNeuronList.add(-1);
-                // neuronTypes[newNodeKey.toString()] = (randomNeuronType());
-                neuronTypes[newNodeKey.toString()] = "Quiet";
-                if (value.data == 0) {
-                  neuronStyles[newNodeKey.toString()] = "Excitatory";
-                } else {
-                  neuronStyles[newNodeKey.toString()] = "Inhibitory";
-                }
+            if (mapBg["activeComponent"] == activeBrainComponent) {
+            } else {
+              mapBg["activeComponent"] = activeBrainComponent;
+              Future.delayed(const Duration(milliseconds: 127), () {
+                setState(() {});
+              });
+            }
+          } else {
+            isBrainTargetOverlayTop = -1;
+            brainContainedIdx = -1;
 
-                aDesignArray[newNodeKey.toString()] = sldAWeight;
-                bDesignArray[newNodeKey.toString()] = sldBWeight;
-                cDesignArray[newNodeKey.toString()] = sldCWeight;
-                dDesignArray[newNodeKey.toString()] = sldDWeight;
+            if (mapBg["activeComponent"] == noActiveComponent) {
+            } else {
+              mapBg["activeComponent"] = noActiveComponent;
+              Future.delayed(const Duration(milliseconds: 127), () {
+                setState(() {});
+              });
+            }
+          }
+        }, onWillAcceptWithDetails: (dragDetail) {
+          // print("onWillAcceptWithDetails brain" +
+          //     controller.toLocal(dragDetail.offset).toString());
+          // mapBg["activeBg"] = greyBg;
+          // mapBg["activeComponent"] = activeBrainComponent;
+          Future.delayed(const Duration(milliseconds: 127), () {
+            setState(() {});
+          });
+          if (dragDetail.data as int < 2) {
+            print("containedIdx NOT containing brain");
+            print(brainContainedIdx);
 
-                // Offset canvasOffset = controller.toLocal(controller.getOffset());
-                final Size containerSize = Size(windowWidth,
-                    windowHeight); // Replace with your container size
+            return true;
+          } else {
+            print("return false");
+            return false;
+          }
+        }, onAcceptWithDetails: (value) {
+          clearUIMenu();
+          if (brainContainedIdx != 0) return;
 
-                Size initialImageSize = const Size(600, 600);
-                final fittedSizes = applyBoxFit(
-                    BoxFit.contain, initialImageSize, containerSize);
+          // print("onAcceptWithDetails" +
+          //     controller.toLocal(value.offset).toString());
+          mapBg["activeBg"] = defaultBg;
+          mapBg["activeComponent"] = noActiveComponent;
 
-                Offset mouseOffset = controller.toLocal(
-                    Offset(value.offset.dx + 30, value.offset.dy + 35));
+          isCreatePoint = true;
+          if (neuronSize + 1 >= maxPosBuffer) {
+            return;
+          }
+          neuronSize++;
+          UniqueKey newNodeKey = UniqueKey();
+          neuronsKey.add(newNodeKey);
+          mapDelayNeuronList.add(-1);
+          mapRhytmicNeuronList.add(-1);
+          mapCountingNeuronList.add(-1);
+          // neuronTypes[newNodeKey.toString()] = (randomNeuronType());
+          neuronTypes[newNodeKey.toString()] = "Quiet";
+          if (value.data == 0) {
+            neuronStyles[newNodeKey.toString()] = "Excitatory";
+          } else {
+            neuronStyles[newNodeKey.toString()] = "Inhibitory";
+          }
 
-                print("canvasOffset.dx");
-                print(value.offset.dx.toString() +
-                    " _ " +
-                    mouseOffset.dx.toString());
-                SyntheticNeuron syntheticNeuron = SyntheticNeuron(
-                    isActive: false,
-                    isIO: false,
-                    circleRadius: neuronDrawSize / 2);
-                InfiniteCanvasNode newNode = InfiniteCanvasNode(
-                  key: neuronsKey[neuronsKey.length - 1],
-                  value: neuronSize - 1,
-                  allowMove: false,
-                  allowResize: false,
-                  offset: Offset(mouseOffset.dx + 0, mouseOffset.dy + 0),
-                  size: Size(neuronDrawSize, neuronDrawSize),
-                  child: CustomPaint(
-                    isComplex: true,
-                    willChange: true,
-                    painter: syntheticNeuron,
-                  ),
-                  // child: Container(width: 0,height:0, color:Colors.green),
-                );
-                newNode.syntheticNeuron = syntheticNeuron;
-                syntheticNeuron.node = newNode;
-                syntheticNeuron.setupDrawingNeuron();
-                syntheticNeuronList.add(syntheticNeuron);
+          aDesignArray[newNodeKey.toString()] = sldAWeight;
+          bDesignArray[newNodeKey.toString()] = sldBWeight;
+          cDesignArray[newNodeKey.toString()] = sldCWeight;
+          dDesignArray[newNodeKey.toString()] = sldDWeight;
 
-                SyntheticNeuron rawSyntheticNeuron = SyntheticNeuron(
-                    // neuronKey: newNodeKey,
-                    isActive: false,
-                    isIO: false,
-                    circleRadius: neuronDrawSize / 2);
-                rawSyntheticNeuron.node = newNode;
-                rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
-                rawSyntheticNeuronList.add(rawSyntheticNeuron);
-                syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
+          // Offset canvasOffset = controller.toLocal(controller.getOffset());
+          final Size containerSize = Size(
+              windowWidth, windowHeight); // Replace with your container size
 
-                controller.add(newNode);
+          Size initialImageSize = const Size(600, 600);
+          final fittedSizes =
+              applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
 
-                initNativeC(false);
+          Offset mouseOffset = controller
+              .toLocal(Offset(value.offset.dx + 30, value.offset.dy + 35));
 
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  controller.deselect(neuronsKey[neuronsKey.length - 1]);
-                  modeIdx = -1;
-                  controller.modeIdx = modeIdx;
-                  setState(() {});
-                });
-              },
-              onLeave: (value) {
-                print("On Leave Drag Target");
-                mapBg["activeComponent"] = noActiveComponent;
+          print("canvasOffset.dx");
+          print(value.offset.dx.toString() + " _ " + mouseOffset.dx.toString());
+          SyntheticNeuron syntheticNeuron = SyntheticNeuron(
+              isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
+          InfiniteCanvasNode newNode = InfiniteCanvasNode(
+            key: neuronsKey[neuronsKey.length - 1],
+            value: neuronSize - 1,
+            allowMove: false,
+            allowResize: false,
+            offset: Offset(mouseOffset.dx + 0, mouseOffset.dy + 0),
+            size: Size(neuronDrawSize, neuronDrawSize),
+            child: CustomPaint(
+              isComplex: true,
+              willChange: true,
+              painter: syntheticNeuron,
+            ),
+            // child: Container(width: 0,height:0, color:Colors.green),
+          );
+          newNode.syntheticNeuron = syntheticNeuron;
+          syntheticNeuron.node = newNode;
+          syntheticNeuron.setupDrawingNeuron();
+          syntheticNeuronList.add(syntheticNeuron);
 
-                // modeIdx = -1;
-                Future.delayed(const Duration(milliseconds: 127), () {
-                  setState(() {});
-                });
-              },
-              builder: (ctx, candidates, rejects) {
-                return CustomPaint(
-                  size: brainSize, // Adjust size as needed
-                  painter: coreBrainPainter,
-                );
-              }),
-        ),
-      )
-    ];
+          SyntheticNeuron rawSyntheticNeuron = SyntheticNeuron(
+              // neuronKey: newNodeKey,
+              isActive: false,
+              isIO: false,
+              circleRadius: neuronDrawSize / 2);
+          rawSyntheticNeuron.node = newNode;
+          rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
+          rawSyntheticNeuronList.add(rawSyntheticNeuron);
+          syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
+
+          controller.add(newNode);
+
+          initNativeC(false);
+          isBrainTargetOverlayTop = -1;
+          containedIdx = -1;
+
+          Future.delayed(const Duration(milliseconds: 100), () {
+            controller.deselect(neuronsKey[neuronsKey.length - 1]);
+            modeIdx = -1;
+            controller.modeIdx = modeIdx;
+            setState(() {});
+          });
+        }, onLeave: (value) {
+          print("On Leave Drag Target");
+          mapBg["activeComponent"] = noActiveComponent;
+
+          // modeIdx = -1;
+          Future.delayed(const Duration(milliseconds: 127), () {
+            setState(() {});
+          });
+        }, builder: (ctx, candidates, rejects) {
+          // return Container(
+          //     width: brainSize.width,
+          //     height: brainSize.height,
+          //     color: Colors.transparent);
+          return CustomPaint(
+            size: brainSize, // Adjust size as needed
+            painter: coreBrainPainter,
+          );
+        }),
+      ),
+    );
+    List<InfiniteDropTarget> list = [];
+    if (isBrainTargetOverlayTop == -1) {
+      list.add(brainTarget);
+    }
     int idx = 0;
     int len = sensoryNeurons.length;
     for (idx = 0; idx < len - 3; idx++) {
@@ -7432,6 +7454,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     print(isContaining);
 
                     if (isContaining) {
+                      containedIdx = tempIdx;
+                      print("containedIdx containing");
+                      print(containedIdx);
+
                       if (mapBg["activeComponent"] ==
                           activeComponents[tempIdx]) {
                       } else {
@@ -7441,7 +7467,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                         });
                       }
                     } else {
+                      isBrainTargetOverlayTop *= -1;
+                      containedIdx = -1;
+                      print("containedIdx NOT containing");
+                      print(containedIdx);
+
                       if (mapBg["activeComponent"] == noActiveComponent) {
+                        setState(() {});
                       } else {
                         mapBg["activeComponent"] = noActiveComponent;
                         Future.delayed(const Duration(milliseconds: 127), () {
@@ -7463,6 +7495,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     //     setState(() {});
                     //   });
                     // }
+                    print("containedIdx");
+                    print(containedIdx);
+                    print(tempIdx);
 
                     if (dragDetail.data as int < 2) {
                       // print("------Accept");
@@ -7474,6 +7509,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   },
                   onAcceptWithDetails: (value) {
                     clearUIMenu();
+                    if (containedIdx != tempIdx) return;
                     // print("------Accept");
                     // print(value.data);
                     Offset neuronZonePosition =
@@ -7559,6 +7595,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     controller.edges.add(edge);
 
                     initNativeC(false);
+                    isBrainTargetOverlayTop = -1;
+                    containedIdx = -1;
 
                     Future.delayed(const Duration(milliseconds: 100), () {
                       controller.deselect(neuronsKey[neuronsKey.length - 1]);
@@ -7569,7 +7607,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     });
                   },
                   onLeave: (value) {
-                    // print("On Leave Drag Target2");
+                    print("On Leave Drag Target2");
                     mapBg["activeComponent"] = noActiveComponent;
                     // setState(() {});
                     Future.delayed(const Duration(milliseconds: 217), () {
@@ -7583,7 +7621,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     //   height: neuronInfo["size"].height,
                     //   color: Colors.green.withOpacity(0.2),
                     // );
-
+                    // return Container(
+                    //     width: neuronInfo["size"].width,
+                    //     height: neuronInfo["size"].height,
+                    //     color: Colors.transparent);
                     return CustomPaint(
                       size: neuronInfo["size"], // Adjust size as needed
                       painter: listPainters[tempIdx],
@@ -7592,6 +7633,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             )),
       );
     }
+    if (isBrainTargetOverlayTop == 1) {
+      list.add(brainTarget);
+    }
+
     return list;
   }
 

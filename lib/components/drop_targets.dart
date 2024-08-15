@@ -117,6 +117,7 @@ class GeneralSensorPainter extends CustomPainter {
   Path path = Path();
   Paint painter = Paint();
   Color myColor = Colors.red.withOpacity(0.5);
+  // Color myColor = Colors.transparent;
   final List<Offset> polygonPath = [];
   final List<double> positionDiff = [];
 

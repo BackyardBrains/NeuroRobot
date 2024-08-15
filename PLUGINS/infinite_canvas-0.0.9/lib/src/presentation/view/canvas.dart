@@ -437,7 +437,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   } else {
                     // print("edges widget cache");
                   }
-                  if (controller.modeIdx != -1 &&
+                  if (!controller.isPlaying &&
+                      controller.modeIdx != -1 &&
                       controller.dropTargets.isNotEmpty) {
                     dropTargetsWidget = Positioned.fill(
                       child: InfiniteDropTargetsRenderer(
