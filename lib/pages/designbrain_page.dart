@@ -555,6 +555,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   int brainContainedIdx = -1;
 
+  Offset prevConstrainedPos = Offset.zero;
+  bool prevConstrainedFlag = true;
+
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
@@ -2024,7 +2027,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecAWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldAWeight = double.parse(value);
                                     if (sldAWeight > 0.15) {
@@ -2109,7 +2112,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecBWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldBWeight = double.parse(value);
                                     if (sldBWeight > 0.5) {
@@ -2198,7 +2201,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecCWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldCWeight = double.parse(value);
                                     if (sldCWeight > 0) {
@@ -2289,7 +2292,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecDWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldDWeight = double.parse(value);
                                     if (sldDWeight > 10) {
@@ -2539,7 +2542,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               keyboardType: TextInputType.number,
                               inputFormatters: whiteListingTextInputFormatter,
                               maxLines: 1,
-                              onChanged: (str) {
+                              onSubmitted: (str) {
                                 // print("123");
                                 if (str.trim() == "") {
                                   str = minDistanceSlider.toString();
@@ -2551,7 +2554,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   if (distanceMinLimitBufView[idx] >=
                                       maxDistanceSlider) {
                                     distanceMinLimitBufView[idx] =
-                                        (maxDistanceSlider - 1).toInt();
+                                        ((distanceMaxLimitBufView[idx] - 1) > 0
+                                                ? (distanceMaxLimitBufView[
+                                                        idx] -
+                                                    1)
+                                                : minDistanceSlider)
+                                            .toInt();
                                   } else if (distanceMinLimitBufView[idx] <=
                                       0) {
                                     distanceMinLimitBufView[idx] =
@@ -2559,7 +2567,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   } else if (distanceMinLimitBufView[idx] >=
                                       distanceMaxLimitBufView[idx]) {
                                     distanceMinLimitBufView[idx] =
-                                        minDistanceSlider.toInt();
+                                        distanceMinLimitBufView[idx].toInt();
                                   }
 
                                   txtDistanceMinController.text =
@@ -2627,7 +2635,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               keyboardType: TextInputType.number,
                               inputFormatters: whiteListingTextInputFormatter,
                               maxLines: 1,
-                              onChanged: (str) {
+                              onSubmitted: (str) {
                                 if (str.trim() == "") {
                                   str = maxDistanceSlider.toString();
                                 }
@@ -2644,7 +2652,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     distanceMaxLimitBufView[idx] =
                                         minDistanceSlider.toInt();
                                   } else if (distanceMaxLimitBufView[idx] <=
-                                      distanceMinLimitBufView[0]) {
+                                      distanceMinLimitBufView[idx]) {
                                     distanceMaxLimitBufView[idx] =
                                         maxDistanceSlider.toInt();
                                   }
@@ -2654,6 +2662,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 } else {
                                   str = maxDistanceSlider.toString();
                                 }
+                                print("asd");
                                 linkDistanceConnection(distanceMenuType);
                                 setState(() {});
                               },
@@ -4945,7 +4954,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     controller.maxScale = 2.7;
     controller.scale = 1;
     controller.minScale = 0.85;
-    // controller.pan(const Offset(-60, 0));
+    controller.pan(const Offset(-60, 0));
     // controller.zoom(0.97);
     // controller.minScale = 1;
 
@@ -5114,27 +5123,90 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   offset: Offset(selected.offset.dx + gapTailX,
                       selected.offset.dy + gapTailY));
             } else {
-              if (selected.offset.dx < constraintBrainLeft) {
-                var newOffset = Offset(constraintBrainLeft, pos.dy);
-                selected.update(
-                    size: selected.size, offset: newOffset, label: "");
-              } else if (selected.offset.dx > constraintBrainRight) {
-                var newOffset = Offset(constraintBrainRight, pos.dy);
-                selected.update(
-                    size: selected.size, offset: newOffset, label: "");
+              // POLYGON RESTRICTIONS
+              if (prevConstrainedFlag) {
+                prevConstrainedPos = pos;
               }
 
               pos = selected.offset;
+              // Offset posLocal = controller.toLocal(pos);
+              // selected offset is a local offset that we get from Gesture Detector CustomChildLayout.
+              Offset posLocal = (pos);
+              List<Offset> arrPosConstraints = [
+                // controller.toLocal(pos.translate(-10, -10)), // topLeft
+                // controller.toLocal(pos.translate(30, -10)), // topRight
+                // controller.toLocal(pos.translate(-10, 30)), // bottomLeft
+                // controller.toLocal(pos.translate(30, 30)), // bottomRight
 
-              if (selected.offset.dy < constraintBrainTop) {
-                var newOffset = Offset(pos.dx, constraintBrainTop);
-                selected.update(
-                    size: selected.size, offset: newOffset, label: "");
-              } else if (selected.offset.dy > constraintBrainBottom) {
-                var newOffset = Offset(pos.dx, constraintBrainBottom);
-                selected.update(
-                    size: selected.size, offset: newOffset, label: "");
+                posLocal.translate(
+                    -brainPosition.dx + -10 * controller.getScale(),
+                    -brainPosition.dy + -10 * controller.getScale()), // topLeft
+                posLocal.translate(
+                    -brainPosition.dx + 30 * controller.getScale(),
+                    -brainPosition.dy +
+                        -10 * controller.getScale()), // topRight
+                posLocal.translate(
+                    -brainPosition.dx + -10 * controller.getScale(),
+                    -brainPosition.dy +
+                        30 * controller.getScale()), // bottomLeft
+                posLocal.translate(
+                    -brainPosition.dx + 30 * controller.getScale(),
+                    -brainPosition.dy +
+                        30 * controller.getScale()), // bottomRight
+
+                // controller.toLocal(pos.translate(
+                //     -10 - brainPosition.dx, -10 - brainPosition.dy)), // topLeft
+                // controller.toLocal(pos.translate(
+                //     30 - brainPosition.dx, -10 - brainPosition.dy)), // topRight
+                // controller.toLocal(pos.translate(-10 - brainPosition.dx,
+                //     30 - brainPosition.dy)), // bottomLeft
+                // controller.toLocal(pos.translate(30 - brainPosition.dx,
+                //     30 - brainPosition.dy)), // bottomRight
+              ];
+              bool flag = true;
+              for (Offset pos in arrPosConstraints) {
+                // if (coreBrainPainter != null) {
+                if (!coreBrainPainter.path.contains(pos)) {
+                  flag = false;
+                }
+                // }
               }
+              print("Polygon Restrictions");
+              print(controller.getScale());
+              print(controller.spacePressed);
+              print(posLocal);
+              print(arrPosConstraints);
+              print(flag);
+
+              if (!flag) {
+                // selected.update(offset: Offset(435, 300));
+                selected.update(offset: prevConstrainedPos);
+              }
+              prevConstrainedFlag = flag;
+              // if (!coreBrainPainter.path.contains(pos))
+              // sensorPolygonPaths[0]
+              // CONSTRAINT RESTRICTIONS
+              // if (selected.offset.dx < constraintBrainLeft) {
+              //   var newOffset = Offset(constraintBrainLeft, pos.dy);
+              //   selected.update(
+              //       size: selected.size, offset: newOffset, label: "");
+              // } else if (selected.offset.dx > constraintBrainRight) {
+              //   var newOffset = Offset(constraintBrainRight, pos.dy);
+              //   selected.update(
+              //       size: selected.size, offset: newOffset, label: "");
+              // }
+
+              // pos = selected.offset;
+
+              // if (selected.offset.dy < constraintBrainTop) {
+              //   var newOffset = Offset(pos.dx, constraintBrainTop);
+              //   selected.update(
+              //       size: selected.size, offset: newOffset, label: "");
+              // } else if (selected.offset.dy > constraintBrainBottom) {
+              //   var newOffset = Offset(pos.dx, constraintBrainBottom);
+              //   selected.update(
+              //       size: selected.size, offset: newOffset, label: "");
+              // }
 
               if (selected.offset.dx < constraintBrainLeft) {
                 var newOffset = Offset(constraintBrainLeft, selected.offset.dy);
@@ -7200,8 +7272,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   Size brainSize = const Size(490, 480);
   Offset brainPosition = const Offset(190, 50);
   Size brainDiff = const Size(56, 55);
+  late GeneralSensorPainter coreBrainPainter;
   List<InfiniteDropTarget> getDragTargets() {
-    GeneralSensorPainter coreBrainPainter = GeneralSensorPainter(
+    coreBrainPainter = GeneralSensorPainter(
       polygonPath: sensorPolygonPaths[9],
       positionDiff: [
         brainDiff.width,
@@ -7225,7 +7298,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
           GeneralSensorPainter painter = (coreBrainPainter);
           Offset containOffset = localAreaOffset.translate(
-              -brainPosition.dx + 45, -brainPosition.dy + 45);
+              -brainPosition.dx + 45 / controller.getScale(),
+              -brainPosition.dy + 45 / controller.getScale());
           // localAreaOffset.translate(-painter.xDiff, -painter.yDiff);
           bool isContaining = painter.path.contains(containOffset);
           print("------localAreaOffset core brain");
@@ -7446,7 +7520,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
                     GeneralSensorPainter painter = (listPainters[tempIdx]);
                     Offset containOffset = localAreaOffset.translate(
-                        -neuronInfo["left"] + 45, -neuronInfo["top"] + 45);
+                        -neuronInfo["left"] + 45 / controller.getScale(),
+                        -neuronInfo["top"] + 45 / controller.getScale());
                     // localAreaOffset.translate(-painter.xDiff, -painter.yDiff);
                     bool isContaining = painter.path.contains(containOffset);
                     print("------localAreaOffset");
