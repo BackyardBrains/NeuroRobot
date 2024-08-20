@@ -116,30 +116,50 @@ class GeneralSensorPainter extends CustomPainter {
   double yDiff = 4;
   Path path = Path();
   Paint painter = Paint();
-  Color myColor = Colors.red.withOpacity(0.5);
+  // Color myColor = Colors.red.withOpacity(0.5);
+  Color myColor = Colors.transparent;
+  double scaleMultiplier = 1.0;
   // Color myColor = Colors.transparent;
   final List<Offset> polygonPath = [];
+  List<Offset> calculatedPath = [];
   final List<double> positionDiff = [];
+  bool isRedraw = false;
 
   GeneralSensorPainter(
-      {List<Offset>? polygonPath, List<double>? positionDiff}) {
+      {List<Offset>? polygonPath,
+      List<double>? positionDiff,
+      double? multiplier}) {
+    if (multiplier != null) {
+      scaleMultiplier = multiplier;
+    }
+    calculatePolygon(polygonPath, positionDiff, multiplier);
+  }
+
+  void calculatePolygon(List<Offset>? polygonPath, List<double>? positionDiff,
+      double? multiplier) {
     painter.color = myColor;
     if (positionDiff != null) {
       xDiff = positionDiff[0];
       yDiff = positionDiff[1];
     }
     int idx = 0;
+    calculatedPath = [];
+
     if (polygonPath != null) {
       for (Offset pos in polygonPath) {
+        double scaledX = (pos.dx - xDiff) * scaleMultiplier;
+        double scaledY = (pos.dy - yDiff) * scaleMultiplier;
+        calculatedPath.add(Offset(scaledX, scaledY));
         if (idx == 0) {
-          path.moveTo(pos.dx - xDiff, pos.dy - yDiff);
+          path.moveTo(scaledX, scaledY);
         } else {
-          path.lineTo(pos.dx - xDiff, pos.dy - yDiff);
+          path.lineTo(scaledX, scaledY);
         }
         idx++;
       }
       path.close();
     }
+    isRedraw = true;
   }
 
   @override
@@ -148,7 +168,15 @@ class GeneralSensorPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    // print("REDRAW");
+    // if (isRedraw) {
+    //   isRedraw = false;
+    return true;
+    // } else {
+    //   return false;
+    // }
+  }
 }
 
 // REAL DISTANCE SENSOR PAINTER
@@ -411,7 +439,7 @@ List<List<Offset>> sensorPolygonPaths = [
     const Offset(596, 323),
     const Offset(581, 444),
     const Offset(554, 448),
-    const Offset(521, 442),
+    const Offset(521, 422),
     const Offset(544, 321),
   ], // right motor down
   [
