@@ -84,7 +84,7 @@ void main() async {
       );
     }
 
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setSize(Size(screenWidth, screenHeight));
       await windowManager.show();
       await windowManager.focus();
