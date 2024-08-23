@@ -472,7 +472,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             spikes_step = new short*[threadInitialTotalNumOfNeurons];
             auto start = std::chrono::high_resolution_clock::now();
-            short switchSkipDelay[threadInitialTotalNumOfNeurons];
+            short *switchSkipDelay= new short[threadInitialTotalNumOfNeurons];
 
             for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                 spikes_step[iStep] = new short[epochs];
@@ -528,8 +528,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 1));
                 }
                 // start = std::chrono::high_resolution_clock::now();
-                double arrFreshDelayedValue[threadTotalNumOfNeurons];
-                bool delayRemoveInitial[threadTotalNumOfNeurons];
+                double *arrFreshDelayedValue = new double[threadTotalNumOfNeurons];
+                // bool delayRemoveInitial[threadTotalNumOfNeurons];
                 
 
                 // get distance
@@ -584,7 +584,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                     isStepSpiking[neuronIndex] = 0;
-                    delayRemoveInitial[neuronIndex] = 0;
+                    // delayRemoveInitial[neuronIndex] = 0;
                     
                 }
 
@@ -641,6 +641,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             }else
                             if (guidedDelayList[neuronIndex].mode == 2){
                                 double freshDelayedValue = guidedDelayList[neuronIndex].pop_back();
+                                freshDelayedValue;
                                 double freshDelayedData = guidedDelayList[neuronIndex].pop_value_back();
                                 arrFreshDelayedValue[neuronIndex] = freshDelayedData;
 
@@ -731,20 +732,24 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     
                     double *sumInhibition = new double[threadInitialTotalNumOfNeurons];
                     double *sumDelayedSignals = new double[threadInitialTotalNumOfNeurons];
-                    for (short i=0; i < threadTotalNumOfNeurons ; i++) {
+                    for (short idx=0; idx < threadTotalNumOfNeurons ; idx++) {
+                        sumInhibition[idx] = 0;
+                        sumDelayedSignals[idx] = 0;
+                    }                    
+                    for (short idx=0; idx < threadTotalNumOfNeurons ; idx++) {
                         // if (inhibitionArray[j] > 0){
                         for ( short j=0; j < threadTotalNumOfNeurons ; j++ ) {
                             // short colIdx = j;
-                            sumInhibition[i] += (inhibitionArray[j] * connectome[j][i]);
-                            if (guidedDelayList[i].neuronType == configDelayNeuron && arrFreshDelayedValue[i]>=30){
-                                if (connectome[i][j] > 0){
-                                    sumDelayedSignals[j] += connectome[i][j];
+                            sumInhibition[idx] += (inhibitionArray[j] * connectome[j][idx]);
+                            if (guidedDelayList[idx].neuronType == configDelayNeuron && arrFreshDelayedValue[idx]>=30){
+                                if (connectome[idx][j] > 0){
+                                    sumDelayedSignals[j] += connectome[idx][j];
                                 }
                             }
                         }
-                        inhibitionArray[i] *= 0.994;
-                        if (inhibitionArray[i] <= 0.01) {
-                            inhibitionArray[i] = 0;
+                        inhibitionArray[idx] *= 0.994;
+                        if (inhibitionArray[idx] <= 0.01) {
+                            inhibitionArray[idx] = 0;
                         }
                     }
                     
@@ -782,6 +787,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                     delete[](sumConnectome);
                     delete[] sumInhibition;
+                    delete[] sumDelayedSignals;
 
                     // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
@@ -800,7 +806,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                                     2. if iswaiting == 3
                                 */
                                 if (guidedDelayList[neuronIndex].isWaiting < 3){
-                                    short idx = neuronIndex;
+                                    // short idx = neuronIndex;
                                     // v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
                                     v[neuronIndex] = v[neuronIndex] + (0.5 * (0.04 * pow(v[neuronIndex],2) + 5 * v[neuronIndex] + 140 - u[neuronIndex] + tI[neuronIndex]));
                                     // Adjust for continuous time
@@ -932,6 +938,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     if (idxSelected < threadTotalNumOfNeurons){
                         std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
                     }
+                    // platform_log( ("VTRACES : " + std::to_string(isSelected)+"\n" ).c_str());
+
                 }
 
                 // UPDATE MOTORS

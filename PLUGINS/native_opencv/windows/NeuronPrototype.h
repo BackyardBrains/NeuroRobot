@@ -32,7 +32,7 @@
 
 // MAIN CODE
 // std::mutex mtx;
-short configDelayNeuron = 8;
+short configDelayNeuron = 6;
 short configCountingNeuron = 10;
 int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;

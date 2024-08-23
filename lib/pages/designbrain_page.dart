@@ -140,12 +140,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     "Highly active",
     "Generates bursts",
     "Bursts when activated",
-    "Dopaminergic",
-    "Striatal",
+    // "Dopaminergic",
+    // "Striatal",
     "Custom",
     "Delay", //8
-    "Rhytmic", //9
-    "Counting", //10
+    // "Rhytmic", //9
+    // "Counting", //10
   ];
 
   List<String> neuronMenuTypes = [
@@ -154,12 +154,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     "Highly active",
     "Generates bursts",
     "Bursts when activated",
-    "Dopaminergic",
-    "Striatal",
+    // "Dopaminergic",
+    // "Striatal",
     "Custom",
     "Delay",
-    "Rhytmic",
-    "Counting", //10
+    // "Rhytmic",
+    // "Counting", //10
   ];
   late List<DropdownMenuItem> dropdownNeuronItems;
 
@@ -1445,7 +1445,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (isChartSelected) {
         // print("redraw");
-        // print(Nativec.canvasBufferBytes1);
+        print(Nativec.canvasBufferBytes1);
         waveRedraw.value = Random().nextInt(10000);
       }
       if (isPlayingMenu) {
@@ -4072,6 +4072,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     syntheticNeuronList.clear();
     rawSyntheticNeuronList.clear();
 
+    for (InfiniteCanvasNode node in sensoryNeurons) {
+      SyntheticNeuron synNeuron = SyntheticNeuron(
+          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+      synNeuron.node = node;
+      synNeuron.setupDrawingNeuron();
+      syntheticNeuronList.add(synNeuron);
+
+      SyntheticNeuron rawSynNeuron = SyntheticNeuron(
+          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
+      rawSynNeuron.node = node;
+      rawSynNeuron.copyDrawingNeuron(synNeuron);
+      rawSyntheticNeuronList.add(rawSynNeuron);
+      synNeuron.rawSyntheticNeuron = rawSynNeuron;
+    }
+
     initNeuronType();
   }
 
@@ -4862,42 +4877,70 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   isDefaultRobotEdge++;
                 }
               }
+
+              List<InfiniteCanvasNode> restrictedToNeurons = [
+                nodeLeftEyeSensor,
+                nodeRightEyeSensor,
+                nodeMicrophoneSensor,
+                nodeDistanceSensor,
+              ];
+
+              List<InfiniteCanvasNode> restrictedFromNeurons = [
+                nodeLeftMotorForwardSensor,
+                nodeLeftMotorBackwardSensor,
+                nodeRightMotorForwardSensor,
+                nodeRightMotorBackwardSensor,
+                nodeSpeakerSensor,
+              ];
               print("creating link");
 
               // InfiniteCanvasNode nodeFrom = findNeuronByKey(controller.edgeSelected.from);
               // InfiniteCanvasNode nodeTo = findNeuronByKey(controller.edgeSelected.to);
 
-              if (neuronFrom == nodeLeftEyeSensor ||
-                  neuronFrom == nodeRightEyeSensor) {
-                mapSensoryNeuron["${neuronFrom.id}_${neuronTo.id}"] = 2;
-              } else if (neuronFrom == nodeDistanceSensor) {
-                mapDistanceNeuron["${neuronFrom.id}_${neuronTo.id}"] = 0;
-              } else if (neuronTo == nodeLeftMotorForwardSensor ||
-                  neuronTo == nodeLeftMotorBackwardSensor ||
-                  neuronTo == nodeRightMotorForwardSensor ||
-                  neuronTo == nodeRightMotorBackwardSensor) {
-                mapContactsNeuron["${neuronFrom.id}_${neuronTo.id}"] = 50.0;
-              } else if (neuronTo == nodeSpeakerSensor) {
-                mapSpeakerNeuron["${neuronFrom.id}_${neuronTo.id}"] = 40.0;
-              } else if (neuronTo == nodeMicrophoneSensor) {
-                // isMicrophoneMenu
-                mapMicrophoneNeuron["${neuronFrom.id}_${neuronTo.id}"] = 40.0;
-              } else if (neuronTo == nodeRedLed ||
-                  neuronTo == nodeGreenLed ||
-                  neuronTo == nodeBlueLed) {
-                mapLedNeuron["${neuronFrom.id}_${neuronTo.id}"] = 50;
-                mapLedNeuronPosition["${neuronFrom.id}_${neuronTo.id}"] =
-                    "1111";
+              if (isDefaultRobotEdge >= 2) {
+                controller.edges.remove(lastCreatedEdge);
+              }else
+              if (neuronFrom.key == neuronTo.key) {
+                controller.edges.remove(lastCreatedEdge);
+                setState(() {});
+                return;
+              }else
+              if (restrictedToNeurons.indexOf(neuronTo)>-1){
+                controller.edges.remove(lastCreatedEdge);
+              } else 
+              if (restrictedFromNeurons.indexOf(neuronFrom)>-1){
+                controller.edges.remove(lastCreatedEdge);
               } else {
-                mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 50.0;
-                lastCreatedEdge.connectionStrength = 50.0;
+
+                if (neuronFrom == nodeLeftEyeSensor ||
+                    neuronFrom == nodeRightEyeSensor) {
+                  mapSensoryNeuron["${neuronFrom.id}_${neuronTo.id}"] = 2;
+                } else if (neuronFrom == nodeDistanceSensor) {
+                  mapDistanceNeuron["${neuronFrom.id}_${neuronTo.id}"] = 0;
+                } else if (neuronTo == nodeLeftMotorForwardSensor ||
+                    neuronTo == nodeLeftMotorBackwardSensor ||
+                    neuronTo == nodeRightMotorForwardSensor ||
+                    neuronTo == nodeRightMotorBackwardSensor) {
+                  mapContactsNeuron["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
+                } else if (neuronTo == nodeSpeakerSensor) {
+                  mapSpeakerNeuron["${neuronFrom.id}_${neuronTo.id}"] = 440.0;
+                } else if (neuronTo == nodeMicrophoneSensor) {
+                  // isMicrophoneMenu
+                  mapMicrophoneNeuron["${neuronFrom.id}_${neuronTo.id}"] = 40.0;
+                } else if (neuronTo == nodeRedLed ||
+                    neuronTo == nodeGreenLed ||
+                    neuronTo == nodeBlueLed) {
+                  mapLedNeuron["${neuronFrom.id}_${neuronTo.id}"] = 50;
+                  mapLedNeuronPosition["${neuronFrom.id}_${neuronTo.id}"] =
+                      "1111";
+                } else {
+                  mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
+                  lastCreatedEdge.connectionStrength = 25.0;
+                }
+                setState(() {});
               }
 
               // print(isDefaultRobotEdge);
-              if (isDefaultRobotEdge >= 2) {
-                controller.edges.remove(lastCreatedEdge);
-              }
-              setState(() {});
             }
           });
           // int prevValue = neuronFrom.value;
@@ -6328,8 +6371,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   diodeCounter = int.parse(diodeSplit[0]);
                   // diodeCounter %= 4;l
                   // if (diodeCounter == 2) {
-                  print("diodeSplit");
-                  print(diodeSplit);
+                  // print("diodeSplit");
+                  // print(diodeSplit);
                   // }
 
                   diodeStatusMax[diodeCounter][0] = max(
@@ -6353,8 +6396,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               diodeString =
                   "${diodeString}d:$c,${diodeStatusMax[c][0]},${diodeStatusMax[c][1]},${diodeStatusMax[c][2]};";
             }
-            print("diodeString");
-            print(diodeString);
+            // print("diodeString");
+            // print(diodeString);
             // print("infoStatusMax");
             // print(infoStatusMax);
 
@@ -6750,8 +6793,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             to: nodeTo.key,
           );
           String connectionKey = "${newNode.id}_${nodeTo.id}";
-          mapConnectome[connectionKey] = 50;
-          edge.connectionStrength = 50;
+          mapConnectome[connectionKey] = 25;
+          edge.connectionStrength = 25;
           controller.edges.add(edge);
 
           initNativeC(false);
