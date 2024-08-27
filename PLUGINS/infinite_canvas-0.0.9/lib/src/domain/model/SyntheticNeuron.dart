@@ -139,14 +139,6 @@ class SyntheticNeuron extends CustomPainter {
     double x = circleRadius + node.offset.dx;
     double y = circleRadius + node.offset.dy;
 
-    print("diameterOfNeuron");
-    print(node.key.toString());
-    print(diameterOfNeuron);
-    print(drawX);
-    print(drawY);
-    print(x);
-    print(y);
-
     // drawX, drawY need to use this because nucleus and dendrite positions are relative to the neuron
     // x,y positions are need so we can use the drawing algorithm.
     newNeuron = Neuron(
@@ -167,6 +159,9 @@ class SyntheticNeuron extends CustomPainter {
       heightNucleus: diameterOfNeuron / 1.4 + random.nextDouble(),
       isIO: false,
     );
+    print(
+        "diameterOfNeuron : $diameterOfNeuron - $drawX - $drawY ${newNeuron.xNucleus} ${newNeuron.yNucleus} | x: $x y:$y | ");
+    print(node.key.toString());
 
     randomVariation1 = 0.95 + 0.1 * random.nextDouble();
     randomVariation2 = 0.9 + 0.2 * random.nextDouble();

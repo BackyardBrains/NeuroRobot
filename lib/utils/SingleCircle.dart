@@ -36,6 +36,7 @@ class SingleCircle extends CustomPainter {
         center: Offset(xNucleus, yNucleus),
         width: widthNucleus,
         height: heightNucleus);
+    // rectPos = Rect.fromLTWH(xNucleus, yNucleus, widthNucleus, heightNucleus);
 
     centerPos = Offset(circleRadius, circleRadius);
     circlePaint = Paint()
@@ -52,7 +53,9 @@ class SingleCircle extends CustomPainter {
     // print(
     //     "Paint Nucleus : $xNucleus, $yNucleus, $widthNucleus, $heightNucleus");
     // canvas.drawCircle(centerPos, circleRadius * zoomScale, circlePaint);
+    // canvas.drawCircle(rectPos.center, 2, circlePaint);
     canvas.drawOval(rectPos, circlePaint);
+    // canvas.drawRect(rectPos, circlePaint);
   }
 
   @override

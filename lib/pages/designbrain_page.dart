@@ -754,7 +754,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         (i) => GlobalKey(debugLabel: "neuronWidget${i.toString()}"));
 
     neuronActiveCirclesPainter =
-        List<SingleCircle>.generate(neuronSize, (index) {
+        List<SingleCircle>.generate(syntheticNeuronList.length, (index) {
+      print(
+          "${rawSyntheticNeuronList.length} $index : ${syntheticNeuronList[index].newNeuron.xNucleus} - ${syntheticNeuronList[index].newNeuron.yNucleus} x:${syntheticNeuronList[index].newNeuron.x} - y: ${syntheticNeuronList[index].newNeuron.y}");
       return SingleCircle(
         isActive: true,
         circleRadius: neuronDrawSize / 2,
@@ -1338,9 +1340,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     pMapStatus["isSavingBrain"] = 1;
     pMapStatus["currentFileName"] = "-";
 
-    String capturePath = Platform.pathSeparator + "capture";
+    String capturePath =
+        "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}capture";
     getApplicationDocumentsDirectory().then((documentDirectory) {
       captureDirectory = Directory("${documentDirectory.path}$capturePath");
+      Directory spikerbotDirectory = Directory(
+          "${documentDirectory.path}${Platform.pathSeparator}spikerbot");
+      if (!spikerbotDirectory.existsSync()) spikerbotDirectory.createSync();
       if (!captureDirectory.existsSync()) captureDirectory.createSync();
     });
 
@@ -1928,7 +1934,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecAWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldAWeight = double.parse(value);
                                     if (sldAWeight > 0.15) {
@@ -2013,7 +2019,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecBWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldBWeight = double.parse(value);
                                     if (sldBWeight > 0.5) {
@@ -2102,7 +2108,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecCWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldCWeight = double.parse(value);
                                     if (sldCWeight > 0) {
@@ -2193,7 +2199,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                     neuronListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecDWeight,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   try {
                                     sldDWeight = double.parse(value);
                                     if (sldDWeight > 10) {
@@ -2273,7 +2279,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 inputFormatters: whiteListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecTimeValue,
-                                onChanged: (value) {
+                                onSubmitted: (value) {
                                   return;
                                   try {
                                     sldTimeValue = double.parse(value);
@@ -2469,7 +2475,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               inputFormatters: whiteListingTextInputFormatter,
                               maxLines: 1,
                               controller: tecFrequencyWeight,
-                              onChanged: (value) {
+                              onSubmitted: (value) {
                                 try {
                                   sldFrequencyWeight = double.parse(value);
                                   if (sldFrequencyWeight > 4978) {
@@ -2574,7 +2580,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               inputFormatters: whiteListingTextInputFormatter,
                               maxLines: 1,
                               controller: tecSynapticWeight,
-                              onChanged: (value) {
+                              onSubmitted: (value) {
                                 try {
                                   sldSynapticWeight = double.parse(value);
                                   if (sldSynapticWeight > 100) {
@@ -2674,7 +2680,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               inputFormatters: whiteListingTextInputFormatter,
                               maxLines: 1,
                               controller: tecSynapticWeight,
-                              onChanged: (value) {
+                              onSubmitted: (value) {
                                 try {
                                   sldSynapticWeight = double.parse(value);
                                   if (sldSynapticWeight > 100) {
@@ -4899,19 +4905,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
               if (isDefaultRobotEdge >= 2) {
                 controller.edges.remove(lastCreatedEdge);
-              }else
-              if (neuronFrom.key == neuronTo.key) {
+              } else if (neuronFrom.key == neuronTo.key) {
                 controller.edges.remove(lastCreatedEdge);
                 setState(() {});
                 return;
-              }else
-              if (restrictedToNeurons.indexOf(neuronTo)>-1){
+              } else if (restrictedToNeurons.indexOf(neuronTo) > -1) {
                 controller.edges.remove(lastCreatedEdge);
-              } else 
-              if (restrictedFromNeurons.indexOf(neuronFrom)>-1){
+              } else if (restrictedFromNeurons.indexOf(neuronFrom) > -1) {
                 controller.edges.remove(lastCreatedEdge);
               } else {
-
                 if (neuronFrom == nodeLeftEyeSensor ||
                     neuronFrom == nodeRightEyeSensor) {
                   mapSensoryNeuron["${neuronFrom.id}_${neuronTo.id}"] = 2;
@@ -5493,102 +5495,82 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
     // print("json.encode(rawSyntheticNeuronListJson)");
     // print(json.encode(rawSyntheticNeuronListJson));
-    String strNodesJson = json.encode({
-      "nodes": nodesJson,
-      "edges": edgesJson,
-      "neuronTypes": neuronTypes,
-      "neuronStyles": neuronStyles,
-      // "aDesignArray": aDesignArray,
-      // "bDesignArray": bDesignArray,
-      // "cDesignArray": cDesignArray,
-      // "dDesignArray": dDesignArray,
-      "mapConnectome": mapConnectome,
-      "mapSensoryNeuron": mapSensoryNeuron,
-      "mapContactsNeuron": mapContactsNeuron,
-      "mapDistanceNeuron": mapDistanceNeuron,
-      "mapSpeakerNeuron": mapSpeakerNeuron,
-      "mapMicrophoneNeuron": mapMicrophoneNeuron,
-      "mapLedNeuron": mapLedNeuron,
-      "mapLedNeuronPosition": mapLedNeuronPosition,
-
-      "rawSyntheticNeuron": rawSyntheticNeuronListJson,
-
-      "mapDelayNeuron": mapDelayNeuronList,
-      "mapRhytmicNeuron": mapRhytmicNeuronList,
-      "mapCountingNeuron": mapCountingNeuronList,
-      "a": aBufView.toList(),
-      "b": bBufView.toList(),
-      "c": cBufView.toList(),
-      "d": dBufView.toList(),
-      "i": iBufView.toList(),
-      "w": wBufView.toList(),
-      "windowWidth": MediaQuery.of(context).size.width,
-      "windowHeight": MediaQuery.of(context).size.height,
-      "screenDensity": MediaQuery.of(context).devicePixelRatio,
-    });
-    print("strNodesJson");
-    print(strNodesJson);
-    // print("NEURON TYPES");
-    // print(neuronTypes);
-
     String fileName = DateTime.now().microsecondsSinceEpoch.toString();
     Directory directory =
         (await getApplicationDocumentsDirectory()); //from path_provide package
 
-    Directory imgDirectory =
-        Directory("${(await getApplicationDocumentsDirectory()).path}/images");
-    // Directory((await getApplicationDocumentsDirectory()).path);
-    Directory txtDirectory =
-        Directory("${(await getApplicationDocumentsDirectory()).path}/text");
+    Directory txtDirectory = Directory(
+        "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
 
-    // Directory((await getApplicationDocumentsDirectory()).path);
-    if (!imgDirectory.existsSync()) imgDirectory.createSync();
     if (!txtDirectory.existsSync()) txtDirectory.createSync();
 
-    print(directory.path);
-    String textPath = "${Platform.pathSeparator}text";
+    // print(directory.path);
+    String textPath =
+        "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
     // String textPath = "";
-    String imagesPath = "${Platform.pathSeparator}images";
-    // String imagesPath = "";
+
+    title = title.replaceAll(".", "|");
+    description = description.replaceAll(".", "|");
+    title = title.replaceAll("@", "#");
+    description = description.replaceAll("@", "#");
+
     final File file = File(
-        '${directory.path}$textPath${Platform.pathSeparator}BrainText$fileName.txt');
-    await file.writeAsString(strNodesJson);
+        '${directory.path}$textPath${Platform.pathSeparator}BrainText$fileName@@@$title@@@$description.txt');
+
+    controller.zoomReset();
 
     ScreenshotController screenshotController = ScreenshotController();
     String imagePath = "";
     await screenshotController
         .captureFromWidget(mainBody)
         .then((imageBytes) async {
-      // String directory = (await getApplicacationDocumentsDirectory())
-      //     .path; //from path_provide package
-      // String fileName = DateTime.now().microsecondsSinceEpoch.toString();
-      // path = '$directory';
-      title = title.replaceAll(".", "|");
-      description = description.replaceAll(".", "|");
-      title = title.replaceAll("@", "#");
-      description = description.replaceAll("@", "#");
-      final directory = await getApplicationDocumentsDirectory();
-      final imageFile = await File(
-              '${directory.path}$imagesPath${Platform.pathSeparator}Brain$fileName@@@$title@@@$description.png')
-          .create();
-      await imageFile.writeAsBytes(imageBytes);
+      String strNodesJson = json.encode({
+        "nodes": nodesJson,
+        "edges": edgesJson,
+        "neuronTypes": neuronTypes,
+        "neuronStyles": neuronStyles,
+        "mapConnectome": mapConnectome,
+        "mapSensoryNeuron": mapSensoryNeuron,
+        "mapContactsNeuron": mapContactsNeuron,
+        "mapDistanceNeuron": mapDistanceNeuron,
+        "mapSpeakerNeuron": mapSpeakerNeuron,
+        "mapMicrophoneNeuron": mapMicrophoneNeuron,
+        "mapLedNeuron": mapLedNeuron,
+        "mapLedNeuronPosition": mapLedNeuronPosition,
+        "rawSyntheticNeuron": rawSyntheticNeuronListJson,
+        "mapDelayNeuron": mapDelayNeuronList,
+        "mapRhytmicNeuron": mapRhytmicNeuronList,
+        "mapCountingNeuron": mapCountingNeuronList,
+        "a": aBufView.toList(),
+        "b": bBufView.toList(),
+        "c": cBufView.toList(),
+        "d": dBufView.toList(),
+        "i": iBufView.toList(),
+        "w": wBufView.toList(),
+        "windowWidth": MediaQuery.of(context).size.width,
+        "windowHeight": MediaQuery.of(context).size.height,
+        "screenDensity": MediaQuery.of(context).devicePixelRatio,
+        "screenshot": imageBytes,
+      });
+
+      // strNodesJson["image"] = imageBytes;
+      await file.writeAsString(strNodesJson);
       pd.close();
 
       Future.delayed(const Duration(seconds: 1), () {
         rightToolbarCallback({"menuIdx": 0});
         setState(() {});
       });
-      imagePath = imageFile.path;
+      imagePath = file.path;
 
       // mainBloc.setLoading(0);
     });
-
     return imagePath;
   }
 
   void selectSavedBrain(String filename, {String? filePath}) async {
-    String textPath = "${Platform.pathSeparator}text";
-    // String textPath = "";
+    String textPath =
+        "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text"; // String textPath = "";
     controller.deselectAll();
     clearUIMenu();
     // setState(() {});
@@ -5615,7 +5597,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     final Directory directory = await getApplicationDocumentsDirectory();
     final File savedFile = File(
-        '${directory.path}$textPath${Platform.pathSeparator}BrainText$filename.txt');
+        '${directory.path}$textPath${Platform.pathSeparator}$filename.txt');
     String savedFileText = await savedFile.readAsString();
     Map savedFileJson = json.decode(savedFileText);
 
@@ -5635,7 +5617,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         //     savedFileJson["screenDensity"] /
         //     MediaQuery.of(context).devicePixelRatio;
         // print("change window size");
-        await windowManager.setSize(Size(displayWidth, displayHeight));
+        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+          await windowManager.setSize(Size(displayWidth, displayHeight));
+        }
       }
     } catch (err) {
       print("err");
@@ -5691,11 +5675,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         // print("rawSyntheticNeuronList.length 0");
         // print(rawSyntheticNeuronList.length);
       } else if (v["index"] < normalNeuronStartIdx) {
+        // sensor
         InfiniteCanvasNode neuron = findNeuronByValue(v["index"]);
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
-
+        /*
         SyntheticNeuron synNeuron = SyntheticNeuron(
             isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
         // if (v["index"] == 0) {
@@ -5708,10 +5693,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         synNeuron.setupDrawingNeuron();
         synNeuron.newNeuron.x = synNeuron.newNeuron.drawX + neuron.offset.dx;
         synNeuron.newNeuron.y = synNeuron.newNeuron.drawY + neuron.offset.dy;
-        print(
-            "XSynFrom: ${synNeuron.newNeuron.drawX} _ ${synNeuron.newNeuron.x}");
-        print(
-            "YSynFrom: ${synNeuron.newNeuron.drawY} _ ${synNeuron.newNeuron.y}");
+        // print(
+        //     "XSynFrom: ${synNeuron.newNeuron.drawX} _ ${synNeuron.newNeuron.x}");
+        // print(
+        //     "YSynFrom: ${synNeuron.newNeuron.drawY} _ ${synNeuron.newNeuron.y}");
 
         syntheticNeuronList.add(synNeuron);
 
@@ -5727,7 +5712,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
         rawSyntheticNeuronList.add(rawSynNeuron);
         synNeuron.rawSyntheticNeuron = rawSynNeuron;
-
+        */
         nIdx++;
       } else {
         LocalKey nodeKey = UniqueKey();
@@ -5781,7 +5766,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
     Map<String, String> tempNeuronTypes = translateLoadedNeuron(
         savedFileJson["neuronTypes"], mapTranslateLoadKeys);
-    print("mapTranslateLoadKeys");
+    print("mapTranslateLoadKeys 2");
     print(mapTranslateLoadKeys);
     neuronTypes.clear();
     tempNeuronTypes.forEach((key, value) {
@@ -5861,9 +5846,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       print(err);
     }
 
-    await Future.delayed(const Duration(milliseconds: 370), () {
+    await Future.delayed(const Duration(milliseconds: 370), () async {
       try {
-        windowManager.setSize(Size(tempWidth, tempHeight));
+        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+          await windowManager.setSize(Size(tempWidth, tempHeight));
+        }
       } catch (err) {
         print("windowmanager error");
         print(err);
@@ -6025,7 +6012,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   Map<String, String> translateLoadedNeuron(Map<String, dynamic> targetMap,
       Map<String, String> mapTranslateLoadKeys) {
     Map<String, String> transformedMap = {};
-    print("mapTranslateLoadKeys");
+    print("mapTranslateLoadKeys 1");
     print(mapTranslateLoadKeys);
     targetMap.forEach((key, value) {
       // print("loaded Neuron");
