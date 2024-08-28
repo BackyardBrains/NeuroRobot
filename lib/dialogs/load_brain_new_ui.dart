@@ -442,7 +442,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   borderOnForeground: true,
                                   color: Colors.white,
                                   child: Container(
-                                    height: 270,
+                                    height: 280,
                                     padding: const EdgeInsets.all(7),
                                     child: Column(
                                       mainAxisAlignment:

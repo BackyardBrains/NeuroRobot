@@ -512,6 +512,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   int modeIdx = -1;
 
+  String strFirmwareVersion = "";
+
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
@@ -755,8 +757,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     neuronActiveCirclesPainter =
         List<SingleCircle>.generate(syntheticNeuronList.length, (index) {
-      print(
-          "${rawSyntheticNeuronList.length} $index : ${syntheticNeuronList[index].newNeuron.xNucleus} - ${syntheticNeuronList[index].newNeuron.yNucleus} x:${syntheticNeuronList[index].newNeuron.x} - y: ${syntheticNeuronList[index].newNeuron.y}");
+      // print(
+      //     "${rawSyntheticNeuronList.length} $index : ${syntheticNeuronList[index].newNeuron.xNucleus} - ${syntheticNeuronList[index].newNeuron.yNucleus} x:${syntheticNeuronList[index].newNeuron.x} - y: ${syntheticNeuronList[index].newNeuron.y}");
       return SingleCircle(
         isActive: true,
         circleRadius: neuronDrawSize / 2,
@@ -1162,6 +1164,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         isPlayingMenu = false;
         setState(() {});
       } else {
+        if (message.indexOf("V") >= 0) {
+          strFirmwareVersion = message;
+          return;
+        }
         // print("--${DateTime.now().millisecondsSinceEpoch}");
         if (flagSerialDataLength > 0) {
           strSerialDataBuff = "";
@@ -3061,7 +3067,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           top: 5,
           child: Text(
             style: const TextStyle(fontSize: 7),
-            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}",
+            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}\r\n$strFirmwareVersion",
           ),
         ),
       ]
@@ -3245,6 +3251,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // print(edge.to);
       int fromIdx = nodeKey[edge.from.toString()]!; // - allNeuronStartIdx;
       int toIdx = nodeKey[edge.to.toString()]!; // - allNeuronStartIdx;
+      print("fromIdx");
+      print(fromIdx);
+      print(toIdx);
       connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
     }
     // final vals = neuronTypes.values;
@@ -3986,6 +3995,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           isPlayingMenu = true;
           runSimulation();
           controller.isPlaying = true;
+          Future.delayed(const Duration(milliseconds: 3000), () {
+            _DesignBrainPageState.isolateWritePort.send("v:");
+          });
         });
       } else {
         if (kIsWeb) {
@@ -6045,16 +6057,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
   }
 
-  Map<String, String> translateLoadedNeuron(Map<String, dynamic> targetMap,
+  Map<String, String> translateLoadedNeuron(Map<String, dynamic>? targetMap,
       Map<String, String> mapTranslateLoadKeys) {
     Map<String, String> transformedMap = {};
     print("mapTranslateLoadKeys 1");
     print(mapTranslateLoadKeys);
-    targetMap.forEach((key, value) {
+    targetMap?.forEach((key, value) {
       // print("loaded Neuron");
       // print(key);
-      String translatedKey = mapTranslateLoadKeys[key]!;
-      transformedMap[translatedKey] = value;
+      if (mapTranslateLoadKeys.containsKey(key)) {
+        String translatedKey = mapTranslateLoadKeys[key]!;
+        transformedMap[translatedKey] = value;
+      } else {
+        print("WRONGG key");
+        print(key);
+        print(value);
+      }
     });
     return transformedMap;
   }
