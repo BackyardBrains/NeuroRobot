@@ -514,9 +514,9 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                         final File file = File(
                                             '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
                                         file.deleteSync();
-                                        final File fileImage =
-                                            File(fileNames[i].path);
-                                        fileImage.deleteSync();
+                                        // final File fileImage =
+                                        //     File(fileNames[i].path);
+                                        // fileImage.deleteSync();
                                         fileNames.removeAt(i);
                                         imageTitles.removeAt(i);
                                         imageDescriptions.removeAt(i);

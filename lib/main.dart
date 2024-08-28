@@ -36,7 +36,9 @@ void main() async {
   FlutterError.onError = (errorDetails) {
     if (fatalError) {
       // If you want to record a "fatal" exception
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      if (!Platform.isWindows) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      }
       // ignore: dead_code
     } else {
       // If you want to record a "non-fatal" exception
@@ -47,7 +49,9 @@ void main() async {
   PlatformDispatcher.instance.onError = (error, stack) {
     if (fatalError) {
       // If you want to record a "fatal" exception
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      if (!Platform.isWindows) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
       // ignore: dead_code
     } else {
       // If you want to record a "non-fatal" exception

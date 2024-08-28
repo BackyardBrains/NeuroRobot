@@ -1088,6 +1088,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           if (isPlayingMenu) {
             startWebSocket();
             mjpegComponent = Mjpeg(
+              error: (context, error, stack) {
+                return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
+                    style: TextStyle(fontSize: 10, color: Colors.brown));
+              },
               stream: httpdStream,
               // stream: "http://192.168.1.4:8081/",
               preprocessor: processor,
@@ -1342,12 +1346,36 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     String capturePath =
         "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}capture";
-    getApplicationDocumentsDirectory().then((documentDirectory) {
+    getApplicationDocumentsDirectory().then((documentDirectory) async {
       captureDirectory = Directory("${documentDirectory.path}$capturePath");
       Directory spikerbotDirectory = Directory(
           "${documentDirectory.path}${Platform.pathSeparator}spikerbot");
       if (!spikerbotDirectory.existsSync()) spikerbotDirectory.createSync();
-      if (!captureDirectory.existsSync()) captureDirectory.createSync();
+      if (!captureDirectory.existsSync()) {
+        captureDirectory.createSync();
+        List<String> arrLessonPlan = [
+          "BrainText1724733907587233@@@L1E1-Sensor@@@Sensory information can lead to action.txt",
+          "BrainText1724746973005942@@@L1E2-Follow Targets@@@Produce life-like goal-directed behaviors.txt",
+          "BrainText1724747399306156@@@L1E3-Moving Robot@@@Using spontaneous bursts neuron to perform 'random walks'.txt",
+          "BrainText1724748009573259@@@L1E4-Sees Cup@@@How brain is responding, and demonstrating object recognition.txt",
+        ];
+        // String L1E1 =
+        //     "BrainText1724733907587233@@@L1E1-Sensor@@@Sensory information can lead to action.txt";
+        arrLessonPlan.forEach((savedFileName) async {
+          String data =
+              await rootBundle.loadString("assets/saved/$savedFileName");
+          String textDirectoryPath =
+              "${documentDirectory.path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text${Platform.pathSeparator}";
+          Directory textDir = Directory(textDirectoryPath);
+          if (!textDir.existsSync()) {
+            textDir.createSync();
+          }
+          File resultFile = File("$textDirectoryPath$savedFileName");
+          if (!resultFile.existsSync()) {
+            resultFile.writeAsStringSync(data);
+          }
+        });
+      }
     });
 
     print("INIT STATEEE");
@@ -1430,6 +1458,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     processor = ImagePreprocessor();
     processor.isRunning = true;
     mjpegComponent = Mjpeg(
+      error: (context, error, stack) {
+        return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
+            style: TextStyle(fontSize: 10, color: Colors.brown));
+      },
       stream: httpdStream,
       // stream: "http://192.168.1.4:8081/",
       preprocessor: processor,
@@ -1451,7 +1483,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (isChartSelected) {
         // print("redraw");
-        print(Nativec.canvasBufferBytes1);
+        // print(Nativec.canvasBufferBytes1);
         waveRedraw.value = Random().nextInt(10000);
       }
       if (isPlayingMenu) {
@@ -3908,6 +3940,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         try {
           processor = ImagePreprocessor();
           mjpegComponent = Mjpeg(
+            error: (context, error, stack) {
+              return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
+                  style: TextStyle(fontSize: 10, color: Colors.brown));
+            },
             stream: httpdStream,
             // stream: "http://192.168.1.4:8081/",
             preprocessor: processor,
@@ -5509,8 +5545,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
     // String textPath = "";
 
-    title = title.replaceAll(".", "|");
-    description = description.replaceAll(".", "|");
+    title = title.replaceAll(".", "-");
+    description = description.replaceAll(".", "-");
     title = title.replaceAll("@", "#");
     description = description.replaceAll("@", "#");
 
@@ -6215,6 +6251,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   List<String> empty = [];
   double multiplierConstant = 0.78;
+  double multiplierAdjusterConstant = 0.5;
   int robotMessageDelay = 75;
   List<int> infoStatusMax = [];
   List<List<int>> diodeStatusMax = [];
@@ -6298,7 +6335,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           if (commands.isNotEmpty) {
             // print(commands.length);
             int len = commands.length;
-            int validValueCounter = 0;
+            int leftValidValueCounter = 0;
+            int rightValidValueCounter = 0;
+            // int validValueCounter = 0;
             for (int i = 0; i < len; i++) {
               List<String> arr = commands[i].split(";");
               int n = arr.length;
@@ -6307,7 +6346,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 if (arrStr[0] == "l") {
                   int val = int.parse(arrStr[1]);
                   if (val.abs() >= 5) {
-                    validValueCounter++;
+                    leftValidValueCounter++;
                     leftSumValue += val;
                   }
                   if (leftAttentionValue[val] == null) {
@@ -6325,7 +6364,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 } else if (arrStr[0] == "r") {
                   int val = int.parse(arrStr[1]);
                   if (val.abs() >= 5) {
-                    validValueCounter++;
+                    rightValidValueCounter++;
                     rightSumValue += val;
                   }
                   if (rightAttentionValue[val] == null) {
@@ -6399,22 +6438,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             if (leftAttentionValue[0] == len) {
               avgLeft = 0;
             } else {
-              leftSumValue = leftSumValue / validValueCounter;
+              leftSumValue = leftSumValue / leftValidValueCounter;
               double calculatedValue = leftSumValue.sign *
                   ((leftSumValue.abs() - 250) * multiplierConstant + 250);
               // print("calculatedValue left");
               // print(calculatedValue);
-              avgLeft = (calculatedValue).floor();
+              avgLeft = (calculatedValue * multiplierAdjusterConstant).floor();
             }
             if (rightAttentionValue[0] == len) {
               avgRight = 0;
             } else {
-              rightSumValue = rightSumValue / validValueCounter;
+              rightSumValue = rightSumValue / rightValidValueCounter;
               double calculatedValue = rightSumValue.sign *
                   ((rightSumValue.abs() - 250) * multiplierConstant + 250);
               // print("calculatedValue right");
               // print(calculatedValue);
-              avgRight = (calculatedValue).floor();
+              avgRight = (calculatedValue * multiplierAdjusterConstant).floor();
             }
             // print("avgLeft");
             // print(len);
@@ -6426,6 +6465,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             // avgRight = 60;
             msg =
                 "l:${avgLeft};r:${avgRight};s:${infoStatusMax[2]};$diodeString";
+            // msg = "l:-120;r:-120;s:${infoStatusMax[2]};$diodeString";
 // */
             if (isIsolateWritePortInitialized) {
               // print("msg");
