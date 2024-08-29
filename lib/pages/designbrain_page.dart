@@ -1974,6 +1974,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 controller: tecAWeight,
                                 onSubmitted: (value) {
                                   try {
+                                    if (value.trim() == "") value = "0";
                                     sldAWeight = double.parse(value);
                                     if (sldAWeight > 0.15) {
                                       sldAWeight = 0.15;
@@ -2059,6 +2060,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 controller: tecBWeight,
                                 onSubmitted: (value) {
                                   try {
+                                    if (value.trim() == "") value = "0";
                                     sldBWeight = double.parse(value);
                                     if (sldBWeight > 0.5) {
                                       sldBWeight = 0.5;
@@ -2148,6 +2150,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 controller: tecCWeight,
                                 onSubmitted: (value) {
                                   try {
+                                    if (value.trim() == "") value = "0";
                                     sldCWeight = double.parse(value);
                                     if (sldCWeight > 0) {
                                       sldCWeight = 0;
@@ -2239,6 +2242,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 controller: tecDWeight,
                                 onSubmitted: (value) {
                                   try {
+                                    if (value.trim() == "") value = "0";
                                     sldDWeight = double.parse(value);
                                     if (sldDWeight > 10) {
                                       sldDWeight = 10;
@@ -2312,19 +2316,20 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               width: 50,
                               height: 40,
                               child: TextField(
-                                enabled: false,
+                                enabled: true,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: whiteListingTextInputFormatter,
                                 maxLines: 1,
                                 controller: tecTimeValue,
                                 onSubmitted: (value) {
-                                  return;
+                                  // return;
                                   try {
+                                    if (value.trim() == "") value = "0";
                                     sldTimeValue = double.parse(value);
                                     if (sldTimeValue > maxDelayTimeValue) {
+                                      sldTimeValue = 5000;
+                                    } else if (sldTimeValue < 100) {
                                       sldTimeValue = 100;
-                                    } else if (sldTimeValue < 0) {
-                                      sldTimeValue = 0;
                                     }
                                     sldTimeValue = sldTimeValue.roundToDouble();
                                     tecTimeValue.text =
@@ -2355,7 +2360,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   value: sldTimeValue,
                                   max: maxDelayTimeValue.toDouble(),
                                   min: minDelayTimeValue.toDouble(),
-                                  divisions: 40,
+                                  divisions: 49,
                                   // label: maxDelayTimeValue.round().toString(),
                                   onChanged: (double value) {
                                     try {
@@ -2515,6 +2520,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               controller: tecFrequencyWeight,
                               onSubmitted: (value) {
                                 try {
+                                  if (value.trim() == "") value = "0";
                                   sldFrequencyWeight = double.parse(value);
                                   if (sldFrequencyWeight > 4978) {
                                     sldFrequencyWeight =
@@ -2543,7 +2549,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   }
 
                                   setState(() {});
-                                } catch (err) {}
+                                } catch (err) {
+                                  print("err");
+                                }
                               },
                             ),
                           ),
@@ -2619,7 +2627,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               maxLines: 1,
                               controller: tecSynapticWeight,
                               onSubmitted: (value) {
+                                // print("onsubmitted");
                                 try {
+                                  if (value.trim() == "") value = "0";
                                   sldSynapticWeight = double.parse(value);
                                   if (sldSynapticWeight > 100) {
                                     sldSynapticWeight = 100;
@@ -2720,6 +2730,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               controller: tecSynapticWeight,
                               onSubmitted: (value) {
                                 try {
+                                  if (value.trim() == "") value = "0";
                                   sldSynapticWeight = double.parse(value);
                                   if (sldSynapticWeight > 100) {
                                     sldSynapticWeight = 100;
@@ -3067,7 +3078,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           top: 5,
           child: Text(
             style: const TextStyle(fontSize: 7),
-            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}\r\n$strFirmwareVersion",
+            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}.1\r\n$strFirmwareVersion",
           ),
         ),
       ]
@@ -3997,6 +4008,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       if (isPlayingMenu) {
         controller.deselectAll();
         isPlayingMenu = false;
+        isDrawTail = false;
+
         Future.delayed(const Duration(milliseconds: 1650), () {
           isPlayingMenu = true;
           runSimulation();
@@ -6617,8 +6630,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   void updateSyntheticConnection(
       LocalKey from, LocalKey to, double sldSynapticWeight) {
-    int fromIdx = neuronTypes.keys.toList().indexOf(axonFrom.toString());
-    int toIdx = neuronTypes.keys.toList().indexOf(axonTo.toString());
     for (Connection con in syntheticConnections) {
       if (con.neuronIndex1 == from && con.neuronIndex2 == to) {
         con.connectionStrength = sldSynapticWeight;

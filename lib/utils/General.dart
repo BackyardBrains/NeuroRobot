@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 List<TextInputFormatter> whiteListingTextInputFormatter = [
-  FilteringTextInputFormatter.allow(RegExp(r'[0-9.-]')),
+  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
   FilteringTextInputFormatter.digitsOnly
 ];
 List<TextInputFormatter> neuronListingTextInputFormatter = [
