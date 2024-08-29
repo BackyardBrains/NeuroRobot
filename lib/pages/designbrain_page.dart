@@ -3496,8 +3496,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       syntheticNeuronList.removeAt(deleteIdx);
       rawSyntheticNeuronList.removeAt(deleteIdx);
 
-      neuronTypes.remove(selected.id);
       neuronStyles.remove(selected.id);
+      neuronTypes.remove(selected.id);
       aDesignArray.remove(selected.id);
       bDesignArray.remove(selected.id);
       cDesignArray.remove(selected.id);
@@ -3872,6 +3872,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         // isSavingBrain == 2 - There is a change in the design
       }
 
+      print("controller.nodes");
+      print(controller.nodes.length);
+      print("rawSyntheticNeuronList.length");
+      print(rawSyntheticNeuronList.length);
+      print(syntheticNeuronList.length);
+      print(neuronStyles.length);
       await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
           saveCurrentBrain, pMapStatus);
 
@@ -5109,6 +5115,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // neuronTypes = {};
     print("init neuron tyep");
     neuronTypes.clear();
+    neuronStyles.clear();
+    aDesignArray.clear();
+    bDesignArray.clear();
+    cDesignArray.clear();
+    dDesignArray.clear();
     mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
     mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
     mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
