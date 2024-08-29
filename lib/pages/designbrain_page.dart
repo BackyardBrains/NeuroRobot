@@ -4570,9 +4570,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             if (selected == listDefaultSensor[i]) {
               tooltipOverlayX = selected.offset.dx;
               tooltipOverlayY = selected.offset.dy;
-              tooltipOverlayMessage = listDefaultSensorLabel[i];
-              isTooltipOverlay = true;
-              foundSelected = true;
+              try {
+                tooltipOverlayMessage = listDefaultSensorLabel[i];
+                isTooltipOverlay = true;
+                foundSelected = true;
+              } catch (err) {
+                print(err);
+                return;
+              }
             }
           }
           // print("foundSelected");
@@ -4961,8 +4966,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 controller.edges.remove(lastCreatedEdge);
               } else if (neuronFrom.key == neuronTo.key) {
                 controller.edges.remove(lastCreatedEdge);
-                setState(() {});
-                return;
               } else if (restrictedToNeurons.indexOf(neuronTo) > -1) {
                 controller.edges.remove(lastCreatedEdge);
               } else if (restrictedFromNeurons.indexOf(neuronFrom) > -1) {
@@ -4993,8 +4996,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
                   lastCreatedEdge.connectionStrength = 25.0;
                 }
-                setState(() {});
               }
+              setState(() {});
 
               // print(isDefaultRobotEdge);
             }
