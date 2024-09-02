@@ -28,6 +28,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final VoidCallback onDeleteCallback;
 
   Map<String, Path> axonPathMap = {};
+
+  List<LocalKey>? restrictedToNeuronsKey;
+  List<LocalKey>? restrictedFromNeuronsKey;
   // final VoidCallback transformNeuronPositionWrapper;
 
   InfiniteCanvasController({
@@ -395,26 +398,36 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       to: to,
       label: label,
     );
-    List<InfiniteCanvasEdge> foundNodeList = edges
-        .where(
-          (element) => element.from == edge.from && element.to == edge.to,
-        )
-        .toList();
-    List<InfiniteCanvasEdge> foundReciprocateNodeList = edges
-        .where(
-          (element) => element.from == edge.to && element.to == edge.from,
-        )
-        .toList();
-    int foundNode = foundNodeList.length;
+    bool isAddingEdge = true;
+    if (from == to) {
+      isAddingEdge = false;
+    } else if (restrictedToNeuronsKey!.contains(to)) {
+      isAddingEdge = false;
+    } else if (restrictedFromNeuronsKey!.contains(from)) {
+      isAddingEdge = false;
+    }
+    if (isAddingEdge) {
+      List<InfiniteCanvasEdge> foundNodeList = edges
+          .where(
+            (element) => element.from == edge.from && element.to == edge.to,
+          )
+          .toList();
+      List<InfiniteCanvasEdge> foundReciprocateNodeList = edges
+          .where(
+            (element) => element.from == edge.to && element.to == edge.from,
+          )
+          .toList();
+      int foundNode = foundNodeList.length;
 
-    if (foundNode == 0) {
-      //not duplicate
-      if (foundReciprocateNodeList.isNotEmpty) {
-        foundReciprocateNodeList[0].isReciprocate = 1;
-        edge.isReciprocate = -1;
-        edges.add(edge);
-      } else {
-        edges.add(edge);
+      if (foundNode == 0) {
+        //not duplicate
+        if (foundReciprocateNodeList.isNotEmpty) {
+          foundReciprocateNodeList[0].isReciprocate = 1;
+          edge.isReciprocate = -1;
+          edges.add(edge);
+        } else {
+          edges.add(edge);
+        }
       }
     }
     deselectAll(true);

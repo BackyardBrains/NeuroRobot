@@ -318,8 +318,11 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         double this_left_score = 0;
         double this_right_score = 0;
         double meanx = 0;
+        std::string leftFrameResult = "000";
+        std::string rightFrameResult = "000";
 
         for (short icam = 0; icam < 2; icam++){
+
             if (icam == 0){
                 resize(leftFrame, uframe, net_input_size);
                 cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
@@ -383,6 +386,15 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 70;
+                    if (this_score > 69){
+                        if (icam == 0){
+                            //BGR
+                            leftFrameResult[ncol] = '1';
+                        }else{
+                            rightFrameResult[ncol] = '1';
+                        }
+                    }
+                    // platform_log( (std::to_string(this_score)+" score_\n" ).c_str());
 
                     short tempCol = static_cast<short>(ncol * 2);
                     setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
@@ -477,7 +489,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         // rawImageRgb.release();
         // matImageRgb.release();
         imageRgb.release();
-        return 0;
+        return std::stoi("1"+leftFrameResult + rightFrameResult, nullptr, 2);
     }
 
     FUNCTION_ATTRIBUTE

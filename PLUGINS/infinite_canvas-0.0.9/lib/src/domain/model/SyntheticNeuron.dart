@@ -159,9 +159,9 @@ class SyntheticNeuron extends CustomPainter {
       heightNucleus: diameterOfNeuron / 1.4 + random.nextDouble(),
       isIO: false,
     );
-    print(
-        "diameterOfNeuron : $diameterOfNeuron - $drawX - $drawY ${newNeuron.xNucleus} ${newNeuron.yNucleus} | x: $x y:$y | ");
-    print(node.key.toString());
+    // print(
+    //     "diameterOfNeuron : $diameterOfNeuron - $drawX - $drawY ${newNeuron.xNucleus} ${newNeuron.yNucleus} | x: $x y:$y | ");
+    // print(node.key.toString());
 
     randomVariation1 = 0.95 + 0.1 * random.nextDouble();
     randomVariation2 = 0.9 + 0.2 * random.nextDouble();

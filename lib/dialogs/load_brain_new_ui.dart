@@ -10,6 +10,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
+import '../main.dart';
+
 TextEditingController tecBrainName = TextEditingController();
 TextEditingController tecBrainDescription = TextEditingController();
 bool isDeleteMode = false;
@@ -65,12 +67,12 @@ Future<List<File>> loadBrainFiles(fileInfos, context) async {
   fileList.sort((a, b) => mtimes[a]!.compareTo(mtimes[b]!));
 
   for (String fileString in fileList) {
-    // print(fileString);
+    // printDebug(fileString);
     if (fileString.contains(".txt")) {
       fileNames.insert(0, File(fileString));
       List<String> arr = fileString.split("@@@");
-      print("arr");
-      print(arr);
+      printDebug("arr");
+      printDebug(arr);
       final File savedFile = File(fileString);
       if (savedFile.existsSync()) {
         Map<String, String> brainInfo = {};
@@ -102,8 +104,8 @@ Future<Uint8List> getImageFromText(path) async {
   final File savedFile = File(path);
   if (savedFile.existsSync()) {
     String strSavedFile = await savedFile.readAsString();
-    // print("strSavedFile");
-    // print(strSavedFile);
+    // printDebug("strSavedFile");
+    // printDebug(strSavedFile);
     Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
     imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
   }
@@ -114,8 +116,8 @@ Future<Uint8List> getImageFromText(path) async {
 Future<void> showLoadBrainDialog(BuildContext context, String title,
     selectCallback, saveCallback, pMapStatus) async {
   mapStatus = pMapStatus;
-  print("mapStatus");
-  print(mapStatus);
+  printDebug("mapStatus");
+  printDebug(mapStatus);
   isSavingMode = pMapStatus["isSavingBrain"];
   currentFileName = pMapStatus["currentFileName"];
 
@@ -123,16 +125,16 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
   fileNames = await loadBrainFiles(fileInfos, context);
   // if (fileNames.isEmpty) return;
 
-  print("currentFileName0");
-  print(currentFileName);
+  printDebug("currentFileName0");
+  printDebug(currentFileName);
   if (currentFileName != "-") {
     int tempIdx = 0;
     int loadedIdx = -1;
     fileNames.forEach((file) {
       if (file.path.contains(currentFileName)) {
-        print("file.path");
-        print(file.path);
-        print(currentFileName);
+        printDebug("file.path");
+        printDebug(file.path);
+        printDebug(currentFileName);
         loadedIdx = tempIdx;
       }
       tempIdx++;
@@ -143,15 +145,15 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
     }
   }
 
-  print("fileNames");
-  print(fileInfos);
+  printDebug("fileNames");
+  printDebug(fileInfos);
 
   // ignore: use_build_context_synchronously
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(builder: (ctx, setState) {
-        print("REDRAW");
+        printDebug("REDRAW");
         return AlertDialog(
           content: SizedBox(
             width: 500,
@@ -207,9 +209,9 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
         imageTitles.add("Default Title");
         imageDescriptions.add("Default Description");
         idx++;
-        print("load err");
-        print(err);
-        print(fileInfos);
+        printDebug("load err");
+        printDebug(err);
+        printDebug(fileInfos);
       }
       return true;
     });
@@ -282,8 +284,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                             tecBrainName.text,
                             tecBrainDescription.text,
                           );
-                          print("currentFileName1");
-                          print(currentFileName);
+                          printDebug("currentFileName1");
+                          printDebug(currentFileName);
                           mapStatus["isSavingBrain"] = 10;
                           mapStatus["currentFileName"] = currentFileName;
                           // "${(documentPath)?.path}$imagesPath${Platform.pathSeparator}Brain$currentFileName.png";
@@ -307,7 +309,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   return null;
                                 },
                                 onEditingComplete: (value) {
-                                  print(value);
+                                  printDebug(value);
                                 }),
                             positiveButtonText: "Yes",
                             positiveButtonAction: (title) async {
@@ -351,7 +353,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 hideNeutralButton: true,
                                 negativeButtonText: "Cancel",
                                 negativeButtonAction: () {
-                                  print("");
+                                  printDebug("");
                                 },
                                 positiveButtonText: "Yes",
                                 positiveButtonAction: () {
@@ -395,10 +397,10 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           List.generate(fileNames.length, (index) => index)
                               .map((i) {
                         String currentFullFilePath = currentFileName;
-                        print("currentFullFilePath");
-                        print(fileNames[i].path);
-                        print(currentFullFilePath);
-                        print(fileNames[i].path == currentFullFilePath);
+                        printDebug("currentFullFilePath");
+                        printDebug(fileNames[i].path);
+                        printDebug(currentFullFilePath);
+                        printDebug(fileNames[i].path == currentFullFilePath);
 
                         return Stack(
                           children: [
@@ -514,6 +516,11 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                         final File file = File(
                                             '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
                                         file.deleteSync();
+                                        MyApp.logAnalytic("Delete", {
+                                          "timestamp": DateTime.now()
+                                              .millisecondsSinceEpoch
+                                        });
+
                                         // final File fileImage =
                                         //     File(fileNames[i].path);
                                         // fileImage.deleteSync();
@@ -584,4 +591,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
       ],
     );
   });
+}
+
+void printDebug(s) {
+  // print(s);
 }

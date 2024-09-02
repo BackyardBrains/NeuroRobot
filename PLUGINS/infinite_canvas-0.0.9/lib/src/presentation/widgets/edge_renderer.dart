@@ -375,6 +375,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               neuronTo.dendrites[dendriteIndex].sinapseFirstLevel.length;
         }
       }
+
       Sinapse newSinapse = Sinapse(
         presinapticNeuronIndex: fromIdx,
         sinapticValue: connectionStrength,
@@ -483,6 +484,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
     double diameterOfNeuron = neurons[fromIdx].circleRadius;
     // int maxAbsoluteConnectionStrength = connectionStrength.floor();
+
     int maxAbsoluteConnectionStrength = 70 - connectionStrength.floor();
     double minimalTicknessOfAxon = 1;
 

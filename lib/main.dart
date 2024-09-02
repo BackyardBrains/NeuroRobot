@@ -105,6 +105,19 @@ class MyApp extends StatelessWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
+  static void logAnalytic(String eventName, map) {
+    try {
+      if (!Platform.isWindows) {
+        analytics.logEvent(
+          name: eventName,
+          parameters: map,
+        );
+      }
+    } catch (err) {
+      print("Error Analytic");
+      print(err);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
