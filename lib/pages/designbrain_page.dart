@@ -1873,14 +1873,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       onChanged: (value) {
                         neuronMenuType = value;
                         neuronTypeChangeCallback(neuronMenuType);
-                        if (value == "Delay") {
-                          isShowDelayTime = true;
-                          sldTimeValue = 3000;
-                        } else {
-                          isShowDelayTime = false;
-                          // sldTimeValue = 1000;
-                        }
-                        tecTimeValue.text = sldTimeValue.floor().toString();
+
                         try {
                           InfiniteCanvasNode selected = controller.selection[0];
                           int neuronIdx = controller.nodes
@@ -1888,6 +1881,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   .toList()
                                   .indexOf(selected.id) -
                               2;
+                          if (value == "Delay") {
+                            isShowDelayTime = true;
+                            sldTimeValue = 3000;
+                            tecTimeValue.text = sldTimeValue.floor().toString();
+                          } else if (value == "Custom") {
+                            printDebug("dropDown change");
+                            isShowDelayTime = false;
+
+                            mapDelayNeuronList[neuronIdx] = -1;
+                          } else {
+                            isShowDelayTime = false;
+                            // sldTimeValue = 1000;
+                          }
 
                           nativec.changeIdxSelected(neuronIdx);
                           if (value == "Delay") {
@@ -1915,6 +1921,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       items: dropdownNeuronStyleItems,
                       onChanged: (value) {
                         neuronStyle = value;
+
                         if (value == "Custom") {
                           resizeIzhikevichParameters(neuronSize);
                           InfiniteCanvasNode selected = controller.selection[0];
@@ -2495,6 +2502,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             child: Focus(
                               onFocusChange: (hasFocus) {
                                 if (!hasFocus) {
+                                  printDebug("synaptic on focusleave");
                                   submitSynapticConnection(
                                       tecSynapticWeight.text);
                                 }
@@ -2764,79 +2772,80 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     String aiLabelLeft = "";
     String aiLabelRight = "";
-    if (isInfoMenu) {}
-    if (isShowingLeftAiMenu || isShowingRightAiMenu) {
-      if (aiStats != null && aiStats!["Confidence Score"] != null) {
-        String detectedObjectLabel =
-            aiStats!["Confidence Score"]!.split("-")[0];
-        if (isShowingLeftAiMenu) {
-          aiLabelLeft = detectedObjectLabel;
-        } else {
-          aiLabelRight = detectedObjectLabel;
-        }
-      }
-      leftColorListWidget.add(Text(aiLabelLeft));
-      rightColorListWidget.add(Text(aiLabelRight));
-    } else {}
-
-    if (isShowingLeftColorMenu || isShowingRightColorMenu) {
-      Container blueContainer = Container(
-          width: 20,
-          height: 20,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.blue, // Replace with your desired color
-          ));
-      Container greenContainer = Container(
-          width: 20,
-          height: 20,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.green, // Replace with your desired color
-          ));
-      Container redContainer = Container(
-          width: 20,
-          height: 20,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.red, // Replace with your desired color
-          ));
-
-      int idx = 0;
-      // if (isShowingLeftColorMenu) {
-      leftColorListWidget.add(const SizedBox(width: 5));
-      for (int i = 0; i < strLeftColorMenu.length; i++) {
-        String c = strLeftColorMenu[i];
-        if (c == '1') {
-          if (idx == 0) {
-            leftColorListWidget.add(blueContainer);
-          } else if (idx == 1) {
-            leftColorListWidget.add(greenContainer);
-          } else if (idx == 2) {
-            leftColorListWidget.add(redContainer);
+    if (isInfoMenu) {
+      if (isShowingLeftAiMenu || isShowingRightAiMenu) {
+        if (aiStats != null && aiStats!["Confidence Score"] != null) {
+          String detectedObjectLabel =
+              aiStats!["Confidence Score"]!.split("-")[0];
+          if (isShowingLeftAiMenu) {
+            aiLabelLeft = detectedObjectLabel;
+          } else {
+            aiLabelRight = detectedObjectLabel;
           }
         }
-        idx++;
-      }
-      // }
+        leftColorListWidget.add(Text(aiLabelLeft));
+        rightColorListWidget.add(Text(aiLabelRight));
+      } else {}
 
-      // if (isShowingRightColorMenu) {
-      idx = 0;
-      rightColorListWidget.add(const SizedBox(width: 5));
-      for (int i = 0; i < strRightColorMenu.length; i++) {
-        String c = strRightColorMenu[i];
-        if (c == '1') {
-          if (idx == 0) {
-            rightColorListWidget.add(blueContainer);
-          } else if (idx == 1) {
-            rightColorListWidget.add(greenContainer);
-          } else if (idx == 2) {
-            rightColorListWidget.add(redContainer);
+      if (isShowingLeftColorMenu || isShowingRightColorMenu) {
+        Container blueContainer = Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blue, // Replace with your desired color
+            ));
+        Container greenContainer = Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green, // Replace with your desired color
+            ));
+        Container redContainer = Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red, // Replace with your desired color
+            ));
+
+        int idx = 0;
+        // if (isShowingLeftColorMenu) {
+        leftColorListWidget.add(const SizedBox(width: 5));
+        for (int i = 0; i < strLeftColorMenu.length; i++) {
+          String c = strLeftColorMenu[i];
+          if (c == '1') {
+            if (idx == 0) {
+              leftColorListWidget.add(blueContainer);
+            } else if (idx == 1) {
+              leftColorListWidget.add(greenContainer);
+            } else if (idx == 2) {
+              leftColorListWidget.add(redContainer);
+            }
           }
+          idx++;
         }
-        idx++;
+        // }
+
+        // if (isShowingRightColorMenu) {
+        idx = 0;
+        rightColorListWidget.add(const SizedBox(width: 5));
+        for (int i = 0; i < strRightColorMenu.length; i++) {
+          String c = strRightColorMenu[i];
+          if (c == '1') {
+            if (idx == 0) {
+              rightColorListWidget.add(blueContainer);
+            } else if (idx == 1) {
+              rightColorListWidget.add(greenContainer);
+            } else if (idx == 2) {
+              rightColorListWidget.add(redContainer);
+            }
+          }
+          idx++;
+        }
+        // }
       }
-      // }
     }
     // print("LIST WIDGETZ");
 
@@ -3020,7 +3029,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           top: 5,
           child: Text(
             style: const TextStyle(fontSize: 7),
-            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}.1\r\n$strFirmwareVersion",
+            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}.2\r\n$strFirmwareVersion",
           ),
         ),
       ]
@@ -3958,9 +3967,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           runSimulation();
           controller.isPlaying = true;
           if (isIsolateWritePortInitialized) {
-            Future.delayed(const Duration(milliseconds: 3000), () {
+            aiStats = null;
+            nativec.changeIdxSelected(11);
+            Future.delayed(const Duration(milliseconds: 7000), () {
               final maxValue =
-                  Nativec.canvasBufferBytes1.reduce((a, b) => a > b ? a : b);
+                  Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
               if (maxValue == 0) {
                 rightToolbarCallback({"menuIdx": 7});
                 Future.delayed(const Duration(milliseconds: 100), () {
@@ -4508,6 +4519,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         return;
       }
       if (controller.mouseDown) {
+        // controller.checkSelection(controller.mousePosition);
         if (menuIdx == 0 && !controller.hasSelection) {
           clearUIMenu();
 
@@ -4632,10 +4644,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 // printDebug(neuronIdx);
                 // printDebug(mapDelayNeuronList);
                 // printDebug(mapDelayNeuronList[neuronIdx]);
+                // printDebug("SHOWING!");
+                // printDebug(mapDelayNeuronList[neuronIdx]);
                 if (mapDelayNeuronList[neuronIdx] > 0) {
                   isShowDelayTime = true;
-                  tecTimeValue.text = mapDelayNeuronList[neuronIdx].toString();
-                  sldTimeValue = mapDelayNeuronList[neuronIdx].toDouble();
+                  if (tecTimeValue.text !=
+                      mapDelayNeuronList[neuronIdx].toString()) {
+                    tecTimeValue.text =
+                        mapDelayNeuronList[neuronIdx].toString();
+                    sldTimeValue = mapDelayNeuronList[neuronIdx].toDouble();
+                  }
                 } else {
                   isShowDelayTime = false;
                   sldTimeValue = minDelayTimeValue.toDouble();
@@ -5809,20 +5827,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     mapConnectome = translateLoadedMap(
         savedFileJson["mapConnectome"], mapTranslateLoadKeys);
 
-    List<dynamic> edgesJson = savedFileJson["edges"];
-    for (var v in edgesJson) {
-      List<String> arr = v.toString().split("_#_");
-      InfiniteCanvasNode nodeFrom = findNeuronByValueKey((arr[0]));
-      InfiniteCanvasNode nodeTo = findNeuronByValueKey((arr[1]));
-
-      InfiniteCanvasEdge edge = InfiniteCanvasEdge(
-        from: nodeFrom.key,
-        to: nodeTo.key,
-      );
-      String connectionKey = "${nodeFrom.id}_${nodeTo.id}";
-      edge.connectionStrength = mapConnectome[connectionKey] ?? 0;
-      controller.edges.add(edge);
-    }
     printDebug("Edges");
 
     mapSensoryNeuron = translateLoadedMap(
@@ -5844,6 +5848,27 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         ? {}
         : translateLoadedMap(
             savedFileJson["mapLedNeuronPosition"], mapTranslateLoadKeys);
+
+    List<dynamic> edgesJson = savedFileJson["edges"];
+    for (var v in edgesJson) {
+      List<String> arr = v.toString().split("_#_");
+      InfiniteCanvasNode nodeFrom = findNeuronByValueKey((arr[0]));
+      InfiniteCanvasNode nodeTo = findNeuronByValueKey((arr[1]));
+
+      InfiniteCanvasEdge edge = InfiniteCanvasEdge(
+        from: nodeFrom.key,
+        to: nodeTo.key,
+      );
+      String connectionKey = "${nodeFrom.id}_${nodeTo.id}";
+      edge.connectionStrength = mapConnectome[connectionKey] ?? 0;
+      controller.edges.add(edge);
+      if (mapLedNeuron[connectionKey] != null) {
+        edge.connectionStrength = mapLedNeuron[connectionKey] ?? 0;
+      }
+      if (mapContactsNeuron[connectionKey] != null) {
+        edge.connectionStrength = mapContactsNeuron[connectionKey] ?? 0;
+      }
+    }
 
     // neuronTypes = List<String>.from(savedFileJson["neuronTypes"]);
     Map<String, String> tempNeuronTypes = translateLoadedNeuron(
@@ -6196,8 +6221,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         nodeTo == nodeGreenLed ||
         nodeTo == nodeBlueLed) {
       isLedMenu = true;
-      // printDebug('mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"]');
-      // printDebug(mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"]);
+      printDebug(
+          'FILL synaptic weight from mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"]');
+      printDebug(mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"]);
       if (mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
         sldSynapticWeight =
             mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"].roundToDouble();
@@ -7055,15 +7081,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       sldTimeValue =
           ((sldTimeValue / 100).floor() * 100).floor().roundToDouble();
       tecTimeValue.text = sldTimeValue.floor().toString();
-
-      InfiniteCanvasNode selected = controller.selection[0];
-      int neuronIdx =
-          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
-
-      mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
-
+      if (controller.singleSelection != null) {
+        InfiniteCanvasNode selected = controller.singleSelection!;
+        int neuronIdx =
+            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
+      }
+      controller.singleSelection = null;
       setState(() {});
-    } catch (err) {}
+    } catch (err) {
+      printDebug("Error: Submit Delay Connection");
+      printDebug(err);
+    }
   }
 
   void submitFrequencyConnection(String value) {
@@ -7110,11 +7139,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       tecAWeight.text = sldAWeight.toString();
 
       resizeIzhikevichParameters(neuronSize);
-      InfiniteCanvasNode selected = controller.selection[0];
-      int neuronIdx =
-          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
-      aDesignArray[selected.id] = sldAWeight;
-      aBufView[neuronIdx] = sldAWeight;
+      if (controller.singleSelection != null) {
+        InfiniteCanvasNode selected = controller.singleSelection!;
+        int neuronIdx =
+            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        aDesignArray[selected.id] = sldAWeight;
+        aBufView[neuronIdx] = sldAWeight;
+      }
+
+      // controller.singleSelection = null;
 
       setState(() {});
     } catch (err) {}
@@ -7133,11 +7166,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       tecBWeight.text = sldBWeight.toString();
 
       resizeIzhikevichParameters(neuronSize);
-      InfiniteCanvasNode selected = controller.selection[0];
-      int neuronIdx =
-          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
-      bDesignArray[selected.id] = sldBWeight;
-      bBufView[neuronIdx] = sldBWeight;
+      printDebug("controller.singleSelection");
+      printDebug(controller.singleSelection);
+      if (controller.singleSelection != null) {
+        InfiniteCanvasNode selected = controller.singleSelection!;
+        int neuronIdx =
+            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        bDesignArray[selected.id] = sldBWeight;
+        bBufView[neuronIdx] = sldBWeight;
+      }
+
+      // controller.singleSelection = null;
 
       setState(() {});
     } catch (err) {}
@@ -7157,11 +7196,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       sldCWeight = sldCWeight.roundToDouble();
       tecCWeight.text = sldCWeight.round().toString();
       resizeIzhikevichParameters(neuronSize);
-      InfiniteCanvasNode selected = controller.selection[0];
-      int neuronIdx =
-          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
-      cDesignArray[selected.id] = sldCWeight.floor();
-      cBufView[neuronIdx] = sldCWeight.floor();
+      if (controller.singleSelection != null) {
+        InfiniteCanvasNode selected = controller.singleSelection!;
+        int neuronIdx =
+            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        cDesignArray[selected.id] = sldCWeight.floor();
+        cBufView[neuronIdx] = sldCWeight.floor();
+      }
+
+      // controller.singleSelection = null;
 
       setState(() {});
     } catch (err) {}
@@ -7181,11 +7224,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       sldDWeight = sldDWeight.roundToDouble();
       tecDWeight.text = sldDWeight.round().toString();
       resizeIzhikevichParameters(neuronSize);
-      InfiniteCanvasNode selected = controller.selection[0];
-      int neuronIdx =
-          controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
-      dDesignArray[selected.id] = sldDWeight.floor();
-      dBufView[neuronIdx] = sldDWeight.floor();
+      if (controller.singleSelection != null) {
+        InfiniteCanvasNode selected = controller.singleSelection!;
+        int neuronIdx =
+            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        dDesignArray[selected.id] = sldDWeight.floor();
+        dBufView[neuronIdx] = sldDWeight.floor();
+      }
+
+      // controller.singleSelection = null;
 
       setState(() {});
     } catch (err) {}
@@ -7212,6 +7259,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       if (neuronMenuType == "Delay") {
         submitDelayConnection(tecTimeValue.text);
       } else {
+        // REMOVE
+        // printDebug("neuronMenuType");
+        // printDebug(neuronMenuType);
+        // printDebug(tecAWeight.text);
+        // printDebug(tecBWeight.text);
+        // printDebug(tecCWeight.text);
+        // printDebug(tecDWeight.text);
         if (neuronMenuType == "Custom") {
           submitWeightA(tecAWeight.text);
           submitWeightB(tecBWeight.text);
@@ -7227,6 +7281,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // bool isMicrophoneMenu = false;
     // bool isSpeakerMenu = false;
     // bool isLedMenu = false;
+    // isShowDelayTime = false;
   }
 }
 

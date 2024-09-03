@@ -71,6 +71,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       .where((e) => edgeSelected.from == e.from && edgeSelected.to == e.to)
       .toList();
 
+  InfiniteCanvasNode? singleSelection;
   final Set<Key> _selected = {};
   List<InfiniteCanvasNode> get selection =>
       nodes.where((e) => _selected.contains(e.key)).toList();
@@ -231,6 +232,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       deselectAll();
       return;
     }
+    // print("CHECK SELECT");
+    if (_selected.isNotEmpty) {
+      // print(_selected.last);
+      List<InfiniteCanvasNode> prevSelection =
+          nodes.where((element) => element.key == _selected.last).toList();
+      // print(prevSelection);
+      singleSelection = prevSelection.isEmpty ? null : prevSelection[0];
+    } else {
+      singleSelection = null;
+    }
 
     final offset = toLocal(localPosition);
     final selection = <Key>[];
@@ -264,6 +275,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         */
       // IS RECIPROCATE
 
+/*
       // Calculate direction vector of the line
       double dx = eTo.offset.dx - eFrom.offset.dx;
       double dy = eTo.offset.dy - eFrom.offset.dy;
@@ -289,7 +301,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
           eTo.offset.dy - perpDy * lineWidth + radius + pairSpace);
       var oTo = Offset(eTo.offset.dx + perpDx * lineWidth + radius + pairSpace,
           eTo.offset.dy + perpDy * lineWidth + radius + pairSpace);
-
+*/
       // Path p = Path()
       //   ..moveTo(iFrom.dx, iFrom.dy)
       //   ..lineTo(iTo.dx, iTo.dy)
@@ -310,16 +322,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
             isSelectingEdge = true;
             edgeSelected = edge;
           }
-          // print("OFFSET");
-          // print(isSelectingEdge);
-          // print(eFrom.value);
-          // print(eTo.value);
-          // print(eFrom.offset);
-          // print(eTo.offset);
-          // print(iFrom);
-          // print(oFrom);
-          // print(iTo);
-          // print(oTo);
 
           break;
         } else {

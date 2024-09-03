@@ -77,6 +77,7 @@ dependencies:
   firebase_analytics: 10.5.1
   firebase_crashlytics: 3.3.7
   firebase_performance: 0.9.2+7
+  # msix: 3.16.8
 
   # firebase_core: 2.24.2
   # firebase_analytics: 10.7.4
@@ -99,3 +100,15 @@ flutter:
     - assets/models/
     - assets/saved/
   uses-material-design: true
+# msix_config:
+#   display_name: SpikerBot
+#   publisher_display_name: Backyard Brains, Inc.
+#   identity_name: BackyardBrains.SpikerBot
+#   publisher: CN=054546D0-9377-4A41-8832-D38B4011661C
+#   msix_version: 1.2.1.1
+#   languages: en-us
+#   capabilities: "internetClient, microphone"
+#   store: true
+#   logo_path: C:\Users\p\Documents\byb\gl\neurorobot\neurorobot\icon\app_icon_512.png
+#   # certificate_path: C:\Users\p\Documents\byb\gl\neurorobot\neurorobot\WIN_Certificate\CERTIFICATEbybinc.pfx
+#   # certificate_password: 1234567  
