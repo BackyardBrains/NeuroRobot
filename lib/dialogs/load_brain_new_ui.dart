@@ -336,6 +336,47 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       ),
                       const SizedBox(width: 10),
                       GestureDetector(
+                          child: const Icon(Icons.save_as),
+                          onTap: () async {
+                            singleInputDialog(
+                              context,
+                              "Save as current brain",
+                              DialogTextField(
+                                  label: "Please name your brain",
+                                  obscureText: false,
+                                  textInputType: TextInputType.text,
+                                  validator: (value) {
+                                    if (value!.toString().isEmpty)
+                                      return "Required!";
+                                    return null;
+                                  },
+                                  onEditingComplete: (value) {
+                                    printDebug(value);
+                                  }),
+                              positiveButtonText: "Yes",
+                              positiveButtonAction: (title) async {
+                                tecBrainDescription.text = "";
+                                currentFileName = await saveCallback(
+                                    title, tecBrainDescription.text);
+                                mapStatus["isSavingBrain"] = 10;
+                                mapStatus["currentFileName"] = currentFileName;
+                                tecBrainName.text = title;
+
+                                fileInfos = [];
+                                fileNames =
+                                    await loadBrainFiles(fileInfos, context);
+                                isSavingMode = 10;
+
+                                setState(() {});
+                              },
+                              negativeButtonText: "Cancel",
+                              negativeButtonAction: () {},
+                              hideNeutralButton: true,
+                              closeOnBackPress: true,
+                            );
+                          }),
+                      const SizedBox(width: 10),
+                      GestureDetector(
                         child: const Icon(Icons.edit_document),
                         onTap: () {
                           if (isSavingMode < 10) {

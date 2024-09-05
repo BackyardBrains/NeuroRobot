@@ -9,6 +9,7 @@ import 'dart:math';
 import 'dart:typed_data';
 // import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:animated_battery_gauge/battery_gauge.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/foundation.dart';
@@ -26,6 +27,7 @@ import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
+import 'package:neurorobot/dialogs/version_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:native_opencv/native_opencv.dart';
@@ -50,6 +52,7 @@ import 'package:neurorobot/utils/Vision.dart';
 import 'package:neurorobot/utils/WaveWidget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
@@ -393,6 +396,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   double prevTransformScale = 1;
   Debouncer debouncerSnapNeuron = Debouncer(milliseconds: 3);
   Debouncer debouncerAIClassification = Debouncer(milliseconds: 300);
+  Debouncer debouncerNoResponse = Debouncer(milliseconds: 1000);
 
   List<Offset> rawPos = [];
 
@@ -480,6 +484,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   int captureSteps = 0;
 
   late Directory captureDirectory;
+  late Directory versionDirectory;
 
   String strSerialDataBuff = "";
   String strTorqueDataBuff = "";
@@ -513,6 +518,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   int modeIdx = -1;
 
   String strFirmwareVersion = "";
+  int firmwareVersionInt = 0;
 
   static bool isInfoMenu = false;
   static bool isShowingLeftColorMenu = false;
@@ -522,6 +528,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   static String strLeftColorMenu = '000';
   static String strRightColorMenu = '000';
+
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? configListener;
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -1246,26 +1254,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               int foundIdx = cameraMenuTypes.indexOf(results![i].label.trim());
               // reset value
               // set new value
+              isShowingLeftAiMenu = false;
+              isShowingRightAiMenu = false;
               for (String key in mapSensoryNeuron.keys) {
-                if (mapSensoryNeuron[key] == foundIdx) {
-                  // printDebug("results");
-                  Recognition r = results![i];
-                  if (key.contains(nodeLeftEyeSensor.key.toString()) &&
-                      containImage(r.location, false)) {
+                // printDebug("results");
+                // if (mapSensoryNeuron[key] == foundIdx) {
+
+                Recognition r = results![i];
+                if (key.contains(nodeLeftEyeSensor.key.toString()) &&
+                    containImage(r.location, false)) {
+                  if (mapSensoryNeuron[key] == foundIdx) {
                     visPrefsValsBufView[foundIdx] = results![i].score * 50;
-                    isShowingLeftAiMenu = true;
-                  } else if (key.contains(nodeRightEyeSensor.key.toString()) &&
-                      containImage(r.location, true)) {
+                  }
+                  isShowingLeftAiMenu = true;
+                }
+                if (key.contains(nodeRightEyeSensor.key.toString()) &&
+                    containImage(r.location, true)) {
+                  if (mapSensoryNeuron[key] == foundIdx) {
                     visPrefsValsBufView[foundIdx + rightEyeConstant] =
                         results![i].score * 50;
-                    isShowingRightAiMenu = true;
-                  } else {
-                    isShowingLeftAiMenu = false;
-                    isShowingRightAiMenu = false;
                   }
-                } else {
-                  // set visual preference = 0;
+                  isShowingRightAiMenu = true;
                 }
+                // } else {
+                //   // set visual preference = 0;
+                // }
               }
             }
           }
@@ -1350,6 +1363,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   @override
   void initState() {
     super.initState();
+
     // windowManager.addListener(this);
 
     initImageDetector();
@@ -1361,11 +1375,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     String capturePath =
         "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}capture";
+    String versionPath =
+        "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}version";
     getApplicationDocumentsDirectory().then((documentDirectory) async {
       captureDirectory = Directory("${documentDirectory.path}$capturePath");
+      versionDirectory = Directory("${documentDirectory.path}$versionPath");
       Directory spikerbotDirectory = Directory(
           "${documentDirectory.path}${Platform.pathSeparator}spikerbot");
       if (!spikerbotDirectory.existsSync()) spikerbotDirectory.createSync();
+      if (!versionDirectory.existsSync()) {
+        versionDirectory.createSync();
+        File versionFile =
+            File("$versionPath${Platform.pathSeparator}currentVersion.txt");
+        if (!versionFile.existsSync()) {
+          versionFile.createSync();
+        }
+      }
       if (!captureDirectory.existsSync()) {
         captureDirectory.createSync();
         List<String> arrLessonPlan = [
@@ -1373,6 +1398,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           "BrainText1724746973005942@@@L1E2-Follow Targets@@@Produce life-like goal-directed behaviors.txt",
           "BrainText1724747399306156@@@L1E3-Moving Robot@@@Using spontaneous bursts neuron to perform 'random walks'.txt",
           "BrainText1724748009573259@@@L1E4-Sees Cup@@@How brain is responding, and demonstrating object recognition.txt",
+          "BrainText1725503995473512@@@L2E3@@@WinnerTakeAll.txt",
         ];
         // String L1E1 =
         //     "BrainText1724733907587233@@@L1E1-Sensor@@@Sensory information can lead to action.txt";
@@ -1533,6 +1559,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     if (packageInfo == null) {
       Future.delayed(const Duration(milliseconds: 10), () async {
         packageInfo = await PackageInfo.fromPlatform();
+        await subscribeGeneralConfig();
       });
     }
     screenWidth = MediaQuery.of(context).size.width;
@@ -1631,16 +1658,45 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         idx++;
       }
       isResizingFlag = false;
-      // printDebug("isResizingFlag");
-      // printDebug(isResizingFlag);
+      printDebug("isResizingFlag");
+      printDebug(isResizingFlag);
+      printDebug(isResizingFlag);
+      if (isPlayingMenu) {
+        List<Offset> pos = [];
 
+        // Map<String, int> nodeKey = {};
+        int idx = 0;
+        for (InfiniteCanvasNode node in controller.nodes) {
+          if (idx >= allNeuronStartIdx) {
+            pos.add(node.offset);
+            // nodeKey[node.key.toString()] = idx - allNeuronStartIdx;
+            // nodeKey[idx] = node.key.toString();
+          }
+          idx++;
+        }
+
+        protoNeuron = ProtoNeuron(
+            notifier: redrawNeuronLine,
+            neuronSize: neuronSize,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            aBufView: aBufView,
+            bBufView: bBufView,
+            cBufView: cBufView,
+            dBufView: dBufView,
+            iBufView: iBufView,
+            wBufView: wBufView,
+            connectomeBufView: connectomeBufView);
+        protoNeuron.generateCircle(
+            neuronSize, pos, neuronTypes.values.toList(growable: false));
+      }
       prevScreenWidth = screenWidth;
       prevScreenHeight = screenHeight;
     }
 
     List<Widget> widgets = [];
     if (isPlayingMenu) {
-      // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
+      // for (int i = circleNeuronStartIndex - allNeuronStartIdx;  i < neuronSize; i++) {
       for (int i = 0; i < normalNeuronStartIdx; i++) {
         SingleNeuron neuron = protoNeuron.circles[i];
         widgets.add(Positioned(
@@ -1810,31 +1866,33 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         ),
       ));
     }
-    inlineWidgets.add(Positioned(
-        bottom: isPlayingMenu && isChartSelected ? bottomChart + 30 : 18,
-        right: 17 + safePadding + 70,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(56, 56),
-            // maximumSize: const Size(56, 56),
-            elevation: 7,
-            padding: Platform.isMacOS || Platform.isWindows
-                ? const EdgeInsets.symmetric(horizontal: 15, vertical: 22)
-                : const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-            backgroundColor: Theme.of(context).dialogBackgroundColor,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                side: const BorderSide(color: Colors.transparent)),
-          ),
-          onPressed: () {
-            isInfoMenu = !isInfoMenu;
-            setState(() {});
-          },
-          child: Icon(
-            Icons.info,
-            color: isInfoMenu ? Colors.blue : Colors.black,
-          ),
-        )));
+    if (isPlayingMenu) {
+      inlineWidgets.add(Positioned(
+          bottom: isPlayingMenu && isChartSelected ? bottomChart + 30 : 18,
+          right: 17 + safePadding + 70,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(56, 56),
+              // maximumSize: const Size(56, 56),
+              elevation: 7,
+              padding: Platform.isMacOS || Platform.isWindows
+                  ? const EdgeInsets.symmetric(horizontal: 15, vertical: 22)
+                  : const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+              backgroundColor: Theme.of(context).dialogBackgroundColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: const BorderSide(color: Colors.transparent)),
+            ),
+            onPressed: () {
+              isInfoMenu = !isInfoMenu;
+              setState(() {});
+            },
+            child: Icon(
+              Icons.info,
+              color: isInfoMenu ? Colors.blue : Colors.black,
+            ),
+          )));
+    }
 
     if (!isPlayingMenu && isNeuronMenu && controller.hasSelection) {
       inlineWidgets.add(
@@ -2779,7 +2837,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               aiStats!["Confidence Score"]!.split("-")[0];
           if (isShowingLeftAiMenu) {
             aiLabelLeft = detectedObjectLabel;
-          } else {
+          }
+          if (isShowingRightAiMenu) {
             aiLabelRight = detectedObjectLabel;
           }
         }
@@ -2994,21 +3053,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     );
             })),
         if (aiStats != null && isInfoMenu) ...{
-          Positioned(
-            left: 0,
-            bottom: 0,
-            child: SafeArea(
-              child: SizedBox(
-                width: screenWidth - 200,
-                height: 200,
-                child: Column(
-                  children: aiStats!.entries.map((e) {
-                    return StatsWidget(e.key, e.value);
-                  }).toList(),
-                ),
-              ),
-            ),
-          )
+          // Positioned(
+          //   left: 0,
+          //   bottom: 0,
+          //   child: SafeArea(
+          //     child: SizedBox(
+          //       width: screenWidth - 200,
+          //       height: 200,
+          //       child: Column(
+          //         children: aiStats!.entries.map((e) {
+          //           return StatsWidget(e.key, e.value);
+          //         }).toList(),
+          //       ),
+          //     ),
+          //   ),
+          // )
         },
         // Positioned(
         //   left: 825 / 2,
@@ -3969,7 +4028,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           if (isIsolateWritePortInitialized) {
             aiStats = null;
             nativec.changeIdxSelected(11);
-            Future.delayed(const Duration(milliseconds: 7000), () {
+            debouncerNoResponse.cancel();
+            debouncerNoResponse.run(() {
               final maxValue =
                   Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
               if (maxValue == 0) {
@@ -5863,7 +5923,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       edge.connectionStrength = mapConnectome[connectionKey] ?? 0;
       controller.edges.add(edge);
       if (mapLedNeuron[connectionKey] != null) {
-        edge.connectionStrength = mapLedNeuron[connectionKey] ?? 0;
+        var ledWeight = mapLedNeuron[connectionKey] ?? 0.0;
+        edge.connectionStrength = ledWeight.toDouble();
       }
       if (mapContactsNeuron[connectionKey] != null) {
         edge.connectionStrength = mapContactsNeuron[connectionKey] ?? 0;
@@ -6650,6 +6711,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   bool containImage(Rect location, bool isRight) {
     // double spaceDeterminer = 80; // 320 x 240
+    /*
     int centerX = 160; // 320/2
     if (isRight) {
       // printDebug("location.left - centerX");
@@ -6672,7 +6734,20 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         return false;
       }
     }
-    return false;
+    */
+    if (!isRight) {
+      if (location.center.dx < 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (location.center.dx > 120) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 
   void updateSyntheticConnection(
@@ -7283,6 +7358,139 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // bool isLedMenu = false;
     // isShowDelayTime = false;
   }
+
+  String capitalize(str) {
+    return "${str[0].toUpperCase()}${str.substring(1).toLowerCase()}";
+  }
+
+  Future<void> subscribeGeneralConfig() async {
+    // print("subscribeGeneralConfig");
+
+    configListener = FirebaseFirestore.instance
+        .doc("config/general")
+        .snapshots()
+        .listen((event) async {
+      Map<String, dynamic>? data = event.data();
+      if (data != null) {
+        printDebug("data");
+        printDebug(data);
+        if (packageInfo != null) {
+          String platform = "";
+          if (Platform.isMacOS) {
+            platform = "macos";
+          } else if (Platform.isWindows) {
+            platform = "windows";
+          } else if (Platform.isIOS) {
+            platform = "ios";
+          } else if (Platform.isAndroid) {
+            platform = "android";
+          }
+
+          String capitalizePlatform = capitalize(platform);
+
+          String latestVersion = data["${platform}Version"];
+          int latestVersionInt = int.parse(latestVersion.replaceAll(".", ""));
+          String firmwareLatestVersion = data["firmwareVersion"];
+          int firmwareLatestVersionInt =
+              int.parse(firmwareLatestVersion.replaceAll(".", ""));
+
+          int packageInfoVersionInt =
+              int.parse(packageInfo!.version.replaceAll(".", ""));
+          int? _firmwareVersionInt = int.tryParse(
+              strFirmwareVersion.replaceAll("V", "").replaceAll(".", ""));
+          if (_firmwareVersionInt != null) {
+            firmwareVersionInt = _firmwareVersionInt;
+          }
+          printDebug(
+              "${packageInfoVersionInt.toString()}_${latestVersionInt.toString()}");
+
+          bool isReminding = false;
+          //check if the user already choose to remind later or skip this version
+          await getApplicationDocumentsDirectory()
+              .then((documentDirectory) async {
+            String versionPath =
+                "${documentDirectory.path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}version";
+            File resultFile =
+                File("$versionPath${Platform.pathSeparator}currentVersion.txt");
+            if (resultFile.existsSync()) {
+              var map = jsonDecode(resultFile.readAsStringSync());
+              if (map["version"] != null) {
+                int mapVersionInt = int.parse(map["version"]);
+                printDebug("mapVersionInt");
+                printDebug(mapVersionInt);
+                printDebug(latestVersionInt);
+                if (mapVersionInt != latestVersionInt) {
+                  isReminding = true;
+                } else if (mapVersionInt == latestVersionInt) {
+                  DateTime remindTime = DateTime.fromMillisecondsSinceEpoch(
+                      int.parse(map["remindTime"]));
+                  if (remindTime.millisecondsSinceEpoch <
+                      DateTime.now().millisecondsSinceEpoch) {
+                    isReminding = true;
+                  }
+                }
+              }
+            } else {
+              isReminding = true;
+            }
+          });
+
+          // prepare alert dialog
+          List<Widget> content = [];
+          if (packageInfoVersionInt < latestVersionInt) {
+            content.add(const SizedBox(height: 10));
+            content.add(InkWell(
+              onTap: () => launchUrl(Uri.parse(data["${platform}UpdateLink"])),
+              child: const Text(
+                'Update Now',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    decoration: TextDecoration.underline, color: Colors.blue),
+              ),
+            ));
+            content.add(const SizedBox(height: 30));
+            // bool isForceUpdate = data["is${capitalizePlatform}ForceUpdate"];
+            // if (!isForceUpdate) {}
+          } else {
+            printDebug("Updated");
+          }
+          if (firmwareVersionInt != 0 &&
+              firmwareVersionInt < firmwareLatestVersionInt) {
+            content.add(InkWell(
+              onTap: () => launchUrl(Uri.parse(data["${platform}UpdateLink"])),
+              child: const Text(
+                'Update Firmware Now',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    decoration: TextDecoration.underline, color: Colors.blue),
+              ),
+            ));
+            content.add(const SizedBox(height: 30));
+          } else {
+            printDebug("Updated");
+          }
+          if (data["isInformation"]) {
+            isReminding = true;
+          }
+          if (isReminding) {
+            // showDialog with every force update record
+            await versionDialogBuilder(
+                latestVersionInt.toString(),
+                context,
+                data["${platform}UpdateTitle"],
+                data["${platform}UpdateDescription"],
+                content,
+                data["isInformation"]
+                    ? true
+                    : data["is${capitalizePlatform}ForceUpdate"],
+                data["isInformation"]);
+          }
+        }
+
+        //"${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}.2\r\n$strFirmwareVersion",
+      }
+    });
+  }
 }
 
 class EyeClipper extends CustomClipper<Rect> {
@@ -7506,203 +7714,6 @@ class ImagePreprocessor extends MjpegPreprocessor {
   }
 }
 
-// // REAL Motor Right Down
-// // left: 630,
-// // top: 350,
-// // size: const Size(65, 125), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// REAL Motor Right UP
-// left: 625,
-// top: 325,
-// size: const Size(65, 125),
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// REAL Microphone
-// left: 550,
-// top: 0,
-// size: const Size(130, 160), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// // REAL Speaker
-// // left: 540,
-// // top: 460,
-// // size: const Size(145, 140), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// REAL Compass
-// left: 310,
-// top: 500,
-// size: const Size(175, 100), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// REAL CAMERA
-// left: 310,
-// top: 0,
-// size: const Size(175, 100), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// // REAL LED
-// // left: 100,
-// // top: 480,
-// // size: const Size(165, 110), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// // REAL Motor Left UP
-// // left: 100,
-// // top: 200,
-// // size: const Size(65, 125), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
-
-// // REAL Motor Left Down
-// // left: 100,
-// // top: 325,
-// // size: const Size(65, 125), // Adjust size as needed
-// class DistanceSensorPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()..color = Colors.blue;
-//     // Customize color
-//     final path = Path();
-//     path.moveTo(0, 0);
-//     path.lineTo(size.width, 0);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(0, size.height);
-//     path.close();
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-// }
 // REAL DISTANCE SENSOR PAINTER
 // left: 110,
 // top: 0,
