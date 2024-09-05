@@ -381,7 +381,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   String httpdStream = "http://192.168.4.1:81/stream";
   // String httpdStream = "http://192.168.1.4:8081";
 
-  late Isolate webSocket;
+  Isolate? webSocket;
 
   bool isSimulationCallbackAttached = false;
 
@@ -396,7 +396,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   double prevTransformScale = 1;
   Debouncer debouncerSnapNeuron = Debouncer(milliseconds: 3);
   Debouncer debouncerAIClassification = Debouncer(milliseconds: 300);
-  Debouncer debouncerNoResponse = Debouncer(milliseconds: 1000);
+  Debouncer debouncerNoResponse = Debouncer(milliseconds: 3000);
 
   List<Offset> rawPos = [];
 
@@ -1078,144 +1078,148 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // const String webSocketLink = 'ws://192.168.4.1:81/ws';
     const String webSocketLink = 'ws://192.168.4.1:80/ws';
     // if (!isIsolateWritePortInitialized) {
-    writePort = ReceivePort();
-    webSocket = await Isolate.spawn(
-      createWebSocket,
-      [writePort.sendPort, webSocketLink],
-    );
-    // }
-
-    // writePort.sendPort.send(message)
-    writePort.listen((message) async {
-      if (message is SendPort) {
-        isolateWritePort = message;
-        isIsolateWritePortInitialized = true;
-        // Timer.periodic(const Duration(milliseconds: 300), (timer) {
-        //   isolateWritePort.send("test from flutter");
-        // });
-      } else if (message == "RESTART") {
-        isIsolateWritePortInitialized = false;
-        printDebug("RESTart");
-        try {
-          writePort.close();
-          webSocket.kill();
-        } catch (err) {
-          printDebug("err disconnected");
-          printDebug(err);
-        }
-
-        Future.delayed(const Duration(milliseconds: 1000), () async {
-          if (isPlayingMenu) {
-            startWebSocket();
-            mjpegComponent = Mjpeg(
-              error: (context, error, stack) {
-                return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
-                    style: TextStyle(fontSize: 10, color: Colors.brown));
-              },
-              stream: httpdStream,
-              // stream: "http://192.168.1.4:8081/",
-              preprocessor: processor,
-              width: 320 / 2,
-              height: 240 / 2,
-
-              isLive: true,
-              fit: BoxFit.fitHeight,
-              timeout: const Duration(seconds: 60),
-            );
-          }
-          // writePort = ReceivePort();
-          // webSocket = await Isolate.spawn(
-          //   createWebSocket,
-          //   [writePort.sendPort, webSocketLink],
-          // );
-        });
-      } else if (message == "DISCONNECTED") {
-        if (isPlayingMenu) {
-          // it is already change to false by the user interaction
-          writePort.close();
-          webSocket.kill();
+    if (webSocket == null) {
+      writePort = ReceivePort();
+      webSocket = await Isolate.spawn(
+        createWebSocket,
+        [writePort.sendPort, webSocketLink],
+      );
+      writePort.listen((message) async {
+        if (message is SendPort) {
+          isolateWritePort = message;
+          isolateWritePort.send("INIT_WEBSOCKET");
+          isIsolateWritePortInitialized = true;
+          // Timer.periodic(const Duration(milliseconds: 300), (timer) {
+          //   isolateWritePort.send("test from flutter");
+          // });
+        } else if (message == "RESTART") {
           isIsolateWritePortInitialized = false;
-          // alertDialog(
-          //   context,
-          //   "NeuroRobot Connection Loss",
-          //   "Connection with NeuroRobot was disconnected, please reconnect again",
-          //   positiveButtonText: "OK",
-          //   positiveButtonAction: () {
-          //     isEmergencyPause = false;
-          //     isPlayingMenu = false;
-          //     setState(() {});
-          //   },
-          //   hideNeutralButton: true,
-          //   closeOnBackPress: false,
-          // );
-        } else {
-          isIsolateWritePortInitialized = false;
+          printDebug("RESTart");
           try {
-            writePort.close();
-            webSocket.kill();
+            // writePort.close();
+            // webSocket.kill();
           } catch (err) {
             printDebug("err disconnected");
             printDebug(err);
           }
-        }
 
-        try {
-          if (kIsWeb) {
-            // js.context.callMethod("stopThreadProcess", [0]);
+          Future.delayed(const Duration(milliseconds: 1000), () async {
+            if (isPlayingMenu) {
+              startWebSocket();
+              mjpegComponent = Mjpeg(
+                error: (context, error, stack) {
+                  return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
+                      style: TextStyle(fontSize: 10, color: Colors.brown));
+                },
+                stream: httpdStream,
+                // stream: "http://192.168.1.4:8081/",
+                preprocessor: processor,
+                width: 320 / 2,
+                height: 240 / 2,
+
+                isLive: true,
+                fit: BoxFit.fitHeight,
+                timeout: const Duration(seconds: 60),
+              );
+            }
+            // writePort = ReceivePort();
+            // webSocket = await Isolate.spawn(
+            //   createWebSocket,
+            //   [writePort.sendPort, webSocketLink],
+            // );
+          });
+        } else if (message == "DISCONNECTED") {
+          if (isPlayingMenu) {
+            // it is already change to false by the user interaction
+            // writePort.close();
+            // webSocket.kill();
+            isIsolateWritePortInitialized = false;
+            // alertDialog(
+            //   context,
+            //   "NeuroRobot Connection Loss",
+            //   "Connection with NeuroRobot was disconnected, please reconnect again",
+            //   positiveButtonText: "OK",
+            //   positiveButtonAction: () {
+            //     isEmergencyPause = false;
+            //     isPlayingMenu = false;
+            //     setState(() {});
+            //   },
+            //   hideNeutralButton: true,
+            //   closeOnBackPress: false,
+            // );
           } else {
-            nativec.stopThreadProcess(0);
-            isSimulatingBrain = false;
+            isIsolateWritePortInitialized = false;
+            try {
+              // writePort.close();
+              // webSocket.kill();
+            } catch (err) {
+              printDebug("err disconnected");
+              printDebug(err);
+            }
           }
-          controller.deselectAll();
-          controller.setCanvasMove(true);
-        } catch (err) {}
 
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          // rightToolbarGlobalKey = GlobalKey();
-          rightToolbarCallback({"menuIdx": 0});
-          rightToolbarKey = UniqueKey();
+          try {
+            if (kIsWeb) {
+              // js.context.callMethod("stopThreadProcess", [0]);
+            } else {
+              nativec.stopThreadProcess(0);
+              isSimulatingBrain = false;
+            }
+            controller.deselectAll();
+            controller.setCanvasMove(true);
+          } catch (err) {}
+
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            // rightToolbarGlobalKey = GlobalKey();
+            rightToolbarCallback({"menuIdx": 0});
+            rightToolbarKey = UniqueKey();
+            setState(() {});
+          });
+          clearUIMenu();
+
+          isEmergencyPause = false;
+          isPlayingMenu = false;
           setState(() {});
-        });
-        clearUIMenu();
-
-        isEmergencyPause = false;
-        isPlayingMenu = false;
-        setState(() {});
-      } else {
-        if (message.indexOf("V") >= 0) {
-          strFirmwareVersion = message;
-          return;
-        }
-        if (flagSerialDataLength > 0) {
-          strSerialDataBuff = "";
-          flagSerialDataLength = -1;
-        }
-        mutexDistance.protectWrite(() async {
-          strSerialDataBuff += (message + ";");
-          return "";
-        });
-
-        try {
-          List<String> arr = message.split(",");
-          distanceBufView[0] = int.parse(arr[2]).toDouble();
-          int baseBottomBattery = int.parse(arr[3]) - 590;
-          batteryPercent = (baseBottomBattery / 278 * 100).floor();
-          if (batteryPercent > 100) {
-            batteryPercent = 100;
-          } else if (batteryPercent <= 0) {
-            batteryPercent = 0;
+        } else {
+          if (message.indexOf("V") >= 0) {
+            strFirmwareVersion = message;
+            return;
           }
-          String batteryPercentage = "${(batteryPercent).floor()}%";
-          batteryVoltage =
-              "${int.parse(arr[3]).toDouble()} ($batteryPercentage)";
-          setState(() {});
-        } catch (err) {
-          printDebug("err");
-          printDebug(err);
-        }
-      }
-    });
+          if (flagSerialDataLength > 0) {
+            strSerialDataBuff = "";
+            flagSerialDataLength = -1;
+          }
+          mutexDistance.protectWrite(() async {
+            strSerialDataBuff += (message + ";");
+            return "";
+          });
 
+          try {
+            List<String> arr = message.split(",");
+            distanceBufView[0] = int.parse(arr[2]).toDouble();
+            int baseBottomBattery = int.parse(arr[3]) - 590;
+            batteryPercent = (baseBottomBattery / 278 * 100).floor();
+            if (batteryPercent > 100) {
+              batteryPercent = 100;
+            } else if (batteryPercent <= 0) {
+              batteryPercent = 0;
+            }
+            String batteryPercentage = "${(batteryPercent).floor()}%";
+            batteryVoltage =
+                "${int.parse(arr[3]).toDouble()} ($batteryPercentage)";
+            setState(() {});
+          } catch (err) {
+            printDebug("err");
+            printDebug(err);
+          }
+        }
+      });
+    } else {
+      isolateWritePort.send("INIT_WEBSOCKET");
+    }
+    // }
+
+    // writePort.sendPort.send(message)
     // isolateWritePort.send();
 
     return "";
