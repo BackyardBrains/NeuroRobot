@@ -77,6 +77,7 @@ dependencies:
   firebase_analytics: 10.5.1
   firebase_crashlytics: 3.3.7
   firebase_performance: 0.9.2+7
+  cloud_firestore: 4.9.3
   # msix: 3.16.8
 
   # firebase_core: 2.24.2
