@@ -349,6 +349,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();
                 } else if (ncol == 1) {
                     Mat channels[3];
                     split(uframe, channels);
@@ -361,6 +364,11 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();
+
                 } else {
                     Mat channels[3];
                     split(uframe, channels);
@@ -373,6 +381,11 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();
+
                 }
 
 
@@ -464,7 +477,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             }else{
                 prev_right_eye_frame = uframe;
             }
-
+            channels[0].release();
+            channels[1].release();
+            channels[2].release();
         }
         // platform_log("Set preprocess matrix");
 
@@ -483,6 +498,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         leftFrame.release();
         rightFrame.release();
         bwframe.release();
+        
+        leftGrayFrame.release();
+        rightGrayFrame.release();
         #ifdef __EMSCRIPTEN__
             srcImageRgb.release();
         #endif

@@ -430,6 +430,13 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         } else {
           edges.add(edge);
         }
+        for (InfiniteCanvasNode n in nodes) {
+          if (n.key == from) {
+            print("edge.isExcitatory");
+            print("${n.isExcitatory}");
+            edge.isExcitatory = n.isExcitatory.toDouble();
+          }
+        }
       }
     }
     deselectAll(true);
@@ -649,7 +656,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     final nodeTo = nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    syntheticConnections.add(Connection(axonFrom, axonTo, 25.0, Path()));
+    syntheticConnections
+        .add(Connection(axonFrom, axonTo, 25.0, Path(), nodeFrom.isExcitatory));
     // print("Add Synthetic Connection ${syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {

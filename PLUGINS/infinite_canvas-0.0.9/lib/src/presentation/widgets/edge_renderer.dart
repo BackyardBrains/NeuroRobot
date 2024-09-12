@@ -82,7 +82,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           if (refreshRetainer == 0) {
             controller.syntheticConnections.clear();
             for (InfiniteCanvasEdge edge in controller.edges) {
-              addSyntheticConnection(edge.from, edge.to);
+              addSyntheticConnection(
+                  edge.from, edge.to, edge.connectionStrength);
             }
             // print("refresh build");
           }
@@ -137,7 +138,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // print(
             //     "Add Synthetic Connection ${controller.syntheticConnections.length}");
 
-            drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas);
+            drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
+                from.isExcitatory);
 
             // }
             // drawEdge(
@@ -357,117 +359,117 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     canvas.drawPath(p, paint);
   }
 
-  void drawNeuralAxon(InfiniteCanvasNode from, InfiniteCanvasNode to,
-      int fromIdx, int toIdx, double connectionStrength, Canvas canvas) {
-    List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
-    Neuron neuronTo = neurons[toIdx].newNeuron;
+  // void drawNeuralAxon(InfiniteCanvasNode from, InfiniteCanvasNode to,
+  //     int fromIdx, int toIdx, double connectionStrength, Canvas canvas) {
+  //   List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
+  //   Neuron neuronTo = neurons[toIdx].newNeuron;
 
-    if (neuronTo.isIO) {
-      int emptySpotIndex = 0;
-      int smalestNumber = 9999999;
-      for (int dendriteIndex = 0;
-          dendriteIndex < neuronTo.dendrites.length;
-          dendriteIndex++) {
-        if (neuronTo.dendrites[dendriteIndex].sinapseFirstLevel.length <
-            smalestNumber) {
-          emptySpotIndex = dendriteIndex;
-          smalestNumber =
-              neuronTo.dendrites[dendriteIndex].sinapseFirstLevel.length;
-        }
-      }
+  //   if (neuronTo.isIO) {
+  //     int emptySpotIndex = 0;
+  //     int smalestNumber = 9999999;
+  //     for (int dendriteIndex = 0;
+  //         dendriteIndex < neuronTo.dendrites.length;
+  //         dendriteIndex++) {
+  //       if (neuronTo.dendrites[dendriteIndex].sinapseFirstLevel.length <
+  //           smalestNumber) {
+  //         emptySpotIndex = dendriteIndex;
+  //         smalestNumber =
+  //             neuronTo.dendrites[dendriteIndex].sinapseFirstLevel.length;
+  //       }
+  //     }
 
-      Sinapse newSinapse = Sinapse(
-        presinapticNeuronIndex: fromIdx,
-        sinapticValue: connectionStrength,
-      );
-      neuronTo.dendrites[emptySpotIndex].sinapseFirstLevel.add(newSinapse);
-      // continue;
-      return;
-    }
+  //     Sinapse newSinapse = Sinapse(
+  //       presinapticNeuronIndex: fromIdx,
+  //       sinapticValue: connectionStrength,
+  //     );
+  //     neuronTo.dendrites[emptySpotIndex].sinapseFirstLevel.add(newSinapse);
+  //     // continue;
+  //     return;
+  //   }
 
-    Neuron neuronFrom = neurons[fromIdx].newNeuron;
-    // neuronFrom.displayInfo();
-    // neuronTo.displayInfo();
-    //neuron to neuron connection
-    List<SinapsePoint> distancesToSinapses = [];
-    //find dendrite (on posinaptic neuron ) that is pointing toward center of connections of presinaptic neuron
-    for (int dendriteIndex = 0;
-        dendriteIndex < neuronFrom.dendrites.length;
-        dendriteIndex++) {
-      double distance = euclideanDistance(
-          neuronFrom.xCenterOfConnections,
-          neuronFrom.yCenterOfConnections,
-          neuronTo.dendrites[dendriteIndex].xFirstLevel,
-          neuronTo.dendrites[dendriteIndex].yFirstLevel);
-      distancesToSinapses.add(SinapsePoint(
-          dendriteIndex: dendriteIndex,
-          distance: distance,
-          isFirstLevel: true));
-      if (neuronTo.dendrites[dendriteIndex].hasSecondLevel) {
-        distance = euclideanDistance(
-            neuronFrom.xCenterOfConnections,
-            neuronFrom.yCenterOfConnections,
-            neuronTo.dendrites[dendriteIndex].xSecondLevel,
-            neuronTo.dendrites[dendriteIndex].ySecondLevel);
-        distancesToSinapses.add(SinapsePoint(
-            dendriteIndex: dendriteIndex,
-            distance: distance,
-            isFirstLevel: false));
-      }
-    }
-    distancesToSinapses.sort((a, b) => a.distance.compareTo(b.distance));
-    // for (var sinapse in distancesToSinapses) {
-    //   print("distancesToSinapses");
-    //   print(
-    //       "${sinapse.dendriteIndex} : ${sinapse.distance} ${sinapse.isFirstLevel}");
-    // }
-    //distancesToSinapses = distancesToSinapses.reversed.toList();
+  //   Neuron neuronFrom = neurons[fromIdx].newNeuron;
+  //   // neuronFrom.displayInfo();
+  //   // neuronTo.displayInfo();
+  //   //neuron to neuron connection
+  //   List<SinapsePoint> distancesToSinapses = [];
+  //   //find dendrite (on posinaptic neuron ) that is pointing toward center of connections of presinaptic neuron
+  //   for (int dendriteIndex = 0;
+  //       dendriteIndex < neuronFrom.dendrites.length;
+  //       dendriteIndex++) {
+  //     double distance = euclideanDistance(
+  //         neuronFrom.xCenterOfConnections,
+  //         neuronFrom.yCenterOfConnections,
+  //         neuronTo.dendrites[dendriteIndex].xFirstLevel,
+  //         neuronTo.dendrites[dendriteIndex].yFirstLevel);
+  //     distancesToSinapses.add(SinapsePoint(
+  //         dendriteIndex: dendriteIndex,
+  //         distance: distance,
+  //         isFirstLevel: true));
+  //     if (neuronTo.dendrites[dendriteIndex].hasSecondLevel) {
+  //       distance = euclideanDistance(
+  //           neuronFrom.xCenterOfConnections,
+  //           neuronFrom.yCenterOfConnections,
+  //           neuronTo.dendrites[dendriteIndex].xSecondLevel,
+  //           neuronTo.dendrites[dendriteIndex].ySecondLevel);
+  //       distancesToSinapses.add(SinapsePoint(
+  //           dendriteIndex: dendriteIndex,
+  //           distance: distance,
+  //           isFirstLevel: false));
+  //     }
+  //   }
+  //   distancesToSinapses.sort((a, b) => a.distance.compareTo(b.distance));
+  //   // for (var sinapse in distancesToSinapses) {
+  //   //   print("distancesToSinapses");
+  //   //   print(
+  //   //       "${sinapse.dendriteIndex} : ${sinapse.distance} ${sinapse.isFirstLevel}");
+  //   // }
+  //   //distancesToSinapses = distancesToSinapses.reversed.toList();
 
-    bool foundPlace = false;
-    for (int disin = 0; disin < distancesToSinapses.length; disin++) {
-      if (distancesToSinapses[disin].isFirstLevel) {
-        if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-            .sinapseFirstLevel.isEmpty) {
-          foundPlace = true;
+  //   bool foundPlace = false;
+  //   for (int disin = 0; disin < distancesToSinapses.length; disin++) {
+  //     if (distancesToSinapses[disin].isFirstLevel) {
+  //       if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+  //           .sinapseFirstLevel.isEmpty) {
+  //         foundPlace = true;
 
-          Sinapse newSinapse = Sinapse(
-            presinapticNeuronIndex: fromIdx,
-            sinapticValue: connectionStrength,
-          );
-          neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-              .sinapseFirstLevel
-              .add(newSinapse);
-          break;
-        }
-      } else {
-        if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-            .sinapseSecondLevel.isEmpty) {
-          foundPlace = true;
-          Sinapse newSinapse = Sinapse(
-            presinapticNeuronIndex: fromIdx,
-            sinapticValue: connectionStrength,
-          );
-          neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-              .sinapseSecondLevel
-              .add(newSinapse);
-          break;
-        }
-      }
-    }
+  //         Sinapse newSinapse = Sinapse(
+  //           presinapticNeuronIndex: fromIdx,
+  //           sinapticValue: connectionStrength,
+  //         );
+  //         neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+  //             .sinapseFirstLevel
+  //             .add(newSinapse);
+  //         break;
+  //       }
+  //     } else {
+  //       if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+  //           .sinapseSecondLevel.isEmpty) {
+  //         foundPlace = true;
+  //         Sinapse newSinapse = Sinapse(
+  //           presinapticNeuronIndex: fromIdx,
+  //           sinapticValue: connectionStrength,
+  //         );
+  //         neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+  //             .sinapseSecondLevel
+  //             .add(newSinapse);
+  //         break;
+  //       }
+  //     }
+  //   }
 
-    if (!foundPlace) {
-      Sinapse newSinapse = Sinapse(
-        presinapticNeuronIndex: fromIdx,
-        sinapticValue: connectionStrength,
-      );
-      neuronTo.dendrites[distancesToSinapses[0].dendriteIndex].sinapseFirstLevel
-          .add(newSinapse);
-    }
-    drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas);
-  }
+  //   if (!foundPlace) {
+  //     Sinapse newSinapse = Sinapse(
+  //       presinapticNeuronIndex: fromIdx,
+  //       sinapticValue: connectionStrength,
+  //     );
+  //     neuronTo.dendrites[distancesToSinapses[0].dendriteIndex].sinapseFirstLevel
+  //         .add(newSinapse);
+  //   }
+  //   drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory);
+  // }
 
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
-      int toIdx, double connectionStrength, Canvas canvas) {
+      int toIdx, double connectionStrength, Canvas canvas, int isExcitatory) {
     double initialAxonExtensionSize = 0.5;
     List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
     // if (neurons.length <= toIdx || neurons.length <= fromIdx) return;
@@ -485,7 +487,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     double diameterOfNeuron = neurons[fromIdx].circleRadius;
     // int maxAbsoluteConnectionStrength = connectionStrength.floor();
 
-    int maxAbsoluteConnectionStrength = 70 - connectionStrength.floor();
+    int maxAbsoluteConnectionStrength = 110 - connectionStrength.floor().abs();
     double minimalTicknessOfAxon = 1;
 
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
@@ -493,8 +495,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
         for (int sinindex = 0;
             sinindex < neuronTo.dendrites[posin].sinapseFirstLevel.length;
             sinindex++) {
-          // print(
-          //     "${neuronTo.dendrites[posin].sinapseFirstLevel[sinindex].presinapticNeuronIndex} == $fromIdx");
           if (neuronTo.dendrites[posin].sinapseFirstLevel[sinindex]
                   .presinapticNeuronIndex ==
               fromIdx) {
@@ -532,6 +532,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     maxAbsoluteConnectionStrength) *
                 diameterOfNeuron /
                 2;
+
             if ((diameterOfNeuron * 0.1) > strength) {
               strength = diameterOfNeuron * 0.1;
             }
@@ -541,10 +542,14 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
             blackBrush.strokeWidth = neuronFrom.diameter * (0.1);
             blackBrush.style = PaintingStyle.fill;
-
-            if (neuronTo.dendrites[posin].sinapseFirstLevel[sinindex]
-                    .sinapticValue >
-                0) {
+            // print(
+            //     "neuronTo.dendrites[posin].sinapseFirstLevel[sinindex].sinapticValue");
+            // print(neuronTo
+            //     .dendrites[posin].sinapseFirstLevel[sinindex].sinapticValue);
+            // if (neuronTo.dendrites[posin].sinapseFirstLevel[sinindex]
+            //         .sinapticValue >=
+            //     0) {
+            if (isExcitatory == 1) {
               //triangle size
               double triangleSinapseSize = diameterOfNeuron / 1.5;
               //center of triangle
@@ -742,6 +747,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     maxAbsoluteConnectionStrength) *
                 diameterOfNeuron /
                 2;
+            // print("strength");
+            // print(strength);
+            // print(maxAbsoluteConnectionStrength);
+            // print(((neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
+            //                 .sinapticValue)
+            //             .abs() /
+            //         maxAbsoluteConnectionStrength) *
+            //     diameterOfNeuron /
+            //     2);
             if ((diameterOfNeuron * 0.1) > strength) {
               strength = diameterOfNeuron * 0.1;
             }
@@ -750,9 +764,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               strength = minimalTicknessOfAxon;
             }
 
-            if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
-                    .sinapticValue >
-                0) {
+            // if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
+            //         .sinapticValue >=
+            //     0) {
+            if (isExcitatory == 1) {
               //triangle size
               double triangleSinapseSize = diameterOfNeuron / 1.5;
               //center of triangle
@@ -917,7 +932,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     return syntheticNeuronList;
   }
 
-  void addSyntheticConnection(LocalKey axonFrom, LocalKey axonTo) {
+  void addSyntheticConnection(
+      LocalKey axonFrom, LocalKey axonTo, double connectionStrength) {
     Map<String, String> neuronTypes = controller.neuronTypes;
     List<SyntheticNeuron> syntheticNeuronList = controller.syntheticNeuronList;
     // we must use the default raw neuron to get the initial state of the neuron
@@ -934,8 +950,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     // final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    controller.syntheticConnections
-        .add(Connection(axonFrom, axonTo, 25.0, Path()));
+    int isExcitatory = nodeFrom.isExcitatory;
+
+    controller.syntheticConnections.add(
+        Connection(axonFrom, axonTo, connectionStrength, Path(), isExcitatory));
     // print("Add Synthetic Connection ${controller.syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {

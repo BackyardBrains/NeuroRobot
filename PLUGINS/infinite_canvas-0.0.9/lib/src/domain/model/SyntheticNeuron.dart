@@ -65,8 +65,9 @@ class SyntheticNeuron extends CustomPainter {
   List<Sinapse> copyNeuronSinapse(List<Sinapse> rawSinapses) {
     return rawSinapses.map((e) {
       return Sinapse(
-          presinapticNeuronIndex: e.presinapticNeuronIndex,
-          sinapticValue: e.sinapticValue);
+        presinapticNeuronIndex: e.presinapticNeuronIndex,
+        sinapticValue: e.sinapticValue,
+      );
     }).toList();
   }
 
@@ -735,7 +736,10 @@ class SyntheticNeuron extends CustomPainter {
 class Sinapse {
   int presinapticNeuronIndex;
   double sinapticValue;
-  Sinapse({required this.presinapticNeuronIndex, required this.sinapticValue});
+  Sinapse({
+    required this.presinapticNeuronIndex,
+    required this.sinapticValue,
+  });
 }
 
 class Dendrite {

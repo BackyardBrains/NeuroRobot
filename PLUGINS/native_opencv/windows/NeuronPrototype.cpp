@@ -362,8 +362,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     // neuronDelayTime = new long long[_neuronLength];
     // neuronRhytmicTime = new long long[_neuronLength];
     // neuronCountingTime = new long long[_neuronLength];
-    delayLinkedList = new DoublyLinkedList[_neuronLength];
-    delayValueLinkedList = new DoublyLinkedList[_neuronLength];
+    // delayLinkedList = new DoublyLinkedList[_neuronLength];
+    // delayValueLinkedList = new DoublyLinkedList[_neuronLength];
     guidedDelayList = new GuidedList[_neuronLength];
     maxV = new double[_neuronLength];
     maxU = new double[_neuronLength];
@@ -392,9 +392,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         //     neuronType %= 1000;
         // }
 
-        delayLinkedList[ii] = DoublyLinkedList();
-        delayValueLinkedList[ii] = DoublyLinkedList();
-        guidedDelayList[ii].setParameters(ii, delayLinkedList, neuronType, isInhibited, mapDelayNeuron[ii], delayValueLinkedList);
+        // delayLinkedList[ii] = DoublyLinkedList();
+        // delayValueLinkedList[ii] = DoublyLinkedList();
+        // guidedDelayList[ii].setParameters(ii, delayLinkedList, neuronType, isInhibited, mapDelayNeuron[ii], delayValueLinkedList);
+        guidedDelayList[ii].setParameters(ii, neuronType, isInhibited, mapDelayNeuron[ii]);
+
         // neuronDelayTime[ii] = 0;
         // neuronRhytmicTime[ii] = 0;
         // neuronCountingTime[ii] = 0;
@@ -927,6 +929,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
+                    delete v_step[idx];
                 }
                 positions[0] = startPos + static_cast<short>(epochs);
                 currentStep++;
@@ -970,6 +973,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     if (guidedDelayList[iStep].neuronType == configDelayNeuron){
                         if (arrFreshDelayedValue[iStep] >= 30){
                             isDelayedSpiking = 1;
+                            isNeuronSpiking = 1;
                         }
                     }
                     // neuronCircles[iStep] = isSpiking % 100;
@@ -1173,6 +1177,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     speaker_tone = (speaker_connection_sum / speaker_connection_count);
                 }
                 // short speaker_tone = 0;
+                // SPIKING MESSAGE IS NEEDED TO BLINK NEURON
                 message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
 
                 // if not spiking turn off
@@ -1251,6 +1256,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] isSpiking;
                 delete[] isStepSpiking;
                 delete[] tI;
+                delete[] arrFreshDelayedValue;
             }
             if (!isThreadRunning){
                 delete[] (v);
@@ -1262,6 +1268,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     // delete[] (neuron_contacts[i]);
                 }
                 delete[] spikes_step;
+                delete[] connectome;
 
                 for (int32_t idx=0; idx <threadInitialTotalNumOfNeurons; idx++){
                     delete[] (v_traces[idx]);
@@ -1270,9 +1277,19 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] vis_I;
                 delete[] dist_I;
 
-                delete[] delayLinkedList;
-                delete[] delayValueLinkedList;
-                delete[] guidedDelayList;
+                // for (int32_t idx=0; idx <threadInitialTotalNumOfNeurons; idx++){
+                //     delayLinkedList[idx].clear();
+                //     delayValueLinkedList[idx].clear();
+                // }
+
+                // delete[] delayLinkedList;
+                // delete[] delayValueLinkedList;
+
+                for (int32_t idx=0; idx <threadInitialTotalNumOfNeurons; idx++){
+                    guidedDelayList[idx].clearAll();
+                }
+
+                // delete[] guidedDelayList;
 
                 #ifdef __EMSCRIPTEN__
                     std::terminate();

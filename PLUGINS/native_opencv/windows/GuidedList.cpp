@@ -174,10 +174,13 @@ class GuidedList {
     return list;
   }
   // GuidedList(DoublyLinkedList* list, short neuronType, bool isInhibitor) : list(list), neuronType(neuronType), isInhibitor(isInhibitor) {}
-  void setParameters(int idx, DoublyLinkedList* plist, short pneuronType, bool pisInhibited, short pdelayTime, DoublyLinkedList* pdelayValueLinkedList) {
+  // void setParameters(int idx, DoublyLinkedList* plist, short pneuronType, bool pisInhibited, short pdelayTime, DoublyLinkedList* pdelayValueLinkedList) {
+  void setParameters(int idx, short pneuronType, bool pisInhibited, short pdelayTime) {
     neuronIdx = idx;
-    list = plist[idx];
-    valueList = pdelayValueLinkedList[idx];
+    // list = plist[idx];
+    // valueList = pdelayValueLinkedList[idx];
+    list = DoublyLinkedList();
+    valueList = DoublyLinkedList();
     
     neuronType = pneuronType;
     isInhibited = pisInhibited;
@@ -214,9 +217,14 @@ class GuidedList {
     // Alternatively, consider std::thread::detach() for automatic thread cleanup
   }
   // Destructor to avoid memory leaks (assuming caller doesn't manage the list)
-  ~GuidedList() {
+
+  void clearAll(){
     list.clear();
     valueList.clear();
+  }
+  ~GuidedList() {
+    // list.clear();
+    // valueList.clear();
     // if (list != undefined){
     //   delete list;
     // }
@@ -374,8 +382,8 @@ class GuidedList {
 
 GuidedList* guidedDelayList;
 
-DoublyLinkedList* delayLinkedList;
-DoublyLinkedList* delayValueLinkedList;
+// DoublyLinkedList* delayLinkedList;
+// DoublyLinkedList* delayValueLinkedList;
 
 // GuidedRhytmicList* guidedRhytmicList;
 // DoublyLinkedList* rhytmicLinkedList;

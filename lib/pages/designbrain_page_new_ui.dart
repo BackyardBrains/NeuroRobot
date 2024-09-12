@@ -1367,7 +1367,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
                           nativec.changeIdxSelected(neuronIdx);
                         } catch (err) {
-                          print("err");
+                          print("err 1001");
                           print(err);
                         }
 
@@ -3226,7 +3226,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
 
                 nativec.changeIdxSelected(neuronIdx);
               } catch (err) {
-                print("err");
+                print("err 1002");
                 print(err);
               }
 

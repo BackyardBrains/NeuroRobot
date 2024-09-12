@@ -60,35 +60,41 @@ Future<int> checkColorCV(frameData) async {
   Map map = Map();
   map["frameData"] = frameData;
 
-  return await compute(_checkNativeColorCv, map);
+  int res = await compute(_checkNativeColorCv, map);
+  map = {};
+  return res;
 }
 
 int _checkNativeColorCv(map) {
   NativeOpenCV nativeocv = NativeOpenCV();
   Uint8List frameData = map['frameData'];
-  Uint8List redBg = frameData;
-  try {
-    freeMemory(ptrFrame);
-  } catch (err) {
-    print("err allocating memory");
-  }
+  // Uint8List redBg = frameData;
+  // try {
+  //   freeMemory(ptrFrame);
+  // } catch (err) {
+  //   print("err allocating memory");
+  // }
   ptrFrame = allocate<ffi.Uint8>(
-      count: redBg.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+      count: frameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  Uint8List data = ptrFrame.asTypedList(redBg.length);
+  Uint8List data = ptrFrame.asTypedList(frameData.length);
 
   int i = 0;
   // copy data manually
   for (i = 0; i < data.length; i++) {
-    data[i] = redBg[i];
+    data[i] = frameData[i];
     // dataMaskedImage[i] = redBg[i];
   }
 
   // nativeocv
   int result =
-      nativeocv.findColorInImage(ptrFrame, redBg.length, ptrMaskedFrame);
+      nativeocv.findColorInImage(ptrFrame, frameData.length, ptrMaskedFrame);
   try {
+    // data.clear();
     freeMemory(ptrFrame);
-  } catch (err) {}
+    // frameData.clear();
+  } catch (err) {
+    print("Error Freeing frameData");
+  }
   return result;
 }

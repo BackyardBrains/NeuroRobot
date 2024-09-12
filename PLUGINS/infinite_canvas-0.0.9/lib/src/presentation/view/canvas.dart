@@ -217,7 +217,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
-            controller.checkSelection(details.localPosition);
+            if (!Platform.isIOS) {
+              controller.checkSelection(details.localPosition);
+            }
             // print("mouse down");
 
             // print(controller.scale);
@@ -245,6 +247,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // controller.mousePosition = details.position;
 
             // CHANGE ME
+            if (Platform.isIOS) {
+              controller.checkSelection(details.localPosition);
+            }
+
             // try {
             // } catch (err) {
             //   print(err);
