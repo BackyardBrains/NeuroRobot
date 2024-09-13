@@ -73,6 +73,14 @@ class cca_opencv_wrapper{
         int max_idx = -1;
         int numObjects = 0;
 
+        void clearAll()
+        {
+            inp.release();
+            labels.release();
+            stats.release();
+            centroids.release();
+        }
+
         cca_opencv_wrapper( Mat input )
         {
             inp = input.clone();
@@ -247,7 +255,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
     // int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
-    int findColorInImage(uint8_t *img, uint32_t imgLength, uint8_t* imgMask) {
+    int findColorInImage(uint8_t *img, uint32_t imgLength) {
         // Mat rawImageRgb = Mat(240 * 320 * 4, 1, CV_8UC4, img);
         // Mat matImageRgb = rawImageRgb.reshape(4, 240);
         // // Mat matImageRgb = Mat(240, 320, CV_8UC4, img);
@@ -288,6 +296,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             // platform_log("Start decode buffer");
             vector<uint8_t> buffer(img, img + imgLength);
             imageRgb = imdecode(buffer, IMREAD_COLOR);;
+            buffer.clear();
+            vector<uint8_t>().swap(buffer);
+
             // platform_log("END decode buffer");
 
         #endif
@@ -440,6 +451,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, 0);
                     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, 0);
                 }
+                cca_wrapper.clearAll();
 
             
 
@@ -480,6 +492,8 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             channels[0].release();
             channels[1].release();
             channels[2].release();
+
+            cca_wrapper_bw.clearAll();
         }
         // platform_log("Set preprocess matrix");
 

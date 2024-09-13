@@ -7,50 +7,54 @@ import 'package:neurorobot/utils/Allocator.dart';
 
 ffi.Pointer<ffi.Uint8> ptrFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+/*
 ffi.Pointer<ffi.Uint8> ptrMaskedFrame =
-    allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+    // allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+    allocate<ffi.Uint8>(count: 0, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 ffi.Pointer<ffi.Uint8> ptrResizedFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 ffi.Pointer<ffi.Uint32> ptrResizedFrameLength =
     allocate<ffi.Uint32>(count: 1, sizeOfType: ffi.sizeOf<ffi.Uint32>());
 Uint32List resizedFrameLength = ptrResizedFrameLength.asTypedList(1);
+*/
+
 // Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
 initializeOpenCV() {
   NativeOpenCV ocv = NativeOpenCV();
   ocv.initializeOpenCV();
 }
 
-Future<bool> resizeImageFrame(frameData) async {
-  await compute(_resizeImageFrame, frameData);
-  return true;
-}
+// Future<bool> resizeImageFrame(frameData) async {
+//   await compute(_resizeImageFrame, frameData);
+//   return true;
+// }
 
-bool _resizeImageFrame(rawFrameData) {
-  NativeOpenCV nativeocv = NativeOpenCV();
+// bool _resizeImageFrame(rawFrameData) {
+//   NativeOpenCV nativeocv = NativeOpenCV();
 
-  ptrResizedFrame = allocate<ffi.Uint8>(
-      count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
-  ffi.Pointer<ffi.Uint8> ptrRawFrame = allocate<ffi.Uint8>(
-      count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   ptrResizedFrame = allocate<ffi.Uint8>(
+//       count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+//   ffi.Pointer<ffi.Uint8> ptrRawFrame = allocate<ffi.Uint8>(
+//       count: rawFrameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
 
-  Uint8List data = ptrRawFrame.asTypedList(rawFrameData.length);
+//   Uint8List data = ptrRawFrame.asTypedList(rawFrameData.length);
 
-  int i = 0;
-  // copy data manually
-  for (i = 0; i < data.length; i++) {
-    data[i] = rawFrameData[i];
-  }
+//   int i = 0;
+//   // copy data manually
+//   for (i = 0; i < data.length; i++) {
+//     data[i] = rawFrameData[i];
+//   }
 
-  // nativeocv
-  nativeocv.resizeImage(
-      ptrRawFrame, rawFrameData.length, ptrResizedFrame, ptrResizedFrameLength);
-  try {
-    // freeMemory(ptrResizedFrame);
-    freeMemory(ptrRawFrame);
-  } catch (err) {}
+//   // nativeocv
+//   nativeocv.resizeImage(
+//       ptrRawFrame, rawFrameData.length, ptrResizedFrame, ptrResizedFrameLength);
+//   try {
+//     // freeMemory(ptrResizedFrame);
+//     freeMemory(ptrRawFrame);
+//   } catch (err) {}
 
-  return true;
-}
+//   return true;
+// }
 
 Future<bool> checkImageAi(frameData) async {
   return true;
@@ -87,8 +91,11 @@ int _checkNativeColorCv(map) {
   }
 
   // nativeocv
-  int result =
-      nativeocv.findColorInImage(ptrFrame, frameData.length, ptrMaskedFrame);
+  // int result =
+  //     nativeocv.findColorInImage(ptrFrame, frameData.length, ptrMaskedFrame);
+
+  int result = nativeocv.findColorInImage(ptrFrame, frameData.length);
+
   try {
     // data.clear();
     freeMemory(ptrFrame);
