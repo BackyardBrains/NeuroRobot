@@ -3018,6 +3018,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               });
             } else {
               rightToolbarCallback({"menuIdx": 7});
+              debouncerNoResponse.cancel();
               controller.isInteractable = true;
             }
 
@@ -3371,9 +3372,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // printDebug(edge.to);
       int fromIdx = nodeKey[edge.from.toString()]!; // - allNeuronStartIdx;
       int toIdx = nodeKey[edge.to.toString()]!; // - allNeuronStartIdx;
-      printDebug("fromIdx");
-      printDebug(fromIdx);
-      printDebug(toIdx);
+      // printDebug("fromIdx");
+      // printDebug(fromIdx);
+      // printDebug(toIdx);
       connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
     }
     // final vals = neuronTypes.values;
@@ -4126,41 +4127,51 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           isPlayingMenu = true;
           runSimulation();
           controller.isPlaying = true;
+          printDebug("isIsolateWritePortInitialized no response");
+          printDebug(isIsolateWritePortInitialized);
+          nativec.changeIdxSelected(11);
+
+          try {
+            // debouncerNoResponse.cancel();
+            debouncerNoResponse.run(() {
+              try {
+                double maxValue =
+                    Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
+                // printDebug("maxValue");
+                // printDebug(maxValue);
+                // if (maxValue != 0) {
+                //   printDebug(Nativec.canvasBufferBytes1);
+                // }
+                // if (testCounter == 0) {
+                //   maxValue = 0;
+                //   testCounter = 1;
+                // }
+                if (maxValue == 0) {
+                  restartText = "Re-establishing connection";
+                  rightToolbarCallback({"menuIdx": 7});
+                  Future.delayed(const Duration(milliseconds: 4700), () {
+                    // menuIdx = 0;
+                    // controller.isInteractable = true;
+
+                    rightToolbarCallback({"menuIdx": 7});
+                    isEmergencyPause = true;
+                    setState(() {});
+                  });
+                } else {
+                  _DesignBrainPageState.isolateWritePort.send("v:");
+                }
+              } catch (err) {
+                printDebug("err debouncer");
+              }
+            });
+          } catch (err) {
+            printDebug("err debouncer no response");
+            printDebug(err);
+          }
+
           if (isIsolateWritePortInitialized) {
             aiStats = null;
-            nativec.changeIdxSelected(11);
-            try {
-              debouncerNoResponse.cancel();
-              debouncerNoResponse.run(() {
-                try {
-                  double maxValue =
-                      Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
-                  // if (testCounter == 0) {
-                  //   maxValue = 0;
-                  //   testCounter = 1;
-                  // }
-                  if (maxValue == 0) {
-                    restartText = "Re-establishing connection";
-                    rightToolbarCallback({"menuIdx": 7});
-                    Future.delayed(const Duration(milliseconds: 4700), () {
-                      // menuIdx = 0;
-                      // controller.isInteractable = true;
 
-                      rightToolbarCallback({"menuIdx": 7});
-                      isEmergencyPause = true;
-                      setState(() {});
-                    });
-                  } else {
-                    _DesignBrainPageState.isolateWritePort.send("v:");
-                  }
-                } catch (err) {
-                  printDebug("err debouncer");
-                }
-              });
-            } catch (err) {
-              printDebug("err debouncer no response");
-              printDebug(err);
-            }
             MyApp.logAnalytic("StartPlaying",
                 {"timestamp": DateTime.now().millisecondsSinceEpoch});
           }
@@ -5579,9 +5590,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // if (savedRatio >= MediaQuery.of(context).devicePixelRatio) {
     //   curScale = MediaQuery.of(context).devicePixelRatio;
     // }
-    double curScale = 1;
-    printDebug("curScale111");
-    printDebug(curScale);
+    double curScaleX = 1;
+    double curScaleY = 1;
+    if (Platform.isIOS || Platform.isAndroid) {
+      double displayWidth = savedFileJson["windowWidth"];
+      double displayHeight = savedFileJson["windowHeight"];
+
+      curScaleX = MediaQuery.of(context).size.width / displayWidth;
+      curScaleY = MediaQuery.of(context).size.height / displayHeight;
+    }
+    // printDebug("curScale111");
+    // printDebug(curScaleX);
     SyntheticNeuron syntheticNeuron = SyntheticNeuron(
         // neuronKey: newNodeKey,
         isActive: false,
@@ -5591,8 +5610,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     InfiniteCanvasNode tempNode = InfiniteCanvasNode(
       value: v["index"],
       key: nodeKey,
-      offset:
-          Offset(v["position"][0], v["position"][1]).scale(curScale, curScale),
+      offset: Offset(v["position"][0], v["position"][1])
+          .scale(curScaleX, curScaleY),
       size: Size(neuronDrawSize, neuronDrawSize),
       allowResize: false,
       child: Builder(
@@ -7913,5 +7932,5 @@ class DistanceSensorPainter extends CustomPainter {
 }
 
 void printDebug(s) {
-  print(s);
+  // print(s);
 }
