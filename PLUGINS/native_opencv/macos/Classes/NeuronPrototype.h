@@ -32,11 +32,13 @@
 
 // MAIN CODE
 // std::mutex mtx;
+short configDelayNeuron = 6;
+short configCountingNeuron = 10;
 int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
-short ms_per_step = 30;
-short steps_per_loop = 200;
+short ms_per_step = 1;
+short steps_per_loop = 5.2 * 200;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
 double *a,*b, *v, *u,*i,*w;
@@ -51,6 +53,7 @@ const uint32_t bigBufferLength = 30 * 200;
 double **v_traces;
 double *canvasBuffer;
 double **connectome;
+double *inhibitionArray;
 int *nps;
 
 // double **v_step;
@@ -91,6 +94,16 @@ short** spikes_step;
 short *firing;
 
 
+// DELAY BUFFER
+short delayInitialized = 1;
+short delayTriggered = 2;
+short delayBuffering = 3;
+short delayFullBuffer = 4;
+
+short delayModeNoSpike = 1;
+short delayModeAccumulatingSpike = 2;
+short delayModeTurnOffTimer = 3;
+
 // MOTOR
 double pulse_period = 0.1;
 short init_motor_block_in_s = 1;
@@ -116,6 +129,8 @@ double dist_medium = 70;
 double dist_long = 90;
 
 double *sensor_distance;
+short *sensor_min_limit;
+short *sensor_max_limit;
 
 
 // SPEAKER 
@@ -131,6 +146,7 @@ short neuronLedRedIdx = 9;
 short neuronLedGreenIdx = 10;
 short neuronLedBlueIdx = 11;
 
+double *visual_input_buf;
 // std::string redLEDCmd = "d:111;d:211;d:311;d:411;d:511;d:611;"; // red
 // std::string blueLEDCmd = "d:131;d:231;d:331;d:431;d:531;d:631;"; // blue
 // std::string greenLEDCmd = "d:121;d:221;d:321;d:421;d:521;d:621;"; // green

@@ -42,22 +42,22 @@ long long int get_now() {
 
 
 
-// EXTERNC void platform_log(const char *fmt, ...) {
-//     va_list args;
-//     va_start(args, fmt);
-// #ifdef __ANDROID__
-//     __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
-// #elif defined(IS_WIN32)
-//     char *buf = new char[4096];
-//     std::fill_n(buf, 4096, '\0');
-//     _vsprintf_p(buf, 4096, fmt, args);
-//     OutputDebugStringA(buf);
-//     delete[] buf;
-// #else
-//     vprintf(fmt, args);
-// #endif
-//     va_end(args);
-// }
+EXTERNC void platform_log_cv(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+#ifdef __ANDROID__
+    __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
+#elif defined(IS_WIN32)
+    char *buf = new char[4096];
+    std::fill_n(buf, 4096, '\0');
+    _vsprintf_p(buf, 4096, fmt, args);
+    OutputDebugStringA(buf);
+    delete[] buf;
+#else
+    vprintf(fmt, args);
+#endif
+    va_end(args);
+}
 
 
 class cca_opencv_wrapper{
@@ -72,6 +72,14 @@ class cca_opencv_wrapper{
     public:
         int max_idx = -1;
         int numObjects = 0;
+
+        void clearAll()
+        {
+            inp.release();
+            labels.release();
+            stats.release();
+            centroids.release();
+        }
 
         cca_opencv_wrapper( Mat input )
         {
@@ -195,7 +203,8 @@ double sigmoid(double xx, double cc, double aa) {
 // GLOBAL Variable
 EXTERNC bool isPrevEyesSaved = false;
 Mat prev_left_eye_frame, prev_right_eye_frame;
-Size net_input_size = Size(224,224);
+// Size net_input_size = Size(224,224);
+Size net_input_size = Size(320,240);
 
 bool isInitialized = false;
 short resetCounter = 0;
@@ -247,7 +256,8 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
     // void process_image(char* inputImagePath, char* outputImagePath) {
     EXTERNC FUNCTION_ATTRIBUTE
     // int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
-    int findColorInImage(uint8_t *img, uint32_t imgLength, uint8_t* imgMask) {
+    // int findColorInImage(uint8_t *img, uint32_t imgLength, uint8_t* imgMask) {
+    int findColorInImage(uint8_t *img, uint32_t imgLength, uint16_t *centroid) {    
         // Mat rawImageRgb = Mat(240 * 320 * 4, 1, CV_8UC4, img);
         // Mat matImageRgb = rawImageRgb.reshape(4, 240);
         // // Mat matImageRgb = Mat(240, 320, CV_8UC4, img);
@@ -288,6 +298,8 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             // platform_log("Start decode buffer");
             vector<uint8_t> buffer(img, img + imgLength);
             imageRgb = imdecode(buffer, IMREAD_COLOR);;
+            buffer.clear();
+            vector<uint8_t>().swap(buffer);            
             // platform_log("END decode buffer");
 
         #endif
@@ -315,11 +327,15 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
         double this_score = 0;
+        double curMaxScore = 0;
         double this_left_score = 0;
         double this_right_score = 0;
         double meanx = 0;
+        std::string leftFrameResult = "000";
+        std::string rightFrameResult = "000";
+        
 
-        for (short icam = 0; icam < 2; icam++){
+        for (short icam = 0; icam < 1; icam++){
             if (icam == 0){
                 resize(leftFrame, uframe, net_input_size);
                 cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
@@ -346,6 +362,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();                    
                 } else if (ncol == 1) {
                     Mat channels[3];
                     split(uframe, channels);
@@ -358,6 +377,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();                    
                 } else {
                     Mat channels[3];
                     split(uframe, channels);
@@ -370,6 +392,10 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     bitwise_and(colframe, temp1, colframe);
                     compare(temp1, 50, temp1, CMP_LT);
                     colframe.setTo(0, temp1);
+
+                    temp1.release();
+                    temp2.release();
+                    temp3.release();                    
                 }
 
 
@@ -383,7 +409,27 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                    
                     this_score = sigmoid(max_size, 1000, 0.0075) * 70;
-
+                    if (this_score > 69){
+                        if (icam == 0){
+                            //BGR
+                            leftFrameResult[ncol] = '1';
+                            // if (curMaxScore < this_score) {
+                            //     curMaxScore = this_score;
+                                // centroid[ncol* 3 + 0] = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx) + cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
+                                // centroid[ncol* 3 + 1] = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx) + cca_wrapper.get_centroid_y(cca_wrapper.max_idx);
+                                centroid[ncol* 3 + 0] = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx);
+                                centroid[ncol* 3 + 1] = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx);
+                                centroid[ncol* 3 + 2] = this_score;
+                            // }
+                            // platform_log_cv("Centroid Camera\n");
+                            // platform_log_cv(std::to_string(centroid[0]).c_str());
+                            // platform_log_cv("\n");
+                            // platform_log_cv(std::to_string(centroid[1]).c_str());
+                            // platform_log_cv("\n");
+                        }else{
+                            rightFrameResult[ncol] = '1';
+                        }
+                    }
                     short tempCol = static_cast<short>(ncol * 2);
                     setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
 
@@ -415,9 +461,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, 0);
                     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, 0);
                 }
-
-            
-
+                cca_wrapper.clearAll();
             }
             
 
@@ -431,13 +475,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             if (cca_wrapper_bw.get_connected_component_count() > 0) {
                 uint32_t max_size = 0;
                 // int max_idx = 0;
-
                 max_size = cca_wrapper_bw.get_max_component_area();
                 // double meanx = cca_wrapper_bw.get_centroid_x(cca_wrapper_bw.max_idx);
-                
                 this_score = sigmoid(max_size, 1000, 0.0075) * 50;
-
-
             }else{
                 this_score = 0;
             }
@@ -452,7 +492,11 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             }else{
                 prev_right_eye_frame = uframe;
             }
+            channels[0].release();
+            channels[1].release();
+            channels[2].release();
 
+            cca_wrapper_bw.clearAll();
         }
         // platform_log("Set preprocess matrix");
 
@@ -471,13 +515,17 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         leftFrame.release();
         rightFrame.release();
         bwframe.release();
+
+        leftGrayFrame.release();
+        rightGrayFrame.release();        
         #ifdef __EMSCRIPTEN__
             srcImageRgb.release();
         #endif
         // rawImageRgb.release();
         // matImageRgb.release();
         imageRgb.release();
-        return 0;
+        // return 0;
+        return std::stoi("1"+leftFrameResult + rightFrameResult, nullptr, 2);        
     }
 
     FUNCTION_ATTRIBUTE

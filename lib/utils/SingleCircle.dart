@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SingleCircle extends CustomPainter {
-  Color activeColor = Colors.green.shade700;
+  int isExcitatory = 1;
   // Color inactiveColor = const Color.fromRGBO(158, 158, 158, 1);
+  Color activeColor = const Color(0xFF18A953);
   Color inactiveColor = Colors.white;
   final double circleRadius = 10.0;
   final double arrowSize = 1.0;
@@ -23,19 +24,27 @@ class SingleCircle extends CustomPainter {
   // SingleCircle({
   //   required ValueNotifier<int> notifier, required bool isActive,
   // }):super(repaint:notifier){
-  SingleCircle({
-    required bool isActive,
-    required double circleRadius,
-    required this.xNucleus,
-    required this.yNucleus,
-    required this.widthNucleus,
-    required this.heightNucleus,
-  }) {
+  SingleCircle(
+      {required bool isActive,
+      required double circleRadius,
+      required this.xNucleus,
+      required this.yNucleus,
+      required this.widthNucleus,
+      required this.heightNucleus,
+      required this.isExcitatory}) {
     // print("Nucleus : $xNucleus, $yNucleus, $widthNucleus, $heightNucleus");
     rectPos = Rect.fromCenter(
         center: Offset(xNucleus, yNucleus),
         width: widthNucleus,
         height: heightNucleus);
+
+    if (isExcitatory == 1) {
+      activeColor = const Color(0xFF18A953);
+      inactiveColor = Colors.white;
+    } else {
+      activeColor = Colors.red;
+      inactiveColor = Colors.black;
+    }
 
     centerPos = Offset(circleRadius, circleRadius);
     circlePaint = Paint()

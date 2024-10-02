@@ -96,6 +96,7 @@ class _WaveWidgetState extends State<WaveWidget> {
         ),
       );
     } else {
+      // print("rebuild widget");
       return Container(
         height: widget.screenHeight / 2 - 130,
         width: widget.screenWidth - 20,

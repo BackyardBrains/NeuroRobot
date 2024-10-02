@@ -241,7 +241,7 @@ class ProtoNeuron extends CustomPainter {
           break;
         case "Occassionally active":
           aBufList[idx] = 0.02;
-          bBufList[idx] = 0.16;
+          bBufList[idx] = 0.17;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
           break;
@@ -253,7 +253,9 @@ class ProtoNeuron extends CustomPainter {
           break;
         case "Generates bursts":
           aBufList[idx] = 0.02;
-          bBufList[idx] = 0.18; // 0.16;
+          // bBufList[idx] = 0.18; // 0.16;
+          // Chris request 23 August 2024
+          bBufList[idx] = 0.17; // 0.16;
           cBufList[idx] = -20; //-8;
           dBufList[idx] = 2;
           break;

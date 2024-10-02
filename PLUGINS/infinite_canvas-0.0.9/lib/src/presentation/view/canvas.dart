@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:infinite_canvas/src/domain/model/drop_target.dart';
+import 'package:infinite_canvas/src/presentation/widgets/droptargets_renderer.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import '../widgets/delegate.dart';
@@ -28,6 +30,7 @@ class InfiniteCanvas extends StatefulWidget {
       this.gridSize = const Size.square(50),
       this.menuVisible = true,
       this.menus = const [],
+      this.activeComponent,
       this.backgroundBuilder,
       this.drawVisibleOnly = false,
       this.canAddEdges = false,
@@ -41,6 +44,7 @@ class InfiniteCanvas extends StatefulWidget {
   final bool canAddEdges;
   final bool edgesUseStraightLines;
   final Widget Function(BuildContext, Rect)? backgroundBuilder;
+  final Widget Function(BuildContext, Rect)? activeComponent;
 
   @override
   State<InfiniteCanvas> createState() => InfiniteCanvasState();
@@ -55,6 +59,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
   int firstTapTime = 0;
   int secondTapTime = 0;
+
+  late Positioned edgesWidget;
+  Widget? dropTargetsWidget;
 
   @override
   void initState() {
@@ -86,6 +93,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   }
 
   void onUpdate() {
+    // print("onUpdate");
     if (mounted) setState(() {});
   }
 
@@ -122,6 +130,18 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
     final viewport = axisAlignedBoundingBox(quad);
     if (widget.backgroundBuilder != null) {
       return widget.backgroundBuilder!(context, viewport);
+    }
+    return GridBackgroundBuilder(
+      cellWidth: widget.gridSize.width,
+      cellHeight: widget.gridSize.height,
+      viewport: viewport,
+    );
+  }
+
+  Widget buildActiveComponent(BuildContext context, Quad quad) {
+    final viewport = axisAlignedBoundingBox(quad);
+    if (widget.activeComponent != null) {
+      return widget.activeComponent!(context, viewport);
     }
     return GridBackgroundBuilder(
       cellWidth: widget.gridSize.width,
@@ -188,31 +208,35 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           if (event is KeyUpEvent) {
             if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
                 event.logicalKey == LogicalKeyboardKey.shiftRight) {
-              controller.shiftPressed = false;
+              // controller.shiftPressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
                 event.logicalKey == LogicalKeyboardKey.metaRight) {
-              controller.metaPressed = false;
+              // controller.metaPressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
                 event.logicalKey == LogicalKeyboardKey.controlRight) {
-              controller.controlPressed = false;
-              controller.linkStart = null;
-              controller.linkEnd = null;
+              // controller.controlPressed = false;
+              // controller.linkStart = null;
+              // controller.linkEnd = null;
             }
             if (event.logicalKey == LogicalKeyboardKey.space) {
-              controller.spacePressed = false;
+              // controller.spacePressed = false;
             }
             if (event.logicalKey == LogicalKeyboardKey.delete ||
                 event.logicalKey == LogicalKeyboardKey.backspace) {
               if (controller.focusNode.hasFocus) {
-                controller.deleteSelection();
+                controller.onDeleteCallback();
+                // controller.deleteSelection();
               }
             }
           }
         },
         child: Listener(
           onPointerDown: (details) {
+            if (!Platform.isIOS) {
+              controller.checkSelection(details.localPosition);
+            }
             // print("mouse down");
             // print(controller.scale);
 
@@ -241,8 +265,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
             // CHANGE ME
             // try {
-            controller.checkSelection(details.localPosition);
-            // } catch (err) {
+            if (Platform.isIOS) {
+              controller.checkSelection(details.localPosition);
+            } // } catch (err) {
             //   print(err);
             // }
             // if (controller.selection.isEmpty) {
@@ -329,7 +354,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           },
           onPointerHover: (details) {
             controller.mousePosition = details.localPosition;
-            controller.checkSelection(controller.mousePosition, true);
+            // STEVANUS : Optimize?
+            // controller.checkSelection(controller.mousePosition, true);
           },
           onPointerMove: (details) {
             lastPointerDownTime = 0;
@@ -368,7 +394,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   if (kIsWeb) {
                   } else if (Platform.isIOS) {
                     // print(controller.mousePosition);
-                    controller.notifyMousePosition();
+                    // controller.notifyMousePosition();
                   }
                 },
                 onInteractionUpdate: (details) {
@@ -389,7 +415,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     // print("controller.mousePosition2");
                     // print(details.focalPoint);
                     // print(controller.mousePosition);
-                    controller.notifyMousePosition();
+                    // controller.notifyMousePosition();
                   }
                 },
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
@@ -399,6 +425,44 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 builder: (context, quad) {
                   final nodes = getNodes(constraints);
                   final edges = getEdges(constraints);
+                  if (!controller.isPlaying) {
+                    edgesWidget = Positioned.fill(
+                      child: InfiniteCanvasEdgeRenderer(
+                        controller: controller,
+                        edges: edges,
+                        linkStart: controller
+                            .getNode(controller.linkStart)
+                            ?.rect
+                            .center,
+                        linkEnd: controller.linkEnd,
+                        straightLines: widget.edgesUseStraightLines,
+                      ),
+                    );
+                  } else {
+                    // print("edges widget cache");
+                  }
+                  if (!controller.isPlaying &&
+                      controller.dropTargets.isNotEmpty) {
+                    dropTargetsWidget = Positioned.fill(
+                      child: InfiniteDropTargetsRenderer(
+                        controller: controller,
+                        dropTargets: controller.dropTargets,
+                      ),
+                      // child: CustomMultiChildLayout(
+                      //     delegate: InfiniteCanvasDropTargetsDelegate(
+                      //         controller.dropTargets),
+                      //     children: controller.dropTargets
+                      //         .map((dropTarget) => LayoutId(
+                      //               key: dropTarget.key,
+                      //               id: dropTarget,
+                      //               child: InfiniteDropTargetsRenderer(
+                      //                 dropTarget: dropTarget,
+                      //                 controller: controller,
+                      //               ),
+                      //             ))
+                      //         .toList()),
+                    );
+                  }
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
                     child: Stack(
@@ -408,17 +472,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                           child: buildBackground(context, quad),
                         ),
                         Positioned.fill(
-                          child: InfiniteCanvasEdgeRenderer(
-                            controller: controller,
-                            edges: edges,
-                            linkStart: controller
-                                .getNode(controller.linkStart)
-                                ?.rect
-                                .center,
-                            linkEnd: controller.linkEnd,
-                            straightLines: widget.edgesUseStraightLines,
-                          ),
+                          child: buildActiveComponent(context, quad),
                         ),
+                        edgesWidget,
                         Positioned.fill(
                           child: CustomMultiChildLayout(
                             delegate: InfiniteCanvasNodesDelegate(nodes),
@@ -434,6 +490,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                                 .toList(),
                           ),
                         ),
+                        if (controller.dropTargets.isNotEmpty &&
+                            dropTargetsWidget != null) ...[dropTargetsWidget!],
+
                         // CHANGE ME
                         // if (controller.marqueeStart != null &&
                         //     controller.marqueeEnd != null) ...[

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 
+import '../../domain/model/drop_target.dart';
 import '../../domain/model/edge.dart';
 import '../../domain/model/graph.dart';
 import '../../domain/model/node.dart';
@@ -15,6 +16,7 @@ typedef NodeFormatter = void Function(InfiniteCanvasNode);
 
 /// A controller for the [InfiniteCanvas].
 class InfiniteCanvasController extends ChangeNotifier implements Graph {
+  late bool isPlaying = false;
   bool isInteractable = true;
   bool isFoundEdge = false;
   bool isSelectingEdge = false;
@@ -24,8 +26,13 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Map<String, String> neuronTypes;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
+  final VoidCallback onDeleteCallback;
 
   Map<String, Path> axonPathMap = {};
+  int modeIdx = 0;
+
+  List<LocalKey>? restrictedToNeuronsKey;
+  List<LocalKey>? restrictedFromNeuronsKey;
   // final VoidCallback transformNeuronPositionWrapper;
 
   InfiniteCanvasController({
@@ -35,6 +42,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     required this.neuronTypes,
     required this.onLongPress,
     required this.onDoubleTap,
+    required this.onDeleteCallback,
     // required this.transformNeuronPositionWrapper,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],
@@ -52,6 +60,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final focusNode = FocusNode();
   Size? viewport;
 
+  List<InfiniteDropTarget> dropTargets = [];
+
   @override
   final List<InfiniteCanvasNode> nodes = [];
 
@@ -65,6 +75,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       .where((e) => edgeSelected.from == e.from && edgeSelected.to == e.to)
       .toList();
 
+  InfiniteCanvasNode? singleSelection;
   final Set<Key> _selected = {};
   List<InfiniteCanvasNode> get selection =>
       nodes.where((e) => _selected.contains(e.key)).toList();
@@ -212,7 +223,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void notifyMousePosition() {
-    notifyListeners();
+    // notifyListeners();
   }
 
   Offset toLocal(Offset global) {
@@ -224,6 +235,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       deselectAll(true);
       deselectAll();
       return;
+    }
+    // print("CHECK SELECT");
+    if (_selected.isNotEmpty) {
+      // print(_selected.last);
+      List<InfiniteCanvasNode> prevSelection =
+          nodes.where((element) => element.key == _selected.last).toList();
+      // print(prevSelection);
+      singleSelection = prevSelection.isEmpty ? null : prevSelection[0];
+    } else {
+      singleSelection = null;
     }
 
     final offset = toLocal(localPosition);
@@ -258,6 +279,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         */
       // IS RECIPROCATE
 
+/*
       // Calculate direction vector of the line
       double dx = eTo.offset.dx - eFrom.offset.dx;
       double dy = eTo.offset.dy - eFrom.offset.dy;
@@ -283,7 +305,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
           eTo.offset.dy - perpDy * lineWidth + radius + pairSpace);
       var oTo = Offset(eTo.offset.dx + perpDx * lineWidth + radius + pairSpace,
           eTo.offset.dy + perpDy * lineWidth + radius + pairSpace);
-
+*/
       // Path p = Path()
       //   ..moveTo(iFrom.dx, iFrom.dy)
       //   ..lineTo(iTo.dx, iTo.dy)
@@ -304,16 +326,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
             isSelectingEdge = true;
             edgeSelected = edge;
           }
-          // print("OFFSET");
-          // print(isSelectingEdge);
-          // print(eFrom.value);
-          // print(eTo.value);
-          // print(eFrom.offset);
-          // print(eTo.offset);
-          // print(iFrom);
-          // print(oFrom);
-          // print(iTo);
-          // print(oTo);
 
           break;
         } else {
@@ -392,26 +404,43 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       to: to,
       label: label,
     );
-    List<InfiniteCanvasEdge> foundNodeList = edges
-        .where(
-          (element) => element.from == edge.from && element.to == edge.to,
-        )
-        .toList();
-    List<InfiniteCanvasEdge> foundReciprocateNodeList = edges
-        .where(
-          (element) => element.from == edge.to && element.to == edge.from,
-        )
-        .toList();
-    int foundNode = foundNodeList.length;
+    bool isAddingEdge = true;
+    if (from == to) {
+      isAddingEdge = false;
+    } else if (restrictedToNeuronsKey!.contains(to)) {
+      isAddingEdge = false;
+    } else if (restrictedFromNeuronsKey!.contains(from)) {
+      isAddingEdge = false;
+    }
+    if (isAddingEdge) {
+      List<InfiniteCanvasEdge> foundNodeList = edges
+          .where(
+            (element) => element.from == edge.from && element.to == edge.to,
+          )
+          .toList();
+      List<InfiniteCanvasEdge> foundReciprocateNodeList = edges
+          .where(
+            (element) => element.from == edge.to && element.to == edge.from,
+          )
+          .toList();
+      int foundNode = foundNodeList.length;
 
-    if (foundNode == 0) {
-      //not duplicate
-      if (foundReciprocateNodeList.isNotEmpty) {
-        foundReciprocateNodeList[0].isReciprocate = 1;
-        edge.isReciprocate = -1;
-        edges.add(edge);
-      } else {
-        edges.add(edge);
+      if (foundNode == 0) {
+        //not duplicate
+        if (foundReciprocateNodeList.isNotEmpty) {
+          foundReciprocateNodeList[0].isReciprocate = 1;
+          edge.isReciprocate = -1;
+          edges.add(edge);
+        } else {
+          edges.add(edge);
+        }
+        for (InfiniteCanvasNode n in nodes) {
+          if (n.key == from) {
+            print("edge.isExcitatory");
+            print("${n.isExcitatory}");
+            edge.isExcitatory = n.isExcitatory.toDouble();
+          }
+        }
       }
     }
     deselectAll(true);
@@ -631,8 +660,13 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     final nodeTo = nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    syntheticConnections.add(Connection(axonFrom, axonTo, 25.0, Path()));
-    // print("Add Synthetic Connection ${syntheticConnections.length}");
+    syntheticConnections.add(Connection(
+        axonFrom,
+        axonTo,
+        25.0,
+        Path(),
+        nodeFrom
+            .isExcitatory)); // print("Add Synthetic Connection ${syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {
       Neuron syntheticRawNeuron = syntheticNeurons[i].newNeuron;

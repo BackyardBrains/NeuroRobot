@@ -36,7 +36,9 @@ void main() async {
   FlutterError.onError = (errorDetails) {
     if (fatalError) {
       // If you want to record a "fatal" exception
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      if (!Platform.isWindows) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      }
       // ignore: dead_code
     } else {
       // If you want to record a "non-fatal" exception
@@ -47,7 +49,9 @@ void main() async {
   PlatformDispatcher.instance.onError = (error, stack) {
     if (fatalError) {
       // If you want to record a "fatal" exception
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      if (!Platform.isWindows) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
       // ignore: dead_code
     } else {
       // If you want to record a "non-fatal" exception
@@ -60,28 +64,32 @@ void main() async {
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
+    double screenWidth = 870;
+    double screenHeight = 600;
 
-    WindowOptions windowOptions = const WindowOptions(
-      title: "Spikerbot",
-      minimumSize: Size(800, 600),
-      size: Size(800, 600),
+    WindowOptions windowOptions = WindowOptions(
+      // title: "Spikerbot",
+      minimumSize: Size(screenWidth, screenHeight),
+      size: Size(screenWidth, screenHeight),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
     );
     if (Platform.isWindows) {
-      windowOptions = const WindowOptions(
-        title: "Spikerbot",
-        minimumSize: Size(800, 600),
-        size: Size(800, 600),
+      windowOptions = WindowOptions(
+        title: "SpikerBot",
+        minimumSize: Size(screenWidth, screenHeight),
+        size: Size(screenWidth, screenHeight),
         center: true,
         backgroundColor: Colors.transparent,
         skipTaskbar: false,
         titleBarStyle: TitleBarStyle.normal,
       );
     }
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
+
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setSize(Size(screenWidth, screenHeight));
       await windowManager.show();
       await windowManager.focus();
     });
@@ -99,6 +107,20 @@ class MyApp extends StatelessWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
+
+  static void logAnalytic(String eventName, map) {
+    try {
+      if (!Platform.isWindows) {
+        analytics.logEvent(
+          name: eventName,
+          parameters: map,
+        );
+      }
+    } catch (err) {
+      print("Error Analytic");
+      print(err);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

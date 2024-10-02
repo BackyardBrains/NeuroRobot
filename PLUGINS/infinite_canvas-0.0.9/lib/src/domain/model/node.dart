@@ -13,8 +13,10 @@ class InfiniteCanvasNode<T> {
     this.allowMove = true,
     this.clipBehavior = Clip.none,
     this.value,
+    this.isExcitatory = 1,
   });
 
+  int isExcitatory = 1;
   String get id => key.toString();
 
   LocalKey key;

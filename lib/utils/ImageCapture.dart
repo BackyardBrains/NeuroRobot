@@ -10,7 +10,7 @@ Future<bool> dataCaptureSave(map) async {
 }
 
 Future<bool> _dataCaptureSave(rawData) async {
-  String pathSeparator = "/"; // Platform.pathSeparator; //"/"; //
+  String pathSeparator = Platform.pathSeparator; //"/"; //
   if (Platform.isWindows) {
     pathSeparator = Platform.pathSeparator;
   }
@@ -26,8 +26,8 @@ Future<bool> _dataCaptureSave(rawData) async {
   const String singleFileName = "_InformationData";
 
   if (frameData.isNotEmpty) {
-    final File file =
-        File('$captureDirectoryPath$pathSeparator$strDateNow-$fileName.jpg');
+    final File file = File(
+        '$captureDirectoryPath${pathSeparator}spikerbot$pathSeparator$strDateNow-$fileName.jpg');
     // file.createSync();
     file.writeAsBytesSync(frameData);
   }
@@ -40,8 +40,8 @@ Future<bool> _dataCaptureSave(rawData) async {
   // }
 
   // if (torqueData.isNotEmpty) {
-  final File torqueFile =
-      File('$captureDirectoryPath$pathSeparator${singleFileName}.txt');
+  final File torqueFile = File(
+      '$captureDirectoryPath${pathSeparator}spikerbot$pathSeparator$singleFileName.txt');
   // torqueFile.createSync();
   torqueFile.writeAsStringSync(
       "$strDateNow-$fileName\r\n$serialData\r\n$torqueData\r\n",

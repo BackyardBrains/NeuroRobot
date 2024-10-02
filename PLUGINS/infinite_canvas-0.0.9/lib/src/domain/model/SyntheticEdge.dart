@@ -9,9 +9,10 @@ class Connection {
   // final int neuronKey2;
   double connectionStrength = 25;
   Path outlinePath;
+  int isExcitatory = 1;
 
   Connection(this.neuronIndex1, this.neuronIndex2, this.connectionStrength,
-      this.outlinePath);
+      this.outlinePath, this.isExcitatory);
 }
 
 class InputOutput {
