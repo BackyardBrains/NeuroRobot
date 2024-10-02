@@ -2,7 +2,7 @@
 #include <thread>
 
 struct Node {
-  short data;
+  double data;
   Node* prev;
   Node* next;
 };
@@ -31,7 +31,7 @@ class DoublyLinkedList {
     }
   }
 
-  void prepend(short data) {
+  void prepend(double data) {
     Node* new_node = new Node;
     new_node->data = data;
     new_node->prev = nullptr;
@@ -46,14 +46,14 @@ class DoublyLinkedList {
     }
   }
 
-  short pop_back() {
+  double pop_back() {
     if (head == nullptr) {
       // Handle empty list case
       return -1;
     }
 
     Node* node_to_delete = tail;
-    short data = node_to_delete->data;
+    double data = node_to_delete->data;
 
     if (head == tail) {
       head = tail = nullptr;
@@ -65,6 +65,7 @@ class DoublyLinkedList {
     delete node_to_delete;
     return data;
   }
+  
 };
 /* GuidedList
 /// @brief Guided list is a 
@@ -87,7 +88,6 @@ class GuidedList {
   double currentU = 0.0;
   // END OF RHYTMIC NEURON
 
-  DoublyLinkedList list;
   std::thread decayThread;
 
   double decayFactor = 1;
@@ -98,8 +98,25 @@ class GuidedList {
 
 
   void doWork() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(delayTime / 2));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(delayTime));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(delayTime / 2));
     // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    auto start = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    long long microseconds = 0;
+
+    long long remainingTime = delayTime;
+
+    while (microseconds/1000 < delayTime && !isInterrupted){
+      // if ( (remainingTime - (microseconds / 1000)) / 4 < 0) break;
+      std::this_thread::sleep_for(std::chrono::milliseconds( (remainingTime - (microseconds / 1000)) / 4 ));
+      elapsed = std::chrono::high_resolution_clock::now() - start;
+      microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+      remainingTime = remainingTime - microseconds / 1000;
+      if (microseconds < 30) break;
+    }
+
+
     if (isInterrupted){
       isInterrupted = false;
       mode = 0;
@@ -144,6 +161,10 @@ class GuidedList {
   }
 
  public:
+ // CHANGE TO PRIVATE
+  DoublyLinkedList list;
+  DoublyLinkedList valueList;
+
   GuidedList() {
     // list = nullptr;
     // startDelayThread();
@@ -153,9 +174,11 @@ class GuidedList {
     return list;
   }
   // GuidedList(DoublyLinkedList* list, short neuronType, bool isInhibitor) : list(list), neuronType(neuronType), isInhibitor(isInhibitor) {}
-  void setParameters(int idx, DoublyLinkedList* plist, short pneuronType, bool pisInhibited, short pdelayTime) {
+  void setParameters(int idx, DoublyLinkedList* plist, short pneuronType, bool pisInhibited, short pdelayTime, DoublyLinkedList* pdelayValueLinkedList) {
     neuronIdx = idx;
     list = plist[idx];
+    valueList = pdelayValueLinkedList[idx];
+    
     neuronType = pneuronType;
     isInhibited = pisInhibited;
     delayTime = pdelayTime;
@@ -171,6 +194,7 @@ class GuidedList {
   // 3 - thread delay finished
   long long prevTime;
   int listSize = 0;
+  int valueListSize = 0;
   bool isInterrupted = false;
   bool isDecayInterrupted = false;
   short delayTime = 1000;
@@ -192,6 +216,7 @@ class GuidedList {
   // Destructor to avoid memory leaks (assuming caller doesn't manage the list)
   ~GuidedList() {
     list.clear();
+    valueList.clear();
     // if (list != undefined){
     //   delete list;
     // }
@@ -200,20 +225,28 @@ class GuidedList {
     // }
   }
 
-  short getFront(){
+  double getFront(){
     return list.head->data;
   }
 
   // Add element to the front of the list
-  void push_front(short data) {
+  void push_front(double data) {
     list.prepend(data);
     listSize++;
   }
+  void push_value_front(double data) {
+    valueList.prepend(data);
+    valueListSize++;
+  }
 
   // Remove element from the back of the list and return its data
-  short pop_back() {
+  double pop_back() {
     listSize--;
     return list.pop_back();
+  }
+  double pop_value_back() {
+    valueListSize--;
+    return valueList.pop_back();
   }
 
   // Check if the list is empty
@@ -221,7 +254,7 @@ class GuidedList {
     return list.head == nullptr;
   }
 
-  short pushFrontPopBack(short data){
+  double pushFrontPopBack(double data){
     list.prepend(data);
     return list.pop_back();
   }
@@ -250,6 +283,7 @@ class GuidedList {
       isWaiting = 0;
       // clear
       list.clear();
+      valueList.clear();
       // decay inhibition
       applyDecaying();
       // isInhibited = false;
@@ -339,7 +373,9 @@ class GuidedList {
 // };
 
 GuidedList* guidedDelayList;
+
 DoublyLinkedList* delayLinkedList;
+DoublyLinkedList* delayValueLinkedList;
 
 // GuidedRhytmicList* guidedRhytmicList;
 // DoublyLinkedList* rhytmicLinkedList;

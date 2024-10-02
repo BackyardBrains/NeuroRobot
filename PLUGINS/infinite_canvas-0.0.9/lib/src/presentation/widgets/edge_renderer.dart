@@ -77,23 +77,6 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           ..strokeWidth = 2,
         builder: (brush, canvas, rect) {
           // List<InfiniteCanvasEdge> reciprocateList = [];
-          // controller.syntheticConnections.clear();
-          // in Stan code it create connections and then draw the neuron
-          if (refreshRetainer == 0) {
-            controller.syntheticConnections.clear();
-            // int start = DateTime.now().millisecondsSinceEpoch;
-            for (InfiniteCanvasEdge edge in controller.edges) {
-              addSyntheticConnection(
-                  edge.from, edge.to, edge.connectionStrength);
-            }
-            // int end = DateTime.now().millisecondsSinceEpoch;
-            // print("end - start");
-            // print(end - start);
-            // print("refresh build");
-          }
-          refreshRetainer++;
-          refreshRetainer %= 120;
-
           for (final edge in edges) {
             final from =
                 controller.nodes.firstWhere((node) => node.key == edge.from);
@@ -137,6 +120,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             //   //     from, to, fromIdx, toIdx, connectionStrength, canvas);
 
             // // this is the one working
+            controller.syntheticConnections.clear();
+            for (InfiniteCanvasEdge edge in controller.edges) {
+              addSyntheticConnection(edge.from, edge.to);
+            }
 
             // print("refresh retainer");
             // print(
@@ -941,11 +928,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     // final nodeTo = controller.nodes.firstWhere((node) => node.key == axonTo);
     double circleRadius = nodeFrom.syntheticNeuron.circleRadius;
 
-    int isExcitatory = nodeFrom.isExcitatory;
-
-    controller.syntheticConnections.add(
-        Connection(axonFrom, axonTo, connectionStrength, Path(), isExcitatory));
-    // print("Add Synthetic Connection ${controller.syntheticConnections.length}");
+    controller.syntheticConnections
+        .add(Connection(axonFrom, axonTo, 25.0, Path()));
+    // print("Add Synthetic Connection ${syntheticConnections.length}");
     // for (int i = syntheticNeurons.length - 1;
     for (int i = 0; i < syntheticNeurons.length; i++) {
       Neuron syntheticRawNeuron = syntheticNeurons[i].newNeuron;
