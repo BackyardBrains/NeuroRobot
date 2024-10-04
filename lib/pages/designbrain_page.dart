@@ -10,11 +10,11 @@ import 'dart:typed_data';
 // import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:animated_battery_gauge/battery_gauge.dart';
 import 'package:another_xlider/another_xlider.dart';
+import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -22,16 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
-import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 import 'package:metooltip/metooltip.dart';
@@ -51,7 +48,6 @@ import 'package:neurorobot/ai/utils/StatsWidget.dart';
 // import 'package:nativec/nativec.dart';
 import 'package:neurorobot/bloc/bloc.dart';
 import 'package:neurorobot/components/left_toolbar.dart';
-import 'package:neurorobot/components/left_toolbar.dart';
 import 'package:neurorobot/dialogs/load_brain.dart';
 import 'package:neurorobot/dialogs/save_brain.dart';
 import 'package:neurorobot/utils/Allocator.dart';
@@ -68,7 +64,6 @@ import 'package:url_launcher/url_launcher.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:neurorobot/components/right_toolbar.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import '../dialogs/info_dialog.dart';
 
@@ -107,7 +102,6 @@ bool isCheckingImage = false;
 bool isCheckingColor = false;
 
 class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
-class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   // STEVE AI
   static Detector? detector;
   StreamSubscription? _imageDetectorSubscription;
@@ -142,7 +136,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   static late SendPort isolateWritePort;
   bool isIsolateWritePortInitialized = false;
   bool isReceivingCalculation = true;
-  bool isReceivingCalculation = true;
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
@@ -170,6 +163,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   bool isSpeakerMenu = false;
   bool isLedMenu = false;
 
+  Color colorOrange = const Color(0XFFFD8164);
+  Color colorGreen = const Color(0XFF18a953);
   String neuronMenuType = "Quiet";
   List<String> neuronTypesLabel = [
     "Quiet",
@@ -232,7 +227,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     "Short",
     "Medium",
     "Long",
-    "Custom",
     "Custom",
   ];
   late List<DropdownMenuItem> dropdownDistanceItems;
@@ -305,8 +299,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   late ffi.Pointer<ffi.Double> distanceBuf;
   late ffi.Pointer<ffi.Int16> distanceMinLimitBuf;
   late ffi.Pointer<ffi.Int16> distanceMaxLimitBuf;
-  late ffi.Pointer<ffi.Int16> distanceMinLimitBuf;
-  late ffi.Pointer<ffi.Int16> distanceMaxLimitBuf;
 
   late ffi.Pointer<ffi.Int16> mapNeuronTypeBuf;
   late ffi.Pointer<ffi.Int16> mapDelayNeuronBuf;
@@ -340,8 +332,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   late Int16List neuronLedBufView = Int16List(0);
   late Int16List neuronLedPositionBufView = Int16List(0);
   late Float64List distanceBufView = Float64List(0);
-  late Int16List distanceMinLimitBufView = Int16List(0);
-  late Int16List distanceMaxLimitBufView = Int16List(0);
   late Int16List distanceMinLimitBufView = Int16List(0);
   late Int16List distanceMaxLimitBufView = Int16List(0);
 
@@ -423,7 +413,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   int bufPositionCount = 1;
   int bufDistanceCount = 1;
   int bufDistanceLimitCount = 100;
-  int bufDistanceLimitCount = 100;
 
   late ImagePreprocessor processor;
 
@@ -444,7 +433,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   late Widget mainBody;
 
   double prevTransformScale = 1;
-  Debouncer debouncerActiveArea = Debouncer(milliseconds: 77);
   Debouncer debouncerActiveArea = Debouncer(milliseconds: 77);
   Debouncer debouncerSnapNeuron = Debouncer(milliseconds: 3);
   Debouncer debouncerAIClassification = Debouncer(milliseconds: 300);
@@ -555,7 +543,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   bool isShowDelayTime = false;
   int maxDelayTimeValue = 5000;
-  int minDelayTimeValue = 100;
   int minDelayTimeValue = 100;
 
   late List<int> mapDelayNeuronList = [];
@@ -697,6 +684,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   List<bool> aiPositionFlags = List<bool>.generate(22, (idx) => false);
 
   String selectedCameraRegion = "";
+
+  bool isPlayingMode = false;
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -844,7 +833,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
       nativec = Nativec();
       nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf);
-      nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf);
       nativec.passPointers(
         Nativec.canvasBuffer1!,
         positionsBuf,
@@ -876,10 +864,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       printDebug(neuronCircleBridge.length);
       positionsBufView = positionsBuf.asTypedList(bufPositionCount);
       distanceBufView = distanceBuf.asTypedList(bufDistanceCount);
-      distanceMinLimitBufView =
-          distanceMinLimitBuf.asTypedList(bufDistanceLimitCount);
-      distanceMaxLimitBufView =
-          distanceMaxLimitBuf.asTypedList(bufDistanceLimitCount);
       distanceMinLimitBufView =
           distanceMinLimitBuf.asTypedList(bufDistanceLimitCount);
       distanceMaxLimitBufView =
@@ -927,11 +911,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // }
     positionsBufView.fillRange(0, 1, 0);
     distanceBufView.fillRange(0, 1, 0);
-    distanceMinLimitBufView.fillRange(0, bufDistanceLimitCount, 1);
-    distanceMaxLimitBufView.fillRange(0, bufDistanceLimitCount, 8);
-    // distanceLimitBufView[0] = 1;
-    // distanceLimitBufView[1] = 8;
-
     distanceMinLimitBufView.fillRange(0, bufDistanceLimitCount, 1);
     distanceMaxLimitBufView.fillRange(0, bufDistanceLimitCount, 8);
     // distanceLimitBufView[0] = 1;
@@ -1072,7 +1051,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   Map mapContactsNeuron = {};
   Map mapDistanceNeuron = {}; // dist prefs
   Map mapDistanceLimitNeuron = {}; // dist limit prefs
-  Map mapDistanceLimitNeuron = {}; // dist limit prefs
   Map mapSpeakerNeuron = {};
   Map mapMicrophoneNeuron = {};
   Map mapLedNeuron = {};
@@ -1081,11 +1059,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   List<UniqueKey> neuronsKey = [];
   List<UniqueKey> axonsKey = [];
-
-  Offset constraintOffsetTopLeftRaw = const Offset(300, 170);
-  Offset constraintOffsetTopRightRaw = const Offset(500, 170);
-  Offset constraintOffsetBottomRightRaw = const Offset(500, 430);
-  Offset constraintOffsetBottomLeftRaw = const Offset(300, 430);
 
   Offset constraintOffsetTopLeftRaw = const Offset(300, 170);
   Offset constraintOffsetTopRightRaw = const Offset(500, 170);
@@ -1108,8 +1081,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       allowResize: false,
       // offset: const Offset(800, 600),
       offset: const Offset(0, 0),
-      // offset: const Offset(800, 600),
-      offset: const Offset(0, 0),
       size: const Size(0, 0),
       child: const SizedBox(
         width: 0,
@@ -1120,11 +1091,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     value: 0,
     allowMove: false,
     allowResize: false,
-    // @New Design
-    // offset: const Offset(395, 150),
-    // offset: const Offset(220, 120),
-    offset: const Offset(0, 0),
-
     // @New Design
     // offset: const Offset(395, 150),
     // offset: const Offset(220, 120),
@@ -1145,11 +1111,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // offset: const Offset(410, 100),
     offset: const Offset(0, 0),
 
-    // @New Design
-    // offset: const Offset(320, 150),
-    // offset: const Offset(410, 100),
-    offset: const Offset(0, 0),
-
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.black),
   );
@@ -1158,11 +1119,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     value: 2,
     allowMove: false,
     allowResize: false,
-    // @New Design
-    // offset: const Offset(470, 150),
-    // size: const Size(20, 20),
-    offset: const Offset(0, 0),
-    size: const Size(0, 0),
     // @New Design
     // offset: const Offset(470, 150),
     // size: const Size(20, 20),
@@ -1192,10 +1148,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // offset: const Offset(523, 217),
     // offset: const Offset(535, 495),
     offset: const Offset(0, 0),
-    // @New Design
-    // offset: const Offset(523, 217),
-    // offset: const Offset(535, 495),
-    offset: const Offset(0, 0),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.black),
   );
@@ -1209,10 +1161,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // offset: const Offset(243, 310),
     // offset: const Offset(173, 240),
     offset: const Offset(0, 0),
-    // @New Design
-    // offset: const Offset(243, 310),
-    // offset: const Offset(173, 240),
-    offset: const Offset(0, 0),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.black),
   );
@@ -1221,10 +1169,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     value: 6,
     allowMove: false,
     allowResize: false,
-    // @New Design
-    // offset: const Offset(547, 310),
-    // offset: const Offset(610, 280),
-    offset: const Offset(0, 0),
     // @New Design
     // offset: const Offset(547, 310),
     // offset: const Offset(610, 280),
@@ -1242,10 +1186,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // offset: const Offset(240, 405),
     // offset: const Offset(170, 350),
     offset: const Offset(0, 0),
-    // @New Design
-    // offset: const Offset(240, 405),
-    // offset: const Offset(170, 350),
-    offset: const Offset(0, 0),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.black),
   );
@@ -1254,10 +1194,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     value: 8,
     allowMove: false,
     allowResize: false,
-    // @New Design
-    // offset: const Offset(550, 405),
-    // offset: const Offset(600, 390),
-    offset: const Offset(0, 0),
     // @New Design
     // offset: const Offset(550, 405),
     // offset: const Offset(600, 390),
@@ -1273,8 +1209,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     allowResize: false,
     // offset: const Offset(320, 457),
     offset: const Offset(0, 0),
-    // offset: const Offset(320, 457),
-    offset: const Offset(0, 0),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: Colors.red),
   );
@@ -1285,8 +1219,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     allowResize: false,
     // offset: const Offset(395, 437),
     offset: const Offset(0, 0),
-    // offset: const Offset(395, 437),
-    offset: const Offset(0, 0),
     size: const Size(20, 20),
     child: Container(width: 15, height: 15, color: const Color(0xFF18A953)),
   );
@@ -1295,8 +1227,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     value: 11,
     allowMove: false,
     allowResize: false,
-    // offset: const Offset(470, 457),
-    offset: const Offset(0, 0),
     // offset: const Offset(470, 457),
     offset: const Offset(0, 0),
     size: const Size(20, 20),
@@ -1310,24 +1240,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   double aspectRatio = 1.0;
   double prevScreenWidth = 870.0;
-  double prevScreenWidth = 870.0;
   double prevScreenHeight = 600.0;
-  double screenWidth = 870.0;
   double screenWidth = 870.0;
   double screenHeight = 600.0;
 
-  double initialWindowWidth = 870.0;
-  double initialWindowHeight = 600.0;
-  Size initialMinimumSize = const Size(600, 600);
-
-  double prevWindowWidth = 870.0;
-  double prevWindowHeight = 600.0;
-  double windowWidth = 870.0;
-  double windowHeight = 600.0;
-
-  double currentImageWidth = 600.0;
-  double currentImageHeight = 600.0;
-  // double screenDensity = 1.0;
+  double initialFrameGapWidth = 870.0;
+  double initialFrameGapHeight = 600.0;
+  double currentFrameGapWidth = 870.0;
+  double currentFrameGapHeight = 600.0;
 
   double initialWindowWidth = 870.0;
   double initialWindowHeight = 600.0;
@@ -1358,28 +1278,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   @override
   void dispose() async {
     windowManager.removeListener(this);
-  void dispose() async {
-    windowManager.removeListener(this);
     detector?.stop();
     _imageDetectorSubscription?.cancel();
 
     printDebug("DISPOSEEE");
     freeUsedMemory();
-    tecAWeight.dispose();
-    tecBWeight.dispose();
-    tecCWeight.dispose();
-    tecDWeight.dispose();
-    tecFrequencyWeight.dispose();
-    tecSynapticWeight.dispose();
-    tecTimeValue.dispose();
-    tecBrainDescription.dispose();
-    tecBrainName.dispose();
-    await windowManager
-        .setSize(Size(initialWindowWidth, initialWindowHeight))
-        .then((value) {});
-    super.dispose();
-
-    // ignore: avoid_print
     tecAWeight.dispose();
     tecBWeight.dispose();
     tecCWeight.dispose();
@@ -1728,6 +1631,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   @override
   void onWindowUnmaximize() {
     repositionContactNeurons();
+
     controller.dropTargets = (getDragTargets());
     // Future.delayed(const Duration(microseconds: 300), () {
     setState(() {});
@@ -1815,7 +1719,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     initImageDetector();
-
 
     if (Platform.isIOS || Platform.isAndroid) {
       neuronDrawSize = 20;
@@ -1988,7 +1891,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           printDebug(err);
         }
         */
-        */
       }
     });
   }
@@ -2007,15 +1909,53 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     if (isInitialized) {
     } else {
-      if (Platform.isIOS || Platform.isAndroid || Platform.isWindows) {
+      // default image size for platforms that has width more bigger than height
+      if (Platform.isWindows) {
         initialWindowWidth = 870;
         initialWindowHeight = 600;
+      } else if (Platform.isIOS || Platform.isAndroid) {
+        initialWindowWidth = 870;
+        initialWindowHeight = 600;
+        // Size initialImageSize = initialMinimumSize;
+        // if (Platform.isIOS || Platform.isAndroid) {
+        //   double minimumSize = min(MediaQuery.of(context).size.width,
+        //       MediaQuery.of(context).size.height);
+        //   // initialImageSize = Size(minimumSize, minimumSize);
+        //   initialMinimumSize = Size(minimumSize, minimumSize);
+        // }
+        // printDebug("initialMinimumSize1");
+        // printDebug(initialMinimumSize);
+
+        // initialWindowWidth = initialImageSize.width;
+        // initialWindowHeight = initialImageSize.height;
+        // final Size containerSize = Size(initialWindowWidth,
+        //     initialWindowHeight); // Replace with your container size
+
+        // // Size initialImageSize = const Size(600, 600);
+
+        // final fittedSizes =
+        //     applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
+        // initialMinimumSize =
+        //     Size(fittedSizes.destination.width, fittedSizes.destination.height);
+        // printDebug("initialMinimumSize2");
+        // printDebug(initialMinimumSize);
+        // printDebug(initialWindowWidth);
+        // printDebug(initialWindowHeight);
+
+        // initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+        // initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
+        // currentFrameGapWidth = initialFrameGapWidth;
+        // currentFrameGapHeight = initialFrameGapHeight;
       } else {
         initialWindowWidth = MediaQuery.of(context).size.width;
         initialWindowHeight = MediaQuery.of(context).size.height;
         double minimumSize = min(initialWindowWidth, initialWindowHeight);
         initialMinimumSize = Size(minimumSize, minimumSize);
         viewPortNode.update(offset: Offset(screenWidth, screenHeight));
+        initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+        initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
+        currentFrameGapWidth = initialFrameGapWidth;
+        currentFrameGapHeight = initialFrameGapHeight;
       }
     }
 
@@ -2033,8 +1973,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       repositionContactNeurons();
       centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
           currentImageHeight / 3 + neuronDrawSize);
-      printDebug("centerZoneOffset");
-      printDebug(centerZoneOffset);
+      // printDebug("centerZoneOffset");
+      // printDebug(centerZoneOffset);
 
       if (!kIsWeb) {
         // WaveWidget.positionsBufView = positionsBufView;
@@ -2064,15 +2004,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // }
     // STEVANUS :
     // remove this
-    // }
-    // STEVANUS :
-    // remove this
     if (isResizingFlag) {
       centerZoneOffset = Offset(initialWindowWidth / 3 + neuronDrawSize,
           initialWindowHeight / 2 + neuronDrawSize);
 
-      printDebug(
-          "isResizingFlag ${MediaQuery.of(context).size.width} ${MediaQuery.of(context).size.height}");
       // initialWindowWidth = MediaQuery.of(context).size.width;
       // initialWindowHeight = MediaQuery.of(context).size.height;
       // double minimumSize = min(initialWindowWidth, initialWindowHeight);
@@ -2102,12 +2037,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
       // Future.delayed(const Duration(milliseconds: 1000), () {
       repositionContactNeurons();
-      int idx = 0;
-      // Future.delayed(const Duration(milliseconds: 1000), () {
-      repositionContactNeurons();
+      currentFrameGapWidth =
+          MediaQuery.of(context).size.width - currentImageWidth;
+      currentFrameGapHeight =
+          MediaQuery.of(context).size.height - currentImageHeight;
+      // printDebug(
+      //     "isResizingFlag ${MediaQuery.of(context).size.width} ${MediaQuery.of(context).size.height} :::: $initialFrameGapWidth - $initialFrameGapHeight @@@@@ $currentFrameGapWidth-$currentFrameGapHeight !!!!!");
+
       int idx = 0;
       for (var element in controller.nodes) {
-        if (idx > 13) {
         if (idx > 13) {
           element.offset = element.offset.scale(scaleX, scaleY);
         }
@@ -2165,17 +2103,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         // });
         setState(() {});
       }
-      if (isDrawTail) {
-        isDrawTail = false;
-      }
-    } else {
-      if (isInitialized) {
-        // Future.delayed(const Duration(milliseconds: 100), () {
-        controller.dropTargets.clear();
-        controller.dropTargets.addAll(getDragTargets());
-        // });
-        setState(() {});
-      }
     }
 
     List<Widget> widgets = [];
@@ -2202,14 +2129,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           ),
         ));
       }
+      Offset pan = controller
+          .getOffset()
+          .scale(1 / controller.getScale(), 1 / controller.getScale());
+      // printDebug("zpan");
+      // printDebug(pan);
       for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
         SingleNeuron neuron = protoNeuron.circles[i];
         widgets.add(Positioned(
-          top: neuron.centerPos.dy,
-          left: neuron.centerPos.dx - 60,
+          top: neuron.centerPos.dy - pan.dy,
+          left: neuron.centerPos.dx - pan.dx,
           child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
             onTap: () {
               nativec.changeIdxSelected(i);
+              controller.deselectAll();
+              controller.select(controller.nodes[i + 2].key);
 
               isChartSelected = true;
             },
@@ -2237,29 +2172,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     //   String.fromCharCode(0x1F9E0),
     //   style: const TextStyle(fontFamily: "BybHanddrawn"),
     // );
-    // mainBody = Text(
-    //   // String.fromCharCode(0x1F48E),
-    //   String.fromCharCode(0x1F9E0),
-    //   style: const TextStyle(fontFamily: "BybHanddrawn"),
-    // );
     mainBody = !isInitialized
         ? const SizedBox()
         : prepareWidget(
             InfiniteCanvas(
-              activeComponent: (ctx, r) {
-                return Container(
-                  color: Colors.transparent,
-                  width: screenWidth,
-                  height: screenHeight,
-                  child: SvgPicture.asset(
-                      width: screenWidth,
-                      height: screenHeight,
-                      fit: BoxFit.contain,
-                      // @New Design
-                      mapBg["activeComponent"]!),
-                  // "assets/bg/BrainDrawings/BrainFullGrey.svg"),
-                );
-              },
               activeComponent: (ctx, r) {
                 return Container(
                   color: Colors.transparent,
@@ -2429,7 +2345,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         Positioned(
             top: 20,
             right: 20,
-            right: 20,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -2598,7 +2513,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: colorOrange,
                                   showValueIndicator: ShowValueIndicator.never,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 15),
+                                  trackHeight: 15,
                                 ),
                                 child: Slider(
                                   value: sldAWeight,
@@ -2666,7 +2586,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: colorOrange,
                                   showValueIndicator: ShowValueIndicator.never,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 15),
+                                  trackHeight: 15,
                                 ),
                                 child: Slider(
                                   value: sldBWeight,
@@ -2738,7 +2663,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: colorOrange,
                                   showValueIndicator: ShowValueIndicator.never,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 15),
+                                  trackHeight: 15,
                                 ),
                                 child: Slider(
                                   value: sldCWeight,
@@ -2809,7 +2739,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: colorOrange,
                                   showValueIndicator: ShowValueIndicator.never,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 15),
+                                  trackHeight: 15,
                                 ),
                                 child: Slider(
                                   value: sldDWeight,
@@ -2873,7 +2808,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             Expanded(
                               child: SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
+                                  activeTrackColor: colorOrange,
                                   showValueIndicator: ShowValueIndicator.never,
+                                  thumbColor: Colors.white,
+                                  thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 15),
+                                  trackHeight: 15,
                                 ),
                                 child: Slider(
                                   value: sldTimeValue,
@@ -2943,7 +2883,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 22, 0),
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                         child: Text(
                           "Select Camera Target and Area",
                           // activeCameraType,
@@ -3002,56 +2942,74 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               child: const Text("Custom")),
                         ],
                       ),
-                      Row(children: [
-                        Column(
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.max,
                           children: [
-                            const Text("Target",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.black,
-                                )),
-                            generateTargetWidgets({
-                              "icon": selectedEyeInfo["icon"],
-                              "label": selectedEyeInfo["label"],
-                              "idx": selectedEyeInfo["idx"]
-                            }, 0),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            const Text("Active Area",
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.black,
-                                )),
-                            const SizedBox(
-                              height: 5,
+                            SizedBox(
+                              width: 170,
+                              height: 170,
+                              child: Column(
+                                children: [
+                                  const Text("Target",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.black,
+                                      )),
+                                  const SizedBox(height: 10),
+                                  generateTargetWidgets({
+                                    "icon": selectedEyeInfo["icon"],
+                                    "label": selectedEyeInfo["label"],
+                                    "idx": selectedEyeInfo["idx"]
+                                  }, 0),
+                                ],
+                              ),
                             ),
-                            if (selectedCameraPosition == "Left") ...[
-                              generateCameraArea(true, false, false, false)
-                            ],
-                            if (selectedCameraPosition == "Right") ...[
-                              generateCameraArea(false, true, false, false)
-                            ],
-                            if (selectedCameraPosition == "Any") ...[
-                              generateCameraArea(false, false, true, false)
-                            ],
-                            if (selectedCameraPosition == "Custom") ...[
-                              generateCameraArea(false, false, false, true)
-                            ],
-                            // generateRightArea(),
-                          ],
-                        ),
-                      ]),
+                            SizedBox(
+                              width: 180,
+                              height: 170,
+                              child: Column(
+                                children: [
+                                  const Text("Active Area",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.black,
+                                      )),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  if (selectedCameraPosition == "Left") ...[
+                                    generateCameraArea(
+                                        true, false, false, false)
+                                  ],
+                                  if (selectedCameraPosition == "Right") ...[
+                                    generateCameraArea(
+                                        false, true, false, false)
+                                  ],
+                                  if (selectedCameraPosition == "Any") ...[
+                                    generateCameraArea(
+                                        false, false, true, false)
+                                  ],
+                                  if (selectedCameraPosition == "Custom") ...[
+                                    generateCameraArea(
+                                        false, false, false, true)
+                                  ],
+                                  // generateRightArea(),
+                                ],
+                              ),
+                            ),
+                          ]),
                       if (selectedCameraPosition == "Custom") ...[
                         const Text("Active Area Size",
                             style: TextStyle(fontSize: 17)),
                         SizedBox(
-                          width: MediaQuery.of(context).size.width / 3,
+                          // width: MediaQuery.of(context).size.width / 3,
+                          width: 350,
                           child: Row(mainAxisSize: MainAxisSize.max, children: [
                             SizedBox(
                               width: 40,
-                              height: 20,
+                              height: 15,
                               child: TextField(
                                 textAlign: TextAlign.center,
                                 controller: txtAreaSizeMinController,
@@ -3105,7 +3063,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               width: 3,
                             ),
                             SizedBox(
-                              width: 200,
+                              width: 260,
                               child: FlutterSlider(
                                 values: [
                                   // 1,
@@ -3116,6 +3074,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 rangeSlider: true,
                                 min: minAreaSizeSlider,
                                 max: maxAreaSizeSlider,
+                                rightHandler: FlutterSliderHandler(
+                                  child: const Icon(
+                                    Icons.chevron_left,
+                                    color: Colors.grey,
+                                    size: 24,
+                                  ),
+                                ),
                                 trackBar: FlutterSliderTrackBar(
                                   inactiveTrackBarHeight: 20,
                                   activeTrackBarHeight: 20,
@@ -3128,7 +3093,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   ),
                                   activeTrackBar: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4),
-                                    color: const Color(0XFFFD8164),
+                                    color: colorOrange,
                                   ),
                                 ),
                                 onDragging:
@@ -3155,7 +3120,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             ),
                             SizedBox(
                               width: 40,
-                              height: 20,
+                              height: 15,
                               child: TextField(
                                 textAlign: TextAlign.center,
                                 controller: txtAreaSizeMaxController,
@@ -3201,23 +3166,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           ]),
                         ),
                       ],
-                      DropdownButton(
-                        alignment: Alignment.centerRight,
-                        style: const TextStyle(
-                          fontSize: 17.0,
-                          color: Colors.black,
-                        ),
-                        underline: Container(
-                          height: 1,
-                        ),
-                        value: cameraMenuType,
-                        items: dropdownCameraItems,
-                        onChanged: (value) {
-                          cameraMenuType = value;
-                          linkSensoryConnection(cameraMenuType);
-                          setState(() {});
-                        },
-                      ),
+                      // DropdownButton(
+                      //   alignment: Alignment.centerRight,
+                      //   style: const TextStyle(
+                      //     fontSize: 17.0,
+                      //     color: Colors.black,
+                      //   ),
+                      //   underline: Container(
+                      //     height: 1,
+                      //   ),
+                      //   value: cameraMenuType,
+                      //   items: dropdownCameraItems,
+                      //   onChanged: (value) {
+                      //     cameraMenuType = value;
+                      //     linkSensoryConnection(cameraMenuType);
+                      //     setState(() {});
+                      //   },
+                      // ),
                       !isShowingInfo
                           ? const SizedBox()
                           : Row(
@@ -3248,7 +3213,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                   width: 10,
                                   height: 10,
                                 ),
-                                const Text("Active Area Size"),
                                 const SizedBox(
                                   width: 10,
                                   height: 10,
@@ -3472,7 +3436,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 ),
                                 activeTrackBar: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4),
-                                    color: const Color(0xFF18A953)),
+                                    color: colorOrange),
                               ),
                               onDragging:
                                   (handlerIndex, lowerValue, upperValue) {
@@ -3631,7 +3595,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       inlineWidgets.add(
         Positioned(
             right: 20,
-            right: 20,
             top: 20,
             child: Card(
               child: Padding(
@@ -3672,7 +3635,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           Expanded(
                             child: SliderTheme(
                               data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: colorOrange,
                                 showValueIndicator: ShowValueIndicator.never,
+                                thumbColor: Colors.white,
+                                thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 15),
+                                trackHeight: 15,
                               ),
                               child: Slider(
                                 value: sldFrequencyWeight,
@@ -3715,7 +3683,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         Positioned(
             top: 20,
             right: 20,
-            right: 20,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -3756,7 +3723,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           Expanded(
                             child: SliderTheme(
                               data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: colorOrange,
                                 showValueIndicator: ShowValueIndicator.never,
+                                thumbColor: Colors.white,
+                                thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 15),
+                                trackHeight: 15,
                               ),
                               child: Slider(
                                 value: sldSynapticWeight,
@@ -3798,7 +3770,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         Positioned(
             top: 20,
             right: 20,
-            right: 20,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -3837,7 +3808,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           Expanded(
                             child: SliderTheme(
                               data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: colorOrange,
                                 showValueIndicator: ShowValueIndicator.never,
+                                thumbColor: Colors.white,
+                                thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 15),
+                                trackHeight: 15,
                               ),
                               child: Slider(
                                 value: sldSynapticWeight,
@@ -3871,6 +3847,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       children: [
                         Column(children: [
                           Checkbox(
+                              activeColor: colorOrange,
                               value: isActiveLeds[0] == "1",
                               onChanged: (flag) {
                                 if (flag!) {
@@ -3890,7 +3867,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
                                 setState(() {});
                               }),
+                          const SizedBox(height: 25),
                           Checkbox(
+                              activeColor: colorOrange,
                               value: isActiveLeds[2] == "1",
                               onChanged: (flag) {
                                 if (flag!) {
@@ -3911,9 +3890,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                                 setState(() {});
                               }),
                         ]),
-                        const Icon(Icons.access_alarm),
+                        const Text(
+                          "🧠",
+                          style: TextStyle(
+                              fontFamily: "BybHanddrawn", fontSize: 27),
+                        ),
                         Column(children: [
                           Checkbox(
+                              activeColor: colorOrange,
                               value: isActiveLeds[1] == "1",
                               onChanged: (flag) {
                                 if (flag!) {
@@ -3933,7 +3917,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
                                 setState(() {});
                               }),
+                          const SizedBox(height: 25),
                           Checkbox(
+                              activeColor: colorOrange,
                               value: isActiveLeds[3] == "1",
                               onChanged: (flag) {
                                 if (flag!) {
@@ -3973,7 +3959,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   side: const BorderSide(color: Colors.transparent)),
-              backgroundColor: const Color(0xFFEF5B5C),
+              backgroundColor: colorOrange,
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
             ),
             onPressed: () {
@@ -4134,31 +4120,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         iconSaveRight = 75;
       }
       bottomRightMenuWidgets = [];
-      bottomRightMenuWidgets.add(Positioned(
-          bottom: iconBottom,
-          // right: 220,
-          right: iconInfoRight,
-          child: ElevatedButton(
-            onPressed: () {
-              isShowingInfo = !isShowingInfo;
-              printDebug("mapConnectome");
-              printDebug(mapConnectome);
-              setState(() {});
-            },
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(10),
-              elevation: 5,
-              shadowColor: Colors.grey.withOpacity(0.5),
-            ),
-            child: SvgPicture.asset(
-              !isShowingInfo
-                  ? "assets/icons/InfoDisabled.svg"
-                  : "assets/icons/Info.svg",
-              width: iconWidth,
-              height: iconHeight,
-            ),
-          )));
+      // bottomRightMenuWidgets.add(Positioned(
+      //     bottom: iconBottom,
+      //     // right: 220,
+      //     right: iconInfoRight,
+      //     child: ElevatedButton(
+      //       onPressed: () {
+      //         isShowingInfo = !isShowingInfo;
+      //         printDebug("mapConnectome");
+      //         printDebug(mapConnectome);
+      //         setState(() {});
+      //       },
+      //       style: ElevatedButton.styleFrom(
+      //         shape: const CircleBorder(),
+      //         padding: const EdgeInsets.all(10),
+      //         elevation: 5,
+      //         shadowColor: Colors.grey.withOpacity(0.5),
+      //       ),
+      //       child: SvgPicture.asset(
+      //         !isShowingInfo
+      //             ? "assets/icons/InfoDisabled.svg"
+      //             : "assets/icons/Info.svg",
+      //         width: iconWidth,
+      //         height: iconHeight,
+      //       ),
+      //     )));
       // bottomRightMenuWidgets.add(Positioned(
       //     bottom: 15,
       //     right: 150,
@@ -4176,42 +4162,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       //         height: 53,
       //       ),
       //     )));
-      bottomRightMenuWidgets.add(Positioned(
-          bottom: iconBottom,
-          right: iconSaveRight,
-          child: ElevatedButton(
-            onPressed: () async {
-              if (pMapStatus["currentFilename"] == "-") {
-                isSavingBrain = 1;
-                pMapStatus["isSavingBrain"] = isSavingBrain;
-                pMapStatus["currentFileName"] = "-";
-              } else {
-                if (pMapStatus["currentFileName"] != "-") {}
-                // isSavingBrain == 10 - Saved
-                // isSavingBrain == 1 - Default
-                // isSavingBrain == 2 - There is a change in the design
-              }
-              await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
-                  saveCurrentBrain, pMapStatus);
-              Future.delayed(const Duration(milliseconds: 1200), () {
-                // menuIdx = 0;
-                rightToolbarKey = UniqueKey();
-                rightToolbarCallback({"menuIdx": 0});
-                setState(() {});
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(10),
-              elevation: 5,
-              shadowColor: Colors.grey.withOpacity(0.5),
-            ),
-            child: SvgPicture.asset(
-              "assets/icons/Save.svg",
-              width: iconWidth,
-              height: iconHeight,
-            ),
-          )));
+      // bottomRightMenuWidgets.add(Positioned(
+      //     bottom: iconBottom,
+      //     right: iconSaveRight,
+      //     child: ElevatedButton(
+      //       onPressed: () async {
+      //         if (pMapStatus["currentFilename"] == "-") {
+      //           isSavingBrain = 1;
+      //           pMapStatus["isSavingBrain"] = isSavingBrain;
+      //           pMapStatus["currentFileName"] = "-";
+      //         } else {
+      //           if (pMapStatus["currentFileName"] != "-") {}
+      //           // isSavingBrain == 10 - Saved
+      //           // isSavingBrain == 1 - Default
+      //           // isSavingBrain == 2 - There is a change in the design
+      //         }
+      //         await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
+      //             saveCurrentBrain, pMapStatus);
+      //         Future.delayed(const Duration(milliseconds: 1200), () {
+      //           // menuIdx = 0;
+      //           rightToolbarKey = UniqueKey();
+      //           rightToolbarCallback({"menuIdx": 0});
+      //           setState(() {});
+      //         });
+      //       },
+      //       style: ElevatedButton.styleFrom(
+      //         shape: const CircleBorder(),
+      //         padding: const EdgeInsets.all(10),
+      //         elevation: 5,
+      //         shadowColor: Colors.grey.withOpacity(0.5),
+      //       ),
+      //       child: SvgPicture.asset(
+      //         "assets/icons/Save.svg",
+      //         width: iconWidth,
+      //         height: iconHeight,
+      //       ),
+      //     )));
 
       // bottomRightMenuWidgets.add(Positioned(
       //     bottom: 85,
@@ -4354,68 +4340,111 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     });
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          shape: const CircleBorder(),
-          hoverElevation: 1,
-          elevation: 0,
-          shape: const CircleBorder(),
-          hoverElevation: 1,
-          elevation: 0,
-          onPressed: () {
-            if (isPreventPlayClick) return;
-            isEmergencyPause = !isEmergencyPause;
-            if (!isEmergencyPause) {
-              rightToolbarCallback({"menuIdx": 7});
-              Future.delayed(const Duration(milliseconds: 100), () {
-                menuIdx = 0;
-                controller.isInteractable = true;
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            shape: const CircleBorder(),
+            hoverElevation: 1,
+            elevation: 0,
+            onPressed: () {
+              isShowingInfo = !isShowingInfo;
+              printDebug("mapConnectome");
+              printDebug(mapConnectome);
+              setState(() {});
+            },
+            child: SvgPicture.asset(
+              !isShowingInfo
+                  ? "assets/icons/InfoDisabled.svg"
+                  : "assets/icons/Info.svg",
+            ),
+          ),
+          if (!isSimulatingBrain) ...[
+            const SizedBox(width: 10),
+            FloatingActionButton(
+              shape: const CircleBorder(),
+              hoverElevation: 1,
+              elevation: 0,
+
+              onPressed: () async {
+                if (pMapStatus["currentFilename"] == "-") {
+                  isSavingBrain = 1;
+                  pMapStatus["isSavingBrain"] = isSavingBrain;
+                  pMapStatus["currentFileName"] = "-";
+                } else {
+                  if (pMapStatus["currentFileName"] != "-") {}
+                  // isSavingBrain == 10 - Saved
+                  // isSavingBrain == 1 - Default
+                  // isSavingBrain == 2 - There is a change in the design
+                }
+                await showLoadBrainDialog(context, "Load Brain",
+                    selectSavedBrain, saveCurrentBrain, pMapStatus);
+                Future.delayed(const Duration(milliseconds: 1200), () {
+                  // menuIdx = 0;
+                  rightToolbarKey = UniqueKey();
+                  rightToolbarCallback({"menuIdx": 0});
+                  setState(() {});
+                });
+              },
+              // style: ElevatedButton.styleFrom(
+              //   shape: const CircleBorder(),
+              //   padding: const EdgeInsets.all(10),
+              //   elevation: 5,
+              //   shadowColor: Colors.grey.withOpacity(0.5),
+              // ),
+              child: SvgPicture.asset(
+                "assets/icons/Save.svg",
+                // width: iconWidth,
+                // height: iconHeight,
+              ),
+            ),
+          ],
+          const SizedBox(width: 10),
+          FloatingActionButton(
+              shape: const CircleBorder(),
+              hoverElevation: 1,
+              elevation: 0,
+              onPressed: () {
+                if (isPreventPlayClick) return;
+                isEmergencyPause = !isEmergencyPause;
+                if (!isEmergencyPause) {
+                  rightToolbarCallback({"menuIdx": 7});
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    menuIdx = 0;
+                    controller.isInteractable = true;
+
+                    setState(() {});
+                  });
+                } else {
+                  rightToolbarCallback({"menuIdx": 7});
+                  debouncerNoResponse.cancel();
+                  controller.isInteractable = true;
+                }
 
                 setState(() {});
-              });
-            } else {
-              rightToolbarCallback({"menuIdx": 7});
-              debouncerNoResponse.cancel();
-              controller.isInteractable = true;
-            }
-
-            setState(() {});
-          },
-          child: !isEmergencyPause
-              ? SvgPicture.asset(
-                  // Icons.play_arrow,
-                  "assets/icons/Play.svg",
-                  colorFilter: ColorFilter.mode(
-                      isPreventPlayClick ? Colors.grey : Colors.black,
-                      BlendMode.srcIn),
+              },
+              child: !isEmergencyPause
+                  ? SvgPicture.asset(
+                      // Icons.play_arrow,
+                      "assets/icons/Play.svg",
+                      colorFilter: ColorFilter.mode(
+                          isPreventPlayClick ? Colors.grey : Colors.black,
+                          BlendMode.srcIn),
+                      // color: isPreventPlayClick ? Colors.grey : Colors.black,
+                    )
+                  :
+                  // Icon(
+                  // Icons.pause,
                   // color: isPreventPlayClick ? Colors.grey : Colors.black,
-                )
-              :
-              // Icon(
-              // Icons.pause,
-              // color: isPreventPlayClick ? Colors.grey : Colors.black,
-              SvgPicture.asset(
-                  "assets/icons/Pause.svg",
-                  colorFilter: ColorFilter.mode(
-                      isPreventPlayClick ? Colors.grey : Colors.black,
-                      BlendMode.srcIn),
-              ? SvgPicture.asset(
-                  // Icons.play_arrow,
-                  "assets/icons/Play.svg",
-                  colorFilter: ColorFilter.mode(
-                      isPreventPlayClick ? Colors.grey : Colors.black,
-                      BlendMode.srcIn),
-                  // color: isPreventPlayClick ? Colors.grey : Colors.black,
-                )
-              :
-              // Icon(
-              // Icons.pause,
-              // color: isPreventPlayClick ? Colors.grey : Colors.black,
-              SvgPicture.asset(
-                  "assets/icons/Pause.svg",
-                  colorFilter: ColorFilter.mode(
-                      isPreventPlayClick ? Colors.grey : Colors.black,
-                      BlendMode.srcIn),
-                )),
+                  SvgPicture.asset(
+                      "assets/icons/Pause.svg",
+                      colorFilter: ColorFilter.mode(
+                          isPreventPlayClick ? Colors.grey : Colors.black,
+                          BlendMode.srcIn),
+                    )),
+        ],
+      ),
       body: Stack(
         children: [
           Positioned(
@@ -4430,7 +4459,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               top: 25,
               child: Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(3.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
@@ -4440,49 +4469,103 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       const Text("Live Brain Mode",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 15)),
-                      Container(
-                          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                          child: Stack(
-                            children: [
-                              mjpegComponent,
-                              ...colorPositionOverlays,
-                              ...aiPositionOverlays,
-                            ],
-                          )),
-                      const Text("Object Detection"),
-                      ...leftAiListWidget,
+                      Row(
+                        children: [
+                          Container(
+                              margin: const EdgeInsets.fromLTRB(2, 5, 2, 5),
+                              child: Stack(
+                                children: [
+                                  mjpegComponent,
+                                  ...colorPositionOverlays,
+                                  ...aiPositionOverlays,
+                                ],
+                              )),
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                const Text("Object Detection"),
+                                ...leftAiListWidget,
+                                const Text("Color Detection"),
+                                if (isVisualDetection) ...[
+                                  Container(
+                                    width: 105,
+                                    margin: const EdgeInsets.only(right: 25),
+                                    // color: Colors.yellow,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: leftColorListWidget,
+                                      // children: [
+                                      //   Text("ads"),
+                                      // ],
+                                    ),
+                                  )
+                                ],
+                              ])
+                        ],
+                      ),
                       // Expanded(
                       //   child: LayoutBuilder(
                       //     builder:
                       //         (BuildContext context, BoxConstraints constraints) {
-                      const Text("Color Detection"),
-                      if (isVisualDetection) ...[
-                        Container(
-                          width: 105,
-                          margin: const EdgeInsets.only(right: 55),
-                          // color: Colors.yellow,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: leftColorListWidget,
-                            // children: [
-                            //   Text("ads"),
-                            // ],
-                          ),
-                        )
-                      ],
 
                       Container(
-                        margin: const EdgeInsets.all(10.0),
+                        margin: const EdgeInsets.all(3.0),
                         decoration: BoxDecoration(
                             border: Border.all(color: Colors.black)),
                         // color:Colors.red,
                         height:
-                            (Platform.isIOS || Platform.isAndroid) ? 100 : 150,
-                        width: 150,
+                            (Platform.isIOS || Platform.isAndroid) ? 90 : 150,
+                        width: 300,
                         // child: isSelected?waveWidget : const SizedBox(),
                         child: waveWidget,
                       ),
+                      if (isShowingInfo) ...[
+                        Row(
+                          children: [
+                            Container(
+                              width: 25,
+                              height: 25,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 0.3,
+                                    blurRadius: 0.3,
+                                    offset: const Offset(
+                                        1, 1), // changes position of shadow
+                                  ),
+                                ],
+                              ),
+                              child: SvgPicture.asset(
+                                "assets/icons/Info.svg",
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                              height: 10,
+                            ),
+                            const SizedBox(
+                              width: 230,
+                              child: Text(
+                                "Tap a NEURON to see its electrical activity realtime",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontFamily: "BybHanddrawn",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]
                       //     },
                       //   ),
                       // ),
@@ -4632,12 +4715,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   style: const TextStyle(fontSize: 20, color: Colors.red))),
         ]
           ..addAll(widgets)
-          ..addAll(inlineWidgets)
-          ..addAll(bottomRightMenuWidgets),
-        // @New Design
-        // ..addAll(dragTargetWidgets),
-          ..addAll(inlineWidgets)
-          ..addAll(bottomRightMenuWidgets),
+          ..addAll(inlineWidgets),
+        // ..addAll(bottomRightMenuWidgets),
         // @New Design
         // ..addAll(dragTargetWidgets),
       ),
@@ -5037,12 +5116,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               "${inwardEdge.from.toString()}_${inwardEdge.to.toString()}");
         }
 
-        if (mapDistanceLimitNeuron.containsKey(
-            "${inwardEdge.from.toString()}_${inwardEdge.to.toString()}")) {
-          mapDistanceLimitNeuron.remove(
-              "${inwardEdge.from.toString()}_${inwardEdge.to.toString()}");
-        }
-
         if (mapSpeakerNeuron.containsKey(
             "${inwardEdge.from.toString()}_${inwardEdge.to.toString()}")) {
           mapSpeakerNeuron.remove(
@@ -5091,12 +5164,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           mapDistanceNeuron.remove(
               "${outwardEdge.from.toString()}_${outwardEdge.to.toString()}");
         }
-        if (mapDistanceLimitNeuron.containsKey(
-            "${outwardEdge.from.toString()}_${outwardEdge.to.toString()}")) {
-          mapDistanceLimitNeuron.remove(
-              "${outwardEdge.from.toString()}_${outwardEdge.to.toString()}");
-        }
-
         if (mapDistanceLimitNeuron.containsKey(
             "${outwardEdge.from.toString()}_${outwardEdge.to.toString()}")) {
           mapDistanceLimitNeuron.remove(
@@ -5248,8 +5315,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               // printDebug("controller.isFoundEdge");
               // printDebug(controller.isFoundEdge);
               if (controller.isFoundEdge) {
-                controller.isSelectingEdge = true;
-                controller.edgeSelected = controller.edgeFound;
+                // printDebug("isSimulatingBrain");
+                // printDebug(isSimulatingBrain);
+                if (isSimulatingBrain) {
+                  controller.isSelectingEdge = false;
+                } else {
+                  controller.isSelectingEdge = true;
+                  controller.edgeSelected = controller.edgeFound;
+                }
               } else {
                 controller.isSelectingEdge = false;
                 // controller.edgeSelected = controller.edgeFound;
@@ -5279,6 +5352,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             onDoubleTap: () {
               // printDebug("doubletap");
               // printDebug(controller.scale);
+              if (isSimulatingBrain) return;
 
               if (controller.scale >= 1.5) {
                 controller.zoomReset();
@@ -5426,16 +5500,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // controller.zoomReset();
       // controller.pan(const Offset(-60, 0));
 
-      // controller.zoomReset();
-      // controller.pan(const Offset(-60, 0));
-
       // save
       // save neurons : position, index, color, shape, size
       // save edges : from node Id, to node Id
       // save as json.
       await saveBrainInfoDialog(context, saveCurrentBrain);
     } else if (menuIdx == 7) {
-      controller.spacePressed = false;
+      controller.isSelectingEdge = controller.spacePressed = false;
 
       isPlayingMenu = !isPlayingMenu;
       countEyeSensorConnection();
@@ -5676,7 +5747,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     mapContactsNeuron = {};
     mapDistanceNeuron = {};
     mapDistanceLimitNeuron = {};
-    mapDistanceLimitNeuron = {};
     mapLedNeuron = {};
     mapLedNeuronPosition = {};
     mapSensoryNeuron = {};
@@ -5684,21 +5754,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     neuronSize = normalNeuronStartIdx;
     syntheticNeuronList.clear();
     rawSyntheticNeuronList.clear();
-
-    for (InfiniteCanvasNode node in sensoryNeurons) {
-      SyntheticNeuron synNeuron = SyntheticNeuron(
-          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
-      synNeuron.node = node;
-      synNeuron.setupDrawingNeuron();
-      syntheticNeuronList.add(synNeuron);
-
-      SyntheticNeuron rawSynNeuron = SyntheticNeuron(
-          isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
-      rawSynNeuron.node = node;
-      rawSynNeuron.copyDrawingNeuron(synNeuron);
-      rawSyntheticNeuronList.add(rawSynNeuron);
-      synNeuron.rawSyntheticNeuron = rawSynNeuron;
-    }
 
     for (InfiniteCanvasNode node in sensoryNeurons) {
       SyntheticNeuron synNeuron = SyntheticNeuron(
@@ -5790,19 +5845,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     Paint blackStroke = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
-    Paint whiteBrush = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill
       ..strokeWidth = 2;
-
-    int tailSize = 5;
-    Path pathTail = Path();
-    bool isTailCreated = false;
-    Paint blackStroke = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
     Paint whiteBrush = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill
@@ -5845,7 +5888,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       isTailCreated = true;
                     }
 
-                    canvas.drawLine(rect.center, parentOffset, brush);
+                    canvas.drawLine(rect.center, parentOffset, blackStroke);
                     canvas.drawPath(pathTail, blackStroke);
                     canvas.drawPath(pathTail, whiteBrush);
 
@@ -5856,50 +5899,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     if (!isTailCreated) {
                       isTailCreated = true;
                     }
-                    canvas.drawLine(
-                        rect.center.translate(0, -5), parentOffset, brush);
-
-                    // canvas.drawPath(pathTail, brush);
-                    canvas.drawCircle(rect.center, 5, blackStroke);
-
-                    // brush.color = tailColor.color;
-                  }
-                  if (neuronStyle == "Excitatory") {
-                    Offset parentOffset =
-                        Offset(rect.center.dx, rect.center.dy - gapTailY);
-                    if (!isTailCreated) {
-                      pathTail = Path();
-                      int offset = 0;
-                      Offset topTriangle = Offset(offset + rect.center.dx,
-                          offset + rect.center.dy - tailSize);
-                      Offset rightTriangle = Offset(
-                          offset + rect.center.dx + tailSize * 2,
-                          offset + rect.center.dy + tailSize * 2);
-                      Offset leftTriangle = Offset(
-                          offset + rect.center.dx - tailSize * 2,
-                          offset + rect.center.dy + tailSize * 2);
-
-                      pathTail.moveTo(topTriangle.dx, topTriangle.dy);
-                      pathTail.lineTo(leftTriangle.dx, leftTriangle.dy);
-                      pathTail.lineTo(rightTriangle.dx, rightTriangle.dy);
-
-                      pathTail.close();
-                      isTailCreated = true;
-                    }
-
-                    canvas.drawLine(rect.center, parentOffset, brush);
-                    canvas.drawPath(pathTail, blackStroke);
-                    canvas.drawPath(pathTail, whiteBrush);
-
-                    brush.color = tailColor.color;
-                  } else if (neuronStyle == 'Inhibitory') {
-                    Offset parentOffset =
-                        Offset(rect.center.dx, rect.center.dy - gapTailY);
-                    if (!isTailCreated) {
-                      isTailCreated = true;
-                    }
-                    canvas.drawLine(
-                        rect.center.translate(0, -5), parentOffset, brush);
+                    canvas.drawLine(rect.center.translate(0, -5),
+                        parentOffset.translate(0, 7), blackStroke);
 
                     // canvas.drawPath(pathTail, brush);
                     canvas.drawCircle(rect.center, 5, blackStroke);
@@ -6006,7 +6007,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // circleNode,
     ];
     sensoryNeurons = [
-    sensoryNeurons = [
       nodeDistanceSensor,
       nodeLeftEyeSensor,
       nodeRightEyeSensor,
@@ -6020,7 +6020,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       nodeGreenLed,
       nodeBlueLed,
     ];
-    for (InfiniteCanvasNode node in sensoryNeurons) {
     for (InfiniteCanvasNode node in sensoryNeurons) {
       SyntheticNeuron synNeuron = SyntheticNeuron(
           isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
@@ -6062,9 +6061,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       "Red Led",
       "Green Led",
       "Blue Led",
-      "Red Led",
-      "Green Led",
-      "Blue Led",
     ];
     listDefaultSensor = [
       nodeDistanceSensor,
@@ -6091,7 +6087,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       onLongPress: onLongPress,
       onDoubleTap: onDoubleTap,
       onDeleteCallback: onDeleteCallback,
-      onDeleteCallback: onDeleteCallback,
       // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
       nodes: nodes,
       // edges: [
@@ -6111,7 +6106,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       //   ),
       // ]
     );
-    controller.zoomReset();
     controller.zoomReset();
     controller.maxScale = 2.7;
     controller.scale = 1;
@@ -6135,9 +6129,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // controller.zoom(0.97);
     // controller.minScale = 1;
 
-    // if (Platform.isAndroid || Platform.isIOS) {
-    //   repositionSensoryNeuron();
-    // }
     // if (Platform.isAndroid || Platform.isIOS) {
     //   repositionSensoryNeuron();
     // }
@@ -6211,24 +6202,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               controller.spacePressed = true;
               disallowMoveNodes();
             }
-            double scales = controller.getScale();
-            if (scales == 1) {
-              // controller.zoomReset();
-              controller.setCanvasMove(false);
-              controller.spacePressed = false;
-              disallowMoveNodes();
-            } else {
-              controller.setCanvasMove(true);
-              controller.spacePressed = true;
-              disallowMoveNodes();
-            }
           }
         } else if (menuIdx == 0 && controller.controlPressed) {
-          // printDebug("Controle pRessed");
         } else if (menuIdx == 0 &&
             controller.hasSelection &&
             !controller.controlPressed) {
           var selected = controller.selection[0];
+          // printDebug("Controle pRessed");
 
           var pos = selected.offset;
           int defaultSensorLength = listDefaultSensor.length;
@@ -6265,11 +6245,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             } else {
               return;
             }
-            if (!isTooltipOverlay) {
-              isDeleteMenu = true;
-            } else {
-              return;
-            }
             prevSelectedNeuron = selected;
             isDrawTail = true;
             isDeleteMenu = true;
@@ -6292,13 +6267,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               isShowDelayTime = false;
               neuronMenuType = neuronTypes[selected.id]!;
               String prevNeuronStyle = neuronStyle;
-              String prevNeuronStyle = neuronStyle;
               neuronStyle = neuronStyles[selected.id] != null
                   ? neuronStyles[selected.id]!
                   : "Excitatory";
-              if (prevNeuronStyle != neuronStyle) {
-                isTailCreated = false;
-              }
               if (prevNeuronStyle != neuronStyle) {
                 isTailCreated = false;
               }
@@ -6351,9 +6322,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               // POLYGON RESTRICTIONS
               if (prevConstrainedFlag) {
                 prevConstrainedPos = pos;
-              // POLYGON RESTRICTIONS
-              if (prevConstrainedFlag) {
-                prevConstrainedPos = pos;
               }
 
               pos = selected.offset;
@@ -6362,14 +6330,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               Offset posLocal = (pos);
               List<Offset> arrPosConstraints = [
                 posLocal.translate(
-                    -brainPosition.dx + -10 * controller.getScale(),
-                    -brainPosition.dy + -10 * controller.getScale()), // topLeft
+                    -brainPosition.dx + -30 * controller.getScale(),
+                    -brainPosition.dy + -30 * controller.getScale()), // topLeft
                 posLocal.translate(
                     -brainPosition.dx + 30 * controller.getScale(),
                     -brainPosition.dy +
-                        -10 * controller.getScale()), // topRight
+                        -30 * controller.getScale()), // topRight
                 posLocal.translate(
-                    -brainPosition.dx + -10 * controller.getScale(),
+                    -brainPosition.dx + -30 * controller.getScale(),
                     -brainPosition.dy +
                         30 * controller.getScale()), // bottomLeft
                 posLocal.translate(
@@ -6384,92 +6352,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 double diffMultiplierY = brainPosition.dy * scaleMultiplier;
                 arrPosConstraints = [
                   posLocal.translate(
-                      -diffMultiplierX + -10 * controller.getScale(),
+                      -diffMultiplierX + -20 * controller.getScale(),
                       -diffMultiplierY +
-                          -10 * controller.getScale()), // topLeft
+                          -20 * controller.getScale()), // topLeft
                   posLocal.translate(
-                      -diffMultiplierX + 30 * controller.getScale(),
+                      -diffMultiplierX + 20 * controller.getScale(),
                       -diffMultiplierY +
-                          -10 * controller.getScale()), // topRight
+                          -20 * controller.getScale()), // topRight
                   posLocal.translate(
-                      -diffMultiplierX + -10 * controller.getScale(),
+                      -diffMultiplierX + -20 * controller.getScale(),
                       -diffMultiplierY +
-                          30 * controller.getScale()), // bottomLeft
+                          20 * controller.getScale()), // bottomLeft
                   posLocal.translate(
-                      -diffMultiplierX + 30 * controller.getScale(),
+                      -diffMultiplierX + 20 * controller.getScale(),
                       -diffMultiplierY +
-                          30 * controller.getScale()), // bottomRight
+                          20 * controller.getScale()), // bottomRight
                 ];
               }
               bool flag = true;
-              for (Offset pos in arrPosConstraints) {
-                // if (coreBrainPainter != null) {
-                if (!coreBrainPainter.path.contains(pos)) {
-                  flag = false;
-                }
-                // }
-              }
-
-              if (!flag) {
-                // selected.update(offset: Offset(435, 300));
-                selected.update(offset: prevConstrainedPos);
-              }
-              prevConstrainedFlag = flag;
-              // if (!coreBrainPainter.path.contains(pos))
-              // sensorPolygonPaths[0]
-              // CONSTRAINT RESTRICTIONS
-
-              tailNode.update(
-                  offset: Offset(selected.offset.dx + gapTailX,
-                      selected.offset.dy + gapTailY));
-              // Offset posLocal = controller.toLocal(pos);
-              // selected offset is a local offset that we get from Gesture Detector CustomChildLayout.
-              Offset posLocal = (pos);
-              List<Offset> arrPosConstraints = [
-                posLocal.translate(
-                    -brainPosition.dx + -10 * controller.getScale(),
-                    -brainPosition.dy + -10 * controller.getScale()), // topLeft
-                posLocal.translate(
-                    -brainPosition.dx + 30 * controller.getScale(),
-                    -brainPosition.dy +
-                        -10 * controller.getScale()), // topRight
-                posLocal.translate(
-                    -brainPosition.dx + -10 * controller.getScale(),
-                    -brainPosition.dy +
-                        30 * controller.getScale()), // bottomLeft
-                posLocal.translate(
-                    -brainPosition.dx + 30 * controller.getScale(),
-                    -brainPosition.dy +
-                        30 * controller.getScale()), // bottomRight
-              ];
+              double diffWidth = currentFrameGapWidth - initialFrameGapWidth;
+              double diffHeight = currentFrameGapHeight - initialFrameGapHeight;
+              // print("diffWidth");
+              // print("$currentFrameGapWidth - $initialFrameGapWidth");
+              // print("$currentFrameGapHeight - $initialFrameGapHeight");
+              diffWidth = diffWidth / 2;
+              diffHeight = diffHeight / 2;
+              // print(diffWidth);
+              // print(diffHeight);
               if (Platform.isIOS || Platform.isAndroid) {
-                double diffMultiplierX = brainPosition.dx * scaleMultiplier -
-                    115 +
-                    leftInnerWindowSpace;
-                double diffMultiplierY = brainPosition.dy * scaleMultiplier;
-                arrPosConstraints = [
-                  posLocal.translate(
-                      -diffMultiplierX + -10 * controller.getScale(),
-                      -diffMultiplierY +
-                          -10 * controller.getScale()), // topLeft
-                  posLocal.translate(
-                      -diffMultiplierX + 30 * controller.getScale(),
-                      -diffMultiplierY +
-                          -10 * controller.getScale()), // topRight
-                  posLocal.translate(
-                      -diffMultiplierX + -10 * controller.getScale(),
-                      -diffMultiplierY +
-                          30 * controller.getScale()), // bottomLeft
-                  posLocal.translate(
-                      -diffMultiplierX + 30 * controller.getScale(),
-                      -diffMultiplierY +
-                          30 * controller.getScale()), // bottomRight
-                ];
+                diffWidth = 0;
+                diffHeight = 0;
               }
-              bool flag = true;
               for (Offset pos in arrPosConstraints) {
                 // if (coreBrainPainter != null) {
-                if (!coreBrainPainter.path.contains(pos)) {
+                if (!coreBrainPainter.path
+                    .contains(pos.translate(-diffWidth, -diffHeight))) {
+                  printDebug("Not Contained");
                   flag = false;
                 }
                 // }
@@ -6493,8 +6411,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             allowMoveNodes();
           }
         } else if (menuIdx == 1 && !isCreatePoint && !controller.hasSelection) {
-          printDebug("MenuIdx");
-          printDebug(menuIdx);
+          // printDebug("MenuIdx");
+          // printDebug(menuIdx);
           if (Platform.isIOS || Platform.isAndroid) {
             if (prevMouseX == controller.mousePosition.dx &&
                 prevMouseY == controller.mousePosition.dy) {
@@ -6509,11 +6427,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           Offset localPosition = controller.toLocal(controller.mousePosition);
           double mouseX = localPosition.dx;
           double mouseY = localPosition.dy;
-          printDebug("Create neuron1");
-          printDebug(prevMouseX);
-          printDebug(prevMouseY);
-          printDebug(mouseX);
-          printDebug(mouseY);
+          // printDebug("Create neuron1");
+          // printDebug(prevMouseX);
+          // printDebug(prevMouseY);
+          // printDebug(mouseX);
+          // printDebug(mouseY);
 
           if (mouseX < constraintBrainLeft || mouseX > constraintBrainRight) {
             return;
@@ -6522,7 +6440,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             return;
           }
 
-          isCreatePoint = true;
           isCreatePoint = true;
           if (neuronSize + 1 >= maxPosBuffer) {
             return;
@@ -6543,7 +6460,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           dDesignArray[newNodeKey.toString()] = sldDWeight;
 
           SyntheticNeuron syntheticNeuron = SyntheticNeuron(
-              isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
               isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
           InfiniteCanvasNode newNode = InfiniteCanvasNode(
             key: neuronsKey[neuronsKey.length - 1],
@@ -6917,25 +6833,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     //       neuronType, neuronTypeChangeCallback, deleteNeuronCallback);
     // } else if (controller.isSelectingEdge) {
     //   int isSensoryType = 0;
-    //   // String neuronType = neuronTypes[neuronIdx];
-    //   String neuronType = neuronTypes[selected.id]!;
-    //   neuronDialogBuilder(context, "Neuron ", (selected.id).toString(),
-    //       neuronType, neuronTypeChangeCallback, deleteNeuronCallback);
-    // } else if (controller.isSelectingEdge) {
-    //   int isSensoryType = 0;
 
-    //   final lastCreatedEdge = controller.edgeSelected;
-    //   InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
-    //   InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
-    //   // InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
-    //   if (neuronFrom == nodeLeftEyeSensor || neuronFrom == nodeRightEyeSensor) {
-    //     isSensoryType = 1;
-    //   } else if (neuronTo == nodeLeftMotorBackwardSensor ||
-    //       neuronTo == nodeRightMotorBackwardSensor ||
-    //       neuronTo == nodeLeftMotorForwardSensor ||
-    //       neuronTo == nodeRightMotorForwardSensor) {
-    //     isSensoryType = 2;
-    //   } else if (neuronFrom == nodeDistanceSensor) isSensoryType = 3;
     //   final lastCreatedEdge = controller.edgeSelected;
     //   InfiniteCanvasNode neuronFrom = findNeuronByKey(lastCreatedEdge.from);
     //   InfiniteCanvasNode neuronTo = findNeuronByKey(lastCreatedEdge.to);
@@ -6990,17 +6888,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     //   // axonDialogBuilder(
     //   //     context, isSensory, "Edge", " ", neuronTypeChangeCallback, deleteEdgeCallback);
     // }
-    //   // axonDialogBuilder(context, isSensoryType, "Edge", " ",  neuronTypeChangeCallback,
-    //   //     deleteEdgeCallback, linkSensoryConnection, linkMotorConnection, linkNeuronConnection);
-    //   // axonDialogBuilder(
-    //   //     context, isSensory, "Edge", " ", neuronTypeChangeCallback, deleteEdgeCallback);
-    // }
   }
 
   void onDoubleTap() {
+    if (isSimulatingBrain) return;
     if (controller.scale == 2.0) {
       controller.zoomReset();
-      // controller.pan(const Offset(-60, 0));
       // controller.pan(const Offset(-60, 0));
       controller.scale = 1;
     } else {
@@ -7018,7 +6911,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // printDebug("message");
       // printDebug(message);
       await mutex.protectWrite(() async {
-        commandList.add(message.toString());
         commandList.add(message.toString());
       });
 
@@ -7051,8 +6943,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     InfiniteCanvasNode tempNode = InfiniteCanvasNode(
       value: v["index"],
       key: nodeKey,
-      offset:
-          Offset(v["position"][0], v["position"][1]).scale(curScale, curScale),
       offset:
           Offset(v["position"][0], v["position"][1]).scale(curScale, curScale),
       size: Size(neuronDrawSize, neuronDrawSize),
@@ -7482,8 +7372,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         tempNeuronsKey.add(nodeKey);
         populateNode(
             v, nodeKey, nIdx, rawSyntheticNeuronListJson[nIdx], savedFileJson);
-        populateNode(
-            v, nodeKey, nIdx, rawSyntheticNeuronListJson[nIdx], savedFileJson);
         mapTranslateLoadKeys[loadedNeuronKey] = nodeKey.toString();
 
         nIdx++;
@@ -7855,11 +7743,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       return;
     }
 
-    if (isPlayingMenu) {
-      setState(() {});
-      return;
-    }
-
     InfiniteCanvasNode nodeFrom = findNeuronByKey(controller.edgeSelected.from);
     InfiniteCanvasNode nodeTo = findNeuronByKey(controller.edgeSelected.to);
 
@@ -7911,21 +7794,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       if (mapDistanceNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
         distanceMenuType =
             distanceMenuTypes[mapDistanceNeuron["${nodeFrom.id}_${nodeTo.id}"]];
-        selectedDistanceIdx = distanceMenuTypes.indexOf(distanceMenuType);
-      }
-      if (mapDistanceLimitNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
-        String temp = mapDistanceLimitNeuron["${nodeFrom.id}_${nodeTo.id}"];
-        List<String> arr = temp.split("_@_");
-        int toIdx = neuronTypes.keys.toList().indexOf(nodeTo.id.toString());
-
-        distanceMinLimitBufView[toIdx] = int.parse(arr[0]);
-        distanceMaxLimitBufView[toIdx] = int.parse(arr[1]);
-        txtDistanceMinController.text = arr[0];
-        txtDistanceMaxController.text = arr[1];
-      } else {
-        selectedDistanceIdx = 0;
-        txtDistanceMinController.text = "1";
-        txtDistanceMaxController.text = "8";
         selectedDistanceIdx = distanceMenuTypes.indexOf(distanceMenuType);
       }
       if (mapDistanceLimitNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
@@ -8063,6 +7931,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   void clearUIMenu() {
     // Future.delayed(const Duration(milliseconds: 500), () {
     setDataOnLeave();
+    controller.isSelectingEdge = false;
     isSelectingCameraTarget = false;
     isDrawTail = false;
     isDeleteMenu = false;
@@ -8348,7 +8217,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 _DesignBrainPageState.isolateWritePort.send(commands.join());
               }
             }
-            */
             */
           }
         } catch (err) {
@@ -9100,15 +8968,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       });
                     },
                     builder: (ctx, candidates, rejects) {
+                      if (tempIdx == 7) return Container();
+
                       // return Container(
                       //   width: neuronInfo["size"].width,
                       //   height: neuronInfo["size"].height,
                       //   color: Colors.green.withOpacity(0.2),
                       // );
-                      return CustomPaint(
-                        size: neuronInfo["size"], // Adjust size as needed
-                        painter: listPainters[tempIdx],
-                      );
+                      if (tempIdx == 8) {
+                        return CustomPaint(
+                          size: neuronInfo["size"], // Adjust size as needed
+                          painter: listPainters[7],
+                        );
+                      } else {
+                        return CustomPaint(
+                          size: neuronInfo["size"], // Adjust size as needed
+                          painter: listPainters[tempIdx],
+                        );
+                      }
                     }),
               ),
             )),
@@ -9132,7 +9009,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     // Size initialImageSize = const Size(600, 600);
     Size initialImageSize = initialMinimumSize;
-    printDebug("initialMinimumSize");
+    printDebug("initialMinimumSize reposition");
     printDebug(initialMinimumSize);
 
     if (Platform.isIOS || Platform.isAndroid) {
@@ -9288,9 +9165,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       sldTimeValue =
           ((sldTimeValue / 100).floor() * 100).floor().roundToDouble();
       tecTimeValue.text = sldTimeValue.floor().toString();
-      printDebug("SUBMIT DELAY CONNECTION");
-      printDebug(sldTimeValue);
-      printDebug(controller.singleSelection);
+      // printDebug("SUBMIT DELAY CONNECTION");
+      // printDebug(sldTimeValue);
+      // printDebug(controller.singleSelection);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx =
@@ -9449,12 +9326,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   void setDataOnLeave() {
-    printDebug("setDataOnLeave");
-    printDebug(isNeuronMenu);
-    printDebug(isSynapseMenu);
+    // printDebug("setDataOnLeave");
+    // printDebug(isNeuronMenu);
+    // printDebug(isSynapseMenu);
     // printDebug(isCameraMenu);
     // printDebug(isDistanceMenu);
-    printDebug(isMotorMenu);
+    // printDebug(isMotorMenu);
     // printDebug(isMicrophoneMenu);
     // printDebug(isSpeakerMenu);
     // printDebug(isLedMenu);
@@ -9467,7 +9344,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       submitLedConnection(tecSynapticWeight.text);
     } else if (isNeuronMenu) {
       if (neuronMenuType == "Delay") {
-        printDebug("delayConnection");
+        // printDebug("delayConnection");
         printDebug(tecTimeValue.text);
         submitDelayConnection(tecTimeValue.text);
       } else {
@@ -9813,7 +9690,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     border: Border.all(color: Colors.white, width: 2),
                     color:
                         selectedDistanceIdx.toString() == mapDistanceInfo["idx"]
-                            ? Colors.orange
+                            ? colorOrange
                             : Colors.white,
                     boxShadow: [
                       BoxShadow(
@@ -9918,7 +9795,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       border: Border.all(color: Colors.white, width: 2),
                       color: selectedDistanceIdx.toString() ==
                               mapDistanceInfo["idx"]
-                          ? Colors.orange
+                          ? colorOrange
                           : Colors.white,
                       boxShadow: [
                         BoxShadow(
@@ -10346,5 +10223,5 @@ class ImagePreprocessor extends MjpegPreprocessor {
 }
 
 void printDebug(s) {
-  print(s);
+  // print(s);
 }

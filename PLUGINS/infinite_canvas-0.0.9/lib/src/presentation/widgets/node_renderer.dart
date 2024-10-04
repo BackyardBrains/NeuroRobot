@@ -77,7 +77,7 @@ class NodeRenderer extends StatelessWidget {
                         controller.isHovered(node.key))
                     ? ColorFiltered(
                         colorFilter: const ColorFilter.mode(
-                            Colors.orangeAccent, BlendMode.srcIn),
+                            Color(0XFFFD8164), BlendMode.srcIn),
                         child: node.child)
                     : node.child,
           ),

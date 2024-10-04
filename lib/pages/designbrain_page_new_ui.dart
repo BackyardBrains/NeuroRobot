@@ -1655,7 +1655,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0),
                   side: const BorderSide(color: Colors.transparent)),
-              backgroundColor: const Color(0xFFEF5B5C),
+              backgroundColor: const Color(0xFFEE5B5C),
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
             ),
             onPressed: () {

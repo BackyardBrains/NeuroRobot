@@ -70,7 +70,7 @@ class _WaveWidgetState extends State<WaveWidget> {
       );
     } else if (Platform.isIOS || Platform.isAndroid) {
       return Container(
-        height: widget.screenHeight / 2 - 70,
+        height: 90,
         width: widget.screenWidth - 20,
         color: Colors.white,
         child: PolygonWaveform(
@@ -84,7 +84,7 @@ class _WaveWidgetState extends State<WaveWidget> {
           // levelMedian:0,
           strokeWidth: 1.0,
 
-          height: widget.screenHeight / 2 - 70,
+          height: 90,
           width: widget.screenWidth - 20,
           // WEB CHANGE
           // samples: WaveWidget.canvasBufferBytes1,

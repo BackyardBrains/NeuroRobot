@@ -38,7 +38,7 @@ int totalNeuron = 0;
 short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
 short ms_per_step = 1;
-short steps_per_loop = 5.2 * 200;
+short steps_per_loop = 10.5 * 200;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
 double *a,*b, *v, *u,*i,*w;

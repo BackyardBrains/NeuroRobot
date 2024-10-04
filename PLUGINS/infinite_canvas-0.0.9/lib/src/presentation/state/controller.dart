@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
-import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 
 import '../../domain/model/drop_target.dart';
 import '../../domain/model/edge.dart';
@@ -18,7 +17,6 @@ typedef NodeFormatter = void Function(InfiniteCanvasNode);
 /// A controller for the [InfiniteCanvas].
 class InfiniteCanvasController extends ChangeNotifier implements Graph {
   late bool isPlaying = false;
-  late bool isPlaying = false;
   bool isInteractable = true;
   bool isFoundEdge = false;
   bool isSelectingEdge = false;
@@ -28,7 +26,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Map<String, String> neuronTypes;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
-  final VoidCallback onDeleteCallback;
   final VoidCallback onDeleteCallback;
 
   Map<String, Path> axonPathMap = {};
@@ -46,7 +43,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     required this.onLongPress,
     required this.onDoubleTap,
     required this.onDeleteCallback,
-    required this.onDeleteCallback,
     // required this.transformNeuronPositionWrapper,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],
@@ -63,8 +59,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   double maxScale = 4;
   final focusNode = FocusNode();
   Size? viewport;
-
-  List<InfiniteDropTarget> dropTargets = [];
 
   List<InfiniteDropTarget> dropTargets = [];
 
@@ -229,7 +223,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void notifyMousePosition() {
-    // notifyListeners();
     // notifyListeners();
   }
 
@@ -628,11 +621,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   void zoomIn() => zoom(1.1);
   void zoomOut() => zoom(0.9);
-  void zoomReset() {
-    transform.value = Matrix4.identity();
-    // Future.delayed(
-    //     const Duration(milliseconds: 100), () => pan(const Offset(-60, 0)));
-  }
+  void zoomReset() => transform.value = Matrix4.identity();
 
   void pan(Offset delta) {
     final matrix = transform.value.clone();

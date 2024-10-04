@@ -436,7 +436,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       ),
                 Expanded(
                   child: ResponsiveGridList(
-                      desiredItemWidth: MediaQuery.of(context).size.width * 0.2,
+                      // desiredItemWidth: MediaQuery.of(context).size.width * 0.2,
+                      desiredItemWidth: 200,
                       minSpacing: 10,
                       children:
                           List.generate(fileNames.length, (index) => index)
@@ -614,7 +615,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                     borderRadius: BorderRadius.circular(5.0),
                     side: const BorderSide(color: Colors.transparent)),
                 backgroundColor:
-                    isDeleteMode ? const Color(0xFFEF5B5C) : Colors.white,
+                    isDeleteMode ? const Color(0XFFFD8164) : Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
               ),
