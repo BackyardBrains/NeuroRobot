@@ -1914,38 +1914,54 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         initialWindowWidth = 870;
         initialWindowHeight = 600;
       } else if (Platform.isIOS || Platform.isAndroid) {
-        initialWindowWidth = 870;
+        initialWindowWidth = MediaQuery.of(context).size.width;
         initialWindowHeight = 600;
-        // Size initialImageSize = initialMinimumSize;
-        // if (Platform.isIOS || Platform.isAndroid) {
-        //   double minimumSize = min(MediaQuery.of(context).size.width,
-        //       MediaQuery.of(context).size.height);
-        //   // initialImageSize = Size(minimumSize, minimumSize);
-        //   initialMinimumSize = Size(minimumSize, minimumSize);
-        // }
-        // printDebug("initialMinimumSize1");
-        // printDebug(initialMinimumSize);
+        if (MediaQuery.of(context).size.height > 600) {
+          // initialWindowWidth = MediaQuery.of(context).size.width;
+          // initialWindowHeight = MediaQuery.of(context).size.height;
+          double minimumSize = min(initialWindowWidth, initialWindowHeight);
+          initialMinimumSize = Size(minimumSize, minimumSize);
+          viewPortNode.update(offset: Offset(screenWidth, screenHeight));
+          initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+          initialFrameGapHeight =
+              initialWindowHeight - initialMinimumSize.height;
+          currentFrameGapWidth = initialFrameGapWidth;
+          currentFrameGapHeight = initialFrameGapHeight;
 
-        // initialWindowWidth = initialImageSize.width;
-        // initialWindowHeight = initialImageSize.height;
-        // final Size containerSize = Size(initialWindowWidth,
-        //     initialWindowHeight); // Replace with your container size
+          // Size initialImageSize = initialMinimumSize;
+          // if (Platform.isIOS || Platform.isAndroid) {
+          //   double minimumSize = min(MediaQuery.of(context).size.width,
+          //       MediaQuery.of(context).size.height);
+          //   // initialImageSize = Size(minimumSize, minimumSize);
+          //   initialMinimumSize = Size(minimumSize, minimumSize);
+          // }
+          // printDebug("initialMinimumSize1");
+          // printDebug(initialMinimumSize);
 
-        // // Size initialImageSize = const Size(600, 600);
+          // // initialWindowWidth = initialImageSize.width;
+          // // initialWindowHeight = initialImageSize.height;
+          // final Size containerSize = Size(MediaQuery.of(context).size.width,
+          //     initialWindowHeight); // Replace with your container size
 
-        // final fittedSizes =
-        //     applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
-        // initialMinimumSize =
-        //     Size(fittedSizes.destination.width, fittedSizes.destination.height);
-        // printDebug("initialMinimumSize2");
-        // printDebug(initialMinimumSize);
-        // printDebug(initialWindowWidth);
-        // printDebug(initialWindowHeight);
+          // // // Size initialImageSize = const Size(600, 600);
 
-        // initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
-        // initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
-        // currentFrameGapWidth = initialFrameGapWidth;
-        // currentFrameGapHeight = initialFrameGapHeight;
+          // final fittedSizes =
+          //     applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
+          // initialMinimumSize = Size(
+          //     fittedSizes.destination.width, fittedSizes.destination.height);
+          // printDebug("initialMinimumSize2");
+          // printDebug(initialMinimumSize);
+          // // printDebug(initialWindowWidth);
+          // // printDebug(initialWindowHeight);
+          // initialWindowWidth = MediaQuery.of(context).size.width;
+          // initialWindowHeight = MediaQuery.of(context).size.height;
+
+          // initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+          // initialFrameGapHeight =
+          //     initialWindowHeight - initialMinimumSize.height;
+          // currentFrameGapWidth = initialFrameGapWidth;
+          // currentFrameGapHeight = initialFrameGapHeight;
+        }
       } else {
         initialWindowWidth = MediaQuery.of(context).size.width;
         initialWindowHeight = MediaQuery.of(context).size.height;
@@ -2248,7 +2264,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         // ));
 
         inlineWidgets.add(Positioned(
-          bottom: 20,
+          bottom: 100,
           left: 20,
           child: SizedBox(
             width: 50,
@@ -2316,7 +2332,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         // ));
         inlineWidgets.add(Positioned(
           // bottom: MediaQuery.of(context).size.height / 2 - 110,
-          bottom: 20,
+          bottom: 100,
           left: 20,
           child: SizedBox(
             width: 50,
@@ -2949,7 +2965,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           children: [
                             SizedBox(
                               width: 170,
-                              height: 170,
+                              height: 135,
                               child: Column(
                                 children: [
                                   const Text("Target",
@@ -2968,7 +2984,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             ),
                             SizedBox(
                               width: 180,
-                              height: 170,
+                              height: 135,
                               child: Column(
                                 children: [
                                   const Text("Active Area",
@@ -3001,8 +3017,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             ),
                           ]),
                       if (selectedCameraPosition == "Custom") ...[
-                        const Text("Active Area Size",
-                            style: TextStyle(fontSize: 17)),
+                        // const Text("Active Area Size",
+                        //     style: TextStyle(fontSize: 17)),
                         SizedBox(
                           // width: MediaQuery.of(context).size.width / 3,
                           width: 350,
@@ -3951,17 +3967,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     if (!isPlayingMenu && isDeleteMenu) {
       inlineWidgets.add(Positioned(
-        bottom: 20,
-        left: 20,
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              elevation: 7,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  side: const BorderSide(color: Colors.transparent)),
-              backgroundColor: colorOrange,
-              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-            ),
+        bottom: Platform.isIOS || Platform.isAndroid ? 105 : 15,
+        left: 10,
+        child: FloatingActionButton(
+            focusColor: colorOrange,
+            hoverColor: colorOrange,
+            backgroundColor: colorOrange,
+            shape: const CircleBorder(),
+            hoverElevation: 1,
+            elevation: 0,
             onPressed: () {
               if (isDrawTail) {
                 deleteNeuronCallback();
@@ -3972,7 +3986,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               }
             },
             child: const Icon(
-              size: 30,
+              size: 40,
               Icons.delete,
               color: Colors.black,
             )),
@@ -4338,112 +4352,126 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               ),
       );
     });
+    List<Widget> floatingButtons = [
+      FloatingActionButton(
+        shape: const CircleBorder(),
+        hoverElevation: 1,
+        elevation: 0,
+        onPressed: () {
+          isShowingInfo = !isShowingInfo;
+          printDebug("mapConnectome");
+          printDebug(mapConnectome);
+          setState(() {});
+        },
+        child: SvgPicture.asset(
+          !isShowingInfo
+              ? "assets/icons/InfoDisabled.svg"
+              : "assets/icons/Info.svg",
+        ),
+      ),
+      if (!isSimulatingBrain) ...[
+        const SizedBox(width: 10),
+        FloatingActionButton(
+          shape: const CircleBorder(),
+          hoverElevation: 1,
+          elevation: 0,
 
-    return Scaffold(
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            shape: const CircleBorder(),
-            hoverElevation: 1,
-            elevation: 0,
-            onPressed: () {
-              isShowingInfo = !isShowingInfo;
-              printDebug("mapConnectome");
-              printDebug(mapConnectome);
+          onPressed: () async {
+            if (pMapStatus["currentFilename"] == "-") {
+              isSavingBrain = 1;
+              pMapStatus["isSavingBrain"] = isSavingBrain;
+              pMapStatus["currentFileName"] = "-";
+            } else {
+              if (pMapStatus["currentFileName"] != "-") {}
+              // isSavingBrain == 10 - Saved
+              // isSavingBrain == 1 - Default
+              // isSavingBrain == 2 - There is a change in the design
+            }
+            await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
+                saveCurrentBrain, pMapStatus);
+            Future.delayed(const Duration(milliseconds: 1200), () {
+              // menuIdx = 0;
+              rightToolbarKey = UniqueKey();
+              rightToolbarCallback({"menuIdx": 0});
               setState(() {});
-            },
-            child: SvgPicture.asset(
-              !isShowingInfo
-                  ? "assets/icons/InfoDisabled.svg"
-                  : "assets/icons/Info.svg",
-            ),
+            });
+          },
+          // style: ElevatedButton.styleFrom(
+          //   shape: const CircleBorder(),
+          //   padding: const EdgeInsets.all(10),
+          //   elevation: 5,
+          //   shadowColor: Colors.grey.withOpacity(0.5),
+          // ),
+          child: SvgPicture.asset(
+            "assets/icons/Save.svg",
+            // width: iconWidth,
+            // height: iconHeight,
           ),
-          if (!isSimulatingBrain) ...[
-            const SizedBox(width: 10),
-            FloatingActionButton(
-              shape: const CircleBorder(),
-              hoverElevation: 1,
-              elevation: 0,
-
-              onPressed: () async {
-                if (pMapStatus["currentFilename"] == "-") {
-                  isSavingBrain = 1;
-                  pMapStatus["isSavingBrain"] = isSavingBrain;
-                  pMapStatus["currentFileName"] = "-";
-                } else {
-                  if (pMapStatus["currentFileName"] != "-") {}
-                  // isSavingBrain == 10 - Saved
-                  // isSavingBrain == 1 - Default
-                  // isSavingBrain == 2 - There is a change in the design
-                }
-                await showLoadBrainDialog(context, "Load Brain",
-                    selectSavedBrain, saveCurrentBrain, pMapStatus);
-                Future.delayed(const Duration(milliseconds: 1200), () {
-                  // menuIdx = 0;
-                  rightToolbarKey = UniqueKey();
-                  rightToolbarCallback({"menuIdx": 0});
-                  setState(() {});
-                });
-              },
-              // style: ElevatedButton.styleFrom(
-              //   shape: const CircleBorder(),
-              //   padding: const EdgeInsets.all(10),
-              //   elevation: 5,
-              //   shadowColor: Colors.grey.withOpacity(0.5),
-              // ),
-              child: SvgPicture.asset(
-                "assets/icons/Save.svg",
-                // width: iconWidth,
-                // height: iconHeight,
-              ),
-            ),
-          ],
-          const SizedBox(width: 10),
-          FloatingActionButton(
-              shape: const CircleBorder(),
-              hoverElevation: 1,
-              elevation: 0,
-              onPressed: () {
-                if (isPreventPlayClick) return;
-                isEmergencyPause = !isEmergencyPause;
-                if (!isEmergencyPause) {
-                  rightToolbarCallback({"menuIdx": 7});
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    menuIdx = 0;
-                    controller.isInteractable = true;
-
-                    setState(() {});
-                  });
-                } else {
-                  rightToolbarCallback({"menuIdx": 7});
-                  debouncerNoResponse.cancel();
-                  controller.isInteractable = true;
-                }
+        ),
+      ],
+      const SizedBox(width: 10),
+      FloatingActionButton(
+          shape: const CircleBorder(),
+          hoverElevation: 1,
+          elevation: 0,
+          onPressed: () {
+            if (isPreventPlayClick) return;
+            isEmergencyPause = !isEmergencyPause;
+            if (!isEmergencyPause) {
+              rightToolbarCallback({"menuIdx": 7});
+              Future.delayed(const Duration(milliseconds: 100), () {
+                menuIdx = 0;
+                controller.isInteractable = true;
 
                 setState(() {});
-              },
-              child: !isEmergencyPause
-                  ? SvgPicture.asset(
-                      // Icons.play_arrow,
-                      "assets/icons/Play.svg",
-                      colorFilter: ColorFilter.mode(
-                          isPreventPlayClick ? Colors.grey : Colors.black,
-                          BlendMode.srcIn),
-                      // color: isPreventPlayClick ? Colors.grey : Colors.black,
-                    )
-                  :
-                  // Icon(
-                  // Icons.pause,
+              });
+            } else {
+              rightToolbarCallback({"menuIdx": 7});
+              debouncerNoResponse.cancel();
+              controller.isInteractable = true;
+            }
+
+            setState(() {});
+          },
+          child: !isEmergencyPause
+              ? SvgPicture.asset(
+                  // Icons.play_arrow,
+                  "assets/icons/Play.svg",
+                  colorFilter: ColorFilter.mode(
+                      isPreventPlayClick ? Colors.grey : Colors.black,
+                      BlendMode.srcIn),
                   // color: isPreventPlayClick ? Colors.grey : Colors.black,
-                  SvgPicture.asset(
-                      "assets/icons/Pause.svg",
-                      colorFilter: ColorFilter.mode(
-                          isPreventPlayClick ? Colors.grey : Colors.black,
-                          BlendMode.srcIn),
-                    )),
-        ],
+                )
+              :
+              // Icon(
+              // Icons.pause,
+              // color: isPreventPlayClick ? Colors.grey : Colors.black,
+              SvgPicture.asset(
+                  "assets/icons/Pause.svg",
+                  colorFilter: ColorFilter.mode(
+                      isPreventPlayClick ? Colors.grey : Colors.black,
+                      BlendMode.srcIn),
+                )),
+    ];
+    MainAxisAlignment floatingButtonsAlignment = MainAxisAlignment.end;
+    if (Platform.isIOS || Platform.isAndroid) {
+      // } else {
+      floatingButtonsAlignment = MainAxisAlignment.start;
+      floatingButtons = floatingButtons.reversed.toList();
+      // floatingButtons.insert(
+      //     0,
+      //     const SizedBox(
+      //       width: 25,
+      //     ));
+    }
+    return Scaffold(
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+            left: MediaQuery.of(context).size.height > 600 ? 25 : 75.0),
+        child: Row(
+          mainAxisAlignment: floatingButtonsAlignment,
+          children: floatingButtons,
+        ),
       ),
       body: Stack(
         children: [
@@ -6330,6 +6358,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               Offset posLocal = (pos);
               List<Offset> arrPosConstraints = [
                 posLocal.translate(
+                    -brainPosition.dx,
+                    -brainPosition.dy -
+                        40 * controller.getScale()), // middleTop
+                posLocal.translate(
+                    -brainPosition.dx + -40 * controller.getScale(),
+                    -brainPosition.dy), // middleLeft
+                posLocal.translate(
+                    -brainPosition.dx,
+                    -brainPosition.dy +
+                        40 * controller.getScale()), // middleBottom
+                posLocal.translate(
+                    -brainPosition.dx + 40 * controller.getScale(),
+                    -brainPosition.dy), // middleRight
+
+                posLocal.translate(
                     -brainPosition.dx + -30 * controller.getScale(),
                     -brainPosition.dy + -30 * controller.getScale()), // topLeft
                 posLocal.translate(
@@ -6350,7 +6393,31 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     115 +
                     leftInnerWindowSpace;
                 double diffMultiplierY = brainPosition.dy * scaleMultiplier;
+                double multiplier = 1.0;
+                if (MediaQuery.of(context).size.height > 600) {
+                  multiplier = 2.0;
+                }
+
                 arrPosConstraints = [
+                  posLocal.translate(
+                      -diffMultiplierX,
+                      -diffMultiplierY -
+                          25 * multiplier * controller.getScale()), // middleTop
+                  posLocal.translate(
+                      -diffMultiplierX +
+                          -35 * multiplier * controller.getScale(),
+                      -diffMultiplierY), // middleLeft
+                  posLocal.translate(
+                      -diffMultiplierX,
+                      -diffMultiplierY +
+                          25 *
+                              multiplier *
+                              controller.getScale()), // middleBottom
+                  posLocal.translate(
+                      -diffMultiplierX +
+                          20 * multiplier * controller.getScale(),
+                      -diffMultiplierY), // middleRight
+
                   posLocal.translate(
                       -diffMultiplierX + -20 * controller.getScale(),
                       -diffMultiplierY +
@@ -6360,9 +6427,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       -diffMultiplierY +
                           -20 * controller.getScale()), // topRight
                   posLocal.translate(
-                      -diffMultiplierX + -20 * controller.getScale(),
+                      -diffMultiplierX + -30 * controller.getScale(),
                       -diffMultiplierY +
-                          20 * controller.getScale()), // bottomLeft
+                          30 * controller.getScale()), // bottomLeft
                   posLocal.translate(
                       -diffMultiplierX + 20 * controller.getScale(),
                       -diffMultiplierY +
@@ -6380,8 +6447,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               // print(diffWidth);
               // print(diffHeight);
               if (Platform.isIOS || Platform.isAndroid) {
-                diffWidth = 0;
-                diffHeight = 0;
+                if (MediaQuery.of(context).size.height < 600) {
+                  diffWidth = 0;
+                  diffHeight = 0;
+                }
               }
               for (Offset pos in arrPosConstraints) {
                 // if (coreBrainPainter != null) {
@@ -9861,8 +9930,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
     if (!isCustom) {
       return Container(
-        width: 160,
-        height: 120,
+        width: 160 / 4 * 3.0,
+        height: 120 / 4 * 3.0,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.black,
@@ -9872,8 +9941,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           crossAxisAlignment: ca,
           children: [
             Container(
-              width: areaWidth,
-              height: 120,
+              width: areaWidth / 4 * 3.0,
+              height: 120 / 4 * 3.0,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(
                   Radius.circular(10),
@@ -9897,8 +9966,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       //   areaWidth = 160;
       // }
       return Container(
-        width: 160,
-        height: 120,
+        width: 160 / 4 * 3.0,
+        height: 120 / 4 * 3.0,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.black,
@@ -9906,10 +9975,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         child: Stack(
           children: [
             Positioned(
-              left: int.parse(txtAreaSizeMinController.text).toDouble() / 2,
+              left: int.parse(txtAreaSizeMinController.text).toDouble() /
+                  2 /
+                  4 *
+                  3.0,
               child: Container(
-                width: areaWidth,
-                height: 120,
+                width: areaWidth / 4 * 3.0,
+                height: 120 / 4 * 3.0,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.all(
                     Radius.circular(10),

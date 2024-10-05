@@ -97,6 +97,7 @@ typedef pass_pointers_func = ffi.Double Function(
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
 );
 typedef PassPointers = double Function(
   ffi.Pointer<ffi.Double>,
@@ -113,6 +114,7 @@ typedef PassPointers = double Function(
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
 );
 
 typedef pass_input_func = ffi.Double Function(
@@ -321,6 +323,7 @@ class Nativec {
     ffi.Pointer<ffi.Int16> p_microphone_prefs,
     ffi.Pointer<ffi.Int16> p_led_prefs,
     ffi.Pointer<ffi.Int16> p_led_pos_prefs,
+    ffi.Pointer<ffi.Double> p_visual_input,
   ) {
     var test = _passPointers(
       pCanvasbuffer1,
@@ -337,6 +340,7 @@ class Nativec {
       p_microphone_prefs,
       p_led_prefs,
       p_led_pos_prefs,
+      p_visual_input,
     );
     // print("pPositions.asTypedList(20)");
     // print(pPositions.asTypedList(20));

@@ -14,7 +14,7 @@ import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 // import 'package:nativec/nativec.dart';
 
 import 'package:flutter/material.dart';
-import 'package:native_opencv/nativec.dart';
+// import 'package:native_opencv/nativec.dart';
 import 'package:neurorobot/utils/Allocator.dart';
 import 'package:neurorobot/utils/Debouncers.dart';
 import 'package:neurorobot/utils/NeuronCircle.dart';
