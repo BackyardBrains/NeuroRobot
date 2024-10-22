@@ -38,8 +38,8 @@ import 'package:neurorobot/dialogs/version_dialog.dart';
 import 'package:neurorobot/components/drop_targets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import 'package:native_opencv/native_opencv.dart';
-import 'package:native_opencv/nativec.dart';
+// import 'package:native_opencv/native_opencv.dart';
+// import 'package:native_opencv/nativec.dart';
 import 'package:neurorobot/ai/models/recognition.dart';
 import 'package:neurorobot/ai/service/detector_service.dart';
 import 'package:neurorobot/ai/utils/StatsWidget.dart';
@@ -151,7 +151,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   late List<SingleCircle> neuronActiveCirclesPainter;
   late List<SingleCircle> neuronInactiveCirclesPainter;
 
-  late Nativec nativec;
+  // late Nativec nativec;
 
   bool isDeleteMenu = false;
   bool isNeuronMenu = false;
@@ -222,7 +222,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   ];
   late List<DropdownMenuItem> dropdownCameraItems;
 
-  String distanceMenuType = "Short";
+  String distanceMenuType = "Medium";
   List<String> distanceMenuTypes = [
     "Short",
     "Medium",
@@ -686,40 +686,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   String selectedCameraRegion = "";
 
   bool isPlayingMode = false;
+
   List<Offset> arrPosConstraints = [];
   List<Widget> arrCirclePositions = [];
+
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
   void runNativeC() {
-    const level = 1;
-    const envelopeSize = 200;
-    const bufferSize = 2000;
-    nativec.initialize();
-    printDebug("motorCommandBufView.length");
-    printDebug(neuronSize);
-    // printDebug(motorCommandBufView.length);
-    // printDebug(visPrefsBufView);
-    nativec.changeNeuronSimulatorProcess(
-      aBuf,
-      bBuf,
-      cBuf,
-      dBuf,
-      iBuf,
-      wBuf,
-      connectomeBuf,
-      level,
-      neuronSize,
-      envelopeSize,
-      bufferSize,
-      1,
-      visPrefsBuf,
-      motorCommandBuf,
-      neuronContactsBuf,
-      mapNeuronTypeBuf,
-      mapDelayNeuronBuf,
-      mapRhytmicNeuronBuf,
-      mapCountingNeuronBuf,
-    );
+    // const level = 1;
+    // const envelopeSize = 200;
+    // const bufferSize = 2000;
+    // nativec.initialize();
+    // printDebug("motorCommandBufView.length");
+    // printDebug(neuronSize);
+    // // printDebug(motorCommandBufView.length);
+    // // printDebug(visPrefsBufView);
+    // nativec.changeNeuronSimulatorProcess(
+    //   aBuf,
+    //   bBuf,
+    //   cBuf,
+    //   dBuf,
+    //   iBuf,
+    //   wBuf,
+    //   connectomeBuf,
+    //   level,
+    //   neuronSize,
+    //   envelopeSize,
+    //   bufferSize,
+    //   1,
+    //   visPrefsBuf,
+    //   motorCommandBuf,
+    //   neuronContactsBuf,
+    //   mapNeuronTypeBuf,
+    //   mapDelayNeuronBuf,
+    //   mapRhytmicNeuronBuf,
+    //   mapCountingNeuronBuf,
+    // );
   }
 
   void initMemoryAllocation() {
@@ -832,25 +834,25 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     } else {
       // printDebug("try to pass pointers");
 
-      nativec = Nativec();
-      nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf);
-      nativec.passPointers(
-        Nativec.canvasBuffer1!,
-        positionsBuf,
-        neuronCircleBuf,
-        npsBuf,
-        stateBuf,
-        visPrefsBuf,
-        visPrefsValsBuf,
-        motorCommandMessageBuf,
-        neuronContactsBuf,
-        neuronDistanceBuf,
-        neuronSpeakerBuf,
-        neuronMicrophoneBuf,
-        neuronLedBuf,
-        neuronLedPositionBuf,
-        visualInputBuf,
-      );
+      // nativec = Nativec();
+      // nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf);
+      // nativec.passPointers(
+      //   Nativec.canvasBuffer1!,
+      //   positionsBuf,
+      //   neuronCircleBuf,
+      //   npsBuf,
+      //   stateBuf,
+      //   visPrefsBuf,
+      //   visPrefsValsBuf,
+      //   motorCommandMessageBuf,
+      //   neuronContactsBuf,
+      //   neuronDistanceBuf,
+      //   neuronSpeakerBuf,
+      //   neuronMicrophoneBuf,
+      //   neuronLedBuf,
+      //   neuronLedPositionBuf,
+      //   visualInputBuf,
+      // );
       // printDebug("try to pass nativec pointers");
       aBufView = aBuf.asTypedList(neuronSize);
       bBufView = bBuf.asTypedList(neuronSize);
@@ -896,7 +898,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // if (!isSimulationCallbackAttached) {
       //   isSimulationCallbackAttached = true;
       if (isInitialized) {
-        nativec.simulationCallback(updateFromSimulation);
+        // nativec.simulationCallback(updateFromSimulation);
       }
       // }
     }
@@ -1315,7 +1317,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     freeMemory(motorCommandBuf);
     freeMemory(visPrefsBuf);
     freeMemory(visPrefsValsBuf);
-    freeMemory(Nativec.canvasBuffer1);
+    // freeMemory(Nativec.canvasBuffer1);
     // freeMemory(nativec.canvasBuffer2);
     freeMemory(mapNeuronTypeBuf);
     freeMemory(mapDelayNeuronBuf);
@@ -1414,7 +1416,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             if (kIsWeb) {
               // js.context.callMethod("stopThreadProcess", [0]);
             } else {
-              nativec.stopThreadProcess(0);
+              // nativec.stopThreadProcess(0);
               isSimulatingBrain = false;
               printDebug("stopping thread finished");
             }
@@ -4744,8 +4746,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                   style: const TextStyle(fontSize: 20, color: Colors.red))),
         ]
           ..addAll(widgets)
-          ..addAll(inlineWidgets),
-        // ..addAll(arrCirclePositions),
+          ..addAll(inlineWidgets)
+          ..addAll(arrCirclePositions),
         // ..addAll(bottomRightMenuWidgets),
         // @New Design
         // ..addAll(dragTargetWidgets),
@@ -5451,6 +5453,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   leftToolbarCallback(map) async {
+    printDebug("modeIdx0");
     modeIdx = map["modeIdx"];
     controller.modeIdx = modeIdx;
     isBrainTargetOverlayTop = -1;
@@ -5465,6 +5468,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // if (modeIdx == -1) {
     //   menuIdx = 0;
     // }
+    prevConstrainedFlag = true;
+    prevConstrainedPos = Offset.zero;
     setState(() {});
   }
 
@@ -5574,7 +5579,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         } catch (err) {}
         isSimulatingBrain = false;
 
-        initializeOpenCV();
+        // initializeOpenCV();
         isIsolateWritePortInitialized = false;
         processor.clearMemory();
         try {
@@ -5636,22 +5641,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             // debouncerNoResponse.cancel();
             debouncerNoResponse.run(() {
               try {
-                double maxValue =
-                    Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
-                if (maxValue == 0) {
-                  restartText = "Re-establishing connection";
-                  rightToolbarCallback({"menuIdx": 7});
-                  Future.delayed(const Duration(milliseconds: 4700), () {
-                    // menuIdx = 0;
-                    // controller.isInteractable = true;
+                // double maxValue =
+                // Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
+                // if (maxValue == 0) {
+                //   restartText = "Re-establishing connection";
+                //   rightToolbarCallback({"menuIdx": 7});
+                //   Future.delayed(const Duration(milliseconds: 4700), () {
+                //     // menuIdx = 0;
+                //     // controller.isInteractable = true;
 
-                    rightToolbarCallback({"menuIdx": 7});
-                    isEmergencyPause = true;
-                    setState(() {});
-                  });
-                } else {
-                  _DesignBrainPageState.isolateWritePort.send("v:");
-                }
+                //     rightToolbarCallback({"menuIdx": 7});
+                //     isEmergencyPause = true;
+                //     setState(() {});
+                //   });
+                // } else {
+                //   _DesignBrainPageState.isolateWritePort.send("v:");
+                // }
               } catch (err) {
                 printDebug("err debouncer");
               }
@@ -5672,7 +5677,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       } else {
         if (kIsWeb) {
         } else {
-          nativec.stopThreadProcess(0);
+          // nativec.stopThreadProcess(0);
         }
         controller.deselectAll();
         controller.setCanvasMove(true);
@@ -6310,7 +6315,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                         .indexOf(selected.id) -
                     2;
 
-                nativec.changeIdxSelected(neuronIdx);
+                // nativec.changeIdxSelected(neuronIdx);
                 if (mapDelayNeuronList[neuronIdx] > 0) {
                   isShowDelayTime = true;
                   printDebug(tecTimeValue.text +
@@ -6465,12 +6470,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 // double translatedDx = brainPosition.dx;
                 // double translatedDy = brainPosition.dy;
 
-                // print("diffWidth >< diffHeight");
-                // print(diffWidth);
-                // print(diffHeight);
-                // print(windowWidth);
-                // print(windowWidth);
-                // print(currentImageWidth);
+                print("diffWidth >< diffHeight");
+                print(diffWidth);
+                print(diffHeight);
+                print(windowWidth);
+                print(windowWidth);
+                print(currentImageWidth);
                 if (!coreBrainPainter.path
                     .contains(pos.translate(-translatedDx, -translatedDy))) {
                   arrCirclePositions.add(Positioned(
@@ -6507,6 +6512,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 // selected.update(offset: Offset(435, 300));
                 selected.update(offset: prevConstrainedPos);
               }
+              // arrCirclePositions.add(Positioned(
+              //   top: brainPosition.dy * scaleMultiplier,
+              //   left: brainPosition.dx * scaleMultiplier,
+              //   child: Container(
+              //       color: Colors.black,
+              //       width: 10,
+              //       height: 10,
+              //       child: CustomPaint(
+              //         painter: coreBrainPainter,
+              //       )),
+              // ));
               prevConstrainedFlag = flag;
               // if (!coreBrainPainter.path.contains(pos))
               // sensorPolygonPaths[0]
@@ -6626,7 +6642,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               controller.nodes.map((e) => e.id).toList().indexOf(selected.id) -
                   2;
 
-          nativec.changeIdxSelected(neuronIdx);
+          // nativec.changeIdxSelected(neuronIdx);
           redrawNeuronLine.value = Random().nextInt(100);
           setState(() {});
         }
@@ -8757,6 +8773,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
             Future.delayed(const Duration(milliseconds: 100), () {
               controller.deselect(neuronsKey[neuronsKey.length - 1]);
+              print("Graying");
               modeIdx = -1;
               controller.modeIdx = modeIdx;
               setState(() {});
@@ -9063,6 +9080,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
                       Future.delayed(const Duration(milliseconds: 100), () {
                         controller.deselect(neuronsKey[neuronsKey.length - 1]);
+                        print("Graying1");
                         modeIdx = -1;
                         controller.modeIdx = modeIdx;
 
@@ -10188,106 +10206,81 @@ class ImagePreprocessor extends MjpegPreprocessor {
       DesignBrainPage.prevFrame = frameData;
       if (_DesignBrainPageState.imageVisualTypes > 0) {
         isCheckingColor = true;
-        checkColorCV(frameData).then((result) {
-          String frameResult = result["result"].toRadixString(2);
-          if (frameResult.length > 5) {
-            _DesignBrainPageState.strLeftColorMenu =
-                frameResult.substring(1, 4);
-            _DesignBrainPageState.strRightColorMenu = frameResult.substring(4);
-          }
-          // print("centroids");
-          // print(centroids);
-          // print("centroidColorX");
-          // print(centroidColorX);
-          // print("centroidColorY");
-          // print(centroidColorY);
-          // print("--------------");
-          centroids = result["centroids"];
+        // checkColorCV(frameData).then((result) {
+        //   String frameResult = result["result"].toRadixString(2);
+        //   if (frameResult.length > 5) {
+        //     _DesignBrainPageState.strLeftColorMenu =
+        //         frameResult.substring(1, 4);
+        //     _DesignBrainPageState.strRightColorMenu = frameResult.substring(4);
+        //   }
+        //   // print("centroids");
+        //   // print(centroids);
+        //   // print("centroidColorX");
+        //   // print(centroidColorX);
+        //   // print("centroidColorY");
+        //   // print(centroidColorY);
+        //   // print("--------------");
+        //   centroids = result["centroids"];
 
-          // check if centroids inside the camera Region
-          for (int idx = 0; idx < 3; idx++) {
-            double x = centroids[idx * 3 + 0].toDouble();
-            double y = centroids[idx * 3 + 1].toDouble();
-            double score = centroids[idx * 3 + 2].toDouble();
-            Offset center = Offset(x, y);
-            for (int jNeuron = normalNeuronStartIdx + 2;
-                jNeuron < _DesignBrainPageState.neuronSize + 2;
-                jNeuron++) {
-              int jNeuronIdx = jNeuron - 2;
+        //   // check if centroids inside the camera Region
+        //   for (int idx = 0; idx < 3; idx++) {
+        //     double x = centroids[idx * 3 + 0].toDouble();
+        //     double y = centroids[idx * 3 + 1].toDouble();
+        //     double score = centroids[idx * 3 + 2].toDouble();
+        //     Offset center = Offset(x, y);
+        //     for (int jNeuron = normalNeuronStartIdx + 2;
+        //         jNeuron < _DesignBrainPageState.neuronSize + 2;
+        //         jNeuron++) {
+        //       int jNeuronIdx = jNeuron - 2;
 
-              _DesignBrainPageState.visualInputBufView[idx * 2 +
-                  jNeuronIdx * _DesignBrainPageState.VisualInputLength] = 0;
-            } // reset first
-            for (String key in _DesignBrainPageState.mapSensoryNeuron.keys) {
-              if (key.contains(
-                      _DesignBrainPageState.nodeLeftEyeSensor.key.toString()) &&
-                  _DesignBrainPageState.mapSensoryNeuron[key] == (idx * 2)) {
-                List<String> modes =
-                    _DesignBrainPageState.mapAreaSize[key].split("_@_");
+        //       _DesignBrainPageState.visualInputBufView[idx * 2 +
+        //           jNeuronIdx * _DesignBrainPageState.VisualInputLength] = 0;
+        //     } // reset first
+        //     for (String key in _DesignBrainPageState.mapSensoryNeuron.keys) {
+        //       if (key.contains(
+        //               _DesignBrainPageState.nodeLeftEyeSensor.key.toString()) &&
+        //           _DesignBrainPageState.mapSensoryNeuron[key] == (idx * 2)) {
+        //         List<String> modes =
+        //             _DesignBrainPageState.mapAreaSize[key].split("_@_");
 
-                // it is inside Camera Region/Zone
-                // printDebug("====containImage");
-                // printDebug(key);
-                // printDebug(x);
-                // printDebug(y);
-                // printDebug(score);
-                // printDebug(key.contains(
-                //     _DesignBrainPageState.nodeLeftEyeSensor.key.toString()));
-                // printDebug(
-                //     "@@@RESULT ${containImage(Rect.fromCenter(center: center, width: 1, height: 1), modes)}");
-                if (containImage(
-                    Rect.fromCenter(center: center, width: 1, height: 1),
-                    modes)) {
-                  for (int jNeuron = normalNeuronStartIdx + 2;
-                      jNeuron < _DesignBrainPageState.neuronSize + 2;
-                      jNeuron++) {
-                    InfiniteCanvasNode node =
-                        _DesignBrainPageState.controller.nodes[jNeuron];
-                    // print("key");
-                    // print(_DesignBrainPageState.mapAreaSize);
-                    // print(_DesignBrainPageState.controller.nodes
-                    //     .map(
-                    //       (e) => e.key,
-                    //     )
-                    //     .toList()
-                    //     .getRange(normalNeuronStartIdx + 2,
-                    //         _DesignBrainPageState.neuronSize + 2));
-                    // print(normalNeuronStartIdx);
-                    // print(_DesignBrainPageState.neuronSize);
-                    int jNeuronIdx = jNeuron - 2;
-                    if (key.contains(node.id)) {
-                      if (score >= 69) {
-                        int visualIndex = idx * 2 +
-                            jNeuronIdx *
-                                _DesignBrainPageState.VisualInputLength;
-                        // printDebug("visualIndex");
-                        // printDebug(visualIndex);
-                        // printDebug(
-                        //     _DesignBrainPageState.visPrefsValsBufView[idx * 2]);
-                        // printDebug("===========visualIndex");
+        //         // it is inside Camera Region/Zone
+        //         if (containImage(
+        //             Rect.fromCenter(center: center, width: 1, height: 1),
+        //             modes)) {
+        //           for (int jNeuron = normalNeuronStartIdx + 2;
+        //               jNeuron < _DesignBrainPageState.neuronSize + 2;
+        //               jNeuron++) {
+        //             InfiniteCanvasNode node =
+        //                 _DesignBrainPageState.controller.nodes[jNeuron];
+        //             int jNeuronIdx = jNeuron - 2;
+        //             if (key.contains(node.id)) {
+        //               if (score >= 69) {
+        //                 int visualIndex = idx * 2 +
+        //                     jNeuronIdx *
+        //                         _DesignBrainPageState.VisualInputLength;
+        //                 _DesignBrainPageState.visualInputBufView[visualIndex] =
+        //                     _DesignBrainPageState.visPrefsValsBufView[idx * 2];
+        //               } else {
+        //                 _DesignBrainPageState.visualInputBufView[idx * 2 +
+        //                     jNeuronIdx *
+        //                         _DesignBrainPageState.VisualInputLength] = 0;
+        //               }
+        //             }
+        //             // } else {
+        //             //   _DesignBrainPageState.visualInputBufView[idx * 2 +
+        //             //       jNeuronIdx *
+        //             //           _DesignBrainPageState.VisualInputLength] = 0;
+        //             // }
+        //           }
+        //         }
+        //       }
+        //       // printDebug("_DesignBrainPageState.visualInputBufView");
+        //       // printDebug(_DesignBrainPageState.visualInputBufView);
+        //     }
+        //   }
 
-                        _DesignBrainPageState.visualInputBufView[visualIndex] =
-                            _DesignBrainPageState.visPrefsValsBufView[idx * 2];
-                      } else {
-                        _DesignBrainPageState.visualInputBufView[idx * 2 +
-                            jNeuronIdx *
-                                _DesignBrainPageState.VisualInputLength] = 0;
-                      }
-                    } else {
-                      _DesignBrainPageState.visualInputBufView[idx * 2 +
-                          jNeuronIdx *
-                              _DesignBrainPageState.VisualInputLength] = 0;
-                    }
-                  }
-                }
-              }
-              // printDebug("_DesignBrainPageState.visualInputBufView");
-              // printDebug(_DesignBrainPageState.visualInputBufView);
-            }
-          }
-
-          isCheckingColor = false;
-        });
+        //   isCheckingColor = false;
+        // });
       }
     } else {
       if (!isJpegValid) {

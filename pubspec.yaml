@@ -2,7 +2,7 @@ name: neurorobot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1+65
+version: 1.2.1+72
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -13,6 +13,10 @@ dependencies:
   google_fonts: 4.0.4
   tflite_flutter: 0.10.4
   image: 4.0.17
+  cloud_firestore: 4.9.3
+  url_launcher: 6.3.0
+  flutter_widget_from_html_core: 0.15.2
+
 
   # http: ^1.1.0
   async: 2.11.0
@@ -101,4 +105,17 @@ flutter:
     - assets/bg/
     - assets/bg/BrainDrawings/
     - assets/models/
+    - assets/saved/
   uses-material-design: true
+# msix_config:
+#   display_name: SpikerBot
+#   publisher_display_name: Backyard Brains, Inc.
+#   identity_name: BackyardBrains.SpikerBot
+#   publisher: CN=054546D0-9377-4A41-8832-D38B4011661C
+#   msix_version: 1.2.1.0
+#   languages: en-us
+#   capabilities: "internetClient"
+#   store: true
+#   logo_path: C:\Users\p\Documents\byb\gl\neurorobot\neurorobot\icon\app_icon_512.png
+#   # certificate_path: C:\Users\p\Documents\byb\gl\neurorobot\neurorobot\WIN_Certificate\CERTIFICATEbybinc.pfx
+#   # certificate_password: 1234567  
