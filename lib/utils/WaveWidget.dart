@@ -88,7 +88,7 @@ class _WaveWidgetState extends State<WaveWidget> {
           width: widget.screenWidth - 20,
           // WEB CHANGE
           // samples: WaveWidget.canvasBufferBytes1,
-          samples: Nativec.canvasBufferBytes1,
+          samples: Platform.isIOS?Nativec.canvasBufferBytes1:Nativec.canvasBufferBytes1.sublist(0, 5400),
           // samples: Float64List(0),
           maxDuration: const Duration(seconds: 3),
           elapsedDuration: const Duration(seconds: 1),

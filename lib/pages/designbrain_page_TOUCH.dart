@@ -37,6 +37,7 @@ import 'package:neurorobot/components/search_textfield.dart';
 import 'package:neurorobot/dialogs/version_dialog.dart';
 import 'package:neurorobot/components/drop_targets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 
 // import 'package:native_opencv/native_opencv.dart';
 // import 'package:native_opencv/nativec.dart';
@@ -368,6 +369,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   double chartGain = 2;
 
   bool isInitialized = false;
+  bool isControllerInitialized = false;
+  bool isReorientation = false;
+  bool isFullScreen = false;
 
   late ProtoNeuron protoNeuron;
   bool isChartSelected = false;
@@ -689,6 +693,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   List<Offset> arrPosConstraints = [];
   List<Widget> arrCirclePositions = [];
+
+  bool? isPortrait;
 
   // late StreamSubscription<ConnectivityResult> subscriptionWifi;
 
@@ -1247,6 +1253,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   double screenWidth = 870.0;
   double screenHeight = 600.0;
 
+  double? prevInitialFrameGapWidth;
+  double? prevInitialFrameGapHeight;
   double initialFrameGapWidth = 870.0;
   double initialFrameGapHeight = 600.0;
   double currentFrameGapWidth = 870.0;
@@ -1261,6 +1269,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   double windowWidth = 870.0;
   double windowHeight = 600.0;
 
+  double? prevImageWidth;
+  double? prevImageHeight;
   double currentImageWidth = 600.0;
   double currentImageHeight = 600.0;
   // double screenDensity = 1.0;
@@ -1611,28 +1621,34 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   @override
   void onWindowEnterFullScreen() {
-    repositionContactNeurons();
-    controller.dropTargets = (getDragTargets());
-    centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
-        currentImageHeight / 3 + neuronDrawSize);
-    printDebug("Full Screen : centerZoneOffset");
-    printDebug(centerZoneOffset);
+    isInitialized = false;
+    isResizingFlag = true;
+    // repositionContactNeurons();
+    // controller.dropTargets = (getDragTargets());
+    // centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
+    //     currentImageHeight / 3 + neuronDrawSize);
+    // printDebug("Full Screen : centerZoneOffset");
+    // printDebug(centerZoneOffset);
     setState(() {});
   }
 
   @override
   void onWindowLeaveFullScreen() {
-    repositionContactNeurons();
-    controller.dropTargets = (getDragTargets());
-    centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
-        currentImageHeight / 3 + neuronDrawSize);
+    isInitialized = false;
+    isResizingFlag = true;
+    return;
+    // repositionContactNeurons();
+    // controller.dropTargets = (getDragTargets());
+    // centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
+    //     currentImageHeight / 3 + neuronDrawSize);
 
-    // simulateClick(10, 10);
-    setState(() {});
+    // // simulateClick(10, 10);
+    // setState(() {});
   }
 
   @override
   void onWindowUnmaximize() {
+    isPortrait = false;
     repositionContactNeurons();
 
     controller.dropTargets = (getDragTargets());
@@ -1910,72 +1926,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
 
+    if (isPortrait == null) {
+      isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+      isInitialized = false;
+      isReorientation = true;
+      prevConstrainedFlag = true;
+      prevConstrainedPos = Offset.zero;
+    } else {
+      if (isPortrait == true) {
+        // current screen is not portrait
+        if (MediaQuery.of(context).orientation == Orientation.landscape) {
+          controller.zoomReset();
+          isPortrait = false;
+          isInitialized = false;
+          isReorientation = true;
+          prevConstrainedFlag = true;
+          prevConstrainedPos = Offset.zero;
+        }
+      } else if (isPortrait == false) {
+        // current screen is not landscape
+        if (MediaQuery.of(context).orientation == Orientation.portrait) {
+          print("BECOME PORTRAIT");
+          controller.zoomReset();
+
+          isPortrait = true;
+          isInitialized = false;
+          isReorientation = true;
+          prevConstrainedFlag = true;
+          prevConstrainedPos = Offset.zero;
+        }
+      }
+    }
+
     if (isInitialized) {
     } else {
       // default image size for platforms that has width more bigger than height
-      if (Platform.isWindows) {
-        initialWindowWidth = 870;
-        initialWindowHeight = 600;
-      } else if (Platform.isIOS || Platform.isAndroid) {
-        initialWindowWidth = MediaQuery.of(context).size.width;
-        initialWindowHeight = 600;
-        if (MediaQuery.of(context).size.height > 600) {
-          // initialWindowWidth = MediaQuery.of(context).size.width;
-          // initialWindowHeight = MediaQuery.of(context).size.height;
-          double minimumSize = min(initialWindowWidth, initialWindowHeight);
-          initialMinimumSize = Size(minimumSize, minimumSize);
-          viewPortNode.update(offset: Offset(screenWidth, screenHeight));
-          initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
-          initialFrameGapHeight =
-              initialWindowHeight - initialMinimumSize.height;
-          currentFrameGapWidth = initialFrameGapWidth;
-          currentFrameGapHeight = initialFrameGapHeight;
-
-          // Size initialImageSize = initialMinimumSize;
-          // if (Platform.isIOS || Platform.isAndroid) {
-          //   double minimumSize = min(MediaQuery.of(context).size.width,
-          //       MediaQuery.of(context).size.height);
-          //   // initialImageSize = Size(minimumSize, minimumSize);
-          //   initialMinimumSize = Size(minimumSize, minimumSize);
-          // }
-          // printDebug("initialMinimumSize1");
-          // printDebug(initialMinimumSize);
-
-          // // initialWindowWidth = initialImageSize.width;
-          // // initialWindowHeight = initialImageSize.height;
-          // final Size containerSize = Size(MediaQuery.of(context).size.width,
-          //     initialWindowHeight); // Replace with your container size
-
-          // // // Size initialImageSize = const Size(600, 600);
-
-          // final fittedSizes =
-          //     applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
-          // initialMinimumSize = Size(
-          //     fittedSizes.destination.width, fittedSizes.destination.height);
-          // printDebug("initialMinimumSize2");
-          // printDebug(initialMinimumSize);
-          // // printDebug(initialWindowWidth);
-          // // printDebug(initialWindowHeight);
-          // initialWindowWidth = MediaQuery.of(context).size.width;
-          // initialWindowHeight = MediaQuery.of(context).size.height;
-
-          // initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
-          // initialFrameGapHeight =
-          //     initialWindowHeight - initialMinimumSize.height;
-          // currentFrameGapWidth = initialFrameGapWidth;
-          // currentFrameGapHeight = initialFrameGapHeight;
-        }
-      } else {
-        initialWindowWidth = MediaQuery.of(context).size.width;
-        initialWindowHeight = MediaQuery.of(context).size.height;
-        double minimumSize = min(initialWindowWidth, initialWindowHeight);
-        initialMinimumSize = Size(minimumSize, minimumSize);
-        viewPortNode.update(offset: Offset(screenWidth, screenHeight));
-        initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
-        initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
-        currentFrameGapWidth = initialFrameGapWidth;
-        currentFrameGapHeight = initialFrameGapHeight;
-      }
+      initializeFrame();
     }
 
     // screenDensity = MediaQuery.of(context).devicePixelRatio;
@@ -1985,11 +1971,91 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // Future.delayed(const Duration(milliseconds: 2000), (){
     //   repositionSensoryNeuron();
     // });
+    // if (isInitialized) {
+    // printDebug("$prevScreenWidth $screenWidth");
+    if (prevScreenWidth != screenWidth) {
+      isResizingFlag = true;
+      isInitialized = false;
+    }
+    if (prevScreenHeight != screenHeight) {
+      isResizingFlag = true;
+      isInitialized = false;
+    }
+    // }
 
-    if (!isInitialized && screenWidth > screenHeight) {
-      initCanvas();
+    if (!isInitialized) {
+      // && screenWidth > screenHeight
+      printDebug("INIT CANVAS");
+      if (!isControllerInitialized) {
+        initCanvas();
+        isControllerInitialized = true;
+      }
       isInitialized = true;
+
+      // RESIZE
+      List<Offset> oldDifCamera = [];
+      Offset oldDifCoreBrain = Offset.zero;
+      Offset oldCoreBrainPos = Offset(brainPosition.dx, brainPosition.dy);
+      Offset oldCameraNodePos =
+          Offset(nodeLeftEyeSensor.offset.dx, nodeLeftEyeSensor.offset.dy);
+      // Offset oldCameraNodePos = const Offset(0, 0);
+      int len = controller.nodes.length;
+      for (int i = 14; i < len; i++) {
+        oldDifCamera.add(controller.nodes[i].offset - oldCameraNodePos);
+        // printDebug("DISTANCE BETWEEN OLD NODE DISTANCE");
+        // printDebug(oldCameraNodePos);
+        // printDebug(controller.nodes[i].offset);
+        // printDebug(controller.nodes[i].offset - oldCameraNodePos);
+      }
+      oldDifCoreBrain = oldCoreBrainPos - oldCameraNodePos;
       repositionContactNeurons();
+
+      Offset newCameraNodePos =
+          Offset(nodeLeftEyeSensor.offset.dx, nodeLeftEyeSensor.offset.dy);
+      // Offset newCameraNodePos = const Offset(0, 0);
+
+      len = controller.nodes.length;
+      // Offset gapDifference = Offset(
+      //     prevInitialFrameGapWidth! - currentFrameGapWidth,
+      //     prevInitialFrameGapHeight! - currentFrameGapHeight);
+      double scaleX = currentImageWidth / prevImageWidth!;
+      double scaleY = currentImageHeight / prevImageHeight!;
+      // double scaleX = screenWidth / prevScreenWidth;
+      // double scaleY = screenHeight / prevScreenHeight;
+      printDebug("ScaleX: $scaleX - ScaleY: $scaleY");
+      tailNode.offset = const Offset(0, 0);
+
+      if (Platform.isIOS || Platform.isAndroid) {
+        for (int i = 14; i < len; i++) {
+          int idx = i - 14;
+          Offset diff = newCameraNodePos + oldDifCamera[idx];
+          // printDebug("DISTANCE BETWEEN NEW NODE DISTANCE");
+          // printDebug("newCameraNodePos :$newCameraNodePos");
+          // printDebug(oldDifCamera[idx]);
+          // printDebug("diff: $diff");
+          // // printDebug(gapDifference.scale(0.5, 0.5));
+          // // diff = diff - gapDifference.scale(0.5, 0.5);
+          // printDebug("diff: $diff");
+          // printDebug(
+          //     "$prevScreenWidth ${prevInitialFrameGapWidth!} - $currentFrameGapWidth");
+          controller.nodes[i].offset = Offset(diff.dx, diff.dy);
+        }
+      } else {
+        for (int i = 14; i < len; i++) {
+          int idx = i - 14;
+          Offset diff =
+              newCameraNodePos + oldDifCamera[idx].scale(scaleX, scaleY);
+          controller.nodes[i].offset = Offset(diff.dx, diff.dy);
+
+          // controller.nodes[i].offset =
+          //     controller.nodes[i].offset.scale(scaleX, scaleY);
+        }
+        if (isResizingFlag) {
+          brainPosition =
+              newCameraNodePos + oldDifCoreBrain.scale(scaleX, scaleY);
+        }
+      }
+
       centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
           currentImageHeight / 3 + neuronDrawSize);
       // printDebug("centerZoneOffset");
@@ -2011,19 +2077,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     //   prevScreenWidth = screenWidth;
     //   prevScreenHeight = screenHeight;
     // } else
-    if (isInitialized) {
-      if (prevScreenWidth != screenWidth) {
-        isResizingFlag = true;
-      }
-      if (prevScreenHeight != screenHeight) {
-        isResizingFlag = true;
-      }
-    }
+    // // if (isInitialized) {
+    // // printDebug("$prevScreenWidth $screenWidth");
+    // if (prevScreenWidth != screenWidth) {
+    //   isResizingFlag = true;
+    // }
+    // if (prevScreenHeight != screenHeight) {
+    //   isResizingFlag = true;
+    // }
+    // // }
 
     // }
     // STEVANUS :
     // remove this
     if (isResizingFlag) {
+      printDebug("isResizingFlag");
       centerZoneOffset = Offset(initialWindowWidth / 3 + neuronDrawSize,
           initialWindowHeight / 2 + neuronDrawSize);
 
@@ -2032,27 +2100,30 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // double minimumSize = min(initialWindowWidth, initialWindowHeight);
       // initialMinimumSize = Size(minimumSize, minimumSize);
 
-      viewPortNode.update(offset: Offset(screenWidth, screenHeight));
+      viewPortNode.update(
+          offset: Offset(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height));
       controller.getNode(viewportKey)?.offset =
           Offset(screenWidth, screenHeight);
       // double scaleX = screenWidth / prevScreenWidth;
-      double scaleX = screenWidth / prevScreenWidth;
-      if (Platform.isIOS || Platform.isAndroid) {
-        scaleX = 1;
-      }
-      double scaleY = screenHeight / prevScreenHeight;
+      // COMPARING currentImageBackground with the previous one
+      // double scaleX = screenWidth / prevScreenWidth;
+      // double scaleY = screenHeight / prevScreenHeight;
+      // if (Platform.isIOS || Platform.isAndroid) {
+      //   scaleX = 1;
+      // }
 
-      constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
-      constraintOffsetTopRight = constraintOffsetTopRight.scale(scaleX, scaleY);
-      constraintOffsetBottomRight =
-          constraintOffsetBottomRight.scale(scaleX, scaleY);
-      constraintOffsetBottomLeft =
-          constraintOffsetBottomLeft.scale(scaleX, scaleY);
+      // constraintOffsetTopLeft = constraintOffsetTopLeft.scale(scaleX, scaleY);
+      // constraintOffsetTopRight = constraintOffsetTopRight.scale(scaleX, scaleY);
+      // constraintOffsetBottomRight =
+      //     constraintOffsetBottomRight.scale(scaleX, scaleY);
+      // constraintOffsetBottomLeft =
+      //     constraintOffsetBottomLeft.scale(scaleX, scaleY);
 
-      constraintBrainLeft = constraintOffsetTopLeft.dx;
-      constraintBrainRight = constraintOffsetTopRight.dx;
-      constraintBrainTop = constraintOffsetTopLeft.dy;
-      constraintBrainBottom = constraintOffsetBottomLeft.dy;
+      // constraintBrainLeft = constraintOffsetTopLeft.dx;
+      // constraintBrainRight = constraintOffsetTopRight.dx;
+      // constraintBrainTop = constraintOffsetTopLeft.dy;
+      // constraintBrainBottom = constraintOffsetBottomLeft.dy;
 
       // Future.delayed(const Duration(milliseconds: 1000), () {
       repositionContactNeurons();
@@ -2060,16 +2131,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           MediaQuery.of(context).size.width - currentImageWidth;
       currentFrameGapHeight =
           MediaQuery.of(context).size.height - currentImageHeight;
+
       // printDebug(
       //     "isResizingFlag ${MediaQuery.of(context).size.width} ${MediaQuery.of(context).size.height} :::: $initialFrameGapWidth - $initialFrameGapHeight @@@@@ $currentFrameGapWidth-$currentFrameGapHeight !!!!!");
 
-      int idx = 0;
-      for (var element in controller.nodes) {
-        if (idx > 13) {
-          element.offset = element.offset.scale(scaleX, scaleY);
-        }
-        idx++;
-      }
+      // int idx = 0;
+      // for (var element in controller.nodes) {
+      //   if (idx > 13) {
+      //     element.offset = element.offset.scale(scaleX, scaleY);
+      //   }
+      //   idx++;
+      // }
       isResizingFlag = false;
       if (isPlayingMenu) {
         List<Offset> pos = [];
@@ -2099,10 +2171,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             connectomeBufView: connectomeBufView);
         protoNeuron.generateCircle(
             neuronSize, pos, neuronTypes.values.toList(growable: false));
+        if (controller.isPlaying) {
+          initializeNucleus();
+        }
       }
 
       // controller.dropTargets.clear();
       controller.dropTargets = (getDragTargets());
+
       setState(() {});
       // });
 
@@ -4362,8 +4438,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         elevation: 0,
         onPressed: () {
           isShowingInfo = !isShowingInfo;
-          printDebug("mapConnectome");
-          printDebug(mapConnectome);
           setState(() {});
         },
         child: SvgPicture.asset(
@@ -4477,281 +4551,278 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         ),
       ),
       body: Stack(
-        children: [
+          children: [
+        Positioned(
+          left: 0,
+          top: 0,
+          child: mainBody,
+        ),
+        if (!isPlayingMenu) ...[toolbarMenu],
+        if (isPlayingMenu) ...[
           Positioned(
-            left: 0,
-            top: 0,
-            child: mainBody,
-          ),
-          if (!isPlayingMenu) ...[toolbarMenu],
-          if (isPlayingMenu) ...[
-            Positioned(
-              right: 25,
-              top: 25,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(3.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      const Text("Live Brain Mode",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 15)),
+            right: 25,
+            top: 25,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5),
+                    const Text("Live Brain Mode",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 15)),
+                    Row(
+                      children: [
+                        Container(
+                            margin: const EdgeInsets.fromLTRB(2, 5, 2, 5),
+                            child: Stack(
+                              children: [
+                                mjpegComponent,
+                                ...colorPositionOverlays,
+                                ...aiPositionOverlays,
+                              ],
+                            )),
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Text("Object Detection"),
+                              ...leftAiListWidget,
+                              const Text("Color Detection"),
+                              if (isVisualDetection) ...[
+                                Container(
+                                  width: 105,
+                                  margin: const EdgeInsets.only(right: 25),
+                                  // color: Colors.yellow,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: leftColorListWidget,
+                                    // children: [
+                                    //   Text("ads"),
+                                    // ],
+                                  ),
+                                )
+                              ],
+                            ])
+                      ],
+                    ),
+                    // Expanded(
+                    //   child: LayoutBuilder(
+                    //     builder:
+                    //         (BuildContext context, BoxConstraints constraints) {
+
+                    Container(
+                      margin: const EdgeInsets.all(3.0),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black)),
+                      // color:Colors.red,
+                      height: (Platform.isIOS || Platform.isAndroid) ? 90 : 150,
+                      width: 300,
+                      // child: isSelected?waveWidget : const SizedBox(),
+                      child: waveWidget,
+                    ),
+                    if (isShowingInfo) ...[
                       Row(
                         children: [
                           Container(
-                              margin: const EdgeInsets.fromLTRB(2, 5, 2, 5),
-                              child: Stack(
-                                children: [
-                                  mjpegComponent,
-                                  ...colorPositionOverlays,
-                                  ...aiPositionOverlays,
-                                ],
-                              )),
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                const Text("Object Detection"),
-                                ...leftAiListWidget,
-                                const Text("Color Detection"),
-                                if (isVisualDetection) ...[
-                                  Container(
-                                    width: 105,
-                                    margin: const EdgeInsets.only(right: 25),
-                                    // color: Colors.yellow,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: leftColorListWidget,
-                                      // children: [
-                                      //   Text("ads"),
-                                      // ],
-                                    ),
-                                  )
-                                ],
-                              ])
+                            width: 25,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 0.3,
+                                  blurRadius: 0.3,
+                                  offset: const Offset(
+                                      1, 1), // changes position of shadow
+                                ),
+                              ],
+                            ),
+                            child: SvgPicture.asset(
+                              "assets/icons/Info.svg",
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                            height: 10,
+                          ),
+                          const SizedBox(
+                            width: 230,
+                            child: Text(
+                              "Tap a NEURON to see its electrical activity realtime",
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: "BybHanddrawn",
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      // Expanded(
-                      //   child: LayoutBuilder(
-                      //     builder:
-                      //         (BuildContext context, BoxConstraints constraints) {
+                    ]
+                    //     },
+                    //   ),
+                    // ),
+                    // Positioned(
+                    //   bottom: 0,
+                    //   left: 0,
+                    //   child: Container(
+                    //     margin: const EdgeInsets.all(10.0),
+                    //     decoration: BoxDecoration(
+                    //         border: Border.all(color: Colors.black)),
 
-                      Container(
-                        margin: const EdgeInsets.all(3.0),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black)),
-                        // color:Colors.red,
-                        height:
-                            (Platform.isIOS || Platform.isAndroid) ? 90 : 150,
-                        width: 300,
-                        // child: isSelected?waveWidget : const SizedBox(),
-                        child: waveWidget,
-                      ),
-                      if (isShowingInfo) ...[
-                        Row(
-                          children: [
-                            Container(
-                              width: 25,
-                              height: 25,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 0.3,
-                                    blurRadius: 0.3,
-                                    offset: const Offset(
-                                        1, 1), // changes position of shadow
-                                  ),
-                                ],
-                              ),
-                              child: SvgPicture.asset(
-                                "assets/icons/Info.svg",
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                              height: 10,
-                            ),
-                            const SizedBox(
-                              width: 230,
-                              child: Text(
-                                "Tap a NEURON to see its electrical activity realtime",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontFamily: "BybHanddrawn",
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ]
-                      //     },
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //   bottom: 0,
-                      //   left: 0,
-                      //   child: Container(
-                      //     margin: const EdgeInsets.all(10.0),
-                      //     decoration: BoxDecoration(
-                      //         border: Border.all(color: Colors.black)),
+                    //     // color:Colors.red,
+                    //     height: (Platform.isIOS || Platform.isAndroid)
+                    //         ? screenHeight / 2 - 90
+                    //         : screenHeight / 2 - 150,
+                    //     width: screenWidth - 20,
+                    //     // child: isSelected?waveWidget : const SizedBox(),
+                    //     child: waveWidget,
+                    //   ),
+                    // ),
 
-                      //     // color:Colors.red,
-                      //     height: (Platform.isIOS || Platform.isAndroid)
-                      //         ? screenHeight / 2 - 90
-                      //         : screenHeight / 2 - 150,
-                      //     width: screenWidth - 20,
-                      //     // child: isSelected?waveWidget : const SizedBox(),
-                      //     child: waveWidget,
-                      //   ),
-                      // ),
-
-                      // ClipRect(
-                      //   clipper: EyeClipper(
-                      //       isLeft: true, width: screenWidth, height: screenHeight),
-                      //   child: mjpegComponent,
-                      // ),
-                    ],
-                  ),
+                    // ClipRect(
+                    //   clipper: EyeClipper(
+                    //       isLeft: true, width: screenWidth, height: screenHeight),
+                    //   child: mjpegComponent,
+                    // ),
+                  ],
                 ),
               ),
             ),
-            // Positioned(
-            //   right: 50,
-            //   top: 0,
-            //   child: Column(
-            //     children: [
-            //       StreamBuilder<Uint8List>(
-            //           stream: mainBloc.imageStream,
-            //           builder: (context, snapshot) {
-            //             // printDebug(snapshot.data);
-            //             if (snapshot.data == null) return Container();
-            //             return ClipRect(
-            //               clipper: EyeClipper(
-            //                   isLeft: false,
-            //                   width: screenWidth,
-            //                   height: screenHeight),
-            //               child: Image.memory(
-            //                 snapshot.data!,
-            //                 gaplessPlayback: true,
-            //                 // width: 320 / 2,
-            //                 height: 240 / 2,
-            //                 fit: BoxFit.fitHeight,
-            //               ),
-            //             );
-            //           }),
-            //       if (isShowingRightColorMenu || isShowingRightAiMenu) ...[
-            //         Container(
-            //             width: 105,
-            //             margin: const EdgeInsets.only(left: 55),
-            //             // color: Colors.yellow,
-            //             child: Row(
-            //               crossAxisAlignment: CrossAxisAlignment.end,
-            //               mainAxisAlignment: MainAxisAlignment.end,
-            //               children: rightColorListWidget,
-            //               // children: [Text("asd")],
-            //             )),
-            //       ]
-            //     ],
-            //   ),
-            // ),
-          ],
-          if (isPlayingMenu && isChartSelected) ...[
-            // Positioned(
-            //   bottom: 0,
-            //   left: 0,
-            //   child: Container(
-            //     margin: const EdgeInsets.all(10.0),
-            //     decoration:
-            //         BoxDecoration(border: Border.all(color: Colors.black)),
-
-            //     // color:Colors.red,
-            //     height: (Platform.isIOS || Platform.isAndroid)
-            //         ? screenHeight / 2 - 90
-            //         : screenHeight / 2 - 150,
-            //     width: screenWidth - 20,
-            //     // child: isSelected?waveWidget : const SizedBox(),
-            //     child: waveWidget,
-            //   ),
-            // ),
-          ],
-          ValueListenableBuilder(
-              valueListenable: tooltipValueChange,
-              builder: ((context, value, child) {
-                return !isTooltipOverlay
-                    ? Container()
-                    : Positioned(
-                        left: tooltipOverlayX - 20,
-                        top: tooltipOverlayY - 50,
-                        child: Container(
-                            color: Colors.black,
-                            padding: const EdgeInsets.all(5),
-                            child: Text(tooltipOverlayMessage,
-                                style: const TextStyle(color: Colors.white))),
-                      );
-              })),
-          if (aiStats != null && isInfoMenu) ...{
-            // Positioned(
-            //   left: 0,
-            //   bottom: 0,
-            //   child: SafeArea(
-            //     child: SizedBox(
-            //       width: screenWidth - 200,
-            //       height: 200,
-            //       child: Column(
-            //         children: aiStats!.entries.map((e) {
-            //           return StatsWidget(e.key, e.value);
-            //         }).toList(),
-            //       ),
-            //     ),
-            //   ),
-            // )
-          },
+          ),
           // Positioned(
-          //   left: 825 / 2,
+          //   right: 50,
           //   top: 0,
-          //   child: Container(
-          //     width: 30,
-          //     height: 30,
-          //     color: Colors.green,
+          //   child: Column(
+          //     children: [
+          //       StreamBuilder<Uint8List>(
+          //           stream: mainBloc.imageStream,
+          //           builder: (context, snapshot) {
+          //             // printDebug(snapshot.data);
+          //             if (snapshot.data == null) return Container();
+          //             return ClipRect(
+          //               clipper: EyeClipper(
+          //                   isLeft: false,
+          //                   width: screenWidth,
+          //                   height: screenHeight),
+          //               child: Image.memory(
+          //                 snapshot.data!,
+          //                 gaplessPlayback: true,
+          //                 // width: 320 / 2,
+          //                 height: 240 / 2,
+          //                 fit: BoxFit.fitHeight,
+          //               ),
+          //             );
+          //           }),
+          //       if (isShowingRightColorMenu || isShowingRightAiMenu) ...[
+          //         Container(
+          //             width: 105,
+          //             margin: const EdgeInsets.only(left: 55),
+          //             // color: Colors.yellow,
+          //             child: Row(
+          //               crossAxisAlignment: CrossAxisAlignment.end,
+          //               mainAxisAlignment: MainAxisAlignment.end,
+          //               children: rightColorListWidget,
+          //               // children: [Text("asd")],
+          //             )),
+          //       ]
+          //     ],
           //   ),
           // ),
+        ],
+        if (isPlayingMenu && isChartSelected) ...[
           // Positioned(
-          //   left:10,
-          //   top:10,
-          //   child: Image.memory(dataMaskedImage)
+          //   bottom: 0,
+          //   left: 0,
+          //   child: Container(
+          //     margin: const EdgeInsets.all(10.0),
+          //     decoration:
+          //         BoxDecoration(border: Border.all(color: Colors.black)),
+
+          //     // color:Colors.red,
+          //     height: (Platform.isIOS || Platform.isAndroid)
+          //         ? screenHeight / 2 - 90
+          //         : screenHeight / 2 - 150,
+          //     width: screenWidth - 20,
+          //     // child: isSelected?waveWidget : const SizedBox(),
+          //     child: waveWidget,
+          //   ),
+          // ),
+        ],
+        ValueListenableBuilder(
+            valueListenable: tooltipValueChange,
+            builder: ((context, value, child) {
+              return !isTooltipOverlay
+                  ? Container()
+                  : Positioned(
+                      left: tooltipOverlayX - 20,
+                      top: tooltipOverlayY - 50,
+                      child: Container(
+                          color: Colors.black,
+                          padding: const EdgeInsets.all(5),
+                          child: Text(tooltipOverlayMessage,
+                              style: const TextStyle(color: Colors.white))),
+                    );
+            })),
+        if (aiStats != null && isInfoMenu) ...{
+          // Positioned(
+          //   left: 0,
+          //   bottom: 0,
+          //   child: SafeArea(
+          //     child: SizedBox(
+          //       width: screenWidth - 200,
+          //       height: 200,
+          //       child: Column(
+          //         children: aiStats!.entries.map((e) {
+          //           return StatsWidget(e.key, e.value);
+          //         }).toList(),
+          //       ),
+          //     ),
+          //   ),
           // )
-          Positioned(
-            right: 5,
-            top: 5,
-            child: Text(
-              style: const TextStyle(fontSize: 7),
-              "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""} \r\n$strFirmwareVersion",
-            ),
+        },
+        // Positioned(
+        //   left: 825 / 2,
+        //   top: 0,
+        //   child: Container(
+        //     width: 30,
+        //     height: 30,
+        //     color: Colors.green,
+        //   ),
+        // ),
+        // Positioned(
+        //   left:10,
+        //   top:10,
+        //   child: Image.memory(dataMaskedImage)
+        // )
+        Positioned(
+          right: 5,
+          top: 5,
+          child: Text(
+            style: const TextStyle(fontSize: 7),
+            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""} \r\n$strFirmwareVersion",
           ),
-          Center(
-              child: Text(restartText,
-                  style: const TextStyle(fontSize: 20, color: Colors.red))),
-        ]
-          ..addAll(widgets)
-          ..addAll(inlineWidgets)
-          ..addAll(arrCirclePositions),
-        // ..addAll(bottomRightMenuWidgets),
-        // @New Design
-        // ..addAll(dragTargetWidgets),
-      ),
+        ),
+        Center(
+            child: Text(restartText,
+                style: const TextStyle(fontSize: 20, color: Colors.red))),
+      ]
+            ..addAll(widgets)
+            ..addAll(inlineWidgets)
+          // ..addAll(arrCirclePositions),
+          // ..addAll(bottomRightMenuWidgets),
+          // @New Design
+          // ..addAll(dragTargetWidgets),
+          ),
     );
   }
 
@@ -5003,6 +5074,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         connectomeBufView: connectomeBufView);
     protoNeuron.generateCircle(
         neuronSize, pos, neuronTypes.values.toList(growable: false));
+    initializeNucleus();
     // protoNeuron.setConnectome(neuronSize, connectomeMatrix);
     // printDebug("controller.nodes.map(((e) => e.id)).toList()");
     // printDebug(controller.nodes.map(((e) => e.id)).toList());
@@ -5629,7 +5701,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         Future.delayed(const Duration(milliseconds: 1650), () {
           controller.zoomReset();
           // NEW UI
-          controller.pan(const Offset(-60, 0));
+          if (isPortrait == false) {
+            controller.pan(const Offset(-60, 0));
+          }
           isPlayingMenu = true;
           runSimulation();
           controller.isPlaying = true;
@@ -6114,6 +6188,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     printDebug("Create Canvas Controller");
     printDebug(nodes);
     // neuronTypes["abc"] = "1";
+
     controller = InfiniteCanvasController(
       rawSyntheticNeuronList: rawSyntheticNeuronList,
       syntheticNeuronList: syntheticNeuronList,
@@ -6160,7 +6235,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       nodeSpeakerSensor.key,
     ];
     // New UI
-    controller.pan(const Offset(-60, 0));
+    if (isPortrait == false) {
+      controller.pan(const Offset(-60, 0));
+    }
     // controller.zoom(0.97);
     // controller.minScale = 1;
 
@@ -6174,16 +6251,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       if (isPlayingMenu) {
         return;
       }
+
       if (controller.mouseDown) {
         if (menuIdx == 0 && !controller.hasSelection) {
           clearUIMenu();
 
           setState(() => {});
 
-          printDebug('design brain start');
-          printDebug(axonFromSelected);
-          printDebug(controller.hasSelection);
-          printDebug("------------------");
+          // printDebug('design brain start');
+          // printDebug(axonFromSelected);
+          // printDebug(controller.hasSelection);
+          // printDebug("------------------");
           if (!axonFromSelected && controller.hasSelection) {
             axonFromSelected = true;
             axonFrom = controller.selection[0].key;
@@ -6363,124 +6441,132 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               // Offset posLocal = controller.toLocal(pos);
               // selected offset is a local offset that we get from Gesture Detector CustomChildLayout.
               Offset posLocal = (pos);
+              int ordinateGap = 24;
+              int diagonalGap = 18;
               arrPosConstraints = [
                 posLocal.translate(
-                    -brainPosition.dx,
-                    -brainPosition.dy -
-                        40 * controller.getScale()), // middleTop
+                    0, -ordinateGap * controller.getScale()), // middleTop
                 posLocal.translate(
-                    -brainPosition.dx + -40 * controller.getScale(),
-                    -brainPosition.dy), // middleLeft
+                    -ordinateGap * controller.getScale(), 0), // middleLeft
                 posLocal.translate(
-                    -brainPosition.dx,
-                    -brainPosition.dy +
-                        40 * controller.getScale()), // middleBottom
+                    0, ordinateGap * controller.getScale()), // middleBottom
                 posLocal.translate(
-                    -brainPosition.dx + 40 * controller.getScale(),
-                    -brainPosition.dy), // middleRight
+                    ordinateGap * controller.getScale(), 0), // middleRight
 
-                posLocal.translate(
-                    -brainPosition.dx + -30 * controller.getScale(),
-                    -brainPosition.dy + -30 * controller.getScale()), // topLeft
-                posLocal.translate(
-                    -brainPosition.dx + 30 * controller.getScale(),
-                    -brainPosition.dy +
-                        -30 * controller.getScale()), // topRight
-                posLocal.translate(
-                    -brainPosition.dx + -30 * controller.getScale(),
-                    -brainPosition.dy +
-                        30 * controller.getScale()), // bottomLeft
-                posLocal.translate(
-                    -brainPosition.dx + 30 * controller.getScale(),
-                    -brainPosition.dy +
-                        30 * controller.getScale()), // bottomRight
+                posLocal.translate(-diagonalGap * controller.getScale(),
+                    -diagonalGap * controller.getScale()), // topLeft
+                posLocal.translate(diagonalGap * controller.getScale(),
+                    -diagonalGap * controller.getScale()), // topRight
+                posLocal.translate(-diagonalGap * controller.getScale(),
+                    diagonalGap * controller.getScale()), // bottomLeft
+                posLocal.translate(diagonalGap * controller.getScale(),
+                    diagonalGap * controller.getScale()), // bottomRight
               ];
               if (Platform.isIOS || Platform.isAndroid) {
                 // double diffMultiplierX = brainPosition.dx * scaleMultiplier -
                 //     115 +
                 //     leftInnerWindowSpace;
                 // double diffMultiplierY = brainPosition.dy * scaleMultiplier;
-                double diffMultiplierX = 0;
-                double diffMultiplierY = 0;
-                double multiplier = 1.0;
-                if (MediaQuery.of(context).size.height > 600) {
-                  multiplier = 2.0;
-                }
-                double gapLeft = neuronSize * 4;
-                double gapRight = neuronSize * 2;
-                double gapTop = 20;
-                double gapBottom = 30;
+                // double diffMultiplierTop = 0;
+                // double diffMultiplierLeft = 0;
+                // double diffMultiplierRight = 0;
+                // double diffMultiplierBottom = 0;
+                double multiplier = 2;
+                double neuronDrawSize = 12;
+                double gapLeft = neuronDrawSize * 4;
+                double posDiagonal = neuronDrawSize * multiplier / 2;
+                double posLeft = neuronDrawSize * multiplier / 2;
+                double posRight = neuronDrawSize * (multiplier - 3.5);
+                double posTop = neuronDrawSize * multiplier;
+                double posBottom = neuronDrawSize * (multiplier + 0);
 
                 arrPosConstraints = [
-                  posLocal.translate(-diffMultiplierX - gapLeft,
-                      -diffMultiplierY - gapTop), // Top
+                  posLocal.translate(-gapLeft, -posTop), // Top
                   posLocal.translate(
-                      -diffMultiplierX - gapLeft - neuronSize * 2,
-                      -diffMultiplierY + 0), // Left
-                  posLocal.translate(-diffMultiplierX - gapLeft,
-                      -diffMultiplierY + gapBottom), // Bottom
-                  posLocal.translate(-diffMultiplierX - gapRight,
-                      -diffMultiplierY + 0), // Right
+                      -gapLeft - neuronDrawSize * multiplier, 0), // Left
+                  posLocal.translate(-gapLeft, posBottom), // Bottom
+                  posLocal.translate(posRight, 0), // Right
 
                   posLocal.translate(
-                      -diffMultiplierX - gapLeft - neuronSize * 1,
-                      -diffMultiplierY + -gapTop / 2), // Top Left
-                  posLocal.translate(-diffMultiplierX - gapRight - neuronSize,
-                      -diffMultiplierY - gapTop / 2), // TopRight
-                  posLocal.translate(-diffMultiplierX - gapLeft - neuronSize,
-                      -diffMultiplierY + gapBottom / 2), // Bottom Left
+                      -gapLeft - posLeft, -posTop / 2), // Top Left
+                  posLocal.translate(
+                      posRight - posDiagonal, -posTop / 2), // TopRight
+                  posLocal.translate(-gapLeft - posLeft,
+                      posBottom - posDiagonal), // Bottom Left
 
-                  posLocal.translate(-diffMultiplierX - gapRight - neuronSize,
-                      -diffMultiplierY + gapBottom / 2), // BottomRight
+                  posLocal.translate(posRight - posDiagonal,
+                      posBottom - posDiagonal), // BottomRight
                 ];
               }
               bool flag = true;
-              double diffWidth = currentFrameGapWidth - initialFrameGapWidth;
-              double diffHeight = currentFrameGapHeight - initialFrameGapHeight;
-              // print("diffWidth >< diffHeight");
-              // print("$currentFrameGapWidth - $initialFrameGapWidth");
-              // print("$currentFrameGapHeight - $initialFrameGapHeight");
-              diffWidth = diffWidth / 2;
-              diffHeight = diffHeight / 2;
+              // double diffWidth = currentFrameGapWidth - initialFrameGapWidth;
+              // double diffHeight = currentFrameGapHeight - initialFrameGapHeight;
+              // diffWidth = diffWidth / 2;
+              // diffHeight = diffHeight / 2;
+              double diffWidth = brainPosition.dx;
+              double diffHeight = brainPosition.dy;
               double coreBrainGapX = 0.95;
               double coreBrainGapY = 0.85;
 
-              // print(diffWidth);
-              // print(diffHeight);
               if (Platform.isIOS || Platform.isAndroid) {
-                if (MediaQuery.of(context).size.height >= 600) {
-                  diffWidth =
-                      (windowWidth - currentImageWidth * coreBrainGapX) / 2;
-                  diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+                // print("diffWidth >< diffHeight");
+                // print(diffWidth);
+                // print(diffHeight);
+                if (isPortrait == false) {
+                  if (MediaQuery.of(context).size.height >= 600) {
+                    diffWidth =
+                        (windowWidth - currentImageWidth * coreBrainGapX) / 2;
+                    diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+                  } else {
+                    coreBrainGapX = 1.1;
+                    diffWidth =
+                        (windowWidth - currentImageWidth * coreBrainGapX) / 2;
+                    diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+                  }
                 } else {
-                  coreBrainGapX = 1.1;
+                  // isPortrait
                   diffWidth =
                       (windowWidth - currentImageWidth * coreBrainGapX) / 2;
-                  diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+                  diffHeight =
+                      (windowHeight - currentImageHeight * coreBrainGapY) / 2;
+                  // print("diffWidth >< diffHeight");
+                  // print("$windowWidth - ${currentImageWidth * coreBrainGapX}");
+                  // print(
+                  //     "$windowHeight - ${currentImageHeight * coreBrainGapY}");
                 }
               }
 
               arrCirclePositions = [];
+              double translatedDx = diffWidth;
+              double translatedDy = diffHeight;
+
               for (Offset pos in arrPosConstraints) {
                 // if (coreBrainPainter != null) {
                 // double leftBrainPosition = windowWidth / 2 - 245 * scaleMultiplier;
-                double translatedDx = diffWidth;
                 // Offset brainPosition = const Offset(190, 50);
-                double translatedDy = diffHeight;
                 // double translatedDx = brainPosition.dx;
                 // double translatedDy = brainPosition.dy;
 
-                print("diffWidth >< diffHeight");
-                print(diffWidth);
-                print(diffHeight);
-                print(windowWidth);
-                print(windowWidth);
-                print(currentImageWidth);
+                // print("diffWidth >< diffHeight");
+                // print(diffWidth);
+                // print(diffHeight);
+                // print(windowWidth);
+                // print(windowWidth);
+                // print(currentImageWidth);
+                double leftCirclePos = pos.dx;
+                double topCirclePos = pos.dy;
+                if (Platform.isMacOS || Platform.isWindows || kIsWeb) {
+                  leftCirclePos = prevInitialFrameGapWidth! / 2 + pos.dx;
+                  topCirclePos = prevInitialFrameGapHeight! / 2 + 50 + pos.dy;
+                }
                 if (!coreBrainPainter.path
                     .contains(pos.translate(-translatedDx, -translatedDy))) {
+                  // print("pos.dx");
+                  // print(pos.translate(-translatedDx, -translatedDy));
+
                   arrCirclePositions.add(Positioned(
-                    left: pos.dx,
-                    top: pos.dy,
+                    left: leftCirclePos,
+                    top: topCirclePos,
                     // left: pos.dx,
                     // top: pos.dy,
                     child: Container(
@@ -6490,12 +6576,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     ),
                   ));
 
-                  printDebug("Not Contained");
+                  // printDebug("Not Contained");
                   flag = false;
                 } else {
                   arrCirclePositions.add(Positioned(
-                    left: pos.dx,
-                    top: pos.dy,
+                    left: leftCirclePos,
+                    top: topCirclePos,
                     // left: pos.dx,
                     // top: pos.dy,
                     child: Container(
@@ -6510,19 +6596,25 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
               if (!flag) {
                 // selected.update(offset: Offset(435, 300));
-                selected.update(offset: prevConstrainedPos);
+                if (prevConstrainedPos == Offset.zero) {
+                } else {
+                  selected.update(offset: prevConstrainedPos);
+                }
               }
-              // arrCirclePositions.add(Positioned(
-              //   top: brainPosition.dy * scaleMultiplier,
-              //   left: brainPosition.dx * scaleMultiplier,
-              //   child: Container(
-              //       color: Colors.black,
-              //       width: 10,
-              //       height: 10,
-              //       child: CustomPaint(
-              //         painter: coreBrainPainter,
-              //       )),
-              // ));
+
+              Offset offsetBrainPosition = brainPosition;
+              //     brainPosition.translate(-translatedDx, -translatedDy);
+              // printDebug("offsetBrainPosition");
+              // printDebug(offsetBrainPosition);
+              arrCirclePositions.add(Positioned(
+                top: offsetBrainPosition.dy,
+                left: offsetBrainPosition.dx,
+                // top: brainPosition.dy,
+                // left: brainPosition.dx,
+                child: CustomPaint(
+                  painter: coreBrainPainter,
+                ),
+              ));
               prevConstrainedFlag = flag;
               // if (!coreBrainPainter.path.contains(pos))
               // sensorPolygonPaths[0]
@@ -6709,8 +6801,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     neuronFrom == nodeRightEyeSensor) {
                   mapSensoryNeuron["${neuronFrom.id}_${neuronTo.id}"] = 2;
                 } else if (neuronFrom == nodeDistanceSensor) {
-                  mapDistanceNeuron["${neuronFrom.id}_${neuronTo.id}"] = 0;
-                  mapDistanceLimitNeuron["${neuronFrom.id}_${neuronTo.id}"] = 0;
+                  mapDistanceNeuron["${neuronFrom.id}_${neuronTo.id}"] = 1;
+                  mapDistanceLimitNeuron["${neuronFrom.id}_${neuronTo.id}"] =
+                      "8_@_30";
                 } else if (neuronTo == nodeLeftMotorForwardSensor ||
                     neuronTo == nodeLeftMotorBackwardSensor ||
                     neuronTo == nodeRightMotorForwardSensor ||
@@ -7290,7 +7383,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         '${directory.path}$textPath${Platform.pathSeparator}BrainText$fileName@@@$title@@@$description.txt');
 
     controller.zoomReset();
-    controller.pan(const Offset(-60, 0));
+    if (isPortrait == false) {
+      controller.pan(const Offset(-60, 0));
+    }
 
     ScreenshotController screenshotController = ScreenshotController();
     String imagePath = "";
@@ -7644,6 +7739,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       printDebug("err");
       printDebug(err);
     }
+    if (Platform.isIOS || Platform.isAndroid || kIsWeb) {
+      silentRepositionNeurons(savedFileJson);
+    }
 
     await Future.delayed(const Duration(milliseconds: 370), () async {
       try {
@@ -7906,7 +8004,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         txtAreaSizeMaxController.text = splitRegion[2];
         areaSizeMinLimitBufView[neuronIdx] = int.parse(splitRegion[1]);
         areaSizeMaxLimitBufView[neuronIdx] = int.parse(splitRegion[2]);
-        //  = "${selectedCameraPosition}_@_${txtAreaSizeMinController.text}_@_${txtAreaSizeMaxController.text}";
+        //  = "${selectedCameraPosition}_@_${txtAreaSizeMincontroller.text}_@_${txtAreaSizeMaxController.text}";
       }
     } else if (nodeFrom == nodeRightEyeSensor) {
       isCameraMenu = true;
@@ -8598,7 +8696,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       size: brainSizeMultiplier,
       // color: Colors.green,
       child: Positioned(
-        top: brainPosition.dy * scaleMultiplier + topInnerWindowSpace,
+        top: brainPosition.dy + topInnerWindowSpace,
         left: leftBrainPosition,
         // left: ((brainPosition.dx).floor() * scaleMultiplier +
         //     (leftInnerWindowSpace - 137) * scaleMultiplier),
@@ -8615,9 +8713,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             GeneralSensorPainter painter = (coreBrainPainter);
             Offset containOffset = localAreaOffset.translate(
                 -leftBrainPosition + 45 / controller.getScale(),
-                -brainPosition.dy * scaleMultiplier +
+                -brainPosition.dy * scaleMultiplier -
                     topInnerWindowSpace +
                     45 / controller.getScale());
+            print("topInnerWindowSpace");
+            print(topInnerWindowSpace);
             // -leftBrainPosition + 45 / controller.getScale(),
             // -brainPosition.dy * scaleMultiplier +
             //     topInnerWindowSpace +
@@ -8773,9 +8873,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
             Future.delayed(const Duration(milliseconds: 100), () {
               controller.deselect(neuronsKey[neuronsKey.length - 1]);
-              print("Graying");
+              print("Graying Accept With Detail");
               modeIdx = -1;
               controller.modeIdx = modeIdx;
+              prevConstrainedPos = Offset.zero;
+
               setState(() {});
             });
           }, onLeave: (value) {
@@ -9083,6 +9185,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                         print("Graying1");
                         modeIdx = -1;
                         controller.modeIdx = modeIdx;
+                        prevConstrainedPos = Offset.zero;
 
                         setState(() {});
                       });
@@ -9104,17 +9207,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       //   height: neuronInfo["size"].height,
                       //   color: Colors.green.withOpacity(0.2),
                       // );
-                      if (tempIdx == 8) {
-                        return CustomPaint(
-                          size: neuronInfo["size"], // Adjust size as needed
-                          painter: listPainters[7],
-                        );
-                      } else {
-                        return CustomPaint(
-                          size: neuronInfo["size"], // Adjust size as needed
-                          painter: listPainters[tempIdx],
-                        );
-                      }
+                      // if (tempIdx == 8) {
+                      //   return CustomPaint(
+                      //     size: neuronInfo["size"], // Adjust size as needed
+                      //     painter: listPainters[7],
+                      //   );
+                      // } else {
+                      return CustomPaint(
+                        size: neuronInfo["size"], // Adjust size as needed
+                        painter: listPainters[tempIdx],
+                      );
+                      // }
                     }),
               ),
             )),
@@ -9128,6 +9231,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     return list;
   }
 
+  // the Neuron Positions/Distance Formula was hardcoded/measured in 600x600 environment
+  // the most important is the initialMinimumSize
   void repositionContactNeurons() {
     windowWidth = MediaQuery.of(context).size.width;
     windowHeight = MediaQuery.of(context).size.height;
@@ -9138,8 +9243,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     // Size initialImageSize = const Size(600, 600);
     Size initialImageSize = initialMinimumSize;
-    printDebug("initialMinimumSize reposition");
-    printDebug(initialMinimumSize);
 
     if (Platform.isIOS || Platform.isAndroid) {
       double minimumSize = min(windowHeight, windowWidth);
@@ -9148,8 +9251,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     final fittedSizes =
         applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
+    if (prevImageWidth == null) {
+      prevImageWidth = initialImageSize.width;
+      prevImageHeight = initialImageSize.height;
+    } else {
+      prevImageWidth = currentImageWidth;
+      prevImageHeight = currentImageHeight;
+    }
+
     currentImageWidth = fittedSizes.destination.width;
     currentImageHeight = fittedSizes.destination.height;
+    // printDebug("Container Size & Image Size & fittedSizes");
+    // printDebug(containerSize);
+    // printDebug(initialImageSize);
+    // printDebug(MediaQuery.of(context).devicePixelRatio);
+
     final Size imageSize = Size(
         currentImageWidth, currentImageHeight); // Replace with your image size
     centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
@@ -9172,9 +9288,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     double widthRatio = currentImageWidth / minimumSize;
     double heightRatio = currentImageHeight / minimumSize;
-    printDebug("widthRatio, heightRatio");
-    printDebug(imageSize);
-    printDebug(minimumSize);
+    // printDebug("widthRatio, heightRatio");
+    // printDebug(imageSize);
+    // printDebug(minimumSize);
     // if (widthRatio > 1) {
     //   widthRatio = minimumSize / currentImageWidth;
     //   heightRatio = minimumSize / currentImageHeight;
@@ -9188,6 +9304,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     Offset centerOffset =
         Offset(windowWidth / 2 - 5, topSpace + (90 * heightRatio).ceil());
     nodeLeftEyeSensor.offset = centerOffset;
+
+    // printDebug("nodeLeftEyeSensor");
+    // printDebug(nodeLeftEyeSensor.offset);
 
     nodeDistanceSensor.offset = Offset(
         centerOffset.dx - (195 * widthRatio).ceil(),
@@ -10057,6 +10176,154 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     }
   }
 
+  void initializeFrame() {
+    if (Platform.isWindows) {
+      initialWindowWidth = 870;
+      initialWindowHeight = 600;
+      double minimumSize = min(initialWindowWidth, initialWindowHeight);
+      initialMinimumSize = Size(minimumSize, minimumSize);
+      viewPortNode.update(offset: Offset(screenWidth, screenHeight));
+      if (prevInitialFrameGapWidth != null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+      initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+      initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
+      if (prevInitialFrameGapWidth == null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+
+      currentFrameGapWidth = initialFrameGapWidth;
+      currentFrameGapHeight = initialFrameGapHeight;
+    } else if (Platform.isIOS || Platform.isAndroid) {
+      initialWindowWidth = MediaQuery.of(context).size.width;
+      if (isPortrait == true) {
+        initialWindowWidth = MediaQuery.of(context).size.width;
+        initialWindowHeight = MediaQuery.of(context).size.height;
+      } else {
+        initialWindowHeight = 600;
+      }
+
+      // if (MediaQuery.of(context).size.height > 600) {
+      // initialWindowWidth = MediaQuery.of(context).size.width;
+      // initialWindowHeight = MediaQuery.of(context).size.height;
+      double minimumSize = min(600, 600);
+      Size initialMinSize = Size(minimumSize, minimumSize);
+      viewPortNode.update(
+          offset: Offset(MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height));
+      if (prevInitialFrameGapWidth != null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+      initialFrameGapWidth = initialWindowWidth - initialMinSize.width;
+      initialFrameGapHeight = initialWindowHeight - initialMinSize.height;
+      if (prevInitialFrameGapWidth == null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+      printDebug(
+          "VIEWPORT UDPATE WINDOW:$initialWindowWidth X $initialWindowHeight");
+
+      currentFrameGapWidth = initialFrameGapWidth;
+      currentFrameGapHeight = initialFrameGapHeight;
+      // the Neuron Positions/Distance Formula was hardcoded/measured in 600x600 environment
+      // the most important is the initialMinimumSize
+      initialMinimumSize = const Size(600, 600);
+
+      // Size initialImageSize = initialMinimumSize;
+      // if (Platform.isIOS || Platform.isAndroid) {
+      //   double minimumSize = min(MediaQuery.of(context).size.width,
+      //       MediaQuery.of(context).size.height);
+      //   // initialImageSize = Size(minimumSize, minimumSize);
+      //   initialMinimumSize = Size(minimumSize, minimumSize);
+      // }
+      printDebug("initialMinimumSize1");
+      printDebug(initialMinimumSize);
+      // }
+    } else {
+      initialWindowWidth = MediaQuery.of(context).size.width;
+      initialWindowHeight = MediaQuery.of(context).size.height;
+      double minimumSize = min(600, 600);
+      initialMinimumSize = Size(minimumSize, minimumSize);
+      viewPortNode.update(offset: Offset(screenWidth, screenHeight));
+      if (prevInitialFrameGapWidth != null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+      initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+      initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
+      if (prevInitialFrameGapWidth == null) {
+        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapHeight = initialFrameGapHeight;
+      }
+      currentFrameGapWidth = initialFrameGapWidth;
+      currentFrameGapHeight = initialFrameGapHeight;
+    }
+  }
+
+  void silentRepositionNeurons(Map savedFileJson) {
+    // bool isFilePortrait = false;
+    double displayWidth = savedFileJson["windowWidth"];
+    double displayHeight = savedFileJson["windowHeight"];
+
+    // isFilePortrait = false;
+    // get current difference,
+    List<dynamic> nodesJson = savedFileJson["nodes"];
+    for (var v in nodesJson) {
+      if (v["index"] == 1) {
+        // Node Left eye Neuron
+        // printDebug("silentReposisiontNeurons");
+        List<Offset> oldDifCamera = [];
+        Offset oldCameraNodePos = Offset(v["position"][0], v["position"][1]);
+        int len = controller.nodes.length;
+        for (int i = 14; i < len; i++) {
+          oldDifCamera.add(controller.nodes[i].offset - oldCameraNodePos);
+        }
+        Offset newCameraNodePos =
+            Offset(nodeLeftEyeSensor.offset.dx, nodeLeftEyeSensor.offset.dy);
+        for (int i = 14; i < len; i++) {
+          int idx = i - 14;
+          Offset diff = newCameraNodePos + oldDifCamera[idx];
+          controller.nodes[i].offset = Offset(diff.dx, diff.dy);
+          // printDebug("controller.nodes[i].offset");
+          // printDebug(controller.nodes[i].offset);
+          // printDebug(len);
+        }
+        break;
+      }
+    }
+    prevScreenWidth = displayWidth;
+    prevScreenHeight = displayHeight;
+  }
+
+  void initializeNucleus() {
+    printDebug("Initialize Nucleus");
+    if (controller.nucleusList != null) {
+      controller.nucleusList!.clear();
+    } else {
+      controller.nucleusList = [];
+    }
+    // Offset pan = controller
+    //     .getOffset()
+    //     .scale(1 / controller.getScale(), 1 / controller.getScale());
+    int circleLen = protoNeuron.circles.length;
+    for (int i = 0; i < circleLen; i++) {
+      SingleNeuron neuron = protoNeuron.circles[i];
+      Nucleus nucleus = Nucleus(
+        index: i,
+        isSpiking: neuron.isSpiking,
+        neuronActiveCircle: neuronActiveCircles[i],
+        neuronInactiveCircle: neuronInactiveCircles[i],
+        neuronSpikeFlags: neuronSpikeFlags,
+        centerPos: neuron.centerPos,
+        circleKey: neuronCircleKeys[i],
+      );
+      controller.nucleusList!.add(nucleus);
+    }
+  }
+
   // List<bool> getColorRegionFlag() {
   //   List<bool> cameraRegionFlag = [];
 
@@ -10330,5 +10597,5 @@ class ImagePreprocessor extends MjpegPreprocessor {
 }
 
 void printDebug(s) {
-  // print(s);
+  print(s);
 }

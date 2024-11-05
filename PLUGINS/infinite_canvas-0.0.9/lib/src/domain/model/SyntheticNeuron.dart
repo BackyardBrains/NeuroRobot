@@ -212,6 +212,7 @@ class SyntheticNeuron extends CustomPainter {
     // Draw circle at each point with predefined diameter
     if (canvas != null) {
       if (node.isExcitatory == 0) {
+        canvas.drawCircle(Offset(neurX, neurY), neur.diameter, whiteBrush);
         canvas.drawCircle(
             Offset(neurX, neurY), neur.diameter, whiteInhibitoryBrush);
       } else {

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
+import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 
 import '../../domain/model/drop_target.dart';
 import '../../domain/model/edge.dart';
@@ -23,6 +24,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final List<SyntheticNeuron> rawSyntheticNeuronList;
   List<SyntheticNeuron> syntheticNeuronList;
   final List<Connection> syntheticConnections;
+  List<Nucleus>? nucleusList;
   final Map<String, String> neuronTypes;
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
@@ -39,6 +41,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     required this.rawSyntheticNeuronList,
     required this.syntheticNeuronList,
     required this.syntheticConnections,
+    this.nucleusList,
     required this.neuronTypes,
     required this.onLongPress,
     required this.onDoubleTap,

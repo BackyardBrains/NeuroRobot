@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:infinite_canvas/src/presentation/widgets/droptargets_renderer.dart';
+import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import '../widgets/delegate.dart';
@@ -463,6 +464,13 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                       //         .toList()),
                     );
                   }
+                  List<Nucleus> nucleusWidgets = [];
+                  if (controller.isPlaying) {
+                    if (controller.nucleusList != null) {
+                      nucleusWidgets = controller.nucleusList!;
+                    }
+                  }
+
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
                     child: Stack(
@@ -492,6 +500,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                         ),
                         if (controller.dropTargets.isNotEmpty &&
                             dropTargetsWidget != null) ...[dropTargetsWidget!],
+                        ...nucleusWidgets,
 
                         // CHANGE ME
                         // if (controller.marqueeStart != null &&
