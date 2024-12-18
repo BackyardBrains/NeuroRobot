@@ -1,14 +1,51 @@
 // WebSocket
-const StateLength = 20;
+var lookup = {
+    "person": "🧍",
+    "backpack": "🎒",
+    "bottle": "🧴", // 🍶 🍼 🍾
+    "cup": "☕",
+    "bowl": "🧍", // 🥣
+    "banana": "🍌",
+    "apple": "🍎",
+    "orange": "🍊",
+    "chair": "🪑", // 💺
+    "couch": "🛋️",
+    "potted plant": "🪴",
+    "laptop": "💻",
+    "cell phone": "📱",
+    "book": "📒",
+    "vase": "🏺",
+    "Movement": "🏃",
+};
+var arrLookupEmoji = [
+    "🧍",
+    "🎒",
+    "🧴", // 🍶 🍼 🍾
+    "☕",
+    "🧍", // 🥣
+    "🍌",
+    "🍎",
+    "🍊",
+    "🪑", // 💺
+    "🛋️",
+    "🪴",
+    "💻",
+    "📱",
+    "📒",
+    "🏺",
+    "🏃",
+];
+
+const StateLength = 70;
 var websocketWorker;
 var preprocessWorker;
 var websocketcommandWorker;
-var isWarmingEngine = false;
+var isEngineWarmed = false;
+var isPlaying = false;
 // var ptrStateBuffer;
 // var ptrCameraDrawBuffer;
 // var ptrVisPrefs;
 // var ptrVisPrefVals;
-
 
 var sabStateBuffer;
 var sabCameraDrawBuffer;
@@ -16,9 +53,38 @@ var sabVisPrefs;
 var sabVisPrefVals;
 var sabNeuronContacts; 
 var sabMotorCommands;
+var sabMotorMessageBuffer;
 // PREPROCESS
 var sabPreprocessCameraBuffer;
 let sabCanvasBuffer;
+var sabAiPreprocessCameraBuffer;
+var sabAiBoundingBox;
+
+var sabPreprocessColorDetection;
+var sabPreprocessObjectDetection;
+
+// START SIMULATION
+var sabNeuronTypeBuf;
+var sabDelayNeuronBuf;
+// START SIMULATION
+
+// PASS POINTER & INPUT 
+var sabDistPrefs;
+var sabSpeakerBuf;
+var sabMicrophoneBuf;
+var sabLedBuf;
+var sabLedPosBuf;
+var sabVisualInputBuf;
+var sabDistanceBuf;
+var sabDistanceMinLimitBuf;
+var sabDistanceMaxLimitBuf;
+// PASS POINTER & INPUT 
+
+// PASS UI POINTERS
+var periodicNeuronSpikingFlags;
+// PASS UI POINTERS
+
+
 
 const STATE = {
     "WEB_SOCKET":0,
@@ -29,6 +95,14 @@ const STATE = {
     "COMMAND_MOTORS_LENGTH":5,
     "CAMERA_CONTENT_LENGTH":6,
     "CAMERA_CONTENT_COMPLETE":7,
+    "CAMERA_CONTENT_STOP":8,
+    "RECOGNIZE_IMAGE":9,
+    "RECOGNITION_IMAGE_PROCESSING":10,
+    "RECOGNITION_IMAGE_LENGTH":11,
+    "BATTERY_STATUS":12,
+    "DISTANCE_STATUS":13, 
+    "AIPROCESS_IMAGE_PROCESSING":14,
+    "AIPROCESS_IMAGE_LENGTH":15,
 };
 
 
@@ -37,10 +111,13 @@ const frameWidth = 320;
 const frameHeight = 240;
 let offscreenCanvas;
 let ctxLeft;
+let imgPerson;
 let imgData;
 let imgCamera;
+let imgCameraLeft;
 
 let canvasLeftElement;
+let imgLeftFrame;
 let imgFrame;
 let lastFrameIdx= -100;
 
@@ -84,6 +161,11 @@ let tempJsonRawData;
 // let sabCanvas=[];
 // let canvasBuffers=[];
 function initializeModels(jsonRawData){
+    imgPerson = document.getElementById("imagePerson");
+    imgPerson.src="http://127.0.0.1:5500/assets/icons/person.png";
+    
+    
+    console.log("Initialize Models")
     tempJsonRawData = jsonRawData;
     try{
         izhikevichWorker.terminate();
@@ -98,10 +180,13 @@ function initializeModels(jsonRawData){
         websocketWorker.terminate();
     }catch(ex){
     }
+
     try{
-        websocketcommandWorker.terminate();
+        recognitionWorker.terminate();
     }catch(ex){
     }
+        
+
 
     console.log(jsonRawData);
     let jsonData = JSON.parse(jsonRawData);
@@ -132,6 +217,8 @@ function initializeModels(jsonRawData){
     // sabConfig = new SharedArrayBuffer( 10 * Uint32Array.BYTES_PER_ELEMENT );
     sabCom = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
     sabIsPlaying = new SharedArrayBuffer( 1 * Int16Array.BYTES_PER_ELEMENT );
+    
+    sabPreprocessObjectDetection = new Float32Array(new SharedArrayBuffer( 7 * Float32Array.BYTES_PER_ELEMENT ));
 
     sabNumCom = new Int16Array(sabCom);
     // sabNumConfig = new Uint32Array(sabConfig);
@@ -187,6 +274,12 @@ function initializeModels(jsonRawData){
                 simulationWorkerChannelPort:simulationWorkerChannel.port1,
                 initializeChannelPort:initializeChannel.port1,
             },[simulationWorkerChannel.port1, initializeChannel.port1]);
+        }else
+        if (event.data.message == "STOP_THREADS"){
+            if (isEngineWarmed) {
+                preprocessWorker.terminate();
+                recognitionWorker.terminate();
+            }
         }
     };
     
@@ -209,11 +302,36 @@ function initializeModels(jsonRawData){
         sabNumConfig = event.data.sabNumConfig;
         sabNumCom = event.data.sabNumCom;
         sabNumIsPlaying = event.data.sabNumIsPlaying;
+
+        // PASS POINTER AND INPUT
+        sabDistPrefs = event.data.sabDistPrefs;
+        sabSpeakerBuf = event.data.sabSpeakerBuf;
+        sabMicrophoneBuf = event.data.sabMicrophoneBuf;
+        sabLedBuf = event.data.sabLedBuf;
+        sabLedPosBuf = event.data.sabLedPosBuf;
+        sabVisualInputBuf = event.data.sabVisualInputBuf;
+        sabDistanceBuf = event.data.sabDistanceBuf;
+        sabDistanceMinLimitBuf = event.data.sabDistanceMinLimitBuf;
+        sabDistanceMaxLimitBuf = event.data.sabDistanceMaxLimitBuf;
+        // PASS POINTER AND INPUT
+        
+        // PASS UI POINTERS
+        periodicNeuronSpikingFlags = event.data.periodicNeuronSpikingFlags;
+        console.log("periodicNeuronSpikingFlagsZZZ:", periodicNeuronSpikingFlags);
+        // PASS UI POINTERS
+
+        // START SIMULATION
+        sabNeuronTypeBuf = event.data.sabNeuronTypeBuf;
+        sabDelayNeuronBuf = event.data.sabDelayNeuronBuf;
+        // START SIMULATION
+
+
         // OPENCV & SIMULATION
         sabVisPrefs = event.data.sabVisPrefs;
         sabNeuronContacts = event.data.sabNeuronContacts;
         sabMotorCommands = event.data.sabMotorCommands;
-
+        console.log("jsonData");
+        console.log(jsonData);
 
         sabNumA.set(jsonData[0]);
         sabNumB.set(jsonData[1]);
@@ -228,16 +346,28 @@ function initializeModels(jsonRawData){
         sabNumCom.fill(-1);
         sabNumNeuronCircle.fill(0);
         sabNumIsPlaying.fill(0);
-        console.log(jsonData);
-        console.log(sabVisPrefs);
         sabVisPrefs.set(jsonData[13]);
         sabNeuronContacts.set(jsonData[14]);
-        sabMotorCommands.set(jsonData[15]);
+        // sabMotorCommands.set(jsonData[15]);
+        sabNeuronTypeBuf.set(jsonData[16]);
+        sabDelayNeuronBuf.set(jsonData[17]);
+        sabDistPrefs.set(jsonData[18]);
+        sabSpeakerBuf.set(jsonData[19]);
+        sabMicrophoneBuf.set(jsonData[20]);
+        sabLedBuf.set(jsonData[21]);
+        sabLedPosBuf.set(jsonData[22]);
+        sabDistanceBuf.set(jsonData[23]);
+        sabDistanceMinLimitBuf.set(jsonData[24]);
+        sabDistanceMaxLimitBuf.set(jsonData[25]);
+        console.log("sabDistanceMinLimitBuf _ sabDistanceMaxLimitBuf: ", sabDistanceMinLimitBuf, sabDistanceMaxLimitBuf);
+
+        // sabNeuronTypeBuf, sabDelayNeuronBuf, sabDistPrefs, sabSpeakerBuf, sabMicrophoneBuf, sabLedBuf, sabLedPosBuf, sabVisualInputBuf, sabDistanceBuf, sabDistanceMinLimitBuf, sabDistanceMaxLimitBuf        
         // pVisPrefs, pNeuronContacts, pMotorCommands,
         sabCanvasBuffer = event.data.allocatedCanvasbuffer;
         //remove me
         // sabNumConfig[0] = 9;
         window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps);
+
         // window.setCanvasBuffer(event.data.allocatedCanvasbuffer, event.data.sabNumPos,event.data.sabNumNeuronCircle, event.data.sabNumNps, event.data.sabVisPrefs, event.data.sabNeuronContacts, event.data.);
         izhikevichWorker.postMessage({
             message:'RUN_WORKER',
@@ -252,7 +382,17 @@ function initializeModels(jsonRawData){
             // izhikevichWorker.postMessage({
             //     message:'CONNECT_SIMULATION',
             // });
-            runSimulation(event.data);        
+            runSimulation(event.data);
+            event.data.sabStateBuffer[STATE.BATTERY_STATUS] = 70;
+            console.log("passSharedArrayBufferrrr", );
+            console.log(event.data.sabStateBuffer);
+            window.passSab(event.data.sabStateBuffer, event.data.sabVisPrefs, );
+            // window.passSab(new Int32Array(30), new Int32Array(30) );
+            // sabStateBuffer = allocatedBuffer.sabStateBuffer;
+            // sabCameraDrawBuffer = allocatedBuffer.sabCameraDrawBuffer;
+            // sabVisPrefs = allocatedBuffer.sabVisPrefs;
+            // sabVisPrefVals = allocatedBuffer.sabVisPrefVals;
+        
         }
         // console.log("event main thread");
         // console.log(event);
@@ -284,13 +424,20 @@ function runSimulation(allocatedBuffer){
     // ptrVisPrefs: ptrVisPrefs,
     // ptrVisPrefVals: ptrVisPrefVals,
 
+    // canvasLeftElement = document.getElementById("canvasLeft");
+    // ctxLeft = canvasLeftElement.getContext('2d', { willReadFrequently: true });
+    imgCameraLeft = document.getElementById("imageLeft");
     canvasLeftElement = document.getElementById("canvasLeft");
-    imgCamera = document.getElementById("image");
+    canvasLeftElement.style.visibility = 'hidden';
     ctxLeft = canvasLeftElement.getContext('2d', { willReadFrequently: true });
 
+    imgCamera = document.getElementById("image");
     canvasRightElement = document.getElementById("canvasRight");
+    canvasRightElement.style.visibility = 'visible';
     ctxRight = canvasRightElement.getContext('2d', { willReadFrequently: true });
-
+    // /* IMPORTANT
+    recognitionWorker = new Worker('build/web/recognition.worker.js');
+    // */
     // ctx = canvas.getContext('2d');
     // alert(offscreenCanvasElement);
     // offscreenCanvas = offscreenCanvasElement.transferControlToOffscreen();
@@ -305,77 +452,187 @@ function runSimulation(allocatedBuffer){
 
     // console.log("Websocket worker", offscreenCanvas);
 
-    preprocessWorker = new Worker('build/web/preprocess.worker.js');
-    preprocessWorker.postMessage({
-        "message": "INITIALIZE",
-        "sabStateBuffer":sabStateBuffer,
-        "sabCameraDrawBuffer":sabCameraDrawBuffer,
-        "sabVisPrefs":sabVisPrefs,
-        "sabVisPrefVals":sabVisPrefVals,
-        "sabNeuronContacts":sabNeuronContacts,
-        "neuronSize":neuronSize,
 
-    });
-    preprocessWorker.onmessage = function( evt ){
-        switch( evt.data.message ){
-            case "INITIALIZED_WASM_PREPROCESS":
-                sabPreprocessCameraBuffer = evt.data.sabPreprocessCameraBuffer;
-                preprocessWorker.postMessage({
-                    "message": "START_PREPROCESS",
-                });
-            break;
-        }
-    }
-
-    websocketWorker = new Worker('build/web/websocket.worker.js');
-    websocketWorker.postMessage({
-        "message": "INITIALIZE",
-        "sabStateBuffer":sabStateBuffer,
-        "sabCameraDrawBuffer":sabCameraDrawBuffer,
-        // "offscreenCanvas": offscreenCanvas,
-    // },[offscreenCanvas]);
-    });
-    websocketcommandWorker = new Worker('build/web/websocketcommand.worker.js');
-    websocketcommandWorker.postMessage({
-        "message": "INITIALIZE",
-        "sabStateBuffer":sabStateBuffer,
-        "sabMotorCommand":sabMotorCommands,
-        // "offscreenCanvas": offscreenCanvas,
-    // },[offscreenCanvas]);
-    });
-
-    
-    websocketWorker.onmessage = function( evt ){
-        switch( evt.data.message ){
-            case "INITIALIZED":
-                setTimeout(()=>{
-                    websocketWorker.postMessage({
-                        "message": "START",
-                    });
-    
-                },2000);
-            break;
-        }
-    }
-
-    if (!isWarmingEngine){
-        isWarmingEngine = true;
+    // FETCH WEBSOCKET IMAGE FRAME
+    if (!isEngineWarmed){
         stopThreadProcess();
         setTimeout(()=>{
             try{
                 izhikevichWorker.terminate();
                 preprocessWorker.terminate();
-                websocketWorker.terminate();
-                websocketcommandWorker.terminate();
+                // websocketWorker.terminate();
+                // websocketcommandWorker.terminate();
             }catch(err){
 
             }
+            isEngineWarmed = true;
     
-        }, 2000);
+        }, 700);
     }else{
-        izhikevichWorker.postMessage({
-            message:'CONNECT_SIMULATION',
+        
+        isPlaying = true;
+        setTimeout(()=>{
+            izhikevichWorker.postMessage({
+                message:'CONNECT_SIMULATION',
+            });
+        }, 2000);
+
+        preprocessWorker = new Worker('build/web/preprocess.worker.js');
+        preprocessWorker.postMessage({
+            "message": "INITIALIZE",
+            "sabStateBuffer":sabStateBuffer,
+            "sabCameraDrawBuffer":sabCameraDrawBuffer,
+            "sabVisPrefs":sabVisPrefs,
+            "sabVisPrefVals":sabVisPrefVals,
+            "sabVisualInputBuf":sabVisualInputBuf,
+            "sabNeuronContacts":sabNeuronContacts,
+            "neuronSize":neuronSize,
+            // "sabPreprocessColorDetection":sabPreprocessColorDetection,
         });
+        preprocessWorker.onmessage = function( evt ){
+            switch( evt.data.message ){
+                case "INITIALIZED_WASM_PREPROCESS":
+                    console.log("INITIALIZED_WASM_PREPROCESS");
+                    console.log(Date());
+                    sabPreprocessCameraBuffer = evt.data.sabPreprocessCameraBuffer;
+                    sabPreprocessColorDetection = evt.data.sabPreprocessColorDetection;
+                    sabPreprocessColorDetection.fill(0);
+                    // /* IMPORTANT
+    
+                    preprocessWorker.postMessage({
+                        "message": "START_PREPROCESS",
+                    });
+    
+                    const channels = 4;
+                    sabAiPreprocessCameraBuffer = new Uint8Array( new SharedArrayBuffer(320*320 * channels) );
+                    sabAiBoundingBox = new Float32Array( new SharedArrayBuffer( 7 * Float32Array.BYTES_PER_ELEMENT) );
+                                
+                    recognitionWorker.postMessage({
+                        "message": "INITIALIZE",
+                        "neuronSize": neuronSize,
+                        "sabStateBuffer": sabStateBuffer,
+                        "sabVisPrefs": sabVisPrefs,
+                        "sabVisualInputBuf": sabVisualInputBuf,
+                        "sabAiPreprocessCameraBuffer": sabAiPreprocessCameraBuffer,
+                        "sabAiBoundingBox": sabAiBoundingBox,
+                        "sabPreprocessObjectDetection":sabPreprocessObjectDetection,
+                    });
+                    recognitionWorker.onmessage = function( evt ){
+                        switch( evt.data.message ){
+                            case "INITIALIZED":
+                                console.log("RECOGNITION INITIALIZED");
+                                sabPreprocessObjectDetection = evt.data.sabPreprocessObjectDetection;
+                                sabPreprocessObjectDetection.fill(0);
+            
+                                recognitionWorker.postMessage({
+                                    "message": "START_RECOGNITION",
+                                });
+                            break;
+                            case "INITIALIZED":
+                            break;
+    
+                        }
+                    }
+                
+                    window.passUiPointers(periodicNeuronSpikingFlags, sabPreprocessColorDetection, sabPreprocessObjectDetection);
+                    //  */
+                
+                break;
+            }
+        }
+    
+    
+
+        websocketWorker = new Worker('build/web/websocket.worker.js');
+        console.log("INSTANTIATE WEBSOCKET WORKER");
+        websocketWorker.postMessage({
+            "message": "INITIALIZE",
+            "sabStateBuffer":sabStateBuffer,
+            "sabCameraDrawBuffer":sabCameraDrawBuffer,
+            // "offscreenCanvas": offscreenCanvas,
+        // },[offscreenCanvas]);
+        });
+
+        websocketWorker.onmessage = function( evt ){
+            switch( evt.data.message ){
+                case "INITIALIZED":
+                    setTimeout(()=>{
+                        websocketWorker.postMessage({
+                            "message": "START",
+                        });
+                    },2000);
+                break;
+                case "STOP_WEBSOCKET":
+                    websocketWorker.terminate();                   
+                break;
+
+            }
+        }    
+
+
+
+        websocketcommandWorker = new Worker('build/web/websocketcommand.worker.js');
+        websocketcommandWorker.postMessage({
+            "message": "INITIALIZE",
+            "sabStateBuffer":sabStateBuffer,
+            "sabDistanceBuf":sabDistanceBuf,
+            "sabMotorCommand":sabMotorCommands,
+            // "offscreenCanvas": offscreenCanvas,
+        // },[offscreenCanvas]);
+        });
+    
+        
+        websocketcommandWorker.onmessage = function( evt ){
+            switch( evt.data.message ){
+                case "INITIALIZED_WEB_SOCKET":
+                    // const sabStateCommand = evt.data.sabStateCommand;
+                    // setInterval(()=>{
+                    //     console.log("TIMEOUT!!!");
+                    //     Atomics.notify(sabStateBuffer, STATE.COMMAND_MOTORS, Math.random() * 20 + 1);
+                    // }, 7000);
+        
+                    setTimeout(()=>{
+                        websocketcommandWorker.postMessage({
+                            "message": "START",
+                        });
+                    },2000);
+                break;
+                case "STOP_WEBSOCKET":
+                    console.log("websocketcommandWorker", "STOP_WEBSOCKET");
+                    websocketcommandWorker.terminate();                   
+                break;
+            }
+        };
+    
+  
+        /* IMPORTANT
+        recognitionWorker = new Worker('build/web/recognition.worker.js');
+        */
+        /* IMPORTANT
+        const channels = 4;
+        sabAiPreprocessCameraBuffer = new Uint8Array( new SharedArrayBuffer(320*320 * channels) );
+        sabAiBoundingBox = new Float32Array( new SharedArrayBuffer( 4 * Float32Array.BYTES_PER_ELEMENT) );
+        preprocessWorker.postMessage({
+            "message": "START_PREPROCESS",
+        });
+        
+        recognitionWorker.postMessage({
+            "message": "INITIALIZE",
+            "sabStateBuffer": sabStateBuffer,
+            "sabAiPreprocessCameraBuffer": sabAiPreprocessCameraBuffer,
+            "sabAiBoundingBox": sabAiBoundingBox,
+        });
+        recognitionWorker.onmessage = function( evt ){
+            switch( evt.data.message ){
+                case "INITIALIZED":
+                    console.log("RECOGNITION INITIALIZED");
+                    recognitionWorker.postMessage({
+                        "message": "START_RECOGNITION",
+                    });
+                break;
+            }
+        }
+            */
     }
 
 
@@ -407,10 +664,29 @@ function setIzhikevichParameters(jsonRawData){
 }
 
 function stopThreadProcess(isStop){
+    console.log("isEngineWarmed: ", isEngineWarmed);
+    if (isEngineWarmed) {
+        isPlaying = false;
+        // alert(isEngineWarmed);
+        sabStateBuffer[STATE.WEB_SOCKET] = -100;
+        // sabStateBuffer[STATE.COMMAND_MOTORS] = 1;
+        sabStateBuffer[STATE.CAMERA_CONTENT_STOP] = 1;
+        Atomics.notify(sabStateBuffer, STATE.COMMAND_MOTORS, 1);
+        ctxRight.clearRect(0, 0, 160, 120);
+        canvasRightElement.style.visibility = 'hidden';
+        sabPreprocessObjectDetection = undefined;
+        sabPreprocessColorDetection = undefined;
+        prevObjectIdxDetected = -1;
+        prevColorDetected = -1;
+
+    }
+
     sabNumConfig[1]=1;
     izhikevichWorker.postMessage({
         message: 'STOP_THREAD_PROCESS',
     });
+
+
 }
 
 function changeSelectedIdx(selectedIdx){
@@ -429,50 +705,161 @@ function changeSelectedIdx(selectedIdx){
 }
 
 // window.canvasDraw(canvasBuffer);
+let prevObjectIdxDetected = -1;
+let prevColorDetected = -1;
+const circularAngle = 2 * Math.PI;
 function repaint(timestamp){
     try{
         // let image = document.getElementById('image');
-        if (sabCameraDrawBuffer !== undefined){
+        if (sabCameraDrawBuffer !== undefined){   
             // console.log("sabCameraDrawBuffer");
             // console.log(sabCameraDrawBuffer);
             const isFrameComplete = sabStateBuffer[STATE.CAMERA_CONTENT_COMPLETE];
             // console.log("COMPLETE : ", isFrameComplete);
             // only if there is a frame
+            // if (isFrameComplete != lastFrameIdx || 1==1) {
             if (isFrameComplete != lastFrameIdx) {
                 lastFrameIdx = isFrameComplete;
                 const len = sabStateBuffer[STATE.CAMERA_CONTENT_LENGTH];
                 const cameraContent = sabCameraDrawBuffer.slice(0,len);
                 // const cameraContent = sabCameraDrawBuffer.subarray(0,len);
-                // console.log(len, cameraContent);
-                // send to Flutter
+                // send to Flutter is not working because it will flicker
 
                 // console.log("sabCanvasBuffer : ", sabCanvasBuffer);
                 // window.streamImageFrame(cameraContent);
 
+                // /* !!! IMPORTANT
                 imgFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'})) 
                 // // let frame = URL.createObjectURL(new Blob([cameraContent], {type: "video/x-motion-jpeg"})) 
                 imgCamera.src = imgFrame;
+                // */
+                /*
+                    // imgCamera.src = "http://127.0.0.1:5500/assets/bg/Cavendish_Banana_DS.jpg";
+                    // imgCamera.src = "http://127.0.0.1:5500/assets/bg/greenbg.jpeg";
+                    imgCamera.src = "http://127.0.0.1:5500/assets/bg/ObjBlackRedBg.jpg";
+                    // imgCamera.src = "http://127.0.0.1:5500/assets/bg/person.jpg";
+                    // imgCamera.src = "http://127.0.0.1:5500/assets/bg/banana.jpeg";
+                    // imgCamera.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Cavendish_Banana_DS.jpg/440px-Cavendish_Banana_DS.jpg";
+                */
                 imgCamera.onload = function(){
-                    ctxLeft.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
-                    ctxRight.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
-                    
-                    if (sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] == 0 && sabPreprocessCameraBuffer !== undefined){
-                        sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 1;
-                        imgData = ctxLeft.getImageData(0, 0, frameWidth, frameHeight);
+                    // ctxLeft.drawImage(imgCamera, 0, 0, frameWidth, frameHeight);
+                    ctxRight.drawImage(imgCamera, 0, 0, frameWidth/2, frameHeight/2);
+                    // ctxRight.strokeStyle = 'blue';
 
-                        // sabPreprocessCameraBuffer.set(Array.from( imgData.data) );
+                    // ctxRight.drawImage(imgPerson, sabAiBoundingBox[1] + sabAiBoundingBox[4]/2, sabAiBoundingBox[0], sabAiBoundingBox[4]/2, sabAiBoundingBox[5]);
+                    if (sabAiBoundingBox !== undefined) {
+                        // ctxRight.drawImage(imgPerson, sabAiBoundingBox[1] + sabAiBoundingBox[4]/2-16, sabAiBoundingBox[0], 16, 16);
+                        // ctxRight.drawImage(imgPerson, sabAiBoundingBox[1] + sabAiBoundingBox[4]/2-16, sabAiBoundingBox[0], 16, 16);
+                        ctxRight.font = "15px Noto Emoji";
+                        ctxRight.fillStyle = 'white';
+                        if (arrLookupEmoji[sabAiBoundingBox[6]-7] !== undefined) {
+                            ctxRight.fillText(arrLookupEmoji[sabAiBoundingBox[6]-7], sabAiBoundingBox[1] + sabAiBoundingBox[4]/2-16 , sabAiBoundingBox[0]+ 16);
+                            ctxRight.stroke();
+                        }
+                    }
+
+                    if (sabPreprocessColorDetection !== undefined) {
+                        if (sabPreprocessColorDetection[2] > 8) {
+                            // ctxRight.fillStyle = 'blue';
+                            // ctxRight.fillStyle = '#000000';
+                            ctxRight.fillStyle = '#1996FC';
+
+                            ctxRight.beginPath();
+                            ctxRight.arc(sabPreprocessColorDetection[0] + 10, sabPreprocessColorDetection[1], 7, 0, circularAngle); // (x, y, radius, start angle, end angle)
+                            ctxRight.fill();
+                        }
+                        if (sabPreprocessColorDetection[5] > 8) {
+                            // console.log("sabPreprocessColorDetection !! defined", sabPreprocessColorDetection[3],  sabPreprocessColorDetection[4], sabPreprocessColorDetection[8]);
+
+                            // ctxRight.fillStyle = 'green';
+                            // ctxRight.fillStyle = '#FFffFF';
+                            ctxRight.fillStyle = '#18A953';
+                            ctxRight.beginPath();
+                            ctxRight.arc(sabPreprocessColorDetection[3] + 10, sabPreprocessColorDetection[4], 7, 0, circularAngle); // (x, y, radius, start angle, end angle)
+                            ctxRight.fill();
+                            
+                        }
+                        if (sabPreprocessColorDetection[8] > 8) {
+                            ctxRight.fillStyle = 'red';
+                            // ctxRight.fillStyle = '#ee00ee';
+                            ctxRight.beginPath();
+                            ctxRight.arc(sabPreprocessColorDetection[6] + 10, sabPreprocessColorDetection[7], 7, 0, circularAngle); // (x, y, radius, start angle, end angle)
+                            ctxRight.fill();                        
+                        }
+                    }
+
+                    if (sabStateBuffer[STATE.PREPROCESS_IMAGE] == 0 && sabPreprocessCameraBuffer !== undefined){                       
+                        // console.log("color detection", sabStateBuffer[STATE.PREPROCESS_IMAGE]);
+                        // sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 1;
+                        imgData = ctxRight.getImageData(0, 0, frameWidth/2, frameHeight/2);
+
                         sabPreprocessCameraBuffer.set( imgData.data );
-                        // console.log("imgData", sabPreprocessCameraBuffer);
-                        // console.log("sabPreprocessCameraBuffer", sabPreprocessCameraBuffer);
-                        // console.log(imgData.data.subarray(0,30), sabPreprocessCameraBuffer.subarray(0,30));
 
                         sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH] = imgData.data.length;
                         // sabCameraDrawBuffer.set(imgData);
-                        Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);                        
+                        // console.log("color detection notify");
+                        Atomics.notify(sabStateBuffer, STATE.PREPROCESS_IMAGE,1);
                     }
 
                     //send imgData to wasm 
-                    URL.revokeObjectURL(imgFrame)
+                    // /* !!! IMPORTANT
+                        URL.revokeObjectURL(imgFrame)
+                    // */
+                }
+                // tensorflow resize gave different result https://stackoverflow.com/questions/47841840/tensorflow-resizebilinear-gives-different-results-than-cvresize
+
+                // imgCameraLeft.src = "http://127.0.0.1:5500/assets/bg/banana.jpeg";
+                // /* !!! IMPORTANT
+                imgLeftFrame = URL.createObjectURL(new Blob([cameraContent], {type: 'image/jpeg'}));
+                imgCameraLeft.src = imgLeftFrame;
+                // */
+                // /*
+                // imgCameraLeft.src = "http://127.0.0.1:5500/assets/bg/person.jpg";
+                // imgCameraLeft.src = "http://127.0.0.1:5500/assets/bg/banana.jpeg";
+                // imgCameraLeft.src = "http://127.0.0.1:5500/assets/bg/ObjBlackRedBg.jpg";
+
+                // imgCameraLeft.src = "http://127.0.0.1:5500/assets/bg/greenbg.jpeg";;
+                // sabVisualInputBuf[12 * 22 + 2] = 50;
+                // sabVisualInputBuf[22* 12 + 3] = 50;
+                // */
+                imgCameraLeft.onload = function(){
+                    ctxLeft.drawImage(imgCameraLeft, 0, 0, 320, 320);
+                    if (sabStateBuffer[STATE.AIPROCESS_IMAGE_PROCESSING] == 0 && sabAiPreprocessCameraBuffer !== undefined){
+                        // console.log("AIPROCESS STARTZZZ");
+                        // Atomics.store(sabStateBuffer, STATE.AIPROCESS_IMAGE_PROCESSING, 1);
+                        const imgData = ctxLeft.getImageData(0, 0, 320, 320);
+                        sabAiPreprocessCameraBuffer.set( imgData.data );
+
+                        sabStateBuffer[STATE.AIPROCESS_IMAGE_LENGTH] = imgData.data.length;
+                        Atomics.notify(sabStateBuffer, STATE.AIPROCESS_IMAGE_LENGTH,1);                        
+                        Atomics.notify(sabStateBuffer, STATE.RECOGNIZE_IMAGE,1);
+                    }
+                    // /* !!! IMPORTANT
+                    URL.revokeObjectURL(imgLeftFrame)
+                    // */
+                };
+
+                // console.log("periodicNeuronSpikingFlags");
+                // console.log(periodicNeuronSpikingFlags);
+                window.updateRobotStatus();
+                // Fill this
+                if (sabPreprocessColorDetection !== undefined && sabPreprocessObjectDetection !== undefined) {
+                    let detection = 0;
+                    if (prevObjectIdxDetected != sabPreprocessObjectDetection[0] ) {
+                        prevObjectIdxDetected = sabPreprocessObjectDetection[0];
+                        detection++;
+                    }
+                    let sum = sabPreprocessColorDetection.reduce((a, b)=>{
+                        return a+b;
+                    });
+                    if (prevColorDetected != sum) {
+                        prevColorDetected = sum;
+                        detection++;
+                    }
+
+                    if (detection > 0) {
+                        window.passImageDetection(sabPreprocessColorDetection, sabPreprocessObjectDetection, sabAiBoundingBox);
+                    }
                 }
     
                 // imgData.data.set(sabCameraDrawBuffer);
@@ -510,7 +897,9 @@ setTimeout(()=>{
         [0.02], [0.18], [-65], [2], [5.0], [2.0],  
         [0.0], [0.0],  
         1, 1, 200, 2000,
-        1, [-1], [0], [0]
+        1, [-1], [0], [0],
+        [0], [0], [0], [0], [0],
+        [0], [0], [0], [0], [0],[0]
     ]`);    
 }, 2000);
 

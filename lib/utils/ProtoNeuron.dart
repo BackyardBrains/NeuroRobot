@@ -278,8 +278,8 @@ class ProtoNeuron extends CustomPainter {
           dBufList[idx] = 2;
           break;
         case "Custom":
-          aBufList[idx] = 0.02;
-          dBufList[idx] = 2;
+          // aBufList[idx] = 0.02;
+          // dBufList[idx] = 2;
           break;
 
         case "Delay":

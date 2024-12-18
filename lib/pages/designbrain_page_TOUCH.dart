@@ -427,7 +427,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   bool isSimulationCallbackAttached = false;
 
-  int StateLength = 20;
+  int StateLength = 70;
   int MotorMessageLength = 300;
   // int VisualPrefLength = 7 * 2;
   final rightEyeConstant = 15 + 7;

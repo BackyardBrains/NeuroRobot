@@ -14,8 +14,13 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="/">
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script>   
 
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.10"></script>    -->
+
+  <base href="/">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Emoji&display=swap">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
@@ -23,19 +28,19 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="neurorobot">
+  <meta name="apple-mobile-web-app-title" content="SpikerBot">
   <link rel="apple-touch-icon" href="build/web/icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="build/web/favicon.png"/>
 
-  <title>neurorobot</title>
+  <title>SpikerBot</title>
   <link rel="manifest" href="build/web/manifest.json">
 
-  <script>
+  <!-- <script>
     // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = "2536787133";
-  </script>
+  </script> -->
   <!-- This script adds the flutter initialization JS code -->
   <script src="build/web/flutter.js" defer></script>
   <script src="build/web/index.js"></script>
@@ -44,25 +49,27 @@
   <!-- <script>
     initializeModels("[0,0,0,0,0,0,0,0,0,2]");
   </script> -->
-  <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
-  </script>
-  <!-- <div id="imageLeft" style="position:absolute;top:20;left:30;width:320px;height:240px; z-index:30;visibility: visible;background-color:red;" /> -->
+  <script src="build/web/flutter_bootstrap.js" async></script>
+  <!-- <script>
+    // window.addEventListener('load', function(ev) {
+    //   // Download main.dart.js
+    //   _flutter.loader.load({
+    //     serviceWorker: {
+    //       serviceWorkerVersion: serviceWorkerVersion,
+    //     },
+    //     onEntrypointLoaded: function(engineInitializer) {
+    //       engineInitializer.initializeEngine().then(function(appRunner) {
+    //         appRunner.runApp();
+    //       });
+    //     }
+    //   });
+    // });
+  </script> -->
+  <img id="imagePerson" style="visibility: hidden;" />
+  <img id="imageLeft" style="position:absolute;top:20;left:30;width:320px;height:320px; z-index:30;visibility: hidden;" />
   <img id="image" style="position:absolute;top:20;left:30;width:320px;height:240px; z-index:30;visibility: hidden;"/>
-  <canvas id="canvasLeft" width="320" height="240" style="position:fixed;top:20px;left:30px;z-index:30;visibility: visible; clip-path: inset(0 70px 0 0);"></canvas>
-  <canvas id="canvasRight" width="320" height="240" style="position:fixed;top:20px;right:130px;z-index:30;visibility: visible; clip-path: inset(0 0 0 70px);"></canvas>
+  <canvas id="canvasLeft" width="320" height="320" style="position:fixed;top:20px;left:30px;z-index:30;visibility: visible;"></canvas>
+  <canvas id="canvasRight" width="160" height="120" style="position:fixed;top:60px;right:170px;z-index:30;visibility: visible; clip-path: inset(0 0 0 0px);"></canvas>
 
 </body>
 </html>

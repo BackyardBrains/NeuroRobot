@@ -1,3 +1,10 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
+import 'package:idb_shim/idb.dart';
+import 'package:idb_shim/idb_browser.dart';
+// import 'package:file_selector/file_selector.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -15,79 +22,114 @@ TextEditingController tecBrainName = TextEditingController();
 TextEditingController tecBrainDescription = TextEditingController();
 bool isDeleteMode = false;
 int isSavingMode = 1;
-bool isEditingMenu = false;
+bool isEditingMenu = true;
+bool isUploading = false;
 String currentFileName = "-";
 Map mapStatus = {};
+int idbVersion = 1;
 
 // String infoPath = "${Platform.pathSeparator}info";
 // String imagesPath =
 //     "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}images";
-String textPath =
-    "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
-List<File> fileNames = [];
+// String textPath =
+//     "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
+List<String> fileNames = [];
 
 Directory? documentPath;
 List<Map<String, String>> fileInfos = [];
 
 bool isLoadBrainDialog = false;
-Future<List<File>> loadBrainFiles(fileInfos, context) async {
-  // String imagesPath = "";
-
-  List<File> fileNames = [];
-  // fileInfos = [];
+late Database db;
+// IdbFactory? idbFactory = getIdbFactory();
+Future<List<String>> loadBrainFiles(fileInfos, context) async {
+  List<String> fileNames = [];
 
   isLoadBrainDialog = true;
-  documentPath = Directory((await getApplicationDocumentsDirectory()).path);
-  final Directory directory = Directory("${(documentPath)?.path}$textPath");
-  if (!directory.existsSync()) {
-    // if (entity.isEmpty) {
-    // ignore: use_build_context_synchronously
-    // noSavedBrainAlert(context);
-    return [];
-  }
-  List<FileSystemEntity> entity = directory.listSync(recursive: false);
-  var fileList = entity
-      .map((item) => item.path)
-      .where((item) => item.endsWith('.txt'))
-      .toList(growable: false);
-  if (fileList.isEmpty) {
-    // noSavedBrainAlert(context);
-    return [];
-  }
 
-  var statResults = await Future.wait([
-    for (var path in fileList) FileStat.stat(path),
-  ]);
+  // open the database
+  // bool isDatabaseCreated = false;
+  const String storeName = "spikerbot";
+  // if (idbFactory != null) {
+  //   Database db = await idbFactory.open("byb_spikerbot.db", version: idbVersion,
+  //       onUpgradeNeeded: (VersionChangeEvent event) {
+  //     Database db = event.database;
+  //     if (db.objectStoreNames.toList().contains(storeName)) {
+  //       isDatabaseCreated = true;
+  //     }
+  //   });
+  {
+    // printDebug("isDatabaseCreated");
+    // printDebug(isDatabaseCreated);
+    // if (!isDatabaseCreated) {
+    //   return [];
+    // }
 
-  var mtimes = <String, DateTime>{
-    for (var i = 0; i < fileList.length; i += 1)
-      fileList[i]: statResults[i].changed,
-  };
-  fileList.sort((a, b) => mtimes[a]!.compareTo(mtimes[b]!));
+    var txn = db.transaction(storeName, "readonly");
+    var store = txn.objectStore(storeName);
+    // Map value = await store.getObject(key);
+    var rawKeys = await store.getAllKeys();
+    printDebug("rawKeys");
+    printDebug(rawKeys);
 
-  for (String fileString in fileList) {
-    // printDebug(fileString);
-    if (fileString.contains(".txt")) {
-      fileNames.insert(0, File(fileString));
-      List<String> arr = fileString.split("@@@");
-      printDebug("arr");
-      printDebug(arr);
-      final File savedFile = File(fileString);
-      if (savedFile.existsSync()) {
-        Map<String, String> brainInfo = {};
-        brainInfo.putIfAbsent("title", () => arr[1]);
-        brainInfo.putIfAbsent(
-            "description", () => arr[2].replaceAll(".txt", ""));
-        fileInfos.insert(0, brainInfo);
-      } else {
-        Map<String, String> brainInfo = {
-          "title": "Default title",
-          "description": "Old file version, please recreate and delete this."
-        };
-        fileInfos.insert(0, brainInfo);
-      }
+    Map mapValues = {};
+    for (var rawKey in rawKeys) {
+      String key = rawKey as String;
+      fileNames.insert(0, key);
+      Map myMap = (await store.getObject(key) as Map);
+      mapValues[key] = (myMap);
+      List<String> arr = key.split("@@@");
+      Map<String, String> brainInfo = {};
+      brainInfo.putIfAbsent("title", () => arr[1]);
+      brainInfo.putIfAbsent("description", () => arr[2].replaceAll(".txt", ""));
+      fileInfos.insert(0, brainInfo);
     }
+    await txn.completed;
+    printDebug("isDatabaseCreated2");
+    printDebug(fileInfos);
+    printDebug(mapValues.isEmpty);
+    if (mapValues.isEmpty) {
+      return [];
+    }
+
+    // var statResults = await Future.wait([
+    //   for (var path in fileList) FileStat.stat(path),
+    // ]);
+
+    // var mtimes = <String, DateTime>{
+    //   for (var i = 0; i < fileList.length; i += 1)
+    //     fileList[i]: statResults[i].changed,
+    // };
+    // fileList.sort((a, b) => mtimes[a]!.compareTo(mtimes[b]!));
+
+    // for (String fileString in mapValues.keys.toList()) {
+    //   // printDebug(fileString);
+    //   if (fileString.contains(".txt")) {
+    //     fileNames.insert(0, File(fileString));
+    //     List<String> arr = fileString.split("@@@");
+    //     printDebug("arr");
+    //     printDebug(arr);
+    //     final File savedFile = File(fileString);
+    //     if (savedFile.existsSync()) {
+    //       Map<String, String> brainInfo = {};
+    //       brainInfo.putIfAbsent("title", () => arr[1]);
+    //       brainInfo.putIfAbsent(
+    //           "description", () => arr[2].replaceAll(".txt", ""));
+    //       fileInfos.insert(0, brainInfo);
+    //     } else {
+    //       Map<String, String> brainInfo = {
+    //         "title": "Default title",
+    //         "description": "Old file version, please recreate and delete this."
+    //       };
+    //       fileInfos.insert(0, brainInfo);
+    //     }
+    //   }
+    // }
   }
+  // else {
+  //   return [];
+  // }
+
+  // read some data
 
   return fileNames;
 }
@@ -98,17 +140,28 @@ String brainNameFromFileName(String filename) {
   return filename;
 }
 
+passDatabase(database) {
+  // print("pass Database0000");
+  db = database;
+}
+
 Future<Uint8List> getImageFromText(path) async {
   Uint8List imageBytes = Uint8List(0);
-  final File savedFile = File(path);
-  if (savedFile.existsSync()) {
-    String strSavedFile = await savedFile.readAsString();
-    // printDebug("strSavedFile");
-    // printDebug(strSavedFile);
-    Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
-    imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
-  }
+  // final File savedFile = File(path);
+  // if (savedFile.existsSync()) {
+  // String strSavedFile = await savedFile.readAsString();
+  printDebug("strSavedFile getImageFrom Text");
+  printDebug(path);
+  // printDebug(strSavedFile);
+  const String storeName = "spikerbot";
 
+  var txn = db.transaction(storeName, "readonly");
+  var store = txn.objectStore(storeName);
+  Map mapSavedFile = await store.getObject(path) as Map;
+  // Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
+  imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
+  await txn.completed;
+  // }
   return imageBytes;
 }
 
@@ -129,15 +182,15 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
   if (currentFileName != "-") {
     int tempIdx = 0;
     int loadedIdx = -1;
-    fileNames.forEach((file) {
-      if (file.path.contains(currentFileName)) {
+    for (String fileString in fileNames) {
+      if (fileString.contains(currentFileName)) {
         printDebug("file.path");
-        printDebug(file.path);
+        printDebug(fileString);
         printDebug(currentFileName);
         loadedIdx = tempIdx;
       }
       tempIdx++;
-    });
+    }
     if (loadedIdx >= 0) {
       tecBrainName.text = fileInfos[loadedIdx]["title"]!;
       tecBrainDescription.text = fileInfos[loadedIdx]["description"]!;
@@ -185,7 +238,7 @@ void noSavedBrainAlert(context) {
   );
 }
 
-showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
+showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
     saveCallback, setState) {
   return LayoutBuilder(builder: (ctx, constraints) {
     List<String> imageIds = [];
@@ -196,7 +249,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
     int idx = 0;
 
     fileNames.every((file) {
-      String filename = basename(file.path);
+      String filename = file;
       // filename = filename.replaceAll(".txt", "");
       imageIds.add(filename);
 
@@ -230,20 +283,92 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                   height: 70,
                   child: Row(
                     children: [
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              shadowColor: Colors.transparent,
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: Colors.black,
-                              elevation: 0,
-                              side: BorderSide.none),
-                          onPressed: () {
-                            isEditingMenu = !isEditingMenu;
-                            setState(() {});
-                          },
-                          child: isEditingMenu
-                              ? const Icon(Icons.keyboard_arrow_up)
-                              : const Icon(Icons.menu)),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    shadowColor: Colors.transparent,
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: Colors.black,
+                                    elevation: 0,
+                                    side: BorderSide.none),
+                                onPressed: () {
+                                  isEditingMenu = !isEditingMenu;
+                                  setState(() {});
+                                },
+                                child: isEditingMenu?
+                                  const Icon(Icons.keyboard_arrow_up)
+                                    : const Icon(Icons.menu)
+                            ),
+                          ),                      
+                          Row(
+                            children: [
+                              GestureDetector(onTap: () async {
+                                isUploading = false;
+                                FilePickerResult? result = await FilePicker.platform.pickFiles();
+                                if (result != null) {
+                                  try{
+                                    String strFile = utf8.decode(result.files[0].bytes!);
+                                    var savedFileJson = jsonDecode(strFile);
+                                    String key = result.files[0].name;
+                                    const String storeName = "spikerbot";
+                                    var txn = db.transaction(storeName, "readwrite");
+                                    var store = txn.objectStore(storeName);
+                                    // strNodesJson["fileName"] = fileName;
+                                    // BrainText1727836013889917@@@save1@@@.txt
+
+                                    await store.put(savedFileJson, key);
+                                    await txn.completed;
+
+                                  }catch(err) {
+                                    print("err");
+                                    print(err);
+                                  }                                  
+                                }
+                                // const XTypeGroup typeGroup = XTypeGroup(
+                                //   extensions: <String>['txt'],
+                                // );
+                                // final XFile? file =
+                                //     await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup], initialDirectory: "Downloads",confirmButtonText: "Open File");
+                                // if (file!=null) {
+                                //   String strFile = await file.readAsString();
+                                //   var savedFileJson = jsonDecode(strFile);
+
+                                //   try{
+                                //     const String storeName = "spikerbot";
+                                //     var txn = db.transaction(storeName, "readwrite");
+                                //     var store = txn.objectStore(storeName);
+                                //     // strNodesJson["fileName"] = fileName;
+                                //     // BrainText1727836013889917@@@save1@@@.txt
+                                //     String key = file.name;
+                                //     print(key);
+
+                                //     // await store.put(savedFileJson, key);
+                                //     // await txn.completed;
+                                    
+                                //   }catch(err) {
+                                //     print("err");
+                                //     print(err);
+                                //   }
+
+                                // }
+                                  fileInfos = [];
+                                  fileNames = await loadBrainFiles(fileInfos, context);
+                                  setState((){});
+
+                              }, child: const Icon(Icons.cloud_download)),
+
+                              GestureDetector(onTap: () async {
+                                isUploading = !isUploading;
+                                setState((){});
+                              }, child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,))
+
+                            ],
+                          )
+                        ],
+                      ),
                       Expanded(
                         child: Container(
                           color: isSavingMode < 10 || isEditingMenu
@@ -274,8 +399,9 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           if (isSavingMode == 1) {
                           } else if (isSavingMode == 10) {
                             // delete old file
-                            File deleteFile = File(currentFileName);
-                            deleteFile.deleteSync();
+                            // File deleteFile = File(currentFileName);
+                            // deleteFile.deleteSync();
+                            deleteBrainRecord(currentFileName);
                           }
 
                           // create new file
@@ -299,7 +425,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                             context,
                             "Save as current brain",
                             DialogTextField(
-                                label: "Please name your brain",
+                                label: "Please name your brainzz",
                                 obscureText: false,
                                 textInputType: TextInputType.text,
                                 validator: (value) {
@@ -444,25 +570,25 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                               .map((i) {
                         String currentFullFilePath = currentFileName;
                         printDebug("currentFullFilePath");
-                        printDebug(fileNames[i].path);
+                        printDebug(fileNames[i]);
                         printDebug(currentFullFilePath);
-                        printDebug(fileNames[i].path == currentFullFilePath);
+                        printDebug(fileNames[i] == currentFullFilePath);
 
                         return Stack(
                           children: [
                             GestureDetector(
                               onTap: () {
-                                String filename = basename(fileNames[i].path);
-                                filename = filename.replaceAll(".txt", "");
+                                String filename = basename(fileNames[i]);
+                                if (!kIsWeb) {
+                                  filename = filename.replaceAll(".txt", "");
+                                }
                                 // List<String> arrImageInfo =
                                 //     filename.split("@@@");
                                 String imageId = filename;
                                 mapStatus["isSavingBrain"] = 10;
-                                mapStatus["currentFileName"] =
-                                    fileNames[i].path;
+                                mapStatus["currentFileName"] = fileNames[i];
 
-                                selectCallback(imageId,
-                                    filePath: fileNames[i].path);
+                                selectCallback(imageId, filePath: fileNames[i]);
                                 Navigator.pop(context);
                               },
                               child: Container(
@@ -470,10 +596,10 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   borderRadius: BorderRadius.circular(17),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: fileNames[i].path ==
-                                              (currentFullFilePath)
-                                          ? Colors.blue.withOpacity(0.35)
-                                          : Colors.blue.withOpacity(0),
+                                      color:
+                                          fileNames[i] == (currentFullFilePath)
+                                              ? Colors.blue.withOpacity(0.35)
+                                              : Colors.blue.withOpacity(0),
                                       offset: const Offset(
                                           0, 0), // No offset for centered glow
                                       blurRadius: 3, // Adjust blur radius
@@ -499,8 +625,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                           CrossAxisAlignment.start,
                                       children: [
                                         FutureBuilder<Uint8List>(
-                                            future: getImageFromText(
-                                                fileNames[i].path),
+                                            future:
+                                                getImageFromText(fileNames[i]),
                                             builder: (BuildContext context,
                                                 AsyncSnapshot<Uint8List>
                                                     snapshot) {
@@ -531,6 +657,28 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 ),
                               ),
                             ),
+                            if (isUploading) ... [
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                child: GestureDetector(
+                                  child: const Icon(Icons.cloud_upload_outlined),
+                                  onTap: () async {
+                                    // basename(fileNames[i]);
+                                    const String storeName = "spikerbot";
+                                    var txn = db.transaction(storeName, "readonly");
+                                    var store = txn.objectStore(storeName);
+                                    String filename = fileNames[i];
+                                    Map savedFileJson = await store.getObject(filename) as Map;
+                                    await txn.completed;
+                                    String myString = jsonEncode(savedFileJson);
+
+                                    Uint8List bytesContent = utf8.encode(myString);
+                                    await FileSaver.instance.saveFile(name: filename, bytes:bytesContent);
+                                  },
+                                )
+                              )
+                            ],                            
                             Positioned(
                               right: 0,
                               top: 0,
@@ -539,15 +687,14 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   : GestureDetector(
                                       onTap: () async {
                                         String filename =
-                                            basename(fileNames[i].path);
+                                            basename(fileNames[i]);
                                         filename =
                                             filename.replaceAll(".txt", "");
                                         // List<String> arrImageInfo =
                                         //     filename.split("@@@");
                                         // String imageId = filename;
 
-                                        if (fileNames[i].path ==
-                                            currentFileName) {
+                                        if (fileNames[i] == currentFileName) {
                                           tecBrainName.clear();
                                           tecBrainDescription.clear();
                                           currentFileName = "-";
@@ -556,12 +703,14 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                           mapStatus["currentFileName"] = "-1";
                                         }
 
-                                        Directory txtDirectory = Directory(
-                                            "${(await getApplicationDocumentsDirectory()).path}$textPath");
-                                        // String textPath = "/text";
-                                        final File file = File(
-                                            '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
-                                        file.deleteSync();
+                                        // Directory txtDirectory = Directory(
+                                        //     "${(await getApplicationDocumentsDirectory()).path}$textPath");
+                                        // // String textPath = "/text";
+                                        // final File file = File(
+                                        //     '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
+                                        // file.deleteSync();
+                                        deleteBrainRecord(filename);
+
                                         // final File fileImage =
                                         //     File(fileNames[i].path);
                                         // fileImage.deleteSync();
@@ -634,6 +783,37 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
   });
 }
 
+void deleteBrainRecord(String filename) async {
+  // bool isDatabaseCreated = false;
+  const String storeName = "spikerbot";
+  if (!filename.contains(".txt")) {
+    filename = "$filename.txt";
+  }
+  // IdbFactory? idbFactory = getIdbFactory();
+  // if (idbFactory != null) {
+  //   Database db = await idbFactory.open("byb_spikerbot.db", version: idbVersion,
+  //       onUpgradeNeeded: (VersionChangeEvent event) {
+  //     Database db = event.database;
+  //     if (db.objectStoreNames.toList().contains(storeName)) {
+  //       isDatabaseCreated = true;
+  //     }
+  //   });
+
+  // if (!isDatabaseCreated) {
+  //   printDebug("IS DATABASE NOT CREATED");
+  // }
+
+  print("delete brain 0");
+  var txn = db.transaction(storeName, "readwrite");
+  var store = txn.objectStore(storeName);
+  await store.delete(filename);
+
+  print("delete brain 1");
+  print(filename);
+  await txn.completed;
+  // }
+}
+
 void printDebug(s) {
-  // printDebug(s);
+  // print(s);
 }

@@ -235,6 +235,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
+            if (kIsWeb){
+              controller.checkSelection(details.localPosition);
+            }else
             if (!Platform.isIOS) {
               controller.checkSelection(details.localPosition);
             }
@@ -266,6 +269,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
             // CHANGE ME
             // try {
+            if (kIsWeb){
+
+            }else
             if (Platform.isIOS) {
               controller.checkSelection(details.localPosition);
             } // } catch (err) {
@@ -412,6 +418,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     controller.moveSelection(details.focalPoint);
                   }
                   controller.mousePosition = details.focalPoint;
+                  if (kIsWeb){
+
+                  }else
                   if (Platform.isIOS) {
                     // print("controller.mousePosition2");
                     // print(details.focalPoint);

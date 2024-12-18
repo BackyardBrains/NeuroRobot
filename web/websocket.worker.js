@@ -1,4 +1,5 @@
-const StateLength = 20;
+const cameraStreamUrl = "http://192.168.4.1:81/stream";
+const StateLength = 70;
 var ptrStateBuffer;
 var bufStateArray;
 var sabCameraDrawBuffer;
@@ -7,13 +8,12 @@ var bufCameraDrawArray;
 const frameWidth = 320;
 const frameHeight = 240;
 let frames = 0;
+let abortControllerFetch;
 // let offscreenCanvas;
 // let ctx;
 // let imgData;
 // const imgBuf = new Image();
-
-const url = "http://192.168.4.1:81/stream";
-// const url = "http://192.168.1.4:8081";
+// const webSocketLink = 'http://192.168.4.1:80/ws';
 
 const STATE = {
     "WEB_SOCKET":0,
@@ -24,14 +24,29 @@ const STATE = {
     "COMMAND_MOTORS_LENGTH":5,
     "CAMERA_CONTENT_LENGTH":6,
     "CAMERA_CONTENT_COMPLETE":7,
+    "CAMERA_CONTENT_STOP":8,
+    "RECOGNIZE_IMAGE":9,
+    "RECOGNITION_IMAGE_PROCESSING":10,
+    "RECOGNITION_IMAGE_LENGTH":11,
+    "BATTERY_STATUS":12,
+    "DISTANCE_TYPE":13,
+    "DISTANCE_MIN":14,
+    "DISTANCE_MAX":15,
+    "AIPROCESS_IMAGE_PROCESSING":16,
+    "AIPROCESS_IMAGE_LENGTH":17,
 };
+
 
 
 self.onmessage = function(eventFromMain){
     switch (eventFromMain.data.message){
         case "INITIALIZE":
+
+            abortControllerFetch = new AbortController();
+
             sabStateBuffer = eventFromMain.data.sabStateBuffer;
             sabCameraDrawBuffer = eventFromMain.data.sabCameraDrawBuffer;
+            sabStateBuffer[STATE.CAMERA_CONTENT_STOP] = 0;
 
             offscreenCanvas = eventFromMain.data.offscreenCanvas;
             console.log(offscreenCanvas);
@@ -43,6 +58,8 @@ self.onmessage = function(eventFromMain){
             });
         break;
         case "START":
+            sabStateBuffer[STATE.CAMERA_CONTENT_STOP] = 0;
+
             console.log("!!!START");
             const SOI = new Uint8Array(2);
             SOI[0] = 0xFF;
@@ -51,7 +68,7 @@ self.onmessage = function(eventFromMain){
             const TYPE_JPEG = 'image/jpeg';
             // let image = document.getElementById('image');
       
-            fetch(url)
+            fetch(cameraStreamUrl, { signal: abortControllerFetch.signal})
             .then(response => {
                 if (!response.ok) {
                     throw Error(response.status+' '+response.statusText)
@@ -77,6 +94,7 @@ self.onmessage = function(eventFromMain){
                 //     console.log("fps : " + frames);
                 //     frames = 0;
                 // }, 1000) 
+
       
       
                 const read = () => {      
@@ -86,7 +104,6 @@ self.onmessage = function(eventFromMain){
                             console.log("done");
                             return;
                         }
-                        
                         for (let index =0; index < value.length; index++) {
                             
                             // we've found start of the frame. Everything we've read till now is the header.
@@ -157,7 +174,18 @@ self.onmessage = function(eventFromMain){
                                 // URL.revokeObjectURL(frame)
                               }
                         }
-      
+
+                        if (sabStateBuffer[STATE.CAMERA_CONTENT_STOP] === 1 ) {
+                            try{
+                                abortControllerFetch.abort();
+                                postMessage({
+                                    "message": "STOP_WEBSOCKET"
+                                });
+                            }catch(err){
+                                console.log("abort");
+                            }
+                        }            
+  
                         read();
                     }).catch(error => {
                         console.error(error);

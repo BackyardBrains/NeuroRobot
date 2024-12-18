@@ -32,10 +32,13 @@
 
 // MAIN CODE
 // std::mutex mtx;
-
+short configDelayNeuron = 6;
+short configCountingNeuron = 10;
+int totalNeuron = 0;
+short normalNeuronFirstIndex = 12;
 bool isThreadRunning = true;
-short ms_per_step = 30;
-short steps_per_loop = 200;
+short ms_per_step = 1;
+short steps_per_loop = 10.5 * 200;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
 double *a,*b, *v, *u,*i,*w;
@@ -50,6 +53,7 @@ const uint32_t bigBufferLength = 30 * 200;
 double **v_traces;
 double *canvasBuffer;
 double **connectome;
+double *inhibitionArray;
 int *nps;
 
 // double **v_step;
@@ -72,20 +76,33 @@ uint8_t *motor_command_message;
 
 
 // OPENCV
-short vis_prefs_count = 7;
+// short vis_prefs_count = 7;
+short vis_prefs_count = 22;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short *visPrefs;
 double *vis_pref_vals;
 // double **temp_vis_pref_vals;
 double *vis_I;
-
+short frameSize = 130;
+short frameSizeWidth = 210;
+short frameSizeHeight = 210;
 
 // std::vector<int> vis_I(1,0);
 // short *firing = new short[totalNumOfNeurons];
 short** spikes_step;
 short *firing;
 
+
+// DELAY BUFFER
+short delayInitialized = 1;
+short delayTriggered = 2;
+short delayBuffering = 3;
+short delayFullBuffer = 4;
+
+short delayModeNoSpike = 1;
+short delayModeAccumulatingSpike = 2;
+short delayModeTurnOffTimer = 3;
 
 // MOTOR
 double pulse_period = 0.1;
@@ -100,3 +117,74 @@ short motorCounter = 0;
 // CALLBACK
 std::string message;
 void (*onCallback)(const char*);
+
+
+// DISTANCE
+double *dist_I;
+short *dist_prefs;
+
+
+double dist_short = 50;
+double dist_medium = 70;
+double dist_long = 90;
+
+double *sensor_distance;
+short *sensor_min_limit;
+short *sensor_max_limit;
+
+
+// SPEAKER 
+short *speaker_buf;
+short neuronSpeakerIdx = 8;
+// MICROPHONE
+short *microphone_buf;
+
+// LED
+short *led_buf;
+short *led_pos_buf;
+short neuronLedRedIdx = 9;
+short neuronLedGreenIdx = 10;
+short neuronLedBlueIdx = 11;
+
+double *visual_input_buf;
+// std::string redLEDCmd = "d:111;d:211;d:311;d:411;d:511;d:611;"; // red
+// std::string blueLEDCmd = "d:131;d:231;d:331;d:431;d:531;d:631;"; // blue
+// std::string greenLEDCmd = "d:121;d:221;d:321;d:421;d:521;d:621;"; // green
+// std::string offLEDCmd = "d:120;d:220;d:320;d:420;d:520;d:620;"; // off
+
+// std::string redLEDCmd = "d:111;d:211;d:311;d:411;"; // red
+// std::string blueLEDCmd = "d:131;d:231;d:331;d:431;"; // blue
+// std::string greenLEDCmd = "d:121;d:221;d:321;d:421;"; // green
+// std::string offLEDCmd = "d:120;d:220;d:320;d:420;"; // off
+
+std::string redLEDCmd = "d:0,255,0,0;d:1,255,0,0;d:2,255,0,0;d:3,255,0,0;"; // red
+std::string blueLEDCmd ="d:0,0,0,255;d:1,0,0,255;d:2,0,0,255;d:3,0,0,255;"; // blue
+std::string greenLEDCmd ="d:0,0,255,0;d:1,0,255,0;d:2,0,255,0;d:3,0,255,0;"; // green
+std::string offLEDCmd = "d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;"; // off
+
+std::string prevMessage = "";
+
+
+// CUSTOM NEURON TYPES
+short* mapNeuronType;
+
+short* mapDelayNeuron;
+short* mapRhytmicNeuron;
+short* mapCountingNeuron;
+// short** mapAdditionalNeuronTypes;
+
+short* isNeuronInhibitor;
+
+double* decayMultipliers;
+short countingTimeTrigger = 500;
+// The rate of this decay determines how long the target neuron remains inhibited.
+
+// std::chrono::milliseconds* neuronDelayTime;
+long long* neuronDelayTime;
+long long* neuronRhytmicTime;
+long long* neuronCountingTime;
+
+
+double* maxV;
+double* maxU;
+

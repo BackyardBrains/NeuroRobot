@@ -3,17 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metooltip/metooltip.dart';
+// import 'package:metooltip/metooltip.dart';
 
 class RightToolbar extends StatefulWidget {
-  RightToolbar(
-      {super.key,
-      required this.callback,
-      required this.isPlaying,
-      required this.menuIdx});
+  RightToolbar({super.key, required this.callback, required this.menuIdx});
   late Function callback;
   final int menuIdx;
-  final bool isPlaying;
   @override
   State<RightToolbar> createState() => _RightToolbarState();
 }
@@ -140,13 +135,13 @@ class _RightToolbarState extends State<RightToolbar> {
           _simulationController.animateTo(1,
               duration: const Duration(milliseconds: 10), curve: Curves.linear);
         }
-      } else if (Platform.isAndroid) {
-        if (_actionController.hasClients) {
-          _actionController.animateTo(20,
-              duration: const Duration(milliseconds: 10), curve: Curves.linear);
-          _simulationController.animateTo(20,
-              duration: const Duration(milliseconds: 10), curve: Curves.linear);
-        }
+        // } else if (Platform.isAndroid) {
+        //   if (_actionController.hasClients) {
+        //     _actionController.animateTo(20,
+        //         duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        //     _simulationController.animateTo(20,
+        //         duration: const Duration(milliseconds: 10), curve: Curves.linear);
+        //   }
       } else {
         try {
           if (_actionController.hasClients) {
@@ -211,34 +206,36 @@ class _RightToolbarState extends State<RightToolbar> {
               if (idx == 2) {
                 return const Divider();
               }
-              return MeTooltip(
-                message: tooltipActions[idx],
-                preferOri: PreferOrientation.left,
-                child: GestureDetector(
-                  onTap: () {
-                    if (widget.isPlaying) return;
+              // return MeTooltip(
+              //Container( //
+              // message: tooltipActions[idx],
+              // preferOri: PreferOrientation.left,
+              // child: GestureDetector(
+              return GestureDetector(
+                onTap: () {
+                  // if (widget.isPlaying) return;
 
-                    activeIdx = idx;
-                    widget.callback({"menuIdx": activeIdx});
-                    setState(() {});
-                  },
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
-                    decoration: idx == activeIdx && (activeIdx < 3)
-                        ? const BoxDecoration(
-                            color: Color(0xFF13A9FC),
-                            borderRadius: BorderRadius.all(Radius.circular(5)))
-                        : const BoxDecoration(
-                            color: Colors.white,
-                          ),
-                    padding: containerActionPadding[idx],
-                    child: idx == activeIdx && activeIdx < 3
-                        ? activeActionIcons[idx]
-                        : inactiveActionIcons[idx],
-                  ),
+                  activeIdx = idx;
+                  widget.callback({"menuIdx": activeIdx});
+                  setState(() {});
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                  decoration: idx == activeIdx && (activeIdx < 3)
+                      ? const BoxDecoration(
+                          color: Color(0xFF13A9FC),
+                          borderRadius: BorderRadius.all(Radius.circular(5)))
+                      : const BoxDecoration(
+                          color: Colors.white,
+                        ),
+                  padding: containerActionPadding[idx],
+                  child: idx == activeIdx && activeIdx < 3
+                      ? activeActionIcons[idx]
+                      : inactiveActionIcons[idx],
                 ),
+                // ),
               );
             },
             // children: [
@@ -375,12 +372,13 @@ class _RightToolbarState extends State<RightToolbar> {
             // physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (ctx, index) {
               int idx = index;
-              return MeTooltip(
-                message: tooltipSimulations[idx],
-                preferOri: PreferOrientation.left,
+              return Container(
+                //MeTooltip(
+                // message: tooltipSimulations[idx],
+                // preferOri: PreferOrientation.left,
                 child: GestureDetector(
                   onTap: () {
-                    if (widget.isPlaying) return;
+                    // if (widget.isPlaying) return;
 
                     int prevIdx = activeIdx;
                     // activeIdx = idx + 7;//6//5;
