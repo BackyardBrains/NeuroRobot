@@ -33,13 +33,8 @@
         "value": "same-origin"
     },
     "content_security_policy": {
-        "sandbox": "sandbox allow-scripts allow-same-origin; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; object-src 'self';"
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
     },
-    "sandbox": {
-        "pages": [
-          "index.html"
-        ]
-    },    
     "icons": {
         "48": "icons/Byb-Icon-48.png",
         "128": "icons/Byb-Icon-128.png"

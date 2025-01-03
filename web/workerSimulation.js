@@ -5,7 +5,7 @@ const MotorMessageLength = 300;
 const StateLength = 70;
 const cameraWidth = 320;
 const cameraHeight = 240;
-const commandPerSecond = 70;
+let commandPerSecond = 70;
 let curCommandPerSecond = 0;
 let bufferSimulationMessage = [];
 let periodicNeuronSpikingFlags;
@@ -593,9 +593,24 @@ const multiplierAdjusterConstant = 0.5;
 
 let diodeStatusMax = [];
 const normalNeuronStartIdx = 12;
+let startTime = -1;
+let endTime = 0;
+let benchmarkSpeed = -1;
 
 function updateMotorCommand(rawPosState, message, rawPosCmdLen, ptrMotorCommandMessage, neuronSize, ptrPeriodicNeuronSpikingFlags){
     const posNotify = rawPosState >> 2;
+    if (benchmarkSpeed == -1) {
+        if (startTime == -1) {
+            startTime = (new Date()).getTime();
+        }
+        endTime = (new Date()).getTime();
+        if (endTime - startTime > 1000) {
+            // console.log("curCommandPerSecond : ", curCommandPerSecond + 1);
+            commandPerSecond = (curCommandPerSecond ) + Math.floor(curCommandPerSecond / 1);
+            benchmarkSpeed = 1;
+        }
+    }
+
     // const posCmdLen = rawPosCmdLen;
     // const startMotorCommands = ptrMotorCommandMessage/Module.HEAPU8.BYTES_PER_ELEMENT;
     // if (!isNotified){
@@ -749,7 +764,8 @@ function updateMotorCommand(rawPosState, message, rawPosCmdLen, ptrMotorCommandM
         }
         // console.log("ptrMotorCommandMessage", bufferSize, msg);
         // console.log("ptrMotorCommandMessage", message, rawPosCmdLen, ptrMotorCommandMessage);
-        Atomics.notify(HEAP32, posNotify + STATE.COMMAND_MOTORS,1);
+        // Atomics.notify(HEAP32, posNotify + STATE.COMMAND_MOTORS,1);
+        sabStateBuffer[STATE.COMMAND_MOTORS] = (sabStateBuffer[STATE.COMMAND_MOTORS] + 1) % 700;
 
         curCommandPerSecond = 0;
         bufferSimulationMessage = [];

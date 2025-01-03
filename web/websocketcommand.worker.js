@@ -3,6 +3,7 @@ const StateLength = 70;
 const COLOR_CHANNELS = 4;
 const cameraWidth = 320;
 const cameraHeight = 240;
+let processedCommandIndex = -1;
 
 let neuronSize = 1;
 
@@ -51,67 +52,99 @@ function startWebSocket() {
     
     webSocketChannel.onmessage = (event) => {
         // console.log('Received message from server:', event.data);
-        const arrData = event.data.split(",");
-        const distance = arrData[2];
-        let batteryPercent = 80;
-
-        const baseBottomBattery = (arrData[3]) - 590;
-        batteryPercent = Math.floor(baseBottomBattery / 278 * 100);
-        if (batteryPercent > 100) {
-          batteryPercent = 100;
-        } else if (batteryPercent <= 0) {
-          batteryPercent = 0;
-        }
-        Atomics.store(sabStateBuffer, STATE.BATTERY_STATUS, batteryPercent);
-        // Atomics.store(sabStateBuffer, STATE.DISTANCE_STATUS, distance);
-        // if (sabDistanceBuf[0] != distance) {
-        //     console.log("distance: ", distance);
-        // }
-        sabDistanceBuf[0] = distance;
-
-        if (sabStateBuffer[STATE.WEB_SOCKET] === -100 ) {
-            webSocketChannel.send(greenLEDCmd + stopMotorCmd);
-            sleep(300).then(async ()=>{
-                try{
-                    webSocketChannel.close();
-                }catch(err){
-                    console.log("abort");
-                }
-                await sleep(200);
-                postMessage({
-                    message: "STOP_WEBSOCKET"
+        try{
+            const arrData = event.data.split(",");
+            const distance = arrData[2];
+            let batteryPercent = 80;
+    
+            const baseBottomBattery = (arrData[3]) - 590;
+            batteryPercent = Math.floor(baseBottomBattery / 278 * 100);
+            if (batteryPercent > 100) {
+              batteryPercent = 100;
+            } else if (batteryPercent <= 0) {
+              batteryPercent = 0;
+            }
+            Atomics.store(sabStateBuffer, STATE.BATTERY_STATUS, batteryPercent);
+            // Atomics.store(sabStateBuffer, STATE.DISTANCE_STATUS, distance);
+            // if (sabDistanceBuf[0] != distance) {
+            //     console.log("distance: ", distance);
+            // }
+            sabDistanceBuf[0] = distance;    
+            if (sabStateBuffer[STATE.WEB_SOCKET] === -100 ) {
+                sabStateBuffer[STATE.WEB_SOCKET] = -200;
+                // console.log("STOP NOW!!!");
+                webSocketChannel.send(greenLEDCmd + stopMotorCmd);
+                sleep(300).then(async ()=>{
+                    try{
+                        webSocketChannel.close();
+                    }catch(err){
+                        console.log("abort");
+                    }
+                    await sleep(200);
+                    postMessage({
+                        message: "STOP_WEBSOCKET"
+                    });
                 });
-            });
-            return;        
-        }
-
-        if ( sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH] > 0) {
-            let messageString = "";
-            const messageLength = sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH];
-            for (let i = 0; i < messageLength; i++) {
-                messageString = messageString + String.fromCharCode(sabMotorCommand[i]);
+                return;        
+            } else
+            if (sabStateBuffer[STATE.WEB_SOCKET] === -200) {
+                return;
             }
-            if (webSocketChannel !== undefined) {
-                // console.log('webSocketChannel.readyState', webSocketChannel.readyState, messageString);
-                if (webSocketChannel.readyState === WebSocket.OPEN) {
-                    webSocketChannel.send(messageString);
+
+
+            if ( sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH] > 0) {
+                if (processedCommandIndex != sabStateBuffer[STATE.COMMAND_MOTORS]) {
+                    processedCommandIndex = sabStateBuffer[STATE.COMMAND_MOTORS];
+                    let messageString = "";
+                    const messageLength = sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH];
+                    for (let i = 0; i < messageLength; i++) {
+                        messageString = messageString + String.fromCharCode(sabMotorCommand[i]);
+                    }
+                    if (webSocketChannel !== undefined) {
+                        if (webSocketChannel.readyState === WebSocket.OPEN) {
+                            try{
+                                webSocketChannel.send(messageString);
+                            }catch(err){
+                                console.log("abort");
+                            }
+                
+                        }
+                    }
                 }
             }
+    
+            // sabStateBuffer[STATE.DISTANCE_STATUS] = distance;
+            console.log("error decoding", err);
+        }catch(err){
+
         }
-
-        // sabStateBuffer[STATE.DISTANCE_STATUS] = distance;
-
     };
     
-    webSocketChannel.onerror = (error) => {
+    webSocketChannel.onerror = async (error) => {
         // sabStateBuffer[STATE.WEB_SOCKET] = -2;
         Atomics.store(sabStateBuffer, STATE.BATTERY_STATUS, -2);
         console.error('WebSocket Error:', error);
-        if (webSocketChannel.readyState == WebSocketStateEnum.OPEN) {
-            webSocketChannel.close();
-        } else {
-            webSocketChannel = null;
-        }        
+        try{
+            if (webSocketChannel.readyState == WebSocketStateEnum.OPEN) {
+                webSocketChannel.close();
+            } else {
+                webSocketChannel = null;
+            }        
+        }catch(err){
+            console.log("abort");
+        }
+        sleep(300).then(async ()=>{
+            try{
+                webSocketChannel.close();
+            }catch(err){
+                console.log("abort");
+            }
+            await sleep(200);
+            postMessage({
+                message: "STOP_WEBSOCKET"
+            });
+        });
+
     };
     
     webSocketChannel.onclose = (event) => {
@@ -119,6 +152,18 @@ function startWebSocket() {
         Atomics.store(sabStateBuffer, STATE.BATTERY_STATUS, -1);
 
         console.log('WebSocket connection closed:', event.code, event.reason);
+        sleep(300).then(async ()=>{
+            try{
+                webSocketChannel.close();
+            }catch(err){
+                console.log("abort");
+            }
+            await sleep(200);
+            postMessage({
+                message: "STOP_WEBSOCKET"
+            });
+        });
+
     };
 }
 
@@ -148,6 +193,46 @@ self.onmessage = async function(eventFromMain){
             // sabStateBuffer[STATE.WEB_SOCKET] = 0;
             // sabStateBuffer[STATE.COMMAND_MOTORS] = 0;
             startWebSocket();
+            // setInterval(() => {
+            //     if (sabStateBuffer[STATE.WEB_SOCKET] === -100 ) {
+            //         sabStateBuffer[STATE.WEB_SOCKET] = -200;
+            //         console.log("STOP NOW!!!");
+            //         webSocketChannel.send(greenLEDCmd + stopMotorCmd);
+            //         sleep(500).then(async ()=>{
+            //             try{
+            //                 webSocketChannel.close();
+            //             }catch(err){
+            //                 console.log("abort");
+            //             }
+            //             await sleep(200);
+            //             postMessage({
+            //                 message: "STOP_WEBSOCKET"
+            //             });
+            //         });
+            //         return;        
+            //     } else
+            //     if (sabStateBuffer[STATE.WEB_SOCKET] === -200 ) {
+            //     } else
+            //     if ( sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH] > 0) {
+            //         let messageString = "";
+            //         const messageLength = sabStateBuffer[STATE.COMMAND_MOTORS_LENGTH];
+            //         for (let i = 0; i < messageLength; i++) {
+            //             messageString = messageString + String.fromCharCode(sabMotorCommand[i]);
+            //         }
+            //         if (webSocketChannel !== undefined) {
+            //             // console.log('webSocketChannel.readyState', webSocketChannel.readyState, messageString);
+            //             if (webSocketChannel!= null && webSocketChannel.readyState === WebSocket.OPEN) {
+            //                 try{
+            //                     webSocketChannel.send(messageString);
+            //                 }catch(err){
+            //                     console.log("abort");
+            //                 }
+                
+            //             }
+            //         }
+            //     } 
+    
+            // }, 10);
             return;
             await sleep(2000);
                     

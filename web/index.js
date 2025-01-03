@@ -431,12 +431,25 @@ function runSimulation(allocatedBuffer){
     canvasLeftElement.style.visibility = 'hidden';
     ctxLeft = canvasLeftElement.getContext('2d', { willReadFrequently: true });
 
+    canvasLeftElement.style.top = Math.abs(canvasLeftElement.style.top);
+    canvasLeftElement.style.right = Math.abs(canvasLeftElement.style.right);
+    // alert(canvasLeftElement.style.top);
+
     imgCamera = document.getElementById("image");
     canvasRightElement = document.getElementById("canvasRight");
     canvasRightElement.style.visibility = 'visible';
+    // canvasRightElement.style.top = Math.abs(canvasRightElement.style.top);
+    // canvasRightElement.style.right = Math.abs(canvasRightElement.style.right);
+    // canvasRightElement.style.top = Math.abs(parseInt(canvasRightElement.style.top.replace("px", ""))) + "px";
+    // canvasRightElement.style.right = Math.abs(parseInt(canvasRightElement.style.right.replace("px", ""))) + "px";
+
     ctxRight = canvasRightElement.getContext('2d', { willReadFrequently: true });
     // /* IMPORTANT
     recognitionWorker = new Worker('build/web/recognition.worker.js');
+    recognitionWorker.postMessage({
+        message:'MOCK',
+    });
+
     // */
     // ctx = canvas.getContext('2d');
     // alert(offscreenCanvasElement);
@@ -460,6 +473,7 @@ function runSimulation(allocatedBuffer){
             try{
                 izhikevichWorker.terminate();
                 preprocessWorker.terminate();
+                
                 // websocketWorker.terminate();
                 // websocketcommandWorker.terminate();
             }catch(err){
@@ -507,26 +521,32 @@ function runSimulation(allocatedBuffer){
                     sabAiPreprocessCameraBuffer = new Uint8Array( new SharedArrayBuffer(320*320 * channels) );
                     sabAiBoundingBox = new Float32Array( new SharedArrayBuffer( 7 * Float32Array.BYTES_PER_ELEMENT) );
                                 
-                    recognitionWorker.postMessage({
-                        "message": "INITIALIZE",
-                        "neuronSize": neuronSize,
-                        "sabStateBuffer": sabStateBuffer,
-                        "sabVisPrefs": sabVisPrefs,
-                        "sabVisualInputBuf": sabVisualInputBuf,
-                        "sabAiPreprocessCameraBuffer": sabAiPreprocessCameraBuffer,
-                        "sabAiBoundingBox": sabAiBoundingBox,
-                        "sabPreprocessObjectDetection":sabPreprocessObjectDetection,
-                    });
                     recognitionWorker.onmessage = function( evt ){
                         switch( evt.data.message ){
+                            case "MOCKED":
+                                recognitionWorker.postMessage({
+                                    "message": "INITIALIZE",
+                                    "neuronSize": neuronSize,
+                                    "sabStateBuffer": sabStateBuffer,
+                                    "sabVisPrefs": sabVisPrefs,
+                                    "sabVisualInputBuf": sabVisualInputBuf,
+                                    "sabAiPreprocessCameraBuffer": sabAiPreprocessCameraBuffer,
+                                    "sabAiBoundingBox": sabAiBoundingBox,
+                                    "sabPreprocessObjectDetection":sabPreprocessObjectDetection,
+                                });            
+                            break;
                             case "INITIALIZED":
                                 console.log("RECOGNITION INITIALIZED");
                                 sabPreprocessObjectDetection = evt.data.sabPreprocessObjectDetection;
                                 sabPreprocessObjectDetection.fill(0);
+
+                                setTimeout(() => {
+                                    recognitionWorker.postMessage({
+                                        "message": "START_RECOGNITION",
+                                    });
+    
+                                }, 7000);
             
-                                recognitionWorker.postMessage({
-                                    "message": "START_RECOGNITION",
-                                });
                             break;
                             case "INITIALIZED":
                             break;
@@ -674,12 +694,41 @@ function stopThreadProcess(isStop){
         Atomics.notify(sabStateBuffer, STATE.COMMAND_MOTORS, 1);
         ctxRight.clearRect(0, 0, 160, 120);
         canvasRightElement.style.visibility = 'hidden';
+        
+        // canvasLeftElement.style.top = -1 * Math.abs(parseInt(canvasLeftElement.style.top.replace("px", ""))) + "px";
+        // canvasLeftElement.style.right = -1 * Math.abs(parseInt(canvasLeftElement.style.right.replace("px", ""))) + "px";
+        
         sabPreprocessObjectDetection = undefined;
         sabPreprocessColorDetection = undefined;
         prevObjectIdxDetected = -1;
         prevColorDetected = -1;
+        sleep(5000).then(() => {
+            try {
+                websocketcommandWorker.terminate()
+            } catch (err) {
+
+            }
+            try {
+                websocketWorker.terminate()
+            } catch (err) {
+
+            }
+
+            try{
+                preprocessWorker.terminate();
+            }catch(ex){
+            }
+        
+            try{
+                recognitionWorker.terminate();
+            }catch(ex){
+            }
+        
+        });
 
     }
+    // canvasRightElement.style.top = -1 * Math.abs(parseInt(canvasRightElement.style.top.replace("px", ""))) + "px";
+    // canvasRightElement.style.right = -1 * Math.abs(parseInt(canvasRightElement.style.right.replace("px", ""))) + "px";
 
     sabNumConfig[1]=1;
     izhikevichWorker.postMessage({
@@ -755,6 +804,10 @@ function repaint(timestamp){
                         if (arrLookupEmoji[sabAiBoundingBox[6]-7] !== undefined) {
                             ctxRight.fillText(arrLookupEmoji[sabAiBoundingBox[6]-7], sabAiBoundingBox[1] + sabAiBoundingBox[4]/2-16 , sabAiBoundingBox[0]+ 16);
                             ctxRight.stroke();
+                            // ctxRight.beginPath();
+                            // ctxRight.arc(sabAiBoundingBox[1] + sabAiBoundingBox[4]/2-16 , sabAiBoundingBox[0]+ 16, 7, 0, circularAngle); // (x, y, radius, start angle, end angle)
+                            // ctxRight.fill();
+
                         }
                     }
 
@@ -909,3 +962,8 @@ setTimeout(()=>{
 //jsonEncode([aBufView,bBufView,cBufView,dBufView,iBufView,wBufView,
 //positionsBufView, connectomeBufView,
 //level, neuronSize,envelopeSize,bufferSize,1, visPrefsBufView, neuronContactsBufView, motorCommandBufView])
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+

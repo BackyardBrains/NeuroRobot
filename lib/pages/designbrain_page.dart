@@ -121,7 +121,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     "backpack": "🎒",
     "bottle": "🧴", // 🍶 🍼 🍾
     "cup": "☕",
-    "bowl": "🧍", // 🥣
+    "bowl": "🥣", // 🥣
     "banana": "🍌",
     "apple": "🍎",
     "orange": "🍊",
@@ -1977,7 +1977,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     // Timer.periodic(const Duration(milliseconds: 20), (timer) async {
     // });
     previousBufferTime = DateTime.now().millisecondsSinceEpoch;
-    processRobotMessages();
+    // processRobotMessages();
 
     Timer.periodic(const Duration(milliseconds: 107), (timer) {
       if (isChartSelected) {
@@ -3119,8 +3119,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    // mainAxisSize: MainAxisSize.max,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Padding(
                         padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -3182,6 +3182,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               child: const Text("Custom")),
                         ],
                       ),
+                      const SizedBox(height: 10),
                       Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -3249,7 +3250,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           child: Row(mainAxisSize: MainAxisSize.max, children: [
                             SizedBox(
                               width: 40,
-                              height: 15,
+                              height: 40,
                               child: TextField(
                                 textAlign: TextAlign.center,
                                 controller: txtAreaSizeMinController,
@@ -3360,7 +3361,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             ),
                             SizedBox(
                               width: 40,
-                              height: 15,
+                              height: 40,
                               child: TextField(
                                 textAlign: TextAlign.center,
                                 controller: txtAreaSizeMaxController,
@@ -3429,7 +3430,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                               children: [
                                 Container(
                                   width: 40,
-                                  height: 40,
+                                  height: 70,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
@@ -3553,9 +3554,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                             const Divider(height: 2),
                             SizedBox(
                                 width: MediaQuery.of(context).size.width / 3,
-                                height: 200,
+                                height: 120,
                                 child: GridView.count(
-                                  crossAxisCount: 3,
+
+                                  crossAxisCount: 5,
                                   children: targetWidgets,
                                 ))
                           ])))),
@@ -3578,7 +3580,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       inlineWidgets.add(
         Positioned(
             right: 20,
-            top: 150,
+            top: 20,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -3605,7 +3607,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                         if (selectedDistanceIdx == 3) ...[
                           SizedBox(
                             width: 40,
-                            height: 20,
+                            height: 40,
                             child: TextField(
                               textAlign: TextAlign.center,
                               controller: txtDistanceMinController,
@@ -3698,7 +3700,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           ),
                           SizedBox(
                             width: 40,
-                            height: 20,
+                            height: 40,
                             child: TextField(
                               textAlign: TextAlign.center,
                               controller: txtDistanceMaxController,
@@ -8515,6 +8517,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             try {
               for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
                 int neuronIndex = i;
+                print("periodicNeuronSpikingFlags[i - normalNeuronStartIdx]");
+                print(periodicNeuronSpikingFlags[i - normalNeuronStartIdx]);
                 if (periodicNeuronSpikingFlags[i - normalNeuronStartIdx] == 1) {
                   protoNeuron.circles[neuronIndex].isSpiking = 1;
                   neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
@@ -9252,7 +9256,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                         // CHANGE because of Chris' workshop
                         mapDistanceNeuron["${nodeFrom.id}_${nodeTo.id}"] = 1;
                         mapDistanceLimitNeuron["${nodeFrom.id}_${nodeTo.id}"] =
-                            1;
+                            "8_@_30";
                       } else if (nodeTo == nodeLeftMotorForwardSensor ||
                           nodeTo == nodeLeftMotorBackwardSensor ||
                           nodeTo == nodeRightMotorForwardSensor ||
@@ -10010,67 +10014,69 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           ));
     }
 
-    return GestureDetector(
-      onTap: () {
-        isSelectingCameraTarget = !isSelectingCameraTarget;
-        selectedEyeInfo["icon"] = mapDistanceInfo["icon"];
-        selectedEyeInfo["label"] = mapDistanceInfo["label"];
-        selectedEyeInfo["idx"] = idx.toString;
-
-        cameraMenuType =
-            (mapDistanceInfo["label"] as String).replaceAll("Color ", "");
-        printDebug("isSelectingCameraTarget");
-        printDebug(cameraMenuType);
-        linkSensoryConnection(cameraMenuType);
-        setState(() {});
-      },
-      child: SizedBox(
-        width: 90,
-        height: 100,
-        child: Stack(
-          children: [
-            Positioned(
-                left: 0,
-                top: 0,
-                child: Container(
-                  width: 70,
-                  height: 70,
-                  margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                    color:
-                        selectedDistanceIdx.toString() == mapDistanceInfo["idx"]
-                            ? colorOrange
-                            : Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 7,
-                        offset:
-                            const Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: targetIcon,
-                )),
-            Positioned(
-                left: 0,
-                bottom: 0,
-                child: Card(
-                    // margin: const EdgeInsets.all(10),
-                    child: SizedBox(
-                        width: 80,
-                        height: 30,
-                        child: Center(
-                          child: Text(
-                            distanceLabel,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ))))
-          ],
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          isSelectingCameraTarget = !isSelectingCameraTarget;
+          selectedEyeInfo["icon"] = mapDistanceInfo["icon"];
+          selectedEyeInfo["label"] = mapDistanceInfo["label"];
+          selectedEyeInfo["idx"] = idx.toString;
+      
+          cameraMenuType =
+              (mapDistanceInfo["label"] as String).replaceAll("Color ", "");
+          printDebug("isSelectingCameraTarget");
+          printDebug(cameraMenuType);
+          linkSensoryConnection(cameraMenuType);
+          setState(() {});
+        },
+        child: SizedBox(
+          width: 90,
+          height: 110,
+          child: Stack(
+            children: [
+              Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      color:
+                          selectedDistanceIdx.toString() == mapDistanceInfo["idx"]
+                              ? colorOrange
+                              : Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 7,
+                          offset:
+                              const Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: targetIcon,
+                  )),
+              Positioned(
+                  left: 0,
+                  top: 60,
+                  child: Card(
+                      // margin: const EdgeInsets.all(10),
+                      child: SizedBox(
+                          width: 80,
+                          height: 30,
+                          child: Center(
+                            child: Text(
+                              distanceLabel,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ))))
+            ],
+          ),
         ),
       ),
     );
@@ -10486,7 +10492,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             protoNeuron.circles[neuronIndex].isSpiking = 1;
             neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
             // printDebug(controller.nucleusList!.length);
-            // printDebug(neuronSpikeFlags);
+            printDebug(neuronSpikeFlags);
           } else {
             try {
               protoNeuron.circles[neuronIndex].isSpiking = -1;

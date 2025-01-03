@@ -255,9 +255,11 @@ class ProtoNeuron extends CustomPainter {
           aBufList[idx] = 0.02;
           // bBufList[idx] = 0.18; // 0.16;
           // Chris request 23 August 2024
-          bBufList[idx] = 0.17; // 0.16;
+          // bBufList[idx] = 0.17; // 0.16;
+          // cBufList[idx] = -20; //-8;
+          bBufList[idx] = 0.20; // 0.16;
           cBufList[idx] = -20; //-8;
-          dBufList[idx] = 2;
+          dBufList[idx] = 2;  
           break;
         case "Bursts when activated":
           aBufList[idx] = 0.02;

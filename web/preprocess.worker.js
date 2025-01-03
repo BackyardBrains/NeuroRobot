@@ -147,7 +147,9 @@ self.onmessage = function(eventFromMain){
                     // console.log("RUNNING PREPROCESS STATE : ", sabStateBuffer[STATE.PREPROCESS_IMAGE_LENGTH]);
                     // sabStateBuffer[7] = -10000; // passing pointer should be from the WASM allocation
                     sabStateBuffer[STATE.PREPROCESS_IMAGE_PROCESSING] = 1;
-                    sabPreprocessCentroid.fill(0);
+                    if (sabPreprocessCentroid !== undefined) {
+                        sabPreprocessCentroid.fill(0);
+                    }
                     sabPreprocessStateBuffer.set(sabStateBuffer);
                     // sabPreprocessVisPrefs.set(sabVisPrefs);
                     // sabPreprocessVisPrefVals.set(sabVisPrefVals);
@@ -173,24 +175,24 @@ self.onmessage = function(eventFromMain){
                         const nodeLeftEyeSensor = 1;
                         const selectedVisualPreference = sabVisPrefs[nodeLeftEyeSensor * neuronSize + neuronIdx];
                         if (selectedVisualPreference == 0) { // BLUE
-                            sabPreprocessColorDetection[0] = sabPreprocessCentroid[0] /2 ;
-                            sabPreprocessColorDetection[1] = sabPreprocessCentroid[1] /2 ;
+                            sabPreprocessColorDetection[0] = sabPreprocessCentroid[0]  ;
+                            sabPreprocessColorDetection[1] = sabPreprocessCentroid[1] *1.5 ;
                             sabPreprocessColorDetection[2] = sabPreprocessCentroid[2];
                             // if (sabPreprocessCentroid[2] > 68) {
                             //     colorFlag = true;
                             // }
                         } else
                         if (selectedVisualPreference == 2) { // GREEN
-                            sabPreprocessColorDetection[3] = sabPreprocessCentroid[3] /2 ;
-                            sabPreprocessColorDetection[4] = sabPreprocessCentroid[4] /2 ;
+                            sabPreprocessColorDetection[3] = sabPreprocessCentroid[3];
+                            sabPreprocessColorDetection[4] = sabPreprocessCentroid[4] *1.5 ;
                             sabPreprocessColorDetection[5] = sabPreprocessCentroid[5];
                             // if (sabPreprocessCentroid[5] > 68) {
                             //     colorFlag = true;
                             // }
                         } else
                         if (selectedVisualPreference == 4) { // RED
-                            sabPreprocessColorDetection[6] = sabPreprocessCentroid[6] /2 ;
-                            sabPreprocessColorDetection[7] = sabPreprocessCentroid[7] /2 ;
+                            sabPreprocessColorDetection[6] = sabPreprocessCentroid[6] ;
+                            sabPreprocessColorDetection[7] = sabPreprocessCentroid[7] *1.5 ;
                             sabPreprocessColorDetection[8] = sabPreprocessCentroid[8];
                             // if (sabPreprocessCentroid[8] > 68) {
                             //     colorFlag = true;
