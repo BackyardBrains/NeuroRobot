@@ -762,6 +762,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         distanceBufView,
         distanceMinLimitBufView,
         distanceMaxLimitBufView,
+        mapAreaSize,
+        neuronTypes.keys.toList(),
       ])
     ]);
     // late Int16List neuronDistanceBufView = Int16List(0);
@@ -1177,6 +1179,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   Offset constraintOffsetBottomLeft = const Offset(300, 430);
 
   List<InfiniteCanvasNode> listDefaultSensor = [];
+  List<InfiniteCanvasNode> listSensorArrow = [];
   List<String> listDefaultSensorLabel = [];
   ValueNotifier<int> tooltipValueChange = ValueNotifier(0);
 
@@ -1833,6 +1836,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   @override
   void initState() {
     super.initState();
+    FontLoader('NotoEmoji').load().then((onValue)=>print("NotoEmoji Loaded")).catchError((onError)=>print(onError));
+    FontLoader('BybHanddrawn').load().then((onValue)=>print("BybHanddrawn Loaded")).catchError((onError)=>print(onError));
 
     initWeb();
     windowManager.addListener(this);
@@ -4916,8 +4921,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           right: 5,
           top: 5,
           child: Text(
-            style: const TextStyle(fontSize: 7),
-            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""} \r\n$strFirmwareVersion",
+            style: const TextStyle(fontSize: 9),
+            "1.2.1 : 76 \r\n$strFirmwareVersion",
           ),
         ),
         Center(
@@ -5565,12 +5570,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               // details.scale
             },
             onDoubleTap: () {
-              // printDebug("doubletap");
+              // printDebug("doubletap0");
               // printDebug(controller.scale);
               if (isSimulatingBrain) return;
 
               if (controller.scale >= 1.5) {
+                // printDebug("doubletap");
                 controller.zoomReset();
+                controller.mouseDown = false;
+                controller.spacePressed = false;
                 // controller.pan(const Offset(-60, 0));
                 controller.scale = 1;
 
@@ -6286,6 +6294,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       nodeGreenLed,
       nodeBlueLed,
     ];
+    listSensorArrow = [
+      nodeDistanceSensor,
+      nodeLeftEyeSensor,
+      nodeMicrophoneSensor,
+    ];
+
     printDebug("Create Canvas Controller");
     printDebug(nodes);
     // neuronTypes["abc"] = "1";
@@ -6457,7 +6471,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             if (!isTooltipOverlay) {
               isDeleteMenu = true;
             } else {
-              return;
+              if (!listSensorArrow.contains(selected)) {
+                return;
+              }
             }
             prevSelectedNeuron = selected;
             isDrawTail = true;
@@ -9875,6 +9891,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   int zoneWidth = 500;
   int zoneHeight = 150;
 
+  Int8List firmwareVersion = Int8List(0);
   Int32List periodicSpikingFlags = Int32List(0);
   Int16List colorDetectionResult = Int16List(0);
   Float64List imageRecognitionResult = Float64List(0);
@@ -10398,6 +10415,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   IdbFactory? idbFactory;
   late Database db;
+  
   void initWeb() {
     if (kIsWeb) {
       const String storeName = "spikerbot";
@@ -10436,13 +10454,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   passUiPointers(
-      pPeriodicSpikingFlags, pColorDetectionResult, pImageRecognitonResult) {
+      pPeriodicSpikingFlags, pColorDetectionResult, pImageRecognitonResult, pFirmwareVersion) {
     periodicSpikingFlags = pPeriodicSpikingFlags;
     colorDetectionResult = pColorDetectionResult;
     imageRecognitionResult = pImageRecognitonResult;
+    firmwareVersion = pFirmwareVersion;
   }
 
   updateRobotStatus() {
+    if (strFirmwareVersion == "" && firmwareVersion.length > 1) {
+      strFirmwareVersion = "V${firmwareVersion[0]}.${firmwareVersion[1]}.${firmwareVersion[2]}";
+    }
     bool flag = false;
     if (prevWebSocketStatus != sabStateBuffer[jsState["WEB_SOCKET"]!] &&
         sabStateBuffer[jsState["WEB_SOCKET"]!] < 0) {

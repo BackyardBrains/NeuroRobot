@@ -307,6 +307,8 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           },
           onPointerUp: (details) {
             controller.mouseDown = false;
+            // controller.shiftPressed = false;
+            
             // CHANGE ME
             // if (controller.marqueeStart != null &&
             //     controller.marqueeEnd != null) {
@@ -405,9 +407,13 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   }
                 },
                 onInteractionUpdate: (details) {
+                  // print("on Interacction update ${controller.canvasMoveEnabled} ${details.scale}");
                   if (!controller.mouseDown) {
+                    // print("on mousedown ${details.scale}");
                     controller.scale = details.scale;
                   } else if (controller.spacePressed) {
+                    // print("on Interacction space pressed ${controller.canvasMoveEnabled}");
+
                     // print("controller.canvasMoveEnabled");
                     // print(controller.canvasMoveEnabled);
                     if (controller.canvasMoveEnabled) {
@@ -428,7 +434,11 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                     // controller.notifyMousePosition();
                   }
                 },
-                onInteractionEnd: (_) => controller.mouseDragStart = null,
+                onInteractionEnd: (_) {
+                  // print("On Interaction End");
+                  // controller.mousePosition = Offset.zero;
+                  controller.mouseDragStart = null;
+                },
                 minScale: controller.minScale,
                 maxScale: controller.maxScale,
                 boundaryMargin: const EdgeInsets.all(double.infinity),

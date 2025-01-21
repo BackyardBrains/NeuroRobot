@@ -2,6 +2,7 @@ import 'package:fialogs/fialogs.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:neurorobot/pages/createbrain_page.dart';
 import 'package:neurorobot/pages/designbrain_page.dart';
@@ -23,6 +24,8 @@ const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FontLoader('NotoEmoji').load().then((onValue)=>print("NotoEmoji Loaded")).catchError((onError)=>print(onError));
+  await FontLoader('BybHanddrawn').load().then((onValue)=>print("BybHanddrawn Loaded")).catchError((onError)=>print(onError));
 
   // WEB CHANGE & windows Change
   /*
