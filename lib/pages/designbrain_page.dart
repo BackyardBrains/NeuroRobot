@@ -6863,8 +6863,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 nodeRightMotorBackwardSensor,
                 nodeSpeakerSensor,
               ];
-              printDebug("creating link");
-              printDebug("creating linkaz");
               if (neuronFrom.key == neuronTo.key) {
                 // Future.delayed(const Duration(milliseconds: 50), () {
                 controller.edges.remove(lastCreatedEdge);
@@ -10462,7 +10460,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   updateRobotStatus() {
-    if (strFirmwareVersion == "" && firmwareVersion.length > 1) {
+    if (strFirmwareVersion == "" && firmwareVersion.length > 1 && firmwareVersion[0] != 0) {
       strFirmwareVersion = "V${firmwareVersion[0]}.${firmwareVersion[1]}.${firmwareVersion[2]}";
     }
     bool flag = false;

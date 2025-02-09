@@ -117,6 +117,9 @@ short motorCounter = 0;
 // CALLBACK
 std::string message;
 void (*onCallback)(const char*);
+// emscripten::val onWebCallback;
+// void (*onWebCallback)(char*);
+void (*onWebCallback)(int);
 
 
 // DISTANCE

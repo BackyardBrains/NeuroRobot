@@ -1,5 +1,6 @@
 #ifdef __EMSCRIPTEN__
     #include <emscripten/bind.h>
+    #include <emscripten/threading.h>
     using namespace emscripten;
     #include <emscripten.h>
     #include <wasm_simd128.h>
@@ -115,6 +116,28 @@ EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const
     onCallback = onRequest;
 }
 
+#ifdef __EMSCRIPTEN__
+  EMSCRIPTEN_KEEPALIVE
+#endif
+// EXTERNC FUNCTION_ATTRIBUTE void webSimulationCallback(emscripten::val cb) {
+EXTERNC void invokeCallback(void (*onCallback)(int)) {
+    onWebCallback = onCallback;
+    // char* pBuf = "127777";
+    // callback(123);
+	// std::thread ([callback] {
+    //             // Some expensive computation
+	//         // const char* pBuf = "asdasdas";
+	// 	emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_VI, callback, 133333);
+	// }).detach ();    
+    // std::vector<float> output = { 1, 2, 3 };
+    // emscripten::val view{ emscripten::typed_memory_view(output.size(), output.data()) };
+    
+    // char* str = "abcdefg";
+    // size_t len = strlen(str);
+    // std::vector<char> output(str, str + len);
+    // emscripten::val view{ emscripten::typed_memory_view(output.size(), output.data()) };
+    // onWebCallback.call<int>("callbackToWebFromSimulation", 0, view);
+}
 
 std::thread simulatorThread;
 std::thread guidedQueueThread;
@@ -479,6 +502,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         // debug_print("t detach 0");
         simulatorThread = std::thread([&]() {
             // double rand;
+            // emscripten::val onWebCallbackThread = onWebCallback;
             int32_t currentStep = 0;
 
             // platform_log2("t created");
@@ -977,7 +1001,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
                         v_traces[neuronIndex][startPos + idx] = (v_step[idx][neuronIndex]);
                     }
-                    delete v_step[idx];
+                    delete[] v_step[idx];
+                    // delete v_step[idx];
                 }
                 positions[0] = startPos + static_cast<short>(epochs);
                 currentStep++;
@@ -1275,14 +1300,31 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     // for (std::size_t i = 0; i < message.length(); ++i) {
                     //     motor_command_message[i] = static_cast<uint8_t>(message[i]);
                     // }
-                    state_buf[4]= message.length();
+                    // state_buf[4]= message.length();
                     char *cstr = new char[message.length() + 1];
                     strcpy(cstr, message.c_str());                
 
                     EM_ASM({
                         updateMotorCommand($0, UTF8ToString($1), $2, $3, $4,$5);
                     // }, state_buf, motor_command_message, state_buf[4]);
-                    }, state_buf, cstr, state_buf[4], motor_command_message, totalNumOfNeurons, periodicSpikingFlags);
+                    }, state_buf, cstr, message.length(), motor_command_message, totalNumOfNeurons, periodicSpikingFlags);
+                    delete[] cstr;
+                    // size_t len = strlen(cstr);
+                    // std::vector<char> output(cstr, cstr + len);
+                    // emscripten::val msg{ emscripten::typed_memory_view(output.size(), output.data()) };
+                    
+                    // short StateLength = 70;
+                    // std::vector<int> stateBufOutput(state_buf, state_buf + StateLength);
+                    // emscripten::val stateBuf{ emscripten::typed_memory_view(stateBufOutput.size(), stateBufOutput.data()) };
+
+                    // std::vector<int> periodicSpikingFlagsOutput(periodicSpikingFlags, periodicSpikingFlags + totalNumOfNeurons);
+                    // emscripten::val statePeriodicSpikingFlagsBuf{ emscripten::typed_memory_view(periodicSpikingFlagsOutput.size(), periodicSpikingFlagsOutput.data()) };
+
+
+                    // onWebCallbackThread.call<int>("callbackToWebFromSimulation", 0, (uintptr_t) state_buf, msg, state_buf[4], msg, totalNumOfNeurons, (uintptr_t) periodicSpikingFlags);
+                    // onWebCallbackThread.call<int>("callbackToWebFromSimulation", 0, 1, 2, 3, 4, totalNumOfNeurons, 5);
+                    // onWebCallback.call<int>("callbackToWebFromSimulation", 0, &stateBuf, msg, state_buf[4], msg, totalNumOfNeurons, statePeriodicSpikingFlagsBuf);
+                    // emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_VIIIII, onWebCallback, state_buf, cstr, state_buf[4], totalNumOfNeurons, periodicSpikingFlags);
                 #else
                     // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
                     // if (prevMessage != message){
@@ -1358,6 +1400,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 //     // function("getCurrentPosition", &getCurrentPosition);
 //     // function("getNeuronCircles", &getNeuronCircles);
     function("stopThreadProcess", &stopThreadProcess);
+    // function("webSimulationCallback", &webSimulationCallback);
     function("changeIdxSelectedProcess", &changeIdxSelectedProcess);
 //     // function("applyLowPassFilter", &applyLowPassFilter);
 //     // register_vector<short>("vector<short>");
