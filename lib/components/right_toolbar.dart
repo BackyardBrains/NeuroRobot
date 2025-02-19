@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:metooltip/metooltip.dart';
+// import 'package:metooltip/metooltip.dart';
 
 class RightToolbar extends StatefulWidget {
   RightToolbar(
@@ -211,9 +211,10 @@ class _RightToolbarState extends State<RightToolbar> {
               if (idx == 2) {
                 return const Divider();
               }
-              return MeTooltip(
-                message: tooltipActions[idx],
-                preferOri: PreferOrientation.left,
+              // return MeTooltip(
+              return Container(
+                // message: tooltipActions[idx],
+                // preferOri: PreferOrientation.left,
                 child: GestureDetector(
                   onTap: () {
                     if (widget.isPlaying) return;
@@ -375,9 +376,10 @@ class _RightToolbarState extends State<RightToolbar> {
             // physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (ctx, index) {
               int idx = index;
-              return MeTooltip(
-                message: tooltipSimulations[idx],
-                preferOri: PreferOrientation.left,
+              // return MeTooltip(
+              return Container(
+                // message: tooltipSimulations[idx],
+                // preferOri: PreferOrientation.left,
                 child: GestureDetector(
                   onTap: () {
                     if (widget.isPlaying) return;

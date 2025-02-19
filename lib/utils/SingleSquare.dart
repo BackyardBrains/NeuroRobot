@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class SingleSquare extends CustomPainter {
   Color activeColor = Colors.green.shade700;
-  Color inactiveColor = Colors.black;
+  Color inactiveColor = Colors.transparent;
   final double squareRadius = 20.0;
   final double arrowSize = 2.0;
   late Offset centerPos;

@@ -35,7 +35,7 @@
 short configDelayNeuron = 6;
 short configCountingNeuron = 10;
 int totalNeuron = 0;
-short normalNeuronFirstIndex = 12;
+short normalNeuronFirstIndex = 13;
 bool isThreadRunning = true;
 short ms_per_step = 1;
 short steps_per_loop = 10.5 * 200;
@@ -142,9 +142,10 @@ short *microphone_buf;
 // LED
 short *led_buf;
 short *led_pos_buf;
-short neuronLedRedIdx = 9;
-short neuronLedGreenIdx = 10;
-short neuronLedBlueIdx = 11;
+short neuronLedRedIdx = 10;
+short neuronLedGreenIdx = 11;
+short neuronLedBlueIdx = 12;
+
 
 double *visual_input_buf;
 // std::string redLEDCmd = "d:111;d:211;d:311;d:411;d:511;d:611;"; // red

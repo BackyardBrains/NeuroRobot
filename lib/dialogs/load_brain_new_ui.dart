@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:fialogs/fialogs.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:path/path.dart';
@@ -15,7 +16,9 @@ TextEditingController tecBrainName = TextEditingController();
 TextEditingController tecBrainDescription = TextEditingController();
 bool isDeleteMode = false;
 int isSavingMode = 1;
-bool isEditingMenu = false;
+// bool isEditingMenu = false;
+bool isEditingMenu = true;
+bool isUploading = false;
 String currentFileName = "-";
 Map mapStatus = {};
 
@@ -129,7 +132,7 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
   if (currentFileName != "-") {
     int tempIdx = 0;
     int loadedIdx = -1;
-    fileNames.forEach((file) {
+    for (var file in fileNames) {
       if (file.path.contains(currentFileName)) {
         printDebug("file.path");
         printDebug(file.path);
@@ -137,7 +140,7 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
         loadedIdx = tempIdx;
       }
       tempIdx++;
-    });
+    }
     if (loadedIdx >= 0) {
       tecBrainName.text = fileInfos[loadedIdx]["title"]!;
       tecBrainDescription.text = fileInfos[loadedIdx]["description"]!;
@@ -230,20 +233,80 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                   height: 70,
                   child: Row(
                     children: [
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              shadowColor: Colors.transparent,
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: Colors.black,
-                              elevation: 0,
-                              side: BorderSide.none),
-                          onPressed: () {
-                            isEditingMenu = !isEditingMenu;
-                            setState(() {});
-                          },
-                          child: isEditingMenu
-                              ? const Icon(Icons.keyboard_arrow_up)
-                              : const Icon(Icons.menu)),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    shadowColor: Colors.transparent,
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: Colors.black,
+                                    elevation: 0,
+                                    side: BorderSide.none),
+                                onPressed: () {
+                                  isEditingMenu = !isEditingMenu;
+                                  setState(() {});
+                                },
+                                child: isEditingMenu?
+                                  const Icon(Icons.keyboard_arrow_up)
+                                    : const Icon(Icons.menu)
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              GestureDetector(onTap: () async {
+                                isUploading = false;
+
+                                Directory? rootPath = await getDownloadsDirectory();
+                                // rootPath ??= await getApplicationDocumentsDirectory();
+                                if (Platform.isMacOS) {
+                                  // rootPath = await getDownloadsDirectory();
+                                } else {
+                                  rootPath = await getApplicationDocumentsDirectory();
+                                }
+                                // Directory? rootPath = await getTemporaryDirectory();
+                                String? path = await FilesystemPicker.open(
+                                  title: 'Open file',
+                                  context: context,
+                                  rootDirectory: rootPath,
+                                  fsType: FilesystemType.file,
+                                  allowedExtensions: ['.txt'],
+                                  fileTileSelectMode: FileTileSelectMode.wholeTile,
+                                );
+                                if (path != null) {
+                                  // String content = await fileNames[i].readAsString();
+                                  File srcFile = File(path);
+                                  // String baseFileName = basename(srcFile.path).replaceAll(".txt", "222.txt");
+                                  String baseFileName = basename(srcFile.path);
+                                  Directory? documentPath;
+                                  documentPath = await getApplicationDocumentsDirectory();
+
+                                  Directory directory = Directory("${(documentPath).path}$textPath");
+                                  // Directory directory = Directory("${(documentPath!).path}");
+                                  if (directory.existsSync()) {
+                                    File resultFile = File("${directory.path}${Platform.pathSeparator}$baseFileName");
+                                    print("baseFileName");
+                                    print(resultFile.path);
+                                    srcFile.copySync(resultFile.path);
+                                  }
+                                } else {
+                                  print("path null");
+                                }                                
+                                fileInfos = [];
+                                fileNames = await loadBrainFiles(fileInfos, context);
+
+                                setState((){});
+                              }, child: const Icon(Icons.cloud_download)),
+                              const SizedBox(width:5),
+                              GestureDetector(onTap: () async {
+                                isUploading = !isUploading;
+                                setState((){});
+                              }, child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,))
+                            ],
+                          )
+                        ],
+                      ),
                       Expanded(
                         child: Container(
                           color: isSavingMode < 10 || isEditingMenu
@@ -303,8 +366,9 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 obscureText: false,
                                 textInputType: TextInputType.text,
                                 validator: (value) {
-                                  if (value!.toString().isEmpty)
+                                  if (value!.toString().isEmpty) {
                                     return "Required!";
+                                  }
                                   return null;
                                 },
                                 onEditingComplete: (value) {
@@ -531,6 +595,36 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 ),
                               ),
                             ),
+                            if (isUploading) ... [
+                              Positioned(
+                                left: 0,
+                                top: 0,
+                                child: GestureDetector(
+                                  child: const Icon(Icons.cloud_upload_outlined),
+                                  onTap: () async {
+                                    Directory? rootPath = await getDownloadsDirectory();
+                                    // rootPath ??= await getApplicationDocumentsDirectory();
+                                    if (Platform.isIOS) {
+                                      rootPath = await getApplicationDocumentsDirectory();
+                                    }
+                                    // Directory? rootPath = await getTemporaryDirectory();
+                                    String? path = await FilesystemPicker.open(
+                                      title: 'Save to folder',
+                                      context: context,
+                                      rootDirectory: rootPath,
+                                      fsType: FilesystemType.folder,
+                                      pickText: 'Save file to this folder',
+                                    );
+                                    if (path != null) {
+                                      // String content = await fileNames[i].readAsString();
+                                      String baseFileName = basename(fileNames[i].path);
+                                      File resultFile = File("$path${Platform.pathSeparator}$baseFileName");
+                                      fileNames[i].copySync(resultFile.path);
+                                    }
+                                  },
+                                )
+                              )
+                            ],
                             Positioned(
                               right: 0,
                               top: 0,

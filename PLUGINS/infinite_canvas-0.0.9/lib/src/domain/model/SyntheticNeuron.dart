@@ -688,7 +688,7 @@ class SyntheticNeuron extends CustomPainter {
         }
 
         // //draw right dendrite 2nd level
-        blackBrush.color = Colors.black;
+        // blackBrush.color = Colors.black;
         if (canvas != null) {
           path = Path();
           path.moveTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
@@ -711,7 +711,7 @@ class SyntheticNeuron extends CustomPainter {
           path.close();
           canvas.drawPath(path, blackBrush);
         }
-        blackBrush.color = Colors.black;
+        // blackBrush.color = Colors.black;
 
         //draw sinapse second level
         //get coordinates of sinapse center

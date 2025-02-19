@@ -464,6 +464,17 @@ List<List<Offset>> sensorPolygonPaths = [
     const Offset(432, 518),
   ], // speaker
   [
+    const Offset(172, 529),
+    const Offset(145, 584),
+    const Offset(44, 573),
+    const Offset(17, 495),
+    const Offset(63, 483),
+    const Offset(129, 558),
+    const Offset(134, 527),
+    const Offset(172, 529),
+
+  ], // LED  
+  [
     const Offset(163, 69),
     const Offset(218, 63),
     const Offset(271, 96),

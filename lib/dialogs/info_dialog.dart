@@ -20,7 +20,7 @@ Future<void> neuronDialogBuilder(
   if (!Platform.isWindows) {
     MyApp.analytics.logEvent(
       name: 'neuron_dialog',
-      parameters: <String, dynamic>{
+      parameters: {
         'neuron_dialog': 'true',
       },
     );
@@ -126,7 +126,7 @@ Future<void> axonDialogBuilder(
   if (!Platform.isWindows) {
     MyApp.analytics.logEvent(
       name: 'axon_dialog',
-      parameters: <String, dynamic>{
+      parameters: {
         'axondialog': 'true',
       },
     );
@@ -316,7 +316,7 @@ Future<void> linkDialogBuilder(
   if (!Platform.isWindows) {
     MyApp.analytics.logEvent(
       name: 'link_dialog',
-      parameters: <String, dynamic>{
+      parameters: {
         'link_dialog': 'true',
       },
     );

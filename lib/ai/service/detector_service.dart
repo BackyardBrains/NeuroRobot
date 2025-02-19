@@ -114,6 +114,12 @@ class Detector {
     if (Platform.isAndroid) {
       interpreterOptions.addDelegate(XNNPackDelegate());
     }
+    // final file = File('${(await getTemporaryDirectory()).path}/temp_ssd_mobilenet.tflite');
+    // await file.writeAsBytes(byteData.buffer.asUint8List());
+    // print("FILEZZ: ${file.path}");
+    // return Interpreter.fromFile(
+    //   File(file.path),
+    //   // _modelPath,
 
     return Interpreter.fromAsset(
       _modelPath,

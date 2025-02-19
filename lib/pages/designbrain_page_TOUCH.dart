@@ -31,7 +31,7 @@ import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
-import 'package:metooltip/metooltip.dart';
+// import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
 import 'package:neurorobot/components/search_textfield.dart';
 import 'package:neurorobot/dialogs/version_dialog.dart';

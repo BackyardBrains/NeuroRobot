@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Nucleus extends StatelessWidget {
   int isSpiking = -1;
-  int normalNeuronStartIdx = 12;
+  int normalNeuronStartIdx = 13;
   final List<ValueNotifier<int>> neuronSpikeFlags;
   final CustomPaint neuronActiveCircle;
   final CustomPaint neuronInactiveCircle;

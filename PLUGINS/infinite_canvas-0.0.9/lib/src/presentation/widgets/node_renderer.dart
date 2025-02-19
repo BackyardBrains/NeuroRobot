@@ -27,22 +27,22 @@ class NodeRenderer extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          if (node.label != null)
+          if (node.label != null && InfiniteCanvasNode.isShowingInfo)
             Positioned(
-              top: -25,
-              left: 0,
+              top: -30,
+              left: -20,
               child: Text(
                 node.label!,
-                style: fonts.bodyMedium?.copyWith(
-                  color: colors.onSurface,
-                  shadows: [
-                    Shadow(
-                      offset: const Offset(0.8, 0.8),
-                      blurRadius: 3,
-                      color: colors.surface,
-                    ),
-                  ],
-                ),
+                // style: fonts.bodyMedium?.copyWith(
+                //   color: colors.onSurface,
+                //   shadows: [
+                //     Shadow(
+                //       offset: const Offset(0.8, 0.8),
+                //       blurRadius: 3,
+                //       color: colors.surface,
+                //     ),
+                //   ],
+                // ),
               ),
             ),
           // CHANGE ME
@@ -75,11 +75,15 @@ class NodeRenderer extends StatelessWidget {
                   )
                 : (controller.isSelected(node.key) ||
                         controller.isHovered(node.key))
-                    ? ColorFiltered(
-                        colorFilter: const ColorFilter.mode(
-                            Color(0XFFFD8164), BlendMode.srcIn),
-                        child: node.child)
-                    : node.child,
+                    ? Transform.scale(
+                        scale: 1.5,
+                        child: ColorFiltered(
+                          colorFilter: const ColorFilter.mode(
+                              Color(0XFFFD8164), BlendMode.srcIn),
+                          child: node.child!)
+                        
+                      )
+                    : node.child!,
           ),
           if (showHandles) ...[
             // bottom right
