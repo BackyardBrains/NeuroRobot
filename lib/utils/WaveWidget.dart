@@ -36,13 +36,16 @@ class WaveWidget extends StatefulWidget {
 
 class _WaveWidgetState extends State<WaveWidget> {
   GlobalKey waveKey = GlobalKey();
+  double rightGap = 20;
+  bool isGapCalculated = false;
+
   @override
   Widget build(BuildContext context) {
     // WEB CHANGE
     if (Platform.isWindows) {
       return Container(
         height: widget.screenHeight / 2 - 130,
-        width: widget.screenWidth - 20,
+        width: widget.screenWidth + rightGap * 2,
         color: Colors.white,
         child: LayoutBuilder(builder: (context, constraint) {
           return PolygonWaveform(
@@ -57,7 +60,8 @@ class _WaveWidgetState extends State<WaveWidget> {
             strokeWidth: 1.0,
 
             height: widget.screenHeight / 2 - 130,
-            width: constraint.maxWidth,
+            // width: constraint.maxWidth,
+            width: widget.screenWidth + rightGap * 2,
             // WEB CHANGE
             // samples: WaveWidget.canvasBufferBytes1,
             samples: Nativec.canvasBufferBytes1,
@@ -69,9 +73,14 @@ class _WaveWidgetState extends State<WaveWidget> {
         }),
       );
     } else if (Platform.isIOS || Platform.isAndroid) {
+      if (Platform.isAndroid && !isGapCalculated) {
+        isGapCalculated = true;
+        rightGap = -20 * MediaQuery.of(context).devicePixelRatio;
+      }
+
       return Container(
         height: 90,
-        width: widget.screenWidth - 20,
+        width: widget.screenWidth - rightGap,
         color: Colors.white,
         child: PolygonWaveform(
           key: waveKey,
@@ -85,7 +94,7 @@ class _WaveWidgetState extends State<WaveWidget> {
           strokeWidth: 1.0,
 
           height: 90,
-          width: widget.screenWidth - 20,
+          width: widget.screenWidth - rightGap,
           // WEB CHANGE
           // samples: WaveWidget.canvasBufferBytes1,
           samples: Nativec.canvasBufferBytes1,

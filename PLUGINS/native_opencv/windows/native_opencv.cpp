@@ -312,14 +312,15 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         Mat leftGrayFrame, rightGrayFrame;
         // leftFrame = imageRgb(Rect(0, 0, frameSize, frameSize));
         // rightFrame = imageRgb(Rect(70, 0, frameSize, frameSize));
-        leftFrame = imageRgb(Rect(0, 15, frameSizeWidth, frameSizeHeight));
-        rightFrame = imageRgb(Rect(109, 15, frameSizeWidth, frameSizeHeight));
+        leftFrame = imageRgb;
+        // leftFrame = imageRgb(Rect(0, 0, frameSizeWidth, frameSizeHeight));
+        // rightFrame = imageRgb(Rect(109, 15, frameSizeWidth, frameSizeHeight));
 //         leftFrame = imageRgb(Rect(0, 0, 240, 240));
 //         rightFrame = imageRgb(Rect(70, 0, 240, 240));
 
         if (!isPrevEyesSaved){
             resize(leftFrame, prev_left_eye_frame, net_input_size);            
-            resize(rightFrame, prev_right_eye_frame, net_input_size);            
+            // resize(rightFrame, prev_right_eye_frame, net_input_size);            
             isPrevEyesSaved = true;
         }
 
@@ -327,7 +328,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
         double this_score = 0;
-        double curMaxScore = 0;
+        // double curMaxScore = 0;
         double this_left_score = 0;
         double this_right_score = 0;
         double meanx = 0;
@@ -342,10 +343,10 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                 cvtColor(prev_left_eye_frame, leftGrayFrame, COLOR_BGR2GRAY);
                 subtract(grayFrame, leftGrayFrame, xframe);
             }else{
-                resize(rightFrame, uframe, net_input_size);
-                cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
-                cvtColor(prev_right_eye_frame, rightGrayFrame, COLOR_BGR2GRAY);
-                subtract(grayFrame, rightGrayFrame, xframe);
+                // resize(rightFrame, uframe, net_input_size);
+                // cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
+                // cvtColor(prev_right_eye_frame, rightGrayFrame, COLOR_BGR2GRAY);
+                // subtract(grayFrame, rightGrayFrame, xframe);
             }
 
             uframe.convertTo(frame, CV_32FC3);
@@ -417,9 +418,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                             //     curMaxScore = this_score;
                                 // centroid[ncol* 3 + 0] = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx) + cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
                                 // centroid[ncol* 3 + 1] = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx) + cca_wrapper.get_centroid_y(cca_wrapper.max_idx);
-                                centroid[ncol* 3 + 0] = cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx);
-                                centroid[ncol* 3 + 1] = cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx);
-                                centroid[ncol* 3 + 2] = this_score;
+                                centroid[ncol* 3 + 0] = static_cast<uint16_t>(cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx));
+                                centroid[ncol* 3 + 1] = static_cast<uint16_t>(cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx));
+                                centroid[ncol* 3 + 2] = static_cast<uint16_t>(this_score);
                             // }
                             // platform_log_cv("Centroid Camera\n");
                             // platform_log_cv(std::to_string(centroid[0]).c_str());

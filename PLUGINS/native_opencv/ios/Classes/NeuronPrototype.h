@@ -35,7 +35,7 @@
 short configDelayNeuron = 6;
 short configCountingNeuron = 10;
 int totalNeuron = 0;
-short normalNeuronFirstIndex = 12;
+short normalNeuronFirstIndex = 13;
 bool isThreadRunning = true;
 short ms_per_step = 1;
 short steps_per_loop = 10.5 * 200;
@@ -85,8 +85,8 @@ double *vis_pref_vals;
 // double **temp_vis_pref_vals;
 double *vis_I;
 short frameSize = 130;
-short frameSizeWidth = 210;
-short frameSizeHeight = 210;
+short frameSizeWidth = 320;
+short frameSizeHeight = 240;
 
 // std::vector<int> vis_I(1,0);
 // short *firing = new short[totalNumOfNeurons];
@@ -145,6 +145,7 @@ short *led_pos_buf;
 short neuronLedRedIdx = 10;
 short neuronLedGreenIdx = 11;
 short neuronLedBlueIdx = 12;
+
 
 double *visual_input_buf;
 // std::string redLEDCmd = "d:111;d:211;d:311;d:411;d:511;d:611;"; // red

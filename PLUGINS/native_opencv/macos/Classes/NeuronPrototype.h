@@ -85,8 +85,8 @@ double *vis_pref_vals;
 // double **temp_vis_pref_vals;
 double *vis_I;
 short frameSize = 130;
-short frameSizeWidth = 210;
-short frameSizeHeight = 210;
+short frameSizeWidth = 320;
+short frameSizeHeight = 240;
 
 // std::vector<int> vis_I(1,0);
 // short *firing = new short[totalNumOfNeurons];

@@ -106,6 +106,7 @@ class NodeRenderer extends StatelessWidget {
               child: GestureDetector(
                 onPanUpdate: (details) {
                   if (!controller.mouseDown) return;
+                  print("panning node");
                   node.update(
                     size:
                         node.size + Offset(-details.delta.dx, details.delta.dy),

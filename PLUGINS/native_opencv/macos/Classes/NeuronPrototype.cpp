@@ -233,6 +233,7 @@ EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess(short _idxSelected){
         guidedDelayList[idx].isDecayInterrupted = true;
     }
     if (delayTime > 0){
+        // platform_log( ("DELAYING \n"));
         std::this_thread::sleep_for(std::chrono::milliseconds(delayTime *3/4 ));
     }
 
@@ -293,6 +294,10 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
     return 1.0;
 }
 
+
+/*
+    sensor_m(ax|in)_limit = directly connected neuron with distance sensor - 1Dimensional
+*/
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
@@ -356,7 +361,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts,
     short* p_mapNeuronType, short* p_mapDelayNeuron, short* p_mapRhytmicNeuron, short* p_mapCountingNeuron
     ){
-    // platform_log("changeNeuronSimulatorProcess 0");
+    // platform_log( (std::to_string(_neuronLength) + "changeNeuronSimulatorProcess 0\n").c_str() );
     initializeConstant(_neuronLength);
 
     a=_a;
@@ -483,7 +488,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
             int32_t threadInitialTotalNumOfNeurons = totalNumOfNeurons;
             spikes_step = new short*[threadInitialTotalNumOfNeurons];
-            auto start = std::chrono::high_resolution_clock::now();
+            // auto start = std::chrono::high_resolution_clock::now();
             short *switchSkipDelay= new short[threadInitialTotalNumOfNeurons];
 
             for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
@@ -495,7 +500,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 // neuronCountingTime[iStep] = neuronDelayTime[iStep];
             }
 
-            auto elapsed = std::chrono::high_resolution_clock::now() - start;
+            // auto elapsed = std::chrono::high_resolution_clock::now() - start;
             // long long microseconds = 0;
 
             double left_backward = 0;
@@ -525,10 +530,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             */
 
             short isSmartNeuronReady = 0;
+            isThreadRunning = true;
+            // platform_log( ("CREATED THREAD :  START DISTANCE0 \n" ) );
+            // platform_log( (std::to_string(isThreadRunning)+" START DISTANCE0 \n" ).c_str() );
+            isThreadRunning = true;
             while(isThreadRunning){
                 int32_t threadTotalNumOfNeurons = totalNumOfNeurons;
                 short *isSpiking = new short[threadTotalNumOfNeurons];
                 short *isStepSpiking = new short[threadTotalNumOfNeurons];
+                // platform_log( ("LOOPING THREAD : " ));
+
 
                 double *tI = new double[threadTotalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
@@ -551,8 +562,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                     vis_I[iStep] = 0;
                     dist_I[iStep] = 0;
-                    // if (dist_prefs[iStep] >= 0){
-                    //     platform_log( (std::to_string(sensor_min_limit[iStep])+" START DISTANCE0 \n" ).c_str());
+                    // if (dist_prefs[iStep] >= 3){
+                    //     platform_log( (std::to_string(iStep)+" START DISTANCE Index \n" ).c_str());
+                    // //     platform_log( (std::to_string(dist_prefs[iStep])+" START DISTANCE PREF \n" ).c_str());
+                    // //     platform_log( (std::to_string(sensor_distance[0])+" START DISTANCE VALUE \n" ).c_str());
+                    // //     platform_log( (std::to_string(sensor_min_limit[iStep])+" START DISTANCE0 \n" ).c_str());
                     //     platform_log( (std::to_string(sensor_max_limit[iStep])+" START DISTANCE1 \n" ).c_str());
                     // }
 
@@ -908,7 +922,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         }else
                         if (guidedDelayList[idx].neuronType == configDelayNeuron){ //delay neuron
                             if (switchSkipDelay[idx] == -1) {
-                                platform_log( ("List Size2xyz: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
+                                // platform_log( ("List Size2xyz: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
 
                                 switchSkipDelay[idx] = 40;
                                 if (v[idx] >= 30){
@@ -933,7 +947,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                                 if (guidedDelayList[neuronIndex].mode == 0 && guidedDelayList[neuronIndex].isWaiting == 1){
                                     guidedDelayList[neuronIndex].isWaiting = 2;
                                     guidedDelayList[neuronIndex].mode = 1;
-                                    platform_log( ("START THREAD\n" ));
+                                    // platform_log( ("START THREAD\n" ));
                                     guidedDelayList[neuronIndex].startDelayThread();
                                 }                                
                                 
@@ -1316,6 +1330,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] arrFreshDelayedValue;
             }
             if (!isThreadRunning){
+                // auto start = std::chrono::high_resolution_clock::now();                
+                // auto startDuration = start.time_since_epoch();
+                // long long startMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(startDuration).count();
+                // platform_log( (std::to_string(startMicroseconds) + "SIMULATOR THREAD 0\n").c_str() );
+
                 delete[] (v);
                 delete[] (u);
 
@@ -1342,6 +1361,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 }
                                 
                 delete[] switchSkipDelay;
+                // auto elapsed = std::chrono::high_resolution_clock::now() - start;
+                // // auto elapsedDuration = elapsed.time_since_epoch();
+                // long long elapsedMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+                // platform_log( (std::to_string(elapsedMicroseconds) + "SIMULATOR THREAD END\n").c_str() );
 
 
                 #ifdef __EMSCRIPTEN__

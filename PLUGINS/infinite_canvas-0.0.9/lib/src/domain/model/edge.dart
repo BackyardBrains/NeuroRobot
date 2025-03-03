@@ -16,5 +16,6 @@ class InfiniteCanvasEdge {
   int isReciprocate = 0;
   int isDrawn = 0;
   double connectionStrength = 0;
+  Color? color;
   double isExcitatory = 1;
 }

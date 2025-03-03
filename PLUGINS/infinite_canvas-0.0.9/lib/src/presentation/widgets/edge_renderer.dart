@@ -144,6 +144,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // print(
             //     "Add Synthetic Connection ${controller.syntheticConnections.length}");
 
+
+            if (edge.color != null) {
+              blackBrush.color = edge.color!;
+            } else {
+              blackBrush.color = Colors.black;
+            }
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
                 from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo);
             // }

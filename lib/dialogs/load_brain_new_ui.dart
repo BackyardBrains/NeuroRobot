@@ -5,12 +5,14 @@ import 'dart:typed_data';
 import 'package:fialogs/fialogs.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 TextEditingController tecBrainName = TextEditingController();
 TextEditingController tecBrainDescription = TextEditingController();
@@ -48,11 +50,14 @@ Future<List<File>> loadBrainFiles(fileInfos, context) async {
     // noSavedBrainAlert(context);
     return [];
   }
+
   List<FileSystemEntity> entity = directory.listSync(recursive: false);
   var fileList = entity
       .map((item) => item.path)
-      .where((item) => item.endsWith('.txt'))
+      // .where((item) => item.endsWith('.txt') || item.endsWith('.brain'))
       .toList(growable: false);
+  // print("FILE LIST ${fileList}");
+
   if (fileList.isEmpty) {
     // noSavedBrainAlert(context);
     return [];
@@ -69,12 +74,30 @@ Future<List<File>> loadBrainFiles(fileInfos, context) async {
   fileList.sort((a, b) => mtimes[a]!.compareTo(mtimes[b]!));
 
   for (String fileString in fileList) {
-    // printDebug(fileString);
+    // {{title@@@description@@@timestamp.brain}}
+    if (fileString.contains(".brain")) {
+      fileNames.insert(0, File(fileString));
+      List<String> arr = fileString.split("@@@");
+      final File savedFile = File(fileString);
+      int lastIndex = arr[0].lastIndexOf(Platform.pathSeparator) + 1;
+      if (savedFile.existsSync()) {
+        Map<String, String> brainInfo = {};
+        brainInfo.putIfAbsent("title", () => arr[0].substring(lastIndex));
+        brainInfo.putIfAbsent(
+            "description", () => arr[1]);
+        fileInfos.insert(0, brainInfo);
+      } else {
+        Map<String, String> brainInfo = {
+          "title": "Default title",
+          "description": "Old file version, please recreate and delete this."
+        };
+        fileInfos.insert(0, brainInfo);
+      }
+
+    } else
     if (fileString.contains(".txt")) {
       fileNames.insert(0, File(fileString));
       List<String> arr = fileString.split("@@@");
-      printDebug("arr");
-      printDebug(arr);
       final File savedFile = File(fileString);
       if (savedFile.existsSync()) {
         Map<String, String> brainInfo = {};
@@ -115,8 +138,26 @@ Future<Uint8List> getImageFromText(path) async {
   return imageBytes;
 }
 
+SoLoud? soloud;
+AudioSource? pageFlipSource;
+AudioSource? buttonOnPressedSource;
+AudioSource? buttonPopSource;
+AudioSource? eraseOnPressedSource;
+SoundHandle? pageFlipHandle;
+SoundHandle? buttonOnPressedHandle;
+SoundHandle? buttonPopHandle;
+SoundHandle? eraseOnPressedHandle;
+
 Future<void> showLoadBrainDialog(BuildContext context, String title,
     selectCallback, saveCallback, pMapStatus) async {
+  soloud = SoLoud.instance;
+  try{
+    pageFlipSource = await soloud?.loadAsset('assets/audio/PageFlip.mp3');
+    buttonOnPressedSource = await soloud?.loadAsset('assets/audio/ButtonOnPress.mp3');
+    buttonPopSource = await soloud?.loadAsset('assets/audio/ButtonPop.mp3');
+    eraseOnPressedSource = await soloud?.loadAsset('assets/audio/Erase.mp3');
+  }catch(err){}
+
   mapStatus = pMapStatus;
   printDebug("mapStatus");
   printDebug(mapStatus);
@@ -255,54 +296,97 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           ),
                           Row(
                             children: [
-                              GestureDetector(onTap: () async {
-                                isUploading = false;
-
-                                Directory? rootPath = await getDownloadsDirectory();
-                                // rootPath ??= await getApplicationDocumentsDirectory();
-                                if (Platform.isMacOS) {
-                                  // rootPath = await getDownloadsDirectory();
-                                } else {
-                                  rootPath = await getApplicationDocumentsDirectory();
-                                }
-                                // Directory? rootPath = await getTemporaryDirectory();
-                                String? path = await FilesystemPicker.open(
-                                  title: 'Open file',
-                                  context: context,
-                                  rootDirectory: rootPath,
-                                  fsType: FilesystemType.file,
-                                  allowedExtensions: ['.txt'],
-                                  fileTileSelectMode: FileTileSelectMode.wholeTile,
-                                );
-                                if (path != null) {
-                                  // String content = await fileNames[i].readAsString();
-                                  File srcFile = File(path);
-                                  // String baseFileName = basename(srcFile.path).replaceAll(".txt", "222.txt");
-                                  String baseFileName = basename(srcFile.path);
-                                  Directory? documentPath;
-                                  documentPath = await getApplicationDocumentsDirectory();
-
-                                  Directory directory = Directory("${(documentPath).path}$textPath");
-                                  // Directory directory = Directory("${(documentPath!).path}");
-                                  if (directory.existsSync()) {
-                                    File resultFile = File("${directory.path}${Platform.pathSeparator}$baseFileName");
-                                    print("baseFileName");
-                                    print(resultFile.path);
-                                    srcFile.copySync(resultFile.path);
+                              GestureDetector(
+                                onTapDown: (details) async {
+                                  if (buttonOnPressedSource != null) {
+                                    buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
                                   }
-                                } else {
-                                  print("path null");
-                                }                                
-                                fileInfos = [];
-                                fileNames = await loadBrainFiles(fileInfos, context);
+                                },
+                                onTapUp: (details) async {
+                                  isUploading = false;
+                                  if (buttonPopSource != null) {
+                                    buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                  }
 
-                                setState((){});
-                              }, child: const Icon(Icons.cloud_download)),
-                              const SizedBox(width:5),
-                              GestureDetector(onTap: () async {
-                                isUploading = !isUploading;
-                                setState((){});
-                              }, child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,))
+                                  Map<Permission, PermissionStatus> statuses = await [
+                                    Permission.manageExternalStorage,
+                                  ].request();
+                                  print("statuses[Permission.storage]");
+                                  print(statuses[Permission.manageExternalStorage]);
+                                  Directory? rootPath = await getDownloadsDirectory();
+                                  if (Platform.isAndroid) {
+                                    // rootPath = await getExternalStorageDirectory();
+                                    rootPath = Directory('/storage/emulated/0/Download');
+                                    
+                                    Directory txtDirectory = Directory(
+                                        "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
+                                    if (!txtDirectory.existsSync()) txtDirectory.createSync();
+                                    
+                                    // if (!rootPath.existsSync()) {
+                                    //   rootPath.createSync();
+                                    // }
+                                  } else 
+                                  if (Platform.isMacOS) {
+                                    // rootPath = await getDownloadsDirectory();
+                                  } else {
+                                    rootPath = await getApplicationDocumentsDirectory();
+                                  }
+                                  // Directory? rootPath = await getTemporaryDirectory();
+                                  String? path = await FilesystemPicker.open(
+                                    title: 'Open file',
+                                    context: context,
+                                    rootDirectory: rootPath,
+                                    fsType: FilesystemType.file,
+                                    allowedExtensions: ['.txt', '.brain'],
+                                    fileTileSelectMode: FileTileSelectMode.wholeTile,
+                                  );
+                                  if (path != null) {
+                                    // String content = await fileNames[i].readAsString();
+                                    File srcFile = File(path);
+                                    // String baseFileName = basename(srcFile.path).replaceAll(".txt", "222.txt");
+                                    String baseFileName = basename(srcFile.path);
+                                    Directory? documentPath;
+                                    documentPath = await getApplicationDocumentsDirectory();
+
+                                    Directory directory = Directory("${(documentPath).path}$textPath");
+                                    // Directory directory = Directory("${(documentPath!).path}");
+                                    print("documentPath");
+                                    print(documentPath);
+                                    print(directory);
+
+                                    if (directory.existsSync()) {
+                                      File resultFile = File("${directory.path}${Platform.pathSeparator}$baseFileName");
+                                      print("baseFileName");
+                                      print(resultFile.path);
+                                      srcFile.copySync(resultFile.path);
+                                    }
+                                  } else {
+                                    print("path null");
+                                  }                                
+                                  fileInfos = [];
+                                  fileNames = await loadBrainFiles(fileInfos, context);
+
+                                  setState((){});
+                                }, 
+                                child: const Icon(Icons.cloud_download)),
+                                const SizedBox(width:5),
+                                GestureDetector(
+                                  onTapDown: (details) async {
+                                    if (buttonOnPressedSource != null) {
+                                      buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                                    }
+                                  },
+                                  onTapUp: (details) async {
+                                    if (buttonPopSource != null) {
+                                      buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                    }
+                                    isUploading = !isUploading;
+
+                                    setState((){});
+                                  }, 
+                                  child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,
+                                )
+                              )
                             ],
                           )
                         ],
@@ -328,11 +412,24 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                         child: const Icon(Icons.save),
-                        onTap: () async {
+                        onTapDown: (details) async {
+                          if (buttonOnPressedSource != null) {
+                            buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                          }                          
+                        },
+                        onTapUp: (details) async {
                           // if it is a new file
                           //    do nothing
                           // if not
                           //    delete old file
+                          if (buttonPopSource != null) {
+                            buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                            // Future.delayed(const Duration(milliseconds: 1000), (){
+                            //   if (buttonOnPressedHandle != null) {
+                            //     soloud?.stop(buttonOnPressedHandle!);
+                            //   }
+                            // });
+                          }
 
                           if (isSavingMode == 1) {
                           } else if (isSavingMode == 10) {
@@ -355,9 +452,18 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           fileInfos = [];
                           fileNames = await loadBrainFiles(fileInfos, context);
                           isSavingMode = 10;
+
                           setState(() {});
                         },
-                        onLongPress: () {
+                        onLongPress: () async {
+                          if (buttonPopSource != null) {
+                            buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                            // Future.delayed(const Duration(milliseconds: 1000), (){
+                            //   if (buttonOnPressedHandle != null) {
+                            //     soloud?.stop(buttonOnPressedHandle!);
+                            //   }
+                            // });
+                          }
                           singleInputDialog(
                             context,
                             "Save as current brain",
@@ -400,7 +506,21 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                           child: const Icon(Icons.save_as),
-                          onTap: () async {
+                        onTapDown: (details) async {
+                          if (buttonOnPressedSource != null) {
+                            buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                          }                          
+                        },
+                        onTapUp: (details) async {
+                            if (buttonPopSource != null) {
+                              buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                              // Future.delayed(const Duration(milliseconds: 1000), (){
+                              //   if (buttonOnPressedHandle != null) {
+                              //     soloud?.stop(buttonOnPressedHandle!);
+                              //   }
+                              // });
+                            }
+
                             singleInputDialog(
                               context,
                               "Save as current brain",
@@ -446,7 +566,13 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                         child: const Icon(Icons.edit_document),
-                        onTap: () {
+                        onTapDown: (details) async {
+                          if (buttonOnPressedSource != null) {
+                            buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                          }
+
+                        },
+                        onTapUp: (details) async {
                           if (isSavingMode < 10) {
                             tecBrainName.clear();
                             tecBrainDescription.clear();
@@ -454,8 +580,27 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                             mapStatus["currentFileName"] = "-";
                             currentFileName = "-";
                             selectCallback("-1");
+                            if (pageFlipSource != null) {
+                              pageFlipHandle = await soloud?.play(pageFlipSource!, looping: false);
+                              Future.delayed(const Duration(milliseconds: 1000), (){
+                                if (pageFlipHandle != null) {
+                                  soloud?.stop(pageFlipHandle!);
+                                  soloud?.disposeSource(pageFlipSource!);
+                                }
+                              });
+                            }
+
                             Navigator.pop(context);
                           } else {
+                            if (buttonOnPressedSource != null) {
+                              buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                              // Future.delayed(const Duration(milliseconds: 1000), (){
+                              //   if (buttonOnPressedHandle != null) {
+                              //     soloud?.stop(buttonOnPressedHandle!);
+                              //   }
+                              // });
+                            }
+
                             confirmationDialog(context, "Creating new brain",
                                 "Are you sure to start a new workspace?",
                                 titleIcon: const Icon(Icons.warning),
@@ -465,13 +610,25 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   printDebug("");
                                 },
                                 positiveButtonText: "Yes",
-                                positiveButtonAction: () {
+                                positiveButtonAction: () async {
                                   tecBrainName.clear();
                                   tecBrainDescription.clear();
                                   mapStatus["isSavingBrain"] = 1;
                                   mapStatus["currentFileName"] = "-";
                                   currentFileName = "-";
                                   selectCallback("-1");
+                                  if (pageFlipSource != null) {
+                                    pageFlipHandle = await soloud?.play(pageFlipSource!, looping: false);
+                                    Future.delayed(const Duration(milliseconds: 1000), (){
+                                      if (pageFlipHandle != null) {
+                                        soloud?.stop(pageFlipHandle!);
+                                        soloud?.disposeSource(pageFlipSource!);
+                                        soloud?.disposeSource(buttonOnPressedSource!);
+
+                                      }
+                                    });
+                                  }
+
                                   Navigator.pop(context);
                                 },
                                 confirmationDialog: false);
@@ -517,7 +674,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                             GestureDetector(
                               onTap: () {
                                 String filename = basename(fileNames[i].path);
-                                filename = filename.replaceAll(".txt", "");
+                                filename = filename.replaceAll(".txt", "").replaceAll(".brain", "");
                                 // List<String> arrImageInfo =
                                 //     filename.split("@@@");
                                 String imageId = filename;
@@ -601,7 +758,17 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 top: 0,
                                 child: GestureDetector(
                                   child: const Icon(Icons.cloud_upload_outlined),
-                                  onTap: () async {
+                                  onTapDown: (details) async {
+                                    if (buttonOnPressedSource != null) {
+                                      buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                                    }
+
+                                  },
+                                  onTapUp: (details) async {
+                                    if (buttonPopSource != null) {
+                                      buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                    }
+
                                     Directory? rootPath = await getDownloadsDirectory();
                                     // rootPath ??= await getApplicationDocumentsDirectory();
                                     if (Platform.isIOS) {
@@ -631,11 +798,21 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                               child: !isDeleteMode
                                   ? Container()
                                   : GestureDetector(
-                                      onTap: () async {
+                                      onTapDown: (details) async {
+                                        if (eraseOnPressedSource != null) {
+                                          eraseOnPressedHandle = await soloud?.play(eraseOnPressedSource!, looping: false);
+                                          // Future.delayed(const Duration(milliseconds: 1000), (){
+                                          //   if (eraseOnPressedHandle != null) {
+                                          //     soloud?.stop(eraseOnPressedHandle!);
+                                          //   }
+                                          // });
+                                        }
+                                      },
+                                      onTapUp: (details) async {
                                         String filename =
                                             basename(fileNames[i].path);
                                         filename =
-                                            filename.replaceAll(".txt", "");
+                                            filename.replaceAll(".txt", "").replaceAll(".brain", "");
                                         // List<String> arrImageInfo =
                                         //     filename.split("@@@");
                                         // String imageId = filename;
@@ -653,9 +830,20 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                         Directory txtDirectory = Directory(
                                             "${(await getApplicationDocumentsDirectory()).path}$textPath");
                                         // String textPath = "/text";
+                                        // final File file = File(
+                                        //     '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
                                         final File file = File(
-                                            '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
+                                            '${txtDirectory.path}${Platform.pathSeparator}$filename.brain');
                                         file.deleteSync();
+
+                                        try{
+                                          final File fileTxt = File(
+                                              '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
+                                          fileTxt.deleteSync();
+                                        }catch(err){
+                                          print("err");
+                                          print(err);
+                                        }
                                         // final File fileImage =
                                         //     File(fileNames[i].path);
                                         // fileImage.deleteSync();
@@ -702,26 +890,49 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
         Positioned(
           bottom: 5,
           left: 5,
-          child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 7,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                    side: const BorderSide(color: Colors.transparent)),
-                backgroundColor:
-                    isDeleteMode ? const Color(0XFFFD8164) : Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-              ),
-              onPressed: () {
+          child: GestureDetector(
+            onTapCancel: () async {
+              if (buttonPopSource != null) {
+                buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                // Future.delayed(const Duration(milliseconds: 1000), (){
+                //   if (buttonOnPressedHandle != null) {
+                //     soloud?.stop(buttonOnPressedHandle!);
+                //   }
+                // });
+              }
+            },
+            onTapDown: (details) async {
                 isDeleteMode = !isDeleteMode;
-                setState(() {});
-              },
-              child: const Icon(
-                size: 30,
-                Icons.delete,
-                color: Colors.black,
-              )),
+                if (buttonOnPressedSource != null) {
+                  buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                  // Future.delayed(const Duration(milliseconds: 1000), (){
+                  //   if (buttonOnPressedHandle != null) {
+                  //     soloud?.stop(buttonOnPressedHandle!);
+                  //   }
+                  // });
+                }
+                setState(() {});              
+            },
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 7,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                      side: const BorderSide(color: Colors.transparent)),
+                  backgroundColor:
+                      isDeleteMode ? const Color(0XFFFD8164) : Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                ),
+                onPressed: () async {
+            
+                },
+                child: const Icon(
+                  size: 30,
+                  Icons.delete,
+                  color: Colors.black,
+                )),
+          ),
         )
       ],
     );
