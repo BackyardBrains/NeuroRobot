@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:neurorobot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
@@ -74,14 +75,27 @@ Future<List<String>> loadBrainFiles(fileInfos, context) async {
     Map mapValues = {};
     for (var rawKey in rawKeys) {
       String key = rawKey as String;
-      fileNames.insert(0, key);
-      Map myMap = (await store.getObject(key) as Map);
-      mapValues[key] = (myMap);
-      List<String> arr = key.split("@@@");
-      Map<String, String> brainInfo = {};
-      brainInfo.putIfAbsent("title", () => arr[1]);
-      brainInfo.putIfAbsent("description", () => arr[2].replaceAll(".txt", ""));
-      fileInfos.insert(0, brainInfo);
+      if (key.contains(".brain")) {
+        fileNames.insert(0, key);
+        Map myMap = (await store.getObject(key) as Map);
+        mapValues[key] = (myMap);
+        List<String> arr = key.split("@@@");
+        Map<String, String> brainInfo = {};
+        brainInfo.putIfAbsent("title", () => arr[0]);
+        brainInfo.putIfAbsent("description", () => arr[1]);
+        fileInfos.insert(0, brainInfo);
+
+      } else
+      if (key.contains(".txt")) {      
+        fileNames.insert(0, key);
+        Map myMap = (await store.getObject(key) as Map);
+        mapValues[key] = (myMap);
+        List<String> arr = key.split("@@@");
+        Map<String, String> brainInfo = {};
+        brainInfo.putIfAbsent("title", () => arr[1]);
+        brainInfo.putIfAbsent("description", () => arr[2].replaceAll(".txt", ""));
+        fileInfos.insert(0, brainInfo);
+      }
     }
     await txn.completed;
     printDebug("isDatabaseCreated2");
@@ -165,8 +179,27 @@ Future<Uint8List> getImageFromText(path) async {
   return imageBytes;
 }
 
+SoLoud? soloud;
+AudioSource? pageFlipSource;
+AudioSource? buttonOnPressedSource;
+AudioSource? buttonPopSource;
+AudioSource? eraseOnPressedSource;
+SoundHandle? pageFlipHandle;
+SoundHandle? buttonOnPressedHandle;
+SoundHandle? buttonPopHandle;
+SoundHandle? eraseOnPressedHandle;
+
 Future<void> showLoadBrainDialog(BuildContext context, String title,
     selectCallback, saveCallback, pMapStatus) async {
+  
+  soloud = SoLoud.instance;
+  try{
+    pageFlipSource = await soloud?.loadAsset('assets/audio/PageFlip.mp3');
+    buttonOnPressedSource = await soloud?.loadAsset('assets/audio/ButtonOnPress.mp3');
+    buttonPopSource = await soloud?.loadAsset('assets/audio/ButtonPop.mp3');
+    eraseOnPressedSource = await soloud?.loadAsset('assets/audio/Erase.mp3');
+  }catch(err){}      
+
   mapStatus = pMapStatus;
   printDebug("mapStatus");
   printDebug(mapStatus);
@@ -222,8 +255,8 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
 void noSavedBrainAlert(context) {
   customAlertDialog(
     context,
-    const Text("Load Brain"),
-    const Text("There is no saved brain."),
+    const Text("Load Brain", style: TextStyle(fontFamily: "RobotoLocal")),
+    const Text("There is no saved brain.", style: TextStyle(fontFamily: "RobotoLocal")),
     titleIcon: const Icon(Icons.save),
     positiveButtonText: "OK",
     positiveButtonAction: () {},
@@ -305,28 +338,38 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                           ),                      
                           Row(
                             children: [
-                              GestureDetector(onTap: () async {
-                                isUploading = false;
-                                FilePickerResult? result = await FilePicker.platform.pickFiles();
-                                if (result != null) {
-                                  try{
-                                    String strFile = utf8.decode(result.files[0].bytes!);
-                                    var savedFileJson = jsonDecode(strFile);
-                                    String key = result.files[0].name;
-                                    const String storeName = "spikerbot";
-                                    var txn = db.transaction(storeName, "readwrite");
-                                    var store = txn.objectStore(storeName);
-                                    // strNodesJson["fileName"] = fileName;
-                                    // BrainText1727836013889917@@@save1@@@.txt
+                              GestureDetector(
+                                onTapDown: (details) async {
+                                  if (buttonOnPressedSource != null) {
+                                    buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                                  }
+                                },
+                                onTapUp: (details) async {
+                                  isUploading = false;
+                                  if (buttonPopSource != null) {
+                                    buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                  }
+                                  isUploading = false;
+                                  FilePickerResult? result = await FilePicker.platform.pickFiles();
+                                  if (result != null) {
+                                    try{
+                                      String strFile = utf8.decode(result.files[0].bytes!);
+                                      var savedFileJson = jsonDecode(strFile);
+                                      String key = result.files[0].name;
+                                      const String storeName = "spikerbot";
+                                      var txn = db.transaction(storeName, "readwrite");
+                                      var store = txn.objectStore(storeName);
+                                      // strNodesJson["fileName"] = fileName;
+                                      // BrainText1727836013889917@@@save1@@@.txt
 
-                                    await store.put(savedFileJson, key);
-                                    await txn.completed;
+                                      await store.put(savedFileJson, key);
+                                      await txn.completed;
 
-                                  }catch(err) {
-                                    print("err");
-                                    print(err);
-                                  }                                  
-                                }
+                                    }catch(err) {
+                                      print("err");
+                                      print(err);
+                                    }                                  
+                                  }
                                 // const XTypeGroup typeGroup = XTypeGroup(
                                 //   extensions: <String>['txt'],
                                 // );
@@ -360,10 +403,22 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
 
                               }, child: const Icon(Icons.cloud_download)),
 
-                              GestureDetector(onTap: () async {
-                                isUploading = !isUploading;
-                                setState((){});
-                              }, child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,))
+                              GestureDetector(
+                                onTapDown: (details) async {
+                                  if (buttonOnPressedSource != null) {
+                                    buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                                  }
+                                },
+                                onTapUp: (details) async {
+                                  if (buttonPopSource != null) {
+                                    buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                  }
+
+                                  isUploading = !isUploading;
+                                  setState((){});
+                                }, 
+                                child: Icon(Icons.cloud_upload, color: !isUploading ? Colors.black: Colors.blue,)
+                              )
 
                             ],
                           )
@@ -390,7 +445,15 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                         child: const Icon(Icons.save),
-                        onTap: () async {
+                        onTapDown: (details) async {
+                          if (buttonOnPressedSource != null) {
+                            buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                          }
+                        },
+                        onTapUp: (details) async {
+                          if (buttonPopSource != null) {
+                            buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                          }
                           // if it is a new file
                           //    do nothing
                           // if not
@@ -420,7 +483,11 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                           isSavingMode = 10;
                           setState(() {});
                         },
-                        onLongPress: () {
+                        onLongPress: () async {
+                          if (buttonPopSource != null) {
+                            buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                          }
+
                           singleInputDialog(
                             context,
                             "Save as current brain",
@@ -462,7 +529,15 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                           child: const Icon(Icons.save_as),
-                          onTap: () async {
+                          onTapDown: (details) async {
+                            if (buttonOnPressedSource != null) {
+                              buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                            }
+                          },
+                          onTapUp: (details) async {
+                            if (buttonPopSource != null) {
+                              buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                            }
                             singleInputDialog(
                               context,
                               "Save as current brain",
@@ -508,7 +583,15 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                       const SizedBox(width: 10),
                       GestureDetector(
                         child: const Icon(Icons.edit_document),
-                        onTap: () {
+                        onTapDown: (details) async {
+                          if (buttonOnPressedSource != null) {
+                            buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                          }
+                        },
+                        onTapUp: (details) async {
+                          if (buttonPopSource != null) {
+                            buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                          }
                           if (isSavingMode < 10) {
                             tecBrainName.clear();
                             tecBrainDescription.clear();
@@ -516,8 +599,22 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                             mapStatus["currentFileName"] = "-";
                             currentFileName = "-";
                             selectCallback("-1");
+                            if (pageFlipSource != null) {
+                              pageFlipHandle = await soloud?.play(pageFlipSource!, looping: false);
+                              Future.delayed(const Duration(milliseconds: 1000), (){
+                                if (pageFlipHandle != null) {
+                                  soloud?.stop(pageFlipHandle!);
+                                  soloud?.disposeSource(pageFlipSource!);
+                                }
+                              });
+                            }
+
                             Navigator.pop(context);
                           } else {
+                            if (buttonOnPressedSource != null) {
+                              buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                            }
+
                             confirmationDialog(context, "Creating new brain",
                                 "Are you sure to start a new workspace?",
                                 titleIcon: const Icon(Icons.warning),
@@ -527,13 +624,26 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                                   printDebug("");
                                 },
                                 positiveButtonText: "Yes",
-                                positiveButtonAction: () {
+                                positiveButtonAction: () async {
                                   tecBrainName.clear();
                                   tecBrainDescription.clear();
                                   mapStatus["isSavingBrain"] = 1;
                                   mapStatus["currentFileName"] = "-";
                                   currentFileName = "-";
                                   selectCallback("-1");
+
+                                  if (pageFlipSource != null) {
+                                    pageFlipHandle = await soloud?.play(pageFlipSource!, looping: false);
+                                    Future.delayed(const Duration(milliseconds: 1000), (){
+                                      if (pageFlipHandle != null) {
+                                        soloud?.stop(pageFlipHandle!);
+                                        soloud?.disposeSource(pageFlipSource!);
+                                        soloud?.disposeSource(buttonOnPressedSource!);
+
+                                      }
+                                    });
+                                  }
+
                                   Navigator.pop(context);
                                 },
                                 confirmationDialog: false);
@@ -635,12 +745,13 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                                                 return const CircularProgressIndicator();
                                               } else if (snapshot.hasError) {
                                                 return Text(
-                                                    'Error: ${snapshot.error}');
+                                                    'Error: ${snapshot.error}', style: const TextStyle(fontFamily: "RobotoLocal")
+                                                    );
                                               } else {
                                                 if (snapshot.data!.length <
                                                     10) {
                                                   return Text(
-                                                      'Error: ${snapshot.error}');
+                                                      'Error: ${snapshot.error}', style: const TextStyle(fontFamily: "RobotoLocal"));
                                                 } else {
                                                   return Image.memory(
                                                       snapshot.data!);
@@ -663,7 +774,17 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                                 top: 0,
                                 child: GestureDetector(
                                   child: const Icon(Icons.cloud_upload_outlined),
-                                  onTap: () async {
+                                  onTapDown: (details) async {
+                                    if (buttonOnPressedSource != null) {
+                                      buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                                    }
+
+                                  },
+                                  onTapUp: (details) async {
+                                    if (buttonPopSource != null) {
+                                      buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                                    }
+
                                     // basename(fileNames[i]);
                                     const String storeName = "spikerbot";
                                     var txn = db.transaction(storeName, "readonly");
@@ -685,7 +806,12 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
                               child: !isDeleteMode
                                   ? Container()
                                   : GestureDetector(
-                                      onTap: () async {
+                                      onTapDown: (details) async {
+                                        if (eraseOnPressedSource != null) {
+                                          eraseOnPressedHandle = await soloud?.play(eraseOnPressedSource!, looping: false);
+                                        }
+                                      },
+                                      onTapUp: (details) async {
                                         String filename =
                                             basename(fileNames[i]);
                                         filename =
@@ -757,26 +883,50 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
         Positioned(
           bottom: 5,
           left: 5,
-          child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 7,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                    side: const BorderSide(color: Colors.transparent)),
-                backgroundColor:
-                    isDeleteMode ? const Color(0XFFFD8164) : Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-              ),
-              onPressed: () {
+          child: GestureDetector(
+            onTapCancel: () async {
+              if (buttonPopSource != null) {
+                buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
+                // Future.delayed(const Duration(milliseconds: 1000), (){
+                //   if (buttonOnPressedHandle != null) {
+                //     soloud?.stop(buttonOnPressedHandle!);
+                //   }
+                // });
+              }
+            },
+            onTapDown: (details) async {
                 isDeleteMode = !isDeleteMode;
-                setState(() {});
-              },
-              child: const Icon(
-                size: 30,
-                Icons.delete,
-                color: Colors.black,
-              )),
+                if (buttonOnPressedSource != null) {
+                  buttonOnPressedHandle = await soloud?.play(buttonOnPressedSource!, looping: false);
+                  // Future.delayed(const Duration(milliseconds: 1000), (){
+                  //   if (buttonOnPressedHandle != null) {
+                  //     soloud?.stop(buttonOnPressedHandle!);
+                  //   }
+                  // });
+                }
+                setState(() {});              
+            },
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 7,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                      side: const BorderSide(color: Colors.transparent)),
+                  backgroundColor:
+                      isDeleteMode ? const Color(0XFFFD8164) : Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                ),
+                onPressed: () async {
+            
+                },
+                child: const Icon(
+                  size: 30,
+                  Icons.delete,
+                  color: Colors.black,
+                )),
+          ),
+
         )
       ],
     );
@@ -786,8 +936,9 @@ showBrainDisplay(BuildContext context, List<String> fileNamez, selectCallback,
 void deleteBrainRecord(String filename) async {
   // bool isDatabaseCreated = false;
   const String storeName = "spikerbot";
-  if (!filename.contains(".txt")) {
-    filename = "$filename.txt";
+  if (filename.contains(".txt") || filename.contains(".brain")) {
+  } else {
+    filename = "$filename.brain";
   }
   // IdbFactory? idbFactory = getIdbFactory();
   // if (idbFactory != null) {

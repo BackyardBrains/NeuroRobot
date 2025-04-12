@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:flutter_svg/svg.dart';
 // import 'package:metooltip/metooltip.dart';
 import 'package:neurorobot/components/menu_icon_animation.dart';
@@ -40,9 +41,55 @@ class _RightToolbarState extends State<LeftToolbar> {
     // "assets/icons/DragMenuIconsNote"
   ];
 
+  List<SoundHandle> arrHandleDragNeuronSound = [];
+  
+  SoLoud? soloud;
+  AudioSource? neuronSpikeSource;
+  AudioSource? neuronOnTouchSource;
+  
+  
+
+  getSound() {
+    if (soloud!= null && soloud!.isInitialized) {
+      Future.delayed(const Duration(milliseconds: 1500), () async {
+        print("GET SOUNDZZ");
+        // print(soloud);
+        // print(soloud!.isInitialized);
+        try{
+          await soloud!.loadAsset('assets/audio/NeuronSpikes.mp3').then((src){
+            neuronSpikeSource = src;
+          }).catchError((onError){
+            print("onError");
+            print(onError);
+          });      
+          await soloud!.loadAsset('assets/audio/NeuronOnTouch.mp3').then((src){
+            neuronOnTouchSource = src;
+          }).catchError((onError){
+            print("onError");
+            print(onError);
+          });      
+          print("FINISHED");
+
+        }catch(err){
+          Future.delayed(const Duration(milliseconds: 1000), getSound);
+
+          print("onError");
+          print(err);
+          
+        }
+      });
+    } else {
+      print("GET SOUNDZZ NULL");
+      Future.delayed(const Duration(milliseconds: 1000), getSound);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    soloud = SoLoud.instance;
+    getSound();
+
     for (int idx = 0; idx < iconsPath.length; idx++) {
       inactiveIconsPath.add("${iconsPath[idx]}0.svg");
       activeIconsPath.add("${iconsPath[idx]}1.svg");
@@ -53,13 +100,37 @@ class _RightToolbarState extends State<LeftToolbar> {
       menuIcons.add(Container(
         padding: const EdgeInsets.all(3),
         child: Draggable(
+          onDragCompleted: (){
+            if (arrHandleDragNeuronSound.isNotEmpty) {
+              SoundHandle handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
+              if ( handleDragNeuronSound != null){
+                soloud?.fadeVolume(handleDragNeuronSound!, 0, const Duration(milliseconds: 300));
+                soloud?.scheduleStop(handleDragNeuronSound!, const Duration(milliseconds: 300));
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  arrHandleDragNeuronSound.removeAt(0);
+                });
+                // soloud.stop(handleDragNeuronSound!);
+              }
+            }
+          },
           data: idx,
-          onDragStarted: () {
+          onDragStarted: () async {
             // change the background to be gray
+            print("Drag started $idx");
             widget.callback({
               "modeIdx": idx,
             });
-            print("Drag started $idx");
+            if (soloud != null && neuronSpikeSource!= null) {
+              SoundHandle handleDragNeuronSound = await soloud!.play(neuronSpikeSource!);
+              soloud?.fadeVolume(handleDragNeuronSound!, 0.5, const Duration(milliseconds: 500));
+
+              soloud?.setLooping(handleDragNeuronSound, true);
+              arrHandleDragNeuronSound.add(handleDragNeuronSound);
+            }
+            if (soloud != null && neuronOnTouchSource!= null) {
+              soloud?.play(neuronOnTouchSource!);
+            }
+
           },
           onDraggableCanceled: (_, __) {
             print('Drag Canceled');
@@ -67,6 +138,14 @@ class _RightToolbarState extends State<LeftToolbar> {
             widget.callback({
               "modeIdx": -1,
             });
+            if (arrHandleDragNeuronSound.isNotEmpty) {
+              SoundHandle handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
+              if (handleDragNeuronSound != null){
+                soloud?.fadeVolume(handleDragNeuronSound!, 0, const Duration(milliseconds: 300));
+                soloud?.scheduleStop(handleDragNeuronSound!, const Duration(milliseconds: 300));
+                // soloud.stop(handleDragNeuronSound!);
+              }
+            }
           },
           feedback: MenuIconAnimation(
             svgPath: activeIconsPath[idx],

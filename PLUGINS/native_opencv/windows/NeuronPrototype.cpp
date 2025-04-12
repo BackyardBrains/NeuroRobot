@@ -1264,18 +1264,27 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
 
                 #ifdef __EMSCRIPTEN__
-                    std::fill(motor_command_message, motor_command_message + 300, 0);
-                    for (std::size_t i = 0; i < message.length(); ++i) {
-                        motor_command_message[i] = static_cast<uint8_t>(message[i]);
-                    }
-                    state_buf[4]= message.length();
                     char *cstr = new char[message.length() + 1];
                     strcpy(cstr, message.c_str());                
 
                     EM_ASM({
-                        updateMotorCommand($0, UTF8ToString($1), $2, $3);
+                        updateMotorCommand($0, UTF8ToString($1), $2, $3, $4,$5);
                     // }, state_buf, motor_command_message, state_buf[4]);
-                    }, state_buf, cstr, state_buf[4], motor_command_message);
+                    }, state_buf, cstr, message.length(), motor_command_message, totalNumOfNeurons, periodicSpikingFlags);
+                    delete[] cstr;
+
+                    // std::fill(motor_command_message, motor_command_message + 300, 0);
+                    // for (std::size_t i = 0; i < message.length(); ++i) {
+                    //     motor_command_message[i] = static_cast<uint8_t>(message[i]);
+                    // }
+                    // state_buf[4]= message.length();
+                    // char *cstr = new char[message.length() + 1];
+                    // strcpy(cstr, message.c_str());                
+
+                    // EM_ASM({
+                    //     updateMotorCommand($0, UTF8ToString($1), $2, $3);
+                    // // }, state_buf, motor_command_message, state_buf[4]);
+                    // }, state_buf, cstr, state_buf[4], motor_command_message);
                 #else
                     // if ( (l_torque * l_dir) != 0 || (r_torque * r_dir) != 0){
                     // if (prevMessage != message){

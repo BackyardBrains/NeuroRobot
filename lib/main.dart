@@ -16,17 +16,32 @@ import 'package:window_manager/window_manager.dart';
 // WINDOWS CHANGE
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 */
+import 'dart:developer' as dev;
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:logging/logging.dart';
 
 const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FontLoader('RobotoLocal').load().then((onValue)=>print("Roboto Loaded")).catchError((onError)=>print(onError));
   await FontLoader('NotoEmoji').load().then((onValue)=>print("NotoEmoji Loaded")).catchError((onError)=>print(onError));
   await FontLoader('BybHanddrawn').load().then((onValue)=>print("BybHanddrawn Loaded")).catchError((onError)=>print(onError));
-
+  // Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
+  // Logger.root.onRecord.listen((record) {
+  //   dev.log(
+  //     record.message,
+  //     time: record.time,
+  //     level: record.level.value,
+  //     name: record.loggerName,
+  //     zone: record.zone,
+  //     error: record.error,
+  //     stackTrace: record.stackTrace,
+  //   );
+  // });
   // WEB CHANGE & windows Change
   /*
   if (!Platform.isWindows) {
@@ -134,6 +149,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        fontFamily: "RobotoLocal",
       ),
       home: const MyHomePage(title: 'NeuroRobot'),
       // home: DesignBrainPage(),

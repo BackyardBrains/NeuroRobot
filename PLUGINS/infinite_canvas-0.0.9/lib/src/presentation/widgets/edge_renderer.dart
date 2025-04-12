@@ -100,6 +100,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 controller.nodes.firstWhere((node) => node.key == edge.from);
             final to =
                 controller.nodes.firstWhere((node) => node.key == edge.to);
+            final label = edge.label ?? "";
 
             Paint curBrush = brush;
             if (controller.isSelectingEdge && controller.edgeSelected == edge) {
@@ -142,9 +143,13 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // print("refresh retainer");
             // print(
             //     "Add Synthetic Connection ${controller.syntheticConnections.length}");
-
+            if (edge.color != null) {
+              blackBrush.color = edge.color!;
+            } else {
+              blackBrush.color = Colors.black;
+            }
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
-                from.isExcitatory);
+                from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo);
             // }
             // drawEdge(
             //   context,
@@ -470,11 +475,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           .add(newSinapse);
     }
     drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
-        from.isExcitatory);
+        from.isExcitatory, "", InfiniteCanvasEdge.isShowingInfo);
   }
 
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
-      int toIdx, double connectionStrength, Canvas canvas, int isExcitatory) {
+      int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo) {
     double initialAxonExtensionSize = 0.5;
     List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
     // if (neurons.length <= toIdx || neurons.length <= fromIdx) return;
@@ -493,6 +498,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     // int maxAbsoluteConnectionStrength = connectionStrength.floor();
     int maxAbsoluteConnectionStrength = 110 - connectionStrength.floor().abs();
     double minimalTicknessOfAxon = 1;
+    const textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: 14,
+    );
 
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
       if (neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty) {
@@ -711,6 +720,21 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               canvas.drawCircle(
                   Offset(xc, yc), neuronFrom.diameter * 0.18, whiteBrush);
             }
+            if (isShowingInfo) {
+              final textSpan = TextSpan(
+                text: label,
+                style: textStyle,
+              );
+              final textPainter = TextPainter(
+                text: textSpan,
+                textDirection: TextDirection.ltr,
+              );
+              textPainter.layout(
+                minWidth: 0,
+                maxWidth: 100,
+              );            
+              textPainter.paint(canvas, Offset(centerEndAxon_x, centerEndAxon_y));
+            }
           }
         }
       }
@@ -875,7 +899,23 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               canvas.drawCircle(
                   Offset(xc, yc), neuronFrom.diameter * 0.18, whiteBrush);
             }
+            if (isShowingInfo) {
+              final textSpan = TextSpan(
+                text: label,
+                style: textStyle,
+              );
+              final textPainter = TextPainter(
+                text: textSpan,
+                textDirection: TextDirection.ltr,
+              );
+              textPainter.layout(
+                minWidth: 0,
+                maxWidth: 100,
+              );            
+              textPainter.paint(canvas, Offset(centerEndAxon_x, centerEndAxon_y));
+            }
           }
+
         }
       }
     }

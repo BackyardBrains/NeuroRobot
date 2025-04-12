@@ -29,6 +29,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final VoidCallback onLongPress;
   final VoidCallback onDoubleTap;
   final VoidCallback onDeleteCallback;
+  final Function(LocalKey a, LocalKey b) onAxonCreatedCallback;
 
   Map<String, Path> axonPathMap = {};
   int modeIdx = 0;
@@ -46,6 +47,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     required this.onLongPress,
     required this.onDoubleTap,
     required this.onDeleteCallback,
+    required this.onAxonCreatedCallback,
     // required this.transformNeuronPositionWrapper,
     List<InfiniteCanvasNode> nodes = const [],
     List<InfiniteCanvasEdge> edges = const [],
@@ -437,6 +439,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         } else {
           edges.add(edge);
         }
+        onAxonCreatedCallback(edge.from, edge.to);
         for (InfiniteCanvasNode n in nodes) {
           if (n.key == from) {
             print("edge.isExcitatory");
@@ -904,15 +907,15 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
               yTriangleSecondLevel: rawDendrite.yTriangleSecondLevel);
           // tempDendritesList.add(newDendrite);
           syntheticNeuronList[neuronIdx].dendrites.add(newDendrite);
-          if (neuronIdx >= 12) {
-            print(rawDendrite.xFirstLevel);
-            print(rawDendrite.yFirstLevel);
-            print(rawDendrite.xSecondLevel);
-            print(rawDendrite.ySecondLevel);
-            print(syntheticNeuronList[neuronIdx].newNeuron.x);
-            print(syntheticNeuronList[neuronIdx].newNeuron.y);
-            print("============ $neuronIdx dendrite: $dendriteIdx");
-          }
+          // if (neuronIdx >= 12) {
+          //   print(rawDendrite.xFirstLevel);
+          //   print(rawDendrite.yFirstLevel);
+          //   print(rawDendrite.xSecondLevel);
+          //   print(rawDendrite.ySecondLevel);
+          //   print(syntheticNeuronList[neuronIdx].newNeuron.x);
+          //   print(syntheticNeuronList[neuronIdx].newNeuron.y);
+          //   print("============ $neuronIdx dendrite: $dendriteIdx");
+          // }
           dendriteIdx++;
         }
         // syntheticNeuronList[neuronIdx].dendrites.addAll(tempDendritesList);

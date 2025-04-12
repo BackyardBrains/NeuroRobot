@@ -3,20 +3,23 @@ import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 
 /// A node in the [InfiniteCanvas].
 class InfiniteCanvasNode<T> {
+  static bool isShowingInfo = false;
   InfiniteCanvasNode({
     required this.key,
     required this.size,
     required this.offset,
-    required this.child,
+    this.child,
     this.label,
     this.allowResize = false,
     this.allowMove = true,
     this.clipBehavior = Clip.none,
     this.value,
     this.isExcitatory = 1,
+    this.isSensory = 0,
   });
 
   int isExcitatory = 1;
+  int isSensory = 0;
   String get id => key.toString();
 
   LocalKey key;
@@ -25,7 +28,7 @@ class InfiniteCanvasNode<T> {
   late Offset offset;
   String? label;
   T? value;
-  final Widget child;
+  Widget? child;
   bool allowResize, allowMove;
   final Clip clipBehavior;
   Rect get rect => offset & size;
