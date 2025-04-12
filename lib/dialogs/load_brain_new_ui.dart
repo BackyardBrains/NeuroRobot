@@ -308,11 +308,13 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                     buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
                                   }
 
-                                  Map<Permission, PermissionStatus> statuses = await [
-                                    Permission.manageExternalStorage,
-                                  ].request();
-                                  print("statuses[Permission.storage]");
-                                  print(statuses[Permission.manageExternalStorage]);
+                                  if (Platform.isAndroid) {
+                                    Map<Permission, PermissionStatus> statuses = await [
+                                      Permission.manageExternalStorage,
+                                    ].request();
+                                    print("statuses[Permission.storage]");
+                                    print(statuses[Permission.manageExternalStorage]);
+                                  }
                                   Directory? rootPath = await getDownloadsDirectory();
                                   if (Platform.isAndroid) {
                                     // rootPath = await getExternalStorageDirectory();
@@ -834,7 +836,9 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                         //     '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
                                         final File file = File(
                                             '${txtDirectory.path}${Platform.pathSeparator}$filename.brain');
-                                        file.deleteSync();
+                                        if (file.existsSync()) {
+                                          file.deleteSync();
+                                        }
 
                                         try{
                                           final File fileTxt = File(

@@ -1899,7 +1899,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     initImageDetector();
 
     if (Platform.isIOS || Platform.isAndroid) {
-      neuronDrawSize = 17;
+      neuronDrawSize = 20;
     }
     pMapStatus["isSavingBrain"] = 1;
     pMapStatus["currentFileName"] = "-";
@@ -6431,6 +6431,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               if (isSimulatingBrain) return;
 
               if (controller.scale >= 1.5) {
+                controller.mouseDown = false;
+                controller.spacePressed = false;
                 controller.zoomReset();
                 // controller.pan(const Offset(-60, 0));
                 controller.scale = 1;
@@ -8822,8 +8824,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         //     savedFileJson["screenDensity"] /
         //     MediaQuery.of(context).devicePixelRatio;
         // printDebug("change window size");
-        print(displayWidth);
-        print(displayHeight);
+        // print(displayWidth);
+        // print(displayHeight);
 
         if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
           if (savedFileJson["screenDensity"] > 2 &&
@@ -9105,65 +9107,55 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       controller.nodes[neuronIdx].label = neuronTypes[nodeKey];
     }
     for (InfiniteCanvasEdge edge in controller.edges) {
-      if (nodeLeftEyeSensor.key == edge.from) {
+      if ( nodeLeftEyeSensor.key == edge.from) {
         int sensoryIdx = mapSensoryNeuron["${edge.from}_${edge.to}"];
         edge.label = cameraMenuTypes[sensoryIdx];
-      } else if (nodeDistanceSensor.key == edge.from) {
+      } else
+      if ( nodeDistanceSensor.key == edge.from) {
         int sensoryIdx = mapDistanceNeuron["${edge.from}_${edge.to}"];
         edge.label = distanceMenuTypes[sensoryIdx];
-      } else if (nodeSpeakerSensor.key == edge.to) {
+      } else
+      if ( nodeSpeakerSensor.key == edge.to) {
         String sensoryIdx = "${edge.from}_${edge.to}";
         edge.label = mapSpeakerNeuron[sensoryIdx].floor().toString();
-      } else if (nodeLeftMotorForwardSensor.key == edge.to ||
-          nodeLeftMotorBackwardSensor.key == edge.to) {
+      } else
+      if ( nodeLeftMotorForwardSensor.key == edge.to || nodeLeftMotorBackwardSensor.key == edge.to) {
         String sensoryIdx = "${edge.from}_${edge.to}";
         edge.label = mapContactsNeuron[sensoryIdx].floor().toString();
-      } else if (nodeRightMotorForwardSensor.key == edge.to ||
-          nodeRightMotorBackwardSensor.key == edge.to) {
+      } else
+      if ( nodeRightMotorForwardSensor.key == edge.to || nodeRightMotorBackwardSensor.key == edge.to) {
         String sensoryIdx = "${edge.from}_${edge.to}";
         edge.label = mapContactsNeuron[sensoryIdx].floor().toString();
-      } else if (nodeSingleLed.key == edge.to) {
+      } else 
+      if ( nodeSingleLed.key == edge.to ) {
         // printDebug("nodeSingleLed.key == edge.to");
-        double subtotal = max(
-            ((mapLedNeuron["${edge.from}_${nodeRedLed.id}"] ?? 0).toDouble() ??
-                0),
-            ((mapLedNeuron["${edge.from}_${nodeGreenLed.id}"] ?? 0)
-                    .toDouble() ??
-                0));
-        subtotal = max(
-            subtotal,
-            ((mapLedNeuron["${edge.from}_${nodeBlueLed.id}"] ?? 0).toDouble() ??
-                0));
+        double redValue = mapLedNeuron.containsKey("${edge.from}_${nodeRedLed.id}") ? mapLedNeuron["${edge.from}_${nodeRedLed.id}"].toDouble() : 0;
+        double greenValue = mapLedNeuron.containsKey("${edge.from}_${nodeGreenLed.id}") ? mapLedNeuron["${edge.from}_${nodeGreenLed.id}"].toDouble() : 0;
+        double blueValue = mapLedNeuron.containsKey("${edge.from}_${nodeBlueLed.id}") ? mapLedNeuron["${edge.from}_${nodeBlueLed.id}"].toDouble() : 0;
+        double subtotal = max( redValue, greenValue) ;
+        subtotal = max(subtotal, blueValue);
         edge.connectionStrength = subtotal;
 
-        InfiniteCanvasNode nodeFrom = findNeuronByKey(edge.from);
-        int redColor =
-            ((mapLedNeuron["${nodeFrom.id}_${nodeRedLed.id}"] ?? 0) / 100 * 255)
-                .floor();
-        int greenColor =
-            ((mapLedNeuron["${nodeFrom.id}_${nodeGreenLed.id}"] ?? 0) /
-                    100 *
-                    255)
-                .floor();
-        int blueColor =
-            ((mapLedNeuron["${nodeFrom.id}_${nodeBlueLed.id}"] ?? 0) /
-                    100 *
-                    255)
-                .floor();
+        // InfiniteCanvasNode nodeFrom = findNeuronByKey(edge.from);
+        int redColor = (redValue / 100 * 255).floor();
+        int greenColor = (greenValue / 100 * 255).floor();
+        int blueColor = (blueValue / 100 * 255).floor();
+        edge.color = Color.fromARGB(255, redColor, greenColor, blueColor);
         // nodeFrom.syntheticNeuron.blackBrush = Paint()
         //   ..color = Color.fromARGB(255, redColor, greenColor, blueColor)
         //   // ..color = Colors.yellow
         //   ..style = PaintingStyle.fill
-        //   ..strokeWidth = 2;
-        edge.color = Color.fromARGB(255, redColor, greenColor, blueColor);
+        //   ..strokeWidth = 2;                        
+
         // COLORIZED NEURON
-      } else {
+        
+      } else
+      {
         String sensoryIdx = "${edge.from}_${edge.to}";
-        if (mapConnectome[sensoryIdx] != null) {
-          edge.label = mapConnectome[sensoryIdx].floor().toString();
-        }
+        edge.label = mapConnectome[sensoryIdx].floor().toString();
       }
     }
+
 
     // aBufView = Float64List.fromList(savedFileJson["a"].map((v)=>v as double).toList());
     // if (savedFileJson["aDesignArray"] != null) {
@@ -12062,7 +12054,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         List<Offset> oldDifCamera = [];
         Offset oldCameraNodePos =
             Offset(v["position"][0].toDouble(), v["position"][1].toDouble());
-        // print("Window X Height : $cWindowWidth $cWindowHeight | PREVIOUS : $displayWidth $displayHeight | OFFSET: ${v["position"][0]} ${v["position"][1]}");
+        print("Window X Height : $cWindowWidth $cWindowHeight | PREVIOUS : $displayWidth $displayHeight | OFFSET: ${v["position"][0]} ${v["position"][1]}");
         // print("OFFSET RESULT : dx: ${oldCameraNodePos.dx} | dy: ${oldCameraNodePos.dy}");
 
         int start = normalNeuronStartIdx + 2;
