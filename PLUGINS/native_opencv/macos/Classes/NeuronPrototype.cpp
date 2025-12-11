@@ -117,6 +117,7 @@ EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const
 
 
 std::thread simulatorThread;
+bool isThreadFinished = true;
 std::thread guidedQueueThread;
 
 
@@ -471,6 +472,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     // mtx.unlock();
 
     if (isThreadCreated==-1){
+        while (!isThreadFinished) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        isThreadFinished = false;
+        
         isThreadCreated=1;
         // platform_log2("v_traces");
         v_traces = new double*[_neuronLength];
@@ -1371,6 +1377,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::terminate();
                 #endif
             }
+            isThreadFinished = true;
 
         });        
 

@@ -1,5 +1,5 @@
 import 'package:fialogs/fialogs.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:neurorobot/brands/brandguide.dart';
@@ -13,20 +13,20 @@ import 'dart:io';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:window_manager/window_manager.dart';
 // WINDOWS CHANGE
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-// */
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_core/firebase_core.dart';
 
-import 'firebase_options.dart';
+// import 'firebase_options.dart';
 
 const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!Platform.isWindows) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // await Firebase.initializeApp(
+    //   options: DefaultFirebaseOptions.currentPlatform,
+    // );
   }
 
   // WEB CHANGE & windows Change
@@ -37,7 +37,7 @@ void main() async {
     if (fatalError) {
       // If you want to record a "fatal" exception
       if (!Platform.isWindows) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+        // FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
       }
       // ignore: dead_code
     } else {
@@ -50,7 +50,7 @@ void main() async {
     if (fatalError) {
       // If you want to record a "fatal" exception
       if (!Platform.isWindows) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        // FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       }
       // ignore: dead_code
     } else {
@@ -104,17 +104,17 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   // This widget is the root of your application.
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
+  // static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  // static FirebaseAnalyticsObserver observer =
+  //     FirebaseAnalyticsObserver(analytics: analytics);
 
   static void logAnalytic(String eventName, map) {
     try {
       if (!Platform.isWindows) {
-        analytics.logEvent(
-          name: eventName,
-          parameters: map,
-        );
+        // analytics.logEvent(
+        //   name: eventName,
+        //   parameters: map,
+        // );
       }
     } catch (err) {
       print("Error Analytic");
@@ -272,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     // WEB CHANGE & WINDOWS CHANGE
     // /*
-    _initializeFlutterFireFuture = _initializeFlutterFire();
+    // _initializeFlutterFireFuture = _initializeFlutterFire();
     // */
   }
 

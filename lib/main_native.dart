@@ -11,7 +11,7 @@ import 'package:async/async.dart';
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
-// import 'package:nativec/nativec.dart';
+import 'package:nativec/nativec.dart';
 
 import 'package:flutter/material.dart';
 // import 'package:native_opencv/nativec.dart';
@@ -210,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() async {
     print("Nativec.canvasBufferBytes1");
-    print(Nativec.canvasBufferBytes1);
+    print(nativec.canvasBufferBytes1);
     // flutter: [-67.69547283578389, -65.88836155290805, 2.22009137e-314, 6.9486051849013e-310, 6.95325024256085e-310]
     // flutter: [-70.23360574903995, -70.59600013808426, -2.315841784762842e+77, -2.3203618251475037e+77, 6.95325024256085e-310]
 
@@ -484,7 +484,7 @@ class _MyHomePageState extends State<MyHomePage> {
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
                 varI[idx] = (lowerValue / 10000).floor();
-                iBufView[idx] = varI[idx];
+                iBufView[idx] = varI[idx].toDouble();
                 changeNeuronSimulatorParameters();
 
                 setState(() {});
@@ -534,7 +534,7 @@ class _MyHomePageState extends State<MyHomePage> {
               max: 300000,
               min: 0,
               onDragging: (handlerIndex, lowerValue, upperValue) {
-                varW[idx] = (lowerValue / 10000);
+                varW[idx] = (lowerValue / 10000).toDouble();
                 wBufView[idx] = varW[idx];
                 changeNeuronSimulatorParameters();
 
@@ -680,7 +680,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           levelMedian: levelMedian,
                           strokeWidth: 1.0,
                           // samples: Nativec.canvasBufferBytes1.sublist(0,600),
-                          samples: Nativec.canvasBufferBytes1,
+                          samples: nativec.canvasBufferBytes1,
                           // samples: Float64List(0),
                           // samples: Nativec.canvasBufferBytes2,
                           // samples: canvasBufferBytes[0],
@@ -703,7 +703,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           strokeWidth: 1.0,
                           // samples: Nativec.canvasBufferBytes2,
                           // samples: Float64List(0),
-                          samples: Nativec.canvasBufferBytes2,
+                          samples: nativec.canvasBufferBytes2,
                           // samples: canvasBufferBytes[1],
                           maxDuration: const Duration(seconds: 10),
                           elapsedDuration: const Duration(seconds: 10),
@@ -732,7 +732,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const bufferSize = 2000;
     debouncerScroll.run(() {
       nativec.changeNeuronSimulatorProcess(aBuf, bBuf, cBuf, dBuf, iBuf, wBuf,
-          positionsBuf, wBuf, level, neuronSize, envelopeSize, bufferSize, 1);
+          wBuf, level, neuronSize, envelopeSize, bufferSize, 1);
     });
   }
 }

@@ -18,12 +18,12 @@ Future<void> neuronDialogBuilder(
     neuronTypeChangecallback,
     deleteCallback) {
   if (!Platform.isWindows) {
-    MyApp.analytics.logEvent(
-      name: 'neuron_dialog',
-      parameters: {
-        'neuron_dialog': 'true',
-      },
-    );
+    // MyApp.analytics.logEvent(
+    //   name: 'neuron_dialog',
+    //   parameters: {
+    //     'neuron_dialog': 'true',
+    //   },
+    // );
   }
   if (!isNeuronDialog) {
     isNeuronDialog = true;
@@ -124,12 +124,12 @@ Future<void> axonDialogBuilder(
   }
 
   if (!Platform.isWindows) {
-    MyApp.analytics.logEvent(
-      name: 'axon_dialog',
-      parameters: {
-        'axondialog': 'true',
-      },
-    );
+    // MyApp.analytics.logEvent(
+    //   name: 'axon_dialog',
+    //   parameters: {
+    //     'axondialog': 'true',
+    //   },
+    // );
   }
 
   isAxonDialog = true;
@@ -314,12 +314,12 @@ bool isLinkDialog = false;
 Future<void> linkDialogBuilder(
     BuildContext context, String linkType, linkTypeChangecallback) {
   if (!Platform.isWindows) {
-    MyApp.analytics.logEvent(
-      name: 'link_dialog',
-      parameters: {
-        'link_dialog': 'true',
-      },
-    );
+    // MyApp.analytics.logEvent(
+    //   name: 'link_dialog',
+    //   parameters: {
+    //     'link_dialog': 'true',
+    //   },
+    // );
   }
   String val = linkType;
   List<String> linkTypesLabel = [

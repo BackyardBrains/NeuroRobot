@@ -174,7 +174,9 @@ void createWebSocket(List<dynamic> args) async {
         // print("Awalan");
         // print(message);
         try {
-          channel.sink.add(message);
+          if (isReady) {
+            channel.sink.add(message);
+          }
         } catch (err) {
           print("err");
           print(err);

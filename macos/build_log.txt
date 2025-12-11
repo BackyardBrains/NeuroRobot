@@ -1,0 +1,240 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Debug build
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (48 targets)
+    Target 'Runner' in project 'Runner'
+        ➜ Explicit dependency on target 'Flutter Assemble' in project 'Runner'
+        ➜ Implicit dependency on target 'Pods-Runner' in project 'Pods' via file 'Pods_Runner.framework' in build phase 'Link Binary'
+    Target 'Pods-Runner' in project 'Pods'
+        ➜ Explicit dependency on target 'BoringSSL-GRPC' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'cloud_firestore' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_analytics' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_crashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-Core' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+        ➜ Explicit dependency on target 'native_opencv' in project 'Pods'
+        ➜ Explicit dependency on target 'package_info_plus' in project 'Pods'
+        ➜ Explicit dependency on target 'path_provider_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'screen_retriever' in project 'Pods'
+        ➜ Explicit dependency on target 'shared_preferences_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'tflite_flutter' in project 'Pods'
+        ➜ Explicit dependency on target 'url_launcher_macos' in project 'Pods'
+        ➜ Explicit dependency on target 'window_manager' in project 'Pods'
+    Target 'window_manager' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'url_launcher_macos' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'url_launcher_macos-url_launcher_macos_privacy' in project 'Pods'
+    Target 'url_launcher_macos-url_launcher_macos_privacy' in project 'Pods' (no dependencies)
+    Target 'tflite_flutter' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'shared_preferences_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'shared_preferences_foundation-shared_preferences_foundation_privacy' in project 'Pods'
+    Target 'shared_preferences_foundation-shared_preferences_foundation_privacy' in project 'Pods' (no dependencies)
+    Target 'screen_retriever' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'path_provider_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'path_provider_foundation-path_provider_foundation_privacy' in project 'Pods'
+    Target 'path_provider_foundation-path_provider_foundation_privacy' in project 'Pods' (no dependencies)
+    Target 'package_info_plus' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'native_opencv' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'firebase_crashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+    Target 'firebase_analytics' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+    Target 'cloud_firestore' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'FlutterMacOS' in project 'Pods' (no dependencies)
+    Target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Pods'
+    Target 'FirebaseFirestore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library-leveldb_Privacy' in project 'Pods'
+    Target 'leveldb-library-leveldb_Privacy' in project 'Pods' (no dependencies)
+    Target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++-gRPCCertificates-Cpp' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-Core' in project 'Pods'
+    Target 'gRPC-C++-gRPCCertificates-Cpp' in project 'Pods'
+        ➜ Implicit dependency on target 'abseil' in project 'Pods' via options '-framework absl' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-Core' in project 'Pods' via options '-framework grpc' in build setting 'OTHER_LDFLAGS'
+    Target 'gRPC-Core' in project 'Pods'
+        ➜ Explicit dependency on target 'BoringSSL-GRPC' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+    Target 'abseil' in project 'Pods' (no dependencies)
+    Target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift-Promises_Privacy' in project 'Pods'
+    Target 'PromisesSwift-Promises_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension-FirebaseCoreExtension_Privacy' in project 'Pods'
+    Target 'FirebaseCoreExtension-FirebaseCoreExtension_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'nanopb' in project 'Pods' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+    Target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods'
+    Target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods' (no dependencies)
+    Target 'BoringSSL-GRPC' in project 'Pods' (no dependencies)
+    Target 'Flutter Assemble' in project 'Runner' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x objective-c++ -c /dev/null
+
+Build description signature: a7e2cd8c99a00025f322307938dfe1f1
+Build description path: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/XCBuildData/a7e2cd8c99a00025f322307938dfe1f1.xcbuilddata
+/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner.xcodeproj:1:1: error: Unable to open base configuration reference file '/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner/Configs/Debug.xcconfig'.
+/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner.xcodeproj:1:1: error: Unable to open base configuration reference file '/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner/Configs/Debug.xcconfig'.
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'abseil' from project 'Pods')
+/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner.xcodeproj:1:1: error: Unable to open base configuration reference file '/Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Runner/Configs/AppInfo.xcconfig'. (in target 'Runner' from project 'Runner')
+warning: Unable to read contents of XCFileList '/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Debug-output-files.xcfilelist' (in target 'Runner' from project 'Runner')
+error: Unable to load contents of file list: '/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Debug-input-files.xcfilelist' (in target 'Runner' from project 'Runner')
+error: Unable to load contents of file list: '/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Debug-output-files.xcfilelist' (in target 'Runner' from project 'Runner')
+note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+warning: Run script build phase '[CP] Embed Pods Frameworks' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Runner' from project 'Runner')
+warning: Run script build phase '[firebase_crashlytics] Crashlytics Upload Symbols' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Runner' from project 'Runner')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-C++' from project 'Pods')
+warning: Run script build phase 'Run Script' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Flutter Assemble' from project 'Runner')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-Core' from project 'Pods')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	Building workspace Runner with scheme Runner and configuration Debug
+(1 failure)

@@ -12,7 +12,7 @@ import 'package:animated_battery_gauge/battery_gauge.dart';
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/cupertino.dart';
@@ -574,7 +574,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   static String strLeftColorMenu = '000';
   static String strRightColorMenu = '000';
 
-  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? configListener;
+  // StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? configListener;
 
   String isTailType = "circle";
 
@@ -6198,6 +6198,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       onDoubleTap: onDoubleTap,
       onDeleteCallback: onDeleteCallback,
       // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
+      onAxonCreatedCallback: (LocalKey a, LocalKey b) {},
       nodes: nodes,
       // edges: [
       //   InfiniteCanvasEdge(
@@ -9628,11 +9629,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   Future<void> subscribeGeneralConfig() async {
     // printDebug("subscribeGeneralConfig");
 
-    configListener = FirebaseFirestore.instance
-        .doc("config/general")
-        .snapshots()
-        .listen((event) async {
-      Map<String, dynamic>? data = event.data();
+    // configListener = FirebaseFirestore.instance
+    //     .doc("config/general")
+    //     .snapshots()
+    //     .listen((event) async {
+      /* Map<String, dynamic>? data = event.data();
       if (data != null) {
         printDebug("data");
         printDebug(data);
@@ -9759,7 +9760,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
         //"${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""}.2\r\n$strFirmwareVersion",
       }
-    });
+    }); */
   }
 
   int zoneWidth = 500;

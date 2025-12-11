@@ -39,5 +39,74 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+      
+      ['OTHER_CFLAGS', 'OTHER_CPLUSPLUSFLAGS', 'WARNING_CFLAGS', 'GCC_PREPROCESSOR_DEFINITIONS'].each do |flag_type|
+        config.build_settings[flag_type] ||= '$(inherited)'
+        
+        # Check and strip flags from build settings
+        val = config.build_settings[flag_type]
+        if val.is_a?(String)
+          if val.include?("-GCC_WARN_INHIBIT_ALL_WARNINGS")
+            puts "Removing problematic GCC flag from #{target.name} [#{flag_type}]"
+            config.build_settings[flag_type] = val.gsub('-GCC_WARN_INHIBIT_ALL_WARNINGS', '')
+            val = config.build_settings[flag_type]
+          end
+          if val.include?("-Werror")
+             puts "Removing -Werror from #{target.name} [#{flag_type}]"
+             config.build_settings[flag_type] = val.gsub('-Werror', '')
+          end
+          if val.include?("=reorder")
+             puts "Removing invalid =reorder flag from #{target.name} [#{flag_type}]"
+             config.build_settings[flag_type] = val.gsub('=reorder', '')
+          end
+        elsif val.is_a?(Array)
+          val.map! { |f| 
+            f = f.gsub('-GCC_WARN_INHIBIT_ALL_WARNINGS', '')
+            f = f.gsub('-Werror', '')
+            f = f.gsub('=reorder', '')
+            f
+          }
+        end
+      end
+    end
+    
+    # Check per-file settings
+    if target.respond_to?(:source_build_phase)
+      target.source_build_phase.files.each do |file|
+        if file.settings && file.settings['COMPILER_FLAGS']
+           flags = file.settings['COMPILER_FLAGS']
+           
+           # Fix invalid -G flag
+           if flags.include?("-GCC_WARN_INHIBIT_ALL_WARNINGS")
+              puts "Removing problematic GCC warning flag in #{file.file_ref.path}"
+              flags = flags.gsub('-GCC_WARN_INHIBIT_ALL_WARNINGS', '')
+           end
+           
+           # Strip -Werror to prevent warnings from failing build
+           if flags.include?("-Werror")
+              puts "Removing -Werror in #{file.file_ref.path}"
+              flags = flags.gsub('-Werror', '')
+           end
+           
+           if flags.include?("=reorder")
+              puts "Removing invalid =reorder in #{file.file_ref.path}"
+              flags = flags.gsub('=reorder', '')
+           end
+           
+           # Ensure -w is present to suppress warnings (if not already)
+           unless flags.include?(" -w ") || flags.end_with?(" -w") || flags == "-w"
+              flags += " -w"
+           end
+           
+           # Suppress specific template error
+           flags += " -Wno-missing-template-arg-list-after-template-kw"
+           
+           file.settings['COMPILER_FLAGS'] = flags
+        end
+      end
+    end
   end
 end
+
