@@ -236,6 +236,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   }
 
   void checkSelection(Offset localPosition, [bool hover = false]) {
+    // Disable interaction in Live Mode (User Request)
+    if (isPlaying) return;
+
     if (!isInteractable) {
       deselectAll(true);
       deselectAll();

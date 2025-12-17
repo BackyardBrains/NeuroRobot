@@ -20,12 +20,12 @@
 
 // // import 'package:nativec/allocation.dart';
 // // import 'package:nativec/nativec.dart';
-// // import 'package:neurorobot/bloc/bloc.dart';
-// import 'package:neurorobot/utils/Debouncers.dart';
-// // import 'package:neurorobot/utils/NeuronCircle.dart';
-// import 'package:neurorobot/utils/ProtoNeuron.dart';
-// import 'package:neurorobot/utils/SingleCircle.dart';
-// import 'package:neurorobot/utils/WaveWidget.dart';
+// // import 'package:spikerbot/bloc/bloc.dart';
+// import 'package:spikerbot/utils/Debouncers.dart';
+// // import 'package:spikerbot/utils/NeuronCircle.dart';
+// import 'package:spikerbot/utils/ProtoNeuron.dart';
+// import 'package:spikerbot/utils/SingleCircle.dart';
+// import 'package:spikerbot/utils/WaveWidget.dart';
 // // import 'package:winaudio/winaudio.dart';
 // // import 'package:window_manager/window_manager.dart';
 

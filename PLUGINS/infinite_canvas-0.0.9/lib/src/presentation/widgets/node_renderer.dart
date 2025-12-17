@@ -73,8 +73,8 @@ class NodeRenderer extends StatelessWidget {
                     clipBehavior: node.clipBehavior,
                     child: node.child,
                   )
-                : (controller.isSelected(node.key) ||
-                        controller.isHovered(node.key))
+                : (!controller.isPlaying && (controller.isSelected(node.key) ||
+                        controller.isHovered(node.key)))
                     ? Transform.scale(
                         scale: 1.5,
                         child: ColorFiltered(

@@ -108,6 +108,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
       canvas.drawPath(shiftedPath, mypaint);
 
       // if (channelIdx == 0){
+      if (eventMarkersPosition.isNotEmpty) {
         final evX = eventMarkersPosition[0] * sampleWidth;
         final offset1 = Offset(evX, 0);
         final offset2 = Offset(evX, 900);
@@ -129,7 +130,7 @@ class PolygonInActiveWaveformPainter extends InActiveWaveformPainter {
         //   myCurrentBarPaint,
         // );        
 
-      // }
+      }
 
     } catch (err) {
       print("errx");

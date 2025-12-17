@@ -1,8 +1,8 @@
-name: neurorobot
+name: spikerbot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1+72
+version: 1.3.0+01
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -78,6 +78,7 @@ dependencies:
   auto_orientation: 2.3.1
   gesture_x_detector: 1.1.1
   animated_battery_gauge: 0.2.0
+  file_picker: ^10.3.7
   # super_drag_and_drop: 0.8.17
   # cart_stepper: ^4.1.2
 
@@ -91,11 +92,31 @@ dependencies:
   # firebase_performance: 0.9.3+8
   # firebase_crashlytics: 3.4.8
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
 
   flutter_lints: ^2.0.0
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  macos:
+    generate: true
+    image_path: "assets/icons/SpikerbotAppIcon.appiconset/1024-mac.png"
+  image_path: "assets/icons/SpikerbotLogo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icons/SpikerbotLogo.png"
+    background_color: "#hex_code"
+    theme_color: "#hex_code"
+  windows:
+    generate: true
+    image_path: "assets/icons/SpikerbotLogo.png"
+    icon_size: 48 # min:48, max:256, default: 48
   
 dependency_overrides:
   http: ^1.1.0

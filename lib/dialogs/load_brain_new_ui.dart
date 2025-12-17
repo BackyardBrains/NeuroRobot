@@ -3,10 +3,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:fialogs/fialogs.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
-import 'package:neurorobot/brands/brandguide.dart';
+import 'package:spikerbot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -315,33 +316,43 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                     print("statuses[Permission.storage]");
                                     print(statuses[Permission.manageExternalStorage]);
                                   }
-                                  Directory? rootPath = await getDownloadsDirectory();
-                                  if (Platform.isAndroid) {
-                                    // rootPath = await getExternalStorageDirectory();
-                                    rootPath = Directory('/storage/emulated/0/Download');
-                                    
-                                    Directory txtDirectory = Directory(
-                                        "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
-                                    if (!txtDirectory.existsSync()) txtDirectory.createSync();
-                                    
-                                    // if (!rootPath.existsSync()) {
-                                    //   rootPath.createSync();
-                                    // }
-                                  } else 
+                                  String? path;
                                   if (Platform.isMacOS) {
-                                    // rootPath = await getDownloadsDirectory();
+                                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: ['txt', 'brain'],
+                                    );
+                                    if (result != null) {
+                                      path = result.files.single.path;
+                                    }
                                   } else {
-                                    rootPath = await getApplicationDocumentsDirectory();
+                                    Directory? rootPath;
+                                    if (Platform.isAndroid) {
+                                      rootPath = Directory('/storage/emulated/0/Download');
+                                      Directory txtDirectory = Directory(
+                                          "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
+                                      if (!txtDirectory.existsSync()) txtDirectory.createSync();
+                                    } else {
+                                       try {
+                                        rootPath = await getDownloadsDirectory();
+                                      } catch (e) {
+                                        printDebug("Error getting downloads directory: $e");
+                                      }
+                                      if (rootPath == null || !rootPath.existsSync()) {
+                                        printDebug("Downloads directory not available, falling back to Documents");
+                                        rootPath = await getApplicationDocumentsDirectory();
+                                      }
+                                    }
+                                    path = await FilesystemPicker.open(
+                                      title: 'Open file',
+                                      context: context,
+                                      rootDirectory: rootPath,
+                                      fsType: FilesystemType.file,
+                                      allowedExtensions: ['.txt', '.brain'],
+                                      fileTileSelectMode: FileTileSelectMode.wholeTile,
+                                    );
                                   }
-                                  // Directory? rootPath = await getTemporaryDirectory();
-                                  String? path = await FilesystemPicker.open(
-                                    title: 'Open file',
-                                    context: context,
-                                    rootDirectory: rootPath,
-                                    fsType: FilesystemType.file,
-                                    allowedExtensions: ['.txt', '.brain'],
-                                    fileTileSelectMode: FileTileSelectMode.wholeTile,
-                                  );
+                                  
                                   if (path != null) {
                                     // String content = await fileNames[i].readAsString();
                                     File srcFile = File(path);
@@ -771,24 +782,44 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                       buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
                                     }
 
-                                    Directory? rootPath = await getDownloadsDirectory();
-                                    // rootPath ??= await getApplicationDocumentsDirectory();
-                                    if (Platform.isIOS) {
-                                      rootPath = await getApplicationDocumentsDirectory();
-                                    }
-                                    // Directory? rootPath = await getTemporaryDirectory();
-                                    String? path = await FilesystemPicker.open(
-                                      title: 'Save to folder',
-                                      context: context,
-                                      rootDirectory: rootPath,
-                                      fsType: FilesystemType.folder,
-                                      pickText: 'Save file to this folder',
-                                    );
-                                    if (path != null) {
-                                      // String content = await fileNames[i].readAsString();
-                                      String baseFileName = basename(fileNames[i].path);
-                                      File resultFile = File("$path${Platform.pathSeparator}$baseFileName");
-                                      fileNames[i].copySync(resultFile.path);
+                                    String? path;
+                                    String baseFileName = basename(fileNames[i].path);
+
+                                    if (Platform.isMacOS) {
+                                      path = await FilePicker.platform.saveFile(
+                                        dialogTitle: 'Save Brain File',
+                                        fileName: baseFileName,
+                                        allowedExtensions: ['txt', 'brain'],
+                                        type: FileType.custom,
+                                      );
+                                      if (path != null) {
+                                         // FilePicker returns the full path including filename
+                                         File resultFile = File(path);
+                                         fileNames[i].copySync(resultFile.path);
+                                      }
+                                    } else {
+                                      Directory? rootPath;
+                                      try {
+                                        rootPath = await getDownloadsDirectory();
+                                      } catch (e) {
+                                        printDebug("Error getting downloads directory: $e");
+                                      }
+                                      if (rootPath == null || !rootPath.existsSync()) {
+                                        rootPath = await getApplicationDocumentsDirectory();
+                                      }
+                                      // Directory? rootPath = await getTemporaryDirectory();
+                                      path = await FilesystemPicker.open(
+                                        title: 'Save to folder',
+                                        context: context,
+                                        rootDirectory: rootPath,
+                                        fsType: FilesystemType.folder,
+                                        pickText: 'Save file to this folder',
+                                      );
+                                      if (path != null) {
+                                        // String content = await fileNames[i].readAsString();
+                                        File resultFile = File("$path${Platform.pathSeparator}$baseFileName");
+                                        fileNames[i].copySync(resultFile.path);
+                                      }
                                     }
                                   },
                                 )

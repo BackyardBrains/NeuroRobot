@@ -10,8 +10,8 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as image_lib;
-import 'package:neurorobot/ai/models/recognition.dart';
-// import 'package:neurorobot/ai/utils/image_utils.dart';
+import 'package:spikerbot/ai/models/recognition.dart';
+// import 'package:spikerbot/ai/utils/image_utils.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../utils/image_utils.dart';

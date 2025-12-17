@@ -1,9 +1,10 @@
 import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:native_opencv/native_opencv.dart';
-import 'package:neurorobot/utils/Allocator.dart';
+import 'package:spikerbot/utils/Allocator.dart';
 
 ffi.Pointer<ffi.Uint8> ptrFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());
@@ -19,9 +20,10 @@ Uint32List resizedFrameLength = ptrResizedFrameLength.asTypedList(1);
 */
 
 // Future<bool> checkColorCV(frameData, ptrLowerB, ptrUpperB) async {
-initializeOpenCV() {
+initializeOpenCV(stateBuf, visPrefVals, visPrefs, neuronContacts) {
   NativeOpenCV ocv = NativeOpenCV();
   ocv.initializeOpenCV();
+  ocv.passPreprocessPointers(stateBuf, visPrefVals, visPrefs, neuronContacts);
 }
 
 // Future<bool> resizeImageFrame(frameData) async {
@@ -80,8 +82,7 @@ Map<String, dynamic> _checkNativeColorCv(map) {
   // } catch (err) {
   //   print("err allocating memory");
   // }
-  ptrFrame = allocate<ffi.Uint8>(
-      count: frameData.length, sizeOfType: ffi.sizeOf<ffi.Uint8>());
+  ptrFrame = calloc<ffi.Uint8>(frameData.length);
 
   Uint8List data = ptrFrame.asTypedList(frameData.length);
 
@@ -92,14 +93,18 @@ Map<String, dynamic> _checkNativeColorCv(map) {
     // dataMaskedImage[i] = redBg[i];
   }
   // x, y, score
+  // Use calloc to ensure zero-initialized memory
+  // CRITICAL FIX: Buffer size increased to 100 (needs at least 22*3=66) to prevent overflow
+  // as C++ loops through all visual preferences.
   ffi.Pointer<ffi.Uint16> centroid =
-      allocate<ffi.Uint16>(count: 9, sizeOfType: ffi.sizeOf<ffi.Uint16>());
+      calloc<ffi.Uint16>(100);
 
   // nativeocv
   // int result =
   //     nativeocv.findColorInImage(ptrFrame, frameData.length, ptrMaskedFrame);
 
   int result = nativeocv.findColorInImage(ptrFrame, frameData.length, centroid);
+  print("DEBUG: Centroid result: $result, Values: [${centroid[0]}, ${centroid[1]}, ${centroid[2]}]");
   // map["centroidX"] = centroid[0].toDouble();
   // map["centroidY"] = centroid[1].toDouble();
   // print("centroid map");
@@ -112,8 +117,8 @@ Map<String, dynamic> _checkNativeColorCv(map) {
 
   try {
     // data.clear();
-    freeMemory(ptrFrame);
-    freeMemory(centroid);
+    calloc.free(ptrFrame);
+    calloc.free(centroid);
     // frameData.clear();
   } catch (err) {
     print("Error Freeing frameData");

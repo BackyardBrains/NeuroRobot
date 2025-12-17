@@ -1,0 +1,452 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Debug build
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, name:Any Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (48 targets)
+    Target 'Runner' in project 'Runner'
+        ➜ Explicit dependency on target 'Flutter Assemble' in project 'Runner'
+        ➜ Implicit dependency on target 'Pods-Runner' in project 'Pods' via file 'Pods_Runner.framework' in build phase 'Link Binary'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreExtension' in project 'Pods' via options '-framework FirebaseCoreExtension' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCrashlytics' in project 'Pods' via options '-framework FirebaseCrashlytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseFirestore' in project 'Pods' via options '-framework FirebaseFirestore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseSessions' in project 'Pods' via options '-framework FirebaseSessions' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'PromisesSwift' in project 'Pods' via options '-framework Promises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'abseil' in project 'Pods' via options '-framework absl' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'cloud_firestore' in project 'Pods' via options '-framework cloud_firestore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_analytics' in project 'Pods' via options '-framework firebase_analytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_core' in project 'Pods' via options '-framework firebase_core' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_crashlytics' in project 'Pods' via options '-framework firebase_crashlytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-Core' in project 'Pods' via options '-framework grpc' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-C++' in project 'Pods' via options '-framework grpcpp' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'leveldb-library' in project 'Pods' via options '-framework leveldb' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'native_opencv' in project 'Pods' via options '-framework native_opencv' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'BoringSSL-GRPC' in project 'Pods' via options '-framework openssl_grpc' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'package_info_plus' in project 'Pods' via options '-framework package_info_plus' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'path_provider_foundation' in project 'Pods' via options '-framework path_provider_foundation' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'screen_retriever' in project 'Pods' via options '-framework screen_retriever' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'shared_preferences_foundation' in project 'Pods' via options '-framework shared_preferences_foundation' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'tflite_flutter' in project 'Pods' via options '-framework tflite_flutter' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'url_launcher_macos' in project 'Pods' via options '-framework url_launcher_macos' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'window_manager' in project 'Pods' via options '-framework window_manager' in build setting 'OTHER_LDFLAGS'
+    Target 'Pods-Runner' in project 'Pods'
+        ➜ Explicit dependency on target 'BoringSSL-GRPC' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'cloud_firestore' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_analytics' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_crashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-Core' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+        ➜ Explicit dependency on target 'native_opencv' in project 'Pods'
+        ➜ Explicit dependency on target 'package_info_plus' in project 'Pods'
+        ➜ Explicit dependency on target 'path_provider_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'screen_retriever' in project 'Pods'
+        ➜ Explicit dependency on target 'shared_preferences_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'tflite_flutter' in project 'Pods'
+        ➜ Explicit dependency on target 'url_launcher_macos' in project 'Pods'
+        ➜ Explicit dependency on target 'window_manager' in project 'Pods'
+    Target 'Flutter Assemble' in project 'Runner'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreExtension' in project 'Pods' via options '-framework FirebaseCoreExtension' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCrashlytics' in project 'Pods' via options '-framework FirebaseCrashlytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseFirestore' in project 'Pods' via options '-framework FirebaseFirestore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseSessions' in project 'Pods' via options '-framework FirebaseSessions' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'PromisesSwift' in project 'Pods' via options '-framework Promises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'abseil' in project 'Pods' via options '-framework absl' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'cloud_firestore' in project 'Pods' via options '-framework cloud_firestore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_analytics' in project 'Pods' via options '-framework firebase_analytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_core' in project 'Pods' via options '-framework firebase_core' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'firebase_crashlytics' in project 'Pods' via options '-framework firebase_crashlytics' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-Core' in project 'Pods' via options '-framework grpc' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-C++' in project 'Pods' via options '-framework grpcpp' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'leveldb-library' in project 'Pods' via options '-framework leveldb' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'native_opencv' in project 'Pods' via options '-framework native_opencv' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'BoringSSL-GRPC' in project 'Pods' via options '-framework openssl_grpc' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'package_info_plus' in project 'Pods' via options '-framework package_info_plus' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'path_provider_foundation' in project 'Pods' via options '-framework path_provider_foundation' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'screen_retriever' in project 'Pods' via options '-framework screen_retriever' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'shared_preferences_foundation' in project 'Pods' via options '-framework shared_preferences_foundation' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'tflite_flutter' in project 'Pods' via options '-framework tflite_flutter' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'url_launcher_macos' in project 'Pods' via options '-framework url_launcher_macos' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'window_manager' in project 'Pods' via options '-framework window_manager' in build setting 'OTHER_LDFLAGS'
+    Target 'window_manager' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'url_launcher_macos' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'url_launcher_macos-url_launcher_macos_privacy' in project 'Pods'
+    Target 'url_launcher_macos-url_launcher_macos_privacy' in project 'Pods' (no dependencies)
+    Target 'tflite_flutter' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'shared_preferences_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'shared_preferences_foundation-shared_preferences_foundation_privacy' in project 'Pods'
+    Target 'shared_preferences_foundation-shared_preferences_foundation_privacy' in project 'Pods' (no dependencies)
+    Target 'screen_retriever' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'path_provider_foundation' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'path_provider_foundation-path_provider_foundation_privacy' in project 'Pods'
+    Target 'path_provider_foundation-path_provider_foundation_privacy' in project 'Pods' (no dependencies)
+    Target 'package_info_plus' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'native_opencv' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'firebase_crashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+    Target 'firebase_analytics' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+    Target 'cloud_firestore' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+        ➜ Explicit dependency on target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'firebase_core' in project 'Pods'
+        ➜ Explicit dependency on target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FlutterMacOS' in project 'Pods'
+    Target 'FlutterMacOS' in project 'Pods' (no dependencies)
+    Target 'Firebase' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseFirestore' in project 'Pods'
+    Target 'FirebaseAnalytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleAppMeasurement' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseFirestore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'leveldb-library' in project 'Pods'
+        ➜ Explicit dependency on target 'leveldb-library-leveldb_Privacy' in project 'Pods'
+    Target 'leveldb-library-leveldb_Privacy' in project 'Pods' (no dependencies)
+    Target 'gRPC-C++' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-C++-gRPCCertificates-Cpp' in project 'Pods'
+        ➜ Explicit dependency on target 'gRPC-Core' in project 'Pods'
+    Target 'gRPC-C++-gRPCCertificates-Cpp' in project 'Pods'
+        ➜ Implicit dependency on target 'abseil' in project 'Pods' via options '-framework absl' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'gRPC-Core' in project 'Pods' via options '-framework grpc' in build setting 'OTHER_LDFLAGS'
+    Target 'gRPC-Core' in project 'Pods'
+        ➜ Explicit dependency on target 'BoringSSL-GRPC' in project 'Pods'
+        ➜ Explicit dependency on target 'abseil' in project 'Pods'
+    Target 'BoringSSL-GRPC' in project 'Pods' (no dependencies)
+    Target 'abseil' in project 'Pods' (no dependencies)
+    Target 'FirebaseCrashlytics' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseSessions' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'PromisesSwift' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesSwift-Promises_Privacy' in project 'Pods'
+    Target 'PromisesSwift-Promises_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'nanopb' in project 'Pods' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCoreExtension' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension-FirebaseCoreExtension_Privacy' in project 'Pods'
+    Target 'FirebaseCoreExtension-FirebaseCoreExtension_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+    Target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods'
+    Target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -x objective-c++ -c /dev/null
+
+Build description signature: 1f6902fb139f943d95027692c7dfb872
+Build description path: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/XCBuildData/1f6902fb139f943d95027692c7dfb872.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -o /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/BoringSSL-GRPC/openssl_grpc.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-Info.plist (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/BoringSSL-GRPC/openssl_grpc.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/abseil/absl.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-Info.plist (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/abseil/absl.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/PromisesObjC/FBLPromises_Privacy.bundle/Contents/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist (in target 'PromisesObjC-FBLPromises_Privacy' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/PromisesObjC/FBLPromises_Privacy.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/path_provider_foundation/path_provider_foundation_privacy.bundle/Contents/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/path_provider_foundation/ResourceBundle-path_provider_foundation_privacy-path_provider_foundation-Info.plist (in target 'path_provider_foundation-path_provider_foundation_privacy' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/path_provider_foundation/ResourceBundle-path_provider_foundation_privacy-path_provider_foundation-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/path_provider_foundation/path_provider_foundation_privacy.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle/Contents/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/shared_preferences_foundation/ResourceBundle-shared_preferences_foundation_privacy-shared_preferences_foundation-Info.plist (in target 'shared_preferences_foundation-shared_preferences_foundation_privacy' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/shared_preferences_foundation/ResourceBundle-shared_preferences_foundation_privacy-shared_preferences_foundation-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/shared_preferences_foundation/shared_preferences_foundation_privacy.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/leveldb-library/leveldb_Privacy.bundle/Contents/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/leveldb-library/ResourceBundle-leveldb_Privacy-leveldb-library-Info.plist (in target 'leveldb-library-leveldb_Privacy' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/leveldb-library/ResourceBundle-leveldb_Privacy-leveldb-library-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/leveldb-library/leveldb_Privacy.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/native_opencv/native_opencv.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/native_opencv/native_opencv-Info.plist (in target 'native_opencv' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/native_opencv/native_opencv-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/native_opencv/native_opencv.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/nanopb/nanopb.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist (in target 'nanopb' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/nanopb/nanopb.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos_privacy.bundle/Contents/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/url_launcher_macos/ResourceBundle-url_launcher_macos_privacy-url_launcher_macos-Info.plist (in target 'url_launcher_macos-url_launcher_macos_privacy' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/url_launcher_macos/ResourceBundle-url_launcher_macos_privacy-url_launcher_macos-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos_privacy.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/window_manager/window_manager.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/window_manager/window_manager-Info.plist (in target 'window_manager' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/window_manager/window_manager-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/window_manager/window_manager.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/tflite_flutter/tflite_flutter.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/tflite_flutter/tflite_flutter-Info.plist (in target 'tflite_flutter' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/tflite_flutter/tflite_flutter-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/tflite_flutter/tflite_flutter.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/screen_retriever/screen_retriever.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/screen_retriever/screen_retriever-Info.plist (in target 'screen_retriever' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/screen_retriever/screen_retriever-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/screen_retriever/screen_retriever.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/package_info_plus/package_info_plus.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/package_info_plus/package_info_plus-Info.plist (in target 'package_info_plus' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/package_info_plus/package_info_plus-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/package_info_plus/package_info_plus.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/leveldb-library/leveldb.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/leveldb-library/leveldb-library-Info.plist (in target 'leveldb-library' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/leveldb-library/leveldb-library-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/leveldb-library/leveldb.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/PromisesObjC/FBLPromises.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist (in target 'PromisesObjC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/PromisesObjC/FBLPromises.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/url_launcher_macos/url_launcher_macos-Info.plist (in target 'url_launcher_macos' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/url_launcher_macos/url_launcher_macos-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/path_provider_foundation/path_provider_foundation.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/path_provider_foundation/path_provider_foundation-Info.plist (in target 'path_provider_foundation' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/path_provider_foundation/path_provider_foundation-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/path_provider_foundation/path_provider_foundation.framework/Versions/A/Resources/Info.plist
+
+ProcessInfoPlistFile /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/shared_preferences_foundation/shared_preferences_foundation.framework/Versions/A/Resources/Info.plist /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/shared_preferences_foundation/shared_preferences_foundation-Info.plist (in target 'shared_preferences_foundation' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-infoPlistUtility /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/shared_preferences_foundation/shared_preferences_foundation-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/shared_preferences_foundation/shared_preferences_foundation.framework/Versions/A/Resources/Info.plist
+
+CpResource /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos.framework/Versions/A/Resources/url_launcher_macos_privacy.bundle /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos_privacy.bundle (in target 'url_launcher_macos' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos_privacy.bundle /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Products/Debug/url_launcher_macos/url_launcher_macos.framework/Versions/A/Resources
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_optional_access.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/types/bad_optional_access.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -Wno-everything -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_optional_access.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_optional_access.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/types/bad_optional_access.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_optional_access.o -index-unit-output-path /Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_optional_access.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_any_cast.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/types/bad_any_cast.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -Wno-everything -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_any_cast.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_any_cast.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/types/bad_any_cast.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_any_cast.o -index-unit-output-path /Pods.build/Debug/abseil.build/Objects-normal/arm64/bad_any_cast.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/ascii.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/strings/ascii.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -Wno-everything -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/ascii.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/ascii.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/strings/ascii.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/ascii.o -index-unit-output-path /Pods.build/Debug/abseil.build/Objects-normal/arm64/ascii.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/arg.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/strings/internal/str_format/arg.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -Wno-everything -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/arg.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/arg.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/strings/internal/str_format/arg.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/arg.o -index-unit-output-path /Pods.build/Debug/abseil.build/Objects-normal/arm64/arg.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/address_is_readable.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/debugging/internal/address_is_readable.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'abseil' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -Wno-everything -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/abseil/abseil-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/address_is_readable.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/address_is_readable.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/abseil/absl/debugging/internal/address_is_readable.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/abseil.build/Objects-normal/arm64/address_is_readable.o -index-unit-output-path /Pods.build/Debug/abseil.build/Objects-normal/arm64/address_is_readable.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_record.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_record.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.o
+clang: error: unsupported option '-G' for target 'arm64-apple-macos10.14'
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_method.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_method.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.o
+clang: error: unsupported option '-G' for target 'arm64-apple-macos10.14'
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_server.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_server.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_server.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_server.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_server.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_server.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_server.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_enc.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_enc.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_enc.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_enc.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_enc.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_enc.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_enc.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_client.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_client.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_client.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_client.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_client.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_client.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_client.o
+
+CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_both.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_both.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+    cd /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods
+    
+    Using response file: /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -ivfsstatcache /Users/hatch/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/macosx15.4-24E241-88b860576fb364319593bd8fb30666b0.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/hatch/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Winfinite-recursion -Wmove -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wrange-loop-analysis -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Index.noindex/DataStore @/Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/82b82416624d2658e5098eb0a28c15c5-common-args.resp -DOPENSSL_NO_ASM -GCC_WARN_INHIBIT_ALL_WARNINGS -w -DBORINGSSL_PREFIX\=GRPC -fno-objc-arc -include /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/Target\ Support\ Files/BoringSSL-GRPC/BoringSSL-GRPC-prefix.pch -MMD -MT dependencies -MF /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_both.d --serialize-diagnostics /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_both.dia -c /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls13_both.cc -o /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_both.o -index-unit-output-path /Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls13_both.o
+
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-Core' from project 'Pods')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'gRPC-C++' from project 'Pods')
+warning: Run script build phase 'Run Script' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Flutter Assemble' from project 'Runner')
+note: Run script build phase 'Run Script' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'Runner' from project 'Runner')
+warning: Run script build phase '[firebase_crashlytics] Crashlytics Upload Symbols' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Runner' from project 'Runner')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'BoringSSL-GRPC' from project 'Pods')
+warning: Run script build phase 'Create Symlinks to Header Folders' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'abseil' from project 'Pods')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_record.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_record.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+	CompileC /Users/hatch/Library/Developer/Xcode/DerivedData/Runner-hkzjiuwrbhcsvrajwcfayuompdrb/Build/Intermediates.noindex/Pods.build/Debug/BoringSSL-GRPC.build/Objects-normal/arm64/tls_method.o /Users/hatch/.gemini/antigravity/scratch/neurorobot_native_app/macos/Pods/BoringSSL-GRPC/src/ssl/tls_method.cc normal arm64 c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'BoringSSL-GRPC' from project 'Pods')
+	Building workspace Runner with scheme Runner and configuration Debug
+(3 failures)

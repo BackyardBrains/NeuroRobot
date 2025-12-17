@@ -34,38 +34,38 @@ import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 // import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
-import 'package:neurorobot/components/search_textfield.dart';
-import 'package:neurorobot/dialogs/version_dialog.dart';
-import 'package:neurorobot/components/drop_targets.dart';
+import 'package:spikerbot/components/search_textfield.dart';
+import 'package:spikerbot/dialogs/version_dialog.dart';
+import 'package:spikerbot/components/drop_targets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 
 import 'package:native_opencv/native_opencv.dart';
 import 'package:native_opencv/nativec.dart';
-import 'package:neurorobot/ai/models/recognition.dart';
-import 'package:neurorobot/ai/service/detector_service.dart';
-import 'package:neurorobot/ai/utils/StatsWidget.dart';
+import 'package:spikerbot/ai/models/recognition.dart';
+import 'package:spikerbot/ai/service/detector_service.dart';
+import 'package:spikerbot/ai/utils/StatsWidget.dart';
 // import 'package:network_info_plus/network_info_plus.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
-import 'package:neurorobot/bloc/bloc.dart';
-import 'package:neurorobot/components/left_toolbar.dart';
-import 'package:neurorobot/dialogs/load_brain.dart';
-import 'package:neurorobot/dialogs/save_brain.dart';
-import 'package:neurorobot/utils/Allocator.dart';
-import 'package:neurorobot/utils/Debouncers.dart';
-import 'package:neurorobot/utils/General.dart';
-import 'package:neurorobot/utils/ProtoNeuron.dart';
-import 'package:neurorobot/utils/Simulations.dart';
-import 'package:neurorobot/utils/SingleCircle.dart';
-import 'package:neurorobot/utils/Vision.dart';
-import 'package:neurorobot/utils/WaveWidget.dart';
+import 'package:spikerbot/bloc/bloc.dart';
+import 'package:spikerbot/components/left_toolbar.dart';
+import 'package:spikerbot/dialogs/load_brain.dart';
+import 'package:spikerbot/dialogs/save_brain.dart';
+import 'package:spikerbot/utils/Allocator.dart';
+import 'package:spikerbot/utils/Debouncers.dart';
+import 'package:spikerbot/utils/General.dart';
+import 'package:spikerbot/utils/ProtoNeuron.dart';
+import 'package:spikerbot/utils/Simulations.dart';
+import 'package:spikerbot/utils/SingleCircle.dart';
+import 'package:spikerbot/utils/Vision.dart';
+import 'package:spikerbot/utils/WaveWidget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:neurorobot/components/right_toolbar.dart';
+import 'package:spikerbot/components/right_toolbar.dart';
 import 'package:window_manager/window_manager.dart';
 import '../dialogs/info_dialog.dart';
 
@@ -77,6 +77,7 @@ import '../main.dart';
 import '../utils/ImageCapture.dart';
 import '../utils/SingleSquare.dart';
 import '../utils/WebSocket.dart';
+import 'package:spikerbot/components/live_tools_toolbar.dart';
 // import 'package:opencv_ffi/src/generated/opencv_ffi_bindings.dart' as ocv;
 
 // String _getPath() {
@@ -143,7 +144,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   late ReceivePort writePort = ReceivePort();
 
   // SIMULATION SECTION
-  // List<String> neuronTypes = [];
+  // int neuronSize = 0; // REMOVED DUPLICATE
+  // Track wave selection for Key updates
+  int currentWaveNeuronIdx = -1;
+  int currentWaveNeuronIdx2 = -1;
+  double currentWaveZoom = 2.0;
+  // Map<String, Offset> neuronPos = {};
   Map<String, String> neuronTypes = {};
   Map<String, String> neuronStyles = {};
   static const int motorCommandsLength = 6 * 2;
@@ -380,7 +386,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   int selectedIdx = 0;
   ValueNotifier<int> redrawNeuronLine = ValueNotifier(0);
 
-  late WaveWidget waveWidget;
+  late Widget waveWidget;
+  double waveZoom = 2.0; // Persist zoom level across rebuilds
 
   late Mjpeg mjpegComponent;
 
@@ -478,6 +485,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
   GlobalKey rightToolbarGlobalKey = GlobalKey();
   LocalKey rightToolbarKey = UniqueKey();
+  LeftToolbar? leftToolBar;
+  LiveLeftToolbar? liveToolBar;      
+
 
   String activeCameraType = "";
 
@@ -875,6 +885,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         neuronLedPositionBuf,
         visualInputBuf,
       );
+      
+      // CRITICAL FIX: Initialize NativeOpenCV with the same pointers to prevent crash
+      NativeOpenCV ocv = NativeOpenCV();
+      ocv.initializeOpenCV();
+      ocv.passPreprocessPointers(stateBuf, visPrefsValsBuf, visPrefsBuf, neuronContactsBuf);
       // printDebug("try to pass nativec pointers");
       aBufView = aBuf.asTypedList(neuronSize);
       bBufView = bBuf.asTypedList(neuronSize);
@@ -1069,7 +1084,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     //   );
     //   controller.nucleusList!.add(nucleus);
     // }
-    WaveWidget.positionsBufView = positionsBufView;
+    // WaveWidget.positionsBufView = positionsBufView; // REMOVED
 
     if (kIsWeb) {
     } else {
@@ -1412,7 +1427,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   }
 
   void freeUsedMemory() {
-    freeMemory(npsBuf);
+  // CRITICAL FIX: Unregister pointers in C++ before freeing memory.
+  // This prevents C++ from accessing freed memory (Use-After-Free) 
+  // if a background thread/isolate is still processing a frame.
+  initializeOpenCV(ffi.nullptr, ffi.nullptr, ffi.nullptr, ffi.nullptr);
+
+  freeMemory(npsBuf);
     freeMemory(neuronCircleBuf);
     freeMemory(positionsBuf);
     freeMemory(aBuf);
@@ -1422,10 +1442,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     freeMemory(iBuf);
     freeMemory(wBuf);
     freeMemory(connectomeBuf);
-    freeMemory(motorCommandBuf);
-    freeMemory(visPrefsBuf);
-    freeMemory(visPrefsValsBuf);
-    freeMemory(Nativec.canvasBuffer1);
+  freeMemory(motorCommandBuf);
+  // CRITICAL FIX: Do NOT free these buffers.
+  // The background video processing isolate (native_opencv) maintains pointers to these buffers
+  // and may try to read/write them even after this page is disposed (race condition).
+  // Freeing them causes a persistent crash (Use-After-Free). Leaking them is safe behavior here.
+  // freeMemory(visPrefsBuf);
+  // freeMemory(visPrefsValsBuf);
+  freeMemory(Nativec.canvasBuffer1);
     // freeMemory(nativec.canvasBuffer2);
     freeMemory(mapNeuronTypeBuf);
     freeMemory(mapDelayNeuronBuf);
@@ -1527,6 +1551,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               nativec.stopThreadProcess(0);
               isSimulatingBrain = false;
               printDebug("stopping thread finished");
+              
+              // Clear Pins on Stop (User Request)
+              placedPins.clear();
+              hoveringPinNeuronIdx = -1;
+              mapBg["activeComponent"] = noActiveComponent;
+              mapBg["activeBg"] = defaultBg;
+              initializeNucleus();
             }
             controller.deselectAll();
             controller.setCanvasMove(true);
@@ -1968,6 +1999,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     try {
       initMemoryAllocation();
       initNativeC(true);
+      initializeOpenCV(
+          stateBuf, visPrefsValsBuf, visPrefsBuf, neuronContactsBuf);
       // final ocsvlib = ocv.OpenCVBindings(ffi.DynamicLibrary.open(_getPath()));
       // testColorCV();
       printDebug("INIT STATEEE2");
@@ -2039,8 +2072,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     previousBufferTime = DateTime.now().millisecondsSinceEpoch;
     processRobotMessages();
 
-    Timer.periodic(const Duration(milliseconds: 70), (timer) {
-      if (isChartSelected) {
+    Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (isChartSelected || currentWaveNeuronIdx != -1 || currentWaveNeuronIdx2 != -1) {
         // printDebug("redraw");
         // printDebug(Nativec.canvasBufferBytes1);
         waveRedraw.value = Random().nextInt(10000);
@@ -2227,14 +2260,41 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
       // printDebug(centerZoneOffset);
 
       if (!kIsWeb) {
-        // WaveWidget.positionsBufView = positionsBufView;
+        WaveWidget.positionsBufView = positionsBufView;
       }
-      waveWidget = WaveWidget(
-          valueNotifier: waveRedraw,
-          chartGain: chartGain,
-          levelMedian: levelMedian,
-          screenHeight: screenHeight,
-          screenWidth: screenWidth);
+      if (currentWaveNeuronIdx == -1 && currentWaveNeuronIdx2 == -1) {
+        waveWidget = Container(
+            color: const Color(0xFF222222),
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text(
+                  "Drag a pin onto a neuron to see its activity realtime!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: "Roboto",
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ));
+      } else {
+        waveWidget = WaveWidget(
+            key: ValueKey("${currentWaveNeuronIdx}_$currentWaveNeuronIdx2"), // Force Rebuild on Change
+            valueNotifier: waveRedraw,
+            chartGain: chartGain,
+            screenWidth: 300,
+            screenHeight: 90,
+            neuronIdx1: currentWaveNeuronIdx, // Pass Orange Pin Index
+            neuronIdx2: currentWaveNeuronIdx2, // Pass Blue Pin Index
+            initialVisibleSeconds: currentWaveZoom, // Persist Zoom
+            onVisibleSecondsChanged: (seconds) {
+              currentWaveZoom = seconds;
+            },
+            levelMedian: levelMedian);
+      }
       // testColorCV();
     }
     // if (Platform.isAndroid || Platform.isIOS) {
@@ -2382,42 +2442,165 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           ),
         ));
       }
-      Offset pan = controller
-          .getOffset()
-          .scale(1 / controller.getScale(), 1 / controller.getScale());
-      // printDebug("zpan");
-      // printDebug(pan);
+      // OFFSET FIX: Use Matrix Translation directly for robust Screen positioning
+      var tVec = controller.matrix.getTranslation();
+      double s = controller.getScale();
+      
+      // RESTORED Original Overlay Logic with Pin Features
       for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
-        SingleNeuron neuron = protoNeuron.circles[i];
-        widgets.add(Positioned(
-          top: neuron.centerPos.dy - pan.dy,
-          left: neuron.centerPos.dx - pan.dx,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () {
-              nativec.changeIdxSelected(i);
-              controller.deselectAll();
-              controller.select(controller.nodes[i + 2].key);
+        // Use Node Offset directly to avoid ProtoNeuron drift
+        Offset nodePos = controller.nodes[i + 2].offset;
 
-              isChartSelected = true;
-            },
-            child: SizedBox(
-              width: neuronDrawSize,
-              height: neuronDrawSize,
-              // key: neuronCircleKeys[i],
-              // child: ValueListenableBuilder(
-              //   valueListenable: neuronSpikeFlags[i],
-              //   builder: ((context, value, child) {
-              //     if (protoNeuron.circles[i].isSpiking == -1) {
-              //       return neuronInactiveCircles[i];
-              //     } else {
-              //       return neuronActiveCircles[i];
-              //     }
-              //   }),
-              // ),
-            ),
-          ),
-        ));
+        bool isPinned = placedPins.containsKey(i);
+        
+        // 1. Placed Pin (Visible if Pinned)
+        if (isPinned) {
+            int pinType = placedPins[i]!;
+            widgets.add(Positioned(
+               key: ValueKey("pin_placed_$i"),
+               // ALIGNMENT FIX: Dynamic Centering for Constant Size Pin
+               // node.offset is TOP-LEFT.
+               // Pin Layout Size: 64 (Radius 32).
+               // Neuron Size: 20*s (Radius 10*s).
+               // We align PinCenter to NeuronCenter.
+               // PinCenter = PinTopLeft + 32.
+               // NeuronCenter = NeuronTopLeft + 10*s.
+               // PinTopLeft = (nodePos * s) + tVec + (10 * s) - 32.
+               top: (nodePos.dy * s) + tVec.y + (10 * s) - 32,
+               left: (nodePos.dx * s) + tVec.x + (10 * s) - 32,
+               child: IgnorePointer(
+                   child: Transform.scale(
+                     scale: 2.0, 
+                     child: SvgPicture.asset(
+                       (pinType == 10) ? "assets/icons/DragmenuPin1Placed.svg" : "assets/icons/DragmenuPin2Placed.svg",
+                       width: 64, // Constant size
+                     ),
+                   )
+               )
+            ));
+        }
+
+        // 2. DragTarget (Visible & Interactive if NOT Pinned)
+        if (!isPinned) {
+           widgets.add(Positioned(
+              key: ValueKey("live_dt_$i"),
+              // Apply Robust Math (Top-Left aligned)
+              top: (nodePos.dy * s) + tVec.y,
+              left: (nodePos.dx * s) + tVec.x,
+              child: GestureDetector(
+                 behavior: HitTestBehavior.translucent,
+                 onTap: () {
+                     print("DEBUG: Neuron Tap! isPlayingMenu: $isPlayingMenu"); // DEBUG PRINT
+                     
+                     // Disable Tap Selection in Live Mode (User Request)
+                     if (isPlayingMenu) {
+                        print("DEBUG: Tap Ignored because isPlayingMenu is true");
+                        return;
+                     }
+
+                     nativec.changeIdxSelected(i);
+                     controller.deselectAll();
+                     // Assuming controller.nodes alignment:
+                     if ((i + 2) < controller.nodes.length) {
+                         controller.select(controller.nodes[i + 2].key);
+                         isChartSelected = true;
+                         setState(() {}); // Trigger plot update
+                     }
+                 },
+                 child: DragTarget(
+                     hitTestBehavior: HitTestBehavior.translucent,
+                     onWillAccept: (data) => (data is int && data >= 10),
+                     onMove: (details) {
+                         if (details.data is int && (details.data as int) >= 10) {
+                             if (hoveringPinNeuronIdx != i) {
+                                 setState(() {
+                                    hoveringPinNeuronIdx = i;
+                                    initializeNucleus(); // Trigger Scale Update
+                                 });
+                                 if (soloud != null && neuronOnTouchSource != null) {
+                                    soloud?.play(neuronOnTouchSource!);
+                                 }
+                             }
+                         }
+                     },
+                     onLeave: (_) {
+                         if (hoveringPinNeuronIdx == i) {
+                             setState(() {
+                                hoveringPinNeuronIdx = -1;
+                                mapBg["activeComponent"] = noActiveComponent;
+                                initializeNucleus(); // Trigger Scale Reset
+                             });
+                         }
+                     },
+                     onAccept: (data) async {
+                         print("DEBUG: DragTarget onAccept! Data: $data"); // DEBUG PRINT
+                         
+                         if (data is int && data >= 10) {
+                             // Pin 1 Logic: Select for Plot
+                             if (data == 10) {
+                                 print("DEBUG: PIN 1 DROPPED on index $i");
+                                 
+                                 // Use Controller Selection to trigger existing robust listener
+                                 // This matches 'Tap' behavior exactly (Orange Selection + Clean Plot Update)
+                                 controller.deselectAll();
+                                 if ((i + 2) < controller.nodes.length) {
+                                     controller.select(controller.nodes[i + 2].key);
+                                     isChartSelected = true;
+                                 }
+                                 
+                                 // nativec.changeIdxSelected(i); // Handled by listener
+                                 // currentWaveNeuronIdx = i;     // Handled by listener
+                             } else if (data == 11) {
+                                  // Pin 2 (Blue) Logic
+                                  print("DEBUG: PIN 2 DROPPED on index $i");
+                                  nativec.changeIdxSelected2(i);
+                                  currentWaveNeuronIdx2 = i;
+                                  // Force Plot Rebuild
+                                  waveWidget = WaveWidget(
+                                      key: ValueKey("${currentWaveNeuronIdx}_$currentWaveNeuronIdx2"),
+                                      valueNotifier: waveRedraw,
+                                      chartGain: chartGain,
+                                      screenWidth: 300,
+                                      screenHeight: 90,
+                                      neuronIdx1: currentWaveNeuronIdx,
+                                      neuronIdx2: currentWaveNeuronIdx2,
+                                      initialVisibleSeconds: currentWaveZoom,
+                                      onVisibleSecondsChanged: (s) => currentWaveZoom = s,
+                                      levelMedian: levelMedian);
+                             }
+
+                             setState(() {
+                                 hoveringPinNeuronIdx = -1;
+                                 placedPins.removeWhere((k, v) => v == (data as int));
+                                 placedPins[i] = data;
+                                 mapBg["activeComponent"] = noActiveComponent;
+                                 mapBg["activeBg"] = defaultBg;
+                                 initializeNucleus();
+                             });
+                             // Safety Reset delayed
+                             Future.delayed(const Duration(milliseconds: 50), () {
+                                if (mounted) {
+                                   setState(() {
+                                      mapBg["activeComponent"] = noActiveComponent;
+                                      mapBg["activeBg"] = defaultBg;
+                                      initializeNucleus(); // Safety Trigger
+                                   });
+                                }
+                             });
+                             
+                             if (soloud != null && objectPlacedSource != null) {
+                                soloud?.play(objectPlacedSource!);
+                             }
+                         }
+                     },
+                     builder: (_,__,___) => SizedBox(
+                        width: neuronDrawSize * s,
+                        height: neuronDrawSize * s
+                     )
+                 )
+              )
+           ));
+        }
       }
       // */
     }
@@ -4306,7 +4489,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
               ),
             )),
       );
-    } else if (!isPlayingMenu && (isLedMenu) && controller.isSelectingEdge) {
+    } else if (!isPlayingMenu &&
+        (isLedMenu) &&
+        controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
             top: 20,
@@ -4866,22 +5051,64 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
             )),
       ));
     }
-    leftToolBar = LeftToolbar(
+    if (packageInfo == null) {
+      Future.delayed(const Duration(milliseconds: 10), () async {
+        packageInfo = await PackageInfo.fromPlatform();
+        await subscribeGeneralConfig();
+      });
+      prevScreenWidth = MediaQuery.of(context).size.width;
+      prevScreenHeight = MediaQuery.of(context).size.height;
+    }
+    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery.of(context).size.height;
+
+    // ... (rest of the build method setup) ...
+
+    // Replaces the existing logic for left toolbar creation
+    
+    // Instantiate correct toolbar based on mode
+    if (isPlayingMenu) {
+      liveToolBar = LiveLeftToolbar(
+        key: rightToolbarKey, // Reusing key logic if applicable, or new key
+        menuIdx: modeIdx, // Assuming modeIdx tracks selection
+        isPlaying: isPlayingMenu,
+        callback: leftToolbarCallback // Reuse callback
+      );
+      leftToolBar = null; // Ensure only one is active
+    } else {
+      leftToolBar = LeftToolbar(
         key: rightToolbarKey,
         menuIdx: menuIdx,
         isPlaying: isPlayingMenu,
-        callback: leftToolbarCallback);
+        callback: leftToolbarCallback
+      );
+      liveToolBar = null;
+    }
+
     if (!isPlayingMenu) {
       if (leftToolBar != null) {
         toolbarMenu = Positioned(
-          // right: 10 + safePadding,
           left: 0,
           top: 10,
           child: leftToolBar!,
         );
       } else {
         toolbarMenu = Positioned(
-          // right: 10 + safePadding,
+          left: 0,
+          top: 10,
+          child: Container(),
+        );
+      }
+    } else {
+      // Live Mode Toolbar Logic
+      if (liveToolBar != null) {
+        toolbarMenu = Positioned(
+          left: 0,
+          top: 10,
+          child: liveToolBar!,
+        );
+      } else {
+         toolbarMenu = Positioned(
           left: 0,
           top: 10,
           child: Container(),
@@ -5463,10 +5690,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           top: 0,
           child: mainBody,
         ),
-        if (!isPlayingMenu) ...[toolbarMenu],
+        ...widgets,
+        ...inlineWidgets,
+        toolbarMenu,
         if (isPlayingMenu) ...[
           Positioned(
-            right: 25,
+            right: 0,
             top: 25,
             child: Card(
               child: Padding(
@@ -5524,9 +5753,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     //         (BuildContext context, BoxConstraints constraints) {
 
                     Container(
+                      clipBehavior: Clip.hardEdge,
                       margin: const EdgeInsets.all(3.0),
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black)),
+                          borderRadius: BorderRadius.circular(10),
+                      ),
                       // color:Colors.red,
                       height: (Platform.isIOS || Platform.isAndroid) ? 90 : 150,
                       width: 300,
@@ -5564,7 +5795,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                           const SizedBox(
                             width: 230,
                             child: Text(
-                              "Tap a NEURON to see its electrical activity realtime",
+                              "Drag a second pin onto a neuron to compare their activity",
                               style: TextStyle(
                                 fontSize: 10,
                                 fontFamily: "BybHanddrawn",
@@ -5721,14 +5952,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         Center(
             child: Text(restartText,
                 style: const TextStyle(fontSize: 20, color: Colors.red))),
-      ]
-            ..addAll(widgets)
-            ..addAll(inlineWidgets)
+          
           // ..addAll(arrCirclePositions)
           // ..addAll(bottomRightMenuWidgets),
           // @New Design
           // ..addAll(dragTargetWidgets),
-          ),
+          // ),
+          ],
+        ),
     );
   }
 
@@ -6387,7 +6618,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         height: screenHeight,
         child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapUp: (details) {
+            onTapUp: (details) async {
               // printDebug("controller.isFoundEdge");
               // printDebug(controller.isFoundEdge);
               if (controller.isFoundEdge) {
@@ -6626,7 +6857,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         } catch (err) {}
         isSimulatingBrain = false;
 
-        initializeOpenCV();
+        initializeOpenCV(
+            stateBuf, visPrefsValsBuf, visPrefsBuf, neuronContactsBuf);
         isIsolateWritePortInitialized = false;
         processor.clearMemory();
         try {
@@ -6682,30 +6914,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           isPlayingMenu = true;
           runSimulation();
           controller.isPlaying = true;
+          currentWaveZoom = 2.0; // Reset Zoom on Start
           printDebug("initial Index");
-          nativec.changeIdxSelected(11);
-          isChartSelected = true;
+          printDebug("initial Index");
+          // RESET PLOT STATE (User Request: Start with hidden plot)
+          nativec.changeIdxSelected(-1); 
+          nativec.changeIdxSelected2(-1);
+          currentWaveNeuronIdx = -1;
+          currentWaveNeuronIdx2 = -1;
+          waveWidget = Container(
+              color: const Color(0xFF222222),
+              child: const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(
+                    "Drag a pin onto a neuron to see its activity realtime!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ));
+          isChartSelected = false; // Was true, now false until Pin Drop
 
           try {
             // debouncerNoResponse.cancel();
             debouncerNoResponse.run(() {
               try {
-                double maxValue =
-                    Nativec.canvasBufferBytes1.reduce((a, b) => a + b);
-                if (maxValue == 0) {
-                  restartText = "Re-establishing connection";
-                  rightToolbarCallback({"menuIdx": 7});
-                  Future.delayed(const Duration(milliseconds: 4700), () {
-                    // menuIdx = 0;
-                    // controller.isInteractable = true;
-
-                    rightToolbarCallback({"menuIdx": 7});
-                    isEmergencyPause = true;
-                    setState(() {});
-                  });
-                } else {
-                  _DesignBrainPageState.isolateWritePort.send("v:");
-                }
+                // FIXED: Bypass legacy buffer check since we start with NO selection (-1).
+                // Old logic checked if buffer was empty (maxValue == 0), but it IS empty now by design.
+                // We assume connection is fine and proceed.
+                _DesignBrainPageState.isolateWritePort.send("v:");
+                
               } catch (err) {
                 printDebug("err debouncer");
               }
@@ -7235,7 +7479,134 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
     controller.transform.removeListener(transformNeuronListener);
     controller.transform.addListener(transformNeuronListener);
-    controller.addListener(() {
+    
+    // RESTORED: Play Mode Selection Listener (Matches neurorobot_fresh behavior)
+    // This ensures that tapping a neuron in Live/Play mode updates the oscilloscope.
+    controller.addListener(() async {
+         if (controller.selection.isNotEmpty) {
+            var selected = controller.selection[0];
+            // Calculate ID logic mirrored from Line 7770
+            int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+            
+            // Only update if valid neuron and NOT the same as already selected (to avoid spam)
+            // But we actually need to allow re-selection if we want to reset? 
+            // The User switches neurons. So index changes.
+            
+            // Note: We need a way to track 'lastSelectedNeuronIdx' to avoid spamming on every frame if selection persists?
+            // But controller.addListener calls on change? No, it calls on notifyListeners().
+            // InfiniteCanvas calls notifyListeners on selection change? Yes.
+            // And also on move? Yes.
+            // So we MUST dedup.
+            
+            // Let's implement a static/member tracker? 
+            // 'int currentWaveNeuronIdx' isn't defined.
+            // We'll trust the user interaction for now or add a debounce?
+            // Wait, fresh has a check: `if (!selectedNeuronIndices.contains(neuronIdx))`... complex logic.
+            
+            // IMPLEMENTATION:
+            // We will check if the WaveWidget Key matches!
+            // waveWidget.key is ValueKey(neuronIdx).
+            
+            if (neuronIdx >= 0) {
+                 int currentKeyIdx = -999;
+                 if (waveWidget.key is ValueKey<String>) { // Check for the combined key
+                    String keyString = (waveWidget.key as ValueKey<String>).value;
+                    List<String> parts = keyString.split('_');
+                    if (parts.isNotEmpty) {
+                        currentKeyIdx = int.tryParse(parts[0]) ?? -999;
+                    }
+                 }
+                 
+                 if (currentKeyIdx != neuronIdx) { 
+                      nativec.changeIdxSelected(neuronIdx);
+                      currentWaveNeuronIdx = neuronIdx; // Update the state variable
+                      
+                      // Wait for C++ Thread
+                      await Future.delayed(const Duration(milliseconds: 32));
+                      
+                      // Reset WaveWidget (Pre-Fill)
+                      waveWidget = WaveWidget(
+                        key: ValueKey("${currentWaveNeuronIdx}_$currentWaveNeuronIdx2"), 
+                        valueNotifier: waveRedraw, 
+                        chartGain: chartGain,
+                        levelMedian: levelMedian,
+                        screenWidth: screenWidth, 
+                        screenHeight: screenHeight,
+                        neuronIdx1: currentWaveNeuronIdx,
+                        neuronIdx2: currentWaveNeuronIdx2,
+                        initialVisibleSeconds: currentWaveZoom,
+                        onVisibleSecondsChanged: (s) => currentWaveZoom = s,
+                      );
+                      setState(() {});
+                 }
+            }
+
+         // Check if Pin 1 (Orange) was removed
+         if (currentWaveNeuronIdx != -1) {
+            bool stillExists = false;
+            placedPins.forEach((key, value) {
+               if (value == 10 && key == currentWaveNeuronIdx) stillExists = true;
+            });
+            if (!stillExists) {
+                 print("Selection Cleared: Pin 1 Removed");
+                 nativec.changeIdxSelected(-1);
+                 currentWaveNeuronIdx = -1;
+            }
+         }
+
+         // Check if Pin 2 (Blue) was removed
+         if (currentWaveNeuronIdx2 != -1) {
+            bool stillExists = false;
+            placedPins.forEach((key, value) {
+               if (value == 11 && key == currentWaveNeuronIdx2) stillExists = true;
+            });
+            if (!stillExists) {
+                 print("Selection Cleared: Pin 2 Removed");
+                 nativec.changeIdxSelected2(-1);
+                 currentWaveNeuronIdx2 = -1;
+            }
+         }
+
+         // Update Widget Visibility
+         if (currentWaveNeuronIdx == -1 && currentWaveNeuronIdx2 == -1) {
+             print("All Pins Removed: Hiding Plot");
+             waveWidget = Container(
+                 color: const Color(0xFF222222),
+                 child: const Center(
+                   child: Padding(
+                     padding: EdgeInsets.all(20.0),
+                     child: Text(
+                       "Drag a pin onto a neuron to see its activity realtime!",
+                       textAlign: TextAlign.center,
+                       style: TextStyle(
+                         fontFamily: "Roboto",
+                         color: Colors.white,
+                         fontSize: 16,
+                         fontWeight: FontWeight.w400,
+                       ),
+                     ),
+                   ),
+                 ));
+             setState(() {});
+         } else {
+             // Rebuild WaveWidget with new state
+             waveWidget = WaveWidget(
+                key: ValueKey("${currentWaveNeuronIdx}_$currentWaveNeuronIdx2"),
+                valueNotifier: waveRedraw,
+                chartGain: chartGain,
+                screenWidth: 300,
+                screenHeight: 90,
+                neuronIdx1: currentWaveNeuronIdx,
+                neuronIdx2: currentWaveNeuronIdx2,
+                initialVisibleSeconds: currentWaveZoom,
+                onVisibleSecondsChanged: (s) => currentWaveZoom = s,
+                levelMedian: levelMedian);
+             setState(() {});
+         }
+    }
+    });
+
+    controller.addListener(() async {
       if (isPlayingMenu) {
         return;
       }
@@ -7626,6 +7997,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                     2;
 
                 nativec.changeIdxSelected(neuronIdx);
+                
                 if (mapDelayNeuronList[neuronIdx] > 0) {
                   isShowDelayTime = true;
                   printDebug(tecTimeValue.text +
@@ -7651,6 +8023,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 tecBWeight.text = sldBWeight.toString();
                 tecCWeight.text = sldCWeight.round().toString();
                 tecDWeight.text = sldDWeight.round().toString();
+                
+                // Wait for C++ Thread to update canvasBuffer with new neuron history
+                await Future.delayed(const Duration(milliseconds: 32));
+          
+                // Force Clean Slate for WaveWidget
+                waveWidget = WaveWidget(
+                  key: ValueKey(neuronIdx), 
+                  valueNotifier: waveRedraw, 
+                  chartGain: chartGain,
+                  levelMedian: levelMedian,
+                  screenWidth: screenWidth, 
+                  screenHeight: screenHeight,
+                  neuronIdx1: currentWaveNeuronIdx,
+                  neuronIdx2: currentWaveNeuronIdx2,
+                  initialVisibleSeconds: currentWaveZoom,
+                  onVisibleSecondsChanged: (s) => currentWaveZoom = s,
+                );
+
               } catch (err) {
                 printDebug("err init canvas");
                 printDebug(err);
@@ -7974,6 +8364,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
 
           nativec.changeIdxSelected(neuronIdx);
           redrawNeuronLine.value = Random().nextInt(100);
+          
+          // Wait for C++ Thread to update canvasBuffer with new neuron history
+          // (Sim runs at 1000Hz, this is plenty of time)
+          // Wait for C++ Thread to update canvasBuffer with new neuron history
+          await Future.delayed(const Duration(milliseconds: 32));
+          
+          // Force Clean Slate for WaveWidget
+          waveWidget = WaveWidget(
+            key: ValueKey(neuronIdx), 
+            valueNotifier: waveRedraw, 
+            chartGain: chartGain,
+            levelMedian: levelMedian,
+            screenWidth: screenWidth, 
+            screenHeight: screenHeight,
+            initialVisibleSeconds: waveZoom,
+            onVisibleSecondsChanged: (val) { waveZoom = val; }
+          );
+          
           setState(() {});
         }
       } else {
@@ -8231,6 +8639,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     } else if (selectedCameraPosition == "Any") {
       mapAreaSize[neuronFromToLabel] = "${selectedCameraPosition}_@_1_@_320";
     }
+    // printDebug("linkAreaSizeConnection set: $neuronFromToLabel = ${mapAreaSize[neuronFromToLabel]}");
     // printDebug("mapAreaSize LINK");
     // printDebug(mapAreaSize);
   }
@@ -10228,7 +10637,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
           // color: Colors.green,
           child: DragTarget(
               // hitTestBehavior: HitTestBehavior.opaque,
+              
               onMove: (dragDetail) async {
+            if (dragDetail.data as int >= 10) return; // Ignore Live Tool Pins for Brain Target
             Offset localAreaOffset = controller
                 .toLocal(Offset(dragDetail.offset.dx, dragDetail.offset.dy));
 
@@ -10287,7 +10698,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 // });
               }
             }
-          }, onWillAcceptWithDetails: (dragDetail) {
+            }, onWillAcceptWithDetails: (dragDetail) {
+            if (dragDetail.data is int && (dragDetail.data as int) >= 10) return false;
             // printDebug("onWillAcceptWithDetails brain" +
             //     controller.toLocal(dragDetail.offset).toString());
             // mapBg["activeBg"] = greyBg;
@@ -10506,7 +10918,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                 child: DragTarget(
                     // 45 is a recentered position of Draggable
                     hitTestBehavior: HitTestBehavior.translucent,
+                    
                     onMove: (dragDetail) async {
+                      if (dragDetail.data as int >= 10) return; // Ignore Live Tool Pins for Peripherals
                       Offset localAreaOffset = controller.toLocal(
                           Offset(dragDetail.offset.dx, dragDetail.offset.dy));
                       // Offset localOffsetGap = Offset.zero;
@@ -10596,6 +11010,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
                       }
                     },
                     onWillAcceptWithDetails: (dragDetail) {
+                        if (dragDetail.data is int && (dragDetail.data as int) >= 10) return false;
                       printDebug("containedIdx");
                       printDebug(containedIdx);
                       printDebug(tempIdx);
@@ -11473,8 +11888,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   bool isDraggingTail = false;
 
   bool isMovingNodeFirstTime = true;
+  
+  int hoveringPinNeuronIdx = -1;
+  Map<int, int> placedPins = {};
+  ValueNotifier<int> hoveringValidNeuronNotifier = ValueNotifier<int>(-1);
 
-  LeftToolbar? leftToolBar;
   Offset getUniqueZone(centerZoneOffset, neuronInfo, scaleMultiplier) {
     int areaWidth = 0;
     int areaHeight = 0;
@@ -11631,7 +12049,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
         isSelectingCameraTarget = !isSelectingCameraTarget;
         selectedEyeInfo["icon"] = mapDistanceInfo["icon"];
         selectedEyeInfo["label"] = mapDistanceInfo["label"];
-        selectedEyeInfo["idx"] = idx.toString;
+        selectedEyeInfo["idx"] = idx.toString();
 
         cameraMenuType =
             (mapDistanceInfo["label"] as String).replaceAll("Color ", "");
@@ -12134,17 +12552,66 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
     Offset pan = controller
         .getOffset()
         .scale(1 / controller.getScale(), 1 / controller.getScale());
+    controller.nucleusList = [];
     int circleLen = protoNeuron.circles.length;
     for (int i = 0; i < circleLen; i++) {
       SingleNeuron neuron = protoNeuron.circles[i];
+      
+      // Scaling Logic using State (updated via setState in DragTarget)
+      // Check both Hover State and Pinned State
+      double scale = 1.0;
+      if (hoveringPinNeuronIdx == i) {
+         // Debug Print to trace why it might not be scaling
+         // printDebug("InitNuc Check $i: Pinned? ${placedPins.containsKey(i)}"); 
+         if (!placedPins.containsKey(i)) {
+             scale = 1.75;
+         }
+      }
+      
+      if (scale > 1.0) {
+          printDebug("Applying Scale $scale to $i");
+      }
+
+      // Update Neuron Body Scale
+      if (i >= normalNeuronStartIdx) {
+        int nodeIdx = i + 2;
+        if (nodeIdx < controller.nodes.length) {
+          try {
+            var node = controller.nodes[nodeIdx];
+            // Simple robust scaling wrapper
+            node.child = Transform.scale(
+              scale: scale,
+              child: CustomPaint(
+                isComplex: true,
+                willChange: true,
+                painter: node.syntheticNeuron,
+              ),
+            );
+          } catch (e) {
+            // Ignore
+          }
+        }
+      }
+
+      // Restore Nucleus
+      // Use controller node offset for stable position
+      // Corrected: Use Top-Left directly. Pivot Point handled by Widget Size.
+      Offset nucleusPos = neuron.centerPos;
+      int nodeIdx = i + 2;
+      if (nodeIdx < controller.nodes.length) {
+          nucleusPos = controller.nodes[nodeIdx].offset;
+      }
+
       Nucleus nucleus = Nucleus(
         index: i,
         isSpiking: neuron.isSpiking,
         neuronActiveCircle: neuronActiveCircles[i],
         neuronInactiveCircle: neuronInactiveCircles[i],
         neuronSpikeFlags: neuronSpikeFlags,
-        centerPos: neuron.centerPos,
+        centerPos: nucleusPos,
         circleKey: neuronCircleKeys[i],
+        size: neuronDrawSize,
+        scale: scale,
       );
       controller.nucleusList!.add(nucleus);
     }
@@ -12462,13 +12929,6 @@ class ImagePreprocessor extends MjpegPreprocessor {
                 frameResult.substring(1, 4);
             _DesignBrainPageState.strRightColorMenu = frameResult.substring(4);
           }
-          // print("centroids");
-          // print(centroids);
-          // print("centroidColorX");
-          // print(centroidColorX);
-          // print("centroidColorY");
-          // print(centroidColorY);
-          // print("--------------");
           centroids = result["centroids"];
 
           // check if centroids inside the camera Region
@@ -12478,7 +12938,6 @@ class ImagePreprocessor extends MjpegPreprocessor {
             double score = centroids[idx * 3 + 2].toDouble();
             Offset center = Offset(x, y);
 
-            // this data structure was created because the robot had 2 eyes.
             for (int jNeuron = normalNeuronStartIdx + 2;
                 jNeuron < _DesignBrainPageState.neuronSize + 2;
                 jNeuron++) {
@@ -12487,23 +12946,19 @@ class ImagePreprocessor extends MjpegPreprocessor {
               _DesignBrainPageState.visualInputBufView[idx * 2 +
                   jNeuronIdx * _DesignBrainPageState.VisualInputLength] = 0;
             } // reset first
+            
             for (String key in _DesignBrainPageState.mapSensoryNeuron.keys) {
               if (key.contains(
                       _DesignBrainPageState.nodeLeftEyeSensor.key.toString()) &&
                   _DesignBrainPageState.mapSensoryNeuron[key] == (idx * 2)) {
-                List<String> modes =
-                    _DesignBrainPageState.mapAreaSize[key].split("_@_");
+                
+                String? areaMode = _DesignBrainPageState.mapAreaSize[key];
+                if (areaMode == null) {
+                    continue; 
+                }
 
-                // it is inside Camera Region/Zone
-                // printDebug("====containImage");
-                // printDebug(key);
-                // printDebug(x);
-                // printDebug(y);
-                // printDebug(score);
-                // printDebug(key.contains(
-                //     _DesignBrainPageState.nodeLeftEyeSensor.key.toString()));
-                // printDebug(
-                //     "@@@RESULT ${containImage(Rect.fromCenter(center: center, width: 1, height: 1), modes)}");
+                List<String> modes = areaMode.split("_@_");
+
                 if (containImage(
                     Rect.fromCenter(center: center, width: 1, height: 1),
                     modes)) {
@@ -12512,29 +12967,12 @@ class ImagePreprocessor extends MjpegPreprocessor {
                       jNeuron++) {
                     InfiniteCanvasNode node =
                         _DesignBrainPageState.controller.nodes[jNeuron];
-                    // print("key");
-                    // print(_DesignBrainPageState.mapAreaSize);
-                    // print(_DesignBrainPageState.controller.nodes
-                    //     .map(
-                    //       (e) => e.key,
-                    //     )
-                    //     .toList()
-                    //     .getRange(normalNeuronStartIdx + 2,
-                    //         _DesignBrainPageState.neuronSize + 2));
-                    // print(normalNeuronStartIdx);
-                    // print(_DesignBrainPageState.neuronSize);
                     int jNeuronIdx = jNeuron - 2;
                     if (key.contains(node.id)) {
                       if (score >= 69) {
                         int visualIndex = idx * 2 +
                             jNeuronIdx *
                                 _DesignBrainPageState.VisualInputLength;
-                        // printDebug("visualIndex ${_DesignBrainPageState.visualInputBufView.length}");
-                        // printDebug(visualIndex);
-                        // printDebug(
-                        //     _DesignBrainPageState.visPrefsValsBufView[idx * 2]);
-                        // printDebug("===========visualIndex");
-
                         _DesignBrainPageState.visualInputBufView[visualIndex] =
                             _DesignBrainPageState.visPrefsValsBufView[idx * 2];
                       } else {
@@ -12542,21 +12980,30 @@ class ImagePreprocessor extends MjpegPreprocessor {
                             jNeuronIdx *
                                 _DesignBrainPageState.VisualInputLength] = 0;
                       }
-                    } else {
-                      // USE THIS IF ONLY 1 LATEST NEURON TRIGGERED
-                      // _DesignBrainPageState.visualInputBufView[idx * 2 +
-                      //     jNeuronIdx *
-                      //         _DesignBrainPageState.VisualInputLength] = 0;
-                    }
+                    } 
                   }
+                } else {
+                     for (int jNeuron = normalNeuronStartIdx + 2;
+                      jNeuron < _DesignBrainPageState.neuronSize + 2;
+                      jNeuron++) {
+                        InfiniteCanvasNode node =
+                            _DesignBrainPageState.controller.nodes[jNeuron];
+                        int jNeuronIdx = jNeuron - 2;
+                        if (key.contains(node.id)) {
+                            int visualIndex = idx * 2 +
+                                jNeuronIdx *
+                                    _DesignBrainPageState.VisualInputLength;
+                             _DesignBrainPageState.visualInputBufView[visualIndex] = 0;
+                        }
+                      }
                 }
               }
-              // printDebug("_DesignBrainPageState.visualInputBufView");
-              // printDebug(_DesignBrainPageState.visualInputBufView);
             }
           }
-
           isCheckingColor = false;
+        }).catchError((e) {
+             printDebug("Error in checkColorCV: $e");
+             isCheckingColor = false;
         });
       }
     } else {
@@ -12574,11 +13021,19 @@ class ImagePreprocessor extends MjpegPreprocessor {
   }
 
   bool containImage(Rect location, List<String> modes) {
-    int xStart = int.parse(modes[1]);
-    int xEnd = int.parse(modes[2]);
-    // printDebug("location");
-    // printDebug(location);
-    // printDebug(modes);
+    if (modes[0] == "Any") {
+      return true;
+    }
+
+    double xStart = 0;
+    double xEnd = 0;
+    try {
+      xStart = double.parse(modes[1]);
+      xEnd = double.parse(modes[2]);
+    } catch (_) {
+        return true; 
+    }
+
     if (modes[0] == "Left") {
       if (location.center.dx < xEnd && location.center.dx >= xStart) {
         return true;
@@ -12591,11 +13046,9 @@ class ImagePreprocessor extends MjpegPreprocessor {
       } else {
         return false;
       }
-    } else if (modes[0] == "Any") {
-      // any
-      return true;
     } else if (modes[0] == "Custom") {
       // custom
+      // printDebug("ActiveArea Custom Check: x=${location.center.dx}, range=[$xStart, $xEnd]");
       if (location.center.dx >= xStart && location.center.dx <= xEnd) {
         return true;
       } else {

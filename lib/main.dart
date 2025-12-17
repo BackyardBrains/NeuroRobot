@@ -2,10 +2,10 @@ import 'package:fialogs/fialogs.dart';
 // import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:neurorobot/brands/brandguide.dart';
-import 'package:neurorobot/pages/createbrain_page.dart';
-import 'package:neurorobot/pages/designbrain_page.dart';
-import 'package:neurorobot/pages/welcome_page.dart';
+import 'package:spikerbot/brands/brandguide.dart';
+import 'package:spikerbot/pages/createbrain_page.dart';
+import 'package:spikerbot/pages/designbrain_page.dart';
+import 'package:spikerbot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // WEB CHANGE
 // /*

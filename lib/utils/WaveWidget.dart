@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 // WEB CHANGE
@@ -18,13 +19,21 @@ class WaveWidget extends StatefulWidget {
       required this.chartGain,
       required this.screenWidth,
       required this.screenHeight,
-      required this.levelMedian});
+      required this.levelMedian,
+      this.initialVisibleSeconds = 2.0,
+      this.neuronIdx1 = -1,
+      this.neuronIdx2 = -1,
+      this.onVisibleSecondsChanged});
+  int neuronIdx1;
+  int neuronIdx2;
   double chartGain;
   double screenWidth;
   double screenHeight;
   double levelMedian;
+  double initialVisibleSeconds;
+  final ValueChanged<double>? onVisibleSecondsChanged;
   static Int16List positionsBufView = Int16List(0);
-  static Float64List canvasBufferBytes1 = Float64List(0);
+  // static Float64List canvasBufferBytes1 = Float64List(0); // Deprecated: Use Nativec.canvasBufferBytes1
   // ValueListenable<int> valueListenable;
   ValueNotifier<int> valueNotifier;
   // final ValueChanged<int> onChange;
@@ -38,101 +47,175 @@ class _WaveWidgetState extends State<WaveWidget> {
   GlobalKey waveKey = GlobalKey();
   double rightGap = 20;
   bool isGapCalculated = false;
+  double visibleWindowSeconds = 2.0; // Default zoom level (within 3s limit)
+  double _scaleStartSeconds = 2.0; // Captures zoom level at gesture start
+  static const int sampleRate = 1000; // Corrected: C++ ms_per_step=1 means 1000Hz
+  static const int visualOffset = 0; // Optional: Shift data left (positive) or right (negative)
+
+  void _handleScroll(PointerSignalEvent event) {
+    if (event is PointerScrollEvent) {
+      setState(() {
+        // Zoom step size (Multiplicative for better feel)
+        double dy = event.scrollDelta.dy;
+        double zoomFactor = 0.1; // 10% change
+        
+        if (dy > 0) {
+          // Scroll Down -> Zoom OUT (Show More Time)
+          visibleWindowSeconds *= (1 + zoomFactor);
+        } else {
+          // Scroll Up -> Zoom IN (Show Less Time)
+          visibleWindowSeconds /= (1 + zoomFactor);
+        }
+        
+        if (visibleWindowSeconds < 0.5) visibleWindowSeconds = 0.5;
+        if (visibleWindowSeconds > 10.0) visibleWindowSeconds = 10.0; // Max 10s (Accumulator supports it)
+        
+        widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
+      });
+    }
+  }
+
+  Float64List _getOrderedSamples(List<double> sourceData) {
+    int numSamples = (visibleWindowSeconds * sampleRate).toInt();
+    
+    // Simple Tail View
+    List<double> viewData;
+    
+    if (sourceData.length >= numSamples) {
+      viewData = sourceData.sublist(sourceData.length - numSamples);
+    } else {
+      // Pad Left
+      int padding = numSamples - sourceData.length;
+      viewData = List<double>.filled(padding, 0.0) + sourceData;
+    }
+    
+    // Debug to confirm flow
+    // if (_plotData.isNotEmpty) print("Plot Head: ${_plotData.last} Len: ${_plotData.length}");
+    
+    return Float64List.fromList(viewData);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // WEB CHANGE
-    if (Platform.isWindows) {
-      return Container(
-        height: widget.screenHeight / 2 - 130,
-        width: widget.screenWidth + rightGap * 2,
-        color: Colors.white,
-        child: LayoutBuilder(builder: (context, constraint) {
-          return PolygonWaveform(
-            key: waveKey,
-            activeColor: Colors.black,
-            inactiveColor: Colors.black,
-            gain: widget.chartGain,
-            channelIdx: 0,
-            channelActive: 0,
-            levelMedian: widget.levelMedian,
-            // levelMedian:0,
-            strokeWidth: 1.0,
+      return LayoutBuilder(
+        builder: (context, constraint) {
+          // Detect Dual Mode
+          bool isDual = (widget.neuronIdx1 != -1 && widget.neuronIdx2 != -1);
+          
+          double boxH = constraint.maxHeight;
+          double midLine = boxH / 2;
+          
+          const double vMax = 30.0;
+          const double vMin = -115.0;
+          const double vRange = vMax - vMin;
 
-            height: widget.screenHeight / 2 - 130,
-            // width: constraint.maxWidth,
-            width: widget.screenWidth + rightGap * 2,
-            // WEB CHANGE
-            // samples: WaveWidget.canvasBufferBytes1,
-            samples: Nativec.canvasBufferBytes1,
-            // samples: Float64List(0),
-            maxDuration: const Duration(seconds: 3),
-            elapsedDuration: const Duration(seconds: 1),
-            eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],
+          // CHANNEL 1 CONFIG (Orange)
+          double topY1, bottomY1;
+          if (isDual) {
+            topY1 = 10.0;
+            bottomY1 = midLine - 5.0;
+          } else {
+            topY1 = 15.0;
+            bottomY1 = boxH - 15.0;
+          }
+          double h1 = bottomY1 - topY1;
+          if (h1 < 10) h1 = 10;
+          double pxPerVolt1 = h1 / vRange;
+          double gain1 = 1.0 / pxPerVolt1;
+          double median1 = topY1 + (vMax * pxPerVolt1);
+
+          // CHANNEL 2 CONFIG (Blue)
+          double topY2, bottomY2;
+          if (isDual) {
+             topY2 = midLine + 5.0;
+             bottomY2 = boxH - 10.0;
+          } else {
+             // If ONLY Blue is active (Single Mode), it takes full screen
+             topY2 = 15.0;
+             bottomY2 = boxH - 15.0;
+          }
+          double h2 = bottomY2 - topY2;
+          if (h2 < 10) h2 = 10;
+          double pxPerVolt2 = h2 / vRange;
+          double gain2 = 1.0 / pxPerVolt2;
+          double median2 = topY2 + (vMax * pxPerVolt2);
+
+          // Get Data
+          Float64List samples = _getOrderedSamples(_plotData);
+          
+          // If both channels are inactive/empty, show blank.
+          if (samples.isEmpty && widget.neuronIdx2 == -1) {
+             return Container(color: Colors.black);
+          }
+
+          return Listener(
+            onPointerSignal: _handleScroll,
+            child: GestureDetector(
+              onScaleStart: (details) {
+                // Cache the zoom level at the start of the gesture
+                _scaleStartSeconds = visibleWindowSeconds;
+              },
+              onScaleUpdate: (details) {
+                setState(() {
+                  // Pinch Zoom Logic
+                  double newSeconds = _scaleStartSeconds / details.scale;
+                  
+                  // Clamp
+                  if (newSeconds < 0.5) newSeconds = 0.5;
+                  if (newSeconds > 10.0) newSeconds = 10.0;
+                  
+                  visibleWindowSeconds = newSeconds;
+                  widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
+                });
+              },
+              child: Container(
+                height: constraint.maxHeight,
+                width: constraint.maxWidth,
+                color: Colors.black,
+                child: Stack(children: [
+                if (widget.neuronIdx1 != -1)
+                  PolygonWaveform(
+                    key: waveKey,
+                    activeColor: const Color(0xFFFF785B),
+                    inactiveColor: const Color(0xFFFF785B),
+                    gain: gain1,
+                    channelIdx: 0,
+                    channelActive: 0,
+                    levelMedian: median1,
+                    strokeWidth: 1.0,
+                    samples: samples,
+                    height: constraint.maxHeight, 
+                    width: constraint.maxWidth, 
+                    maxDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                    elapsedDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                    eventMarkersPosition: [],
+                  ),
+                if (widget.neuronIdx2 != -1)
+                  IgnorePointer( // Allow gestures to pass to bottom layer
+                    child: PolygonWaveform(
+                      key: ValueKey("wave2_${widget.neuronIdx2}"),
+                      activeColor: const Color(0xFF00BFFF), // Blue Pin Color
+                      inactiveColor: const Color(0xFF00BFFF),
+                      gain: gain2,
+                      channelIdx: 0,
+                      channelActive: 0,
+                      levelMedian: median2,
+                      strokeWidth: 1.0,
+                      samples: _getOrderedSamples(_plotData2),
+                      height: constraint.maxHeight,
+                      width: constraint.maxWidth,
+                      maxDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                      elapsedDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                      eventMarkersPosition: [],
+                    ),
+                  ),
+                ], // End Stack Children
+               ), // End Stack
+              ),
+            ),
           );
-        }),
+        },
       );
-    } else if (Platform.isIOS || Platform.isAndroid) {
-      if (Platform.isAndroid && !isGapCalculated) {
-        isGapCalculated = true;
-        rightGap = -20 * MediaQuery.of(context).devicePixelRatio;
-      }
-
-      return Container(
-        height: 90,
-        width: widget.screenWidth - rightGap,
-        color: Colors.white,
-        child: PolygonWaveform(
-          key: waveKey,
-          activeColor: Colors.black,
-          inactiveColor: Colors.black,
-          gain: widget.chartGain,
-          channelIdx: 0,
-          channelActive: 0,
-          levelMedian: widget.levelMedian,
-          // levelMedian:0,
-          strokeWidth: 1.0,
-
-          height: 90,
-          width: widget.screenWidth - rightGap,
-          // WEB CHANGE
-          // samples: WaveWidget.canvasBufferBytes1,
-          samples: Nativec.canvasBufferBytes1,
-          // samples: Float64List(0),
-          maxDuration: const Duration(seconds: 3),
-          elapsedDuration: const Duration(seconds: 1),
-          eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],
-        ),
-      );
-    } else {
-      // print("rebuild widget");
-      return Container(
-        height: widget.screenHeight / 2 - 130,
-        width: widget.screenWidth - 20,
-        color: Colors.white,
-        child: PolygonWaveform(
-          key: waveKey,
-          activeColor: Colors.black,
-          inactiveColor: Colors.black,
-          gain: widget.chartGain,
-          channelIdx: 0,
-          channelActive: 0,
-          levelMedian: widget.levelMedian,
-          // levelMedian:0,
-          strokeWidth: 1.0,
-
-          height: widget.screenHeight / 2 - 130,
-          width: widget.screenWidth - 20,
-          // WEB CHANGE
-          // samples: WaveWidget.canvasBufferBytes1,
-          samples: Nativec.canvasBufferBytes1,
-          // samples: Float64List(0),
-          maxDuration: const Duration(seconds: 3),
-          elapsedDuration: const Duration(seconds: 1),
-          eventMarkersPosition: [WaveWidget.positionsBufView[0].toDouble()],
-        ),
-      );
-    }
   }
 
   @override
@@ -141,6 +224,7 @@ class _WaveWidgetState extends State<WaveWidget> {
     // if (oldWidget.valueListenable != widget.valueListenable) {
     //   oldWidget.valueListenable?.removeListener(_listener);
     //   widget.valueListenable?.addListener(_listener);
+    //   // _preFillData(); // Disabled to prevent Mixed History artifacts (Step 2168)
     //   _listener();
     // }
   }
@@ -152,14 +236,103 @@ class _WaveWidgetState extends State<WaveWidget> {
     super.dispose();
   }
 
+  // Accumulator State
+  List<double> _plotData = []; 
+  List<double> _plotData2 = [];
+  int _lastHead = 0;
+  int _lastHead2 = 0;
+  static const int maxHistorySamples = 1000 * 10; // 10s history @ 1000Hz (Reverted to 10s)
+
+  void _updateData() {
+    if (WaveWidget.positionsBufView.isEmpty) return;
+    int currentHead = WaveWidget.positionsBufView[0];
+    int bufferLen = Nativec.canvasBufferBytes1.length;
+    
+    // Safety check
+    if (currentHead < 0 || currentHead >= bufferLen) return;
+    
+    // CHANNEL 1
+    if (Nativec.canvasBufferBytes1.isNotEmpty) {
+      List<double> newSamples = [];
+      if (currentHead >= _lastHead) {
+        if (currentHead > _lastHead) {
+           newSamples = Nativec.canvasBufferBytes1.sublist(_lastHead, currentHead);
+        }
+      } else {
+        newSamples.addAll(Nativec.canvasBufferBytes1.sublist(_lastHead, bufferLen));
+        newSamples.addAll(Nativec.canvasBufferBytes1.sublist(0, currentHead));
+      }
+      
+      if (newSamples.isNotEmpty) {
+        _plotData.addAll(newSamples);
+        if (_plotData.length > maxHistorySamples) {
+           _plotData.removeRange(0, _plotData.length - maxHistorySamples);
+        }
+        _lastHead = currentHead;
+      }
+    }
+
+    // CHANNEL 2 (Only if active)
+    if (widget.neuronIdx2 != -1 && Nativec.canvasBufferBytes2.isNotEmpty) {
+       List<double> newSamples2 = [];
+       if (currentHead >= _lastHead2) {
+         if (currentHead > _lastHead2) {
+            newSamples2 = Nativec.canvasBufferBytes2.sublist(_lastHead2, currentHead);
+         }
+       } else {
+         newSamples2.addAll(Nativec.canvasBufferBytes2.sublist(_lastHead2, bufferLen));
+         newSamples2.addAll(Nativec.canvasBufferBytes2.sublist(0, currentHead));
+       }
+
+       if (newSamples2.isNotEmpty) {
+         _plotData2.addAll(newSamples2);
+         if (_plotData2.length > maxHistorySamples) {
+            _plotData2.removeRange(0, _plotData2.length - maxHistorySamples);
+         }
+         _lastHead2 = currentHead;
+       }
+    }
+  }
+
   void _listener() {
-    // widget.onChange?.call(widget.valueListenable.value);
-    // print("stateful setstate");
+    _updateData(); // Pull new data from Ring Buffer
     setState(() {});
   }
 
+  @override
   void initState() {
     super.initState();
+    visibleWindowSeconds = widget.initialVisibleSeconds;
     widget.valueNotifier.addListener(_listener);
+    
+    // Pre-Fill buffer from C++ history if available
+    // RESTORED: To show full history of newly selected neuron
+    if (WaveWidget.positionsBufView.isNotEmpty && Nativec.canvasBufferBytes1.isNotEmpty) {
+       int head = WaveWidget.positionsBufView[0];
+       int len = Nativec.canvasBufferBytes1.length;
+       
+       // Safety Clamp
+       if (head < 0) head = 0;
+       if (head > len) head = len;
+       
+       // Ring Buffer Unwrap
+       var partA = Nativec.canvasBufferBytes1.sublist(head);
+       var partB = Nativec.canvasBufferBytes1.sublist(0, head);
+       _plotData = [...partA, ...partB];
+       _lastHead = head;
+       
+       print("WaveWidget INIT! Pre-Filled ${_plotData.length} samples. Head: $head");
+
+       // Pre-Fill Channel 2
+       if (widget.neuronIdx2 != -1 && Nativec.canvasBufferBytes2.isNotEmpty) {
+          int len2 = Nativec.canvasBufferBytes2.length;
+          // Reuse same head
+          var partA2 = Nativec.canvasBufferBytes2.sublist(head);
+          var partB2 = Nativec.canvasBufferBytes2.sublist(0, head);
+          _plotData2 = [...partA2, ...partB2];
+          _lastHead2 = head;
+       }
+    }
+    // Initialize Accumulator
   }
 }

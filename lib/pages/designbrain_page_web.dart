@@ -16,16 +16,16 @@
 // import 'package:metooltip/metooltip.dart';
 // // import 'package:nativec/allocation.dart';
 // // import 'package:nativec/nativec.dart';
-// import 'package:neurorobot/bloc/bloc.dart';
-// // import 'package:neurorobot/utils/Allocator.dart';
-// import 'package:neurorobot/utils/ProtoNeuron.dart';
-// import 'package:neurorobot/utils/Simulations.dart';
-// import 'package:neurorobot/utils/SingleCircle.dart';
-// import 'package:neurorobot/utils/Vision.dart';
-// import 'package:neurorobot/utils/WaveWidget.dart';
+// import 'package:spikerbot/bloc/bloc.dart';
+// // import 'package:spikerbot/utils/Allocator.dart';
+// import 'package:spikerbot/utils/ProtoNeuron.dart';
+// import 'package:spikerbot/utils/Simulations.dart';
+// import 'package:spikerbot/utils/SingleCircle.dart';
+// import 'package:spikerbot/utils/Vision.dart';
+// import 'package:spikerbot/utils/WaveWidget.dart';
 // // import 'package:opencv_ffi/opencv_ffi.dart';
 // import 'package:web_socket_channel/web_socket_channel.dart';
-// import 'package:neurorobot/components/right_toolbar.dart';
+// import 'package:spikerbot/components/right_toolbar.dart';
 // import '../dialogs/info_dialog.dart';
 
 // // import 'package:path/path.dart' as p;

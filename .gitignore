@@ -15,8 +15,6 @@ PLUGINS/native_opencv/ios/opencv2.xcframework/
 *.log
 *.pyc
 *.swp
-build_log_*.txt
-.metadata
 .DS_Store
 .atom/
 .buildlog/

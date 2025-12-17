@@ -84,6 +84,7 @@ typedef SetThresholdDartPortFunc = double Function(int);
 
 typedef pass_pointers_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Double>, // CanvasBuffer2
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Uint32>,
@@ -101,6 +102,7 @@ typedef pass_pointers_func = ffi.Double Function(
 );
 typedef PassPointers = double Function(
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Double>, // CanvasBuffer2
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Uint32>,
@@ -160,16 +162,18 @@ class Nativec {
   late ChangeNeuronSimulatorProcess _changeNeuronSimulatorProcess;
   late ChangeIsPlayingProcess _changeIsPlayingProcess;
   late ChangeIdxSelectedProcess _changeIdxSelectedProcess;
+  late ChangeIdxSelectedProcess _changeIdxSelected2Process;
   late StopThreadProcess _stopThreadProcess;
   late InitializeProcess _initialize;
 
-  static int totalBytes = 200 * 30;
-
+  static // 200 is steps per loop (actually 200 loops per "segment"? C++ defines total as 50 * 200)
+  // We need 10000 samples for 10s history.
+  int totalBytes = 10000; // Revert to 6000 (3s) for low latency
   static ffi.Pointer<ffi.Double>? canvasBuffer1;
   static ffi.Pointer<ffi.Double>? canvasBuffer2;
 
   static Float64List canvasBufferBytes1 = Float64List(0);
-  Float64List canvasBufferBytes2 = Float64List(0);
+  static Float64List canvasBufferBytes2 = Float64List(0);
 
   static ReceivePort? thresholdPublication;
   static Stream? cPublicationStream;
@@ -189,32 +193,36 @@ class Nativec {
 
     canvasBuffer1 = allocate<ffi.Double>(
         count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
-    // canvasBuffer2 = allocate<ffi.Double>(
-    //     count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
+    canvasBuffer2 = allocate<ffi.Double>(
+        count: totalBytes, sizeOfType: ffi.sizeOf<ffi.Double>());
 
     _passPointers = nativeLrsLib
-        .lookup<ffi.NativeFunction<pass_pointers_func>>('passPointers')
+        .lookup<ffi.NativeFunction<pass_pointers_func>>('passPointers_opencv')
         .asFunction();
     _changeNeuronSimulatorProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<change_neuron_simulator_func>>(
-            'changeNeuronSimulatorProcess')
+            'changeNeuronSimulatorProcess_opencv')
         .asFunction();
     _changeIsPlayingProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<change_is_playing_func>>(
-            'changeIsPlayingProcess')
+            'changeIsPlayingProcess_opencv')
         .asFunction();
     _changeIdxSelectedProcess = nativeLrsLib
         .lookup<ffi.NativeFunction<change_is_playing_func>>(
-            'changeIdxSelectedProcess')
+            'changeIdxSelectedProcess_opencv')
+        .asFunction();
+    _changeIdxSelected2Process = nativeLrsLib
+        .lookup<ffi.NativeFunction<change_is_playing_func>>(
+            'changeIdxSelected2Process_opencv')
         .asFunction();
     _stopThreadProcess = nativeLrsLib
-        .lookup<ffi.NativeFunction<stop_thread_func>>('stopThreadProcess')
+        .lookup<ffi.NativeFunction<stop_thread_func>>('stopThreadProcess_opencv')
         .asFunction();
     _initialize = nativeLrsLib
-        .lookup<ffi.NativeFunction<_initialize_func>>('initialize')
+        .lookup<ffi.NativeFunction<_initialize_func>>('initialize_opencv')
         .asFunction();
     _passInput = nativeLrsLib
-        .lookup<ffi.NativeFunction<pass_input_func>>('passInput')
+        .lookup<ffi.NativeFunction<pass_input_func>>('passInput_opencv')
         .asFunction();
 
     // C++ to Flutter
@@ -248,8 +256,8 @@ class Nativec {
     canvasBufferBytes1 = canvasBuffer1!.asTypedList(totalBytes);
     canvasBufferBytes1.fillRange(0, totalBytes, 0.0);
 
-    // canvasBufferBytes2 = canvasBuffer2!.asTypedList(totalBytes);
-    // canvasBufferBytes2.fillRange(0, totalBytes, 0.0);
+    canvasBufferBytes2 = canvasBuffer2!.asTypedList(totalBytes);
+    canvasBufferBytes2.fillRange(0, totalBytes, 0.0);
   }
 
   // double changeNeuronSimulatorProcess(ffi.Pointer<ffi.Double> a, ffi.Pointer<ffi.Double> b, ffi.Pointer<ffi.Int16> c,
@@ -327,6 +335,7 @@ class Nativec {
   ) {
     var test = _passPointers(
       pCanvasbuffer1,
+      canvasBuffer2!, // Pass CanvasBuffer2
       pPositions,
       pNeuronCircle,
       pNps,
@@ -353,6 +362,10 @@ class Nativec {
 
   int changeIdxSelected(int idxSelected) {
     return _changeIdxSelectedProcess(idxSelected);
+  }
+
+  int changeIdxSelected2(int idxSelected2) {
+    return _changeIdxSelected2Process(idxSelected2);
   }
 
   int stopThreadProcess(int idxSelected) {

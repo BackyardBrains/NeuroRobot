@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:fialogs/fialogs.dart';
 import 'package:flutter/material.dart';
-import 'package:neurorobot/brands/brandguide.dart';
+import 'package:spikerbot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';

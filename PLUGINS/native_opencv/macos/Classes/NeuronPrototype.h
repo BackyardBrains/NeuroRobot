@@ -38,20 +38,21 @@ int totalNeuron = 0;
 short normalNeuronFirstIndex = 13;
 bool isThreadRunning = true;
 short ms_per_step = 1;
-short steps_per_loop = 10.5 * 200;
+short steps_per_loop = 50 * 200;
 
 bool isSelected,isRecreatingNeurons, isDebugNewNeurons;
 double *a,*b, *v, *u,*i,*w;
 // short *c,*d,*i,*w,isPlaying=-1, idxSelected;
-short *c,*d,isPlaying=-1, idxSelected;
+short *c,*d,isPlaying=-1, idxSelected, idxSelected2=-1;
 short *neuronCircles;
 short *positions;
-int32_t lvl,totalNumOfNeurons, prevTotalNumOfNeurons, envSize,bufSize;
-const uint32_t bigBufferLength = 30 * 200;
+int32_t lvl,totalNumOfNeurons, envSize,bufSize;
+const uint32_t bigBufferLength = 50 * 200;
 // double *v_traces1;
 // double *v_traces2;
 double **v_traces;
 double *canvasBuffer;
+double *canvasBuffer2; // Second Channel Buffer
 double **connectome;
 double *inhibitionArray;
 int *nps;
@@ -92,6 +93,10 @@ short frameSizeHeight = 240;
 // short *firing = new short[totalNumOfNeurons];
 short** spikes_step;
 short *firing;
+
+// EXTERNC FUNCTION_ATTRIBUTE double changeIdxSelectedProcess_opencv(short idxSelected);
+EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelectedProcess_opencv(short idxSelected);
+EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelected2Process_opencv(short idxSelected2); // New Function
 
 
 // DELAY BUFFER

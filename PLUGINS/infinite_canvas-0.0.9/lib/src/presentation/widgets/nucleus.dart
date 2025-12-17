@@ -9,6 +9,8 @@ class Nucleus extends StatelessWidget {
   final int index;
   final Offset centerPos;
   final GlobalKey circleKey;
+  final double scale;
+  final double size;
 
   Nucleus({
     Key? key,
@@ -19,6 +21,8 @@ class Nucleus extends StatelessWidget {
     required this.index,
     required this.centerPos,
     required this.circleKey,
+    required this.size,
+    this.scale = 1.0,
   }) : super(key: key);
 
   @override
@@ -29,7 +33,11 @@ class Nucleus extends StatelessWidget {
     return Positioned(
         top: centerPos.dy,
         left: centerPos.dx,
-        child: SizedBox(
+        child: Transform.scale(
+          scale: scale,
+          child: SizedBox(
+            width: size,
+            height: size,
             key: circleKey,
             child: ValueListenableBuilder(
               valueListenable: neuronSpikeFlags[index],
@@ -42,6 +50,6 @@ class Nucleus extends StatelessWidget {
                   return neuronActiveCircle;
                 }
               }),
-            )));
+            ))));
   }
 }

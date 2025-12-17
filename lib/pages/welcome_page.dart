@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neurorobot/brands/brandguide.dart';
+import 'package:spikerbot/brands/brandguide.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 class WelcomePage extends StatelessWidget{

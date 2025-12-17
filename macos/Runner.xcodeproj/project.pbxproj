@@ -496,9 +496,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.neurorobot.macos.neurorobot.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/neurorobot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/neurorobot";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Spikerbot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Spikerbot";
 			};
 			name = Debug;
 		};
@@ -511,9 +511,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.neurorobot.macos.neurorobot.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/neurorobot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/neurorobot";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Spikerbot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Spikerbot";
 			};
 			name = Release;
 		};
@@ -526,9 +526,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.neurorobot.macos.neurorobot.RunnerTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/neurorobot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/neurorobot";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Spikerbot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Spikerbot";
 			};
 			name = Profile;
 		};
@@ -608,7 +608,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 			};
 			name = Profile;
 		};
@@ -768,7 +768,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Manual;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 			};
 			name = Debug;
 		};
@@ -776,7 +776,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spikerbot;
 			};
 			name = Release;
 		};

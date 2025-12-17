@@ -12,6 +12,12 @@ typedef _resize_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>,
     ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint32>);
 
 typedef _initialize_open_cv_func = ffi.Int Function();
+typedef _pass_preprocess_pointers_func = ffi.Int Function(
+    ffi.Pointer<ffi.Int32>,
+    ffi.Pointer<ffi.Double>,
+    ffi.Pointer<ffi.Int16>,
+    ffi.Pointer<ffi.Double>);
+
 typedef _InitializeOpenCVFunc = int Function();
 // typedef _find_color_in_image_func = ffi.Int Function(ffi.Pointer<ffi.Uint8>, ffi.Uint32, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint8>, ffi.Uint8, ffi.Pointer<ffi.Uint8>);
 // typedef _initialize_open_cv_func = ffi.Int Function();
@@ -24,6 +30,11 @@ typedef _FindColorInImageFunc = int Function(
     ffi.Pointer<ffi.Uint8>, int, ffi.Pointer<ffi.Uint16>);
 typedef _ResizeImageFunc = int Function(ffi.Pointer<ffi.Uint8>, int,
     ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.Uint32>);
+typedef _PassPreprocessPointersFunc = int Function(
+    ffi.Pointer<ffi.Int32>,
+    ffi.Pointer<ffi.Double>,
+    ffi.Pointer<ffi.Int16>,
+    ffi.Pointer<ffi.Double>);
 
 // Getting a library that holds needed symbols
 ffi.DynamicLibrary _lib = Platform.isAndroid
@@ -39,11 +50,16 @@ final _InitializeOpenCVFunc _initializeOpenCV = _lib
 final _VersionFunc _version =
     _lib.lookup<ffi.NativeFunction<_version_func>>('version').asFunction();
 final _FindColorInImageFunc _findColorInImage = _lib
-    .lookup<ffi.NativeFunction<_find_color_in_image_func>>('findColorInImage')
+    .lookup<ffi.NativeFunction<_find_color_in_image_func>>('findColorInImage_opencv')
     .asFunction();
 
 final _ResizeImageFunc _resizeImage = _lib
     .lookup<ffi.NativeFunction<_resize_image_func>>('resizeImage')
+    .asFunction();
+
+final _PassPreprocessPointersFunc _passPreprocessPointers = _lib
+    .lookup<ffi.NativeFunction<_pass_preprocess_pointers_func>>(
+        'passPreprocessPointers')
     .asFunction();
 
 class NativeOpenCV {
@@ -74,6 +90,11 @@ class NativeOpenCV {
         _pointer, imageLength, _pointerResizedFrame, resizedLength);
     // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
     // _processImage(ffi.Utf8.toUtf8(inputPath), Utf8.toUtf8(outputPath));
+  }
+
+  int passPreprocessPointers(stateBuf, visPrefVals, visPrefs, neuronContacts) {
+    return _passPreprocessPointers(
+        stateBuf, visPrefVals, visPrefs, neuronContacts);
   }
 }
 

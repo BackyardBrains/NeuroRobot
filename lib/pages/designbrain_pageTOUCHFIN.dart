@@ -34,38 +34,38 @@ import 'package:infinite_canvas/src/domain/model/drop_target.dart';
 import 'package:matrix_gesture_detector_pro/matrix_gesture_detector_pro.dart';
 // import 'package:metooltip/metooltip.dart';
 import 'package:mutex/mutex.dart';
-import 'package:neurorobot/components/search_textfield.dart';
-import 'package:neurorobot/dialogs/version_dialog.dart';
-import 'package:neurorobot/components/drop_targets.dart';
+import 'package:spikerbot/components/search_textfield.dart';
+import 'package:spikerbot/dialogs/version_dialog.dart';
+import 'package:spikerbot/components/drop_targets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 
 // import 'package:native_opencv/native_opencv.dart';
 // import 'package:native_opencv/nativec.dart';
-import 'package:neurorobot/ai/models/recognition.dart';
-import 'package:neurorobot/ai/service/detector_service.dart';
-import 'package:neurorobot/ai/utils/StatsWidget.dart';
+import 'package:spikerbot/ai/models/recognition.dart';
+import 'package:spikerbot/ai/service/detector_service.dart';
+import 'package:spikerbot/ai/utils/StatsWidget.dart';
 // import 'package:network_info_plus/network_info_plus.dart';
 // import 'package:nativec/allocation.dart';
 // import 'package:nativec/nativec.dart';
-import 'package:neurorobot/bloc/bloc.dart';
-import 'package:neurorobot/components/left_toolbar.dart';
-import 'package:neurorobot/dialogs/load_brain.dart';
-import 'package:neurorobot/dialogs/save_brain.dart';
-import 'package:neurorobot/utils/Allocator.dart';
-import 'package:neurorobot/utils/Debouncers.dart';
-import 'package:neurorobot/utils/General.dart';
-import 'package:neurorobot/utils/ProtoNeuron.dart';
-import 'package:neurorobot/utils/Simulations.dart';
-import 'package:neurorobot/utils/SingleCircle.dart';
-import 'package:neurorobot/utils/Vision.dart';
-import 'package:neurorobot/utils/WaveWidget.dart';
+import 'package:spikerbot/bloc/bloc.dart';
+import 'package:spikerbot/components/left_toolbar.dart';
+import 'package:spikerbot/dialogs/load_brain.dart';
+import 'package:spikerbot/dialogs/save_brain.dart';
+import 'package:spikerbot/utils/Allocator.dart';
+import 'package:spikerbot/utils/Debouncers.dart';
+import 'package:spikerbot/utils/General.dart';
+import 'package:spikerbot/utils/ProtoNeuron.dart';
+import 'package:spikerbot/utils/Simulations.dart';
+import 'package:spikerbot/utils/SingleCircle.dart';
+import 'package:spikerbot/utils/Vision.dart';
+import 'package:spikerbot/utils/WaveWidget.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:neurorobot/components/right_toolbar.dart';
+import 'package:spikerbot/components/right_toolbar.dart';
 import 'package:window_manager/window_manager.dart';
 import '../dialogs/info_dialog.dart';
 
@@ -857,7 +857,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener {
   //     // printDebug("try to pass pointers");
 
   //     nativec = Nativec();
-  //     nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf);
+  //      nativec.passInput(distanceBuf, distanceMinLimitBuf, distanceMaxLimitBuf, areaSizeMinLimitBuf, areaSizeMaxLimitBuf);
   //     nativec.passPointers(
   //       Nativec.canvasBuffer1!,
   //       positionsBuf,

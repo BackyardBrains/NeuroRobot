@@ -1,6 +1,6 @@
 import 'package:easy_animated_tabbar/easy_animated_tabbar.dart';
 import 'package:flutter/material.dart';
-import 'package:neurorobot/brands/brandguide.dart';
+import 'package:spikerbot/brands/brandguide.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 class CreateBrainPage extends StatefulWidget {
