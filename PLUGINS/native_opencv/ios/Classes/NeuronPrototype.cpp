@@ -117,6 +117,7 @@ EXTERNC FUNCTION_ATTRIBUTE void nativeSimulationCallback(void (*onRequest)(const
 
 
 std::thread simulatorThread;
+bool isThreadFinished = true;
 std::thread guidedQueueThread;
 
 
@@ -158,6 +159,7 @@ void initializeConstant(int neuronLength){
     epochs = ms_per_step;
     vis_I = new double[neuronLength];
     dist_I = new double[neuronLength];
+    mic_I = new double[neuronLength];
 
 }
 
@@ -197,11 +199,98 @@ std::string decimalToBinaryString(int decimal) {
     return std::bitset<4>(decimal).to_string();
 }
 
+static const double toneRanges[12][5][2] = {
+    { // C
+        {127.089, 134.646},
+        {254.178, 269.292},
+        {508.355, 538.584},
+        {1016.710, 1077.170},
+        {2033.420, 2154.330},
+    },
+    { // C#
+        {134.646, 142.652},
+        {269.292, 285.305},
+        {538.584, 570.609},
+        {1077.170, 1141.220},
+        {2154.330, 2282.440},
+    },
+    { // D
+        {142.652, 151.135},
+        {285.305, 302.270},
+        {570.609, 604.540},
+        {1141.220, 1209.080},
+        {2282.440, 2418.160},
+    },
+    { // D#
+        {151.135, 160.122},
+        {302.270, 320.244},
+        {604.540, 640.487},
+        {1209.080, 1280.970},
+        {2418.160, 2561.950},
+    },
+    { // E
+        {160.122, 169.643},
+        {320.244, 339.286},
+        {640.487, 678.573},
+        {1280.970, 1357.150},
+        {2561.950, 2714.290},
+    },
+    { // F
+        {169.643, 179.731},
+        {339.286, 359.461},
+        {678.573, 718.923},
+        {1357.150, 1437.850},
+        {2714.290, 2875.690},
+    },
+    { // F#
+        {179.731, 190.418},
+        {359.461, 380.836},
+        {718.923, 761.672},
+        {1437.850, 1523.340},
+        {2875.690, 3046.690},
+    },
+    { // G
+        {190.418, 201.741},
+        {380.836, 403.482},
+        {761.672, 806.964},
+        {1523.340, 1613.930},
+        {3046.690, 3227.850},
+    },
+    { // G#
+        {201.741, 213.737},
+        {403.482, 427.474},
+        {806.964, 854.948},
+        {1613.930, 1709.900},
+        {3227.850, 3419.790},
+    },
+    { // A
+        {213.737, 226.446},
+        {427.474, 452.893},
+        {854.948, 905.786},
+        {1709.900, 1811.570},
+        {3419.790, 3623.140},
+    },
+    { // A#
+        {226.446, 239.912},
+        {452.893, 479.823},
+        {905.786, 959.647},
+        {1811.570, 1919.290},
+        {3623.140, 3838.590},
+    },
+    { // B
+        {239.912, 254.178},
+        {479.823, 508.355},
+        {959.647, 1016.710},
+        {1919.290, 2033.420},
+        {3838.590, 4066.840},
+    },
+};
+
 
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE short initialize(){
+EXTERNC FUNCTION_ATTRIBUTE short initialize_opencv(){
     // temp_vis_pref_vals = new double*[vis_prefs_count];
     // for (short featureIdx = 0; featureIdx < vis_prefs_count; featureIdx++){
     //     temp_vis_pref_vals[featureIdx] = new double[ncam];
@@ -223,7 +312,7 @@ EXTERNC FUNCTION_ATTRIBUTE short initialize(){
   EMSCRIPTEN_KEEPALIVE
 #endif
 
-EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess(short _idxSelected){
+EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess_opencv(short _idxSelected){
     short delayTime = 0;
     for (int idx = 0; idx < totalNeuron; idx++){
         if (guidedDelayList[idx].mode == 1){
@@ -245,7 +334,7 @@ EXTERNC FUNCTION_ATTRIBUTE short stopThreadProcess(short _idxSelected){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelectedProcess(short _idxSelected){
+EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelectedProcess_opencv(short _idxSelected){
     if (_idxSelected == -1){
         isSelected = false;
     }else{
@@ -258,7 +347,16 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelectedProcess(short _idxSelected){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
+EXTERNC FUNCTION_ATTRIBUTE short changeIdxSelected2Process_opencv(short _idxSelected2){
+    idxSelected2 = _idxSelected2;
+    // platform_log( (std::to_string(idxSelected2)+" idxSelected2\n" ).c_str());
+    return idxSelected2;
+}
+
+#ifdef __EMSCRIPTEN__
+  EMSCRIPTEN_KEEPALIVE
+#endif
+EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess_opencv(short _isPlaying){
     isPlaying = _isPlaying;
     return isPlaying;
     // if (isPlaying == -1){
@@ -272,8 +370,9 @@ EXTERNC FUNCTION_ATTRIBUTE short changeIsPlayingProcess(short _isPlaying){
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs, short *p_speaker_buf, short *p_microphone_buf, short *p_led_buf, short *p_led_pos_buf, double *p_visual_input_buf){
+EXTERNC FUNCTION_ATTRIBUTE double passPointers_opencv(double *_canvasBuffer, double *_canvasBuffer2, short *_positions, short *_neuronCircle,int *_nps, int *p_state_buf, short *p_vis_prefs, double *p_vis_pref_vals, uint8_t *p_motor_command_message,double *p_neuron_contacts, short *p_dist_prefs, short *p_speaker_buf, short *p_microphone_buf, short *p_led_buf, short *p_led_pos_buf, double *p_visual_input_buf){
     canvasBuffer = _canvasBuffer;
+    canvasBuffer2 = _canvasBuffer2; // Assign Second Buffer
     positions = _positions;
     neuronCircles = _neuronCircle;        
     nps = _nps;
@@ -301,10 +400,16 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers(double *_canvasBuffer, short *_po
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passInput(double *p_sensor_distance, short *p_sensor_min_limit, short *p_sensor_max_limit){
+short *sensor_mic_type;
+
+EXTERNC FUNCTION_ATTRIBUTE double passInput_opencv(double *p_sensor_distance, short *p_sensor_min_limit, short *p_sensor_max_limit, double *p_sensor_microphone, short *p_sensor_mic_min_limit, short *p_sensor_mic_max_limit, short *p_sensor_mic_type){
     sensor_distance = p_sensor_distance;
     sensor_min_limit = p_sensor_min_limit;
     sensor_max_limit = p_sensor_max_limit;
+    sensor_microphone = p_sensor_microphone;
+    sensor_mic_min_limit = p_sensor_mic_min_limit;
+    sensor_mic_max_limit = p_sensor_mic_max_limit;
+    sensor_mic_type = p_sensor_mic_type;
     return 1.0;
 }
 
@@ -357,11 +462,21 @@ void getLinkedListValue(GuidedList* psrcHead, GuidedList* psrcTail, int listSize
 }
 // EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, short *_i, double *_w, double *canvasBuffer, double *canvasBuffer2, uint16_t *_positions,double *_connectome,
 //     int *_nps,short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying){
-EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
+EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a, double *_b, short *_c, short *_d, double *_i, double *_w, double *_connectome,
     short _level, int32_t _neuronLength, int32_t _envelopeSize, int32_t _bufferSize, short _isPlaying, short *vis_prefs, double *_motor_command, double *_neuronContacts,
     short* p_mapNeuronType, short* p_mapDelayNeuron, short* p_mapRhytmicNeuron, short* p_mapCountingNeuron
     ){
     // platform_log( (std::to_string(_neuronLength) + "changeNeuronSimulatorProcess 0\n").c_str() );
+    
+    // CRITICAL FIX: Robustly stop and wait for previous thread.
+    if (isThreadRunning || isThreadCreated == 1) {
+         isThreadRunning = false;
+         while (!isThreadFinished) {
+             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+         }
+         isThreadCreated = -1; // Reset to ensure thread is recreated
+    }
+
     initializeConstant(_neuronLength);
 
     a=_a;
@@ -402,10 +517,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
         short neuronType = mapNeuronType[ii];
         bool isInhibited = false;
         inhibitionArray[ii] = 0;
-        // if (neuronType >= 1000){
-        //     isInhibitor = true;
-        //     neuronType %= 1000;
-        // }
+        if (neuronType >= 1000){
+            // isInhibitor = true; // Not needed if only strictly typing
+            neuronType %= 1000;
+        }
 
         // delayLinkedList[ii] = DoublyLinkedList();
         // delayValueLinkedList[ii] = DoublyLinkedList();
@@ -471,6 +586,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
     // mtx.unlock();
 
     if (isThreadCreated==-1){
+        // while (!isThreadFinished) {
+        //    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // }
+        isThreadFinished = false;
+        
         isThreadCreated=1;
         // platform_log2("v_traces");
         v_traces = new double*[_neuronLength];
@@ -534,6 +654,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
             // platform_log( ("CREATED THREAD :  START DISTANCE0 \n" ) );
             // platform_log( (std::to_string(isThreadRunning)+" START DISTANCE0 \n" ).c_str() );
             isThreadRunning = true;
+            auto next_wake_time = std::chrono::high_resolution_clock::now();
+            
             while(isThreadRunning){
                 int32_t threadTotalNumOfNeurons = totalNumOfNeurons;
                 short *isSpiking = new short[threadTotalNumOfNeurons];
@@ -544,11 +666,22 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 double *tI = new double[threadTotalNumOfNeurons];
                 if (isPlaying == -1 || isThreadCreated == -1){
                     std::this_thread::sleep_for(std::chrono::seconds(1));
+                    next_wake_time = std::chrono::high_resolution_clock::now(); // Reset sync
                     continue;
                 }else{
-                    // std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step*2));
-                    // std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 2));
-                    std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_step * 1));
+                   // Adaptive Sweep (Drift Correction)
+                   next_wake_time += std::chrono::milliseconds(ms_per_step);
+                   auto now = std::chrono::high_resolution_clock::now();
+                   if (now < next_wake_time) {
+                       std::this_thread::sleep_for(next_wake_time - now);
+                   } else {
+                       // We are lagging! Do not sleep.
+                       // Optional: If lag is huge (>100ms), reset next_wake_time to prevent fast-forwarding?
+                       // For now, let it catch up naturally (running max speed).
+                       if ((now - next_wake_time) > std::chrono::milliseconds(100)) {
+                           next_wake_time = now; // Give up and reset sync if way behind
+                       }
+                   }
                 }
                 // start = std::chrono::high_resolution_clock::now();
                 double *arrFreshDelayedValue = new double[threadTotalNumOfNeurons];
@@ -562,6 +695,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
                     vis_I[iStep] = 0;
                     dist_I[iStep] = 0;
+                    mic_I[iStep] = 0;
                     // if (dist_prefs[iStep] >= 3){
                     //     platform_log( (std::to_string(iStep)+" START DISTANCE Index \n" ).c_str());
                     // //     platform_log( (std::to_string(dist_prefs[iStep])+" START DISTANCE PREF \n" ).c_str());
@@ -608,6 +742,42 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     }
 */
                 }
+                
+                // MICROPHONE INPUT
+                for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
+                    mic_I[iStep] = 0;
+                    if (microphone_buf[iStep] > -1) {
+                        if (sensor_microphone != nullptr && sensor_mic_min_limit != nullptr && sensor_mic_max_limit != nullptr && sensor_mic_type != nullptr) {
+                             short type = sensor_mic_type[iStep];
+                             double val = (type == 1) ? sensor_microphone[1] : sensor_microphone[0]; // 1=Vol, 0=Freq
+
+                             bool isHit = false;
+
+                             if (type == 2) { // Tone Mode (Multi-Octave)
+                                 short noteIndex = sensor_mic_min_limit[iStep]; 
+                                 if (noteIndex < 0) noteIndex = 0;
+                                 if (noteIndex > 11) noteIndex = 11;
+
+                                 // Check 5 octaves
+                                 for (int oct = 0; oct < 5; oct++) {
+                                     if (val >= toneRanges[noteIndex][oct][0] && val < toneRanges[noteIndex][oct][1]) {
+                                         isHit = true;
+                                         break;
+                                     }
+                                 }
+                             } else {
+                                 // Standard Range Check (Freq=0 or Vol=1)
+                                 if (val >= sensor_mic_min_limit[iStep] && val < sensor_mic_max_limit[iStep]) {
+                                     isHit = true;
+                                 }
+                             }
+
+                             if (isHit) {
+                                 mic_I[iStep] = microphone_buf[iStep]; 
+                             }
+                        }
+                    }
+                }
 
                 // VISUAL INPUT
                 for (short ii = normalNeuronFirstIndex; ii < threadInitialTotalNumOfNeurons; ii++){
@@ -618,23 +788,28 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         
                         short k = getSimulationMatrixValue(visPrefs, jj, ii, (threadInitialTotalNumOfNeurons));
 
-                        if (k > -1){ // selected Color detection
-                            double valuePreference = getSimulationMatrixValue(visual_input_buf, ii, k, vis_prefs_count);
-                            sumVisPrefVals += valuePreference;
-                            // platform_log( (std::to_string(valuePreference)+" __ " + std::to_string(ii * vis_prefs_count + k) + " START valuePreference\n" ).c_str());
-
-                        /*
-
-                            if (jj == 1){
-                                // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
-                                double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
-                                sumVisPrefVals += val1;
-                            }else{
-                                double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
-                                sumVisPrefVals += val2;
+                          if (k > -1){ // selected Color detection
+                            bool handled = false;
+                            // Fixed: Removed k < 6 limit to allow AI targets (index >= 7) to use per-neuron buffer
+                            if (visual_input_buf != nullptr) {
+                                double valuePreference = getSimulationMatrixValue(visual_input_buf, ii, k, vis_prefs_count);
+                                sumVisPrefVals += valuePreference;
+                                handled = true;
+                                // platform_log( (std::to_string(valuePreference)+" __ " + std::to_string(ii * vis_prefs_count + k) + " START valuePreference\n" ).c_str());
+                            } 
+                            
+                            if (!handled && vis_pref_vals != nullptr) {
+                                if (jj == 1){
+                                    // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
+                                    double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
+                                    sumVisPrefVals += val1;
+                                }else{
+                                    double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
+                                    sumVisPrefVals += val2;
+                                }
                             }
-                        */
                         }
+
                     }
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
                 }
@@ -666,7 +841,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                         #endif                        
                         //find spiking neurons
-                        guidedDelayList[neuronIndex].isSpiking = 0;
+                        // V9 FIX: Do NOT reset guidedDelayList.isSpiking here!
+                        // It's set at END of epoch (line ~1183 when v>=30) and checked
+                        // at START of next epoch (line ~893 in mode 2). Resetting here
+                        // would always make the check fail!
+                        // guidedDelayList[neuronIndex].isSpiking = 0;  // REMOVED
 
                         isSpiking[neuronIndex] = 0;
                         arrFreshDelayedValue[neuronIndex] = 0;
@@ -686,6 +865,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                                 if (freshDelayedValue == 1){
                                     isSmartNeuronReady = 2;
+                                    
+                                    // FIX: Trigger inhibition when inhibitory delay neuron's delayed spike arrives
+                                    if (mapNeuronType[neuronIndex] >= 1000 && arrFreshDelayedValue[neuronIndex] >= 30) {
+                                        inhibitionArray[neuronIndex] = 1;
+                                    }
                                 }else{
                                     isSmartNeuronReady = 1;
                                 }
@@ -726,7 +910,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                         // }
                         short srcNeuronType = mapNeuronType[neuronIndex];
 
-                        if (srcNeuronType >= 1000) {
+                        // V5 FIX: Inhibitory DELAY neurons should skip this block and use isSmartNeuronReady == 10
+                        // (like excitatory delay neurons do) to trigger once per delay cycle, not every frame.
+                        short baseType = srcNeuronType % 1000;
+                        bool isInhibitoryDelayNeuron = (srcNeuronType >= 1000) && (baseType == configDelayNeuron);
+                        
+                        if (srcNeuronType >= 1000 && !isInhibitoryDelayNeuron) {
+                            // Regular inhibitory neurons (NOT delay) - use v >= 30
                             if ( v[neuronIndex] >= 30 ) {
                                 // platform_log( ("NeuronSmart Spike : " + std::to_string(neuronIndex)+"\nSmartNeuron: "+ std::to_string(v[neuronIndex])+"\n" ).c_str());
                                 inhibitionArray[neuronIndex] = 1;
@@ -741,12 +931,32 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             }
                         }else                       
                         if (isSmartNeuronReady == 10){ // SMART NEURON mode =10 SPIKING
-                            if (srcNeuronType >= configDelayNeuron && srcNeuronType <= configCountingNeuron){
+                            // V6 FIX: Use baseType instead of srcNeuronType for range check
+                            // so inhibitory delay neurons (srcNeuronType=1006, baseType=6) pass
+                            if (baseType >= configDelayNeuron && baseType <= configCountingNeuron){
                                 isSpiking[neuronIndex] = 1;
                                 isStepSpiking[neuronIndex] = 1;
                                 spikingNow.push_back(neuronIndex);
                                 spikes_step[neuronIndex][t] = 1;
                                 guidedDelayList[neuronIndex].isSpiking = 1;
+
+                                // FIX: Ensure inhibitory delay neurons actually inhibit
+                                if (mapNeuronType[neuronIndex] >= 1000) {
+                                     inhibitionArray[neuronIndex] = 1;
+                                     
+                                     // V8 FIX: DIRECTLY apply inhibition to all connected targets
+                                     // This bypasses the complex propagation and ensures inhibition works
+                                     for (short targetIdx = 0; targetIdx < threadTotalNumOfNeurons; targetIdx++) {
+                                         if (connectome[neuronIndex][targetIdx] > 0) {
+                                             // Directly reduce the target's membrane potential
+                                             v[targetIdx] -= connectome[neuronIndex][targetIdx] * 2.0;  // Strong inhibition
+                                             // Also reduce below resting to prevent immediate re-firing
+                                             if (v[targetIdx] < c[targetIdx]) {
+                                                 v[targetIdx] = c[targetIdx] - 10;  // Push below resting
+                                             }
+                                         }
+                                     }
+                                }
                             }                        
                         }else
                         if (isSmartNeuronReady == 1){ // SMART NEURON mode =0 OR mode =1
@@ -806,7 +1016,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             sumInhibition[idx] += (inhibitionArray[j] * connectome[j][idx]);
                             if (guidedDelayList[idx].neuronType == configDelayNeuron && arrFreshDelayedValue[idx]>=30){
                                 if (connectome[idx][j] > 0){
-                                    sumDelayedSignals[j] += connectome[idx][j];
+                                    // FIX: Inhibitory delay neurons should SUBTRACT (inject negative current)
+                                    if (mapNeuronType[idx] >= 1000) {
+                                        sumDelayedSignals[j] -= connectome[idx][j];  // SUBTRACT for inhibition!
+                                    } else {
+                                        sumDelayedSignals[j] += connectome[idx][j];  // Add for excitation
+                                    }
                                 }
                             }
                         }
@@ -826,7 +1041,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             if (srcNeuronType >= 1000){ // if spikingNeuron is inhibitor
                                 isSourceInhibitor = true;
                                 srcNeuronType %= 1000;
-                                guidedDelayList[idx].isInhibited = true;
+                                // FIX: Don't mark the source delay neuron as inhibited when it fires
+                                // Only targets should be inhibited, not the source itself
+                                if (srcNeuronType != configDelayNeuron) {
+                                    guidedDelayList[idx].isInhibited = true;
+                                }
                             }
 
                             for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
@@ -834,7 +1053,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                                     if (isSourceInhibitor) {
                                         guidedDelayList[j].isInhibited = true;
                                     }
-                                    if (srcNeuronType<configDelayNeuron){
+                                    // V7 FIX: For delay neurons, handle excitatory/inhibitory differently
+                                    if (srcNeuronType == configDelayNeuron) {
+                                        // Delay neurons: excitatory adds, inhibitory SUBTRACTS
+                                        if (isSourceInhibitor) {
+                                            sumConnectome[j] -= (connectome[spikingNeuronIndex][j]);  // INHIBIT!
+                                        } else {
+                                            sumConnectome[j] += (connectome[spikingNeuronIndex][j]);  // Excite
+                                        }
+                                    } else if (srcNeuronType < configDelayNeuron) {
                                         sumConnectome[j] += (connectome[spikingNeuronIndex][j]);
                                     }
                                 }
@@ -855,7 +1082,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                     // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
-                        tI[idx] += (vis_I[idx] + dist_I[idx]);
+                        tI[idx] += (vis_I[idx] + dist_I[idx] + mic_I[idx]);
                     }
 
                     // update v & u
@@ -999,13 +1226,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     currentStep = 0;            
                 }
 
-                if (isSelected){
-                    if (idxSelected < threadTotalNumOfNeurons){
-                        std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
-                    }
-                    // platform_log( ("VTRACES : " + std::to_string(isSelected)+"\n" ).c_str());
-
+                // Process Channel 1
+                if (idxSelected > -1 && idxSelected < threadTotalNumOfNeurons){
+                    std::copy(&v_traces[idxSelected][0], &v_traces[idxSelected][0] + bigBufferLength, canvasBuffer);
                 }
+                
+                // Process Channel 2
+                if (idxSelected2 > -1 && idxSelected2 < threadTotalNumOfNeurons) {
+                    if (canvasBuffer2 != nullptr) {
+                        std::copy(&v_traces[idxSelected2][0], &v_traces[idxSelected2][0] + bigBufferLength, canvasBuffer2);
+                    }
+                }
+                // platform_log( ("VTRACES : " + std::to_string(isSelected)+"\n" ).c_str());
 
                 // UPDATE MOTORS
 
@@ -1051,90 +1283,94 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                             speaker_connection_count++;
                         }
 
-                        isRedLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                        if (isRedLed > -1){ // red
-                            binaryString = decimalToBinaryString(isRedLed);
-                            if (binaryString[0] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[0][0]++;
+                        if (led_pos_buf != nullptr && led_buf != nullptr) {
+                            isRedLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                            if (isRedLed > -1){ // red
+                                binaryString = decimalToBinaryString(isRedLed);
+                                if (binaryString[0] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[0][0]++;
+                                }
+                                if (binaryString[1] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[1][0]++;
+                                }
+                                if (binaryString[2] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[2][0]++;
+                                }
+                                if (binaryString[3] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[3][0]++;
+                                }
                             }
-                            if (binaryString[1] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[1][0]++;
+
+                            isGreenLed= getSimulationMatrixValue(led_pos_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                            if (isGreenLed > -1 ) { // green
+                                binaryString = decimalToBinaryString(isGreenLed);
+                                if (binaryString[0] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[0][1]++;
+                                }
+                                if (binaryString[1] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[1][1]++;
+                                }
+                                if (binaryString[2] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[2][1]++;
+                                }
+                                if (binaryString[3] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[3][1]++;
+                                }
+
                             }
-                            if (binaryString[2] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[2][0]++;
-                            }
-                            if (binaryString[3] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[3][0]++;
+
+                            isBlueLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                            if (isBlueLed > -1 ) {
+                                binaryString = decimalToBinaryString(isBlueLed);
+                                // platform_log("there is blue \n");
+                                // platform_log(binaryString.c_str());
+                                // platform_log("\n");
+                                if (binaryString[0] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[0][2]++;
+                                }
+                                if (binaryString[1] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[1][2]++;
+                                }
+                                if (binaryString[2] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[2][2]++;
+                                }
+                                if (binaryString[3] == '1'){
+                                    tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                                    colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100));
+                                    colorCount[3][2]++;
+                                }
                             }
                         }
 
-                        isGreenLed= getSimulationMatrixValue(led_pos_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                        if (isGreenLed > -1 ) { // green
-                            binaryString = decimalToBinaryString(isGreenLed);
-                            if (binaryString[0] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[0][1]++;
-                            }
-                            if (binaryString[1] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[1][1]++;
-                            }
-                            if (binaryString[2] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[2][1]++;
-                            }
-                            if (binaryString[3] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[3][1]++;
-                            }
+                        if (neuron_contacts != nullptr) {
+                            left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
+                            left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
 
+                            right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons));
+                            right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
                         }
-
-                        isBlueLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                        if (isBlueLed > -1 ) {
-                            binaryString = decimalToBinaryString(isBlueLed);
-                            // platform_log("there is blue \n");
-                            // platform_log(binaryString.c_str());
-                            // platform_log("\n");
-                            if (binaryString[0] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[0][2]++;
-                            }
-                            if (binaryString[1] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[1][2]++;
-                            }
-                            if (binaryString[2] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[2][2]++;
-                            }
-                            if (binaryString[3] == '1'){
-                                tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                colorCount[3][2]++;
-                            }
-                        }
-
-                        left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
-                        left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
-
-                        right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons));
-                        right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
 
                     }
                 }
@@ -1352,6 +1588,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 delete[] v_traces;
                 delete[] vis_I;
                 delete[] dist_I;
+                delete[] mic_I;
 
                 // delete[] delayLinkedList;
                 // delete[] delayValueLinkedList;
@@ -1371,6 +1608,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                     std::terminate();
                 #endif
             }
+            isThreadFinished = true;
 
         });        
 

@@ -45,8 +45,10 @@ void createWebSocket(List<dynamic> args) async {
           final client = HttpClient();
           bool clientErrorFlag = false;
           try {
-            final request =
-                await client.openUrl('GET', Uri.parse('http://192.168.4.1/ws'));
+            // V19 MacOS Fix: Add timeout to prevent hang
+            final request = await client
+                .openUrl('GET', Uri.parse('http://192.168.4.1/ws'))
+                .timeout(const Duration(seconds: 3)); 
             request.headers
               ..set('Connection', 'Upgrade')
               ..set('Upgrade', 'websocket')
@@ -54,18 +56,21 @@ void createWebSocket(List<dynamic> args) async {
               ..set('Sec-WebSocket-Version', '13');
             await request.close();
           } on HttpException catch (error) {
-            clientErrorFlag = true;
-            print("error");
-            print(error);
+            // clientErrorFlag = true; // V19 Fix: Don't restart on HTTP error, try WS anyway
+            print("HTTP Probe error (ignored): $error");
+          } on TimeoutException catch (_) {
+            print("HTTP Probe timeout (ignored)");
           } catch (err) {
-            clientErrorFlag = true;
+            // clientErrorFlag = true;
+             print("HTTP Probe Exception (ignored): $err");
           }
 
           if (clientErrorFlag) {
-            isReady = false;
-            print("Client Error Flag");
-            writeMainPort.send("RESTART");
-            return;
+            // isReady = false;
+            // print("Client Error Flag");
+            // writeMainPort.send("RESTART");
+            // return;
+            print("Client Error Flag ignored in V19");
           }
           // */
           // await client.openUrl('GET', wsUrl);
@@ -85,7 +90,7 @@ void createWebSocket(List<dynamic> args) async {
                   'Sec-WebSocket-Key': 'x3JJHMbDL1EzLkh9GBhXDw==',
                   'Sec-WebSocket-Version': '13'
                 },
-                customClient: client,
+                // customClient: client, // Use default client for robustness
                 connectTimeout: const Duration(seconds: 7),
                 pingInterval: const Duration(seconds: 12));
           } on HttpException catch (err) {

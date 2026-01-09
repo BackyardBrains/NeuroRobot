@@ -443,15 +443,13 @@ List<List<Offset>> sensorPolygonPaths = [
     const Offset(544, 321),
   ], // right motor down
   [
-    const Offset(453, 47),
-    const Offset(487, 16),
-    const Offset(547, 21),
-    const Offset(585, 148),
-    const Offset(523, 174),
-    const Offset(508, 131),
-    const Offset(550, 143),
-    const Offset(550, 112),
-    const Offset(453, 47),
+    const Offset(453, 40),
+    const Offset(580, 20),
+    const Offset(600, 150),
+    const Offset(530, 170),
+    const Offset(500, 130),
+    const Offset(465, 90),
+    const Offset(453, 40),
   ], // microphone
   [
     const Offset(432, 518),

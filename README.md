@@ -4,6 +4,42 @@
 The Spikerbot App is an all in one design tool & neural simulator. Build spiking neural networks by hand that mimic biology, then test 'brains' realtime with the Spikerbot robot by Backyard Brains. For more information visit: [Spikerbot Documentation](https://docs.backyardbrains.com/neuroengineering/spikerbot)
 
 # Spikerbot Hatch UX Changelog
+
+---
+
+## v1.3.1
+**Date:** 2026-01-09
+
+### iOS Build — Initial Release!
+*   Native file system integration for finding brains — completely up to date with macOS build.
+
+### App Identity & Branding
+*   **Robot WiFi Renaming**: Customize your robot! Click the pencil icon while running a brain with Spikerbot connected to give it a unique WiFi name.
+*   **Enhanced Tooltips**: More tooltips across the new UI elements to help users understand how to control spikes from inputs and outputs.
+
+### Firmware Changes
+*   **Microphone Enabled**: Spikerbot now reports the dominant frequency it hears via FFT, and sends volume data as inputs to your neural network.
+*   **WiFi Renaming & Rebooting**: Added firmware support for renaming robot WiFi address and remote reboot.
+
+### Live Mode & Simulation
+*   **SpikerVision Camera Mode**: Toggle the info button to "disabled" to see how the robot sees! Using OpenCV edge detection and highlighting targets with bounding boxes, you can now better visualize the simplified world seen by Spikerbot.
+*   **Camera Enhancements**:
+    *   Camera targets now send full bounding boxes (object and color locations), not just centroids — making spiking more responsive and accurate.
+    *   Added ability to see multiple instances of objects (e.g., a group of people, many blue objects on a desk) — making simulations more robust and dynamic, never missing a target!
+*   **Inhibitory Delay Neurons**: Now working correctly! Send a delayed inhibitory response to incoming stimuli.
+
+### Design Mode Changes
+*   **Microphone Input Widget**: Configure incoming microphone data for spiking! Set bounds to trigger spikes when it hears a frequency or volume within range. Includes a keyboard for detecting rough pitches across many octaves — whistle and sing to your Spikerbot, or explore sensory/auditory conditions.
+*   **LED Control Widget**: Moved from RGB and hex sliders to an enhanced color picker based on additive RGB LED color. Simply pick a color on the color wheel, adjust brightness, and select which of the 4 LEDs on the robot are active with a new visualization.
+*   **Speaker Controls**: Select from 4 different musical instruments and play notes via a 2-octave keyboard. Trigger emotional phrases and vocal samples from a list of 10 sounds — all with spiking neural input. Sounds are duophonic (most recent two sounds play). Experiment with different instruments — some sustain, others don't!
+
+### New File Format
+*   Save and share your brains in a clear `Title.brain` format for easy sharing.
+*   **Note**: Old brain files are currently incompatible with the new formatting.
+
+---
+
+## v1.3.0
 Previous build: `neurorobot_native_app`
 **Date:** 2025-12-17
 

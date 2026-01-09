@@ -123,9 +123,17 @@ typedef pass_input_func = ffi.Double Function(
   ffi.Pointer<ffi.Double>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
 );
 typedef PassInput = double Function(
   ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Int16>,
+  ffi.Pointer<ffi.Double>,
+  ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
   ffi.Pointer<ffi.Int16>,
 );
@@ -400,12 +408,22 @@ class Nativec {
   void passInput(
       ffi.Pointer<ffi.Double> pSensorDistance,
       ffi.Pointer<ffi.Int16> pSensorMinLimit,
-      ffi.Pointer<ffi.Int16> pSensorMaxLimit) {
+      ffi.Pointer<ffi.Int16> pSensorMaxLimit,
+      ffi.Pointer<ffi.Double> pSensorMicrophone,
+      ffi.Pointer<ffi.Int16> pSensorMicMinLimit,
+      ffi.Pointer<ffi.Int16> pSensorMicMaxLimit,
+      ffi.Pointer<ffi.Int16> pSensorMicType) {
     _passInput(
       pSensorDistance,
       pSensorMinLimit,
       pSensorMaxLimit,
+      pSensorMicrophone,
+      pSensorMicMinLimit,
+      pSensorMicMaxLimit,
+      pSensorMicType,
     );
     return;
   }
 }
+
+

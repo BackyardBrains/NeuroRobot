@@ -260,8 +260,12 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
     EXTERNC FUNCTION_ATTRIBUTE
     // int findColorInImage(uint8_t* img, uint32_t imgLength, uint8_t* lowerB, uint8_t* upperB, uint8_t colorSpace, uint8_t* imgMask) {
     // int findColorInImage(uint8_t *img, uint32_t imgLength, uint8_t* imgMask) {
-    int findColorInImage_opencv(uint8_t *img, uint32_t imgLength, uint16_t *centroid) {
-        fprintf(stderr, "findColorInImage_opencv: START. img=%p, len=%d\n", img, imgLength);
+    int findColorInImage_opencv(uint8_t *img, uint32_t imgLength, uint16_t *centroid, uint8_t *debugImageBuffer, float *boundingBoxes, int boundingBoxesCount, int activeColors) {
+        // Explicitly zero out centroid buffer to prevent any garbage values
+        if (centroid != nullptr) {
+            memset(centroid, 0, 100 * sizeof(uint16_t));
+        }
+        fprintf(stderr, "findColorInImage_opencv: START. img=%p, len=%d, activeColors=%d\n", img, imgLength, activeColors);
 
         // Mat rawImageRgb = Mat(240 * 320 * 4, 1, CV_8UC4, img);
         // Mat matImageRgb = rawImageRgb.reshape(4, 240);
@@ -357,11 +361,6 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
 
         // rightFrame = imageRgb(Range(80,1), Range(120-1,140-1));
         //cv::resize (InputArray src, OutputArray dst, Size dsize, double fx=0, double fy=0, int interpolation=INTER_LINEAR)
-        double this_score = 0;
-        double curMaxScore = 0;
-        double this_left_score = 0;
-        double this_right_score = 0;
-        double meanx = 0;
         std::string leftFrameResult = "000";
         std::string rightFrameResult = "000";
         
@@ -380,6 +379,37 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                 // subtract(grayFrame, rightGrayFrame, xframe);
             }
 
+            // *** CV PIPELINE START ***
+            if (icam == 0 && debugImageBuffer != nullptr) {
+                Mat blurFrame, edgeFrame, dilatedFrame;
+                
+                // 1. Gaussian Blur
+                GaussianBlur(uframe, blurFrame, Size(5, 5), 1.5, 1.5);
+                
+                // 2. Canny Edge Detection (Produces White Edges on Black Background)
+                Canny(blurFrame, edgeFrame, 50, 150);
+                
+                // 3. Dilate (Thicken Edges)
+                Mat thickEdges;
+                Mat kernel = getStructuringElement(MORPH_RECT, Size(4, 4));
+                dilate(edgeFrame, thickEdges, kernel);
+                
+                // 3.5 Invert (Black Lines on White Background)
+                // Explicitly invert to match iOS "Sketch" look.
+                bitwise_not(thickEdges, thickEdges);
+                
+                // 4. Convert to BGRA for Dart display (BMP format)
+                Mat displayFrame;
+                // Use GRAY2BGRA to ensure R=G=B (Grayscale) and valid Alpha.
+                cvtColor(thickEdges, displayFrame, COLOR_GRAY2BGRA);
+                
+                // Copy to shared buffer
+                if (displayFrame.isContinuous()) {
+                    memcpy(debugImageBuffer, displayFrame.data, 320 * 240 * 4);
+                }
+            }
+            // *** CV PIPELINE END ***
+
             // platform_log("Converting to CV_32FC3...\n");
             // uframe.convertTo(frame, CV_32FC3); // Not used currently
             
@@ -390,19 +420,40 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                 fprintf(stderr, "findColorInImage_opencv: cvtColor success\n");
                 
                 for (int ncol = 0; ncol < 3; ncol++) {
-                    fprintf(stderr, "findColorInImage_opencv: Loop start ncol=%d\n", ncol);
-                
-                Mat mask, mask1, mask2;
-
-                if (ncol == 2) { // Red (Hue 0-10 and 160-180)
-                    inRange(hsvFrame, Scalar(0, 100, 100), Scalar(10, 255, 255), mask1);
-                    inRange(hsvFrame, Scalar(160, 100, 100), Scalar(180, 255, 255), mask2);
-                    bitwise_or(mask1, mask2, mask);
-                } else if (ncol == 1) { // Green (Hue 35-85)
-                    inRange(hsvFrame, Scalar(35, 100, 100), Scalar(85, 255, 255), mask);
-                } else { // Blue (Hue 100-140)
-                    inRange(hsvFrame, Scalar(100, 100, 100), Scalar(140, 255, 255), mask);
+             // Check if this color is active in the bitmask
+            // 1 (2^0) = Blue (ncol 0)
+            // 2 (2^1) = Green (ncol 1)
+            // 4 (2^2) = Red (ncol 2)
+            if (!((activeColors >> ncol) & 1)) {
+                // Skip this color if bit is 0
+                 short tempCol = static_cast<short>(ncol * 2);
+                 if (vis_pref_vals != nullptr) {
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol, 0, vis_prefs_count, 0);
+                    setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, 0, vis_prefs_count, 0);
                 }
+                continue; 
+                continue; 
+            }
+
+            double this_score = 0;
+            double curMaxScore = 0;
+            double this_left_score = 0;
+            double this_right_score = 0;
+            double meanx = 0;
+
+            fprintf(stderr, "findColorInImage_opencv: Loop start ncol=%d\n", ncol);
+        
+            Mat mask, mask1, mask2;
+
+            if (ncol == 2) { // Red (Hue 0-8 and 160-180)
+                inRange(hsvFrame, Scalar(0, 89, 89), Scalar(8, 255, 255), mask1);
+                inRange(hsvFrame, Scalar(160, 89, 89), Scalar(180, 255, 255), mask2);
+                bitwise_or(mask1, mask2, mask);
+            } else if (ncol == 1) { // Green (Hue 40-78)
+                inRange(hsvFrame, Scalar(40, 89, 89), Scalar(78, 255, 255), mask);
+            } else { // Blue (Hue 93-127)
+                inRange(hsvFrame, Scalar(93, 89, 89), Scalar(127, 255, 255), mask);
+            }
 
                 // Morphological opening to remove noise
                 // morphologyEx(mask, mask, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(3,3)));
@@ -410,80 +461,124 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                 cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(mask);
                 fprintf(stderr, "findColorInImage_opencv: cca done. count=%lu\n", cca_wrapper.get_connected_component_count());
                 if (cca_wrapper.get_connected_component_count() > 1) {
-                    uint32_t max_size = 0;
-                    // int max_idx = 0;
- 
-                    max_size = cca_wrapper.get_max_component_area();
-                    if (cca_wrapper.max_idx != -1) {
-                         meanx = cca_wrapper.get_centroid_x(cca_wrapper.max_idx);
-                   
-                        this_score = sigmoid(max_size, 1000, 0.0075) * 70;
-                        if (this_score > 69){
-                            if (icam == 0){
-                                //BGR
-                                leftFrameResult[ncol] = '1';
-                                // if (curMaxScore < this_score) {
-                                //     curMaxScore = this_score;
-                                    centroid[ncol* 3 + 0] = static_cast<uint16_t>(cca_wrapper.get_most_left_of_centroid(cca_wrapper.max_idx));
-                                    centroid[ncol* 3 + 1] = static_cast<uint16_t>(cca_wrapper.get_most_top_of_centroid(cca_wrapper.max_idx));
-                                    centroid[ncol* 3 + 2] = static_cast<uint16_t>(this_score);
-                                // }
-                                // platform_log_cv("Centroid Camera\n");
-                                // platform_log_cv(std::to_string(centroid[0]).c_str());
-                                // platform_log_cv("\n");
-                                // platform_log_cv(std::to_string(centroid[1]).c_str());
-                                // platform_log_cv("\n");
-                            }else{
-                                rightFrameResult[ncol] = '1';
-                            }
-                        }
-                        double this_score_left = sigmoid((double)max_size, 1000.0, 0.0075) * 70.0;
-                        short tempCol = static_cast<short>(ncol * 2);
+                    // Multi-Blob Support (Top 5) by sorting areas
+                    std::vector<int> blobIndices;
+                    for(auto iStep = 1; iStep < cca_wrapper.get_connected_component_count(); iStep++) {
+                        blobIndices.push_back(iStep);
+                    }
+                    // Sort descending by area
+                    std::sort(blobIndices.begin(), blobIndices.end(), [&](int a, int b) {
+                        return cca_wrapper.get_area_of_component(a) > cca_wrapper.get_area_of_component(b);
+                    });
+
+                    // We will process up to 5 blobs
+                    // Accumulate scores for Simulation
+                    double total_this_score = 0;
+                    double total_left_score = 0;
+                    double total_right_score = 0;
+                    
+                    int blobsFound = 0;
+                    
+                    for (int k = 0; k < 5; k++) {
+                        // Index in global buffer: (ncol * 5 + k) * 5
+                        // Format: [x, y, score, w, h]
+                        int baseBufIdx = (ncol * 5 + k) * 5;
                         
-                        if (visPrefs != nullptr) {
-                            // short valVisPref = visPrefs[vis_prefs_count * icam + tempCol];
-                            // Unused read removed for safety
-                        }
+                        if (k < blobIndices.size()) {
+                            int idx = blobIndices[k];
+                            // Valid blob
+                            double cx = cca_wrapper.get_centroid_x(idx);
+                            double cy = cca_wrapper.get_centroid_y(idx);
+                            int w_blob = cca_wrapper.get_width_of_centroid(idx);
+                            int h_blob = cca_wrapper.get_heigth_of_centroid(idx);
+                            
+                            // Write to Centroid Buffer for UI
+                            centroid[baseBufIdx + 0] = (short)cx;
+                            centroid[baseBufIdx + 1] = (short)cy;
+                            
+                            // Calculate Score for this blob (using existing logic)
+                            double max_size = (double)cca_wrapper.get_area_of_component(idx);
+                            double b_score = sigmoid((double)max_size, 1000.0, 0.0075) * 70.0;
+                            centroid[baseBufIdx + 2] = (short)b_score;
+                            
+                            // Width and Height
+                            centroid[baseBufIdx + 3] = (short)w_blob;
+                            centroid[baseBufIdx + 4] = (short)h_blob;
+                            
+                            // Accumulate for Simulation
+                            double left_weight = sigmoid(((228.0 - cx) / 227.0), 0.85, 10.0);
+                            double right_weight = sigmoid(((cx) / 227.0), 0.85, 10.0);
+                            
+                            total_this_score += b_score;
+                            total_left_score += (left_weight * b_score);
+                            total_right_score += (right_weight * b_score);
 
-                        // Race Condition Guard: vis_pref_vals might be set to nullptr by UI thread (freeUsedMemory) while this thread is running.
-                        if (vis_pref_vals != nullptr) {
-                            setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
-                        }
+                            blobsFound++;
 
-                        if (icam == 0) {
-                            this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                            if (vis_pref_vals != nullptr) {
-                                setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
+                            // Debug Overlay Drawing (Draw for all detected blobs within top 5)
+                            if (debugImageBuffer != nullptr) {
+                                Mat debugMat(240, 320, CV_8UC4, debugImageBuffer);
+                                int x = cca_wrapper.get_most_left_of_centroid(idx);
+                                int y = cca_wrapper.get_most_top_of_centroid(idx);
+                                int w = w_blob;
+                                int h = h_blob;
+                                int radius = 10;
+                                radius = std::min(radius, std::min(w/2, h/2));
+                                int right = x + w;
+                                int bottom = y + h;
+                                Vec3b overlayColor(252, 150, 25);
+                                if (ncol == 1) overlayColor = Vec3b(85, 238, 85);
+                                else if (ncol == 2) overlayColor = Vec3b(68, 68, 255);
+
+                                for (int i = y; i < bottom; i++) {
+                                    for (int j = x; j < right; j++) {
+                                        if (i < 0 || i >= 240 || j < 0 || j >= 320) continue;
+                                        bool inside = true;
+                                        if (j < x + radius && i < y + radius) {
+                                            if (pow(j - (x + radius), 2) + pow(i - (y + radius), 2) > pow(radius, 2)) inside = false;
+                                        } else if (j > right - radius && i < y + radius) {
+                                            if (pow(j - (right - radius), 2) + pow(i - (y + radius), 2) > pow(radius, 2)) inside = false;
+                                        } else if (j < x + radius && i > bottom - radius) {
+                                            if (pow(j - (x + radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
+                                        } else if (j > right - radius && i > bottom - radius) {
+                                            if (pow(j - (right - radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
+                                        }
+                                        if (inside) {
+                                            Vec4b &pixel = debugMat.at<Vec4b>(i, j);
+                                            pixel[0] = (pixel[0] * overlayColor[0]) / 255;
+                                            pixel[1] = (pixel[1] * overlayColor[1]) / 255;
+                                            pixel[2] = (pixel[2] * overlayColor[2]) / 255;
+                                        }
+                                    }
+                                }
                             }
-                        }
-                        else {
-                            this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                            if (vis_pref_vals != nullptr) {
-                                setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, sigmoid(max_size, 1000, 0.0075) * 70);
-                            }
-                        }
-                    } else {
-                        // case where count > 1 but max_idx is still -1 (unlikely but safe)
-                        // Treat as not found (same as else block below)
-                         meanx = 0;
-                        this_score = 0;
-                        this_left_score = 0;
-                        this_right_score = 0;
-                        short tempCol = static_cast<short>(ncol * 2);
-                        if (vis_pref_vals != nullptr) {
-                            setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, 0);
-                            setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, 0);
+                        } else {
+                            // Clear unused slots
+                            centroid[baseBufIdx + 0] = 0;
+                            centroid[baseBufIdx + 1] = 0;
+                            centroid[baseBufIdx + 2] = 0;
+                            centroid[baseBufIdx + 3] = 0;
+                            centroid[baseBufIdx + 4] = 0;
                         }
                     }
 
-                    // if (icam == 0) {
-                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score);
-                    //     this_left_score = sigmoid(((228 - meanx) / 227.0), 0.85, 10) * this_score;
-                    // }
-                    // else{                    
-                    //     setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, 7, sigmoid(((meanx) / 227.0), 0.85, 10) * this_score);
-                    //     this_right_score = sigmoid(((meanx) / 227.0), 0.85, 10) * this_score;
-                    // }
+                    // Write accumulated scores for Simulation
+                    meanx = 0; 
+                    this_score = total_this_score;
+                    this_left_score = total_left_score;
+                    this_right_score = total_right_score;
+                    
+                    short tempCol = static_cast<short>(ncol * 2);
+
+                    if (vis_pref_vals != nullptr) {
+                        setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, this_score);
+                         if (icam == 0) {
+                            setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, this_left_score);
+                        } else {
+                            setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, this_right_score);
+                        }
+                    }
+
 
                 } else {
                     meanx = 0;
@@ -494,6 +589,16 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     if (vis_pref_vals != nullptr) {
                         setPreprocessMatrixValue(vis_pref_vals, tempCol, icam, vis_prefs_count, 0);
                         setPreprocessMatrixValue(vis_pref_vals, tempCol + 1, icam, vis_prefs_count, 0);
+                    }
+                    // Explicitly zero out centroid to prevent stale data
+                    // FIX: Must use correct stride (5 blobs * 5 values = 25 per color)
+                    for (int k = 0; k < 5; k++) {
+                        int baseBufIdx = (ncol * 5 + k) * 5;
+                        centroid[baseBufIdx + 0] = 0;
+                        centroid[baseBufIdx + 1] = 0;
+                        centroid[baseBufIdx + 2] = 0;
+                        centroid[baseBufIdx + 3] = 0;
+                        centroid[baseBufIdx + 4] = 0;
                     }
                 }
                 cca_wrapper.clearAll();
@@ -537,6 +642,70 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             cca_wrapper_bw.clearAll();
             */
         }
+        
+        // Draw Object Detection Bounding Boxes (People)
+        if (debugImageBuffer != nullptr && boundingBoxes != nullptr && boundingBoxesCount > 0) {
+            Mat debugMat(240, 320, CV_8UC4, debugImageBuffer);
+            // BackyardBrains Orange: BGR(100, 129, 253) -> BGRA(100, 129, 253, 255)
+            Vec4b overlayColor(100, 129, 253, 255);
+            
+            for (int k = 0; k < boundingBoxesCount; k++) {
+                // Bounds
+                float x = boundingBoxes[k*4 + 0];
+                float y = boundingBoxes[k*4 + 1];
+                float w = boundingBoxes[k*4 + 2];
+                float h = boundingBoxes[k*4 + 3];
+
+                int ix = (int)x;
+                int iy = (int)y;
+                int iw = (int)w;
+                int ih = (int)h;
+                
+                // std::min not always available directly? Use algorithm or conditional.
+                int radius = 10;
+                if (iw/2 < radius) radius = iw/2;
+                if (ih/2 < radius) radius = ih/2;
+                
+                int right = ix + iw;
+                int bottom = iy + ih;
+                
+                for(int i = iy; i < bottom; i++) {
+                    for(int j = ix; j < right; j++) {
+                        // Bounds check (just in case)
+                        if (i < 0 || i >= 240 || j < 0 || j >= 320) continue;
+                        
+                         // Check Rounded Corners
+                        bool inside = true;
+                        // Top-Left
+                        if (j < ix + radius && i < iy + radius) {
+                            if (pow(j - (ix + radius), 2) + pow(i - (iy + radius), 2) > pow(radius, 2)) inside = false;
+                        }
+                        // Top-Right
+                        else if (j > right - radius && i < iy + radius) {
+                            if (pow(j - (right - radius), 2) + pow(i - (iy + radius), 2) > pow(radius, 2)) inside = false;
+                        }
+                        // Bottom-Left
+                        else if (j < ix + radius && i > bottom - radius) {
+                            if (pow(j - (ix + radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
+                        }
+                        // Bottom-Right
+                        else if (j > right - radius && i > bottom - radius) {
+                            if (pow(j - (right - radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
+                        }
+
+                        if (inside) {
+                            // Apply Multiply Blend
+                            Vec4b &pixel = debugMat.at<Vec4b>(i, j);
+                            pixel[0] = (pixel[0] * overlayColor[0]) / 255;
+                            pixel[1] = (pixel[1] * overlayColor[1]) / 255;
+                            pixel[2] = (pixel[2] * overlayColor[2]) / 255;
+                            // Alpha pixel[3] check?
+                        }
+                    }
+                }
+            }
+        }
+
         // platform_log("Set preprocess matrix");
 
         // start = std::chrono::high_resolution_clock::now();

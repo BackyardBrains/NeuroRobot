@@ -4,9 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   native_opencv
-  nativec
   permission_handler_windows
   screen_retriever
+  share_plus
   url_launcher_windows
   winaudio
   window_manager

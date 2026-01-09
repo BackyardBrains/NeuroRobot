@@ -153,12 +153,101 @@ double randoms(){
 double matrixMultiply(){
     return (double)rand() / RAND_MAX; // for generating random points between 0 to 1
 }
+
+static const double toneRanges[12][5][2] = {
+    { // C
+        {127.089, 134.646},
+        {254.178, 269.292},
+        {508.355, 538.584},
+        {1016.710, 1077.170},
+        {2033.420, 2154.330},
+    },
+    { // C#
+        {134.646, 142.652},
+        {269.292, 285.305},
+        {538.584, 570.609},
+        {1077.170, 1141.220},
+        {2154.330, 2282.440},
+    },
+    { // D
+        {142.652, 151.135},
+        {285.305, 302.270},
+        {570.609, 604.540},
+        {1141.220, 1209.080},
+        {2282.440, 2418.160},
+    },
+    { // D#
+        {151.135, 160.122},
+        {302.270, 320.244},
+        {604.540, 640.487},
+        {1209.080, 1280.970},
+        {2418.160, 2561.950},
+    },
+    { // E
+        {160.122, 169.643},
+        {320.244, 339.286},
+        {640.487, 678.573},
+        {1280.970, 1357.150},
+        {2561.950, 2714.290},
+    },
+    { // F
+        {169.643, 179.731},
+        {339.286, 359.461},
+        {678.573, 718.923},
+        {1357.150, 1437.850},
+        {2714.290, 2875.690},
+    },
+    { // F#
+        {179.731, 190.418},
+        {359.461, 380.836},
+        {718.923, 761.672},
+        {1437.850, 1523.340},
+        {2875.690, 3046.690},
+    },
+    { // G
+        {190.418, 201.741},
+        {380.836, 403.482},
+        {761.672, 806.964},
+        {1523.340, 1613.930},
+        {3046.690, 3227.850},
+    },
+    { // G#
+        {201.741, 213.737},
+        {403.482, 427.474},
+        {806.964, 854.948},
+        {1613.930, 1709.900},
+        {3227.850, 3419.790},
+    },
+    { // A
+        {213.737, 226.446},
+        {427.474, 452.893},
+        {854.948, 905.786},
+        {1709.900, 1811.570},
+        {3419.790, 3623.140},
+    },
+    { // A#
+        {226.446, 239.912},
+        {452.893, 479.823},
+        {905.786, 959.647},
+        {1811.570, 1919.290},
+        {3623.140, 3838.590},
+    },
+    { // B
+        {239.912, 254.178},
+        {479.823, 508.355},
+        {959.647, 1016.710},
+        {1919.290, 2033.420},
+        {3838.590, 4066.840},
+    },
+};
+
 void initializeConstant(int neuronLength){
     totalNeuron = neuronLength;
     intended_timer_period = ms_per_step/1000;
     epochs = ms_per_step;
     vis_I = new double[neuronLength];
     dist_I = new double[neuronLength];
+    mic_I = new double[neuronLength];
 
 }
 
@@ -197,6 +286,9 @@ std::string decimalToBinaryString(int decimal) {
     // return str; // Adjust bit width as needed
     return std::bitset<4>(decimal).to_string();
 }
+
+
+
 
 
 #ifdef __EMSCRIPTEN__
@@ -312,10 +404,16 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers_opencv(double *_canvasBuffer, dou
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-EXTERNC FUNCTION_ATTRIBUTE double passInput_opencv(double *p_sensor_distance, short *p_sensor_min_limit, short *p_sensor_max_limit){
+
+
+EXTERNC FUNCTION_ATTRIBUTE double passInput_opencv(double *p_sensor_distance, short *p_sensor_min_limit, short *p_sensor_max_limit, double *p_sensor_microphone, short *p_sensor_mic_min_limit, short *p_sensor_mic_max_limit, short *p_sensor_mic_type){
     sensor_distance = p_sensor_distance;
     sensor_min_limit = p_sensor_min_limit;
     sensor_max_limit = p_sensor_max_limit;
+    sensor_microphone = p_sensor_microphone;
+    sensor_mic_min_limit = p_sensor_mic_min_limit;
+    sensor_mic_max_limit = p_sensor_mic_max_limit;
+    sensor_mic_type = p_sensor_mic_type;
     return 1.0;
 }
 
@@ -648,6 +746,42 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 */
                 }
 
+                // MICROPHONE INPUT
+                for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
+                    mic_I[iStep] = 0;
+                    if (microphone_buf[iStep] > -1) {
+                        if (sensor_microphone != nullptr && sensor_mic_min_limit != nullptr && sensor_mic_max_limit != nullptr && sensor_mic_type != nullptr) {
+                             short type = sensor_mic_type[iStep];
+                             double val = (type == 1) ? sensor_microphone[1] : sensor_microphone[0]; // 1=Vol, 0=Freq
+
+                             bool isHit = false;
+
+                             if (type == 2) { // Tone Mode (Multi-Octave)
+                                 short noteIndex = sensor_mic_min_limit[iStep]; 
+                                 if (noteIndex < 0) noteIndex = 0;
+                                 if (noteIndex > 11) noteIndex = 11;
+
+                                 // Check 5 octaves
+                                 for (int oct = 0; oct < 5; oct++) {
+                                     if (val >= toneRanges[noteIndex][oct][0] && val < toneRanges[noteIndex][oct][1]) {
+                                         isHit = true;
+                                         break;
+                                     }
+                                 }
+                             } else {
+                                 // Standard Range Check (Freq=0 or Vol=1)
+                                 if (val >= sensor_mic_min_limit[iStep] && val < sensor_mic_max_limit[iStep]) {
+                                     isHit = true;
+                                 }
+                             }
+
+                             if (isHit) {
+                                 mic_I[iStep] = microphone_buf[iStep]; 
+                             }
+                        }
+                    }
+                }
+
                 // VISUAL INPUT
                 for (short ii = normalNeuronFirstIndex; ii < threadInitialTotalNumOfNeurons; ii++){
                     sumVisPrefVals = 0;
@@ -659,7 +793,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 
                           if (k > -1){ // selected Color detection
                             bool handled = false;
-                            if (visual_input_buf != nullptr && k < 6) {
+                            // Fixed: Removed k < 6 limit to allow AI targets (index >= 7) to use per-neuron buffer
+                            if (visual_input_buf != nullptr) {
                                 double valuePreference = getSimulationMatrixValue(visual_input_buf, ii, k, vis_prefs_count);
                                 sumVisPrefVals += valuePreference;
                                 handled = true;
@@ -709,7 +844,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 
                         #endif                        
                         //find spiking neurons
-                        guidedDelayList[neuronIndex].isSpiking = 0;
+                        // V9 FIX: Do NOT reset guidedDelayList.isSpiking here!
+                        // It's set at END of epoch (line ~1183 when v>=30) and checked
+                        // at START of next epoch (line ~893 in mode 2). Resetting here
+                        // would always make the check fail!
+                        // guidedDelayList[neuronIndex].isSpiking = 0;  // REMOVED
 
                         isSpiking[neuronIndex] = 0;
                         arrFreshDelayedValue[neuronIndex] = 0;
@@ -729,6 +868,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 
                                 if (freshDelayedValue == 1){
                                     isSmartNeuronReady = 2;
+                                    
+                                    // FIX: Trigger inhibition when inhibitory delay neuron's delayed spike arrives
+                                    if (mapNeuronType[neuronIndex] >= 1000 && arrFreshDelayedValue[neuronIndex] >= 30) {
+                                        inhibitionArray[neuronIndex] = 1;
+                                    }
                                 }else{
                                     isSmartNeuronReady = 1;
                                 }
@@ -769,7 +913,13 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                         // }
                         short srcNeuronType = mapNeuronType[neuronIndex];
 
-                        if (srcNeuronType >= 1000) {
+                        // V5 FIX: Inhibitory DELAY neurons should skip this block and use isSmartNeuronReady == 10
+                        // (like excitatory delay neurons do) to trigger once per delay cycle, not every frame.
+                        short baseType = srcNeuronType % 1000;
+                        bool isInhibitoryDelayNeuron = (srcNeuronType >= 1000) && (baseType == configDelayNeuron);
+                        
+                        if (srcNeuronType >= 1000 && !isInhibitoryDelayNeuron) {
+                            // Regular inhibitory neurons (NOT delay) - use v >= 30
                             if ( v[neuronIndex] >= 30 ) {
                                 // platform_log( ("NeuronSmart Spike : " + std::to_string(neuronIndex)+"\nSmartNeuron: "+ std::to_string(v[neuronIndex])+"\n" ).c_str());
                                 inhibitionArray[neuronIndex] = 1;
@@ -784,12 +934,32 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             }
                         }else                       
                         if (isSmartNeuronReady == 10){ // SMART NEURON mode =10 SPIKING
-                            if (srcNeuronType >= configDelayNeuron && srcNeuronType <= configCountingNeuron){
+                            // V6 FIX: Use baseType instead of srcNeuronType for range check
+                            // so inhibitory delay neurons (srcNeuronType=1006, baseType=6) pass
+                            if (baseType >= configDelayNeuron && baseType <= configCountingNeuron){
                                 isSpiking[neuronIndex] = 1;
                                 isStepSpiking[neuronIndex] = 1;
                                 spikingNow.push_back(neuronIndex);
                                 spikes_step[neuronIndex][t] = 1;
                                 guidedDelayList[neuronIndex].isSpiking = 1;
+
+                                // FIX: Ensure inhibitory delay neurons actually inhibit
+                                if (mapNeuronType[neuronIndex] >= 1000) {
+                                     inhibitionArray[neuronIndex] = 1;
+                                     
+                                     // V8 FIX: DIRECTLY apply inhibition to all connected targets
+                                     // This bypasses the complex propagation and ensures inhibition works
+                                     for (short targetIdx = 0; targetIdx < threadTotalNumOfNeurons; targetIdx++) {
+                                         if (connectome[neuronIndex][targetIdx] > 0) {
+                                             // Directly reduce the target's membrane potential
+                                             v[targetIdx] -= connectome[neuronIndex][targetIdx] * 2.0;  // Strong inhibition
+                                             // Also reduce below resting to prevent immediate re-firing
+                                             if (v[targetIdx] < c[targetIdx]) {
+                                                 v[targetIdx] = c[targetIdx] - 10;  // Push below resting
+                                             }
+                                         }
+                                     }
+                                }
                             }                        
                         }else
                         if (isSmartNeuronReady == 1){ // SMART NEURON mode =0 OR mode =1
@@ -849,7 +1019,12 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             sumInhibition[idx] += (inhibitionArray[j] * connectome[j][idx]);
                             if (guidedDelayList[idx].neuronType == configDelayNeuron && arrFreshDelayedValue[idx]>=30){
                                 if (connectome[idx][j] > 0){
-                                    sumDelayedSignals[j] += connectome[idx][j];
+                                    // FIX: Inhibitory delay neurons should SUBTRACT (inject negative current)
+                                    if (mapNeuronType[idx] >= 1000) {
+                                        sumDelayedSignals[j] -= connectome[idx][j];  // SUBTRACT for inhibition!
+                                    } else {
+                                        sumDelayedSignals[j] += connectome[idx][j];  // Add for excitation
+                                    }
                                 }
                             }
                         }
@@ -869,7 +1044,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             if (srcNeuronType >= 1000){ // if spikingNeuron is inhibitor
                                 isSourceInhibitor = true;
                                 srcNeuronType %= 1000;
-                                guidedDelayList[idx].isInhibited = true;
+                                // FIX: Don't mark the source delay neuron as inhibited when it fires
+                                // Only targets should be inhibited, not the source itself
+                                if (srcNeuronType != configDelayNeuron) {
+                                    guidedDelayList[idx].isInhibited = true;
+                                }
                             }
 
                             for ( short j=0; j < threadTotalNumOfNeurons ; j++ ){
@@ -877,7 +1056,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                     if (isSourceInhibitor) {
                                         guidedDelayList[j].isInhibited = true;
                                     }
-                                    if (srcNeuronType<configDelayNeuron){
+                                    // V7 FIX: For delay neurons, handle excitatory/inhibitory differently
+                                    if (srcNeuronType == configDelayNeuron) {
+                                        // Delay neurons: excitatory adds, inhibitory SUBTRACTS
+                                        if (isSourceInhibitor) {
+                                            sumConnectome[j] -= (connectome[spikingNeuronIndex][j]);  // INHIBIT!
+                                        } else {
+                                            sumConnectome[j] += (connectome[spikingNeuronIndex][j]);  // Excite
+                                        }
+                                    } else if (srcNeuronType < configDelayNeuron) {
                                         sumConnectome[j] += (connectome[spikingNeuronIndex][j]);
                                     }
                                 }
@@ -896,9 +1083,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     delete[] sumDelayedSignals;
 
 
-                    // VISUAL INPUT
+                    // VISUAL INPUT & MICROPHONE
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
-                        tI[idx] += (vis_I[idx] + dist_I[idx]);
+                        tI[idx] += (vis_I[idx] + dist_I[idx] + mic_I[idx]);
                     }
 
                     // update v & u
