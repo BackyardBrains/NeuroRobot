@@ -1,0 +1,177 @@
+
+Building macOS application...                                   
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006020-001A70411AD3C01E, name:My Mac }
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:57:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core/types.hpp:952:6: warning: empty paragraph passed to '@note' command [-Wdocumentation]
+  952 | @note
+      | ~~~~~^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:59:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core/persistence.hpp:474:7: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+  474 |      @deprecated
+      |      ~^~~~~~~~~~
+  476 |     FileNode(const FileStorage* fs, size_t blockIdx, size_t ofs);
+      |     ^
+      |     CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:154:2: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+  154 | @deprecated drop this version
+      | ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  156 | CV_EXPORTS CV_NORETURN void error(const Exception& exc);
+      | ^
+      | CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:52:
+  430 | #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+      |                       ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:527:2: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+  527 | @deprecated Use Mat::convertTo with CV_16F instead.
+      | ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  529 | CV_EXPORTS_W void convertFp16(InputArray src, OutputArray dst);
+      | ^
+      | CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:52:
+  472 | #define CV_EXPORTS_W CV_EXPORTS
+      |                      ^
+  430 | #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+      |                       ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:3208:10: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+ 3208 |     /** @deprecated */
+      |         ~^~~~~~~~~~
+ 3209 |     void write(const Ptr<FileStorage>& fs, const String& name = String()) const;
+      |     ^
+      |     CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:3410:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core/utility.hpp:254:2: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+  254 | @deprecated Current implementation doesn't corresponding to this documentation.
+      | ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  265 | CV_EXPORTS_W int getThreadNum();
+      | ^
+      | CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:52:
+  472 | #define CV_EXPORTS_W CV_EXPORTS
+      |                      ^
+  430 | #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+      |                       ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:74:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2439:8: warning: empty paragraph passed to '@param' command [-Wdocumentation]
+ 2439 | @param M \f$2\times 3\f$ transformation matrix.
+      | ~~~~~~~^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2473:8: warning: empty paragraph passed to '@param' command [-Wdocumentation]
+ 2473 | @param M \f$3\times 3\f$ transformation matrix.
+      | ~~~~~~~^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2679:2: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+ 2679 | @deprecated This function produces same result as cv::warpPolar(src, dst, src.size(), center, maxRadius, flags+WARP_POLAR_LOG);
+      | ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2716 | CV_EXPORTS_W void logPolar( InputArray src, OutputArray dst,
+      | ^
+      | CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:52:
+  472 | #define CV_EXPORTS_W CV_EXPORTS
+      |                      ^
+  430 | #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+      |                       ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:74:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2721:2: warning: declaration is marked with '@deprecated' command but does not have a deprecation attribute [-Wdocumentation-deprecated-sync]
+ 2721 | @deprecated This function produces same result as cv::warpPolar(src, dst, src.size(), center, maxRadius, flags)
+      | ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2757 | CV_EXPORTS_W void linearPolar( InputArray src, OutputArray dst,
+      | ^
+      | CV_DEPRECATED 
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:52:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/core.hpp:52:
+  472 | #define CV_EXPORTS_W CV_EXPORTS
+      |                      ^
+  430 | #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+      |                       ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:8:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/opencv.hpp:74:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2793:30: warning: empty paragraph passed to '\par' command [-Wdocumentation]
+ 2793 | \par Linear vs semilog mapping
+      | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2802:23: warning: empty paragraph passed to '\par' command [-Wdocumentation]
+ 2802 | \par Option on `dsize`:
+      | ~~~~~~~~~~~~~~~~~~~~~~^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/macos/Flutter/ephemeral/.symlinks/plugins/native_opencv/macos/opencv2.framework/Headers/imgproc.hpp:2824:20: warning: empty paragraph passed to '\par' command [-Wdocumentation]
+ 2824 | \par Reverse mapping
+      | ~~~~~~~~~~~~~~~~~~~^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:250:5: error: use of undeclared identifier 'mic_I'
+  250 |     mic_I = new double[neuronLength];
+      |     ^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:408:9: error: redefinition of 'sensor_distance'
+  408 | double *sensor_distance;
+      |         ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:102:
+  136 | double *sensor_distance;
+      |         ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:409:8: error: redefinition of 'sensor_min_limit'
+  409 | short *sensor_min_limit;
+      |        ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:102:
+  137 | short *sensor_min_limit;
+      |        ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:410:8: error: redefinition of 'sensor_max_limit'
+  410 | short *sensor_max_limit;
+      |        ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:102:
+  138 | short *sensor_max_limit;
+      |        ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:758:21: error: use of undeclared identifier 'mic_I'
+  758 |                     mic_I[iStep] = 0;
+      |                     ^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:786:34: error: use of undeclared identifier 'mic_I'
+  786 |                                  mic_I[iStep] = microphone_buf[iStep]; 
+      |                                  ^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:1043:64: error: use of undeclared identifier 'mic_I'; did you mean 'vis_I'?
+ 1043 |                         tI[idx] += (vis_I[idx] + dist_I[idx] + mic_I[idx]);
+      |                                                                ^~~~~
+      |                                                                vis_I
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:102:
+   87 | double *vis_I;
+      |         ^
+In file included from /Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:17:
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/NeuronPrototype.cpp:890:33: warning: expression result unused [-Wunused-value]
+  890 |                                 freshDelayedValue;
+      |                                 ^~~~~~~~~~~~~~~~~
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:248:5: warning: duplicate 'extern' declaration specifier [-Wduplicate-decl-specifier]
+  248 |     EXTERNC FUNCTION_ATTRIBUTE
+      |     ^
+   30 | #define EXTERNC extern "C"
+      |                 ^
+/Users/hatch/.gemini/antigravity/playground/obsidian-magnetosphere/Spikerbot_Hatch_UX/PLUGINS/native_opencv/macos/Classes/native_opencv.cpp:439:20: warning: unused variable 'curMaxScore' [-Wunused-variable]
+  439 |             double curMaxScore = 0;
+      |                    ^~~~~~~~~~~
+16 warnings and 7 errors generated.
+** BUILD FAILED **
+
+Build process failed

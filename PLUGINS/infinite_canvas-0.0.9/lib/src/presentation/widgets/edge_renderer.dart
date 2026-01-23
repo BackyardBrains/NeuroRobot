@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:infinite_canvas/infinite_canvas.dart';
@@ -8,6 +8,7 @@ import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 
 import '../../domain/model/edge.dart';
+import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 import '../state/controller.dart';
 import 'inline_painter.dart';
 
@@ -23,11 +24,13 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       required this.edges,
       this.linkStart,
       this.linkEnd,
+      this.linkIsExcitatory = true,
       this.straightLines = false});
 
   final InfiniteCanvasController controller;
   final List<InfiniteCanvasEdge> edges;
   final Offset? linkStart, linkEnd;
+  final bool linkIsExcitatory; // Determines triangle (true) or circle (false) for drag preview
   final bool straightLines;
 
   final double arrowSize = 15.0;
@@ -57,6 +60,14 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     ..color = const Color(0XFFFD8164)
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
+    
+  // V23: Orange highlight for 3-pass organic axon rendering
+  Paint orangeHighlightBrush = Paint()
+    ..color = const Color(0xFFFD8164)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 8
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +91,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           // List<InfiniteCanvasEdge> reciprocateList = [];
           // controller.syntheticConnections.clear();
           // in Stan code it create connections and then draw the neuron
+          // V25: Reset blackBrush color at start of frame to prevent pollution
+          blackBrush.color = Colors.black;
+
           if (refreshRetainer == 0) {
             controller.syntheticConnections.clear();
             // int start = DateTime.now().millisecondsSinceEpoch;
@@ -95,17 +109,510 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           refreshRetainer++;
           refreshRetainer %= 120;
 
+          // V23: COMPLETE REWRITE - Proper tree-based trunk system
+          // Phase 1: Build tree structure with bottom-up thickness calculation
+          // Phase 2: Draw trunks with correct thickness and G1 continuity
+          // USING VECTORS NOT ANGLES to eliminate trig conversion errors
+          
+          // Store direction as VECTOR (Offset), not angle
+          // V23: Direct Draw Refactor - eliminate branchPoints map
+          // Store edges we have already drawn as part of a trunk using KEYS to avoid identity issues
+          Set<String> drawnEdgeKeys = {};
+          
+          // V24: Clear trunk mapping before rebuild
+          controller.trunkToEdgesMap.clear();
+          // V25: CRITICAL FIX - Clear axonPathMap to prevent "Ghost" hit tests on stale segments
+          controller.axonPathMap.clear();
+          
+          // V25: Clean up stale edgeBranchPointMap entries for edges that no longer exist
+          // This fixes the issue where highlights follow old paths after connection deletion
+          Set<String> validEdgeKeys = {};
           for (final edge in edges) {
-            final from =
-                controller.nodes.firstWhere((node) => node.key == edge.from);
-            final to =
-                controller.nodes.firstWhere((node) => node.key == edge.to);
+            validEdgeKeys.add("${edge.from}->${edge.to}");
+          }
+          controller.edgeBranchPointMap.removeWhere((key, value) => !validEdgeKeys.contains(key));
+          
+          // V25: Track edge counts per source to detect when trunk vs direct path changes
+          // If count changed since last frame, clear all cache entries for that source
+          Map<LocalKey, int> currentEdgeCounts = {};
+          for (final edge in edges) {
+            currentEdgeCounts[edge.from] = (currentEdgeCounts[edge.from] ?? 0) + 1;
+          }
+          // Clear cache for any source whose edge count changed (path type may have changed)
+          for (var sourceKey in currentEdgeCounts.keys) {
+            int currentCount = currentEdgeCounts[sourceKey]!;
+            int? previousCount = controller.sourcePreviousEdgeCount[sourceKey];
+            if (previousCount != null && previousCount != currentCount) {
+              // Edge count changed - clear all cache entries for this source
+              controller.edgeBranchPointMap.removeWhere((key, value) => key.startsWith("$sourceKey->"));
+            }
+          }
+          controller.sourcePreviousEdgeCount = currentEdgeCounts;
+          
+          // V25: Create outputGroups early so pre-compute pass can use it
+          Map<LocalKey, List<InfiniteCanvasEdge>> outputGroups = {};
+          for (final edge in edges) {
+            if (!outputGroups.containsKey(edge.from)) {
+              outputGroups[edge.from] = [];
+            }
+            outputGroups[edge.from]!.add(edge);
+          }
+          
+          // Pre-compute pass removed (merged into main loop)
+          
+          // Phase 0: Draw neuron highlight circles for selected neurons (bottom-most layer)
+          if (!controller.isPlaying && controller.selection.isNotEmpty) {
+            for (var node in controller.selection) {
+              try {
+                // Only draw highlight for actual neurons (not sensors)
+                if (node.value != -1 && node.isSensory == 0) {
+                  final paint = Paint()
+                    ..color = const Color(0xFFFD8164)
+                    ..style = PaintingStyle.fill;
+                  // Draw circle at node center with radius larger than neuron
+                  canvas.drawCircle(
+                    node.offset + Offset(node.size.width/2, node.size.height/2),
+                    node.size.width/2 * 2.0 + 3.0, // V25: +3 radius for border effect
+                    paint);
+                }
+              } catch (e) {
+                // Node not found or error
+              }
+            }
+          }
+          
+          // Legacy highlight passes removed (lines 273-317)
+          
+          // outputGroups already populated earlier for pre-compute pass
+          
+          // V25: Update axonAngle for ALL neurons with outputs (1+)
+          // xFirstLevel/yFirstLevel are calculated dynamically in recalculate() 
+          // using angle + rotationDelta, so they already include rotation
+          for (var sourceKey in outputGroups.keys) {
+            List<InfiniteCanvasEdge> group = outputGroups[sourceKey]!;
+            if (group.isEmpty) continue;
+            
+            try {
+              final sourceNode = controller.nodes.firstWhere((n) => n.key == sourceKey);
+              Offset sourceCenter = sourceNode.offset + Offset(sourceNode.size.width/2, sourceNode.size.height/2);
+              
+              int fromIdx = findSyntheticNeuronIdx(sourceKey.toString(), controller.syntheticNeuronList);
+              if (fromIdx < 0 || fromIdx >= controller.syntheticNeuronList.length) continue;
+              
+              var neuronFrom = controller.syntheticNeuronList[fromIdx].newNeuron;
+              
+              // Calculate centroid of all downstream targets
+              double sumX = 0, sumY = 0;
+              int count = 0;
+              
+              for (var edge in group) {
+                final targetNode = controller.nodes.firstWhere((n) => n.key == edge.to);
+                Offset targetCenter = targetNode.offset + Offset(targetNode.size.width/2, targetNode.size.height/2);
+                sumX += targetCenter.dx;
+                sumY += targetCenter.dy;
+                count++;
+              }
+              
+              // If dragging from this neuron, include drag position in centroid
+              if (controller.linkStart == sourceKey && controller.linkEnd != null) {
+                sumX += controller.linkEnd!.dx;
+                sumY += controller.linkEnd!.dy;
+                count++;
+              }
+              
+              if (count == 0) continue;
+              
+              // Calculate angle toward centroid
+              double centroidX = sumX / count;
+              double centroidY = sumY / count;
+              double targetAngle = atan2(centroidY - sourceCenter.dy, centroidX - sourceCenter.dx) * 180 / pi;
+              
+              // Normalize to 0-360
+              if (targetAngle < 0) targetAngle += 360;
+              
+              // V25: Update axonAngle to drive rotation via rotationDelta
+              // rotationDelta = axonAngle - baseAxonAngle
+              // baseAxonAngle stays FIXED at original dendrite angle
+              // axonAngle updates to track downstream centroid
+              if (neuronFrom.axonAngle <= -1) {
+                // First time - initialize both
+                neuronFrom.axonAngle = targetAngle;
+                neuronFrom.baseAxonAngle = targetAngle;
+              } else {
+                // Update axonAngle only - baseAxonAngle stays fixed
+                // This changes rotationDelta and rotates the whole neuron
+                neuronFrom.axonAngle = targetAngle;
+              }
+              
+              // V25: CRITICAL - Recalculate dendrite positions immediately after updating rotation
+              // This ensures xFirstLevel/yFirstLevel include the new rotation before edges are drawn
+              controller.syntheticNeuronList[fromIdx].recalculate(null);
+            } catch (e) {
+              // Node not found
+            }
+          }
+          // V25: Two-pass rendering (Highlights then Structure)
+          // Pass 1 (true): Draw all highlights
+          // Pass 2 (false): Draw all structures (black lines)
+          for (bool isHighlightPass in [true, false]) {
+            drawnEdgeKeys.clear(); // Reset handled edges for this pass
+            
+          // Process each source neuron with 2+ outputs (for trunk drawing)
+          for (var sourceKey in outputGroups.keys) {
+            List<InfiniteCanvasEdge> group = outputGroups[sourceKey]!;
+            if (group.length < 2) continue;
+            
+            // V25Fix: Mark ALL edges in this group as drawn to prevent "Ghost Axons" (double drawing) in fallback loop
+            // The trunk builder handles them; the straight-line fallback loop must ignore them.
+            for (var e in group) {
+              drawnEdgeKeys.add("${e.from}->${e.to}");
+            }
+            
+            try {
+              final sourceNode = controller.nodes.firstWhere((n) => n.key == sourceKey);
+              Offset sourceCenter = sourceNode.offset + Offset(sourceNode.size.width/2, sourceNode.size.height/2);
+              
+              // Get axon thicknesses for each edge (use connection strength)
+              Map<InfiniteCanvasEdge, double> edgeThickness = {};
+              for (var edge in group) {
+                // Axon thickness matched to drawAxon logic:
+                double strengthVal = edge.connectionStrength / 2.0;
+
+                // V23: MATCH drawAxon EXACTLY
+                int fromIdx = findSyntheticNeuronIdx(sourceNode.key.toString(), controller.syntheticNeuronList);
+                double visualRadius = 20.0; // Fallback
+                if (fromIdx >= 0 && fromIdx < controller.syntheticNeuronList.length) {
+                   visualRadius = controller.syntheticNeuronList[fromIdx].circleRadius;
+                }
+                
+                double maxAbsoluteConnectionStrength = 110 - strengthVal.floor().abs().toDouble(); 
+                if (maxAbsoluteConnectionStrength <= 0) maxAbsoluteConnectionStrength = 1;
+
+                // V23: User demanded multiplication by 2.0 for trunk thickness
+                double thickness = ((strengthVal.abs() / maxAbsoluteConnectionStrength) * visualRadius / 2) * 2.0;
+                
+                if ((visualRadius * 0.1) > thickness) thickness = visualRadius * 0.1;
+                if (thickness < 1.0) thickness = 1.0;
+                
+                edgeThickness[edge] = thickness;
+              }
+              
+              // Build list of targets with edges
+              List<MapEntry<Offset, InfiniteCanvasEdge>> targetsWithEdges = [];
+              for (var edge in group) {
+                final targetNode = controller.nodes.firstWhere((n) => n.key == edge.to);
+                Offset pos = targetNode.offset + Offset(targetNode.size.width/2, targetNode.size.height/2);
+                targetsWithEdges.add(MapEntry(pos, edge));
+              }
+              
+              // Calculate Centroid (Moved up for sorting)
+              double cX = 0, cY = 0;
+              for (var entry in targetsWithEdges) {
+                cX += entry.key.dx;
+                cY += entry.key.dy;
+              }
+              Offset globalCentroid = Offset(cX / targetsWithEdges.length, cY / targetsWithEdges.length);
+              
+              // SORT ALGORITHM: Projected Distance
+              // Sort by distance projected onto the main flow vector (Source -> Centroid).
+              // This ensures axons peel off in "sequence" along the path, avoiding zig-zags.
+              Offset flowVec = (globalCentroid - sourceCenter);
+              if (flowVec.distance > 0.1) {
+                  Offset flowDir = flowVec / flowVec.distance;
+                  targetsWithEdges.sort((a, b) {
+                      double projA = (a.key - sourceCenter).dx * flowDir.dx + (a.key - sourceCenter).dy * flowDir.dy;
+                      double projB = (b.key - sourceCenter).dx * flowDir.dx + (b.key - sourceCenter).dy * flowDir.dy;
+                      return projA.compareTo(projB);
+                  });
+              } else {
+                  // Fallback to strict distance if no clear flow
+                  targetsWithEdges.sort((a, b) => 
+                     (a.key - sourceCenter).distanceSquared.compareTo((b.key - sourceCenter).distanceSquared));
+              }
+
+              // PHASE 1: Calculate thickness bottom-up
+              // We need to know exact thickness of every axon first
+              List<double> segmentThicknesses = [];
+              double currentTrunkThickness = 0;
+              
+              // Compute thicknesses from leaves up
+              // Last segment feeds 2 axons: last one and second to last
+              // Iterate backwards to build trunk thickness
+              for (int i = targetsWithEdges.length - 1; i >= 0; i--) {
+                double axonThickness = edgeThickness[targetsWithEdges[i].value] ?? 2.0;
+                
+                if (i == targetsWithEdges.length - 1) {
+                   // Bottom of tree - just the last axon
+                   currentTrunkThickness = axonThickness;
+                } else {
+                   // This trunk segment carries the current axon PLUS everything below
+                   // Reverting to strict MAX as per user request
+                   currentTrunkThickness = max(axonThickness, currentTrunkThickness);
+                }
+                if (i < targetsWithEdges.length - 1) {
+                  segmentThicknesses.insert(0, currentTrunkThickness);
+                }
+              }
+              
+              // PHASE 2: Draw SINGLE ARC trunk
+              Offset currentStart = sourceCenter;
+              
+              // (Centroid calculation moved up)
+              
+              // V25: Update neuronFrom.axonAngle to point toward centroid
+              
+              // V25: Update neuronFrom.axonAngle to point toward centroid
+              // Include drag position if we're actively dragging a new link from this neuron
+              int fromIdx = findSyntheticNeuronIdx(sourceKey.toString(), controller.syntheticNeuronList);
+              if (fromIdx >= 0 && fromIdx < controller.syntheticNeuronList.length) {
+                var neuronFrom = controller.syntheticNeuronList[fromIdx].newNeuron;
+                
+                // Calculate target angle toward centroid
+                double targetAngle;
+                
+                // Check if we're dragging from this neuron - if so, include drag position in centroid
+                if (controller.linkStart == sourceKey && controller.linkEnd != null) {
+                  // Include linkEnd position in the centroid calculation
+                  double dragCX = (cX + controller.linkEnd!.dx) / (targetsWithEdges.length + 1);
+                  double dragCY = (cY + controller.linkEnd!.dy) / (targetsWithEdges.length + 1);
+                  targetAngle = atan2(dragCY - sourceCenter.dy, dragCX - sourceCenter.dx) * 180 / pi;
+                } else {
+                  targetAngle = atan2(globalCentroid.dy - sourceCenter.dy, globalCentroid.dx - sourceCenter.dx) * 180 / pi;
+                }
+                
+                // Normalize to 0-360
+                if (targetAngle < 0) targetAngle += 360;
+                
+                // V25: Update axonAngle to drive rotation via rotationDelta
+                // baseAxonAngle stays FIXED at original dendrite angle
+                if (neuronFrom.axonAngle <= -1) {
+                  neuronFrom.axonAngle = targetAngle;
+                  neuronFrom.baseAxonAngle = targetAngle;
+                } else {
+                  neuronFrom.axonAngle = targetAngle;
+                }
+              }
+              
+              // Trunk length: Based on segment count constraints (User Request)
+              // Each segment must be between 25px and 60px long.
+              int totalSegments = max(1, targetsWithEdges.length - 1);
+              double minTrunkLen = totalSegments * 25.0;
+              double maxTrunkLen = totalSegments * 60.0;
+              
+              double distanceToCentroid = (globalCentroid - sourceCenter).distance;
+              double distanceToFirstTarget = (targetsWithEdges.first.key - sourceCenter).distance;
+              double closerDistance = min(distanceToCentroid, distanceToFirstTarget);
+              
+              // Base calculation (51% distance), clamped by segment requirements
+              double trunkLength = min(closerDistance * 0.51, maxTrunkLen);
+              trunkLength = max(trunkLength, minTrunkLen);
+              
+              // V25: SNAKE TRUNK LOGIC (Iterative Segments)
+              // User Request: Segments curve independently towards their targets.
+
+              // V25: Store SORTED edges in trunkToEdgesMap (Fixes Highlight Mismatch)
+              List<InfiniteCanvasEdge> sortedEdges = targetsWithEdges.map((e) => e.value).toList();
+              controller.trunkToEdgesMap["${sourceNode.key}_trunk"] = sortedEdges;
+              
+              // Helper to check highlight
+              bool shouldHighlightSegment(int segmentIndex) {
+                 if (!controller.isSelectingEdge) return false;
+                 for (int k = segmentIndex; k < sortedEdges.length; k++) {
+                     InfiniteCanvasEdge edge = sortedEdges[k];
+                     if (controller.multiEdgeSelection.contains(edge)) return true;
+                     if (controller.edgeSelected == edge) return true;
+                 }
+                 return false;
+              }
+              
+              // 1. Setup Iteration State
+              Offset currentPos = currentStart;
+              
+              Offset direction = (globalCentroid - sourceCenter);
+              if (direction.distance > 0) direction = direction / direction.distance;
+
+              // Initial direction: Towards global centroid (or driven by source axon angle if set?)
+              // Re-use 'direction' calculated above which points to global centroid.
+              Offset currentTangent = direction;
+
+              int totalSegmentsSnake = max(1, sortedEdges.length - 1);
+              
+              // 2. Iterate Segments
+              for (int i = 0; i < totalSegmentsSnake; i++) {
+                 // A. Determine Target Cluster for THIS segment
+                 // This segment supports edges 'i' through 'end'.
+                 // We want to aim towards the centroid of these remaining targets.
+                 Offset clusterSum = Offset.zero;
+                 int count = 0;
+                 for (int j = i; j < targetsWithEdges.length; j++) {
+                     clusterSum += targetsWithEdges[j].key;
+                     count++;
+                 }
+                 Offset segmentTargetCentroid = count > 0 ? clusterSum / count.toDouble() : globalCentroid;
+                 
+                 // B. Calculate Dynamic Segment Length
+                 Offset toCentroid = segmentTargetCentroid - currentPos;
+                 double distToCentroid = toCentroid.distance;
+                 
+                 // Default length logic (clamp 15-30)
+                 double desiredLen = min(distToCentroid * 0.35, 30.0);
+                 desiredLen = max(desiredLen, 15.0);
+                 
+                 // Constraint: First segment larger (User Request)
+                 if (i == 0) {
+                     desiredLen = max(30.0, desiredLen * 1.2);
+                     desiredLen = min(desiredLen, 60.0); // Cap it
+                 }
+                 
+                 // C. Calculate Curve Geometry (Snake Segment)
+                 // p0 = currentPos
+                 // p1 = p0 + currentTangent * (len * 0.5)  (Project forward from previous)
+                 // p2 = ?
+                 
+                 // Target direction for this segment
+                 Offset targetDir = toCentroid;
+                 if (targetDir.distance > 0) targetDir = targetDir / targetDir.distance;
+                 
+                 // Bias the target direction slightly by the CURRENT tangent (Momentum)
+                 // This restoration of mixing (30% momentum) prevents the "polyline" look.
+                 Offset paramSum = (currentTangent * 0.3 + targetDir * 0.7);
+                 Offset mixDir = paramSum.distance > 0 ? paramSum / paramSum.distance : targetDir;
+                 
+                 // Restore handle length (0.45) for flowy ("sine-like") S-curves
+                 Offset p0 = currentPos;
+                 Offset p1 = p0 + currentTangent * (desiredLen * 0.45);
+                 Offset p2 = p0 + mixDir * desiredLen;
+                 
+                 // Re-calculate p2 to ensure G1 continuity smoothness? 
+                 // If p1 is fixed (tangent match), p2 determines the curve.
+                 // Just using p2 = p0 + targetDir * len is simple and effective.
+                 
+                 // Bezier helper for this segment
+                 Offset getSegBezier(double t) {
+                     double mt = 1 - t;
+                     return p0 * mt * mt + p1 * 2 * mt * t + p2 * t * t;
+                 }
+                 // Tangent helper
+                 Offset getSegTangent(double t) {
+                     double mt = 1 - t;
+                     Offset tan = (p1 - p0) * 2 * mt + (p2 - p1) * 2 * t;
+                     return tan.distance > 0 ? tan / tan.distance : currentTangent;
+                 }
+                 
+                 // D. Draw Segment (Subdivide)
+                 int subdivisions = 10;
+                 // Register Hit Path (index i)
+                 Path segmentPath = Path();
+                 segmentPath.moveTo(p0.dx, p0.dy);
+                 for (int s = 1; s <= subdivisions; s++) {
+                     double st = s / subdivisions;
+                     Offset sp = getSegBezier(st);
+                     segmentPath.lineTo(sp.dx, sp.dy);
+                 }
+                 
+                 if (!isHighlightPass) {
+                    controller.axonPathMap["${sourceNode.key}_trunk_$i"] = getOutlinePath(segmentPath, widthClickMask);
+                 }
+                 if (isHighlightPass && shouldHighlightSegment(i)) {
+                    Paint trunkHighlightPaint = Paint()
+                      ..color = const Color(0xFFFD8164)
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 17.0
+                      ..strokeCap = StrokeCap.round;
+                    canvas.drawPath(segmentPath, trunkHighlightPaint);
+                 }
+                 
+                 double currentThickness = segmentThicknesses.isNotEmpty && i < segmentThicknesses.length 
+                      ? segmentThicknesses[i] : 2.0;
+
+                 if (!isHighlightPass) {
+                   Paint segPaint = Paint()
+                     ..color = Colors.black
+                     ..style = PaintingStyle.stroke
+                     ..strokeWidth = currentThickness
+                     ..strokeCap = StrokeCap.round;
+                   canvas.drawPath(segmentPath, segPaint);
+                 }
+                 
+                 // E. Update State for Next Segment
+                 currentPos = p2;
+                 currentTangent = getSegTangent(1.0);
+                 
+                 // F. Draw Branch (If not the final tip-segment)
+                 // The 'final' segment (i == totalSegments - 1) is the one that ENDS at the split of the last two axons.
+                 // So for i < totalSegments - 1, we branch off sortedEdges[i].
+                 // For i == totalSegments - 1, we branch off BOTH of the last two edges at the tip.
+                 
+                 Offset branchPoint = p2; // Actually branch point is usually p0? 
+                 // Wait, original logic branched at the END of the segment? 
+                 // "Branch at 'pos' ... (loop uses t=step*(i+1))"
+                 // So yes, at the END of segment i, we find Branch Point for axon i.
+                 // EXCEPTION: The original logic had 'numBranches' segments. At the end of segment i, it branched taxon i.
+                 
+                 if (i < totalSegmentsSnake - 1) {
+                     // Branch Standard Axon
+                     InfiniteCanvasEdge edge = sortedEdges[i];
+                     drawnEdgeKeys.add("${edge.from}->${edge.to}");
+                     final from = controller.nodes.firstWhere((node) => node.key == edge.from);
+                     final to = controller.nodes.firstWhere((node) => node.key == edge.to);
+                     String label = edge.label ?? "";
+                     bool isEdgeSelected = controller.isEdgeInSelection(edge);
+                     double connectionStrength = edge.connectionStrength / 2.0;
+                     int fromIdx = findSyntheticNeuronIdx(edge.from.toString(), controller.syntheticNeuronList);
+                     int toIdx = findSyntheticNeuronIdx(edge.to.toString(), controller.syntheticNeuronList);
+                     
+                     controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
+                     
+                     drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
+                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent);
+                        
+                 } else {
+                     // Final Tip (Split last two axons)
+                     // Edges 'totalSegments - 1' AND 'totalSegments' (Wait, index mismatch?)
+                     // If 6 edges. totalSegments=5. Indices 0..5.
+                     // i=0..3: branch edges 0..3.
+                     // i=4 (last): branch edges 4 AND 5.
+                     
+                     List<int> lastIndices = [];
+                     if (sortedEdges.length > i) lastIndices.add(i);
+                     if (sortedEdges.length > i+1) lastIndices.add(i+1);
+                     
+                     for (int edgeIdx in lastIndices) {
+                         InfiniteCanvasEdge edge = sortedEdges[edgeIdx];
+                         drawnEdgeKeys.add("${edge.from}->${edge.to}");
+                         final from = controller.nodes.firstWhere((node) => node.key == edge.from);
+                         final to = controller.nodes.firstWhere((node) => node.key == edge.to);
+                         String label = edge.label ?? "";
+                         bool isEdgeSelected = controller.isEdgeInSelection(edge);
+                         double connectionStrength = edge.connectionStrength / 2.0;
+                         int fromIdx = findSyntheticNeuronIdx(edge.from.toString(), controller.syntheticNeuronList);
+                         int toIdx = findSyntheticNeuronIdx(edge.to.toString(), controller.syntheticNeuronList);
+                         
+                         controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
+                         
+                         drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
+                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent);
+                     }
+                 }
+              }
+            } catch (e) {
+            }
+          } // RESTORED CLOSURE: Closes 'outputGroups' loop. Fallback loop follows.
+
+
+          for (final edge in edges) {
+            try {
+              final from =
+                  controller.nodes.firstWhere((node) => node.key == edge.from);
+              final to =
+                  controller.nodes.firstWhere((node) => node.key == edge.to);
             final label = edge.label ?? "";
 
             Paint curBrush = brush;
             if (controller.isSelectingEdge && controller.edgeSelected == edge) {
               curBrush = selectedEdgeBrush;
-              drawHitArea(canvas, edge);
+              // V23: Removed square hit area highlight
+              // drawHitArea(canvas, edge);
             } else if (controller.isFoundEdge && controller.edgeFound == edge) {
               curBrush = foundEdgeBrush;
             } else {}
@@ -113,45 +620,41 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             double pairSpace = edge.isReciprocate * 7;
             int fromIdx = findSyntheticNeuronIdx(
                 edge.from.toString(), controller.syntheticNeuronList);
-            // controller.neuronTypes.keys
-            //     .toList()
-            //     .indexOf(edge.from.toString());
             int toIdx = findSyntheticNeuronIdx(
                 edge.to.toString(), controller.syntheticNeuronList);
-            // controller.neuronTypes.keys
-            //     .toList()
-            //     .indexOf(edge.to.toString());
 
-            // print("edge.from.toString()");
-            // print(fromIdx);
-            // print(toIdx);
-            // print(controller.neuronTypes);
-            // print(controller.syntheticNeuronList);
-            // print(edge.from.toString());
-            // print(edge.to.toString());
+            double connectionStrength = edge.connectionStrength / 2.0;
 
-            double connectionStrength = edge.connectionStrength /
-                2; // !! change it to connectome divide by 2
-            // if (fromIdx > -1 && toIdx > -1) {
-            //   // drawNeuralAxon(edge.from, edge.to, fromIdx, toIdx,
-            //   //     connectionStrength, canvas);
-            //   // drawNeuralAxon(
-            //   //     from, to, fromIdx, toIdx, connectionStrength, canvas);
+            // V25: Do NOT modify blackBrush color here. It is shared and must remain black.
+            // drawAxon handles colors internally via gradients.
+            // if (edge.color != null) {
+            //   blackBrush.color = edge.color!;
+            // } else {
+            //   blackBrush.color = Colors.black;
+            // }
+            
+            // V23: Pass selection state for conditional orange highlight
+            bool isEdgeSelected = controller.isEdgeInSelection(edge); // V25: Helper
 
-            // // this is the one working
+            // V23: Check if already drawn by trunk builder
+            // Use String Key for robust check
+            String checkKey = "${edge.from}->${edge.to}";
+            if (drawnEdgeKeys.contains(checkKey)) continue;
 
-            // print("refresh retainer");
-            // print(
-            //     "Add Synthetic Connection ${controller.syntheticConnections.length}");
-
-
-            if (edge.color != null) {
-              blackBrush.color = edge.color!;
-            } else {
-              blackBrush.color = Colors.black;
+            // V25Fix: ROBUST GHOST AXON CHECK
+            // If this edge belongs to a generic output group with >= 2 edges, it IS a trunk.
+            // It should have been handled by the trunk builder. Skip it here to prevent double drawing.
+            if (outputGroups.containsKey(edge.from) && outputGroups[edge.from]!.length >= 2) {
+              continue; 
             }
+            
+            Offset? branchPoint = null;
+            Offset? branchDirection = null;
+
+
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
-                from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo);
+                from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo, 
+                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection);
             // }
             // drawEdge(
             //   context,
@@ -166,7 +669,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             //   curBrush,
             //   label: edge.label,
             // );
+            } catch (e) {}
           }
+          } // End of Two-Pass Loop (Highlight)
         },
       ),
       foregroundPainter: InlinePainter(
@@ -199,28 +704,40 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     String? label,
   }) {
     final colors = Theme.of(context).colorScheme;
-    // Draw line from fromRect.center to toRect.center
+    
+    // V25: Orange highlight paint (drawn first, behind)
+    final orangeHighlight = Paint()
+      ..color = const Color(0xFFFD8164)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8
+      ..strokeCap = StrokeCap.round;
+    
+    // Black stroke paint (on top)
+    final blackStroke = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    
+    // Draw line from fromOffset to toOffset
     final path = Path();
     path.moveTo(fromOffset.dx, fromOffset.dy);
 
     if (straightLines) {
-      path.moveTo(toOffset.dx, toOffset.dy);
-    } else {
-      // path.moveTo(fromOffset.dx, fromOffset.dy);
-
       path.lineTo(toOffset.dx, toOffset.dy);
-      // path.cubicTo(
-      //   fromOffset.dx,
-      //   fromOffset.dy,
-      //   fromOffset.dx,
-      //   toOffset.dy,
-      //   toOffset.dx,
-      //   toOffset.dy,
-      // );
-
+    } else {
+      path.lineTo(toOffset.dx, toOffset.dy);
+    }
+    
+    // V25: Draw order: orange highlight (behind) -> black stroke (on top)
+    canvas.drawPath(path, orangeHighlight);
+    canvas.drawPath(path, blackStroke);
+    
+    // V25: Draw styled synapse arrow (triangle/circle based on excitatory/inhibitory)
+    if (!straightLines) {
       drawArrow(context, canvas, fromOffset, toOffset, brush, path);
     }
-    canvas.drawPath(path, brush);
+    
     if (label != null) {
       final textPainter = TextPainter(
         text: TextSpan(
@@ -266,13 +783,27 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     Paint rawBrush,
     Path line,
   ) {
-    Paint brush = Paint()
-      ..color = rawBrush.color
-      ..style = PaintingStyle.fill
+    // V25: Orange highlight (drawn first, behind)
+    final orangeHighlight = Paint()
+      ..color = const Color(0xFFFD8164)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    
+    // Black stroke for outline
+    final blackStroke = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
+    
+    // White fill
+    final whiteFill = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
 
     try {
-      PathMetric pathMetric = line.computeMetrics().first;
+      ui.PathMetric pathMetric = line.computeMetrics().first;
       Path extractPath = pathMetric.extractPath(0.0, pathMetric.length - 10);
       var metric = extractPath.computeMetrics().first;
       final offsetMetricPos =
@@ -283,21 +814,40 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
       final dY = toOffset.dy - fromOffset.dy;
       final angle = atan2(dY, dX);
 
-      final rx1 = arrowSize * cos(angle - arrowAngle);
-      final ry1 = arrowSize * sin(angle - arrowAngle);
-      final rx2 = arrowSize * cos(angle + arrowAngle);
-      final ry2 = arrowSize * sin(angle + arrowAngle);
-
-      final x1 = toOffset.dx - rx1 * arrowMultiplier;
-      final y1 = toOffset.dy - ry1 * arrowMultiplier;
-
-      Path path = Path();
-      path.moveTo(x1, y1);
-      path.lineTo(toOffset.dx, toOffset.dy);
-      path.lineTo(toOffset.dx - rx2, toOffset.dy - ry2);
-
-      path.close();
-      canvas.drawPath(path, brush);
+      if (linkIsExcitatory) {
+        // V25: Draw TRIANGLE - tip points TOWARD the line (toward fromOffset), base away
+        // This matches real synapse triangles that "receive" from the axon
+        final triangleSize = 12.0;
+        
+        // Tip points TOWARD fromOffset (opposite of travel direction)
+        final tipX = toOffset.dx - triangleSize * 0.8 * cos(angle);
+        final tipY = toOffset.dy - triangleSize * 0.8 * sin(angle);
+        
+        // Base corners spread perpendicular, positioned ahead of toOffset
+        final baseX1 = toOffset.dx + triangleSize * 0.5 * cos(angle) + triangleSize * 0.6 * cos(angle + pi/2);
+        final baseY1 = toOffset.dy + triangleSize * 0.5 * sin(angle) + triangleSize * 0.6 * sin(angle + pi/2);
+        final baseX2 = toOffset.dx + triangleSize * 0.5 * cos(angle) + triangleSize * 0.6 * cos(angle - pi/2);
+        final baseY2 = toOffset.dy + triangleSize * 0.5 * sin(angle) + triangleSize * 0.6 * sin(angle - pi/2);
+        
+        Path arrowPath = Path();
+        arrowPath.moveTo(tipX, tipY);
+        arrowPath.lineTo(baseX1, baseY1);
+        arrowPath.lineTo(baseX2, baseY2);
+        arrowPath.close();
+        
+        // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
+        canvas.drawPath(arrowPath, orangeHighlight);
+        canvas.drawPath(arrowPath, whiteFill);
+        canvas.drawPath(arrowPath, blackStroke);
+      } else {
+        // V25: Draw CIRCLE for inhibitory
+        final circleRadius = 8.0;
+        
+        // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
+        canvas.drawCircle(toOffset, circleRadius + 1.5, orangeHighlight);
+        canvas.drawCircle(toOffset, circleRadius, whiteFill);
+        canvas.drawCircle(toOffset, circleRadius, blackStroke);
+      }
     } catch (err) {
       print("err edge renderer");
       print(err);
@@ -403,6 +953,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     // neuronTo.displayInfo();
     //neuron to neuron connection
     List<SinapsePoint> distancesToSinapses = [];
+    
+    // V25 REVERTED: Rotation disabled - use original positions
     //find dendrite (on posinaptic neuron ) that is pointing toward center of connections of presinaptic neuron
     for (int dendriteIndex = 0;
         dendriteIndex < neuronFrom.dendrites.length;
@@ -480,69 +1032,144 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
         from.isExcitatory, "", InfiniteCanvasEdge.isShowingInfo);
   }
 
+  // V23: Added isSelected, branchPoint, branchDirection for trunk-to-axon continuity
+  // V24: Added isHighlightPass for two-pass rendering (highlights below main drawing)
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
-      int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo) {
+      int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo, 
+      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection}) {
+
+    // V25: Determine Synapse Fill Color based on Spike State with Decay
+    Paint synapseFill = whiteBrush;
+    if (controller.isPlaying && controller.nucleusList != null && fromIdx >= 0 && fromIdx < controller.nucleusList!.length) {
+       var nucleus = controller.nucleusList![fromIdx];
+       int diff = DateTime.now().millisecondsSinceEpoch - nucleus.lastSpikeTime;
+       int decayDuration = 750;
+       
+       if (nucleus.lastSpikeTime > 0 && diff < decayDuration) {
+          double t = diff / decayDuration.toDouble();
+          t = t.clamp(0.0, 1.0);
+          // Curve for nicer fade? Linear is fine. 
+          // t=0 (Spike) -> Color. t=1 (End) -> White.
+          
+          if (isExcitatory == 1) {
+             Color c = Color.lerp(const Color(0xFF00FF00), Colors.white, t)!;
+             synapseFill = Paint()..color = c ..style = PaintingStyle.fill..strokeWidth=2; 
+          } else {
+             Color c = Color.lerp(Colors.red, Colors.white, t)!;
+             synapseFill = Paint()..color = c ..style = PaintingStyle.fill..strokeWidth=2;
+          }
+       }
+    }
     double initialAxonExtensionSize = 0.5;
+
     List<SyntheticNeuron> neurons = controller.syntheticNeuronList;
-    // if (neurons.length <= toIdx || neurons.length <= fromIdx) return;
+    
+    // V25: Safety Guard - Prevent crash if indices are invalid (e.g. stale data after load)
+    if (fromIdx < 0 || fromIdx >= neurons.length || toIdx < 0 || toIdx >= neurons.length) {
+      if (controller.isPlaying == false) { // Only spam debug in design mode
+         print("DEBUG: drawAxon invalid indices: from=$fromIdx, to=$toIdx, listLen=${neurons.length}");
+      }
+      return; 
+    }
+
     Neuron neuronFrom = neurons[fromIdx].newNeuron;
     Neuron neuronTo = neurons[toIdx].newNeuron;
     double circleRadius = neurons[fromIdx].circleRadius;
 
-    if (neuronFrom.axonAngle <= -1) return;
-
-    double centerBeginAxon_x =
-        neuronFrom.x + neuronFrom.diameter * cosDeg(neuronFrom.axonAngle);
-    double centerBeginAxon_y =
-        neuronFrom.y + neuronFrom.diameter * sinDeg(neuronFrom.axonAngle);
-
     double diameterOfNeuron = neurons[fromIdx].circleRadius;
-    // int maxAbsoluteConnectionStrength = connectionStrength.floor();
     int maxAbsoluteConnectionStrength = 110 - connectionStrength.floor().abs();
     double minimalTicknessOfAxon = 1;
+    
+    // Calculate strength (thickness) early for G1 extension
+    // Note: detailed synapse-specific strength adjustment happens in loop, 
+    // but we use base connectionStrength for initial segments to ensure continuity
+    // V23: User clarified "it was perfect last time".
+    // "Last time" was Hybrid Mode: Trunk 2.0x, Axon 1.0x.
+    // BUT we bridge the gap by starting the G1 extension at the Trunk's thickness (2.0x).
+    double thicknessMultiplier = (branchPoint != null) ? 2.0 : 1.0;
+    
+    double baseStrength = ((connectionStrength.abs() / maxAbsoluteConnectionStrength) * diameterOfNeuron / 2) * thicknessMultiplier;
+    if ((diameterOfNeuron * 0.1) > baseStrength) {
+      baseStrength = diameterOfNeuron * 0.1;
+    }
+    if (baseStrength < minimalTicknessOfAxon) {
+      baseStrength = minimalTicknessOfAxon;
+    }
+
     const textStyle = TextStyle(
       color: Colors.black,
       fontSize: 14,
     );
 
+    if (neuronFrom.axonAngle <= -1) return;
+
+
+    
+    // V23: If branchPoint provided, use it as axon start instead of neuron center
+    double centerBeginAxon_x;
+    double centerBeginAxon_y;
+    
+    if (branchPoint != null) {
+      // V23: SIMPLIFIED GEOMETRY - Start curve directly from branch point.
+      // Removed 30px straight line extension to avoid "kinked joint" look.
+      centerBeginAxon_x = branchPoint.dx;
+      centerBeginAxon_y = branchPoint.dy;
+    } else {
+      // Fallback: If no branch point (single axon or lookup failed), 
+      // Point towards the FIRST dendrite target to avoid 90-degree kinks.
+      // We need to find where the target is.
+      // We can't know the exact target synapse here easily without looping.
+      // But we are ABOUT to loop.
+      // Let's defer calculation or pick a default that isn't 90 degrees.
+      // Actually, let's use the neuron center. 
+      centerBeginAxon_x = neuronFrom.x;
+      centerBeginAxon_y = neuronFrom.y;
+    }
+
+    // V25: Scale factor for target neuron selection/hover
+    // When target is selected (design mode) or hovered (any mode, for pin drag), scale dendrite positions
+    bool isTargetSelected = (!controller.isPlaying && controller.isSelected(to.key)) || controller.isHovered(to.key);
+    double targetScale = isTargetSelected ? 1.65 : 1.0;
+
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
-      if (neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty) {
+      // Loop 1: First Level Synapses
+    // DEBUG LOOP 1 ENTRY
+    print("DrawAxon Loop 1: from=${from.label} to=${to.label} posin=$posin 1stLen=${neuronTo.dendrites[posin].sinapseFirstLevel.length}");
+    if (neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty) {
         for (int sinindex = 0;
             sinindex < neuronTo.dendrites[posin].sinapseFirstLevel.length;
             sinindex++) {
-          // print(
-          //     "${neuronTo.dendrites[posin].sinapseFirstLevel[sinindex].presinapticNeuronIndex} == $fromIdx");
           if (neuronTo.dendrites[posin].sinapseFirstLevel[sinindex]
                   .presinapticNeuronIndex ==
               fromIdx) {
-            ////////calculate basic parameters for sinapse and axons
-            //found sinapse
-            double xc = neuronTo.x -
-                circleRadius +
-                neuronTo.dendrites[posin].xFirstLevel;
-            double yc = neuronTo.y -
-                circleRadius +
-                neuronTo.dendrites[posin].yFirstLevel;
-            // print("xc,yc: $xc $yc");
+            // V25 REVERTED: Rotation disabled - scale only for selection highlight
+            double xOffset = -circleRadius + neuronTo.dendrites[posin].xFirstLevel;
+            double yOffset = -circleRadius + neuronTo.dendrites[posin].yFirstLevel;
+            double xc = neuronTo.x + xOffset * targetScale;
+            double yc = neuronTo.y + yOffset * targetScale;
 
             var initialPortionOfAxon = initialAxonExtensionSize *
                 euclideanDistance(
                     centerBeginAxon_x, centerBeginAxon_y, xc, yc) /
                 diameterOfNeuron;
 
-            double centerEndAxon_x = neuronFrom.x -
-                circleRadius +
-                initialPortionOfAxon *
-                    neuronFrom.diameter *
-                    //diameterOfNeuronFrom *
-                    cosDeg(neuronFrom.axonAngle);
-            double centerEndAxon_y = neuronFrom.y -
-                circleRadius +
-                initialPortionOfAxon *
-                    neuronFrom.diameter *
-                    // diameterOfNeuronFrom *
-                    sinDeg(neuronFrom.axonAngle);
-
+            // V23: For G1 tangent continuity
+            double centerEndAxon_x;
+            double centerEndAxon_y;
+            if (branchDirection != null) {
+              double distToTarget = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+              double extensionLength = min(max(distToTarget * 0.4, 20.0), 100.0);
+              centerEndAxon_x = centerBeginAxon_x + branchDirection.dx * extensionLength;
+              centerEndAxon_y = centerBeginAxon_y + branchDirection.dy * extensionLength;
+            } else {
+              double distToTarget = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+              double extensionLength = min(max(distToTarget * 0.3, 20.0), 100.0);
+              
+              Offset directionToTarget = Offset(xc - centerBeginAxon_x, yc - centerBeginAxon_y);
+              if (directionToTarget.distance > 0) directionToTarget = directionToTarget / directionToTarget.distance;
+              centerEndAxon_x = centerBeginAxon_x + directionToTarget.dx * extensionLength;
+              centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
+            }
             double strength = ((neuronTo.dendrites[posin]
                             .sinapseFirstLevel[sinindex].sinapticValue)
                         .abs() /
@@ -556,62 +1183,49 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               strength = minimalTicknessOfAxon;
             }
 
-            blackBrush.strokeWidth = neuronFrom.diameter * (0.1);
+            blackBrush.strokeWidth = strength;
             blackBrush.style = PaintingStyle.fill;
 
-            // if (neuronTo.dendrites[posin].sinapseFirstLevel[sinindex]
-            //         .sinapticValue >
-            //     0) {
             if (isExcitatory == 1) {
-              //triangle size
-              double triangleSinapseSize = diameterOfNeuron / 1.5;
-              //center of triangle
-              double xcent = neuronTo.x -
-                  circleRadius +
-                  neuronTo.dendrites[posin].xFirstLevel;
-              double ycent = neuronTo.y -
-                  circleRadius +
-                  neuronTo.dendrites[posin].yFirstLevel;
+              // Fixed triangle synapse size (from reference)
+              double triangleSize = 10.0;
+              
+              // V25 REVERTED: Rotation disabled - scale only for selection highlight
+              double xOffset = -circleRadius + neuronTo.dendrites[posin].xFirstLevel;
+              double yOffset = -circleRadius + neuronTo.dendrites[posin].yFirstLevel;
+              double xcent = neuronTo.x + xOffset * targetScale;
+              double ycent = neuronTo.y + yOffset * targetScale;
 
-              //calculate vertex of triangle is pointy side is toward dendrite
-              double xt = neuronTo.x -
-                  circleRadius +
-                  neuronTo.dendrites[posin].xTriangleFirstLevel;
-              double yt = neuronTo.y -
-                  circleRadius +
-                  neuronTo.dendrites[posin].yTriangleFirstLevel;
-              // print("xt,yt: $xt $yt");
-
-              double centralAngle = angleBetweenTwoPoints(xt, yt, xcent, ycent);
-
-              double xLeftTriangle =
-                  xt + triangleSinapseSize * cosDeg(centralAngle - 30);
-              double yLeftTriangle =
-                  yt + triangleSinapseSize * sinDeg(centralAngle - 30);
-
-              double xRightTriangle =
-                  xt + triangleSinapseSize * cosDeg(centralAngle + 30);
-              double yRightTriangle =
-                  yt + triangleSinapseSize * sinDeg(centralAngle + 30);
-
-              //calculate distance between dendrite and most far vertex if triangle is blunt side toward dendrite
-              double xDoubleHeight = xt +
-                  2 * triangleSinapseSize * cosDeg(30) * cosDeg(centralAngle);
-              double yDoubleHeight = yt +
-                  2 * triangleSinapseSize * cosDeg(30) * sinDeg(centralAngle);
+              // Angle from Neuron Center to Dendrite (Outward)
+              double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+              
+              // Tip Position (Faces Axon / Outwards)
+              double xt = xcent + triangleSize * cos(angleOut);
+              double yt = ycent + triangleSize * sin(angleOut);
+              
+              // Base Points (Flat against neuron) - Equilateral triangle
+              double halfBase = triangleSize / sqrt(3);  // For equilateral triangle
+              double xBaseLeft = xcent + halfBase * cos(angleOut - pi/2);
+              double yBaseLeft = ycent + halfBase * sin(angleOut - pi/2);
+              double xBaseRight = xcent + halfBase * cos(angleOut + pi/2);
+              double yBaseRight = ycent + halfBase * sin(angleOut + pi/2);
+              
+              // Axon connects to TIP (xt, yt)
+              xc = xt;
+              yc = yt;
 
               if (neuronTo.dendrites[posin].hasSecondLevel) {
                 //draw axon lines
-                blackBrush.strokeWidth =
-                    strength; // Set stroke width for thin line
+                blackBrush.strokeWidth = strength;
                 blackBrush.style = PaintingStyle.stroke;
-                double controlX = xc - 15 * (xc - xRightTriangle);
-                double controlY = yc - 15 * (yc - yRightTriangle);
+                double angle = neuronTo.dendrites[posin].angle;
+                double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                double controlDist = min(distToSynapse * 0.25, 60.0);
+                double controlX = xc + controlDist * cosDeg(angle);
+                double controlY = yc + controlDist * sinDeg(angle);
 
-                double triangleCenterX =
-                    (xt + xLeftTriangle + xRightTriangle) / 3;
-                double triangleCenterY =
-                    (yt + yLeftTriangle + yRightTriangle) / 3;
+                double triangleCenterX = (xt + xBaseLeft + xBaseRight) / 3;
+                double triangleCenterY = (yt + yBaseLeft + yBaseRight) / 3;
 
                 Path clickPath = Path();
                 clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -625,102 +1239,485 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
                 path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                     controlY, triangleCenterX, triangleCenterY);
-                // print(
-                //     "0--cX,cY:$controlX,$controlY - $xRightTriangle $yRightTriangle");
 
-                canvas.drawPath(path, blackBrush);
-                //draw sinapse triangle
-                //draw triangle sinapse first level
-                blackBrush.strokeWidth = neuronFrom.diameter * (0.07);
+                // V25: Draw highlight ONLY in highlight pass
+                if (isSelected && isHighlightPass) {
+                  // Axon path highlight - uses exact same 'path' variable
+                  Paint highlightPaint = Paint()
+                    ..color = const Color(0xFFFD8164)
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 17.0
+                    ..strokeCap = StrokeCap.round;
+                  canvas.drawPath(path, highlightPaint);
+                  
+                  // Triangle highlight
+                  Path triH = Path();
+                  triH.moveTo(xt, yt);
+                  triH.lineTo(xBaseLeft, yBaseLeft);
+                  triH.lineTo(xBaseRight, yBaseRight);
+                  triH.close();
+                  
+                  Paint highlightTri = Paint()
+                    ..color = const Color(0xFFFD8164)
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 8.0
+                    ..strokeCap = StrokeCap.round
+                    ..strokeJoin = StrokeJoin.round;
+                  canvas.drawPath(triH, highlightTri);
+                }
+                
+                // Skip main drawing only for highlight-only pass
+                if (isHighlightPass) {
+                  return;
+                }
+                
+                // STRUCTURE PASS: Draw main elements (no highlights)
+                // Main drawing (always drawn on top of highlights)
+                // V25: LED Gradient Support - only for edges with actual visible colors
+                Color? edgeColor;
+                try {
+                    final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
+                    if (matches.isNotEmpty) {
+                        edgeColor = matches.first.color;
+                    }
+                } catch (e) {}
+                
+                // V25: Only apply gradient for visible, non-black colors (not transparent, not black)
+                bool hasVisibleColor = edgeColor != null && 
+                    edgeColor.alpha > 50 && 
+                    (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
+                
+                if (hasVisibleColor) {
+                    // Determine gradient direction based on source type
+                    List<Color> gradientColors = [edgeColor, Colors.black];
+                    bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
+                                       (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
+                    if (isSourceLed) {
+                        gradientColors = [Colors.black, edgeColor];
+                    }
+                    
+                    final Shader gradientShader = ui.Gradient.linear(
+                        Offset(centerBeginAxon_x, centerBeginAxon_y),
+                        Offset(triangleCenterX, triangleCenterY),
+                        gradientColors,
+                        [0.0, 0.5],
+                        TileMode.clamp,
+                    );
+                    Paint gradientPaint = Paint()
+                      ..shader = gradientShader
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = strength
+                      ..strokeCap = StrokeCap.round;
+                    canvas.drawPath(path, gradientPaint);
+                } else {
+                    canvas.drawPath(path, blackBrush);
+                }
+                
+                // Draw TRIANGLE (First Level) - White fill + black stroke
+                blackBrush.strokeWidth = 1.5;
                 blackBrush.style = PaintingStyle.stroke;
-                path = Path();
-                path.moveTo(xt, yt);
-                path.lineTo(xLeftTriangle, yLeftTriangle);
-                path.lineTo(xRightTriangle, yRightTriangle);
-                path.close();
-                canvas.drawPath(path, whiteBrush);
+                Path triPath = Path();
+                triPath.moveTo(xt, yt);
+                triPath.lineTo(xBaseLeft, yBaseLeft);
+                triPath.lineTo(xBaseRight, yBaseRight);
+                triPath.close();
+                canvas.drawPath(triPath, synapseFill);
+                canvas.drawPath(triPath, blackBrush);
+
+                 // V25: Sensory Axon Icons (Second Level - Robust)
+                 if (!isHighlightPass) {
+                    try {
+                      String? iconText;
+                      Color iconTextColor = Colors.black;
+                      double iconSize = 18; // V25: Increased Size
+                      
+                      // Robust Key Generation
+                      String rawKey = "${from.key}_${to.key}";
+                      String fromIdClean = from.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String toIdClean = to.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String cleanKey = "${fromIdClean}_${toIdClean}";
+                      String fromLabel = (from.label ?? "").toLowerCase();
+                      String toLabel = (to.label ?? "").toLowerCase();
+                      
+                      // Robust Detection: Check Value + isSensory (Labels are often null, IDs are hashes)
+                      // 0=Distance, 1=LeftEye, 2=RightEye, 3=Mic, 4=Speaker
+                      bool isMic = (from.isSensory == 1 && from.value == 3) || fromLabel.contains("mic") || fromLabel.contains("microphone");
+                      bool isSpeaker = (to.isSensory == 1 && to.value == 4) || toLabel.contains("speaker");
+                      bool isCamera = (from.isSensory == 1 && (from.value == 1 || from.value == 2)) || fromLabel.contains("eye") || fromLabel.contains("camera");
+                      bool isDistance = (from.isSensory == 1 && from.value == 0) || fromLabel.contains("distance");
+
+                      // DEBUG MIC LOGIC (UNCONDITIONAL)
+                      // if (isMic) {
+                         print("CheckIcon Loop1: from=$fromLabel ID=$fromIdClean to=$toLabel Key=$cleanKey MicMapKeys=${controller.mapMicrophoneTypeNeuron?.keys.length}");
+                      // }
+
+                      bool drawColoredCircle = false;
+                      Color circleColor = Colors.transparent;
+                      String fontFamily = "NotoEmoji"; // Default
+                      double iconRadius = 12.5;
+
+                      // Robust Lookup: Check Maps Directly (Ignore Labels)
+                      
+                      // 1. Camera / Sensory
+                      if (controller.mapSensoryNeuron != null) {
+                         int? idx;
+                         String idKey = "${from.id}_${to.id}";
+                         if (controller.mapSensoryNeuron.containsKey(rawKey)) idx = (controller.mapSensoryNeuron[rawKey] as num?)?.toInt();
+                         else if (controller.mapSensoryNeuron.containsKey(cleanKey)) idx = (controller.mapSensoryNeuron[cleanKey] as num?)?.toInt();
+                         else if (controller.mapSensoryNeuron.containsKey(idKey)) idx = (controller.mapSensoryNeuron[idKey] as num?)?.toInt();
+                         
+                         if (idx != null) {
+                              List<String> cameraMenuTypes = [
+                                 "Blue", "Blue (side)", "Green", "Green (side)", "Red", "Red (side)",
+                                 "Movement", "person", "backpack", "bottle", "cup", "bowl", "banana", 
+                                 "apple", "orange", "chair", "couch", "potted plant", "laptop", "cell phone", 
+                                 "book", "vase", "dog", "cat", "tv", "mouse", "keyboard", "scissors", "donut", 
+                                 "pizza", "hot dog"
+                              ];
+                              Map<String, String> lookup = {
+                                 "person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣",
+                                 "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️",
+                                 "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒",
+                                 "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺",
+                                 "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩",
+                                 "pizza": "🍕", "hot dog": "🌭"
+                              };
+                              if (idx >= 0 && idx < cameraMenuTypes.length) {
+                                  // DEBUG: Verify lookup success
+                                  // print("Camera Lookup Success: index=$idx type=${cameraMenuTypes[idx]}");
+                                  String type = cameraMenuTypes[idx];
+                                  if (lookup.containsKey(type)) {
+                                      iconText = lookup[type];
+                                      fontFamily = "NotoEmoji";
+                                  } else if (type.contains("Blue")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.blue;
+                                  } else if (type.contains("Green")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.green;
+                                  } else if (type.contains("Red")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.red;
+                                  }
+                              }
+                         }
+                      }
+                      
+                      // 2. Distance (If not Camera)
+                      if (iconText == null && !drawColoredCircle && controller.mapDistanceNeuron != null) {
+                          int? idx;
+                          String idKey = "${from.id}_${to.id}";
+                          if (controller.mapDistanceNeuron.containsKey(rawKey)) idx = (controller.mapDistanceNeuron[rawKey] as num?)?.toInt();
+                          else if (controller.mapDistanceNeuron.containsKey(cleanKey)) idx = (controller.mapDistanceNeuron[cleanKey] as num?)?.toInt();
+                          else if (controller.mapDistanceNeuron.containsKey(idKey)) idx = (controller.mapDistanceNeuron[idKey] as num?)?.toInt();
+                          
+                          if (idx != null) {
+                              // mapDistanceNeuron stores indices 0-3
+                              // 0=Near(🛑), 1=Medium(⚠️), 2=Far(🏁), 3=Custom(📏)
+                              List<String> distEmojis = ["🛑", "⚠️", "🏁", "📏"];
+                              if (idx >= 0 && idx < distEmojis.length) {
+                                  iconText = distEmojis[idx];
+                                  fontFamily = "NotoEmoji";
+                                  iconSize = 20; 
+                              }
+                          }
+                      }
+                      
+                      // 3. Microphone (If not Distance)
+                      if (iconText == null && !drawColoredCircle && (isMic || (controller.mapMicrophoneTypeNeuron != null && (controller.mapMicrophoneTypeNeuron.containsKey(rawKey) || controller.mapMicrophoneTypeNeuron.containsKey(cleanKey))))) {
+                          int? mode;
+                          if (controller.mapMicrophoneTypeNeuron != null) {
+                              String idKey = "${from.id}_${to.id}";
+                              if (controller.mapMicrophoneTypeNeuron.containsKey(rawKey)) mode = (controller.mapMicrophoneTypeNeuron[rawKey] as num?)?.toInt();
+                              else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
+                              else if (controller.mapMicrophoneTypeNeuron.containsKey(idKey)) mode = (controller.mapMicrophoneTypeNeuron[idKey] as num?)?.toInt();
+                          }
+                          // Default to Freq (0)
+                          if (mode == null) mode = 0;
+                          
+                          if (mode != null) {
+                              // 0=Freq(〰️), 1=Vol(🔊), 2=Tone(🎹)
+                              if (mode == 1) { iconText = "🔊"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                              else if (mode == 2) { 
+                                  double val = 0;
+                                  if (fromIdx >= 0 && fromIdx < controller.syntheticNeuronList.length) {
+                                      val = controller.syntheticNeuronList[fromIdx].node.value;
+                                  }
+                                  int f = val.toInt();
+                                  List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+                                  int noteIdx = f % 12;
+                                  if (noteIdx < notes.length) {
+                                      iconText = notes[noteIdx];
+                                      fontFamily = "BybHanddrawn";
+                                      iconSize = 18;
+                                  } else {
+                                      iconText = "🎹";
+                                      fontFamily = "NotoEmoji";
+                                      iconSize = 20;
+                                  }
+                              }
+                              else { iconText = "〰️"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                          }
+                      }
+                      
+                      // 4. Speaker (If not Mic)
+                      if (iconText == null && !drawColoredCircle && controller.mapSpeakerNeuron != null) {
+                          double? freq;
+                          String idKey = "${from.id}_${to.id}";
+                          if (controller.mapSpeakerNeuron.containsKey(rawKey)) freq = (controller.mapSpeakerNeuron[rawKey] as num?)?.toDouble();
+                          else if (controller.mapSpeakerNeuron.containsKey(cleanKey)) freq = (controller.mapSpeakerNeuron[cleanKey] as num?)?.toDouble();
+                          else if (controller.mapSpeakerNeuron.containsKey(idKey)) freq = (controller.mapSpeakerNeuron[idKey] as num?)?.toDouble();
+                          
+                          if (freq != null) {
+                              int f = freq.toInt();
+                              // Voice Range: 31-40
+                              if (f >= 31 && f <= 40) {
+                                  Map<int, String> voiceEmojis = {
+                                     31: "👋", 32: "🫢", 33: "👍", 34: "🤔", 35: "😴",
+                                     36: "🍰", 37: "🤠", 38: "🐕", 39: "🐱", 40: "✨"
+                                  };
+                                  if (voiceEmojis.containsKey(f)) {
+                                      iconText = voiceEmojis[f];
+                                      fontFamily = "NotoEmoji";
+                                  }
+                              } else if (f >= 70) {
+                                  // Instrument Logic
+                                  List<int> bases = [128, 228, 328, 428];
+                                  int? bestBase;
+                                  for (int b in bases) {
+                                      if (f >= b && f < b + 24) { bestBase = b; break; }
+                                  }
+                                  if (bestBase != null) {
+                                      int diff = f - bestBase;
+                                      List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+                                      int noteIdx = diff % 12;
+                                      if (noteIdx < notes.length) {
+                                          iconText = notes[noteIdx];
+                                          fontFamily = "BybHanddrawn"; // Handwritten for notes
+                                          iconSize = 18;
+                                      }
+                                  } else {
+                                      iconText = "🎵";
+                                      fontFamily = "NotoEmoji";
+                                  }
+                              }
+                          }
+                      }
+                      
+                      // V25: No Icon Drawing for First Leg of 2-Level Connection
+                      // Icons are drawn in Loop 2 (Second Leg) to appear at the synapse.
+                      if (iconText != null || drawColoredCircle) {
+                           // Do nothing for first leg
+                      }
+                  } catch (e) {}
+                 }
+
               } else {
-                //draw axon line
-                blackBrush.strokeWidth =
-                    strength; // Set stroke width for thin line
-                blackBrush.style = PaintingStyle.stroke;
-                double controlX = xc + 3 * (xc - (neuronTo.x));
-                double controlY = yc + 3 * (yc - (neuronTo.y));
-                double triangleCenterX =
-                    (xDoubleHeight + xLeftTriangle + xRightTriangle) / 3;
-                double triangleCenterY =
-                    (yDoubleHeight + yLeftTriangle + yRightTriangle) / 3;
+                 // No second level exists, draw normally (Triangle + Line)
+                 // This block was previously handling standard 1-level connections
+                 // ... (Original logic for 1-level dendrite connection) ...
+                 // Wait, the logic above (lines 883-918) was INSIDE "if (dendrites[posin].hasSecondLevel)"??
+                 // NO. The original code had:
+                 // if (neuronTo.dendrites[posin].hasSecondLevel) { ... } else { ... }
+                 // Let's implement BOTH paths correctly as per original but cleaner.
+                 
+                 // Standard Axon Path to Triangle
+                 blackBrush.style = PaintingStyle.stroke;
+                 double angle = neuronTo.dendrites[posin].angle;
+                 double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                 double controlDist = min(distToSynapse * 0.25, 60.0);
+                 double controlX = xc + controlDist * cosDeg(angle);
+                 double controlY = yc + controlDist * sinDeg(angle);
+                 
+                 double triangleCenterX = (xt + xBaseLeft + xBaseRight) / 3;
+                 double triangleCenterY = (yt + yBaseLeft + yBaseRight) / 3;
 
-                Path clickPath = Path();
-                clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-                clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                 Path clickPath = Path();
+                 clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                 clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                     controlY, triangleCenterX, triangleCenterY);
-                String pathKey = "${from.key.toString()}_${to.key.toString()}";
-                controller.axonPathMap[pathKey] =
-                    getOutlinePath(clickPath, widthClickMask);
-
-                var path = Path();
-                path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-                path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                 String pathKey = "${from.key.toString()}_${to.key.toString()}";
+                 controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                 
+                 Path path = Path();
+                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                 path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                     controlY, triangleCenterX, triangleCenterY);
-
-                // print(
-                //     "${neuronTo.x} ,, ${neuronTo.y} : ${neuronFrom.x} ,, ${neuronFrom.y} : $fromIdx,$toIdx | xcent: $xcent - ycent: $ycent | xSecondLevel : ${neuronTo.dendrites[neuronTo.dendriteIdx].xSecondLevel} | ySecondLevel : ${neuronTo.dendrites[neuronTo.dendriteIdx].ySecondLevel}");
-
-                // print(
-                //     "1--cX,cY:$controlX,$controlY - $xRightTriangle $yRightTriangle - $fromIdx:$toIdx");
-                canvas.drawPath(path, blackBrush);
-                //draw sinapse
-                //draw triangle sinapse first level
-                blackBrush.strokeWidth = neuronFrom.diameter * (0.07);
-                blackBrush.style = PaintingStyle.stroke;
-                path = Path();
-                path.moveTo(xDoubleHeight, yDoubleHeight);
-                path.lineTo(xLeftTriangle, yLeftTriangle);
-                path.lineTo(xRightTriangle, yRightTriangle);
-                path.close();
-                canvas.drawPath(path, whiteBrush);
+                    
+                 // V25: Draw highlight ONLY in highlight pass
+                 if (isSelected && isHighlightPass) {
+                   Paint highlightPaint = Paint()
+                     ..color = const Color(0xFFFD8164)
+                     ..style = PaintingStyle.stroke
+                     ..strokeWidth = 17.0
+                     ..strokeCap = StrokeCap.round;
+                   canvas.drawPath(path, highlightPaint);
+                   
+                   Path triH = Path();
+                   triH.moveTo(xt, yt);
+                   triH.lineTo(xBaseLeft, yBaseLeft);
+                   triH.lineTo(xBaseRight, yBaseRight);
+                   triH.close();
+                   
+                   Paint highlightTri = Paint()
+                     ..color = const Color(0xFFFD8164)
+                     ..style = PaintingStyle.stroke
+                     ..strokeWidth = 8.0
+                     ..strokeCap = StrokeCap.round
+                     ..strokeJoin = StrokeJoin.round;
+                   canvas.drawPath(triH, highlightTri);
+                 }
+                 
+                 if (isHighlightPass) {
+                   return;
+                 }
+                 
+                 // STRUCTURE PASS: Draw main elements (no highlights)
+                 // V25: LED Gradient Support - only for edges with actual visible colors
+                 Color? edgeColor;
+                 try {
+                     final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
+                     if (matches.isNotEmpty) {
+                         edgeColor = matches.first.color;
+                     }
+                 } catch (e) {}
+                 
+                 // V25: Only apply gradient for visible, non-black colors
+                 bool hasVisibleColor = edgeColor != null && 
+                     edgeColor.alpha > 50 && 
+                     (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
+                 
+                 if (hasVisibleColor) {
+                     List<Color> gradientColors = [edgeColor, Colors.black];
+                     bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
+                                        (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
+                     if (isSourceLed) {
+                         gradientColors = [Colors.black, edgeColor];
+                     }
+                     
+                     final Shader gradientShader = ui.Gradient.linear(
+                         Offset(centerBeginAxon_x, centerBeginAxon_y),
+                         Offset(triangleCenterX, triangleCenterY),
+                         gradientColors,
+                         [0.0, 0.5],
+                         TileMode.clamp,
+                     );
+                     Paint gradientPaint = Paint()
+                       ..shader = gradientShader
+                       ..style = PaintingStyle.stroke
+                       ..strokeWidth = strength
+                       ..strokeCap = StrokeCap.round;
+                     canvas.drawPath(path, gradientPaint);
+                 } else {
+                     canvas.drawPath(path, blackBrush);
+                 }
+                 
+                 // Draw Triangle - White fill + black stroke
+                 blackBrush.strokeWidth = 1.5;
+                 blackBrush.style = PaintingStyle.stroke;
+                 Path triPath = Path();
+                 triPath.moveTo(xt, yt);
+                 triPath.lineTo(xBaseLeft, yBaseLeft);
+                 triPath.lineTo(xBaseRight, yBaseRight);
+                 triPath.close();
+                 canvas.drawPath(triPath, synapseFill);
+                 canvas.drawPath(triPath, blackBrush);
               }
 
-              Path path = Path();
-              if (neuronTo.dendrites[posin].hasSecondLevel) {
-                path.moveTo(xt, yt);
-              } else {
-                path.moveTo(xDoubleHeight, yDoubleHeight);
-              }
-
-              path.lineTo(xLeftTriangle, yLeftTriangle);
-              path.lineTo(xRightTriangle, yRightTriangle);
-              path.close();
-              canvas.drawPath(path, blackBrush);
             } else {
-              blackBrush.strokeWidth =
-                  strength; // Set stroke width for thin line
+              // INHIBITORY (Circle) - Reference implementation
+              // Fixed radius with offset from dendrite to create gap
+              double radius = 5.0;
+              
+              // Dendrite position
+              double xcent = xc;
+              double ycent = yc;
+              
+              // Angle from Neuron Center to Dendrite (Outward)
+              double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+              
+              // New Center = Dendrite + Radius * Vector (offset outward)
+              double xc_syn = xcent + radius * cos(angleOut);
+              double yc_syn = ycent + radius * sin(angleOut);
+              
+              blackBrush.strokeWidth = strength;
               blackBrush.style = PaintingStyle.stroke;
-              double controlX = xc + 3 * (xc - (neuronTo.x));
-              double controlY = yc + 3 * (yc - (neuronTo.y));
 
-              // Create Mask for Click Detection
+              // Control point logic
+              double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
+              double controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;
+              double controlY = yc_syn + bFactor * (yc_syn - neuronTo.y) * 0.5;
+
               Path clickPath = Path();
               clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              clickPath.cubicTo(
-                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
+              clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                  controlY, xc_syn, yc_syn);
               String pathKey = "${from.key.toString()}_${to.key.toString()}";
               controller.axonPathMap[pathKey] =
                   getOutlinePath(clickPath, widthClickMask);
 
-              var path = Path();
+              Path path = Path();
               path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              path.cubicTo(
-                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
-              canvas.drawPath(path, blackBrush);
-              //draw circle sinapse first level
-              blackBrush.strokeWidth = neuronFrom.diameter * (0.1);
+              path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                  controlY, xc_syn, yc_syn);
+
+              // V25: Draw highlight ONLY in highlight pass
+              if (isSelected && isHighlightPass) {
+                Paint highlightPaint = Paint()
+                  ..color = const Color(0xFFFD8164)
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 17.0
+                  ..strokeCap = StrokeCap.round;
+                canvas.drawPath(path, highlightPaint);
+                // Circle highlight
+                Paint circleHighlight = Paint()
+                  ..color = const Color(0xFFFD8164)
+                  ..style = PaintingStyle.fill;
+                canvas.drawCircle(Offset(xc_syn, yc_syn), radius + 4.0, circleHighlight);
+              }
+              
+              if (isHighlightPass) {
+                return;
+              }
+              
+              // STRUCTURE PASS: Draw main elements (no highlights)
+              Color? edgeColor;
+              try {
+                  final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
+                  if (matches.isNotEmpty) {
+                      edgeColor = matches.first.color;
+                  }
+              } catch (e) {}
+              
+              if (edgeColor != null && edgeColor != Colors.black) {
+                  List<Color> gradientColors = [edgeColor, Colors.black];
+                  bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
+                                     (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
+                  if (isSourceLed) {
+                      gradientColors = [Colors.black, edgeColor];
+                  }
+                  
+                  final Shader gradientShader = ui.Gradient.linear(
+                      Offset(centerBeginAxon_x, centerBeginAxon_y),
+                      Offset(xc_syn, yc_syn),
+                      gradientColors,
+                      [0.0, 0.5],
+                      TileMode.clamp,
+                  );
+                  Paint gradientPaint = Paint()
+                    ..shader = gradientShader
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = strength
+                    ..strokeCap = StrokeCap.round;
+                  canvas.drawPath(path, gradientPaint);
+              } else {
+                  canvas.drawPath(path, blackBrush);
+              }
+
+              // Draw Circle Synapse - Black outer (5px) + white inner (3.5px) = 1.5px border
               blackBrush.style = PaintingStyle.fill;
-              canvas.drawCircle(
-                  Offset(xc, yc), neuronFrom.diameter * 0.25, blackBrush);
-              canvas.drawCircle(
-                  Offset(xc, yc), neuronFrom.diameter * 0.18, whiteBrush);
+              canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
+              canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
             }
             if (isShowingInfo) {
               final textSpan = TextSpan(
@@ -737,192 +1734,836 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               );            
               textPainter.paint(canvas, Offset(centerEndAxon_x, centerEndAxon_y));
             }
-            
-          }
-        }
-      }
 
+                 // V25: Sensory Axon Icons (Standard Level)
+                 if (!isHighlightPass) {
+                    try {
+                      String? iconText;
+                      Color iconTextColor = Colors.black;
+                      double iconSize = 18; // V25: Increased Size
+                      
+                      // Robust Key Generation
+                      String rawKey = "${from.key}_${to.key}";
+                      String fromIdClean = from.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String toIdClean = to.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String cleanKey = "${fromIdClean}_${toIdClean}";
+                      
+                      // Debug Info (Temporary)
+                      // print("AxonIconCheck: Raw=$rawKey Clean=$cleanKey MapSize=${controller.mapSensoryNeuron?.length}");
+                      
+                      String fromLabel = (from.label ?? "").toLowerCase();
+                      String toLabel = (to.label ?? "").toLowerCase();
+                      
+                      // Robust Detection: Check Value + isSensory (Labels are often null, IDs are hashes)
+                      // 0=Distance, 1=LeftEye, 2=RightEye, 3=Mic, 4=Speaker
+                      bool isMic = (from.isSensory == 1 && from.value == 3) || fromLabel.contains("mic") || fromLabel.contains("microphone");
+                      bool isSpeaker = (to.isSensory == 1 && to.value == 4) || toLabel.contains("speaker");
+                      bool isCamera = (from.isSensory == 1 && (from.value == 1 || from.value == 2)) || fromLabel.contains("eye") || fromLabel.contains("camera");
+                      bool isDistance = (from.isSensory == 1 && from.value == 0) || fromLabel.contains("distance");
+                      // print("CheckIcon: Label=$fromLabel -> $toLabel. Key=$rawKey");
+                      
+                      bool drawColoredCircle = false;
+                      Color circleColor = Colors.transparent;
+                      String fontFamily = "NotoEmoji"; // Default
+                      double iconRadius = 12.5;
+
+                      // Robust Lookup: Check Maps Directly (Ignore Labels)
+                      
+                      // 1. Camera / Sensory
+                      if (controller.mapSensoryNeuron != null) {
+                         int? idx;
+                         if (controller.mapSensoryNeuron.containsKey(rawKey)) idx = (controller.mapSensoryNeuron[rawKey] as num?)?.toInt();
+                         else if (controller.mapSensoryNeuron.containsKey(cleanKey)) idx = (controller.mapSensoryNeuron[cleanKey] as num?)?.toInt();
+                         
+                         if (idx != null) {
+                              List<String> cameraMenuTypes = [
+                                 "Blue", "Blue (side)", "Green", "Green (side)", "Red", "Red (side)",
+                                 "Movement", "person", "backpack", "bottle", "cup", "bowl", "banana", 
+                                 "apple", "orange", "chair", "couch", "potted plant", "laptop", "cell phone", 
+                                 "book", "vase", "dog", "cat", "tv", "mouse", "keyboard", "scissors", "donut", 
+                                 "pizza", "hot dog"
+                              ];
+                              Map<String, String> lookup = {
+                                 "person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣",
+                                 "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️",
+                                 "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒",
+                                 "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺",
+                                 "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩",
+                                 "pizza": "🍕", "hot dog": "🌭"
+                              };
+                              if (idx < cameraMenuTypes.length) {
+                                  String type = cameraMenuTypes[idx];
+                                  if (lookup.containsKey(type)) {
+                                      iconText = lookup[type];
+                                      fontFamily = "NotoEmoji";
+                                  } else if (type.contains("Blue")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.blue;
+                                  } else if (type.contains("Green")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.green;
+                                  } else if (type.contains("Red")) {
+                                      drawColoredCircle = true;
+                                      circleColor = Colors.red;
+                                  }
+                              }
+                         }
+                      }
+                      
+                      // 2. Distance (If not Camera)
+                      if (iconText == null && !drawColoredCircle && controller.mapDistanceNeuron != null) {
+                          int? idx;
+                          if (controller.mapDistanceNeuron.containsKey(rawKey)) idx = (controller.mapDistanceNeuron[rawKey] as num?)?.toInt();
+                          else if (controller.mapDistanceNeuron.containsKey(cleanKey)) idx = (controller.mapDistanceNeuron[cleanKey] as num?)?.toInt();
+                          
+                          if (idx != null) {
+                              // mapDistanceNeuron stores indices 0-3
+                              // 0=Near(🛑), 1=Medium(⚠️), 2=Far(🏁), 3=Custom(📏)
+                              List<String> distEmojis = ["🛑", "⚠️", "🏁", "📏"];
+                              if (idx >= 0 && idx < distEmojis.length) {
+                                  iconText = distEmojis[idx];
+                                  fontFamily = "NotoEmoji";
+                                  iconSize = 20; 
+                              }
+                          }
+                      }
+                      
+                      // 3. Microphone (If not Distance)
+                      if (iconText == null && !drawColoredCircle && (isMic || (controller.mapMicrophoneTypeNeuron != null && (controller.mapMicrophoneTypeNeuron.containsKey(rawKey) || controller.mapMicrophoneTypeNeuron.containsKey(cleanKey))))) {
+                          int? mode;
+                          if (controller.mapMicrophoneTypeNeuron != null) {
+                              if (controller.mapMicrophoneTypeNeuron.containsKey(rawKey)) mode = (controller.mapMicrophoneTypeNeuron[rawKey] as num?)?.toInt();
+                              else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
+                          }
+                          // Default to Freq (0)
+                          if (mode == null) mode = 0;
+                          
+                          if (mode != null) {
+                              // 0=Freq(〰️), 1=Vol(🔊), 2=Tone(🎹)
+                              if (mode == 1) { iconText = "🔊"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                              else if (mode == 2) { 
+                                  // Piano Note Logic: Decode from mapMicrophoneLimitNeuron string "min_@_max"
+                                  // In Tone mode, Min holds the note index (0-11).
+                                  int noteIndex = 0;
+                                  String? limitStr;
+                                  if (controller.mapMicrophoneLimitNeuron.containsKey(rawKey)) limitStr = controller.mapMicrophoneLimitNeuron[rawKey];
+                                  else if (controller.mapMicrophoneLimitNeuron.containsKey(cleanKey)) limitStr = controller.mapMicrophoneLimitNeuron[cleanKey];
+                                  
+                                  if (limitStr != null) {
+                                      List<String> parts = limitStr.split("_@_");
+                                      if (parts.isNotEmpty) {
+                                          noteIndex = int.tryParse(parts[0]) ?? 0;
+                                      }
+                                  }
+
+                                  List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+                                  int safeIdx = noteIndex % 12;
+                                  if (safeIdx < notes.length) {
+                                      iconText = notes[safeIdx];
+                                      fontFamily = "BybHanddrawn";
+                                      iconSize = 18;
+                                  } else {
+                                      iconText = "🎹";
+                                      fontFamily = "NotoEmoji";
+                                      iconSize = 20;
+                                  }
+                              }
+                              else { iconText = "〰️"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                          }
+                      }
+                      
+                      // 4. Speaker (If not Mic)
+                      if (iconText == null && !drawColoredCircle && controller.mapSpeakerNeuron != null) {
+                          double? freq;
+                          if (controller.mapSpeakerNeuron.containsKey(rawKey)) freq = (controller.mapSpeakerNeuron[rawKey] as num?)?.toDouble();
+                          else if (controller.mapSpeakerNeuron.containsKey(cleanKey)) freq = (controller.mapSpeakerNeuron[cleanKey] as num?)?.toDouble();
+                          
+                          if (freq != null) {
+                              int f = freq.toInt();
+                              // Voice Range: 31-40
+                              if (f >= 31 && f <= 40) {
+                                  Map<int, String> voiceEmojis = {
+                                     31: "👋", 32: "🫢", 33: "👍", 34: "🤔", 35: "😴",
+                                     36: "🍰", 37: "🤠", 38: "🐕", 39: "🐱", 40: "✨"
+                                  };
+                                  if (voiceEmojis.containsKey(f)) {
+                                      iconText = voiceEmojis[f];
+                                      fontFamily = "NotoEmoji";
+                                  }
+                              } else if (f >= 70) {
+                                  // Instrument Logic
+                                  // Base Freqs: 128 (Choir), 228 (Strings), 328 (Brass), 428 (Synth)
+                                  List<int> bases = [128, 228, 328, 428];
+                                  int? bestBase;
+                                  for (int b in bases) {
+                                      if (f >= b && f < b + 24) { bestBase = b; break; }
+                                  }
+                                  if (bestBase != null) {
+                                      int diff = f - bestBase;
+                                      List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+                                      int noteIdx = diff % 12;
+                                      if (noteIdx < notes.length) {
+                                          iconText = notes[noteIdx];
+                                          fontFamily = "BybHanddrawn"; // Handwritten for notes
+                                          iconSize = 18;
+                                      }
+                                  } else {
+                                      // Fallback for unknown instrument freq
+                                      iconText = "🎵";
+                                      fontFamily = "NotoEmoji";
+                                  }
+                              }
+                          }
+                      }
+                      
+                      if (iconText != null || drawColoredCircle) {
+                          // Recalculate Control Point (Standard Axon Logic)
+                          double angle = neuronTo.dendrites[posin].angle;
+                          double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                          
+                          // V25: Fix Far Dendrite Centering
+                          // Replicate initialAxonExtension logic to ensure p1 matches Drawn Path
+                          double centerEndAxon_x = centerBeginAxon_x; // Start from axon origin
+                          double centerEndAxon_y = centerBeginAxon_y;
+                          
+                          double initialAxonExtensionSize = 0.5; // Must match Loop 1 const
+                          var initialPortionOfAxon = initialAxonExtensionSize * distToSynapse / diameterOfNeuron;
+                          
+                          // Recalculate shift (matches Loop 1 lines ~1160)
+                          if (branchDirection != null) {
+                             double extensionLength = min(max(distToSynapse * 0.4, 20.0), 100.0);
+                             centerEndAxon_x = centerBeginAxon_x + branchDirection.dx * extensionLength;
+                             centerEndAxon_y = centerBeginAxon_y + branchDirection.dy * extensionLength;
+                          } else {
+                             double extensionLength = min(max(distToSynapse * 0.3, 20.0), 100.0);
+                             Offset directionToTarget = Offset(xc - centerBeginAxon_x, yc - centerBeginAxon_y);
+                             if (directionToTarget.distance > 0) directionToTarget = directionToTarget / directionToTarget.distance;
+                             centerEndAxon_x = centerBeginAxon_x + directionToTarget.dx * extensionLength;
+                             centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
+                          }
+
+                          // Recalculate Target for Icon Placement
+                          Offset p3;
+                          if (isExcitatory == 1) {
+                              // Excitatory (Triangle): Target matches drawn path (Tip)
+                              p3 = Offset(xc, yc); 
+                          } else {
+                              // Inhibitory (Circle): Target is Circle Center
+                              double radius = 5.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xc_syn = xc + radius * cos(angleOut);
+                              double yc_syn = yc + radius * sin(angleOut);
+                              p3 = Offset(xc_syn, yc_syn);
+                          }
+
+                          // 1. Calculate Control Points FIRST to determine Tangent Length at Tip
+                          double controlX, controlY;
+                          double tangentLength = 1.0;
+
+                          if (isExcitatory == 1) {
+                              // Excitatory: Matches Lines ~1224 (controlDist)
+                              double controlDist = min(distToSynapse * 0.25, 60.0);
+                              controlX = xc + controlDist * cosDeg(angle);
+                              controlY = yc + controlDist * sinDeg(angle);
+                              
+                              // Velocity at Tip (P3) is 3 * (P3 - P2). Tangent Length = 3 * dist(P2, P3)
+                              // P2 = (controlX, controlY), P3 = (xc, yc) [Tip]
+                              // Distance is exactly controlDist.
+                              tangentLength = 3.0 * controlDist;
+                          } else {
+                              // Inhibitory: Matches Lines ~1647 (bFactor)
+                              // Recalculate xc_syn/yc_syn as target (already done for p3, but needed for bFactor)
+                              double radius = 5.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xc_syn = xc + radius * cos(angleOut);
+                              double yc_syn = yc + radius * sin(angleOut);
+                              
+                              double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
+                              controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;
+                              controlY = yc_syn + bFactor * (yc_syn - neuronTo.y) * 0.5;
+
+                              // Distance P2 to P3
+                              double dx = xc_syn - controlX;
+                              double dy = yc_syn - controlY;
+                              double distP2P3 = sqrt(dx*dx + dy*dy);
+                              tangentLength = 3.0 * distP2P3;
+                          }
+
+                          // 2. Calculate T using Tangent Length (Fixed Physical Distance)
+                          // V25: Uniform spacing, moved 2/5ths closer to synapse
+                          double distancePx = ((isExcitatory == 1) ? 34.0 : 39.0) * 0.6;
+                          
+                          // STRICT CURVE PLACEMENT using LOCAL VELOCITY
+                          // t = 1.0 - (arcLength / speedAtTip)
+                          double t = 1.0 - (distancePx / max(tangentLength, 1.0)); 
+                          if (t < 0.0) t = 0.0; // Clamp start
+                          // Upper clamp to ensure it doesn't overshoot tip if speed is weird (though math says 1.0 is max)
+                          if (t > 0.99) t = 0.99;
+
+                          double u = 1 - t;
+                          double tt = t * t; double uu = u * u; double uuu = uu * u; double ttt = tt * t;
+                          Offset p0 = Offset(centerBeginAxon_x, centerBeginAxon_y);
+                          Offset p1 = Offset(centerEndAxon_x, centerEndAxon_y);
+                          Offset p2 = Offset(controlX, controlY);
+                          double bx = uuu * p0.dx + 3 * uu * t * p1.dx + 3 * u * tt * p2.dx + ttt * p3.dx;
+                          double by = uuu * p0.dy + 3 * uu * t * p1.dy + 3 * u * tt * p2.dy + ttt * p3.dy;
+                          Offset iconPos = Offset(bx, by);
+
+                          // V25: Radius 12.5 (25px Diameter)
+                          canvas.drawCircle(iconPos + const Offset(1,1), iconRadius, Paint()..color = Colors.black.withOpacity(0.3));
+                          canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.white..style = PaintingStyle.fill);
+                          
+                          if (drawColoredCircle) {
+                              // Filled Colored Circle (No Stroke)
+                              canvas.drawCircle(iconPos, iconRadius - 2, Paint()..color = circleColor..style = PaintingStyle.fill);
+                              // Add white stroke around color?
+                              canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
+                          } else {
+                              // Standard Icon
+                              canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
+                              TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
+                              TextPainter tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
+                              tp.layout();
+                              tp.paint(canvas, iconPos - Offset(tp.width / 2, tp.height / 2));
+                          }
+                      }
+                     } catch (e) {}
+                 }
+              } // Close 'else' (Standard Axon)
+           }
+         }
+
+      // Loop 2: Second Level Synapses (G1 Compliant)
+      // DEBUG LOOP 2 ENTRY
+      print("DrawAxon Loop 2: from=${from.label} to=${to.label} posin=$posin 2ndLen=${neuronTo.dendrites[posin].sinapseSecondLevel.length}");
       if (neuronTo.dendrites[posin].sinapseSecondLevel.isNotEmpty) {
-        for (int sinindex = 0;
-            sinindex < neuronTo.dendrites[posin].sinapseSecondLevel.length;
-            sinindex++) {
-          if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
-                  .presinapticNeuronIndex ==
-              fromIdx) {
-            double xc = neuronTo.x -
-                circleRadius +
-                neuronTo.dendrites[posin].xSecondLevel;
-            double yc = neuronTo.y -
-                circleRadius +
-                neuronTo.dendrites[posin].ySecondLevel;
-
-            var initialPortionOfAxon = initialAxonExtensionSize *
+         for (int sinindex = 0; 
+              sinindex < neuronTo.dendrites[posin].sinapseSecondLevel.length; 
+              sinindex++) {
+           if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
+                  .presinapticNeuronIndex == fromIdx) {
+              
+              // V25 REVERTED: Rotation disabled - scale only for selection highlight
+              double xOffset = -circleRadius + neuronTo.dendrites[posin].xSecondLevel;
+              double yOffset = -circleRadius + neuronTo.dendrites[posin].ySecondLevel;
+              double xc = neuronTo.x + xOffset * targetScale;
+              double yc = neuronTo.y + yOffset * targetScale;
+              
+              var initialPortionOfAxon = initialAxonExtensionSize *
                 euclideanDistance(
                     centerBeginAxon_x, centerBeginAxon_y, xc, yc) /
                 diameterOfNeuron;
 
-            var centerEndAxon_x = neuronFrom.x +
-                initialPortionOfAxon *
-                    neuronFrom.diameter *
-                    cosDeg(neuronFrom.axonAngle);
-            var centerEndAxon_y = neuronFrom.y +
-                initialPortionOfAxon *
-                    neuronFrom.diameter *
-                    sinDeg(neuronFrom.axonAngle);
-
-            double strength = ((neuronTo.dendrites[posin]
+              // V23: G1 Compliant Tangents for Second Level
+              double centerEndAxon_x;
+              double centerEndAxon_y;
+              if (branchDirection != null) {
+                 double distToTarget = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                 double extensionLength = min(max(distToTarget * 0.4, 20.0), 100.0);
+                 centerEndAxon_x = centerBeginAxon_x + branchDirection.dx * extensionLength;
+                 centerEndAxon_y = centerBeginAxon_y + branchDirection.dy * extensionLength;
+              } else {
+                 double distToTarget = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                 double extensionLength = min(max(distToTarget * 0.3, 20.0), 100.0);
+                 Offset directionToTarget = Offset(xc - centerBeginAxon_x, yc - centerBeginAxon_y);
+                 if (directionToTarget.distance > 0) directionToTarget = directionToTarget / directionToTarget.distance;
+                 centerEndAxon_x = centerBeginAxon_x + directionToTarget.dx * extensionLength;
+                 centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
+              }
+              
+              double strength = ((neuronTo.dendrites[posin]
                             .sinapseSecondLevel[sinindex].sinapticValue)
                         .abs() /
                     maxAbsoluteConnectionStrength) *
-                diameterOfNeuron /
-                2;
-            if ((diameterOfNeuron * 0.1) > strength) {
-              strength = diameterOfNeuron * 0.1;
-            }
+                diameterOfNeuron / 2;
+                
+               if ((diameterOfNeuron * 0.1) > strength) strength = diameterOfNeuron * 0.1;
+               if (strength < minimalTicknessOfAxon) strength = minimalTicknessOfAxon;
 
-            if (strength < minimalTicknessOfAxon) {
-              strength = minimalTicknessOfAxon;
-            }
+               blackBrush.strokeWidth = strength;
+               blackBrush.style = PaintingStyle.fill;
+               
+               if (isExcitatory == 1) {
+                  // Triangle for Second Level - Fixed 10px size with atan2 orientation
+                  double triangleSize = 10.0;
+                  
+                  // Dendrite position (base of triangle)
+                  double xcent = xc; 
+                  double ycent = yc;
+                  
+                  // Angle from Neuron Center to Dendrite (Outward)
+                  double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+                  
+                  // Tip Position (Faces Axon / Outwards)
+                  double xt = xcent + triangleSize * cos(angleOut);
+                  double yt = ycent + triangleSize * sin(angleOut);
+                  
+                  // Base Points (Flat against neuron) - Equilateral triangle
+                  double halfBase = triangleSize / sqrt(3);  // For equilateral triangle
+                  double xBaseLeft = xcent + halfBase * cos(angleOut - pi/2);
+                  double yBaseLeft = ycent + halfBase * sin(angleOut - pi/2);
+                  double xBaseRight = xcent + halfBase * cos(angleOut + pi/2);
+                  double yBaseRight = ycent + halfBase * sin(angleOut + pi/2);
+                   
+                  // Draw Axon Line
+                  blackBrush.style = PaintingStyle.stroke;
+                  
+                  // Control point logic
+                  double bFactor = (1.0 + sqrt((centerBeginAxon_x - xt)*(centerBeginAxon_x - xt) + (centerBeginAxon_y - yt)*(centerBeginAxon_y - yt)) / 200.0);
+                  double controlX = xt + bFactor * (xt - neuronTo.x) * 0.5;
+                  double controlY = yt + bFactor * (yt - neuronTo.y) * 0.5;
+                   
+                  double triangleCenterX = (xt + xBaseLeft + xBaseRight) / 3;
+                  double triangleCenterY = (yt + yBaseLeft + yBaseRight) / 3;
+                  
+                  Path clickPath = Path();
+                  clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                  clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                      controlY, triangleCenterX, triangleCenterY);
+                  String pathKey = "${from.key.toString()}_${to.key.toString()}";
+                  controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                  
+                  Path path = Path();
+                  path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                  path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
+                      controlY, triangleCenterX, triangleCenterY);
+                      
+                  // V25: Draw highlight ONLY in highlight pass
+                  if (isSelected && isHighlightPass) {
+                    Paint highlightPaint = Paint()
+                      ..color = const Color(0xFFFD8164)
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 17.0
+                      ..strokeCap = StrokeCap.round;
+                    canvas.drawPath(path, highlightPaint);
+                    
+                    Path triH = Path();
+                    triH.moveTo(xt, yt);
+                    triH.lineTo(xBaseLeft, yBaseLeft);
+                    triH.lineTo(xBaseRight, yBaseRight);
+                    triH.close();
+                    
+                    Paint highlightTri = Paint()
+                      ..color = const Color(0xFFFD8164)
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 8.0
+                      ..strokeCap = StrokeCap.round
+                      ..strokeJoin = StrokeJoin.round;
+                    canvas.drawPath(triH, highlightTri);
+                  }
+                  
+                  if (isHighlightPass) {
+                    return;
+                  }
+                  
+                  // STRUCTURE PASS: Draw main elements (no highlights)
+                  // V25: LED Gradient Support - only for edges with actual visible colors
+                  Color? edgeColor;
+                  try {
+                      final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
+                      if (matches.isNotEmpty) {
+                          edgeColor = matches.first.color;
+                      }
+                  } catch (e) {}
+                  
+                  // V25: Only apply gradient for visible, non-black colors
+                  bool hasVisibleColor = edgeColor != null && 
+                      edgeColor.alpha > 50 && 
+                      (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
+                  
+                  if (hasVisibleColor) {
+                      List<Color> gradientColors = [edgeColor, Colors.black];
+                      bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
+                                         (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
+                      if (isSourceLed) {
+                          gradientColors = [Colors.black, edgeColor];
+                      }
+                      
+                      final Shader gradientShader = ui.Gradient.linear(
+                          Offset(centerBeginAxon_x, centerBeginAxon_y),
+                          Offset(triangleCenterX, triangleCenterY),
+                          gradientColors,
+                          [0.0, 0.5],
+                          TileMode.clamp,
+                      );
+                      Paint gradientPaint = Paint()
+                        ..shader = gradientShader
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = strength
+                        ..strokeCap = StrokeCap.round;
+                      canvas.drawPath(path, gradientPaint);
+                  } else {
+                      canvas.drawPath(path, blackBrush);
+                  }
+                  
+                  // Draw Triangle (Second Level) - White fill + black stroke
+                  blackBrush.strokeWidth = 1.5;
+                  blackBrush.style = PaintingStyle.stroke;
+                  Path triPath = Path();
+                  triPath.moveTo(xt, yt);
+                  triPath.lineTo(xBaseLeft, yBaseLeft);
+                  triPath.lineTo(xBaseRight, yBaseRight);
+                  triPath.close();
+                  canvas.drawPath(triPath, synapseFill);
+                  canvas.drawPath(triPath, blackBrush);
 
-            // if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
-            //         .sinapticValue >
-            //     0) {
-            if (isExcitatory == 1) {
-              //triangle size
-              double triangleSinapseSize = diameterOfNeuron / 1.5;
-              //center of triangle
-              double xcent = neuronTo.x -
-                  circleRadius +
-                  neuronTo.dendrites[posin].xSecondLevel;
-              double ycent = neuronTo.y -
-                  circleRadius +
-                  neuronTo.dendrites[posin].ySecondLevel;
+               } else {
+                  // Inhibitory (Second Level) - Fixed 5px radius with offset
+                  double radius = 5.0;
+                  
+                  // Dendrite position
+                  double xcent = xc;
+                  double ycent = yc;
+                  
+                  // Angle from Neuron Center to Dendrite (Outward)
+                  double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+                  
+                  // New Center = Dendrite + Radius * Vector (offset outward)
+                  double xc_syn = xcent + radius * cos(angleOut);
+                  double yc_syn = ycent + radius * sin(angleOut);
+                  
+                  blackBrush.strokeWidth = strength;
+                  blackBrush.style = PaintingStyle.stroke;
+                  
+                  // Control point logic
+                  double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
+                  double controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;
+                  double controlY = yc_syn + bFactor * (yc_syn - neuronTo.y) * 0.5;
+                  
+                  Path clickPath = Path();
+                  clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                  clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc_syn, yc_syn);
+                  String pathKey = "${from.key.toString()}_${to.key.toString()}";
+                  controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                  
+                  Path path = Path();
+                  path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
+                  path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc_syn, yc_syn);
+                  
+                  // V25: Draw highlight ONLY in highlight pass
+                  if (isSelected && isHighlightPass) {
+                    Paint highlightPaint = Paint()
+                      ..color = const Color(0xFFFD8164)
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 17.0
+                      ..strokeCap = StrokeCap.round;
+                    canvas.drawPath(path, highlightPaint);
+                    Paint circleHighlight = Paint()
+                      ..color = const Color(0xFFFD8164)
+                      ..style = PaintingStyle.fill;
+                    canvas.drawCircle(Offset(xc_syn, yc_syn), radius + 4.0, circleHighlight);
+                  }
+                  
+                  if (isHighlightPass) {
+                    return;
+                  }
+                  
+                  // STRUCTURE PASS: Draw main elements (no highlights)
+                  Color? edgeColor;
+                  try {
+                      final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
+                      if (matches.isNotEmpty) {
+                          edgeColor = matches.first.color;
+                      }
+                  } catch (e) {}
+                  
+                  if (edgeColor != null && edgeColor != Colors.black) {
+                      List<Color> gradientColors = [edgeColor, Colors.black];
+                      bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
+                                         (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
+                      if (isSourceLed) {
+                          gradientColors = [Colors.black, edgeColor];
+                      }
+                      
+                      final Shader gradientShader = ui.Gradient.linear(
+                          Offset(centerBeginAxon_x, centerBeginAxon_y),
+                          Offset(xc_syn, yc_syn),
+                          gradientColors,
+                          [0.0, 0.5],
+                          TileMode.clamp,
+                      );
+                      Paint gradientPaint = Paint()
+                        ..shader = gradientShader
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = strength
+                        ..strokeCap = StrokeCap.round;
+                      canvas.drawPath(path, gradientPaint);
+                  } else {
+                      canvas.drawPath(path, blackBrush);
+                  }
+                  
+                  // Draw Circle Synapse (Second Level) - Black outer (5px) + white inner (3.5px)
+                  blackBrush.style = PaintingStyle.fill;
+                  canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
+                  canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+               }
+               
+               // V25: Sensory Axon Icons (Second Level - Injected)
+               // This logic was missing from Loop 2!
+               if (!isHighlightPass) {
+                    try {
+                      String? iconText;
+                      Color iconTextColor = Colors.black;
+                      double iconSize = 18; 
+                      
+                      String rawKey = "${from.key}_${to.key}";
+                      String fromIdClean = from.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String toIdClean = to.key.toString().replaceAll(RegExp(r"[\[\]<'>#]"), "");
+                      String cleanKey = "${fromIdClean}_${toIdClean}";
+                      
+                      String fromLabel = (from.label ?? "").toLowerCase();
+                      String toLabel = (to.label ?? "").toLowerCase();
+                      
+                      // Robust Detection: Check Value + isSensory (Labels are often null, IDs are hashes)
+                      // 0=Distance, 1=LeftEye, 2=RightEye, 3=Mic, 4=Speaker
+                      bool isMic = (from.isSensory == 1 && from.value == 3) || fromLabel.contains("mic") || fromLabel.contains("microphone");
+                      bool isSpeaker = (to.isSensory == 1 && to.value == 4) || toLabel.contains("speaker");
+                      bool isCamera = (from.isSensory == 1 && (from.value == 1 || from.value == 2)) || fromLabel.contains("eye") || fromLabel.contains("camera");
+                      bool isDistance = (from.isSensory == 1 && from.value == 0) || fromLabel.contains("distance");
 
-              //vertex of an isosceles triangle
-              double xt = neuronTo.x -
-                  circleRadius +
-                  neuronTo.dendrites[posin].xTriangleSecondLevel;
-              double yt = neuronTo.y -
-                  circleRadius +
-                  neuronTo.dendrites[posin].yTriangleSecondLevel;
-              xt = xt + (xt - xcent);
-              yt = yt + (yt - ycent);
-              double centralAngle = angleBetweenTwoPoints(xt, yt, xcent, ycent);
+                      // DEBUG MIC LOGIC LOOP 2 (UNCONDITIONAL)
+                      // if (isMic) {
+                         print("CheckIcon Loop2: from=$fromLabel ID=$fromIdClean to=$toLabel");
+                      // }
+                      
+                      bool drawColoredCircle = false;
+                      Color circleColor = Colors.transparent;
+                      String fontFamily = "NotoEmoji"; 
+                      double iconRadius = 12.5;
 
-              double xLeftTriangle =
-                  xt + triangleSinapseSize * cosDeg(centralAngle - 30);
-              double yLeftTriangle =
-                  yt + triangleSinapseSize * sinDeg(centralAngle - 30);
+                      // 1. Camera
+                      if (isCamera) {
+                         if (controller.mapSensoryNeuron != null) {
+                              int? idx;
+                              if (controller.mapSensoryNeuron.containsKey(rawKey)) idx = (controller.mapSensoryNeuron[rawKey] as num?)?.toInt();
+                              else if (controller.mapSensoryNeuron.containsKey(cleanKey)) idx = (controller.mapSensoryNeuron[cleanKey] as num?)?.toInt();
+                              
+                              if (idx != null) {
+                                  List<String> cameraMenuTypes = ["Blue","Blue (side)","Green","Green (side)","Red","Red (side)","Movement","person","backpack","bottle","cup","bowl","banana","apple","orange","chair","couch","potted plant","laptop","cell phone","book","vase","dog","cat","tv","mouse","keyboard","scissors","donut","pizza","hot dog"];
+                                  Map<String, String> lookup = {"person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣", "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️", "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒", "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺", "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩", "pizza": "🍕", "hot dog": "🌭"};
+                                  if (idx >= 0 && idx < cameraMenuTypes.length) {
+                                      String type = cameraMenuTypes[idx];
+                                      if (lookup.containsKey(type)) { iconText = lookup[type]; fontFamily = "NotoEmoji"; }
+                                      else if (type.contains("Blue")) { drawColoredCircle = true; circleColor = Colors.blue; }
+                                      else if (type.contains("Green")) { drawColoredCircle = true; circleColor = Colors.green; }
+                                      else if (type.contains("Red")) { drawColoredCircle = true; circleColor = Colors.red; }
+                                  }
+                              }
+                         }
+                      }
+                      
+                      // 2. Distance
+                      if (iconText == null && !drawColoredCircle && (isDistance) && controller.mapDistanceNeuron != null) {
+                          int? idx;
+                          if (controller.mapDistanceNeuron.containsKey(rawKey)) idx = (controller.mapDistanceNeuron[rawKey] as num?)?.toInt();
+                          else if (controller.mapDistanceNeuron.containsKey(cleanKey)) idx = (controller.mapDistanceNeuron[cleanKey] as num?)?.toInt();
+                          if (idx != null) {
+                              List<String> distEmojis = ["🛑", "⚠️", "🏁", "📏"];
+                              if (idx >= 0 && idx < distEmojis.length) { iconText = distEmojis[idx]; fontFamily = "NotoEmoji"; iconSize = 20; }
+                          }
+                      }
+                      
+                      // 3. Microphone
+                      if (iconText == null && !drawColoredCircle && (isMic || (controller.mapMicrophoneTypeNeuron != null && (controller.mapMicrophoneTypeNeuron.containsKey(rawKey) || controller.mapMicrophoneTypeNeuron.containsKey(cleanKey))))) {
+                          int? mode;
+                          if (controller.mapMicrophoneTypeNeuron != null) {
+                              if (controller.mapMicrophoneTypeNeuron.containsKey(rawKey)) mode = (controller.mapMicrophoneTypeNeuron[rawKey] as num?)?.toInt();
+                              else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
+                          }
+                          if (mode == null) mode = 0; // Default
+                          if (mode != null) {
+                              if (mode == 1) { iconText = "🔊"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                              else if (mode == 2) { 
+                                  // Piano Note Logic: Decode from mapMicrophoneLimitNeuron string "min_@_max"
+                                  // In Tone mode, Min holds the note index (0-11).
+                                  int noteIndex = 0;
+                                  String? limitStr;
+                                  if (controller.mapMicrophoneLimitNeuron.containsKey(rawKey)) limitStr = controller.mapMicrophoneLimitNeuron[rawKey];
+                                  else if (controller.mapMicrophoneLimitNeuron.containsKey(cleanKey)) limitStr = controller.mapMicrophoneLimitNeuron[cleanKey];
+                                  
+                                  if (limitStr != null) {
+                                      List<String> parts = limitStr.split("_@_");
+                                      if (parts.isNotEmpty) {
+                                          noteIndex = int.tryParse(parts[0]) ?? 0;
+                                      }
+                                  }
 
-              double xRightTriangle =
-                  xt + triangleSinapseSize * cosDeg(centralAngle + 30);
-              double yRightTriangle =
-                  yt + triangleSinapseSize * sinDeg(centralAngle + 30);
+                                  List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+                                  int safeIdx = noteIndex % 12;
+                                  if (safeIdx < notes.length) {
+                                      iconText = notes[safeIdx];
+                                      fontFamily = "BybHanddrawn";
+                                      iconSize = 18;
+                                  } else {
+                                      iconText = "🎹";
+                                      fontFamily = "NotoEmoji";
+                                      iconSize = 20;
+                                  }
+                              }
+                              else { iconText = "〰️"; iconSize = 20; fontFamily = "NotoEmoji"; }
+                          }
+                      }
+                      
+                      // 4. Speaker
+                      if (iconText == null && !drawColoredCircle && (isSpeaker) && controller.mapSpeakerNeuron != null) {
+                          double? freq;
+                          if (controller.mapSpeakerNeuron.containsKey(rawKey)) freq = (controller.mapSpeakerNeuron[rawKey] as num?)?.toDouble();
+                          else if (controller.mapSpeakerNeuron.containsKey(cleanKey)) freq = (controller.mapSpeakerNeuron[cleanKey] as num?)?.toDouble();
+                          if (freq != null) {
+                              int f = freq.toInt();
+                              if (f >= 31 && f <= 40) {
+                                  Map<int, String> voiceEmojis = {31:"👋",32:"🫢",33:"👍",34:"🤔",35:"😴",36:"🍰",37:"🤠",38:"🐕",39:"🐱",40:"✨"};
+                                  if (voiceEmojis.containsKey(f)) { iconText = voiceEmojis[f]; fontFamily = "NotoEmoji"; }
+                              } else if (f >= 70) {
+                                  List<int> bases = [128, 228, 328, 428];
+                                  int? bestBase;
+                                  for (int b in bases) { if (f >= b && f < b + 24) { bestBase = b; break; } }
+                                  if (bestBase != null) {
+                                      List<String> notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+                                      int noteIdx = (f - bestBase) % 12;
+                                      if (noteIdx < notes.length) { iconText = notes[noteIdx]; fontFamily = "BybHanddrawn"; iconSize = 18; }
+                                  } else { iconText = "🎵"; fontFamily = "NotoEmoji"; }
+                              }
+                          }
+                      }
 
-              //calculate distance between dendrite and most far vertex if triangle is blunt side toward dendrite
-              double xDoubleHeight = xt +
-                  2 * triangleSinapseSize * cosDeg(30) * cosDeg(centralAngle);
-              double yDoubleHeight = yt +
-                  2 * triangleSinapseSize * cosDeg(30) * sinDeg(centralAngle);
+                      if (iconText != null || drawColoredCircle) {
+                          double angle = neuronTo.dendrites[posin].angle;
+                          double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                          
+                          // V25: Uniform 34px spacing visual gap
+                          // V25: Uniform 34px spacing visual gap
+                          // 1. Calculate Control Points FIRST to determine Tangent Length at Tip
+                          double controlX, controlY;
+                          double tangentLength = 1.0;
+                          
+                          if (isExcitatory == 1) {
+                              // Re-calculate Triangle Tip (xt) for Excitatory
+                              double triangleSize = 10.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xt = xc + triangleSize * cos(angleOut);
+                              double yt = yc + triangleSize * sin(angleOut);
+                              
+                              double bFactor = (1.0 + sqrt((centerBeginAxon_x - xt)*(centerBeginAxon_x - xt) + (centerBeginAxon_y - yt)*(centerBeginAxon_y - yt)) / 200.0);
+                              controlX = xt + bFactor * (xt - neuronTo.x) * 0.5;
+                              controlY = yt + bFactor * (yt - neuronTo.y) * 0.5;
 
-              //second level sinapse
-              blackBrush.strokeWidth =
-                  strength; // Set stroke width for thin line
-              blackBrush.style = PaintingStyle.stroke;
+                              // Distance P2 to P3 (Tip)
+                              double dx = xt - controlX;
+                              double dy = yt - controlY;
+                              double distP2P3 = sqrt(dx*dx + dy*dy);
+                              tangentLength = 3.0 * distP2P3;
+                          } else {
+                              // Inhibitory: Use Circle Center for bFactor
+                              double radius = 5.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xc_syn = xc + radius * cos(angleOut);
+                              double yc_syn = yc + radius * sin(angleOut);
+                              
+                              double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
+                              controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;
+                              controlY = yc_syn + bFactor * (yc_syn - neuronTo.y) * 0.5;
 
-              double controlX = xc - 10 * (xc - xDoubleHeight);
-              double controlY = yc - 10 * (yc - yDoubleHeight);
+                              // Distance P2 to P3 (Center of circle)
+                              double dx = xc_syn - controlX;
+                              double dy = yc_syn - controlY;
+                              double distP2P3 = sqrt(dx*dx + dy*dy);
+                              tangentLength = 3.0 * distP2P3;
+                          }
 
-              double centerOfTriangleX =
-                  (xDoubleHeight + xLeftTriangle + xRightTriangle) / 3;
-              double centerOfTriangleY =
-                  (yDoubleHeight + yLeftTriangle + yRightTriangle) / 3;
+                          // 2. Calculate T using Tangent Length (Fixed Physical Distance)
+                          // V25: Uniform spacing, moved 2/5ths closer to synapse
+                          double distancePx = ((isExcitatory == 1) ? 34.0 : 39.0) * 0.6;
+                          
+                          // STRICT CURVE PLACEMENT using LOCAL VELOCITY
+                          // t = 1.0 - (distancePx / speedAtTip)
+                          double t = 1.0 - (distancePx / max(tangentLength, 1.0)); 
+                          if (t < 0.0) t = 0.0;
+                          if (t > 0.99) t = 0.99;
 
-              // Create Mask for Click Detection
-              Path clickPath = Path();
-              clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
-                  controlY, centerOfTriangleX, centerOfTriangleY);
-              String pathKey = "${from.key.toString()}_${to.key.toString()}";
-              controller.axonPathMap[pathKey] =
-                  getOutlinePath(clickPath, widthClickMask);
+                          // V25: Fix Loop 2 Far Dendrite Centering
+                          // Replicate initialAxonExtension logic to ensure p1 matches Drawn Path
+                          double centerEndAxon_x = centerBeginAxon_x; // Start from axon origin
+                          double centerEndAxon_y = centerBeginAxon_y;
+                          
+                          double initialAxonExtensionSize = 0.5; // Must match Loop 2 const
+                          // Replicate logic from lines ~2018
+                          if (branchDirection != null) {
+                             double extensionLength = min(max(distToSynapse * 0.4, 20.0), 100.0);
+                             centerEndAxon_x = centerBeginAxon_x + branchDirection.dx * extensionLength;
+                             centerEndAxon_y = centerBeginAxon_y + branchDirection.dy * extensionLength;
+                          } else {
+                             double extensionLength = min(max(distToSynapse * 0.3, 20.0), 100.0);
+                             Offset directionToTarget = Offset(xc - centerBeginAxon_x, yc - centerBeginAxon_y);
+                             if (directionToTarget.distance > 0) directionToTarget = directionToTarget / directionToTarget.distance;
+                             centerEndAxon_x = centerBeginAxon_x + directionToTarget.dx * extensionLength;
+                             centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
+                          }
 
-              Path path = Path();
-              path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              path.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX, controlY,
-                  centerOfTriangleX, centerOfTriangleY);
-              // print(
-              //     "${neuronTo.x},${neuronTo.y} : ${neuronFrom.x},${neuronFrom.y} : $fromIdx,$toIdx");
+                          double u = 1 - t;
+                          double tt = t * t; double uu = u * u; double uuu = uu * u; double ttt = tt * t;
+                          Offset p0 = Offset(centerBeginAxon_x, centerBeginAxon_y);
+                          Offset p1 = Offset(centerEndAxon_x, centerEndAxon_y);
+                          Offset p2 = Offset(controlX, controlY);
 
-              canvas.drawPath(path, blackBrush);
 
-              blackBrush.strokeWidth = neuronFrom.diameter * (0.07);
-              blackBrush.style = PaintingStyle.stroke;
+                          // Recalculate Target for Icon Placement
+                          // If Excitatory (Triangle): Use Centroid
+                          // If Inhibitory (Circle/Default): Use Synapse Center
+                          Offset p3;
+                          if (isExcitatory == 1) {
+                              // Re-calculate Triangle Geometry (Identical to drawing logic above)
+                              double triangleSize = 10.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xt = xc + triangleSize * cos(angleOut);
+                              double yt = yc + triangleSize * sin(angleOut);
+                              double halfBase = triangleSize / sqrt(3); 
+                              double xBaseLeft = xc + halfBase * cos(angleOut - pi/2); 
+                              double xBaseRight = xc + halfBase * cos(angleOut + pi/2);
+                              double yBaseLeft = yc + halfBase * sin(angleOut - pi/2);
+                              double yBaseRight = yc + halfBase * sin(angleOut + pi/2);
+                              
+                              double triCenterX = (xt + xBaseLeft + xBaseRight) / 3;
+                              double triCenterY = (yt + yBaseLeft + yBaseRight) / 3;
+                              p3 = Offset(triCenterX, triCenterY);
+                          } else {
+                              // Inhibitory: Target is the Circle Center (xc_syn, yc_syn) calculated earlier
+                              // We need to re-calc it here since variables might be out of scope or we are in a shared block
+                              double radius = 5.0;
+                              double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
+                              double xc_syn = xc + radius * cos(angleOut);
+                              double yc_syn = yc + radius * sin(angleOut);
+                              p3 = Offset(xc_syn, yc_syn);
+                          }
 
-              path = Path();
-              path.moveTo(xDoubleHeight, yDoubleHeight);
+                          double bx = uuu * p0.dx + 3 * uu * t * p1.dx + 3 * u * tt * p2.dx + ttt * p3.dx;
+                          double by = uuu * p0.dy + 3 * uu * t * p1.dy + 3 * u * tt * p2.dy + ttt * p3.dy;
+                          Offset iconPos = Offset(bx, by);
 
-              path.lineTo(xLeftTriangle, yLeftTriangle);
-              path.lineTo(xRightTriangle, yRightTriangle);
-              path.close();
-              // canvas.drawPath(path, whiteBrush);
-
-              path = Path();
-              path.moveTo(xDoubleHeight, yDoubleHeight);
-              path.lineTo(xLeftTriangle, yLeftTriangle);
-              path.lineTo(xRightTriangle, yRightTriangle);
-              path.close();
-              canvas.drawPath(path, blackBrush);
-            } else {
-              var path = Path();
-              blackBrush.strokeWidth =
-                  strength; // Set stroke width for thin line
-              blackBrush.style = PaintingStyle.stroke;
-              double controlX = xc + 3 * (xc - (neuronTo.x));
-              double controlY = yc + 3 * (yc - (neuronTo.y));
-
-              // Create Mask for Click Detection
-              Path clickPath = Path();
-              clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              clickPath.cubicTo(
-                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
-              String pathKey = "${from.key.toString()}_${to.key.toString()}";
-              controller.axonPathMap[pathKey] =
-                  getOutlinePath(clickPath, widthClickMask);
-
-              path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
-              path.cubicTo(
-                  centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc, yc);
-              canvas.drawPath(path, blackBrush);
-
-              blackBrush.strokeWidth = neuronFrom.diameter * (0.1);
-              blackBrush.style = PaintingStyle.fill;
-              canvas.drawCircle(
-                  Offset(xc, yc), neuronFrom.diameter * 0.25, blackBrush);
-              canvas.drawCircle(
-                  Offset(xc, yc), neuronFrom.diameter * 0.18, whiteBrush);
-            }
-            if (isShowingInfo) {
-              final textSpan = TextSpan(
-                text: label,
-                style: textStyle,
-              );
-              final textPainter = TextPainter(
-                text: textSpan,
-                textDirection: TextDirection.ltr,
-              );
-              textPainter.layout(
-                minWidth: 0,
-                maxWidth: 100,
-              );            
-              textPainter.paint(canvas, Offset(centerEndAxon_x, centerEndAxon_y));
-            }
-          }
-        }
+                          // V25: Radius 12.5 (25px Diameter)
+                          canvas.drawCircle(iconPos + const Offset(1,1), iconRadius, Paint()..color = Colors.black.withOpacity(0.3));
+                          canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.white..style = PaintingStyle.fill);
+                          
+                          if (drawColoredCircle) {
+                              canvas.drawCircle(iconPos, iconRadius - 2, Paint()..color = circleColor..style = PaintingStyle.fill);
+                              canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
+                          } else {
+                              canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
+                              TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
+                              TextPainter tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
+                              tp.layout();
+                              tp.paint(canvas, iconPos - Offset(tp.width / 2, tp.height / 2));
+                          }
+                      }
+                    } catch (e) {
+                        print("Error in Loop 2 Icon Logic: $e");
+                    }
+               }
+           }
+         }
+      }
       }
     }
-  }
-
   List<SyntheticNeuron> copyFromRawSynthetics(
       List<SyntheticNeuron> syntheticNeuronList) {
     var neuronIdx = 0;
@@ -1053,7 +2694,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           }
         }
 
+        // V25: Set BOTH axonAngle and baseAxonAngle to the dendrite's angle
+        // baseAxonAngle is the FIXED original position
+        // axonAngle will update to track downstream, rotationDelta = axonAngle - baseAxonAngle
         syntheticRawNeuron.axonAngle =
+            syntheticRawNeuron.dendrites[minDistanceIndex].angle;
+        syntheticRawNeuron.baseAxonAngle =
             syntheticRawNeuron.dendrites[minDistanceIndex].angle;
         syntheticRawNeuron.dendriteIdx = minDistanceIndex;
         syntheticRawNeuron.xAxon =
@@ -1236,11 +2882,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
   Path getOutlinePath(Path path, double thickness) {
     Path outlinePath = Path();
-    for (PathMetric pathMetric in path.computeMetrics()) {
+    for (ui.PathMetric pathMetric in path.computeMetrics()) {
       for (double distance = 0.0;
           distance < pathMetric.length;
           distance += 1.0) {
-        Tangent? tangent = pathMetric.getTangentForOffset(distance);
+        ui.Tangent? tangent = pathMetric.getTangentForOffset(distance);
         if (tangent != null) {
           // Create a rectangle path to simulate thickness
           Rect rect = Rect.fromCenter(

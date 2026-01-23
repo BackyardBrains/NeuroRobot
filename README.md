@@ -7,6 +7,29 @@ The Spikerbot App is an all in one design tool & neural simulator. Build spiking
 
 ---
 
+## v1.3.2
+**Date:** 2026-01-23
+
+### Neuron Drawing Updates
+*   **New Branching Axon Algorithm**: Reduces clutter by branching axons one by one. Multi-select downstream axons by selecting different trunk segments.
+*   **Organic Flow**: Trunk segments now take on the largest thickness of downstream connections.
+*   **Dynamic Movement**: Axon path improvements and rotation make neurons feel dynamic and alive as they re-orient during design.
+*   **Uniform Visuals**: Axons stretched from neurons or sensors now match the style of drawn axons.
+*   **Batch Weight Setting**: Set all synaptic weights for a neuron at once!
+*   **Sticky Neurons**: Hitboxes grow when hovering an axon over a neuron, making it easier to hit your target when making connections.
+
+### Synapse Improvements
+*   **Visibility**: Synapses resized and z-order fixed to be more visible at a glance.
+*   **Live Mode**: Synapses now blink alongside parent neurons.
+
+### Input/Output Axon Labels
+*   **Emoji Indicators**: Added emojis on connections to Spikerbot's peripherals (camera, distance, mic, speaker, LEDs) matching configuration symbols.
+*   **Condition Visibility**: Easily see what conditions are set between inputs and neurons, and from neurons to outputs.
+
+### LED & Visual Updates
+*   **LED Axons**: Fade from black to target color to fit better with branching axon trees.
+*   **Live Mode Decay**: Neurons blink when they spike, with a decay rate matching fluorescent calcium imaging of real biological neurons.
+
 ## v1.3.1
 **Date:** 2026-01-09
 
@@ -72,4 +95,20 @@ This release marks the transition from the "Neurorobot" application into **Spike
 *   **Native File Picker**:
     *   Importing/Exporting "Brains" now uses the native macOS System File Picker instead of a custom UI, improving usability and faster access to files 
 *   **Crash Fixes**:
-    *   Resolved runtime crashes associated with OpenCV and startup race conditions.
+---
+
+## Compiling from Source
+
+To compile this project, you will need to manually add the OpenCV frameworks, as they are too large for the repository.
+
+### Requirements
+
+1.  **OpenCV 4.5+**: Download the `opencv2.xcframework` (for iOS and macOS) and the Android jniLibs.
+2.  **Placement**:
+    *   **iOS**: Place `opencv2.xcframework` in `PLUGINS/native_opencv/ios/`
+    *   **macOS**: Place `opencv2.xcframework` in `PLUGINS/native_opencv/macos/`
+    *   **Android**: Place `jniLibs` folder in `PLUGINS/native_opencv/android/src/main/`
+
+### Notes
+*   This project uses `flutter_soloud` which requires C++17.
+*   The `nativec` plugin handles the core neuronal simulation and requires the OpenCV integration for vision features.

@@ -19,6 +19,9 @@ class NodeRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // V25: Don't render if hidden/zero-sized
+    if (node.size.isEmpty || node.size.shortestSide <= 0) return const SizedBox();
+
     final colors = Theme.of(context).colorScheme;
     final fonts = Theme.of(context).textTheme;
     final showHandles = node.allowResize && controller.isSelected(node.key);
@@ -46,25 +49,43 @@ class NodeRenderer extends StatelessWidget {
               ),
             ),
           // CHANGE ME
-          // if (controller.isSelected(node.key) || controller.isHovered(node.key))
-          //   Positioned(
-          //     top: -borderInset,
-          //     left: -borderInset,
-          //     right: -borderInset,
-          //     bottom: -borderInset,
-          //     child: IgnorePointer(
-          //       child: Container(
-          //         decoration: BoxDecoration(
-          //           border: Border.all(
-          //             color: controller.isSelected(node.key)
-          //                 ? colors.primary
-          //                 : colors.outline,
-          //             width: 1,
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
+          // V25: Orange highlight behind neuron when dragging connection (User Request)
+          // Refined: Signature Color, Larger, Exclude Source/Parent
+          if (controller.isHovered(node.key) && (controller.linkStart != null || controller.controlPressed))
+             Builder(builder: (context) {
+                // Check exclusion: Don't highlight if this node is the source
+                if (controller.linkStart == node.key) return const SizedBox();
+                
+                // V25: Check exclusion: Don't highlight Sensory Outputs (Motors, Speakers, etc.)
+                if (node.isSensory == 1) return const SizedBox();
+
+                // V25: Check exclusion: Don't highlight the Tail Node itself
+                if (controller.nodes.isNotEmpty && controller.nodes[0].key == node.key) return const SizedBox();
+
+                // Check exclusion: Don't highlight parent if dragging tail (Tail is usually Node 0)
+                // If linkStart is tailNode (nodes[0]), and this node is close to it, exclude.
+                // V25: Increased exclusion distance to 150 to catch parent reliably.
+                if (controller.nodes.isNotEmpty && controller.linkStart == controller.nodes[0].key) {
+                   if ((node.offset - controller.nodes[0].offset).distance < 150) {
+                      return const SizedBox();
+                   }
+                }
+
+                return Positioned(
+                  top: -15,
+                  left: -15,
+                  right: -15,
+                  bottom: -15,
+                  child: IgnorePointer(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFFD8164), // Signature Orange Opaque
+                      ),
+                    ),
+                  ),
+                );
+             }),
           Positioned.fill(
             key: key,
             child: node.clipBehavior != Clip.none
@@ -76,12 +97,8 @@ class NodeRenderer extends StatelessWidget {
                 : (!controller.isPlaying && (controller.isSelected(node.key) ||
                         controller.isHovered(node.key)))
                     ? Transform.scale(
-                        scale: 1.5,
-                        child: ColorFiltered(
-                          colorFilter: const ColorFilter.mode(
-                              Color(0XFFFD8164), BlendMode.srcIn),
-                          child: node.child!)
-                        
+                        scale: 1.65, // V25: Adjusted growth size
+                        child: node.child!, // Highlight handled in EdgeRenderer (Bottom Layer)
                       )
                     : node.child!,
           ),

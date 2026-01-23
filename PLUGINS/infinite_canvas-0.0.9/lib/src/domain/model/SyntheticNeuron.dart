@@ -10,7 +10,7 @@ class SyntheticNeuron extends CustomPainter {
   late SyntheticNeuron rawSyntheticNeuron;
   late InfiniteCanvasNode node;
   // late LocalKey neuronKey;
-  Color activeColor = Colors.green.shade700;
+  Color activeColor = const Color(0xFF00FF00);
   Color inactiveColor = const Color.fromRGBO(158, 158, 158, 1);
   final double circleRadius = 10.0;
   final double arrowSize = 1.0;
@@ -178,7 +178,7 @@ class SyntheticNeuron extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // print("Neuron paint");
+    // V25: Rotation is now handled by adding rotationDelta to dendrite angles
     recalculate(canvas);
   }
 
@@ -239,7 +239,8 @@ class SyntheticNeuron extends CustomPainter {
       if (neur.isIO) {
         continue;
       }
-      var angle = neur.dendrites[i].angle;
+      // V25: Add rotationDelta to dendrite angle - whole neuron rotates together
+      var angle = neur.dendrites[i].angle + neur.rotationDelta;
 
       bool hasSecondLevelNeuron = neur.dendrites[i].hasSecondLevel;
 
@@ -798,6 +799,7 @@ class Neuron {
   double xCenterOfConnections;
   double yCenterOfConnections;
   double axonAngle;
+  double baseAxonAngle; // V25: Original orientation before rotation
   double xNucleus;
   double yNucleus;
   double widthNucleus;
@@ -807,6 +809,9 @@ class Neuron {
   int dendriteIdx = -1;
   double xAxon = 0;
   double yAxon = 0;
+
+  // V25: Rotation delta from base angle (drives visual rotation)
+  double get rotationDelta => axonAngle >= 0 && baseAxonAngle >= 0 ? axonAngle - baseAxonAngle : 0;
 
   // Constructor
   Neuron(
@@ -819,11 +824,12 @@ class Neuron {
       required this.xCenterOfConnections,
       required this.yCenterOfConnections,
       required this.axonAngle,
+      double? baseAxonAngle, // Optional - defaults to axonAngle
       required this.xNucleus,
       required this.yNucleus,
       required this.widthNucleus,
       required this.heightNucleus,
-      required this.isIO});
+      required this.isIO}) : baseAxonAngle = baseAxonAngle ?? axonAngle;
 
   // Method to display information about the neuron
   void displayInfo() {

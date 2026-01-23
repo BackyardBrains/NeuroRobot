@@ -43,12 +43,14 @@ class InfiniteCanvasNode<T> {
     // bool? isShowingInfo,
   }) {
     if (offset != null && allowMove) this.offset = offset;
-    if (size != null && allowResize) {
-      if (size.width < dragHandleSize * 2) {
-        size = Size(dragHandleSize * 2, size.height);
-      }
-      if (size.height < dragHandleSize * 2) {
-        size = Size(size.width, dragHandleSize * 2);
+    if (size != null) {
+      if (allowResize) {
+        if (size.width < dragHandleSize * 2) {
+          size = Size(dragHandleSize * 2, size.height);
+        }
+        if (size.height < dragHandleSize * 2) {
+          size = Size(size.width, dragHandleSize * 2);
+        }
       }
       this.size = size;
     }

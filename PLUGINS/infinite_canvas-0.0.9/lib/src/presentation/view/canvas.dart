@@ -235,9 +235,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
         },
         child: Listener(
           onPointerDown: (details) {
-            if (!Platform.isIOS) {
-              controller.checkSelection(details.localPosition);
-            }
+            // V25: ALWAYS check selection BEFORE setting mouseDown (which notifies listeners).
+            // This ensures logic in designbrain_page (which listens to mouseDown) sees the correct isSelectingEdge state.
+            controller.checkSelection(details.localPosition);
+
             // print("mouse down");
             // print(controller.scale);
 
@@ -266,9 +267,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
             // CHANGE ME
             // try {
-            if (Platform.isIOS) {
-              controller.checkSelection(details.localPosition);
-            } // } catch (err) {
+            // if (Platform.isIOS) {
+            //   controller.checkSelection(details.localPosition);
+            // } // } catch (err) {
             //   print(err);
             // }
             // if (controller.selection.isEmpty) {
@@ -382,7 +383,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
               // print(constraints.maxHeight);
               return InteractiveViewer.builder(
                 transformationController: controller.transform,
-                panEnabled: controller.canvasMoveEnabled,
+                panEnabled: controller.canvasMoveEnabled &&
+                    !controller.controlPressed &&
+                    controller.linkStart == null,
                 // scaleEnabled: controller.canvasMoveEnabled,
                 scaleEnabled: true,
                 onInteractionStart: (details) {
@@ -436,6 +439,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                             ?.rect
                             .center,
                         linkEnd: controller.linkEnd,
+                        linkIsExcitatory: controller.getNode(controller.linkStart)?.isExcitatory == 1,
                         straightLines: widget.edgesUseStraightLines,
                       ),
                     );

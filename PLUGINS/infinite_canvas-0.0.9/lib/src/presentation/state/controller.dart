@@ -32,11 +32,27 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Function(LocalKey a, LocalKey b) onAxonCreatedCallback;
 
   Map<String, Path> axonPathMap = {};
+  Map<String, List<InfiniteCanvasEdge>> trunkToEdgesMap = {}; // Maps Trunk Key to Downstream Edges
+  Map<String, List<Offset>> edgeBranchPointMap = {}; // Maps Edge Key to [branchPoint, branchDirection]
+  Map<LocalKey, int> sourcePreviousEdgeCount = {}; // V25: Tracks edge count per source for cache invalidation
   int modeIdx = 0;
 
   List<LocalKey>? restrictedToNeuronsKey;
   List<LocalKey>? restrictedFromNeuronsKey;
   // final VoidCallback transformNeuronPositionWrapper;
+
+  // V25: Sensory Config Maps (Reference to DesignBrainPage state)
+  Map<dynamic, dynamic> mapSensoryNeuron = {};
+  Map<dynamic, dynamic> mapDistanceNeuron = {};
+  Map<dynamic, dynamic> mapMicrophoneTypeNeuron = {}; // Mode
+  Map<dynamic, dynamic> mapMicrophoneLimitNeuron = {}; // Limits (and Piano Notes)
+  Map<dynamic, dynamic> mapMicrophoneNeuron = {}; // Connection Strength/ID
+  Map<dynamic, dynamic> mapSpeakerNeuron = {}; // Tone definition
+  
+  // V25: Missing Maps added for Persistence Sync
+  Map<dynamic, dynamic> mapContactsNeuron = {}; 
+  Map<dynamic, dynamic> mapConnectome = {};
+  Map<dynamic, dynamic> mapLedNeuron = {};
 
   InfiniteCanvasController({
     required this.rawSyntheticNeuronList,
@@ -74,11 +90,23 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final List<InfiniteCanvasEdge> edges = [];
 
   // STEVE
-  late InfiniteCanvasEdge edgeFound;
-  late InfiniteCanvasEdge edgeSelected;
-  List<InfiniteCanvasEdge> get edgeSelection => edges
-      .where((e) => edgeSelected.from == e.from && edgeSelected.to == e.to)
-      .toList();
+  InfiniteCanvasEdge? edgeFound;
+  InfiniteCanvasEdge? edgeSelected;
+  List<InfiniteCanvasEdge> get edgeSelection => edgeSelected == null
+      ? []
+      : edges
+          .where((e) =>
+              edgeSelected!.from == e.from && edgeSelected!.to == e.to)
+          .toList();
+      
+  // V25: Support for multiple edge selection (Trunk Selection)
+  Set<InfiniteCanvasEdge> multiEdgeSelection = {};
+  
+  bool isEdgeInSelection(InfiniteCanvasEdge edge) {
+    if (multiEdgeSelection.contains(edge)) return true;
+    if (isSelectingEdge && edgeSelected == edge) return true;
+    return false;
+  }
 
   InfiniteCanvasNode? singleSelection;
   final Set<Key> _selected = {};
@@ -138,7 +166,69 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   set linkEnd(Offset? value) {
     if (value == _linkEnd) return;
     _linkEnd = value;
+    
+    // V25: Update source neuron rotation during drag
+    if (linkStart != null && value != null) {
+      _updateDragRotation();
+    }
+    
     notifyListeners();
+  }
+  
+  // V25: Update source neuron rotation to point toward drag position + existing connections
+  void _updateDragRotation() {
+    if (linkStart == null || linkEnd == null) return;
+    
+    try {
+      // Find the synthetic neuron that corresponds to the drag source
+      SyntheticNeuron? sourceNeuron;
+      for (var sn in syntheticNeuronList) {
+        if (sn.node.key == linkStart) {
+          sourceNeuron = sn;
+          break;
+        }
+      }
+      
+      if (sourceNeuron == null) return;
+      
+      final neuron = sourceNeuron.newNeuron;
+      final sourceX = neuron.x;
+      final sourceY = neuron.y;
+      
+      // Calculate centroid including existing downstream connections + drag position
+      double sumX = linkEnd!.dx;
+      double sumY = linkEnd!.dy;
+      int count = 1;
+      
+      // Include all existing downstream connections in centroid
+      for (var edge in edges) {
+        if (edge.from == linkStart) {
+          final targetNode = nodes.firstWhere((n) => n.key == edge.to);
+          Offset targetCenter = targetNode.offset + Offset(targetNode.size.width/2, targetNode.size.height/2);
+          sumX += targetCenter.dx;
+          sumY += targetCenter.dy;
+          count++;
+        }
+      }
+      
+      // Calculate angle toward centroid
+      double centroidX = sumX / count;
+      double centroidY = sumY / count;
+      double targetAngle = atan2(centroidY - sourceY, centroidX - sourceX) * 180 / pi;
+      
+      // Normalize to 0-360 to avoid negative values
+      if (targetAngle < 0) targetAngle += 360;
+      
+      // Update axonAngle - initialize baseAxonAngle if needed
+      if (neuron.axonAngle <= -1) {
+        neuron.axonAngle = targetAngle;
+        neuron.baseAxonAngle = targetAngle;
+      } else {
+        neuron.axonAngle = targetAngle;
+      }
+    } catch (e) {
+      // Neuron not initialized yet
+    }
   }
 
   bool _mouseDown = false;
@@ -210,7 +300,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   // STEVE
   bool isEdgeSelected(LocalKey keyFrom, LocalKey keyTo) =>
-      edgeSelected.from == keyFrom && edgeSelected.to == keyTo;
+      edgeSelected != null &&
+      edgeSelected!.from == keyFrom &&
+      edgeSelected!.to == keyTo;
   bool get hasEdgeSelection => edgeSelection.isNotEmpty;
 
   bool isSelected(LocalKey key) => _selected.contains(key);
@@ -233,6 +325,35 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   Offset toLocal(Offset global) {
     return transform.toScene(global);
+  }
+
+  // V25: Callback to check if a node is a sensor (to prevent trunk selection)
+  bool Function(InfiniteCanvasNode)? isSensorNode;
+
+  // V25: Multi-selection Synaptic Weight Accessor
+  double get synapticWeight {
+    if (multiEdgeSelection.isNotEmpty) {
+      // Return value of first selected edge (or maybe average? User requested 50 if mixed)
+      // Logic for "Grey if different" will be in UI. Here we just return a representative value.
+      return multiEdgeSelection.first.connectionStrength ?? 0;
+    }
+    if (isSelectingEdge) {
+      return edgeSelected?.connectionStrength ?? 0;
+    }
+    return 0;
+  }
+
+  set synapticWeight(double value) {
+    if (multiEdgeSelection.isNotEmpty) {
+      for (var edge in multiEdgeSelection) {
+        edge.connectionStrength = value;
+        edge.label = value.toInt().toString();
+      }
+    } else if (isSelectingEdge && edgeSelected != null) {
+      edgeSelected!.connectionStrength = value;
+      edgeSelected!.label = value.toInt().toString();
+    }
+    notifyListeners();
   }
 
   void checkSelection(Offset localPosition, [bool hover = false]) {
@@ -258,20 +379,74 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     final offset = toLocal(localPosition);
     final selection = <Key>[];
     for (final child in nodes) {
-      final rect = child.rect;
+      // V25: Ignore hidden/zero-sized nodes (Fixes invisible tail interference)
+      if (child.size.isEmpty || child.size.shortestSide <= 0) continue;
+
+      // V25: Inflate hit area. Sticky if already hovered (User Request).
+      // Refined: Only sticky during drag (linkStart/controlPressed), and size 30.
+      double inflation = 15.0;
+      if (linkStart != null || controlPressed) {
+          if (isHovered(child.key)) {
+             inflation = 30.0;
+          }
+      }
+      final rect = child.rect.inflate(inflation);
       if (rect.contains(offset)) {
         selection.add(child.key);
       }
     }
-    if (kIsWeb) {
-    } else if (Platform.isIOS || Platform.isAndroid) {
-      isSelectingEdge = false;
+    // print("DEBUG: checkSelection: offset $offset, nodes: ${nodes.length}, edges: ${edges.length}");
+    if (!hover) {
+      if (kIsWeb) {
+      } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
+        isSelectingEdge = false;
+        // edgeSelected = null; // Don't null here, let loop overwrite or final check clear?
+        // Actually, if we reset isSelectingEdge to false, then even if edgeSelected persists, it won't show.
+        // UNLESS we re-enable isSelectingEdge later without updating edgeSelected.
+        // Let's be safe.
+        edgeSelected = null;  // V25: Ensure cleared to prevent ghosts
+        // V25: Also clear edgeFound to prevent stale overwrites in onTapUp
+        edgeFound = null;
+        isFoundEdge = false;
+      }
+      // V25: Unconditional clear for safety even if platform logic differs? 
+      // No, sticking to platform block is safer for now, but adding explicit multi-clear if needed?
+      // Actually, let's just be sure.
+      if (!hover) {
+          edgeSelected = null;
+          isSelectingEdge = false;
+          // Note: multiEdgeSelection is cleared later if we find a hit, 
+          // OR we should clear it here? 
+          // If we click empty space, we want to clear.
+          // The loop logic does `deselectAll` at the end if nothing found.
+      }
     }
-    for (final edge in edges) {
+    
+    
+    // V25: PRIORITY 1 - NEURONS. 
+    // If we hit a neuron, skip edge selection entirely.
+    if (selection.isNotEmpty) {
+       // V25: User clicked a generic node/neuron.
+       // Explicitly clear any edge selection to ensure only the neuron is highlighted.
+       edgeSelected = null;
+       edgeFound = null;
+       isSelectingEdge = false;
+       multiEdgeSelection.clear();
+    } else {
+       // Only check edges if no neuron was hit, AND not currently dragging a connection
+       if (linkStart == null && !controlPressed) {
+         for (final edge in edges) {
       const lineWidth = 7;
       const radius = 10;
-      var eFrom = nodes.where((e) => edge.from == (e.key)).toList()[0];
-      var eTo = nodes.where((e) => edge.to == (e.key)).toList()[0];
+      var eFromList = nodes.where((e) => edge.from == (e.key)).toList();
+      var eBookList = nodes.where((e) => edge.to == (e.key)).toList();
+      
+      if (eFromList.isEmpty || eBookList.isEmpty) {
+          // printDebug("Warning: Edge ${edge.from}->${edge.to} references missing node.");
+          continue;
+      }
+      var eFrom = eFromList[0];
+      var eTo = eBookList[0];
 
       // IS RECIPROCATE
       // var oFrom = Offset( eFrom.offset.dx + lineWidth, eFrom.offset.dy + lineWidth + edge.isReciprocate  );
@@ -323,6 +498,100 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
       // p.close();
       String pathKey = "${eFrom.key.toString()}_${eTo.key.toString()}";
+      
+      // V25: Trunk Segment Hit Testing (PRIORITY 2 - TRUNK)
+      // Iterate over all keys in axonPathMap to find trunk segments from this source
+      // Keys are formatted as: "${sourceKey}_trunk_${index}"
+      bool trunkHit = false;
+      
+      // Check if source is a sensor - if so, skip trunk selection
+      if (isSensorNode == null || !isSensorNode!(eFrom)) {
+        for (String key in axonPathMap.keys) {
+          if (key.startsWith("${eFrom.key.toString()}_trunk_")) {
+             Path p = axonPathMap[key]!;
+             
+             // Check if we hit this trunk segment
+             if (p.contains(offset)) {
+               trunkHit = true;
+               // print("DEBUG: Trunk Hit! Key: $key");
+               
+               // Extract segment index
+               int segmentIndex = int.tryParse(key.split("_trunk_").last) ?? 0;
+               
+               // Get all downstream edges for this source
+               // The trunkToEdgesMap stores them sorted by branch order (closest to soma first)
+               String trunkBaseKey = "${eFrom.key.toString()}_trunk";
+               List<InfiniteCanvasEdge>? downstreamEdges = trunkToEdgesMap[trunkBaseKey];
+               
+               if (downstreamEdges != null && segmentIndex < downstreamEdges.length) {
+                 isSelectingEdge = true;
+                 isFoundEdge = true; // V25: Found edge (trunk)
+                 
+                 multiEdgeSelection.clear();
+                 
+                 // V25: Improved Selection Logic for Mixed Trunks
+                 // Goal: If ANY standard neuron connections exist, prioritize them. 
+                 // Do NOT select Speaker/LED edges for multi-selection to avoid wrong UI widgets.
+                 
+                 List<InfiniteCanvasEdge> validNeuronEdges = [];
+                 List<InfiniteCanvasEdge> sensoryEdges = [];
+                 
+                 for (int i = segmentIndex; i < downstreamEdges.length; i++) {
+                     InfiniteCanvasEdge edge = downstreamEdges[i];
+                     bool isSensory = false;
+                     try {
+                        var targetNode = nodes.firstWhere((n) => n.key == edge.to);
+                        
+                        // Check 1: Explicit isSensory flag (Architecture property)
+                        // Check 2: Label String Analysis
+                         String lbl = (targetNode.label ?? "").toUpperCase();
+                        
+                        // V25: Explicitly exclude MOTORS from multi-selection (User Request)
+                        // They should behave like Speakers/LEDs (Sensory)
+                           if (targetNode.isSensory == 1) isSensory = true;
+                           if (lbl.contains("SPEAKER") || lbl.contains("LED") || lbl.contains("MIC") || lbl.contains("CAMERA") || lbl.contains("MOTOR")) {
+                              isSensory = true;
+                           }
+                        
+                     } catch (e) {
+                        // print("DEBUG: Error checking edge target: $e");
+                     }
+                     
+                     if (isSensory) {
+                        sensoryEdges.add(edge);
+                     } else {
+                        validNeuronEdges.add(edge);
+                     }
+                 }
+                 
+                 // print("DEBUG: Valid Neuron/Motor Edges: ${validNeuronEdges.length}");
+
+                 if (validNeuronEdges.isNotEmpty) {
+                    // CASE A: Standard Neurons Present -> Select them ALL (Multi)
+                    // Ensure the 'primary' selection is a valid neuron edge to trigger Weight Widget
+                    edgeSelected = validNeuronEdges.first;
+                    multiEdgeSelection.addAll(validNeuronEdges);
+                 } else {
+                    // CASE B: Only Sensory/Other -> Keep specific selection
+                    // Select the specific edge corresponding to this segment (if possible)
+                    // or just the first one if we are at the end.
+                    edgeSelected = downstreamEdges[segmentIndex];
+                 }
+                 
+                 edgeFound = edgeSelected; // V25: Sync edgeFound so onTapUp doesn't revert to old edge!
+                 
+                 // V25: Explicitly clear NODE selection to prevent ghost highlights
+                 _selected.clear();
+                 singleSelection = null;
+               }
+               break;
+             }
+          }
+        }
+      }
+      if (trunkHit) break; // Stop checking other edges if we hit a trunk
+
+      // V25: Check for direct edge hit (PRIORITY 3 - AXON)
       if (axonPathMap.containsKey(pathKey)) {
         Path p = axonPathMap[pathKey]!;
 
@@ -330,9 +599,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
           edgeFound = edge;
           isFoundEdge = true;
           if (kIsWeb) {
-          } else if (Platform.isIOS || Platform.isAndroid) {
+          } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
+            // print("DEBUG: Direct Edge Hit. Selecting edge.");
             isSelectingEdge = true;
             edgeSelected = edge;
+            multiEdgeSelection.clear(); // Clear multi-selection on direct tap
+            multiEdgeSelection.add(edge);
+            
+            // V25: Explicitly clear NODE selection to prevent "Ghost" highlights
+            _selected.clear();
+            singleSelection = null;
           }
 
           break;
@@ -360,14 +636,30 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       //   selection.add(child.key);
       // }
     }
-    if (selection.isNotEmpty) {
+    }
+    }
+    if (selection.isNotEmpty && !isSelectingEdge) {
       if (shiftPressed) {
         setSelection({selection.last, ..._selected.toSet()}, hover);
       } else {
         setSelection({selection.last}, hover);
       }
     } else {
-      deselectAll(hover);
+      // V25: Only deselect all if we also didn't select an edge
+      // AND prioritize updated edge selection signal
+       if (!isSelectingEdge) {
+          deselectAll(hover);
+       } else {
+          // We have an edge selected, so just clear node selection logic without clearing edge flags
+          if (hover) {
+            _hovered.clear();
+          } else {
+             _selected.clear();
+             _selectedOrigins.clear();
+             // Important: Do NOT call deselectAll() as it clears multiEdgeSelection
+          }
+          notifyListeners();
+       }
     }
   }
 
@@ -454,6 +746,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     }
     deselectAll(true);
     deselectAll(false);
+    multiEdgeSelection.clear();
     notifyListeners();
     // addSyntheticConnection(edge.from, edge.to);
   }
@@ -508,6 +801,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     notifyListeners();
   }
 
+
+  
+  // V25: Clear multi-selection when deselecting all
   void deselectAll([bool hover = false]) {
     if (hover) {
       // _hovered.clear();
@@ -517,6 +813,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       // _selectedOrigins.clear();
       if (_selected.isNotEmpty) _selected.clear();
       if (_selectedOrigins.isNotEmpty) _selectedOrigins.clear();
+      isSelectingEdge = false;
+      edgeSelected = null;
+      multiEdgeSelection.clear();
     }
     notifyListeners();
   }

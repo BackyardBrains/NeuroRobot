@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class Nucleus extends StatelessWidget {
   int isSpiking = -1;
+  int lastSpikeTime = 0;
   int normalNeuronStartIdx = 13;
   final List<ValueNotifier<int>> neuronSpikeFlags;
-  final CustomPaint neuronActiveCircle;
-  final CustomPaint neuronInactiveCircle;
+  final Color activeColor;
+  final Color inactiveColor;
+  final Widget Function(BuildContext, Color?) childBuilder;
   final int index;
   final Offset centerPos;
   final GlobalKey circleKey;
@@ -15,9 +17,11 @@ class Nucleus extends StatelessWidget {
   Nucleus({
     Key? key,
     required this.isSpiking,
+    this.lastSpikeTime = 0,
     required this.neuronSpikeFlags,
-    required this.neuronActiveCircle,
-    required this.neuronInactiveCircle,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.childBuilder,
     required this.index,
     required this.centerPos,
     required this.circleKey,
@@ -42,13 +46,16 @@ class Nucleus extends StatelessWidget {
             child: ValueListenableBuilder(
               valueListenable: neuronSpikeFlags[index],
               builder: ((context, value, child) {
-                // print("isSpiking");
-                // print(isSpiking);
-                if (isSpiking == -1) {
-                  return neuronInactiveCircle;
-                } else {
-                  return neuronActiveCircle;
-                }
+                  return TweenAnimationBuilder<Color?>(
+                    key: ValueKey(lastSpikeTime),
+                    tween: ColorTween(begin: activeColor, end: inactiveColor),
+                    duration: const Duration(milliseconds: 750),
+                    curve: Curves.linear,
+                    builder: (context, color, child) {
+                       return childBuilder(context, color);
+                    },
+                    onEnd: () {},
+                  );
               }),
             ))));
   }

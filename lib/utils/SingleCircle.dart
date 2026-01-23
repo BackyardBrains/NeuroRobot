@@ -31,7 +31,8 @@ class SingleCircle extends CustomPainter {
       required this.yNucleus,
       required this.widthNucleus,
       required this.heightNucleus,
-      required this.isExcitatory}) {
+      required this.isExcitatory,
+      Color? overrideColor}) {
     // print("Nucleus : $xNucleus, $yNucleus, $widthNucleus, $heightNucleus");
     rectPos = Rect.fromCenter(
         center: Offset(xNucleus, yNucleus),
@@ -39,7 +40,7 @@ class SingleCircle extends CustomPainter {
         height: heightNucleus);
 
     if (isExcitatory == 1) {
-      activeColor = const Color(0xFF18A953);
+      activeColor = const Color(0xFF00FF00);
       inactiveColor = Colors.white;
     } else {
       activeColor = Colors.red;
@@ -51,7 +52,10 @@ class SingleCircle extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = inactiveColor
       ..strokeWidth = 1;
-    if (isActive) {
+
+    if (overrideColor != null) {
+      circlePaint.color = overrideColor;
+    } else if (isActive) {
       circlePaint.color = activeColor;
     }
   }

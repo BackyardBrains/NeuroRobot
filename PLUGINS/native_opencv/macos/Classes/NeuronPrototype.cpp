@@ -801,16 +801,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                 // platform_log( (std::to_string(valuePreference)+" __ " + std::to_string(ii * vis_prefs_count + k) + " START valuePreference\n" ).c_str());
                             } 
                             
-                            if (!handled && vis_pref_vals != nullptr) {
-                                if (jj == 1){
-                                    // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
-                                    double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
-                                    sumVisPrefVals += val1;
-                                }else{
-                                    double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
-                                    sumVisPrefVals += val2;
-                                }
-                            }
+                            // if (!handled && vis_pref_vals != nullptr) {
+                            //     if (jj == 1){
+                            //         // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
+                            //         double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
+                            //         sumVisPrefVals += val1;
+                            //     }else{
+                            //         double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
+                            //         sumVisPrefVals += val2;
+                            //     }
+                            // }
                         }
 
                     }

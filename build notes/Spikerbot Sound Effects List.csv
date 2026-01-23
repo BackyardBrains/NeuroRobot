@@ -1,0 +1,122 @@
+Spikerbot Firmware Sound Effects,,,
+,,,
+Spikerbot will play 2 most recent sound samples (duophonic),,,
+Voices Play 1 shot ,,Instruments Sustain when triggered repeatedly,
+Frequency to stim,Sample Type,Sample Name,Musical Note
+31,Voice Line,Ciao,
+32,Voice Line,Uh-oh!,
+33,Voice Line,Mhmm!,
+34,Voice Line,Hmm...,
+35,Voice Line,Snoring,
+36,Voice Line,Om Nom Nom,
+37,Voice Line,Yee-haw!,
+38,Voice Line,Bark,
+39,Voice Line,Meow,
+40,Voice Line,Magic,
+71,Instrument,Gamelan Demung,1
+72,Instrument,Gamelan Demung,2
+73,Instrument,Gamelan Demung,3
+74,Instrument,Gamelan Demung,4
+75,Instrument,Gamelan Demung,5
+76,Instrument,Gamelan Demung,6
+77,Instrument,Gamelan Demung,7
+128,Instrument,Choir 'Ahh',C3
+129,Instrument,Choir 'Ahh',C#3
+130,Instrument,Choir 'Ahh',D3
+131,Instrument,Choir 'Ahh',D#3
+132,Instrument,Choir 'Ahh',E3
+133,Instrument,Choir 'Ahh',F3
+134,Instrument,Choir 'Ahh',F#3
+135,Instrument,Choir 'Ahh',G3
+136,Instrument,Choir 'Ahh',G#3
+137,Instrument,Choir 'Ahh',A4
+138,Instrument,Choir 'Ahh',A#4
+139,Instrument,Choir 'Ahh',B4
+140,Instrument,Choir 'Ahh',C4
+141,Instrument,Choir 'Ahh',C#4
+142,Instrument,Choir 'Ahh',D4
+143,Instrument,Choir 'Ahh',D#4
+144,Instrument,Choir 'Ahh',E4
+145,Instrument,Choir 'Ahh',F4
+146,Instrument,Choir 'Ahh',F#4
+147,Instrument,Choir 'Ahh',G4
+148,Instrument,Choir 'Ahh',G#4
+149,Instrument,Choir 'Ahh',A5
+150,Instrument,Choir 'Ahh',A#5
+151,Instrument,Choir 'Ahh',B5
+152,Instrument,Choir 'Ahh',C5
+228,Instrument,String Pluck,C4
+229,Instrument,String Pluck,C#4
+230,Instrument,String Pluck,D4
+231,Instrument,String Pluck,D#4
+232,Instrument,String Pluck,E4
+233,Instrument,String Pluck,F4
+234,Instrument,String Pluck,F#4
+235,Instrument,String Pluck,G4
+236,Instrument,String Pluck,G#4
+237,Instrument,String Pluck,A5
+238,Instrument,String Pluck,A#5
+239,Instrument,String Pluck,B5
+240,Instrument,String Pluck,C5
+241,Instrument,String Pluck,C#5
+242,Instrument,String Pluck,D5
+243,Instrument,String Pluck,D#5
+244,Instrument,String Pluck,E5
+245,Instrument,String Pluck,F5
+246,Instrument,String Pluck,F#5
+247,Instrument,String Pluck,G5
+248,Instrument,String Pluck,G#5
+249,Instrument,String Pluck,A6
+250,Instrument,String Pluck,A#6
+251,Instrument,String Pluck,B6
+252,Instrument,String Pluck,C6
+328,Instrument,Trombone,C3
+329,Instrument,Trombone,C#3
+330,Instrument,Trombone,D3
+331,Instrument,Trombone,D#3
+332,Instrument,Trombone,E3
+333,Instrument,Trombone,F3
+334,Instrument,Trombone,F#3
+335,Instrument,Trombone,G3
+336,Instrument,Trombone,G#3
+337,Instrument,Trombone,A4
+338,Instrument,Trombone,A#4
+339,Instrument,Trombone,B4
+340,Instrument,Trombone,C4
+341,Instrument,Trombone,C#4
+342,Instrument,Trombone,D4
+343,Instrument,Trombone,D#4
+344,Instrument,Trombone,E4
+345,Instrument,Trombone,F4
+346,Instrument,Trombone,F#4
+347,Instrument,Trombone,G4
+348,Instrument,Trombone,G#4
+349,Instrument,Trombone,A5
+350,Instrument,Trombone,A#5
+351,Instrument,Trombone,B5
+352,Instrument,Trombone,C5
+428,Instrument,Triangle Wave Synth,C4
+429,Instrument,Triangle Wave Synth,C#4
+430,Instrument,Triangle Wave Synth,D4
+431,Instrument,Triangle Wave Synth,D#4
+432,Instrument,Triangle Wave Synth,E4
+433,Instrument,Triangle Wave Synth,F4
+434,Instrument,Triangle Wave Synth,F#4
+435,Instrument,Triangle Wave Synth,G4
+436,Instrument,Triangle Wave Synth,G#4
+437,Instrument,Triangle Wave Synth,A5
+438,Instrument,Triangle Wave Synth,A#5
+439,Instrument,Triangle Wave Synth,B5
+440,Instrument,Triangle Wave Synth,C5
+441,Instrument,Triangle Wave Synth,C#5
+442,Instrument,Triangle Wave Synth,D5
+443,Instrument,Triangle Wave Synth,D#5
+444,Instrument,Triangle Wave Synth,E5
+445,Instrument,Triangle Wave Synth,F5
+446,Instrument,Triangle Wave Synth,F#5
+447,Instrument,Triangle Wave Synth,G5
+448,Instrument,Triangle Wave Synth,G#5
+449,Instrument,Triangle Wave Synth,A6
+450,Instrument,Triangle Wave Synth,A#6
+451,Instrument,Triangle Wave Synth,B6
+452,Instrument,Triangle Wave Synth,C6

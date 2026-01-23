@@ -43,7 +43,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "331C80D4294CF70F00263BE5"
-               BuildableName = "RunnerTests.xctest"
+               BuildableName = "Spikerbot.xctest"
                BlueprintName = "RunnerTests"
                ReferencedContainer = "container:Runner.xcodeproj">
             </BuildableReference>

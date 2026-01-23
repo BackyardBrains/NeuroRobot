@@ -1,0 +1,20 @@
+
+┌─────────────────────────────────────────────────────────┐
+│ A new version of Flutter is available!                  │
+│                                                         │
+│ To update to the latest version, run "flutter upgrade". │
+└─────────────────────────────────────────────────────────┘
+
+Building macOS application...                                   
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006020-001A70411AD3C01E, name:My Mac }
+lib/pages/designbrain_page.dart:4413:24: Error: Can't find ')' to match '('.
+      inlineWidgets.add(
+                       ^
+Target kernel_snapshot_program failed: Exception
+
+Command PhaseScriptExecution failed with a nonzero exit code
+** BUILD FAILED **
+
+Build process failed

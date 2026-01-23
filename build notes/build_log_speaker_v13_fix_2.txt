@@ -1,0 +1,31 @@
+
+Building macOS application...                                   
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006020-001A70411AD3C01E, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006020-001A70411AD3C01E, name:My Mac }
+lib/pages/designbrain_page.dart:4685:11: Error: Expected ';' after this.
+          ),
+          ^
+lib/pages/designbrain_page.dart:4685:12: Error: Expected an identifier, but got ','.
+Try inserting an identifier before ','.
+          ),
+           ^
+lib/pages/designbrain_page.dart:4685:12: Error: Unexpected token ','.
+          ),
+           ^
+lib/pages/designbrain_page.dart:4686:9: Error: Expected an identifier, but got ')'.
+Try inserting an identifier before ')'.
+        );
+        ^
+lib/pages/designbrain_page.dart:4685:12: Error: Expected ';' after this.
+          ),
+           ^
+lib/pages/designbrain_page.dart:4686:9: Error: Unexpected token ')'.
+        );
+        ^
+Target kernel_snapshot_program failed: Exception
+
+Command PhaseScriptExecution failed with a nonzero exit code
+** BUILD FAILED **
+
+Build process failed

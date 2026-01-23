@@ -53,7 +53,9 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
     } catch (e) {
       _brightness = 1.0;
     }
-    _brightnessController.text = (_brightness * 100).round().toString();
+    // V25: Map internal 0.4-1.0 to display 1-100
+    int displayVal = 1 + ((_brightness - 0.4) / 0.6 * 99).round();
+    _brightnessController.text = displayVal.toString();
   }
 
   @override
@@ -75,7 +77,9 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
   void _updateBrightness(double val) {
     setState(() {
       _brightness = val;
-      _brightnessController.text = (_brightness * 100).round().toString();
+      // V25: Map internal 0.4-1.0 to display 1-100
+      int displayVal = 1 + ((_brightness - 0.4) / 0.6 * 99).round();
+      _brightnessController.text = displayVal.toString();
     });
     widget.onColorChanged(
       _hsvColor.toColor().value.toRadixString(16).substring(2).toUpperCase(),
@@ -343,7 +347,9 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
                 onSubmitted: (val) {
                   double? v = double.tryParse(val);
                   if (v != null) {
-                    _updateBrightness((v.clamp(40, 100)) / 100);
+                    // V25: Map display 1-100 to internal 0.4-1.0
+                    double internal = 0.4 + ((v.clamp(1, 100) - 1) / 99.0) * 0.6;
+                    _updateBrightness(internal);
                   }
                 },
               ),
