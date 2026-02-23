@@ -255,7 +255,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           // Pass 1 (true): Draw all highlights
           // Pass 2 (false): Draw all structures (black lines)
           for (bool isHighlightPass in [true, false]) {
-            drawnEdgeKeys.clear(); // Reset handled edges for this pass
+            for (bool isDrawingSynapsesOnly in [false, true]) {
+              drawnEdgeKeys.clear(); // Reset handled edges for this pass
             
           // Process each source neuron with 2+ outputs (for trunk drawing)
           for (var sourceKey in outputGroups.keys) {
@@ -564,7 +565,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                      controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                      
                      drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent);
+                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
                         
                  } else {
                      // Final Tip (Split last two axons)
@@ -591,7 +592,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                          
                          drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent);
+                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
                      }
                  }
               }
@@ -654,7 +655,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
                 from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo, 
-                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection);
+                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
             // }
             // drawEdge(
             //   context,
@@ -695,6 +696,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
              }
           }
           
+            } // End of Two-Pass Loop (Synapses)
           } // End of Two-Pass Loop (Highlight)
         },
       ),
@@ -1097,7 +1099,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   // V24: Added isHighlightPass for two-pass rendering (highlights below main drawing)
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
       int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo, 
-      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection}) {
+      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection, bool isDrawingSynapsesOnly = false}) {
 
     // V25: Determine Synapse Fill Color based on Spike State with Decay
     Paint synapseFill = whiteBrush;
@@ -1375,9 +1377,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                       ..style = PaintingStyle.stroke
                       ..strokeWidth = strength
                       ..strokeCap = StrokeCap.butt;
-                    canvas.drawPath(path, gradientPaint);
+                    if (!isDrawingSynapsesOnly) canvas.drawPath(path, gradientPaint);
                 } else {
-                    canvas.drawPath(path, blackBrush);
+                    if (!isDrawingSynapsesOnly) canvas.drawPath(path, blackBrush);
                 }
                 
                 // Draw TRIANGLE (First Level) - White fill + black stroke
@@ -1388,8 +1390,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 triPath.lineTo(xBaseLeft, yBaseLeft);
                 triPath.lineTo(xBaseRight, yBaseRight);
                 triPath.close();
-                canvas.drawPath(triPath, synapseFill);
-                canvas.drawPath(triPath, blackBrush);
+                if (isDrawingSynapsesOnly) {
+                  canvas.drawPath(triPath, synapseFill);
+                  canvas.drawPath(triPath, blackBrush);
+                }
 
                  // V25: Sensory Axon Icons (Second Level - Robust)
                  if (!isHighlightPass) {
@@ -1674,9 +1678,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                        ..style = PaintingStyle.stroke
                        ..strokeWidth = strength
                        ..strokeCap = StrokeCap.butt;
-                     canvas.drawPath(path, gradientPaint);
+                     if (!isDrawingSynapsesOnly) canvas.drawPath(path, gradientPaint);
                  } else {
-                     canvas.drawPath(path, blackBrush);
+                     if (!isDrawingSynapsesOnly) canvas.drawPath(path, blackBrush);
                  }
                  
                  // Draw Triangle - White fill + black stroke
@@ -1687,8 +1691,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  triPath.lineTo(xBaseLeft, yBaseLeft);
                  triPath.lineTo(xBaseRight, yBaseRight);
                  triPath.close();
-                 canvas.drawPath(triPath, synapseFill);
-                 canvas.drawPath(triPath, blackBrush);
+                 if (isDrawingSynapsesOnly) {
+                   canvas.drawPath(triPath, synapseFill);
+                   canvas.drawPath(triPath, blackBrush);
+                 }
               }
 
             } else {
@@ -1781,15 +1787,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     ..style = PaintingStyle.stroke
                     ..strokeWidth = strength
                     ..strokeCap = StrokeCap.butt;
-                  canvas.drawPath(path, gradientPaint);
+                  if (!isDrawingSynapsesOnly) canvas.drawPath(path, gradientPaint);
               } else {
-                  canvas.drawPath(path, blackBrush);
+                  if (!isDrawingSynapsesOnly) canvas.drawPath(path, blackBrush);
               }
 
               // Draw Circle Synapse - Black outer (5px) + white inner (3.5px) = 1.5px border
               blackBrush.style = PaintingStyle.fill;
-              canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
-              canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+              if (isDrawingSynapsesOnly) {
+                canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
+                canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+              }
             }
             if (isShowingInfo) {
               final textSpan = TextSpan(
@@ -2265,9 +2273,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                         ..style = PaintingStyle.stroke
                         ..strokeWidth = strength
                         ..strokeCap = StrokeCap.butt;
-                      canvas.drawPath(path, gradientPaint);
+                      if (!isDrawingSynapsesOnly) canvas.drawPath(path, gradientPaint);
                   } else {
-                      canvas.drawPath(path, blackBrush);
+                      if (!isDrawingSynapsesOnly) canvas.drawPath(path, blackBrush);
                   }
                   
                   // Draw Triangle (Second Level) - White fill + black stroke
@@ -2278,8 +2286,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   triPath.lineTo(xBaseLeft, yBaseLeft);
                   triPath.lineTo(xBaseRight, yBaseRight);
                   triPath.close();
-                  canvas.drawPath(triPath, synapseFill);
-                  canvas.drawPath(triPath, blackBrush);
+                  if (isDrawingSynapsesOnly) {
+                    canvas.drawPath(triPath, synapseFill);
+                    canvas.drawPath(triPath, blackBrush);
+                  }
 
                } else {
                   // Inhibitory (Second Level) - Fixed 5px radius with offset
@@ -2366,15 +2376,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                         ..style = PaintingStyle.stroke
                         ..strokeWidth = strength
                         ..strokeCap = StrokeCap.butt;
-                      canvas.drawPath(path, gradientPaint);
+                      if (!isDrawingSynapsesOnly) canvas.drawPath(path, gradientPaint);
                   } else {
-                      canvas.drawPath(path, blackBrush);
+                      if (!isDrawingSynapsesOnly) canvas.drawPath(path, blackBrush);
                   }
                   
                   // Draw Circle Synapse (Second Level) - Black outer (5px) + white inner (3.5px)
                   blackBrush.style = PaintingStyle.fill;
-                  canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
-                  canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+                  if (isDrawingSynapsesOnly) {
+                    canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
+                    canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+                  }
                }
                
                // V25: Sensory Axon Icons (Second Level - Injected)
@@ -2550,15 +2562,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               tangentLength = 3.0 * distP2P3;
                           }
 
-                          // 2. Calculate T using Tangent Length (Fixed Physical Distance)
-                          // V25: Uniform spacing, moved 2/5ths closer to synapse
-                          double distancePx = ((isExcitatory == 1) ? 34.0 : 39.0) * 0.6;
-                          
-                          // STRICT CURVE PLACEMENT using LOCAL VELOCITY
-                          // t = 1.0 - (distancePx / speedAtTip)
-                          double t = 1.0 - (distancePx / max(tangentLength, 1.0)); 
-                          if (t < 0.0) t = 0.0;
-                          if (t > 0.99) t = 0.99;
+                          // 2. Calculate T for Icon Placement
+                          // V25Fix: Place icon exactly at the midpoint of the final axon segment
+                          double t = 0.5;
 
                           // V25: Fix Loop 2 Far Dendrite Centering
                           // Replicate initialAxonExtension logic to ensure p1 matches Drawn Path
