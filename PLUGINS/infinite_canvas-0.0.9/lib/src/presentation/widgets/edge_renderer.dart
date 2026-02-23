@@ -251,12 +251,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               // Node not found
             }
           }
-          // V25: Two-pass rendering (Highlights then Structure)
-          // Pass 1 (true): Draw all highlights
-          // Pass 2 (false): Draw all structures (black lines)
-          for (bool isHighlightPass in [true, false]) {
-            for (bool isDrawingSynapsesOnly in [false, true]) {
-              drawnEdgeKeys.clear(); // Reset handled edges for this pass
+          // V25: Three-pass rendering (Highlights, then Structure, then Synapses)
+          // Pass 0: Highlights
+          // Pass 1: Structures (black lines, gradients - no synapses)
+          // Pass 2: Synapses (triangles, circles, icons)
+          for (int renderPass = 0; renderPass < 3; renderPass++) {
+            bool isHighlightPass = renderPass == 0;
+            bool isDrawingSynapsesOnly = renderPass == 2;
+            
+            drawnEdgeKeys.clear(); // Reset handled edges for this pass
             
           // Process each source neuron with 2+ outputs (for trunk drawing)
           for (var sourceKey in outputGroups.keys) {
@@ -696,8 +699,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
              }
           }
           
-            } // End of Two-Pass Loop (Synapses)
-          } // End of Two-Pass Loop (Highlight)
+            } // End of Three-Pass Loop
         },
       ),
       foregroundPainter: InlinePainter(

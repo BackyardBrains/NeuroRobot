@@ -166,17 +166,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   }
 
   List<InfiniteCanvasEdge> getEdges(BoxConstraints constraints) {
-    if (widget.drawVisibleOnly) {
-      final nodes = getNodes(constraints);
-      final nodeKeys = nodes.map((e) => e.key).toSet();
-      final edges = <InfiniteCanvasEdge>[];
-      for (final edge in controller.edges) {
-        if (nodeKeys.contains(edge.from) || nodeKeys.contains(edge.to)) {
-          edges.add(edge);
-        }
-      }
-      return edges;
-    }
+    // V25Fix: Never cull edges just because the source/dest nodes are off-screen.
+    // If an edge spans across the entire viewport between two off-screen nodes,
+    // culling it makes it completely disappear visually mid-canvas. 
+    // Flutter's native Canvas handles geometry clipping highly efficiently.
     return controller.edges;
   }
 
@@ -242,8 +235,11 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // print("mouse down");
             // print(controller.scale);
 
-            controller.mouseDown = true;
+            // BUGFIX: MUST set mousePosition before mouseDown, because mouseDown is a setter that calls notifyListeners(),
+            // and the UI listeners rely on the new mousePosition!
             controller.mousePosition = details.localPosition;
+            controller.mouseDown = true;
+            
             // WEB CHANGE
             if (kIsWeb) {
             } else if (Platform.isAndroid || Platform.isIOS) {
@@ -468,12 +464,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                       //         .toList()),
                     );
                   }
-                  List<Nucleus> nucleusWidgets = [];
-                  if (controller.isPlaying) {
-                    if (controller.nucleusList != null) {
-                      nucleusWidgets = controller.nucleusList!;
-                    }
-                  }
+                   List<Nucleus> nucleusWidgets = [];
+                   if (controller.nucleusList != null) {
+                       nucleusWidgets = controller.nucleusList!;
+                   }
 
                   return SizedBox.fromSize(
                     size: controller.getMaxSize().size,
