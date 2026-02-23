@@ -671,6 +671,30 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // );
             } catch (e) {}
           }
+          
+          // V25 FEATURE: Manually paint dendrites for Output nodes
+          // Output nodes (motors, speakers, LEDs) use a transparent Container as their node child,
+          // so Flutter never calls their CustomPainter's paint() method.
+          // To make their dendrites visible, we manually trigger recalculate(canvas) here 
+          // on the background layer, above edges but below nodes.
+          if (!isHighlightPass) {
+             for (int i = 0; i < controller.syntheticNeuronList.length; i++) {
+                if (controller.syntheticNeuronList[i].isOutput) {
+                   InfiniteCanvasNode? activeNode = null;
+                   try {
+                     activeNode = controller.nodes.firstWhere((n) => n.key == controller.syntheticNeuronList[i].node.key);
+                   } catch (e) {}
+                   
+                   if (activeNode != null && (activeNode.offset.dx != 0.0 || activeNode.offset.dy != 0.0)) {
+                       canvas.save();
+                       canvas.translate(activeNode.offset.dx, activeNode.offset.dy);
+                       controller.syntheticNeuronList[i].recalculate(canvas);
+                       canvas.restore();
+                   }
+                }
+             }
+          }
+          
           } // End of Two-Pass Loop (Highlight)
         },
       ),
@@ -927,6 +951,19 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     Neuron neuronTo = neurons[toIdx].newNeuron;
 
     if (neuronTo.isIO) {
+      if (neurons[toIdx].isOutput && neuronTo.dendrites.isNotEmpty) {
+        Sinapse newSinapse = Sinapse(
+          presinapticNeuronIndex: fromIdx,
+          sinapticValue: connectionStrength,
+        );
+        if (neurons[fromIdx].node.isExcitatory == 1) {
+          neuronTo.dendrites[0].sinapseSecondLevel.add(newSinapse);
+        } else {
+          neuronTo.dendrites[0].sinapseFirstLevel.add(newSinapse);
+        }
+        return;
+      }
+
       int emptySpotIndex = 0;
       int smalestNumber = 9999999;
       for (int dendriteIndex = 0;
@@ -989,33 +1026,57 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     //distancesToSinapses = distancesToSinapses.reversed.toList();
 
     bool foundPlace = false;
-    for (int disin = 0; disin < distancesToSinapses.length; disin++) {
-      if (distancesToSinapses[disin].isFirstLevel) {
-        if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-            .sinapseFirstLevel.isEmpty) {
-          foundPlace = true;
-
-          Sinapse newSinapse = Sinapse(
-            presinapticNeuronIndex: fromIdx,
-            sinapticValue: connectionStrength,
-          );
-          neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-              .sinapseFirstLevel
-              .add(newSinapse);
-          break;
-        }
+    
+    // V25 FEATURE: Structured Output Dendrites - Enforce strict Left (Inhibitory) / Right (Excitatory) attachment points.
+    if (neurons[toIdx].isOutput && neuronTo.dendrites.isNotEmpty) {
+      if (from.isExcitatory == 1) {
+        // Excitatory -> Right side (Second Level)
+        Sinapse newSinapse = Sinapse(
+          presinapticNeuronIndex: fromIdx,
+          sinapticValue: connectionStrength,
+        );
+        // Fix: Output dendrites can absorb infinite synapses visually overlapping. 
+        // We do not check for .isEmpty, we just push it allowing them to stack.
+        neuronTo.dendrites[0].sinapseSecondLevel.add(newSinapse);
+        foundPlace = true;
       } else {
-        if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-            .sinapseSecondLevel.isEmpty) {
-          foundPlace = true;
-          Sinapse newSinapse = Sinapse(
-            presinapticNeuronIndex: fromIdx,
-            sinapticValue: connectionStrength,
-          );
-          neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
-              .sinapseSecondLevel
-              .add(newSinapse);
-          break;
+        // Inhibitory -> Left side (First Level)
+        Sinapse newSinapse = Sinapse(
+          presinapticNeuronIndex: fromIdx,
+          sinapticValue: connectionStrength,
+        );
+        neuronTo.dendrites[0].sinapseFirstLevel.add(newSinapse);
+        foundPlace = true;
+      }
+    } else {
+      for (int disin = 0; disin < distancesToSinapses.length; disin++) {
+        if (distancesToSinapses[disin].isFirstLevel) {
+          if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+              .sinapseFirstLevel.isEmpty) {
+            foundPlace = true;
+
+            Sinapse newSinapse = Sinapse(
+              presinapticNeuronIndex: fromIdx,
+              sinapticValue: connectionStrength,
+            );
+            neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+                .sinapseFirstLevel
+                .add(newSinapse);
+            break;
+          }
+        } else {
+          if (neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+              .sinapseSecondLevel.isEmpty) {
+            foundPlace = true;
+            Sinapse newSinapse = Sinapse(
+              presinapticNeuronIndex: fromIdx,
+              sinapticValue: connectionStrength,
+            );
+            neuronTo.dendrites[distancesToSinapses[disin].dendriteIndex]
+                .sinapseSecondLevel
+                .add(newSinapse);
+            break;
+          }
         }
       }
     }
@@ -1134,7 +1195,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     for (int posin = 0; posin < neuronTo.dendrites.length; posin++) {
       // Loop 1: First Level Synapses
     // DEBUG LOOP 1 ENTRY
-    print("DrawAxon Loop 1: from=${from.label} to=${to.label} posin=$posin 1stLen=${neuronTo.dendrites[posin].sinapseFirstLevel.length}");
+      // print("DrawAxon Loop 1: from=${from.label} to=${to.label} posin=$posin 1stLen=${neuronTo.dendrites[posin].sinapseFirstLevel.length}");
     if (neuronTo.dendrites[posin].sinapseFirstLevel.isNotEmpty) {
         for (int sinindex = 0;
             sinindex < neuronTo.dendrites[posin].sinapseFirstLevel.length;
@@ -1143,8 +1204,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   .presinapticNeuronIndex ==
               fromIdx) {
             // V25 REVERTED: Rotation disabled - scale only for selection highlight
+            // V25: Output Dendrites map Left to Inhibitory (First Level) and Right to Excitatory (Second Level)
+            // The routing logic already successfully placed this synapse in `sinapseFirstLevel`.
+            // We just extract the exact X/Y coordinates of `xFirstLevel` to draw the line.
             double xOffset = -circleRadius + neuronTo.dendrites[posin].xFirstLevel;
             double yOffset = -circleRadius + neuronTo.dendrites[posin].yFirstLevel;
+            
             double xc = neuronTo.x + xOffset * targetScale;
             double yc = neuronTo.y + yOffset * targetScale;
 
@@ -1191,13 +1256,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               double triangleSize = 10.0;
               
               // V25 REVERTED: Rotation disabled - scale only for selection highlight
-              double xOffset = -circleRadius + neuronTo.dendrites[posin].xFirstLevel;
-              double yOffset = -circleRadius + neuronTo.dendrites[posin].yFirstLevel;
-              double xcent = neuronTo.x + xOffset * targetScale;
-              double ycent = neuronTo.y + yOffset * targetScale;
+              // Rely on shifted xc and yc from the top of the loop
+              double xcent = xc;
+              double ycent = yc;
 
               // Angle from Neuron Center to Dendrite (Outward)
               double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+              
+              // V25: Offset stacked synapses so they peek out from behind each other
+              double stackOffset = sinindex * 6.0;
+              xcent += stackOffset * cos(angleOut);
+              ycent += stackOffset * sin(angleOut);
               
               // Tip Position (Faces Axon / Outwards)
               double xt = xcent + triangleSize * cos(angleOut);
@@ -1211,18 +1280,16 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               double yBaseRight = ycent + halfBase * sin(angleOut + pi/2);
               
               // Axon connects to TIP (xt, yt)
-              xc = xt;
-              yc = yt;
-
+              
               if (neuronTo.dendrites[posin].hasSecondLevel) {
                 //draw axon lines
                 blackBrush.strokeWidth = strength;
                 blackBrush.style = PaintingStyle.stroke;
                 double angle = neuronTo.dendrites[posin].angle;
-                double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xc, yc);
+                double distToSynapse = euclideanDistance(centerBeginAxon_x, centerBeginAxon_y, xt, yt);
                 double controlDist = min(distToSynapse * 0.25, 60.0);
-                double controlX = xc + controlDist * cosDeg(angle);
-                double controlY = yc + controlDist * sinDeg(angle);
+                double controlX = xt + controlDist * cosDeg(angle);
+                double controlY = yt + controlDist * sinDeg(angle);
 
                 double triangleCenterX = (xt + xBaseLeft + xBaseRight) / 3;
                 double triangleCenterY = (yt + yBaseLeft + yBaseRight) / 3;
@@ -1307,7 +1374,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                       ..shader = gradientShader
                       ..style = PaintingStyle.stroke
                       ..strokeWidth = strength
-                      ..strokeCap = StrokeCap.round;
+                      ..strokeCap = StrokeCap.butt;
                     canvas.drawPath(path, gradientPaint);
                 } else {
                     canvas.drawPath(path, blackBrush);
@@ -1348,7 +1415,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
                       // DEBUG MIC LOGIC (UNCONDITIONAL)
                       // if (isMic) {
-                         print("CheckIcon Loop1: from=$fromLabel ID=$fromIdClean to=$toLabel Key=$cleanKey MicMapKeys=${controller.mapMicrophoneTypeNeuron?.keys.length}");
+                         // print("CheckIcon Loop1: from=$fromLabel ID=$fromIdClean to=$toLabel Key=$cleanKey MicMapKeys=${controller.mapMicrophoneTypeNeuron?.keys.length}");
                       // }
 
                       bool drawColoredCircle = false;
@@ -1606,7 +1673,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                        ..shader = gradientShader
                        ..style = PaintingStyle.stroke
                        ..strokeWidth = strength
-                       ..strokeCap = StrokeCap.round;
+                       ..strokeCap = StrokeCap.butt;
                      canvas.drawPath(path, gradientPaint);
                  } else {
                      canvas.drawPath(path, blackBrush);
@@ -1635,6 +1702,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               
               // Angle from Neuron Center to Dendrite (Outward)
               double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+              
+              // V25: Offset stacked synapses so they peek out from behind each other
+              double stackOffset = sinindex * 6.0;
+              xcent += stackOffset * cos(angleOut);
+              ycent += stackOffset * sin(angleOut);
               
               // New Center = Dendrite + Radius * Vector (offset outward)
               double xc_syn = xcent + radius * cos(angleOut);
@@ -1708,7 +1780,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     ..shader = gradientShader
                     ..style = PaintingStyle.stroke
                     ..strokeWidth = strength
-                    ..strokeCap = StrokeCap.round;
+                    ..strokeCap = StrokeCap.butt;
                   canvas.drawPath(path, gradientPaint);
               } else {
                   canvas.drawPath(path, blackBrush);
@@ -1989,16 +2061,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               tangentLength = 3.0 * distP2P3;
                           }
 
-                          // 2. Calculate T using Tangent Length (Fixed Physical Distance)
-                          // V25: Uniform spacing, moved 2/5ths closer to synapse
-                          double distancePx = ((isExcitatory == 1) ? 34.0 : 39.0) * 0.6;
-                          
-                          // STRICT CURVE PLACEMENT using LOCAL VELOCITY
-                          // t = 1.0 - (arcLength / speedAtTip)
-                          double t = 1.0 - (distancePx / max(tangentLength, 1.0)); 
-                          if (t < 0.0) t = 0.0; // Clamp start
-                          // Upper clamp to ensure it doesn't overshoot tip if speed is weird (though math says 1.0 is max)
-                          if (t > 0.99) t = 0.99;
+                          // 2. Calculate T for Icon Placement
+                          // V25Fix: Place icon exactly at the midpoint of the final axon segment
+                          // This prevents overlapping when multiple stacked synapses terminate nearby.
+                          double t = 0.5;
 
                           double u = 1 - t;
                           double tt = t * t; double uu = u * u; double uuu = uu * u; double ttt = tt * t;
@@ -2035,7 +2101,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
       // Loop 2: Second Level Synapses (G1 Compliant)
       // DEBUG LOOP 2 ENTRY
-      print("DrawAxon Loop 2: from=${from.label} to=${to.label} posin=$posin 2ndLen=${neuronTo.dendrites[posin].sinapseSecondLevel.length}");
+      // print("DrawAxon Loop 2: from=${from.label} to=${to.label} posin=$posin 2ndLen=${neuronTo.dendrites[posin].sinapseSecondLevel.length}");
       if (neuronTo.dendrites[posin].sinapseSecondLevel.isNotEmpty) {
          for (int sinindex = 0; 
               sinindex < neuronTo.dendrites[posin].sinapseSecondLevel.length; 
@@ -2043,9 +2109,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
            if (neuronTo.dendrites[posin].sinapseSecondLevel[sinindex]
                   .presinapticNeuronIndex == fromIdx) {
               
-              // V25 REVERTED: Rotation disabled - scale only for selection highlight
+              // V25: Output Dendrites map Left to Inhibitory (First Level) and Right to Excitatory (Second Level)
+              // The routing logic already successfully placed this synapse in `sinapseSecondLevel`.
+              // We just extract the exact X/Y coordinates of `xSecondLevel` to draw the line.
               double xOffset = -circleRadius + neuronTo.dendrites[posin].xSecondLevel;
               double yOffset = -circleRadius + neuronTo.dendrites[posin].ySecondLevel;
+              
               double xc = neuronTo.x + xOffset * targetScale;
               double yc = neuronTo.y + yOffset * targetScale;
               
@@ -2093,6 +2162,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   
                   // Angle from Neuron Center to Dendrite (Outward)
                   double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+                  
+                  // V25: Offset stacked synapses so they peek out from behind each other
+                  double stackOffset = sinindex * 6.0;
+                  xcent += stackOffset * cos(angleOut);
+                  ycent += stackOffset * sin(angleOut);
                   
                   // Tip Position (Faces Axon / Outwards)
                   double xt = xcent + triangleSize * cos(angleOut);
@@ -2190,7 +2264,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                         ..shader = gradientShader
                         ..style = PaintingStyle.stroke
                         ..strokeWidth = strength
-                        ..strokeCap = StrokeCap.round;
+                        ..strokeCap = StrokeCap.butt;
                       canvas.drawPath(path, gradientPaint);
                   } else {
                       canvas.drawPath(path, blackBrush);
@@ -2217,6 +2291,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   
                   // Angle from Neuron Center to Dendrite (Outward)
                   double angleOut = atan2(ycent - neuronTo.y, xcent - neuronTo.x);
+                  
+                  // V25: Offset stacked synapses so they peek out from behind each other
+                  double stackOffset = sinindex * 6.0;
+                  xcent += stackOffset * cos(angleOut);
+                  ycent += stackOffset * sin(angleOut);
                   
                   // New Center = Dendrite + Radius * Vector (offset outward)
                   double xc_syn = xcent + radius * cos(angleOut);
@@ -2286,7 +2365,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                         ..shader = gradientShader
                         ..style = PaintingStyle.stroke
                         ..strokeWidth = strength
-                        ..strokeCap = StrokeCap.round;
+                        ..strokeCap = StrokeCap.butt;
                       canvas.drawPath(path, gradientPaint);
                   } else {
                       canvas.drawPath(path, blackBrush);
@@ -2323,7 +2402,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
                       // DEBUG MIC LOGIC LOOP 2 (UNCONDITIONAL)
                       // if (isMic) {
-                         print("CheckIcon Loop2: from=$fromLabel ID=$fromIdClean to=$toLabel");
+                         // print("CheckIcon Loop2: from=$fromLabel ID=$fromIdClean to=$toLabel");
                       // }
                       
                       bool drawColoredCircle = false;
@@ -2569,22 +2648,26 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     var neuronIdx = 0;
     for (SyntheticNeuron syntheticNeuron in syntheticNeuronList) {
       SyntheticNeuron rawSyntheticNeuron = syntheticNeuron.rawSyntheticNeuron;
-      if (rawSyntheticNeuron.dendrites.isNotEmpty) {
-        // print("raw dendrite length: ${rawSyntheticNeuron.dendrites.length}");
-        // print(
-        //     "dendrite length: ${syntheticNeuronList[neuronIdx].dendrites.length}");
+      
+      // V25 FEATURE: Output Dendrite Preservation
+      // Output neurons only have one rigidly computed dendrite tree. We do not want to 
+      // replace it with a stale raw copy (which might have wrong angles from setup). 
+      // Instead, we just wipe its synapse state so it can be cleanly rebuilt.
+      if (syntheticNeuron.isOutput) {
+          if (syntheticNeuron.dendrites.isNotEmpty) {
+              for (var d in syntheticNeuron.dendrites) {
+                  d.sinapseFirstLevel.clear();
+                  d.sinapseSecondLevel.clear();
+              }
+          }
+      } else if (rawSyntheticNeuron.dendrites.isNotEmpty) {
         syntheticNeuronList[neuronIdx].dendrites.clear();
 
-        // List<Dendrite> tempDendritesList = [];
         int dendriteIdx = 0;
         for (Dendrite rawDendrite in rawSyntheticNeuron.dendrites) {
           Dendrite newDendrite = Dendrite(
               hasSecondLevel: rawDendrite.hasSecondLevel,
               angle: rawDendrite.angle,
-              // sinapseFirstLevel: rawDendrite.sinapseFirstLevel,
-              // sinapseSecondLevel: rawDendrite.sinapseSecondLevel,
-              // xFirstLevel: rawDendrite.xFirstLevel,
-              // xSecondLevel: rawDendrite.xSecondLevel,
               sinapseFirstLevel: [],
               sinapseSecondLevel: [],
               xFirstLevel: rawDendrite.xFirstLevel,
@@ -2595,11 +2678,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               yTriangleFirstLevel: rawDendrite.yTriangleFirstLevel,
               xTriangleSecondLevel: rawDendrite.xTriangleSecondLevel,
               yTriangleSecondLevel: rawDendrite.yTriangleSecondLevel);
-          // tempDendritesList.add(newDendrite);
           syntheticNeuronList[neuronIdx].dendrites.add(newDendrite);
           dendriteIdx++;
         }
-        // syntheticNeuronList[neuronIdx].dendrites.addAll(tempDendritesList);
       }
       syntheticNeuronList[neuronIdx].recalculate(null);
 
@@ -2756,7 +2837,19 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
         if (toIdx == i) {
           //check if we are connection to IO connections
           //use different logic
-          if (neurons[toIdx].newNeuron.isIO) {
+          if (neurons[toIdx].isOutput) {
+            if (neurons[toIdx].isOutput && neurons[toIdx].dendrites.isNotEmpty) {
+              Sinapse newSinapse = Sinapse(
+                presinapticNeuronIndex: fromIdx,
+                sinapticValue: con.connectionStrength,
+              );
+              if (neurons[fromIdx].node.isExcitatory == 1) {
+                neurons[toIdx].dendrites[0].sinapseSecondLevel.add(newSinapse);
+              } else {
+                neurons[toIdx].dendrites[0].sinapseFirstLevel.add(newSinapse);
+              }
+              continue;
+            }
             int emptySpotIndex = 0;
             int smalestNumber = 9999999;
             for (int dendriteIndex = 0;
