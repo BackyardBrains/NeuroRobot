@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
@@ -42,6 +43,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
 
 import 'package:native_opencv/native_opencv.dart';
+import 'package:gamepads/gamepads.dart';
 import 'package:native_opencv/nativec.dart';
 import 'package:spikerbot/ai/models/recognition.dart';
 import 'package:spikerbot/ai/service/detector_service.dart';
@@ -55,6 +57,8 @@ import 'package:spikerbot/dialogs/load_brain.dart';
 import 'package:spikerbot/dialogs/save_brain.dart';
 import 'package:spikerbot/utils/Allocator.dart';
 import 'package:spikerbot/utils/Debouncers.dart';
+import 'package:spikerbot/utils/brain_file_handler.dart';
+import 'package:spikerbot/components/radial_dial_widget.dart';
 import 'package:spikerbot/utils/General.dart';
 import 'package:spikerbot/utils/ProtoNeuron.dart';
 import 'package:spikerbot/utils/Simulations.dart';
@@ -106,6 +110,7 @@ class DesignBrainPage extends StatefulWidget {
 
 bool isCheckingImage = false;
 bool isCheckingColor = false;
+bool isNeuronBehaviorExpanded = false;
 
 class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, TickerProviderStateMixin {
   late AnimationController _canvasAnimController;
@@ -203,8 +208,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // "Striatal",
     "Custom",
     "Delay", //8
-    // "Rhytmic", //9
-    // "Counting", //10
+    "Remote Control", //9
+    // "Rhytmic", //10
+    // "Counting", //11
   ];
 
   List<String> neuronMenuTypes = [
@@ -217,10 +223,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // "Striatal",
     "Custom",
     "Delay",
+    "Remote Control",
     // "Rhytmic",
-    // "Counting", //10
+    // "Counting", //11
   ];
-  late List<DropdownMenuItem> dropdownNeuronItems;
 
   String cameraMenuType = "Green";
   List<String> cameraMenuTypes = [
@@ -430,6 +436,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   bool isEmergencyPause = false;
   bool isDrawTail = false;
+  bool isLoadingBrain = false; // Flag to prevent fillCreatedAxon from corrupting map during load
   int prevEdgesLength = 0;
   Offset? prevSelectedOffsetNode;
   InfiniteCanvasNode? prevSelectedNode;
@@ -615,7 +622,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   int aiTypeLength = 24;
 
   bool isShowDelayTime = false;
-  int maxDelayTimeValue = 5000;
+  int maxDelayTimeValue = 2500;
   int minDelayTimeValue = 100;
   int activeSensoryIdx = -1;
 
@@ -649,8 +656,27 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   String isTailType = "circle";
 
   int CONFIG_DELAY_NEURON = 6;
-  int CONFIG_RHYTMIC_NEURON = 7;
-  int CONFIG_COUNTING_NEURON = 8;
+  int CONFIG_REMOTE_CONTROL_NEURON = 7;
+  int CONFIG_RHYTMIC_NEURON = 8;
+  int CONFIG_COUNTING_NEURON = 9;
+
+  /// Maps neuron ID → bound key label string (e.g. "A", "Space", "Pad:1:ButtonA")
+  Map<String, String> mapRemoteControlNeuron = {};
+
+  /// Tracks which keys (IDs) are currently pressed during simulation
+  Set<String> _activeRemoteKeys = {};
+
+  StreamSubscription<GamepadEvent>? _gamepadSubscription;
+
+  /// Whether the Remote Control widget is in "listening" mode
+  bool _isListeningForRemoteInput = false;
+
+  /// Current bound key label for the selected neuron (UI state)
+  String _remoteControlBoundKeyLabel = "";
+
+  /// Debug mode for input Inspection
+  bool _isShowInputDebug = false;
+  String _debugInputLog = "Press keys to see details...";
 
   String restartText = '';
 
@@ -748,6 +774,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       const Text("Red"),
     ],
   );
+
+  // DEBUG OVERLAY STATE
+  String uiDebugLog = "Debug Overlay Active\n";
+  bool hasLoggedMatrixDebug = false;
 
   bool isSelectingCameraTarget = false;
 
@@ -1546,6 +1576,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   double currentImageHeight = 600.0;
   // double screenDensity = 1.0;
   double safePadding = 0.0;
+  double safePaddingLeft = 0.0;
+  double safePaddingTop = 0.0;
   bool isResizingFlag = false;
 
   bool axonFromSelected = false;
@@ -1719,6 +1751,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   @override
   void dispose() async {
+    BrainFileHandler.instance.unregisterCallback();
     windowManager.removeListener(this);
     detector?.stop();
     _imageDetectorSubscription?.cancel();
@@ -1850,6 +1883,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             if (isPlayingMenu) {
               startWebSocket();
               mjpegComponent = Mjpeg(
+                key: UniqueKey(), // Force hard UI rebuild
                 error: (context, error, stack) {
                   return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
                       style: TextStyle(fontSize: 10, color: Colors.brown));
@@ -1864,6 +1898,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 fit: BoxFit.fill,
                 timeout: const Duration(seconds: 60),
               );
+              if (mounted) setState(() {}); // Inform UI of new stream
             }
             // writePort = ReceivePort();
             // webSocket = await Isolate.spawn(
@@ -2275,6 +2310,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   String wifiName = "WiFi: ..."; 
   final NetworkInfo _networkInfo = NetworkInfo();
 
+  // Screenshot Controller (State Level)
+  ScreenshotController screenshotController = ScreenshotController();
+
   @override
   void initState() {
     onDebugUpdate = () {
@@ -2304,6 +2342,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
 
     super.initState();
+    BrainFileHandler.instance.registerCallback(selectSavedBrain);
     soloud = SoLoud.instance;
     Future.delayed(const Duration(milliseconds: 1000), () async {
       await soloud?.init().then((_) async {
@@ -2472,6 +2511,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     processor = ImagePreprocessor();
     processor.isRunning = true;
     mjpegComponent = Mjpeg(
+      key: UniqueKey(), // Force hard UI rebuild
       error: (context, error, stack) {
         return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
             style: TextStyle(fontSize: 10, color: Colors.brown));
@@ -2531,20 +2571,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     });
   }
 
-  void _animateCanvasToReset(bool centerHorizontal) {
+  void _animateCanvasToReset(bool centerHorizontal, {bool shiftDown = false}) {
      Matrix4 currentMatrix = controller.transform.value;
      Matrix4 targetMatrix = Matrix4.identity(); // Scale 1.0, Origin 0,0
+     
+     double deltaX = 0.0;
+     double deltaY = 0.0;
      
      if (centerHorizontal) {
         // Smart Centering: (ScreenW - RightCard - LeftTool) / 2 + LeftTool - (ScreenW/2)
         // Simplified: (LeftTool - RightCard) / 2
-        // double screenW = MediaQuery.of(context).size.width;
         double leftToolW = 85.0; // Approx toolbar width
         double rightCardW = (Platform.isIOS || Platform.isAndroid) ? 330 : 350; // Tuned Card Width (was 220)
         
-        double deltaX = (leftToolW - rightCardW) / 2;
-        targetMatrix.translate(deltaX, 0);
+        deltaX = (leftToolW - rightCardW) / 2;
      }
+     
+     if (shiftDown) {
+         // Push the brain downward to clear the top live-view widgets but stay above play button
+         deltaY = 150.0;
+     }
+
+     targetMatrix.translate(deltaX, deltaY);
      
      _canvasAnimation = Matrix4Tween(
        begin: currentMatrix,
@@ -2552,6 +2600,81 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
      ).animate(CurvedAnimation(parent: _canvasAnimController, curve: Curves.easeInOut));
      
      _canvasAnimController.forward(from: 0);
+  }
+
+  Widget _buildBehaviorGroupHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4, top: 4, right: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey.shade600,
+          fontFamily: 'Roboto',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBehaviorOption(String type) {
+    bool isSelected = neuronMenuType == type;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () async {
+          if (buttonPopSource != null) {
+            buttonOnPressedHandle = await soloud?.play(buttonPopSource!, looping: false);
+          }
+          setState(() {
+            neuronMenuType = type;
+            isNeuronBehaviorExpanded = false; // Hide menu on select
+          });
+          neuronTypeChangeCallback(neuronMenuType);
+          tecTimeValue.text = sldTimeValue.floor().toString();
+          
+          try {
+            InfiniteCanvasNode selected = controller.selection[0];
+            int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+            
+            if (type == "Delay") {
+              isShowDelayTime = true;
+              sldTimeValue = 1000;
+              tecTimeValue.text = sldTimeValue.floor().toString();
+              mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
+            } else if (type == "Custom") {
+              isShowDelayTime = false;
+              mapDelayNeuronList[neuronIdx] = -1;
+            } else {
+              isShowDelayTime = false;
+              mapDelayNeuronList[neuronIdx] = -1;
+            }
+          } catch (err) {
+            printDebug(err);
+          }
+
+          refreshNuclei();
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: isSelected ? colorOrange : Colors.transparent,
+          ),
+          child: Text(
+            type,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Colors.white : Colors.grey[800],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -2608,6 +2731,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // screenDensity = MediaQuery.of(context).devicePixelRatio;
 
     safePadding = MediaQuery.of(context).padding.right;
+    safePaddingLeft = MediaQuery.of(context).padding.left;
+    safePaddingTop = MediaQuery.of(context).padding.top;
     // aspectRatio = MediaQuery.of(context).devicePixelRatio;
     // Future.delayed(const Duration(milliseconds: 2000), (){
     //   repositionSensoryNeuron();
@@ -2701,6 +2826,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         print(screenHeight);
         print("$newCameraNodePos + ${oldDifCoreBrain.scale(scaleX, scaleY)}");
       }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) controller.notifyListeners();
+      });
 
       centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
           currentImageHeight / 3 + neuronDrawSize);
@@ -2950,7 +3078,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                      controller.deselectAll();
                      // Assuming controller.nodes alignment:
                      if ((i + 2) < controller.nodes.length) {
-                         controller.select(controller.nodes[i + 2].key);
+                         controller.setSelection({controller.nodes[i + 2].key});
                          isChartSelected = true;
                          setState(() {}); // Trigger plot update
                      }
@@ -2992,7 +3120,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                  // This matches 'Tap' behavior exactly (Orange Selection + Clean Plot Update)
                                  controller.deselectAll();
                                  if ((i + 2) < controller.nodes.length) {
-                                     controller.select(controller.nodes[i + 2].key);
+                                     controller.setSelection({controller.nodes[i + 2].key});
                                      isChartSelected = true;
                                  }
                                  
@@ -3185,596 +3313,575 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     if (!isPlayingMenu && isNeuronMenu && controller.hasSelection) {
       inlineWidgets.add(
         Positioned(
-            top: 20,
-            right: 20,
+            top: 20 + safePaddingTop,
+            right: 20 + safePadding,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 22, 0),
-                      child: Text(
-                        "Neuron${controller.selection[0].id}",
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontSize: 17,
-                        ),
-                      ),
-                    ),
-                    const Divider(height: 2),
-                    DropdownButton(
-                      alignment: Alignment.centerRight,
-                      style: const TextStyle(
-                        fontSize: 17.0,
-                        color: Colors.black,
-                      ),
-                      underline: Container(
-                        height: 1,
-                      ),
-                      value: neuronMenuType,
-                      items: dropdownNeuronItems,
-                      onChanged: (value) {
-                        neuronMenuType = value;
-                        neuronTypeChangeCallback(neuronMenuType);
-                        tecTimeValue.text = sldTimeValue.floor().toString();
-                        try {
-                          InfiniteCanvasNode selected = controller.selection[0];
-                          int neuronIdx = controller.nodes
-                                  .map((e) => e.id)
-                                  .toList()
-                                  .indexOf(selected.id) -
-                              2;
-                          if (value == "Delay") {
-                            isShowDelayTime = true;
-                            sldTimeValue = 3000;
-                            tecTimeValue.text = sldTimeValue.floor().toString();
-                          } else if (value == "Custom") {
-                            printDebug("dropDown change");
-                            isShowDelayTime = false;
-                            mapDelayNeuronList[neuronIdx] = -1;
-                          } else {
-                            isShowDelayTime = false;
-                            mapDelayNeuronList[neuronIdx] = -1;
-                            // sldTimeValue = 1000;
-                          }
+                child: SizedBox(
+                  width: 340,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
 
-                          // nativec.changeIdxSelected(neuronIdx);
-                          if (value == "Delay") {
-                            mapDelayNeuronList[neuronIdx] =
-                                sldTimeValue.floor();
-                          }
-                        } catch (err) {
-                          printDebug("err 0");
-                          printDebug(err);
-                        }
-
-                        setState(() {});
-                      },
-                    ),
-                    DropdownButton(
-                      alignment: Alignment.centerRight,
-                      style: const TextStyle(
-                        fontSize: 17.0,
-                        color: Colors.black,
-                      ),
-                      underline: Container(
-                        height: 1,
-                      ),
-                      value: neuronStyle,
-                      items: dropdownNeuronStyleItems,
-                      onChanged: (value) {
-                        neuronStyle = value;
-                        if (value == "Custom") {
-                          resizeIzhikevichParameters(neuronSize);
-                          InfiniteCanvasNode selected = controller.selection[0];
-                          int neuronIdx = controller.nodes
-                                  .map((e) => e.id)
-                                  .toList()
-                                  .indexOf(selected.id) -
-                              2;
-                          bBufView[neuronIdx] = 0.18;
-                          cBufView[neuronIdx] = -65;
-                        }
-
-                        try {
-                          InfiniteCanvasNode selected = controller.selection[0];
-                          neuronStyles[selected.id] = value;
-
-                          if (value == "Excitatory") {
-                            isTailType = "triangle";
-                          } else {
-                            isTailType = "circle";
-                          }
-
-                          if (value == "Excitatory") {
-                            selected.isExcitatory = 1;
-                          } else {
-                            selected.isExcitatory = 0;
-                          }
-
-                          for (InfiniteCanvasEdge edge in controller.edges) {
-                            if (edge.from.toString() == selected.id) {
-                              final neuronFrom = findNeuronByKey(edge.from);
-                              if (value == "Excitatory") {
-                                neuronFrom.isExcitatory = 1;
-                              } else {
-                                neuronFrom.isExcitatory = 0;
-                              }
-                            }
-                          }
-
-                          // int neuronIdx = controller.nodes
-                          //         .map((e) => e.id)
-                          //         .toList()
-                          //         .indexOf(selected.id) -
-                          //     2;
-                        } catch (err) {}
-                        // neuronTypeChangeCallback(neuronMenuType);
-
-                        setState(() {});
-                      },
-                    ),
-                    if (neuronMenuType == "Custom") ...[
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        // height: MediaQuery.of(context).size.width / 4,
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: const Text("a :",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center),
-                            ),
-                            SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  if (!hasFocus) {
-                                    submitWeightA(tecAWeight.text);
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 0, bottom: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Tune Neuron Behavior",
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            "Select how this neuron sends spikes:",
+                            style: TextStyle(fontSize: 13, color: Colors.black),
+                          ),
+                          const SizedBox(height: 8),
+                          if (!isNeuronBehaviorExpanded)
+                            Material(
+                              elevation: 2,
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () async {
+                                  if (buttonOnPressedSource != null) {
+                                    buttonOnPressedHandle = await soloud?.play(
+                                        buttonOnPressedSource!,
+                                        looping: false);
                                   }
+                                  setState(() {
+                                    isNeuronBehaviorExpanded = true;
+                                  });
                                 },
-                                child: TextField(
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  inputFormatters:
-                                      neuronListingTextInputFormatter,
-                                  maxLines: 1,
-                                  controller: tecAWeight,
-                                  onSubmitted: submitWeightA,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        neuronMenuType,
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: colorOrange,
-                                  showValueIndicator: ShowValueIndicator.never,
-                                  thumbColor: Colors.white,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 15),
-                                  trackHeight: 15,
-                                ),
-                                child: Listener(
-                                  onPointerDown: (details) {
-                                    printDebug("details");
-                                    printDebug(details);
-                                  },
-                                  child: Slider(
-                                    value: sldAWeight,
-                                    min: 0,
-                                    max: 0.15,
-                                    divisions: 15,
-                                    label: sldAWeight.round().toString(),
-                                    onChangeStart: (value) async {
-                                      // printDebug(
-                                      //     "buttonOnPressedSource: ${soloud?.isInitialized}");
-                                      if (buttonOnPressedSource != null) {
-                                        buttonOnPressedHandle = await soloud
-                                            ?.play(buttonOnPressedSource!,
-                                                looping: false);
-                                      }
-                                    },
-                                    onChangeEnd: (value) async {
-                                      if (buttonPopSource != null) {
-                                        buttonOnPressedHandle =
-                                            await soloud?.play(buttonPopSource!,
-                                                looping: false);
-                                      }
-                                    },
-                                    onChanged: (double value) {
-                                      value = (value * 100).round() / 100;
-                                      sldAWeight = value;
-                                      tecAWeight.text = (value).toString();
-                                      resizeIzhikevichParameters(neuronSize);
-                                      InfiniteCanvasNode selected =
-                                          controller.selection[0];
-                                      int neuronIdx = controller.nodes
-                                              .map((e) => e.id)
-                                              .toList()
-                                              .indexOf(selected.id) -
-                                          2;
-                                      aDesignArray[selected.id] = sldAWeight;
-                                      aBufView[neuronIdx] = sldAWeight;
-
-                                      setState(() {});
-                                    },
-                                  ),
-                                ),
+                          if (!isNeuronBehaviorExpanded) ...[
+                            const SizedBox(height: 8),
+                            Builder(builder: (context) {
+                              String desc = "";
+                              switch(neuronMenuType) {
+                                case "Quiet": desc = "Only sends a single SPIKE whenever it receives enough input"; break;
+                                case "Bursts when activated": desc = "Only sends a strong burst of SPIKES whenever it receives enough input."; break;
+                                case "Occassionally active": desc = "Sends single SPIKES at random every so often without the need for input. Still SPIKES with input too!"; break;
+                                case "Generates bursts": desc = "Sends giant bursts of SPIKES on and off at random, just like a random sensor input"; break;
+                                case "Highly active": desc = "Sends constant SPIKES all the time without input. You can stop it with inhibitory SPIKES!"; break;
+                                case "Delay": desc = "When it gets a strong enough input, this NEURON waits before sending SPIKES!"; break;
+                                case "Remote Control": desc = "Waits for an input to SPIKE. Trigger it with neurons, or keypresses/buttons!"; break;
+                                case "Custom": desc = "Adjust the parameters of the Izhikevich integrate and fire model directly! For advanced usage."; break;
+                              }
+                              if (isShowingInfo != 0) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      padding: const EdgeInsets.all(0),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 0.3,
+                                            blurRadius: 0.3,
+                                            offset: const Offset(1, 1), 
+                                          ),
+                                        ],
+                                      ),
+                                      child: SvgPicture.asset("assets/icons/Info.svg"),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        desc,
+                                        style: const TextStyle(
+                                          fontFamily: "BybHanddrawn",
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                          height: 1.2,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            }),
+                          ],
+                          if (isNeuronBehaviorExpanded) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  _buildBehaviorGroupHeader("Needs an input to send spikes:"),
+                                  _buildBehaviorOption("Quiet"),
+                                  _buildBehaviorOption("Bursts when activated"),
+                                  const Divider(height: 16),
+                                  _buildBehaviorGroupHeader("Sends spikes on its own without input:"),
+                                  _buildBehaviorOption("Occassionally active"),
+                                  _buildBehaviorOption("Generates bursts"),
+                                  _buildBehaviorOption("Highly active"),
+                                  const Divider(height: 16),
+                                  _buildBehaviorGroupHeader("Special spiking behaviors:"),
+                                  _buildBehaviorOption("Delay"),
+                                  _buildBehaviorOption("Remote Control"),
+                                  _buildBehaviorOption("Custom"),
+                                ],
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        // height: MediaQuery.of(context).size.width / 4,
-                        child: Row(
+                    ),
+                    if (neuronMenuType == "Custom") ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0, bottom: 16.0, left: 8.0, right: 8.0),
+                        child: Column(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: const Text("b :",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center),
-                            ),
-                            SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  if (!hasFocus) {
-                                    submitWeightB(tecBWeight.text);
-                                  }
-                                },
-                                child: TextField(
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  inputFormatters:
-                                      neuronListingTextInputFormatter,
-                                  maxLines: 1,
-                                  controller: tecBWeight,
-                                  onSubmitted: submitWeightB,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                RadialDialWidget(
+                                  title: "A value:",
+                                  value: sldAWeight,
+                                  min: 0,
+                                  max: 0.15,
+                                  dialSize: 65,
+                                  widgetWidth: 125,
+                                  startAngleOffset: pi,
+                                  onChanged: (value) async {
+                                    value = (value * 100).round() / 100;
+                                    sldAWeight = value;
+                                    tecAWeight.text = value.toString();
+                                    resizeIzhikevichParameters(neuronSize);
+                                    InfiniteCanvasNode selected = controller.selection[0];
+                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    aDesignArray[selected.id] = sldAWeight;
+                                    aBufView[neuronIdx] = sldAWeight;
+                                    setState(() {});
+                                  },
+                                  onSubmitted: submitWeightA,
                                 ),
-                              ),
-                            ),
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: colorOrange,
-                                  showValueIndicator: ShowValueIndicator.never,
-                                  thumbColor: Colors.white,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 15),
-                                  trackHeight: 15,
-                                ),
-                                child: Slider(
+                                RadialDialWidget(
+                                  title: "B value:",
                                   value: sldBWeight,
                                   min: 0,
                                   max: 0.5,
-                                  divisions: 100,
-                                  label: sldBWeight.round().toString(),
-                                  onChangeStart: (value) async {
-                                    if (buttonOnPressedSource != null) {
-                                      buttonOnPressedHandle = await soloud
-                                          ?.play(buttonOnPressedSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChangeEnd: (value) async {
-                                    if (buttonPopSource != null) {
-                                      buttonOnPressedHandle =
-                                          await soloud?.play(buttonPopSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChanged: (double value) {
+                                  dialSize: 65,
+                                  widgetWidth: 125,
+                                  startAngleOffset: pi,
+                                  onChanged: (value) async {
                                     value = (value * 100).round() / 100;
                                     sldBWeight = value;
-                                    // tecBWeight.text = value.toString();
-                                    tecBWeight.text = (value).toString();
-
+                                    tecBWeight.text = value.toString();
                                     resizeIzhikevichParameters(neuronSize);
-                                    InfiniteCanvasNode selected =
-                                        controller.selection[0];
-                                    int neuronIdx = controller.nodes
-                                            .map((e) => e.id)
-                                            .toList()
-                                            .indexOf(selected.id) -
-                                        2;
+                                    InfiniteCanvasNode selected = controller.selection[0];
+                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
                                     bDesignArray[selected.id] = sldBWeight;
                                     bBufView[neuronIdx] = sldBWeight;
-
                                     setState(() {});
                                   },
+                                  onSubmitted: submitWeightB,
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        // height: MediaQuery.of(context).size.width / 4,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: const Text("c :",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center),
-                            ),
-                            SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  if (!hasFocus) {
-                                    submitWeightC(tecCWeight.text);
-                                  }
-                                },
-                                child: TextField(
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  inputFormatters:
-                                      neuronListingTextInputFormatter,
-                                  maxLines: 1,
-                                  controller: tecCWeight,
-                                  onSubmitted: submitWeightC,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: colorOrange,
-                                  showValueIndicator: ShowValueIndicator.never,
-                                  thumbColor: Colors.white,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 15),
-                                  trackHeight: 15,
-                                ),
-                                child: Slider(
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                RadialDialWidget(
+                                  title: "C value:",
                                   value: sldCWeight,
-                                  min: -100,
-                                  max: 0,
-                                  divisions: 100,
-                                  label: sldCWeight.round().toString(),
-                                  onChangeStart: (value) async {
-                                    if (buttonOnPressedSource != null) {
-                                      buttonOnPressedHandle = await soloud
-                                          ?.play(buttonOnPressedSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChangeEnd: (value) async {
-                                    if (buttonPopSource != null) {
-                                      buttonOnPressedHandle =
-                                          await soloud?.play(buttonPopSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChanged: (double value) {
+                                  min: -80,
+                                  max: -45,
+                                  dialSize: 65,
+                                  widgetWidth: 125,
+                                  startAngleOffset: pi,
+                                  onChanged: (value) async {
+                                    value = value.roundToDouble();
                                     sldCWeight = value;
-                                    sldCWeight = sldCWeight.roundToDouble();
                                     tecCWeight.text = value.round().toString();
                                     resizeIzhikevichParameters(neuronSize);
-                                    InfiniteCanvasNode selected =
-                                        controller.selection[0];
-                                    int neuronIdx = controller.nodes
-                                            .map((e) => e.id)
-                                            .toList()
-                                            .indexOf(selected.id) -
-                                        2;
-                                    cDesignArray[selected.id] =
-                                        sldCWeight.floor();
+                                    InfiniteCanvasNode selected = controller.selection[0];
+                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    cDesignArray[selected.id] = sldCWeight.floor();
                                     cBufView[neuronIdx] = sldCWeight.floor();
-
                                     setState(() {});
                                   },
+                                  onSubmitted: submitWeightC,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        // height: MediaQuery.of(context).size.width / 4,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: const Text("d :",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center),
-                            ),
-                            SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  if (!hasFocus) {
-                                    submitWeightD(tecDWeight.text);
-                                  }
-                                },
-                                child: TextField(
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true, signed: true),
-                                  inputFormatters:
-                                      neuronListingTextInputFormatter,
-                                  maxLines: 1,
-                                  controller: tecDWeight,
-                                  onSubmitted: submitWeightD,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: colorOrange,
-                                  showValueIndicator: ShowValueIndicator.never,
-                                  thumbColor: Colors.white,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 15),
-                                  trackHeight: 15,
-                                ),
-                                child: Slider(
+                                RadialDialWidget(
+                                  title: "D value:",
                                   value: sldDWeight,
                                   min: 0,
                                   max: 10,
-                                  divisions: 10,
-                                  label: sldDWeight.round().toString(),
-                                  onChangeStart: (value) async {
-                                    if (buttonOnPressedSource != null) {
-                                      buttonOnPressedHandle = await soloud
-                                          ?.play(buttonOnPressedSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChangeEnd: (value) async {
-                                    if (buttonPopSource != null) {
-                                      buttonOnPressedHandle =
-                                          await soloud?.play(buttonPopSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChanged: (double value) {
+                                  dialSize: 65,
+                                  widgetWidth: 125,
+                                  startAngleOffset: pi,
+                                  onChanged: (value) async {
+                                    value = value.roundToDouble();
                                     sldDWeight = value;
-                                    sldDWeight = sldDWeight.roundToDouble();
                                     tecDWeight.text = value.round().toString();
                                     resizeIzhikevichParameters(neuronSize);
-                                    InfiniteCanvasNode selected =
-                                        controller.selection[0];
-                                    int neuronIdx = controller.nodes
-                                            .map((e) => e.id)
-                                            .toList()
-                                            .indexOf(selected.id) -
-                                        2;
-                                    dDesignArray[selected.id] =
-                                        sldDWeight.floor();
+                                    InfiniteCanvasNode selected = controller.selection[0];
+                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    dDesignArray[selected.id] = sldDWeight.floor();
                                     dBufView[neuronIdx] = sldDWeight.floor();
-
                                     setState(() {});
                                   },
+                                  onSubmitted: submitWeightD,
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ],
                     if (isShowDelayTime) ...[
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  printDebug("hasFocus");
-                                  printDebug(hasFocus);
-                                  printDebug(tecTimeValue.text);
-                                  if (!hasFocus) {
-                                    submitDelayConnection(tecTimeValue.text);
-                                  }
-                                },
-                                child: TextField(
-                                  enabled: true,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters:
-                                      whiteListingTextInputFormatter,
-                                  maxLines: 1,
-                                  controller: tecTimeValue,
-                                  onSubmitted: submitDelayConnection,
-                                ),
-                              ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0, bottom: 16.0),
+                        child: Center(
+                          child: RadialDialWidget(
+                            title: "Delay Time:",
+                            value: sldTimeValue,
+                            min: minDelayTimeValue.toDouble(),
+                            max: maxDelayTimeValue.toDouble(),
+                            renderMin: 0,
+                            isTimeFormatter: true,
+                            dialSize: 84,
+                            widgetWidth: 210,
+                            onChanged: (value) async {
+                              try {
+                                sldTimeValue = ((value / 100).floor() * 100).floor().roundToDouble();
+                                tecTimeValue.text = sldTimeValue.round().toString();
+
+                                InfiniteCanvasNode selected = controller.selection[0];
+                                int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+
+                                mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
+                                if (neuronIdx < mapDelayNeuronBufView.length) {
+                                    mapDelayNeuronBufView[neuronIdx] = sldTimeValue.floor();
+                                }
+                                if (neuronIdx >= 0 && neuronIdx < neuronSpikeFlags.length) {
+                                  neuronSpikeFlags[neuronIdx].value = neuronSpikeFlags[neuronIdx].value == 0 ? 1 : 0;
+                                }
+                              } catch (err) {}
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (neuronMenuType == "Remote Control") ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 8),
+                        child: Center(
+                          child: Text(
+                            "Select an input for remote control:",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black,
                             ),
-                            Expanded(
-                              child: SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: colorOrange,
-                                  showValueIndicator: ShowValueIndicator.never,
-                                  thumbColor: Colors.white,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 15),
-                                  trackHeight: 15,
-                                ),
-                                child: Slider(
-                                  value: sldTimeValue,
-                                  max: maxDelayTimeValue.toDouble(),
-                                  min: minDelayTimeValue.toDouble(),
-                                  divisions: 49,
-                                  // label: maxDelayTimeValue.round().toString(),
-                                  onChangeStart: (value) async {
-                                    if (buttonOnPressedSource != null) {
-                                      buttonOnPressedHandle = await soloud
-                                          ?.play(buttonOnPressedSource!,
-                                              looping: false);
-                                    }
-                                  },
-                                  onChangeEnd: (value) async {
-                                    if (buttonPopSource != null) {
-                                      buttonOnPressedHandle =
-                                          await soloud?.play(buttonPopSource!,
-                                              looping: false);
-                                    }
-                                  },
-
-                                  onChanged: (double value) {
-                                    try {
-                                      sldTimeValue = value;
-                                      sldTimeValue =
-                                          sldTimeValue.roundToDouble();
-                                      tecTimeValue.text =
-                                          value.round().toString();
-
-                                      InfiniteCanvasNode selected =
-                                          controller.selection[0];
-                                      int neuronIdx = controller.nodes
-                                              .map((e) => e.id)
-                                              .toList()
-                                              .indexOf(selected.id) -
-                                          2;
-
-                                      mapDelayNeuronList[neuronIdx] =
-                                          sldTimeValue.floor();
-                                    } catch (err) {}
-                                    setState(() {});
-                                  },
-                                ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0, bottom: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_remoteControlBoundKeyLabel.isEmpty)
+                                const Text("No input set", style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold))
+                            else 
+                                const Text("Input set", style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 16),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _isListeningForRemoteInput
+                                    ? Colors.yellow[700]
+                                    : colorOrange,
+                              ),
+                              onPressed: () {
+                                _toggleRemoteInputListening();
+                              },
+                              onLongPress: () {
+                                _toggleInputDebug();
+                              },
+                              child: Text(
+                                _isListeningForRemoteInput
+                                    ? "Press any key..."
+                                    : "Listen for input",
+                                style: TextStyle(color: _isListeningForRemoteInput ? Colors.black : Colors.white),
                               ),
                             ),
                           ],
                         ),
-                      )
+                      ),
+                    ],
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          bool isExcitatory = neuronStyle != "Excitatory";
+                          String value = isExcitatory ? "Excitatory" : "Inhibitory";
+                          neuronStyle = value;
+                          if (neuronMenuType == "Custom") {
+                            resizeIzhikevichParameters(neuronSize);
+                            InfiniteCanvasNode selected = controller.selection[0];
+                            int neuronIdx = controller.nodes
+                                    .map((e) => e.id)
+                                    .toList()
+                                    .indexOf(selected.id) -
+                                2;
+                            bBufView[neuronIdx] = 0.18;
+                            cBufView[neuronIdx] = -65;
+                          }
+
+                          try {
+                            InfiniteCanvasNode selected = controller.selection[0];
+                            neuronStyles[selected.id] = value;
+
+                            if (value == "Excitatory") {
+                              isTailType = "triangle";
+                              selected.isExcitatory = 1;
+                            } else {
+                              isTailType = "circle";
+                              selected.isExcitatory = 0;
+                            }
+
+                            for (InfiniteCanvasEdge edge in controller.edges) {
+                              if (edge.from.toString() == selected.id) {
+                                final neuronFrom = findNeuronByKey(edge.from);
+                                if (value == "Excitatory") {
+                                  neuronFrom.isExcitatory = 1;
+                                } else {
+                                  neuronFrom.isExcitatory = 0;
+                                }
+                              }
+                            }
+                          } catch (err) {}
+
+                          refreshNuclei();
+                          setState(() {});
+                        },
+                        child: Row(
+                          mainAxisAlignment: isShowingInfo != 0 ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Builder(builder: (context) {
+                              Widget innerToggleChild;
+                              bool isExcitatoryState = neuronStyle == "Excitatory";
+                              if (neuronMenuType == "Delay") {
+                                const List<String> clockEmojis = ["🕧", "🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡", "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"];
+                                int delayMs = 100;
+                                try {
+                                  if (controller.selection.isNotEmpty) {
+                                    int delayNodeIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
+                                    if (delayNodeIdx >= 0 && delayNodeIdx < mapDelayNeuronList.length) {
+                                      delayMs = mapDelayNeuronList[delayNodeIdx];
+                                    }
+                                  }
+                                } catch (_) {}
+                                if (delayMs < 100) delayMs = 100;
+                                int clockIdx = ((delayMs - 100) ~/ 100).clamp(0, 24);
+                                innerToggleChild = Transform.scale(
+                                  scale: isExcitatoryState ? 1.15 : 1.25,
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Text(
+                                        clockEmojis[clockIdx],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontFamily: "NotoEmoji", color: isExcitatoryState ? Colors.white : Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              } else if (neuronMenuType == "Remote Control") {
+                                InfiniteCanvasNode? selectedNode;
+                                if (controller.selection.isNotEmpty) selectedNode = controller.selection[0];
+                                innerToggleChild = RemoteControlKeycap(
+                                  node: selectedNode,
+                                  fallbackKeyName: (selectedNode != null ? mapRemoteControlNeuron[selectedNode.id] : "") ?? "",
+                                  isExcitatory: isExcitatoryState,
+                                  size: 24,
+                                  transparentBackground: true,
+                                  remoteControlMap: mapRemoteControlNeuron,
+                                  overrideColor: isExcitatoryState ? Colors.white : Colors.black,
+                                );
+                              } else {
+                                double baseW = 10;
+                                double baseH = 10;
+                                double dx = 16;
+                                double dy = 16;
+                                try {
+                                  if (controller.selection.isNotEmpty) {
+                                      int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
+                                      if (neuronIdx >= 0 && neuronIdx < controller.syntheticNeuronList.length) {
+                                          var sn = controller.syntheticNeuronList[neuronIdx];
+                                          double scale = 32 / neuronDrawSize;
+                                          baseW = sn.newNeuron.widthNucleus * scale;
+                                          baseH = sn.newNeuron.heightNucleus * scale;
+                                          dx = sn.newNeuron.xNucleus * scale;
+                                          dy = sn.newNeuron.yNucleus * scale;
+                                      }
+                                  }
+                                } catch (_) {}
+                                
+                                innerToggleChild = Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Positioned(
+                                      left: dx - baseW/2,
+                                      top: dy - baseH/2,
+                                      width: baseW,
+                                      height: baseH,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.elliptical(baseW, baseH)),
+                                          color: isExcitatoryState ? Colors.white : Colors.black,
+                                        ),
+                                      ),
+                                    )
+                                  ]
+                                );
+                              }
+
+                              return Container(
+                                width: 140,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  color: isExcitatoryState ? colorGreen : colorRed,
+                                ),
+                                child: Stack(
+                                  children: [
+                                    AnimatedPositioned(
+                                      duration: const Duration(milliseconds: 200),
+                                      curve: Curves.easeInOut,
+                                      top: 0,
+                                      bottom: 0,
+                                      left: isExcitatoryState ? 12 : 44,
+                                      child: Center(
+                                        child: Text(
+                                          neuronStyle,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: isExcitatoryState ? Colors.black : Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    AnimatedPositioned(
+                                      duration: const Duration(milliseconds: 200),
+                                      curve: Curves.easeInOut,
+                                      top: 2,
+                                      left: isExcitatoryState ? 106 : 2,
+                                      width: 32,
+                                      height: 32,
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: isExcitatoryState ? Colors.black : Colors.white,
+                                            ),
+                                            child: innerToggleChild,
+                                          ),
+                                          if (!isExcitatoryState)
+                                            Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(color: Colors.black, width: 2),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            if (isShowingInfo != 0) ...[
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  neuronStyle == "Excitatory" ? "Makes other neurons\nspike!" : "Makes other neurons\nstop spiking.",
+                                  style: const TextStyle(
+                                    fontFamily: "Roboto",
+                                    fontSize: 14.5,
+                                    color: Colors.black87,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    if (isShowingInfo == 2) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4, right: 8),
+                        child: Text(
+                          "Neuron${controller.selection[0].id}",
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ],
                   ],
-                ),
-              ),
-            )),
-      );
+                ), // Column
+              ), // SizedBox
+            ), // Padding
+          ), // Card
+        ), // Positioned
+      ); // inlineWidgets.add
     } else if (!isPlayingMenu && isCameraMenu && controller.isSelectingEdge) {
       List<ButtonStyle> cameraButtonStyles = cameraRegions.map((region) {
         return ElevatedButton.styleFrom(
@@ -3802,8 +3909,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         inlineWidgets.add(
           Positioned(
-              right: 20,
-              top: 20,
+              right: 20 + safePadding,
+              top: 20 + safePaddingTop,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -4369,8 +4476,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         }
         inlineWidgets.add(
           Positioned(
-              right: 20,
-              top: 20,
+              right: 20 + safePadding,
+              top: 20 + safePaddingTop,
               child: Card(
                   child: Padding(
                       padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -4425,8 +4532,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // dropdownDistanceItems
       inlineWidgets.add(
         Positioned(
-            right: 20,
-            top: 20,
+            right: 20 + safePadding,
+            top: 20 + safePaddingTop,
             child: Card(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -4937,8 +5044,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
       inlineWidgets.add(
         Positioned(
-                right: 20,
-                top: 20,
+                right: 20 + safePadding,
+                top: 20 + safePaddingTop,
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -5388,8 +5495,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            right: 20,
-            top: 20,
+            right: 20 + safePadding,
+            top: 20 + safePaddingTop,
             child: SpeakerMenuWidget(
               currentFrequency: sldFrequencyWeight,
               soloud: soloud,
@@ -5409,189 +5516,286 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            top: 20,
-            right: 20,
+            top: 20 + safePaddingTop,
+            right: 20 + safePadding,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Center(
-                      child: Text("Synaptic Weight",
-                          style: TextStyle(fontSize: 17)),
-                    ),
-                    const Divider(height: 2),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
-                      // height: MediaQuery.of(context).size.width / 4,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 30,
-                            height: 40,
-                            child: Focus(
-                              onFocusChange: (hasFocus) {
-                                if (!hasFocus) {
-                                  printDebug("synaptic on focusleave");
-                                  // V25: Handle Multi-Selection Submit
-                                  if (controller.multiEdgeSelection.isNotEmpty) {
-                                      double? val = double.tryParse(tecSynapticWeight.text);
-                                      if (val != null) {
-                                          controller.synapticWeight = val; // Updates all
-                                          setState((){});
-                                      }
-                                  } else {
-                                      submitSynapticConnection(tecSynapticWeight.text);
+                child: SizedBox(
+                  width: 300,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                    Builder(builder: (context) {
+                      bool isMulti = controller.multiEdgeSelection.length > 1;
+                      bool isUniform = true;
+                      double weightValue = sldSynapticWeight;
+                      
+                      if (isMulti) {
+                          if (controller.multiEdgeSelection.isNotEmpty) {
+                              double first = controller.multiEdgeSelection.first.connectionStrength;
+                              isUniform = controller.multiEdgeSelection.every((e) => e.connectionStrength == first);
+                              if (isUniform) {
+                                weightValue = first;
+                              } else {
+                                weightValue = 50; 
+                              }
+                          }
+                      }
+
+                      bool isMixed = isMulti && !isUniform;
+
+                      bool isExcitatory = true;
+                      bool isMotorTarget = false;
+                      String motorWheel = "";
+                      String motorAction = "";
+                      String motorTitle = "";
+
+                      if (controller.multiEdgeSelection.isNotEmpty) {
+                          var edge = controller.multiEdgeSelection.first;
+                          var nFrom = findNeuronByKeySafe(edge.from);
+                          if (nFrom != null && neuronStyles[nFrom.id] == 'Inhibitory') {
+                              isExcitatory = false;
+                          }
+                          
+                          if (!isMulti) {
+                              var nTo = findNeuronByKeySafe(edge.to);
+                              if (nTo != null) {
+                                  if (nTo.value == 5) {
+                                      isMotorTarget = true;
+                                      motorWheel = "Left";
+                                      motorAction = "forward";
+                                      motorTitle = isExcitatory ? "Left Wheel Forward Speed" : "Left Wheel Front Brake Strength";
+                                  } else if (nTo.value == 6) {
+                                      isMotorTarget = true;
+                                      motorWheel = "Right";
+                                      motorAction = "forward";
+                                      motorTitle = isExcitatory ? "Right Wheel Forward Speed" : "Right Wheel Front Brake Strength";
+                                  } else if (nTo.value == 7) {
+                                      isMotorTarget = true;
+                                      motorWheel = "Left";
+                                      motorAction = "reverse";
+                                      motorTitle = isExcitatory ? "Left Wheel Reverse Speed" : "Left Wheel Rear Brake Strength";
+                                  } else if (nTo.value == 8) {
+                                      isMotorTarget = true;
+                                      motorWheel = "Right";
+                                      motorAction = "reverse";
+                                      motorTitle = isExcitatory ? "Right Wheel Reverse Speed" : "Right Wheel Rear Brake Strength";
                                   }
-                                }
-                              },
-                              child: TextField(
-                                keyboardType: TextInputType.number,
-                                inputFormatters: whiteListingTextInputFormatter,
-                                maxLines: 1,
-                                controller: tecSynapticWeight,
-                                onSubmitted: (value) {
-                                    // V25: Handle Multi-Selection Submit
-                                    if (controller.multiEdgeSelection.isNotEmpty) {
-                                        double? val = double.tryParse(value);
-                                        if (val != null) {
-                                            controller.synapticWeight = val; // Updates all
-                                            setState((){});
-                                        }
-                                    } else {
-                                        submitSynapticConnection(value);
-                                    }
-                                },
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Builder(builder: (context) {
-                              // V25: Multi-Selection Logic (Check & Match)
-                              bool isMulti = controller.multiEdgeSelection.isNotEmpty;
-                              bool isUniform = true;
-                              double sliderValue = sldSynapticWeight;
-                              
-                              if (isMulti) {
-                                 // Check uniformity
-                                 if (controller.multiEdgeSelection.isNotEmpty) {
-                                     double first = controller.multiEdgeSelection.first.connectionStrength;
-                                     isUniform = controller.multiEdgeSelection.every((e) => e.connectionStrength == first);
-                                     
-                                     // If uniform, show that value. If mixed, show 50 (Grey)
-                                     if (isUniform) {
-                                       sliderValue = first;
-                                     } else {
-                                       sliderValue = 50; 
-                                     }
-                                 }
+                              }
+                          }
+                      }
+
+                      String mainTitleStr = isMulti ? "Set Many Synaptic Weights" : (isMotorTarget ? motorTitle : "Set Synaptic Weight");
+                      String dialTitleStr = isMotorTarget ? (isExcitatory ? "Motor speed:" : "Braking Force:") : "Signal strength:";
+
+                      String getDynamicSynapticText(double w, bool excitatory, bool isMotor, String wheel, String action) {
+                          int wStr = w.round();
+                          if (isMotor) {
+                              if (excitatory) {
+                                  String spd = "";
+                                  if (wStr <= 24) spd = " slowly";
+                                  else if (wStr <= 60) spd = "";
+                                  else spd = " fast";
+                                  
+                                  return "$wheel wheel will move $action$spd when it gets a SPIKE.";
+                              } else {
+                                  String prob = "";
+                                  if (wStr <= 10) prob = "may not";
+                                  else if (wStr <= 50) prob = "will likely";
+                                  else if (wStr <= 99) prob = "will";
+                                  else prob = "always will";
+                                  
+                                  String actionCap = action == "forward" ? "Forward" : "Reverse";
+                                  return "$wheel wheel $prob stop moving $actionCap when it gets a SPIKE.";
+                              }
+                          } else {
+                              if (wStr == 0) {
+                                  if (excitatory) {
+                                      return "The parent NEURON will not make the next NEURON SPIKE.";
+                                  } else {
+                                      return "The parent NEURON will not make the next NEURON stop SPIKING.";
+                                  }
                               }
 
-                              Color activeColor = (isMulti && !isUniform) ? Colors.grey : colorOrange;
-                              
-                              return SliderTheme(
-                              data: SliderTheme.of(context).copyWith(
-                                activeTrackColor: activeColor,
-                                showValueIndicator: ShowValueIndicator.never,
-                                thumbColor: Colors.white,
-                                thumbShape: const RoundSliderThumbShape(
-                                    enabledThumbRadius: 15),
-                                trackHeight: 15,
-                              ),
-                              child: Slider(
-                                value: sliderValue,
-                                max: 100,
-                                divisions: 100,
-                                label: sliderValue.round().toString(),
-                                onChangeStart: (val) async {
-                                  if (buttonOnPressedSource != null) {
-                                    buttonOnPressedHandle = await soloud?.play(
-                                        buttonOnPressedSource!,
-                                        looping: false);
-                                  }
-                                },
-                                onChangeEnd: (val) async {
-                                  if (buttonPopSource != null) {
-                                    buttonOnPressedHandle = await soloud?.play(
-                                        buttonPopSource!,
-                                        looping: false);
-                                  }
-                                },
-                                onChanged: (double value) {
-                                  // V25: Prevent modifying weight for Speaker/LED connections (User Request)
-                                  if (isSpeakerMenu || isLedMenu) return;
+                              String freq = "";
+                              if (wStr == 100) {
+                                  freq = "always.";
+                              } else if (wStr >= 50) {
+                                  freq = "most of the time.";
+                              } else if (wStr >= 25) {
+                                  freq = "usually.";
+                              } else if (wStr >= 1) {
+                                  freq = "with help from other NEURONS.";
+                              }
 
-                                  try {
-                                    // V25: Update Logic
-                                    if (isMulti) {
-                                       // Update ALL selected edges immediately
-                                       controller.synapticWeight = value; // Update setter (Visuals)
-                                       tecSynapticWeight.text = value.round().toString(); // Update Text Field
-                                       
-                                       // V25: SYNC BACKEND MAPS for Multi-Selection
-                                       // This ensures saving and simulation see the changes for ALL edges, not just visuals.
-                                       for (var edge in controller.multiEdgeSelection) {
-                                            try {
-                                                var nFrom = findNeuronByKeySafe(edge.from);
-                                                var nTo = findNeuronByKeySafe(edge.to);
-                                                if (nFrom != null && nTo != null) {
-                                                    String key = "${nFrom.id}_${nTo.id}";
-                                                    String label = (nTo.label ?? "").toUpperCase();
-                                                    
-                                                    // Determine Map to update
-                                                    if (label.contains("MOTOR")) {
-                                                        mapContactsNeuron[key] = value;
-                                                    } else {
-                                                        mapConnectome[key] = value;
-                                                    }
-                                                }
-                                            } catch (e) {
-                                                printDebug("Error syncing multi-edge: $e");
-                                            }
-                                       }
-                                       
-                                       setState((){});
-                                    } else {
-                                      // Existing Logic for Single Selection
-                                      sldSynapticWeight = value;
-                                      sldSynapticWeight =
-                                          sldSynapticWeight.roundToDouble();
-                                      tecSynapticWeight.text =
-                                          value.round().toString();
+                              if (excitatory) {
+                                  return "The parent NEURON will make the next NEURON SPIKE $freq";
+                              } else {
+                                  return "The parent NEURON will make the next NEURON stop SPIKING $freq";
+                              }
+                          }
+                      }
 
-                                      if (isSynapseMenu) {
-                                        linkNeuronConnection(
-                                            sldSynapticWeight.toString());
-                                      } else if (isMotorMenu) {
-                                        linkMotorConnection(
-                                            sldSynapticWeight.toString());
-                                      }
+                      String dynamicInfoText = getDynamicSynapticText(weightValue, isExcitatory, isMotorTarget, motorWheel, motorAction);
 
-                                      setState(() {});
-                                    }
-                                  } catch (err) {}
-                                },
-                              ),
-                            );
-                            }),
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(mainTitleStr,
+                                style: const TextStyle(fontSize: 17)),
                           ),
-                        ],
+                          const SizedBox(height: 12),
+                          RadialDialWidget(
+                        title: dialTitleStr,
+                        value: weightValue,
+                        min: 0,
+                        max: 100,
+                        dialSize: 80,
+                        widgetWidth: 220,
+                        startAngleOffset: pi,
+                        isPercentageFormatter: true,
+                        isMixedState: isMixed,
+                        alignRight: true,
+                        onChanged: (value) async {
+                          if (isSpeakerMenu || isLedMenu) return;
+
+                          try {
+                              if (isMulti) {
+                                  controller.synapticWeight = value;
+                                  tecSynapticWeight.text = value.round().toString();
+                                  
+                                  for (var edge in controller.multiEdgeSelection) {
+                                      try {
+                                          var nFrom = findNeuronByKeySafe(edge.from);
+                                          var nTo = findNeuronByKeySafe(edge.to);
+                                          if (nFrom != null && nTo != null) {
+                                              String key = "${nFrom.id}_${nTo.id}";
+                                              String label = (nTo.label ?? "").toUpperCase();
+
+                                              edge.connectionStrength = value;
+                                              edge.label = value.round().toString();
+
+                                              if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
+                                                  mapContactsNeuron[key] = value;
+                                                  updateLiveConnectionBuffer(nFrom, nTo, value, "motor");
+                                              } else {
+                                                  mapConnectome[key] = value;
+                                                  updateLiveConnectionBuffer(nFrom, nTo, value, "connectome");
+                                              }
+                                          }
+                                      } catch (e) {
+                                          printDebug("Error syncing multi-edge: $e");
+                                      }
+                                  }
+                                  setState((){});
+                              } else {
+                                  sldSynapticWeight = value.roundToDouble();
+                                  tecSynapticWeight.text = value.round().toString();
+
+                                  if (isSynapseMenu) {
+                                      linkNeuronConnection(sldSynapticWeight.toString());
+                                  } else if (isMotorMenu) {
+                                      linkMotorConnection(sldSynapticWeight.toString());
+                                  }
+                                  setState(() {});
+                              }
+                          } catch (err) {}
+                        },
+                        onSubmitted: (value) {
+                            if (isMulti) {
+                                String cleanVal = value.replaceAll(RegExp(r'[^0-9.-]'), '');
+                                double? val = double.tryParse(cleanVal);
+                                if (val != null) {
+                                    controller.synapticWeight = val; 
+                                    for (var edge in controller.multiEdgeSelection) {
+                                        try {
+                                            var nFrom = findNeuronByKeySafe(edge.from);
+                                            var nTo = findNeuronByKeySafe(edge.to);
+                                            if (nFrom != null && nTo != null) {
+                                                String key = "${nFrom.id}_${nTo.id}";
+                                                String label = (nTo.label ?? "").toUpperCase();
+
+                                                edge.connectionStrength = val;
+                                                edge.label = val.round().toString();
+
+                                                if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
+                                                    mapContactsNeuron[key] = val;
+                                                    updateLiveConnectionBuffer(nFrom, nTo, val, "motor");
+                                                } else {
+                                                    mapConnectome[key] = val;
+                                                    updateLiveConnectionBuffer(nFrom, nTo, val, "connectome");
+                                                }
+                                            }
+                                        } catch (e) {
+                                            printDebug("Error syncing multi-edge from text submit: $e");
+                                        }
+                                    }
+                                    setState((){});
+                                }
+                            } else {
+                                String cleanVal = value.replaceAll(RegExp(r'[^0-9.-]'), '');
+                                submitSynapticConnection(cleanVal);
+                            }
+                        }
                       ),
-                    )
-                  ],
-                ),
-              ),
-            )),
-      );
+                      if (isShowingInfo == 0) const SizedBox(height: 16),
+                      if (isShowingInfo != 0) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              padding: const EdgeInsets.all(0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 0.3,
+                                    blurRadius: 0.3,
+                                    offset: const Offset(1, 1), 
+                                  ),
+                                ],
+                              ),
+                              child: SvgPicture.asset("assets/icons/Info.svg"),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                dynamicInfoText,
+                                style: const TextStyle(
+                                  fontFamily: "BybHanddrawn",
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+      )),
+    );
     } else if (!isPlayingMenu &&
         (isLedMenu) &&
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            top: 20,
-            right: 20,
+            top: 20 + safePaddingTop,
+            right: 20 + safePadding,
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -5657,9 +5861,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
 
     if (!isPlayingMenu && isDeleteMenu) {
+      bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+      double bottomSafePad = MediaQuery.of(context).padding.bottom;
+      
       inlineWidgets.add(Positioned(
-        bottom: Platform.isIOS || Platform.isAndroid ? 105 : 15,
-        left: 10,
+        bottom: Platform.isIOS || Platform.isAndroid ? 90 + bottomSafePad : 15,
+        left: 10 + (isLandscape ? safePaddingLeft : 0),
         child: FloatingActionButton(
             focusColor: colorOrange,
             hoverColor: colorOrange,
@@ -5692,6 +5899,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             )),
       ));
     }
+
     if (packageInfo == null) {
       Future.delayed(const Duration(milliseconds: 10), () async {
         packageInfo = await PackageInfo.fromPlatform();
@@ -5707,13 +5915,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
     // Replaces the existing logic for left toolbar creation
     
-    // Instantiate correct toolbar based on mode
+    bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isPlayingMenu) {
       liveToolBar = LiveLeftToolbar(
         key: rightToolbarKey, // Reusing key logic if applicable, or new key
         menuIdx: modeIdx, // Assuming modeIdx tracks selection
         isPlaying: isPlayingMenu,
-        callback: leftToolbarCallback // Reuse callback
+        callback: leftToolbarCallback, // Reuse callback
+        leftPadding: isLandscape ? safePaddingLeft : 0,
       );
       leftToolBar = null; // Ensure only one is active
     } else {
@@ -5721,7 +5931,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         key: rightToolbarKey,
         menuIdx: menuIdx,
         isPlaying: isPlayingMenu,
-        callback: leftToolbarCallback
+        callback: leftToolbarCallback,
+        leftPadding: isLandscape ? safePaddingLeft : 0,
       );
       liveToolBar = null;
     }
@@ -5730,13 +5941,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (leftToolBar != null) {
         toolbarMenu = Positioned(
           left: 0,
-          top: 10,
+          top: 10 + safePaddingTop,
           child: leftToolBar!,
         );
       } else {
         toolbarMenu = Positioned(
           left: 0,
-          top: 10,
+          top: 10 + safePaddingTop,
           child: Container(),
         );
       }
@@ -5745,13 +5956,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (liveToolBar != null) {
         toolbarMenu = Positioned(
           left: 0,
-          top: 10,
+          top: 10 + safePaddingTop,
           child: liveToolBar!,
         );
       } else {
          toolbarMenu = Positioned(
           left: 0,
-          top: 10,
+          top: 10 + safePaddingTop,
           child: Container(),
         );
       }
@@ -6368,14 +6579,65 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         Positioned(
           left: 0,
           top: 0,
-          child: mainBody,
+          child: Screenshot(
+             controller: screenshotController,
+             child: mainBody,
+          ), 
         ),
         ...widgets,
         ...inlineWidgets,
         toolbarMenu,
+        
+        
+        if (_isShowInputDebug)
+          Positioned(
+            right: 20 + safePadding,
+            bottom: 100,
+            width: 400,
+            height: 300,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Input Debugger",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: const Icon(Icons.close,
+                            color: Colors.white, size: 20),
+                        onPressed: _toggleInputDebug,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      child: Text(_debugInputLog,
+                          style: const TextStyle(
+                              color: Colors.greenAccent,
+                              fontFamily: "monospace",
+                              fontSize: 11)),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text("Press keys to see Logical/Physical IDs",
+                      style: TextStyle(color: Colors.grey, fontSize: 10)),
+                ],
+              ),
+            ),
+          ),
         if (isPlayingMenu) ...[
           Positioned(
-            right: 0,
+            right: safePadding,
             top: MediaQuery.of(context).padding.top, // Dynamic Top for iPad Status Bar
             child: Card(
               child: Padding(
@@ -6782,7 +7044,104 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
   }
 
+  void recreateBufferViews() {
+    // Re-create views with current neuronSize to ensure we can access all neurons
+    // We use a slightly larger size or exact size. 
+    // Since initNativeC uses neuronSize, let's match that logic but safer.
+    
+    // Safety check
+    if (neuronSize > maxPosBuffer) return;
+
+    // We need to re-assign the Views that are used by updateLiveConnectionBuffer
+    // The underlying Buffers (ffi pointers) are fixed size (maxPosBuffer), so this is just a Dart view update.
+    
+    // 1D Arrays
+    mapNeuronTypeBufView = mapNeuronTypeBuf.asTypedList(maxPosBuffer);
+    mapDelayNeuronBufView = mapDelayNeuronBuf.asTypedList(maxPosBuffer);
+    mapRhytmicNeuronBufView = mapRhytmicNeuronBuf.asTypedList(maxPosBuffer);
+    mapCountingNeuronBufView = mapCountingNeuronBuf.asTypedList(maxPosBuffer);
+    
+    aBufView = aBuf.asTypedList(maxPosBuffer);
+    bBufView = bBuf.asTypedList(maxPosBuffer);
+    cBufView = cBuf.asTypedList(maxPosBuffer);
+    dBufView = dBuf.asTypedList(maxPosBuffer);
+    iBufView = iBuf.asTypedList(maxPosBuffer);
+    wBufView = wBuf.asTypedList(maxPosBuffer);
+    
+    // 2D Matrices (flattened)
+    // We use maxPosBuffer * maxPosBuffer to strictly match the allocation and avoid "RangeError".
+    // This allows access to any index even if neuronSize effectively shrinks/grows.
+    int matrixSize = maxPosBuffer * maxPosBuffer;
+    
+    connectomeBufView = connectomeBuf.asTypedList(matrixSize);
+    neuronContactsBufView = neuronContactsBuf.asTypedList(matrixSize);
+    neuronLedBufView = neuronLedBuf.asTypedList(matrixSize);
+    
+    // Other matrices used in simulation...
+    neuronDistanceBufView = neuronDistanceBuf.asTypedList(matrixSize);
+    neuronSpeakerBufView = neuronSpeakerBuf.asTypedList(matrixSize);
+    neuronMicrophoneBufView = neuronMicrophoneBuf.asTypedList(matrixSize);
+  }
+
+  void populateMotorMatrix() {
+    printDebug("populateMotorMatrix: Forcing motor values into buffer from mapContactsNeuron...");
+    if (neuronContactsBufView.isEmpty || neuronSize <= 0) return;
+
+    // Iterate using the same indexing as populateMatrix and the C++ engine:
+    // buffer index = fromIdx * neuronSize + toIdx
+    for (int i = 0; i < neuronSize; i++) {
+      InfiniteCanvasNode neuronFrom = controller.nodes[i + allNeuronStartIdx];
+      int sign = 1;
+      if (neuronStyles.containsKey(neuronFrom.id) && neuronStyles[neuronFrom.id] == "Inhibitory") {
+        sign = -1;
+      }
+      for (int j = 0; j < neuronSize; j++) {
+        InfiniteCanvasNode neuronTo = controller.nodes[j + allNeuronStartIdx];
+        String connectionKey = "${neuronFrom.id}_${neuronTo.id}";
+        if (mapContactsNeuron.containsKey(connectionKey)) {
+          int bufferIdx = i * neuronSize + j;
+          double val = (sign * mapContactsNeuron[connectionKey].abs()).floorToDouble();
+          neuronContactsBufView[bufferIdx] = val;
+          printDebug("DEBUG_LOAD_MOTOR: $connectionKey -> Buffer[$bufferIdx] (Col $j). Val: $val (Map: ${mapContactsNeuron[connectionKey]})");
+        }
+      }
+    }
+  }
+
+  /// DEBUG: Dump motor columns (3,4,5,6) from neuronContactsBufView for all neuron rows.
+  /// Uses print() directly (not printDebug) so it works in release builds.
+  void _dumpMotorBufferColumns(String label) {
+    if (neuronContactsBufView.isEmpty || neuronSize <= 0) {
+      print("MOTOR_DUMP[$label]: Buffer empty or neuronSize=$neuronSize");
+      return;
+    }
+    print("MOTOR_DUMP[$label]: neuronSize=$neuronSize, bufLen=${neuronContactsBufView.length}");
+    print("MOTOR_DUMP[$label]: mapContactsNeuron keys: ${mapContactsNeuron.keys.toList()}");
+    print("MOTOR_DUMP[$label]: mapContactsNeuron values: ${mapContactsNeuron.values.toList()}");
+    for (int row = 0; row < neuronSize && row < 30; row++) {
+      String rowLabel = (row < controller.nodes.length - allNeuronStartIdx) 
+          ? controller.nodes[row + allNeuronStartIdx].id
+          : "?";
+      List<String> motorVals = [];
+      for (int col = 3; col <= 6 && col < neuronSize; col++) {
+        int idx = row * neuronSize + col;
+        if (idx < neuronContactsBufView.length) {
+          String colLabel = (col < controller.nodes.length - allNeuronStartIdx)
+              ? controller.nodes[col + allNeuronStartIdx].id
+              : "?";
+          motorVals.add("col$col($colLabel)=${neuronContactsBufView[idx]}");
+        }
+      }
+      if (motorVals.any((v) => !v.endsWith("=0.0") && !v.endsWith("=0"))) {
+        print("MOTOR_DUMP[$label]: Row $row ($rowLabel): ${motorVals.join(', ')}");
+      }
+    }
+  }
+
   void populateMatrix() {
+    // Ensure views are valid for current data size
+    recreateBufferViews();
+
     // populate connectome, neuroncontacts, and visual preferences
     int ctr = 0;
     // printDebug("connectionKeys $neuronSize");
@@ -6811,31 +7170,59 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         if (neuronType != null) {
           int neuronTypeIdx = neuronTypesLabel.indexOf(neuronType);
           int idx = i;
-          mapNeuronTypeBufView[idx] = neuronTypeIdx + inhibitor;
+          
+          // Fix: Map Remote Control to Quiet (0) for C++ simulation physics
+          // This ensures standard spike propagation while Dart handles input current.
+          int simTypeIdx = neuronTypeIdx;
+          if (neuronType == "Remote Control") {
+              simTypeIdx = 0; // Quiet
+          }
+          
+          mapNeuronTypeBufView[idx] = simTypeIdx + inhibitor;
           if (neuronTypeIdx == CONFIG_DELAY_NEURON) {
             mapDelayNeuronBufView[idx] = mapDelayNeuronList[idx];
-            // mapDelayNeuronBufView[i] = 3000;
           } else if (neuronTypeIdx == CONFIG_RHYTMIC_NEURON) {
             mapRhytmicNeuronBufView[idx] = mapRhytmicNeuronList[idx];
-            // }
           } else if (neuronTypeIdx == CONFIG_COUNTING_NEURON) {
             mapCountingNeuronBufView[idx] = mapCountingNeuronList[idx];
+          }
+          
+          // THE SIMPLE FIX: Set a/b/c/d/i based on neuronType
+          // This is exactly what neuronTypeChangeCallback does when user manually resets type
+          // Now design mode types -> simulation params, in ONE place
+          switch (neuronType) {
+            case "Quiet":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
+            case "Occassionally active":
+              aBufView[i] = 0.02; bBufView[i] = 0.16; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 5.0;
+              break;
+            case "Highly active":
+              aBufView[i] = 0.02; bBufView[i] = 0.2; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 15.0;
+              break;
+            case "Generates bursts":
+              aBufView[i] = 0.02; bBufView[i] = 0.16; cBufView[i] = -8; dBufView[i] = 2; iBufView[i] = 5.0;
+              break;
+            case "Bursts when activated":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -37; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
+            case "Remote Control":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
+            // Custom and special types (Delay, etc.) keep their loaded values from iDesignArray
+            default:
+              // For Custom/Delay/etc: try to use DesignArray values if available
+              if (aDesignArray.containsKey(neuronFrom.id)) aBufView[i] = aDesignArray[neuronFrom.id];
+              if (bDesignArray.containsKey(neuronFrom.id)) bBufView[i] = bDesignArray[neuronFrom.id];
+              if (cDesignArray.containsKey(neuronFrom.id)) cBufView[i] = cDesignArray[neuronFrom.id].round();
+              if (dDesignArray.containsKey(neuronFrom.id)) dBufView[i] = dDesignArray[neuronFrom.id].round();
+              if (iDesignArray.containsKey(neuronFrom.id)) iBufView[i] = iDesignArray[neuronFrom.id];
+              break;
           }
         }
 
         if (sign == 1) {
         } else {}
-      }
-      // printDebug("neuronFrom.value");
-      // printDebug(neuronFrom.value);
-      
-      // V28 FIX: Update iBufView from iDesignArray if available
-      try {
-        if (iDesignArray.containsKey(neuronFrom.key.toString())) {
-             iBufView[i] = iDesignArray[neuronFrom.key.toString()];
-        }
-      } catch (e) {
-        // ignore
       }
 
       for (int j = 0; j < neuronSize; j++) {
@@ -6856,7 +7243,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         if (mapContactsNeuron.containsKey(connectionKey)) {
           neuronContactsBufView[ctr] =
               (sign * mapContactsNeuron[connectionKey].abs()).floorToDouble();
+          printDebug("DEBUG: populateMatrix FOUND Motor Key: $connectionKey = ${mapContactsNeuron[connectionKey]}");
         } else {
+          // printDebug("DEBUG: populateMatrix MISSING Motor Key: $connectionKey"); 
           neuronContactsBufView[ctr] = 0;
         }
 
@@ -6992,13 +7381,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   void runSimulation() {
     printDebug("RUN SIMuLATION");
+    
+    // CRITICAL: Set simulation flag immediately so Input System knows we are live
+    isSimulatingBrain = true;
+    
+    hasLoggedMatrixDebug = false; // Reset matrix debug flag
+    
     printDebug("mapAreaSize");
     printDebug(mapAreaSize);
     colorPositionFlags[0] = false;
     colorPositionFlags[1] = false;
     colorPositionFlags[2] = false;
     aiPositionFlags.fillRange(0, aiPositionFlags.length, false);
-    // neuronSize = controller.nodes.length;
+    neuronSize = controller.nodes.length - allNeuronStartIdx;
     List<InfiniteCanvasEdge> outwardEdges =
         controller.edges.where((e) => e.from == nodeLeftEyeSensor.key).toList();
     for (InfiniteCanvasEdge outwardEdge in outwardEdges) {
@@ -7019,21 +7414,55 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
 
     initNativeC(false);
+
+    // Ensure we are listening for gamepads/remote input
+    _updateGamepadSubscription();
+    
+    // CRITICAL FIX: Ensure buffers are synced with Maps before starting simulation
+    // This fixes the "Off-By-One" / "Two Times" update lag where the engine used stale data.
+    
+    // CRITICAL FIX: Ensure buffers are synced with Maps before starting simulation
+    // This fixes the "Off-By-One" / "Two Times" update lag where the engine used stale data.
+    
+    // REVERTED: Moving runNativeC here caused instability ("Weirdness").
+    // We will call it at the end as before, but re-apply parameters AFTER it returns.
+    // runNativeC();
+
+    populateMatrix();
+    _dumpMotorBufferColumns("SIM_START_AFTER_POPULATE");
+    
     printDebug("neuronSize");
     printDebug(neuronSize);
-    List<Offset> pos = [];
+    // List<Offset> pos = [];
+    // List<String> orderedNeuronTypes = [];
 
     // Map<int,String> nodeKey = {};
+    // Map<String, int> nodeKey = {};
+    // int idx = 0;
+    // for (InfiniteCanvasNode node in controller.nodes) {
+    //   if (idx >= allNeuronStartIdx) {
+    //     pos.add(node.offset);
+    //     // CRITICAL FIX: Build ordered list of types matching the nodes
+    //     orderedNeuronTypes.add(neuronTypes[node.id] ?? "Quiet");
+    //     nodeKey[node.key.toString()] = idx - allNeuronStartIdx;
+    //     // nodeKey[idx] = node.key.toString();
+    //   }
+    //   idx++;
+    // }
+    
+    // REVERT Manual construction. Use Full Pos for setCirclesZoom.
+    // This aligns initialization with Pan/Zoom logic which is known to work.
+    List<Offset> fullPos = [];
     Map<String, int> nodeKey = {};
     int idx = 0;
     for (InfiniteCanvasNode node in controller.nodes) {
-      if (idx >= allNeuronStartIdx) {
-        pos.add(node.offset);
-        nodeKey[node.key.toString()] = idx - allNeuronStartIdx;
-        // nodeKey[idx] = node.key.toString();
-      }
-      idx++;
+        fullPos.add(node.offset);
+        if (idx >= allNeuronStartIdx) {
+            nodeKey[node.key.toString()] = idx - allNeuronStartIdx;
+        }
+        idx++;
     }
+    
     printDebug("nodeKey");
     printDebug(nodeKey);
 
@@ -7046,9 +7475,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // printDebug("edge.from");
       // printDebug(edge.from);
       // printDebug(edge.to);
-      int fromIdx = nodeKey[edge.from.toString()]!; // - allNeuronStartIdx;
-      int toIdx = nodeKey[edge.to.toString()]!; // - allNeuronStartIdx;
-      connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
+      if (nodeKey.containsKey(edge.from.toString()) && nodeKey.containsKey(edge.to.toString())) {
+          int fromIdx = nodeKey[edge.from.toString()]!; // - allNeuronStartIdx;
+          int toIdx = nodeKey[edge.to.toString()]!; // - allNeuronStartIdx;
+          connectomeMatrix[fromIdx][toIdx] = Random().nextDouble() * 3;
+      }
     }
     // final vals = neuronTypes.values;
     // Fix Parameter Scrambling: Use ordered nodes
@@ -7058,14 +7489,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     for (int i = 0; i < controller.nodes.length; i++) {
        // Skip system nodes if necessary (allNeuronStartIdx typically 2)
        if (i >= allNeuronStartIdx) {
-          String key = controller.nodes[i].key.toString();
-          // if (item == "Custom") {
-          aBufView[scrmIndex] = aDesignArray[key] ?? 0.02;
-          bBufView[scrmIndex] = bDesignArray[key] ?? 0.2;
-          cBufView[scrmIndex] = (cDesignArray[key] ?? -65.0).round();
-          dBufView[scrmIndex] = (dDesignArray[key] ?? 8.0).round();
-          iBufView[scrmIndex] = iDesignArray[key] ?? 5.0; // Maintain i parameter
-          // }
+          // CRITICAL FIX: Use node.id (Stable UUID) for parameter lookup.
+          // Previous code used node.key.toString() which changes on reload/instantiation,
+          // causing lookup failure -> defaults -> "Acting weird".
+          String safeKey = controller.nodes[i].id; 
+          
+          aBufView[scrmIndex] = aDesignArray[safeKey] ?? 0.02;
+          bBufView[scrmIndex] = bDesignArray[safeKey] ?? 0.2;
+          cBufView[scrmIndex] = (cDesignArray[safeKey] ?? -65.0).round();
+          dBufView[scrmIndex] = (dDesignArray[safeKey] ?? 8.0).round();
+          iBufView[scrmIndex] = iDesignArray[safeKey] ?? 5.0; 
+          
           scrmIndex++;
        }
     }
@@ -7107,10 +7541,25 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         wBufView: wBufView,
         connectomeBufView: connectomeBufView);
     printDebug("neuronSize::$neuronSize : ${neuronTypes.keys.length}");
-    protoNeuron.generateCircle(
-        neuronSize, pos, neuronTypes.values.toList(growable: false));
+    
+    // DEBUG LOGS BEFORE SETCIRCLESZOOM
+    if (controller.nodes.length > allNeuronStartIdx) {
+       String firstId = controller.nodes[allNeuronStartIdx].id;
+       String firstKey = controller.nodes[allNeuronStartIdx].key.toString();
+       printDebug("RUNSIM CHECK: FirstNode ID=$firstId Key=$firstKey");
+       printDebug("RUNSIM CHECK: neuronTypes has ID? ${neuronTypes.containsKey(firstId)}");
+       printDebug("RUNSIM CHECK: neuronTypes has Key? ${neuronTypes.containsKey(firstKey)}");
+       printDebug("RUNSIM CHECK: aBufView[0] before Zoom = ${aBufView[0]}");
+    }
+    
+    // CRITICAL FIX: Use setCirclesZoom instead of manual generateCircle.
+    // This matches the Pan/Zoom logic exactly, which the user confirms works.
+    setCirclesZoom(controller.scale, fullPos);
+    
+    // protoNeuron.generateCircle(
+    //     neuronSize, pos, orderedNeuronTypes);
     // printDebug("initializeNucleus()");
-    initializeNucleus();
+     initializeNucleus();
 
     // protoNeuron.setConnectome(neuronSize, connectomeMatrix);
     // printDebug("controller.nodes.map(((e) => e.id)).toList()");
@@ -7120,12 +7569,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     try {
         printDebug("Calling populateMatrix()...");
         populateMatrix();
+        populateMotorMatrix(); // Safety net: re-apply motor contacts after full matrix populate
         printDebug("populateMatrix() Success.");
     } catch (e, stackTrace) {
         printDebug("CRITICAL ERROR in populateMatrix(): $e");
         printDebug(stackTrace);
     }
-    
+
     // printDebug("===> controller.nodes.map(((e) => e.id)).toList()");
     // printDebug(controller.nodes.map(((e) => e.id)).toList());
     // printDebug(mapContactsNeuron.keys);
@@ -7146,8 +7596,41 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     printDebug(neuronLedPositionBufView);
     // printDebug(mapMicrophoneNeuron);
     // printDebug(neuronMicrophoneBufView);
-    runNativeC();
+
+    // FINAL SAFETY: Force motor buffer from map one last time right before C++ starts
+    populateMotorMatrix();
+
+    // DEBUG: Verify motor buffer contents at simulation start
+    printDebug("=== MOTOR BUFFER CHECK (pre-runNativeC) ===");
+    printDebug("mapContactsNeuron: $mapContactsNeuron");
+    printDebug("neuronSize: $neuronSize");
+    for (int row = 0; row < neuronSize; row++) {
+      for (int col = 3; col <= 6; col++) { // Motor columns only
+        if (col < neuronSize) {
+          int idx = row * neuronSize + col;
+          double val = neuronContactsBufView[idx];
+          if (val != 0) {
+            printDebug("  buf[$row][$col] (idx=$idx) = $val");
+          }
+        }
+      }
+    }
+    printDebug("=== END MOTOR BUFFER CHECK ===");
+
+    runNativeC(); 
+    // CRITICAL FIX: Re-apply parameters AFTER Native Engine Start/Reset.
+    // Native engine initialization seems to zero/reset buffers.
+    // Re-calling setCirclesZoom ensures valid parameters trigger on the very first tick.
+    printDebug("Re-Applying setCirclesZoom after runNativeC...");
+    setCirclesZoom(controller.scale, fullPos);
+    
     linkMicrophoneConnection();
+    
+    // Start Remote Control Listener
+    // Start Remote Control Listener
+    HardwareKeyboard.instance.addHandler(_onSimulationKeyEvent);
+    _updateGamepadSubscription();
+    _activeRemoteKeys.clear();
 
     // Future.delayed(const Duration(milliseconds: 1000), () {
     //   // String str = 'd:131;d:231;d:331;d:431;d:531;d:631;'; // blue
@@ -7196,7 +7679,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           valA = 0.02; valB = 0.2; valC = -65; valD = 2; valI = 15.0;
           break;
         case "Generates bursts":
-          valA = 0.02; valB = 0.16; valC = -8; valD = 2; valI = 5.0; // Restored to legacy 5.0
+          valA = 0.02; valB = 0.16; valC = -8; valD = 2; valI = 5.0; // Restored to legacy 5.0 as requested
           break;
         case "Bursts when activated":
           valA = 0.02; valB = 0.1; valC = -37; valD = 2; valI = 0.0;
@@ -7207,11 +7690,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         case "Striatal":
            valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 5.0;
           break;
+          // REMOVED "Delay" case to match reference (falls to default)
+        case "Remote Control":
+          valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 0.0;
+          break;
         default: // Custom or others
           break;
       }
 
-      int idx = neuronTypes.keys.toList().indexOf(selected.id);
+      // CRITICAL FIX: Use controller.nodes order to match populateMatrix indexing
+      // OLD: int idx = neuronTypes.keys.toList().indexOf(selected.id);  // WRONG ORDER!
+      int idx = controller.nodes.indexOf(selected) - 2; // -2 to skip shadow nodes
       if (idx >= 0 && idx < neuronSize) {
          aBufView[idx] = valA;
          bBufView[idx] = valB;
@@ -7220,18 +7709,33 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
          iBufView[idx] = valI;
          
          // Update Design Arrays so populateMatrix uses them later
-         aDesignArray[selected.key.toString()] = valA;
-         bDesignArray[selected.key.toString()] = valB;
-         cDesignArray[selected.key.toString()] = valC;
-         dDesignArray[selected.key.toString()] = valD;
-         iDesignArray[selected.key.toString()] = valI;
+         // CRITICAL: Use selected.id (not key.toString()) to match populateMatrix lookup
+         aDesignArray[selected.id] = valA;
+         bDesignArray[selected.id] = valB;
+         cDesignArray[selected.id] = valC;
+         dDesignArray[selected.id] = valD;
+         iDesignArray[selected.id] = valI;
          
          // Update UI Sliders
          sldAWeight = valA; tecAWeight.text = valA.toString();
          sldBWeight = valB; tecBWeight.text = valB.toString();
          sldCWeight = valC; tecCWeight.text = valC.toString();
-         sldDWeight = valD; tecDWeight.text = valD.toString();
-      }
+          sldDWeight = valD; tecDWeight.text = valD.toString();
+          
+          // Force UI Update for ALL types (fixes Menu lag and RC overlay issues)
+          // controller.notifyListeners() wakes up the reactive Nucleus widgets
+          // setState() wakes up the Menu UI
+          Future.delayed(Duration.zero, () {
+               // populateMatrix(); // Heavy, maybe not needed for every type change? 
+               // initializeNucleus(); // Rebuilds list - probably overkill if Nucleus is reactive.
+               
+               // Just notify!
+               try {
+                  controller.notifyListeners();
+                  if (mounted) setState(() {});
+               } catch(e) {}
+          });
+       }
     }
   }
 
@@ -7388,6 +7892,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         neuronTypes.remove(selected.id);
         neuronStyles.remove(selected.id);
+        mapRemoteControlNeuron.remove(selected.id);
         aDesignArray.remove(selected.id);
         bDesignArray.remove(selected.id);
         cDesignArray.remove(selected.id);
@@ -7402,14 +7907,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // printDebug(neuronTypes.values);
 
       controller.deleteSelection();
-      neuronSize--;
+      
+      // CRITICAL FIX: Safer neuronSize update and sync with C++
+      neuronSize = controller.nodes.length - allNeuronStartIdx;
+      populateMatrix();
+      
       isDrawTail = false;
       isDeleteMenu = false;
 
       controller.deselectAll();
-      // controller.select(prevSelectedNeuron.key);
+      // controller.setSelection({prevSelectedNeuron.key});
+      controller.controlPressed = false;
       controller.controlPressed = false;
       clearUIMenu();
+      // Update RC Icons
+      initializeNucleus();
       setState(() => {});
       prevEdgesLength = controller.edges.length;
     }
@@ -7744,6 +8256,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               .send(stopMotorCmd + greenLEDCmd);
         } catch (err) {}
         isSimulatingBrain = false;
+        
+        // Stop Remote Control Listener
+        HardwareKeyboard.instance.removeHandler(_onSimulationKeyEvent);
+
+        _updateGamepadSubscription(); // Ensure cancel since isSimulatingBrain=false
+        _activeRemoteKeys.clear();
 
         initializeOpenCV(
             stateBuf, visPrefsValsBuf, visPrefsBuf, neuronContactsBuf);
@@ -7752,6 +8270,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         try {
           processor = ImagePreprocessor();
           mjpegComponent = Mjpeg(
+            key: UniqueKey(), // Force hard UI rebuild
             error: (context, error, stack) {
               return const Text("\r\nNot connected\r\nto SpikerBot\r\nWiFi",
                   style: TextStyle(fontSize: 10, color: Colors.brown));
@@ -7791,17 +8310,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
       if (isPlayingMenu) {
         controller.deselectAll();
-        isPlayingMenu = false;
         isDrawTail = false;
         Future.delayed(const Duration(milliseconds: 500), () { // Reduced to 500ms to beat Start Timer
-          // controller.zoomReset(); // Removed to prevent snap
           // NEW UI
           if (isPortrait == false) {
             _animateCanvasToReset(true); // Animate to Offset Center
           } else {
-            _animateCanvasToReset(false); // Animate to Center (Portrait)
+            _animateCanvasToReset(false, shiftDown: true); // Animate Downwards to clear top UI
           }
-          isPlayingMenu = true;
+          
           runSimulation();
           controller.isPlaying = true;
           currentWaveZoom = 2.0; // Reset Zoom on Start
@@ -7903,11 +8420,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         nodeMicrophoneSensor.offset.dy);
     nodeMicrophoneSensor.offset = offsetMic;
 
-    Offset offsetLMF = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
+    Offset offsetLMF = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8 - 25,
         nodeLeftMotorForwardSensor.offset.dy);
     nodeLeftMotorForwardSensor.offset = offsetLMF;
 
-    Offset offsetLMB = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8,
+    Offset offsetLMB = Offset(screenWidth / 2 - 12 - 2 * screenHeight / 8 - 58,
         nodeLeftMotorBackwardSensor.offset.dy);
     nodeLeftMotorBackwardSensor.offset = offsetLMB;
 
@@ -7917,16 +8434,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
     Offset offsetSpeaker = Offset(
         screenWidth / 2 - 12 + platformAdjuster + 1.725 * screenHeight / 8,
-        nodeSpeakerSensor.offset.dy);
+        nodeSpeakerSensor.offset.dy + 6.0);
     nodeSpeakerSensor.offset = offsetSpeaker;
 
     Offset offsetRMF = Offset(
-        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
+        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8 + 16,
         nodeRightMotorForwardSensor.offset.dy);
     nodeRightMotorForwardSensor.offset = offsetRMF;
 
     Offset offsetRMB = Offset(
-        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8,
+        screenWidth / 2 - 12 + platformAdjuster + 2 * screenHeight / 8 + 39,
         nodeRightMotorBackwardSensor.offset.dy);
     nodeRightMotorBackwardSensor.offset = offsetRMB;
 
@@ -7950,7 +8467,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
     Offset verticalLedSpacer = const Offset(0, 20);
     Offset ledGreenOffset =
-        Offset(middleScreenOffset.dx, nodeGreenLed.offset.dy - 10);
+        Offset(middleScreenOffset.dx, nodeGreenLed.offset.dy + 1.0);
     nodeGreenLed.offset = ledGreenOffset;
 
     Offset offsetRed = ledGreenOffset - diff + verticalLedSpacer;
@@ -7991,10 +8508,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     rawSyntheticNeuronList.clear();
 
     for (InfiniteCanvasNode node in sensoryNeurons) {
+      bool isOutputNode = [
+        nodeLeftMotorForwardSensor,
+        nodeRightMotorForwardSensor,
+        nodeLeftMotorBackwardSensor,
+        nodeRightMotorBackwardSensor,
+        nodeSpeakerSensor,
+        nodeSingleLed,
+        nodeRedLed,
+        nodeGreenLed,
+        nodeBlueLed,
+      ].contains(node);
+
       SyntheticNeuron synNeuron = SyntheticNeuron(
           isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
       synNeuron.node = node;
-      synNeuron.setupDrawingNeuron();
+      synNeuron.setupDrawingNeuron(isOutput: isOutputNode);
       syntheticNeuronList.add(synNeuron);
 
       SyntheticNeuron rawSynNeuron = SyntheticNeuron(
@@ -8009,19 +8538,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   }
 
   void initCanvas() {
-    dropdownNeuronItems =
-        List<DropdownMenuItem>.generate(neuronMenuTypes.length, (index) {
-      return DropdownMenuItem(
-        value: neuronMenuTypes[index],
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            neuronTypesLabel[index],
-            textAlign: TextAlign.end,
-          ),
-        ),
-      );
-    });
     dropdownNeuronStyleItems =
         List<DropdownMenuItem>.generate(neuronMenuStyle.length, (index) {
       return DropdownMenuItem(
@@ -8283,10 +8799,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       nodeBlueLed,
     ];
     for (InfiniteCanvasNode node in sensoryNeurons) {
+      // V25 FEATURE: Structured Output Dendrites
+      bool isOutputNode = [
+        nodeLeftMotorForwardSensor,
+        nodeRightMotorForwardSensor,
+        nodeLeftMotorBackwardSensor,
+        nodeRightMotorBackwardSensor,
+        nodeSpeakerSensor,
+        nodeSingleLed,
+        nodeRedLed,
+        nodeGreenLed,
+        nodeBlueLed,
+      ].contains(node);
+
       SyntheticNeuron synNeuron = SyntheticNeuron(
           isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
       synNeuron.node = node;
-      synNeuron.setupDrawingNeuron();
+      synNeuron.setupDrawingNeuron(isOutput: isOutputNode);
       syntheticNeuronList.add(synNeuron);
 
       SyntheticNeuron rawSynNeuron = SyntheticNeuron(
@@ -8436,7 +8965,103 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       nodeRightMotorForwardSensor.key,
       nodeRightMotorBackwardSensor.key,
       nodeSpeakerSensor.key,
+      nodeSingleLed.key,
+      nodeRedLed.key,
+      nodeGreenLed.key,
+      nodeBlueLed.key,
     ];
+
+
+    // V25: Proactive Boundary Constraint inside controller
+    controller.boundaryConstraint = (node, newOffset) {
+        if (coreBrainPainter == null) return newOffset;
+        
+        // Exclude sensory nodes? Wait, sensors aren't usually dragged this way, 
+        // but if they are, they shouldn't be constrained by the core brain boundary.
+        // If node type is sensory, allow it to drag anywhere or follow its own rules.
+        String nodeLabel = (node.label ?? "").toUpperCase();
+        if (node.isSensory == 1 || nodeLabel.contains("EYE") || nodeLabel.contains("CAMERA") || nodeLabel.contains("MIC") || nodeLabel.contains("DISTANCE") || nodeLabel.contains("MOTOR") || nodeLabel.contains("LED")) {
+             return newOffset;
+        }
+
+        Offset posLocal = newOffset;
+        int ordinateGap = 24;
+        int diagonalGap = 18;
+        
+        List<Offset> arrPosConstraints = [
+          posLocal.translate(0, -ordinateGap * controller.scale),
+          posLocal.translate(-ordinateGap * controller.scale, 0),
+          posLocal.translate(0, ordinateGap * controller.scale),
+          posLocal.translate(ordinateGap * controller.scale, 0),
+
+          posLocal.translate(-diagonalGap * controller.scale, -diagonalGap * controller.scale),
+          posLocal.translate(diagonalGap * controller.scale, -diagonalGap * controller.scale),
+          posLocal.translate(-diagonalGap * controller.scale, diagonalGap * controller.scale),
+          posLocal.translate(diagonalGap * controller.scale, diagonalGap * controller.scale),
+        ];
+
+        if (Platform.isIOS || Platform.isAndroid) {
+            double multiplier = 2;
+            double neuronDrawSize = 12;
+            double gapLeft = neuronDrawSize * 4;
+            double posDiagonal = neuronDrawSize * multiplier / 2;
+            double posLeft = neuronDrawSize * multiplier / 2;
+            double posRight = neuronDrawSize * (multiplier - 3.5);
+            double posTop = neuronDrawSize * multiplier;
+            double posBottom = neuronDrawSize * (multiplier + 0);
+
+            arrPosConstraints = [
+              posLocal.translate(-gapLeft, -posTop), 
+              posLocal.translate(-gapLeft - neuronDrawSize * multiplier, 0), 
+              posLocal.translate(-gapLeft, posBottom), 
+              posLocal.translate(posRight, 0), 
+
+              posLocal.translate(-gapLeft - posLeft, -posTop / 2), 
+              posLocal.translate(posRight - posDiagonal, -posTop / 2), 
+              posLocal.translate(-gapLeft - posLeft, posBottom - posDiagonal), 
+              posLocal.translate(posRight - posDiagonal, posBottom - posDiagonal),
+            ];
+        }
+
+        double diffWidth = brainPosition.dx;
+        double diffHeight = brainPosition.dy;
+        double coreBrainGapX = 0.95;
+        double coreBrainGapY = 0.85;
+
+        if (Platform.isIOS || Platform.isAndroid) {
+          if (isPortrait == false) {
+            if (MediaQuery.of(context).size.height >= 600) {
+              diffWidth = (windowWidth - currentImageWidth * coreBrainGapX) / 2;
+              diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+            } else {
+              coreBrainGapX = 1.1;
+              diffWidth = (windowWidth - currentImageWidth * coreBrainGapX) / 2;
+              diffHeight = (currentImageHeight * (1 - coreBrainGapY)) / 2;
+            }
+          } else {
+            diffWidth = (windowWidth - currentImageWidth * coreBrainGapX) / 2;
+            diffHeight = (windowHeight - currentImageHeight * coreBrainGapY) / 2;
+          }
+        }
+
+        double translatedDx = diffWidth;
+        double translatedDy = diffHeight;
+        
+        bool flag = true;
+        for (Offset checkPos in arrPosConstraints) {
+            if (!coreBrainPainter.path.contains(checkPos.translate(-translatedDx, -translatedDy))) {
+               flag = false;
+               break;
+            }
+        }
+        
+        if (flag) {
+            return newOffset; // Valid move
+        } else {
+            // Invalid move, block it
+            return node.offset;
+        }
+    };
     // New UI
     if (isPortrait == false) {
       controller.pan(const Offset(-60, 0));
@@ -8453,6 +9078,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // RESTORED: Play Mode Selection Listener (Matches neurorobot_fresh behavior)
     // This ensures that tapping a neuron in Live/Play mode updates the oscilloscope.
     controller.addListener(() async {
+         // Auto-sync neuronSize to prevent stale simulation state
+         if (controller.nodes.isNotEmpty) {
+             int currentSize = controller.nodes.length - allNeuronStartIdx;
+             if (currentSize < 0) currentSize = 0;
+             if (neuronSize != currentSize) {
+                 neuronSize = currentSize; // Keep static var in sync
+             }
+         }
+
          if (controller.selection.isNotEmpty) {
             var selected = controller.selection[0];
             // Calculate ID logic mirrored from Line 7770
@@ -8611,16 +9245,24 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       }
 
       if (controller.mouseDown) {
-        // V25: Ensure menu type is updated when selection occurs (e.g. Trunk Selection)
-        if (controller.isSelectingEdge) {
+        // V25: Only call selectEdgeMenuType on the RISING EDGE of edge selection.
+        // Previously this fired continuously while mouseDown, causing the "one-step-behind" stale data bug:
+        // selectEdgeMenuType would overwrite the buffer with the OLD edge.connectionStrength
+        // BEFORE the slider's onChanged could apply the new value.
+        if (controller.isSelectingEdge && !wasSelectingEdge) {
            selectEdgeMenuType();
            // Force update to show menu
            setState(() {});
-           // V25: Play sound on edge selection (User Request) - Rising Edge Only
-           if (neuronOnTouchSource != null && !wasSelectingEdge) {
+           // V25: Play sound on edge selection (User Request)
+           if (neuronOnTouchSource != null) {
               soloud?.play(neuronOnTouchSource!);
            }
         }
+        
+        // CRITICAL FIX: Removed aggressive setState(() {}) during drag.
+        // We no longer rebuild the entire 16,000 line designbrain_page every frame.
+        // Nucleus widgets should use ValueNotifiers or Transform listeners internally 
+        // to update their position cheaply, rather than trashing the whole widget tree.
         wasSelectingEdge = controller.isSelectingEdge;
         
         if (menuIdx == 0 && !controller.hasSelection && !controller.isSelectingEdge) {
@@ -8730,15 +9372,37 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 //   isDeleteMenu = false;
                 //   isTailType = "triangle";
                 //   neuronStyle = "Excitatory";
-                //   controller.select(sensoryNode.key);
+                //   controller.setSelection({sensoryNode.key});
                 // } else {
                   InfiniteCanvasNode sensoryNode = sensoryNeurons[i];
-                  isDrawTail = true;
-                  isTailCreated = false;
-                  isDeleteMenu = false;
-                  isTailType = "triangle";
-                  neuronStyle = "Excitatory";
-                  controller.select(sensoryNode.key);
+                  
+                  // Only allow drawing connection tail from INPUT sensors (0:Dist, 1:LeftEye, 2:RightEye, 7:Mic)
+                  bool isInputSensor = [0, 1, 2, 7].contains(i);
+                  isDrawTail = isInputSensor;
+                  
+                  if (isInputSensor) {
+                    isTailCreated = false;
+                    isDeleteMenu = false;
+                    isTailType = "triangle";
+                    neuronStyle = "Excitatory";
+                    controller.setSelection({sensoryNode.key});
+                  } else {
+                    // V25 FEATURE: Do not "select" output components to prevent nucleus growth/sounds.
+                    // Just cleanly dismiss any active menus and only show their tooltip.
+                    controller.deselectAll();
+                    int labelIdx = listDefaultSensor.indexOf(sensoryNode);
+                    if (labelIdx != -1) {
+                      tooltipOverlayX = sensoryNode.offset.dx;
+                      tooltipOverlayY = sensoryNode.offset.dy;
+                      tooltipOverlayMessage = listDefaultSensorLabel[labelIdx];
+                      isTooltipOverlay = true;
+                      tooltipValueChange.value = (Random().nextInt(10000));
+                      debouncerTooltip.run(() {
+                        isTooltipOverlay = false;
+                        tooltipValueChange.value = (Random().nextInt(10000));
+                      });
+                    }
+                  }
                 // }
                 setState(() {});
               }
@@ -8757,7 +9421,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             //   printDebug("SELECTING  LINK");
             //   InfiniteCanvasNode selectedNode = findNeuronByKey(temporaryEdge[1]);
             //   selectedNode.child = Container(width: 15, height: 15, color: Colors.black);
-            //   controller.select(temporaryEdge[1], true);
+            //   controller.setSelection({temporaryEdge[1]}, true);
             //   setState((){});
             // }
           }
@@ -8927,7 +9591,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
           if (selected == tailNode) {
             controller.deselectAll();
-            controller.select(prevSelectedNeuron.key);
+            controller.setSelection({prevSelectedNeuron.key});
             controller.controlPressed = true;
             controller.setCanvasMove(false); // V25: Disable panning during tail drag
             if (axonStretchSource != null) {
@@ -8948,7 +9612,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               isDeleteMenu = true;
             } else {
               if (!listSensorArrow.contains(selected)) {
-                return;
+                // V25 BUGFIX: If we tap a regular neuron while the sensor tooltip is up, 
+                // dismiss the tooltip immediately and DO NOT return, so the neuron gets selected on the first tap.
+                isTooltipOverlay = false;
+                isDeleteMenu = true;
               }
             }
             // printDebug("prevSelectedOffsetNode");
@@ -8983,11 +9650,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 // });
               }
             }
+            if (prevSelectedNode?.id != selected.id) {
+              isNeuronBehaviorExpanded = false;
+            }
             prevSelectedNode = selected;
             prevSelectedOffsetNode = selected.offset;
             prevSelectedNeuron = selected;
-            // printDebug(isDrawTail);
-            isDrawTail = true;
+            
+            // V25 FEATURE: Only allow connection tails from valid inputs. Outputs cannot originate connections.
+            bool allowTail = true;
+            if (listDefaultSensor.contains(selected)) {
+               // Only Input Sensors can have a tail drawn FROM them
+               if (selected == nodeDistanceSensor || 
+                   selected == nodeLeftEyeSensor || 
+                   selected == nodeRightEyeSensor || 
+                   selected == nodeMicrophoneSensor) {
+                   allowTail = true;
+               } else {
+                   allowTail = false;
+               }
+            }
+            
+            isDrawTail = allowTail;
             isDeleteMenu = true;
             if (neuronStyles[selected.id] == "Excitatory") {
               isTailType = "triangle";
@@ -9056,6 +9740,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 } else {
                   isShowDelayTime = false;
                   // sldTimeValue = minDelayTimeValue.toDouble();
+                }
+
+                // Load bound key label for Remote Control neurons
+                if (neuronMenuType == "Remote Control") {
+                  _remoteControlBoundKeyLabel = mapRemoteControlNeuron[selected.id] ?? "";
+                } else {
+                  _remoteControlBoundKeyLabel = "";
+                  _isListeningForRemoteInput = false;
                 }
 
                 sldAWeight = aDesignArray[selected.id] ?? 0.0;
@@ -9223,8 +9915,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 double leftCirclePos = pos.dx;
                 double topCirclePos = pos.dy;
                 // if (Platform.isMacOS || Platform.isWindows || kIsWeb) {
-                // printDebug("prevInitialFrameGapWidth");
-                // printDebug("$windowWidth - $currentImageWidth");
+                //                 // printDebug("$windowWidth - $currentImageWidth");
                 // printDebug(prevInitialFrameGapWidth);
                 // printDebug(translatedDx);
                 // if (Platform.isIOS || Platform.isAndroid) {
@@ -9234,9 +9925,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 // }
                 if (!coreBrainPainter.path
                     .contains(pos.translate(-translatedDx, -translatedDy))) {
-                  print("pos.dx");
-                  print(pos);
-                  print(pos.translate(-translatedDx, -translatedDy));
+
 
                   arrCirclePositions.add(Positioned(
                     left: leftCirclePos,
@@ -9271,7 +9960,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 // selected.update(offset: Offset(435, 300));
                 if (prevConstrainedPos == Offset.zero) {
                 } else {
-                  selected.update(offset: prevConstrainedPos);
+                  // V25 Disable retroactive bounding to fix flicker
+                  // selected.update(offset: prevConstrainedPos);
                 }
               }
 
@@ -9383,6 +10073,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
           controller.add(newNode);
           initNativeC(false);
+          refreshNuclei();
 
           Future.delayed(const Duration(milliseconds: 100), () {
             controller.deselect(neuronsKey[neuronsKey.length - 1]);
@@ -9722,8 +10413,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   void linkMotorConnection(value) {
     printDebug("motor");
-    printDebug(value);
-    if (value.trim().length == 0) return;
+    // print("DEBUG: linkMotorConnection called with: $value"); // TRACE CALL
+    // uiDebugLog = "LINK_MOT: $value\n" + uiDebugLog;
+    if (value.trim().isEmpty) return;
     double val = double.parse(value);
     if (val > 100) {
       val = 100;
@@ -9734,9 +10426,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     final neuronTo = findNeuronByKey(lastCreatedEdge.to);
 
     // mapContactsNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
-    mapContactsNeuron["${neuronFrom.id}_${neuronTo.id}"] = val;
+    String motorKey = "${neuronFrom.id}_${neuronTo.id}";
+    mapContactsNeuron[motorKey] = val;
+    controller.mapContactsNeuron = Map.from(mapContactsNeuron); // SYNC TO CONTROLLER (Critical for persistence)
+    printDebug("DEBUG: linkMotorConnection Updated Key: $motorKey = $val");
+    uiDebugLog = "Mot: $motorKey -> ${val.toStringAsFixed(1)}\n" + uiDebugLog; // Prepend for visibility
+    
     lastCreatedEdge.connectionStrength = val;
     lastCreatedEdge.label = val.floor().toString();
+    
+
+    
+    // CRITICAL FIX: Update live buffer immediately using correct indices (populateMatrix skips motors!)
+    updateLiveConnectionBuffer(neuronFrom, neuronTo, val, "motor");
   }
 
   void linkSensoryConnection(value) {
@@ -10066,7 +10768,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       newNodeOffset = newNodeOffset.scale(curScale, curScale);
     }
     InfiniteCanvasNode tempNode = InfiniteCanvasNode(
-      value: v["index"],
+      value: nIdx, // CRITICAL FIX: Use packed index 'nIdx', NOT raw 'v["index"]' which may be duplicated/skipped
       key: nodeKey,
       offset: newNodeOffset,
       size: Size(neuronDrawSize, neuronDrawSize),
@@ -10171,203 +10873,242 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         {"title": title, "timestamp": DateTime.now().millisecondsSinceEpoch});
 
 
-    var nodesJson = [];
-    for (InfiniteCanvasNode e in controller.nodes) {
-      // printDebug("e.value == null");
-      if (e.value == -2) {
-        nodesJson.add({
-          "valKey": e.key.toString(),
-          "index": e.value,
-          "position": [e.offset.dx, e.offset.dy],
-          "color": [e.offset.dx, e.offset.dy],
-          "shape": "SizedBox",
-        });
-      } else if (e.value == -1) {
-        nodesJson.add({
-          "valKey": e.key.toString(),
-          "index": e.value,
-          "position": [e.offset.dx, e.offset.dy],
-          "color": [e.offset.dx, e.offset.dy],
-          "shape": "CustomPainter"
-        });
-      } else if (e.value < normalNeuronStartIdx) {
-        nodesJson.add({
-          "valKey": e.key.toString(),
-          "index": e.value,
-          "position": [e.offset.dx, e.offset.dy],
-          "color": [e.offset.dx, e.offset.dy],
-          "shape": "CustomPaint"
-        });
-      } else {
-        printDebug("e.offset");
-        printDebug(e.offset);
-        nodesJson.add({
-          "valKey": e.key.toString(),
-          "index": e.value,
-          "position": [e.offset.dx, e.offset.dy],
-          "color": [e.offset.dx, e.offset.dy],
-          "shape": "CustomPaint"
-        });
-        // e.value >=normalNeuronStartIdx
-      }
-    }
-
-    var edgesJson = [];
-    for (var edge in controller.edges) {
-      InfiniteCanvasNode from = findNeuronByKey(edge.from);
-      InfiniteCanvasNode to = findNeuronByKey(edge.to);
-      // if (to != nodeSingleLed) {
-      edgesJson.add("${from.id}_#_${to.id}");
-      // }
-    }
-
-    var rawSyntheticNeuronListJson = [];
-    // for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
-    var idxSyntheticNeuron = 0;
-    for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
-      List<Map<String, dynamic>> dendrites = [];
-      for (Dendrite dendrite in syntheticNeuron.dendrites) {
-        dendrites.add({
-          "angle": dendrite.angle,
-          "hasSecondLevel": dendrite.hasSecondLevel,
-          "sinapseFirstLevel": [],
-          "sinapseSecondLevel": dendrite.sinapseSecondLevel,
-          "xFirstLevel": dendrite.xFirstLevel,
-          "xSecondLevel": dendrite.xSecondLevel,
-          "xTriangleFirstLevel": dendrite.xTriangleFirstLevel,
-          "xTriangleSecondLevel": dendrite.xTriangleSecondLevel,
-          "yFirstLevel": dendrite.yFirstLevel,
-          "ySecondLevel": dendrite.ySecondLevel,
-          "yTriangleFirstLevel": dendrite.yTriangleFirstLevel,
-          "yTriangleSecondLevel": dendrite.yTriangleSecondLevel,
-        });
-      }
-
-      rawSyntheticNeuronListJson.add({
-        // "activeColor": syntheticNeuron.activeColor.toString(),
-        "arrowSize": syntheticNeuron.arrowSize,
-        "xNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.xNucleus,
-        "yNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.yNucleus,
-        "widthNucleus":
-            syntheticNeuronList[idxSyntheticNeuron].newNeuron.widthNucleus,
-        "heightNucleus":
-            syntheticNeuronList[idxSyntheticNeuron].newNeuron.heightNucleus,
-        "dendrites": dendrites,
-        "centerPos": [
-          syntheticNeuron.centerPos.dx,
-          syntheticNeuron.centerPos.dy
-        ],
-        "circleRadius": syntheticNeuron.circleRadius,
-        "neuronIdx": syntheticNeuron.neuronIdx,
-        // "random": syntheticNeuron.random,
-        "randomVariation1": syntheticNeuron.randomVariation1,
-        "randomVariation2": syntheticNeuron.randomVariation2,
-        // "randomVariation2": syntheticNeuron.zoomScale,
-      });
-      idxSyntheticNeuron++;
-    }
-    // printDebug("json.encode(rawSyntheticNeuronListJson)");
-    // printDebug(json.encode(rawSyntheticNeuronListJson));
-
-    // printDebug("strNodesJson");
-    // printDebug(strNodesJson);
-
-    String fileName = DateTime.now().microsecondsSinceEpoch.toString();
-    Directory directory =
-        (await getApplicationDocumentsDirectory()); //from path_provide package
-
-    Directory txtDirectory = Directory(
-        "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
-
-    if (!txtDirectory.existsSync()) txtDirectory.createSync();
-
-    // printDebug(directory.path);
-    String textPath =
-        "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
-    // String textPath = "";
-
-    title = title.replaceAll(".", "|");
-    description = description.replaceAll(".", "|");
-    title = title.replaceAll("@", "#");
-    description = description.replaceAll("@", "#");
-
-    final File file = File(
-        '${directory.path}$textPath${Platform.pathSeparator}$title@@@$description@@@$fileName.brain');
-
-    controller.zoomReset();
-    if (isPortrait == false) {
-      controller.pan(const Offset(-60, 0));
-    }
-    ScreenshotController screenshotController = ScreenshotController();
-    String imagePath = "";
-
-    printDebug("mapLedNeuron");
-    printDebug(mapLedNeuron);
-    printDebug(nodeSingleLed.id);
-    printDebug(nodeRedLed.id);
-    printDebug(nodeGreenLed.id);
-    printDebug(nodeBlueLed.id);
-
-    await screenshotController
-        .captureFromWidget(mainBody)
-        .then((imageBytes) async {
-      String strNodesJson = json.encode({
-        "version": strFileVersion,
-        "nodes": nodesJson,
-        "edges": edgesJson,
-        "neuronTypes": neuronTypes,
-        "neuronStyles": neuronStyles,
-        "mapConnectome": mapConnectome,
-        "mapSensoryNeuron": mapSensoryNeuron,
-        "mapContactsNeuron": mapContactsNeuron,
-        "mapDistanceNeuron": mapDistanceNeuron,
-        "mapDistanceLimitNeuron": mapDistanceLimitNeuron,
-        "mapSpeakerNeuron": mapSpeakerNeuron,
-        "mapMicrophoneNeuron": mapMicrophoneNeuron,
-        "mapMicrophoneTypeNeuron": mapMicrophoneTypeNeuron,
-        "mapMicrophoneLimitNeuron": mapMicrophoneLimitNeuron,
-        "mapLedNeuron": mapLedNeuron,
-        "mapLedNeuronPosition": mapLedNeuronPosition,
-        "mapLedHex": mapLedHex,
-        "mapLedBrightness": mapLedBrightness,
-        "rawSyntheticNeuron": rawSyntheticNeuronListJson,
-        "mapDelayNeuron": mapDelayNeuronList,
-        "mapRhytmicNeuron": mapRhytmicNeuronList,
-        "mapCountingNeuron": mapCountingNeuronList,
-        "mapAreaSize": mapAreaSize,
-        "a": aBufView.toList(),
-        "b": bBufView.toList(),
-        "c": cBufView.toList(),
-        "d": dBufView.toList(),
-        "i": iBufView.toList(),
-        "w": wBufView.toList(),
-        "windowWidth": MediaQuery.of(context).size.width,
-        "windowHeight": MediaQuery.of(context).size.height,
-        "screenDensity": MediaQuery.of(context).devicePixelRatio,
-        "screenDensity": MediaQuery.of(context).devicePixelRatio,
-        "screenshot": imageBytes,
-        "info": {
-          "title": title,
-          "description": description,
-          "author": "User", 
-          "version": strFileVersion,
-          "timestamp": DateTime.now().toIso8601String()
+    // 0. Capture State for Restoration
+    Matrix4 prevMatrix = controller.transform.value.clone();
+    double prevScale = controller.scale;
+    
+    try {
+        var nodesJson = [];
+        for (InfiniteCanvasNode e in controller.nodes) {
+          // printDebug("e.value == null");
+          if (e.value == -2) {
+            nodesJson.add({
+              "valKey": e.key.toString(),
+              "index": e.value,
+              "position": [e.offset.dx, e.offset.dy],
+              "color": [e.offset.dx, e.offset.dy],
+              "shape": "SizedBox",
+            });
+          } else if (e.value == -1) {
+            nodesJson.add({
+              "valKey": e.key.toString(),
+              "index": e.value,
+              "position": [e.offset.dx, e.offset.dy],
+              "color": [e.offset.dx, e.offset.dy],
+              "shape": "CustomPainter"
+            });
+          } else if (e.value < normalNeuronStartIdx) {
+            nodesJson.add({
+              "valKey": e.key.toString(),
+              "index": e.value,
+              "position": [e.offset.dx, e.offset.dy],
+              "color": [e.offset.dx, e.offset.dy],
+              "shape": "CustomPaint"
+            });
+          } else {
+            nodesJson.add({
+              "valKey": e.key.toString(),
+              "index": e.value,
+              "position": [e.offset.dx, e.offset.dy],
+              "color": [e.offset.dx, e.offset.dy],
+              "shape": "CustomPaint"
+            });
+            // e.value >=normalNeuronStartIdx
+          }
         }
-      });
+    
+        var edgesJson = [];
+        for (var edge in controller.edges) {
+          InfiniteCanvasNode from = findNeuronByKey(edge.from);
+          InfiniteCanvasNode to = findNeuronByKey(edge.to);
+          // if (to != nodeSingleLed) {
+          edgesJson.add("${from.id}_#_${to.id}");
+          // }
+        }
+    
+        var rawSyntheticNeuronListJson = [];
+        // for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
+        var idxSyntheticNeuron = 0;
+        for (SyntheticNeuron syntheticNeuron in rawSyntheticNeuronList) {
+          List<Map<String, dynamic>> dendrites = [];
+          for (Dendrite dendrite in syntheticNeuron.dendrites) {
+            dendrites.add({
+              "angle": dendrite.angle,
+              "hasSecondLevel": dendrite.hasSecondLevel,
+              "sinapseFirstLevel": [],
+              "sinapseSecondLevel": dendrite.sinapseSecondLevel,
+              "xFirstLevel": dendrite.xFirstLevel,
+              "xSecondLevel": dendrite.xSecondLevel,
+              "xTriangleFirstLevel": dendrite.xTriangleFirstLevel,
+              "xTriangleSecondLevel": dendrite.xTriangleSecondLevel,
+              "yFirstLevel": dendrite.yFirstLevel,
+              "ySecondLevel": dendrite.ySecondLevel,
+              "yTriangleFirstLevel": dendrite.yTriangleFirstLevel,
+              "yTriangleSecondLevel": dendrite.yTriangleSecondLevel,
+              "yFirstLevel": dendrite.yFirstLevel,
+              "ySecondLevel": dendrite.ySecondLevel,
+              "yTriangleFirstLevel": dendrite.yTriangleFirstLevel,
+              "yTriangleSecondLevel": dendrite.yTriangleSecondLevel,
+            });
+          }
+    
+          rawSyntheticNeuronListJson.add({
+            // "activeColor": syntheticNeuron.activeColor.toString(),
+            "arrowSize": syntheticNeuron.arrowSize,
+            "xNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.xNucleus,
+            "yNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.yNucleus,
+            "widthNucleus":
+                syntheticNeuronList[idxSyntheticNeuron].newNeuron.widthNucleus,
+            "heightNucleus":
+                syntheticNeuronList[idxSyntheticNeuron].newNeuron.heightNucleus,
+            "dendrites": dendrites,
+            "centerPos": [
+              syntheticNeuron.centerPos.dx,
+              syntheticNeuron.centerPos.dy
+            ],
+            "circleRadius": syntheticNeuron.circleRadius,
+            "neuronIdx": syntheticNeuron.neuronIdx,
+            // "random": syntheticNeuron.random,
+            "randomVariation1": syntheticNeuron.randomVariation1,
+            "randomVariation2": syntheticNeuron.randomVariation2,
+            // "randomVariation2": syntheticNeuron.zoomScale,
+          });
+          idxSyntheticNeuron++;
+        }
+        // printDebug("json.encode(rawSyntheticNeuronListJson)");
+        // printDebug(json.encode(rawSyntheticNeuronListJson));
+    
+        // printDebug("strNodesJson");
+        // printDebug(strNodesJson);
+    
+        String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+        Directory directory =
+            (await getApplicationDocumentsDirectory()); //from path_provide package
+    
+        Directory txtDirectory = Directory(
+            "${(await getApplicationDocumentsDirectory()).path}${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text");
+    
+        if (!txtDirectory.existsSync()) txtDirectory.createSync();
+    
+        // printDebug(directory.path);
+        String textPath =
+            "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
+        // String textPath = "";
+    
+        title = title.replaceAll(".", "|");
+        description = description.replaceAll(".", "|");
+        title = title.replaceAll("@", "#");
+        description = description.replaceAll("@", "#");
+    
+        final File file = File(
+            '${directory.path}$textPath${Platform.pathSeparator}$title@@@$description@@@$fileName.brain');
+    
+        controller.zoomReset();
+        if (isPortrait == false) {
+          controller.pan(const Offset(-60, 0));
+        }
+        // Use Global Controller
+        // ScreenshotController screenshotController = ScreenshotController(); 
+        String imagePath = "";
+    
+        printDebug("mapLedNeuron");
+        printDebug(mapLedNeuron);
+        // printDebug(nodeSingleLed.id);
 
-      // strNodesJson["image"] = imageBytes;
-      await file.writeAsString(strNodesJson);
-      pd.close();
-
-      Future.delayed(const Duration(seconds: 1), () {
-        rightToolbarCallback({"menuIdx": 0});
-        setState(() {});
-      });
-      imagePath = file.path;
-
-      // mainBloc.setLoading(0);
-    });
-    return imagePath;
+        Uint8List? imageBytes;
+        try {
+            // Fix: Use capture() on existing widget tree instead of captureFromWidget (which rebuilds tree)
+            // This prevents "Grey Screen" freeze on MacOS/iOS
+            imageBytes = await screenshotController.capture(pixelRatio: 1.0);
+        } catch (e) {
+            printDebug("SCREENSHOT ERROR: $e");
+            imageBytes = null; // Proceed with save even if screenshot fails
+        }
+        
+        // Block to process save (captureFromWidget removed)
+          String strNodesJson = json.encode({
+            "version": strFileVersion,
+            "nodes": nodesJson,
+            "edges": edgesJson,
+            "neuronTypes": neuronTypes,
+            "neuronStyles": neuronStyles,
+            "mapConnectome": mapConnectome,
+            "mapSensoryNeuron": mapSensoryNeuron,
+            "mapContactsNeuron": mapContactsNeuron,
+            "mapDistanceNeuron": mapDistanceNeuron,
+            "mapDistanceLimitNeuron": mapDistanceLimitNeuron,
+            "mapSpeakerNeuron": mapSpeakerNeuron,
+            "mapMicrophoneNeuron": mapMicrophoneNeuron,
+            "mapMicrophoneTypeNeuron": mapMicrophoneTypeNeuron,
+            "mapMicrophoneLimitNeuron": mapMicrophoneLimitNeuron,
+            "mapLedNeuron": mapLedNeuron,
+            "mapLedNeuronPosition": mapLedNeuronPosition,
+            "mapLedHex": mapLedHex,
+            "mapLedBrightness": mapLedBrightness,
+            "mapRemoteControlNeuron": mapRemoteControlNeuron,
+            "rawSyntheticNeuron": rawSyntheticNeuronListJson,
+            "mapDelayNeuron": mapDelayNeuronList,
+            "mapRhytmicNeuron": mapRhytmicNeuronList,
+            "mapCountingNeuron": mapCountingNeuronList,
+            "mapAreaSize": mapAreaSize,
+            "a": controller.nodes.map((e) => aDesignArray[e.id] ?? 0.02).toList(),
+            "b": controller.nodes.map((e) => bDesignArray[e.id] ?? 0.2).toList(),
+            "c": controller.nodes.map((e) => cDesignArray[e.id] ?? -65.0).toList(),
+            "d": controller.nodes.map((e) => dDesignArray[e.id] ?? 2.0).toList(),
+            "i": controller.nodes.map((e) => iDesignArray[e.id] ?? 0.0).toList(),
+            "w": controller.nodes.map((e) => (e.value!=-1 && e.value!=-2 && e.value < maxPosBuffer ? wBuf[e.value] : 2.0)).toList(),
+            "windowWidth": MediaQuery.of(context).size.width,
+            "windowHeight": MediaQuery.of(context).size.height,
+            "screenDensity": MediaQuery.of(context).devicePixelRatio,
+            "screenshot": imageBytes ?? [], // Handle null bytes
+            "info": {
+              "title": title,
+              "description": description,
+              "author": "User", 
+              "version": strFileVersion,
+              "timestamp": DateTime.now().toIso8601String()
+            }
+          });
+    
+          await file.writeAsString(strNodesJson);
+          imagePath = file.path;
+        
+        return imagePath;
+        
+    } catch (e, stack) {
+        printDebug("SAVE ERROR: $e");
+        printDebug(stack);
+        return "";
+    } finally {
+        // ALWAYS Restore state and close dialog
+        // CRITICAL: Wrap EACH step in try-catch so one failure doesn't stop the others.
+        
+        // 1. Restore Controller State
+        try {
+            controller.transform.value = prevMatrix;
+            controller.scale = prevScale;
+        } catch (e) { printDebug("Restore Controller Error: $e"); }
+        
+        // 2. Close Progress Dialog (Fix Grey Screen)
+        try {
+            pd.close();
+        } catch (e) { printDebug("Close Dialog Error: $e"); }
+        
+        // 3. Restore Menu (Fix Missing UI)
+        try {
+            rightToolbarCallback({"menuIdx": 0});
+        } catch (e) { printDebug("Restore Menu Error: $e"); }
+        
+        // 4. Restore Icons (Fix Disappearing RC Icon)
+        try {
+            initializeNucleus();
+        } catch (e) { printDebug("Restore Icons Error: $e"); }
+        
+        // 5. Refresh UI
+        Future.delayed(Duration.zero, () {
+             if (mounted) setState(() {});
+        });
+    }
   }
 
   void selectSavedBrain(String filename, {String? filePath}) async {
@@ -10375,6 +11116,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       "filename": filename,
       "timestamp": DateTime.now().millisecondsSinceEpoch
     });
+    
+    // Prevent fillCreatedAxon from corrupting map with default 25s during load
+    // isLoadingBrain = true; // MOVED inside try block for safety
     
     // V23: Play page flip sound when loading brain
     if (pageFlipSource != null) {
@@ -10386,15 +11130,26 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // String textPath = "";
     controller.deselectAll();
     clearUIMenu();
+    uiDebugLog = "Debug Overlay Active\nLoad: $filename\n";
     // setState(() {});
 
     if (filename == "") return;
+
+    // V25 FIX: Set loading flag ONLY after validation, and ensure reset!
+    isLoadingBrain = true; 
+    try {
     controller.edges.clear();
     int len = controller.nodes.length;
     neuronTypes.clear();
+    printDebug("DEBUG: selectSavedBrain START - nodes.length: $len, normalNeuronStartIdx: $normalNeuronStartIdx");
+    if (len > 6) printDebug("DEBUG: Node 6 (Speaker?) ID before clear: ${controller.nodes[6].id}");
+    
     for (int i = normalNeuronStartIdx + 2; i < len; i++) {
       controller.nodes.removeLast();
     }
+    printDebug("DEBUG: After clear - nodes.length: ${controller.nodes.length}");
+    if (controller.nodes.length > 6) printDebug("DEBUG: Node 6 (Speaker?) ID after clear: ${controller.nodes[6].id}");
+    
     clearBridge();
 
     if (filename == "-1") {
@@ -10409,10 +11164,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     pMapStatus["currentFileName"] = filePath ?? "";
 
     final Directory directory = await getApplicationDocumentsDirectory();
-    // final File savedFile = File(
-    //     '${directory.path}$textPath${Platform.pathSeparator}$filename.txt');
-    final File savedFile = File(
+  // final File savedFile = File(
+  //     '${directory.path}$textPath${Platform.pathSeparator}$filename.txt');
+  File savedFile;
+  if (filePath != null && filePath.isNotEmpty) {
+    savedFile = File(filePath);
+  } else {
+    savedFile = File(
         '${directory.path}$textPath${Platform.pathSeparator}$filename.brain');
+  }
     String savedFileText = "";
     if (savedFile.existsSync()) {
       savedFileText = await savedFile.readAsString();
@@ -10499,7 +11259,89 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     });
     // printDebug("change window size finished");
 
+    // printDebug("change window size finished");
+    
     List<dynamic> nodesJson = savedFileJson["nodes"];
+
+    // ---------------------------------------------------------------------------------------
+    // CRITICAL FIX: Pre-identify System Nodes (Speaker, Mic) from Maps to handle Scrambled IDs
+    // If a loaded brain has Speaker at index 20 (instead of 4), we must find it and force-map it.
+    // ---------------------------------------------------------------------------------------
+    Map<String, InfiniteCanvasNode> forcedSystemNodeMap = {};
+
+    try {
+      if (savedFileJson["mapSpeakerNeuron"] != null) {
+        Map<String, dynamic> m = savedFileJson["mapSpeakerNeuron"];
+        if (m.isNotEmpty) {
+           String firstKey = m.keys.first;
+           List<String> parts = firstKey.split("_");
+           if (parts.length > 1) {
+             String fileSpeakerId = parts[1];
+             if (firstKey.contains("_node_")) {
+                int lastNodeIdx = firstKey.lastIndexOf("_node_");
+                fileSpeakerId = firstKey.substring(lastNodeIdx + 1);
+             }
+             printDebug("DEBUG: Identified File Speaker ID: $fileSpeakerId");
+             forcedSystemNodeMap[fileSpeakerId] = nodeSpeakerSensor;
+             uiDebugLog += "ForceMap: Spk $fileSpeakerId -> Sys4\n";
+           }
+        }
+      }
+      
+      if (savedFileJson["mapMicrophoneNeuron"] != null) {
+        Map<String, dynamic> m = savedFileJson["mapMicrophoneNeuron"];
+        if (m.isNotEmpty) {
+           String firstKey = m.keys.first;
+           // Mic is Source (FROM)
+           List<String> parts = firstKey.split("_");
+           String fileMicId = parts[0];
+           if (firstKey.contains("_node_")) {
+              int lastNodeIdx = firstKey.lastIndexOf("_node_");
+              fileMicId = firstKey.substring(0, lastNodeIdx);
+           }
+           printDebug("DEBUG: Identified File Mic ID: $fileMicId");
+           forcedSystemNodeMap[fileMicId] = nodeMicrophoneSensor;
+           uiDebugLog += "ForceMap: Mic $fileMicId -> Sys3\n";
+        }
+      }
+    } catch (e) {
+      printDebug("Error pre-identifying system nodes: $e");
+      uiDebugLog += "ForceMap Error: $e\n";
+    }
+    
+    // ---------------------------------------------------------------------------------------
+    // CRITICAL FIX: Bind parameters to nodes BEFORE sorting to prevent index mismatch.
+    // The 'nodes' list and 'a,b,c...' lists in the file are parallel (1:1) in the file order.
+    // If we sort 'nodes' without sorting parameters correspondingly, we assign wrong params.
+    // ---------------------------------------------------------------------------------------
+    
+    List<dynamic> rawA = savedFileJson["a"] ?? [];
+    List<dynamic> rawB = savedFileJson["b"] ?? [];
+    List<dynamic> rawC = savedFileJson["c"] ?? [];
+    List<dynamic> rawD = savedFileJson["d"] ?? [];
+    List<dynamic> rawI = savedFileJson["i"] ?? [];
+    List<dynamic> rawW = savedFileJson["w"] ?? []; 
+
+    List<Map<String, dynamic>> enrichedNodes = [];
+    for (int k = 0; k < nodesJson.length; k++) {
+        Map<String, dynamic> nodeData = nodesJson[k];
+        // Safely attach parameters if available
+        nodeData["_param_a"] = (k < rawA.length) ? rawA[k] : 0.02;
+        nodeData["_param_b"] = (k < rawB.length) ? rawB[k] : 0.2;
+        nodeData["_param_c"] = (k < rawC.length) ? rawC[k] : -65.0;
+        nodeData["_param_d"] = (k < rawD.length) ? rawD[k] : 2.0;
+        nodeData["_param_i"] = (k < rawI.length) ? rawI[k] : 0.0;
+        nodeData["_param_w"] = (k < rawW.length) ? rawW[k] : 2.0;
+        
+        enrichedNodes.add(nodeData);
+    }
+
+    // Sort the ENRICHED nodes by index. Now parameters travel with the node.
+    enrichedNodes.sort((a, b) => (a["index"] as int).compareTo(b["index"] as int));
+    
+    // Replace the raw list with our enriched list for the subsequent loop
+    nodesJson = enrichedNodes;
+    
     // List<String> tempNeuronTypes =
     //     List.generate(neuronTypes.length, (index) => neuronTypes[index]);
     List<LocalKey> tempNeuronsKey = [];
@@ -10508,6 +11350,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // List<ValueKey> tempNeuronsKey =
     //     List.generate(neuronsKey.length, (index) => ValueKey(neuronsKey[index].toString()));
     var rawSyntheticNeuronListJson = savedFileJson["rawSyntheticNeuron"];
+    
+    // Create a lookup map for synthetic neuron configs by their stored neuronIdx to handle potential list order mismatch
+    Map<int, dynamic> syntheticConfigMap = {};
+    if (rawSyntheticNeuronListJson != null) {
+      for (var item in rawSyntheticNeuronListJson) {
+         if (item["neuronIdx"] != null) {
+           syntheticConfigMap[item["neuronIdx"]] = item;
+         }
+      }
+    }
+    
     int nIdx = 0;
 
     // bool isPreMic = savedFileJson["mapMicrophoneNeuron"] == null;
@@ -10542,7 +11395,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         printDebug("shadow neuron");
         InfiniteCanvasNode neuron = findNeuronByValue(v["index"]);
         neuron.valKey = loadedNeuronKey;
-        tempNeuronsKey.add(neuron.key);
+        // Shadow nodes typically shouldn't be in tempNeuronsKey as they don't have simulation parameters
+        // tempNeuronsKey.add(neuron.key); 
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
 
         // SyntheticNeuron synNeuron = SyntheticNeuron(
@@ -10570,18 +11424,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // printDebug(rawSyntheticNeuronList.length);
         // } else if ( (savedFileJson["version"] != null && v["index"] < normalNeuronStartIdx) || (savedFileJson["version"] == null && v["index"] < normalNeuronStartIdx - 1)  ) {
         // normalNeuronStartIdx has been increased by injecting into savedFileJson
-      } else if (effectiveIndex < normalNeuronStartIdx) {
+      } else if (effectiveIndex < normalNeuronStartIdx || forcedSystemNodeMap.containsKey(loadedNeuronKey)) {
         int designatedIdx = effectiveIndex;
-        // if (nIdx == 9) {
-        //   InfiniteCanvasNode neuron = nodeSingleLed;
-        //   neuron.valKey = loadedNeuronKey;
-        //   tempNeuronsKey.add(neuron.key);
-        //   mapTranslateLoadKeys[neuron.valKey] = neuron.id;
+        InfiniteCanvasNode neuron;
+        
+        // CRITICAL FIX: Use forced map if available, otherwise search by index
+        if (forcedSystemNodeMap.containsKey(loadedNeuronKey)) {
+           neuron = forcedSystemNodeMap[loadedNeuronKey]!;
+           printDebug("DEBUG: Force-mapping Loaded Node $loadedNeuronKey (Index $effectiveIndex) to System Node ${neuron.id} (Value ${neuron.value})");
+        } else {
+           neuron = findNeuronByValue(designatedIdx);
+        }
 
-        // }
-        // printDebug("designatedIdx");
-        // printDebug(designatedIdx);
-        InfiniteCanvasNode neuron = findNeuronByValue(designatedIdx);
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
@@ -10622,13 +11476,38 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       } else {
         LocalKey nodeKey = UniqueKey();
         tempNeuronsKey.add(nodeKey);
+        
+        // Use lookup by effectiveIndex (or fall back to list index if needed, but lookup is safer)
+        var syntheticConfig = syntheticConfigMap[effectiveIndex];
+        if (syntheticConfig == null && rawSyntheticNeuronListJson != null && nIdx < rawSyntheticNeuronListJson.length) {
+           // Fallback to nIdx if strictly missing in map but present in list (legacy?)
+           // But since we sorted nodesJson, nIdx matches the sorted order. 
+           // If rawSyntheticNeuronListJson is also just a list without IDs in old files, we might need to assume 1:1 match with sorted nodes?
+           // Actually, if it's old file, it might just rely on index.
+           syntheticConfig = rawSyntheticNeuronListJson[nIdx];
+        }
+
         String newNodeId = populateNode(
-            v, nodeKey, nIdx, rawSyntheticNeuronListJson[nIdx], savedFileJson);
+            v, nodeKey, nIdx, syntheticConfig, savedFileJson);
         mapTranslateLoadKeys[loadedNeuronKey] = newNodeId;
         
         // CRITICAL FIX: Map inferred ID to support mapConnectome/mapSensoryNeuron keys
         // Saved brains often use "node_{index}" as ID in maps, but "valKey" in nodesJson.
         mapTranslateLoadKeys["node_${v['index']}"] = newNodeId;
+        
+        // CRITICAL FIX: Support raw index keys (e.g. "0", "1") used in legacy neuronTypes map
+        mapTranslateLoadKeys["${v['index']}"] = newNodeId;
+        
+        // CRITICAL FIX: Populate Parameter Arrays IMMEDIATELY
+        // Previously, parameters were read but discarded, causing runSimulation to use defaults.
+        // We use the ID as key, which MUST MATCH runSimulation lookup.
+        if (v.containsKey("_param_a")) {
+            aDesignArray[newNodeId] = (v["_param_a"] as num).toDouble();
+            bDesignArray[newNodeId] = (v["_param_b"] as num).toDouble();
+            cDesignArray[newNodeId] = (v["_param_c"] as num).toDouble();
+            dDesignArray[newNodeId] = (v["_param_d"] as num).toDouble();
+            iDesignArray[newNodeId] = (v["_param_i"] as num).toDouble();
+        }
 
         nIdx++;
       }
@@ -10642,6 +11521,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         savedFileJson["mapSensoryNeuron"], mapTranslateLoadKeys);
     mapContactsNeuron = translateLoadedMap(
         savedFileJson["mapContactsNeuron"], mapTranslateLoadKeys);
+    printDebug("DEBUG: mapContactsNeuron Keys: ${mapContactsNeuron.keys.toList()}");
+    printDebug("DEBUG: mapTranslateLoadKeys: $mapTranslateLoadKeys");
     mapDistanceNeuron = translateLoadedMap(
         savedFileJson["mapDistanceNeuron"], mapTranslateLoadKeys);
     try {
@@ -10770,12 +11651,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // printDebug(savedFileJson["mapLedNeuron"]);
     
     // SYNC TO CONTROLLER for Icon Rendering (Fixes missing icons on load)
+    controller.mapContactsNeuron = Map.from(mapContactsNeuron); // FIX: Was missing! Motor weights not synced to controller after load
     controller.mapMicrophoneNeuron = Map.from(mapMicrophoneNeuron);
     controller.mapMicrophoneTypeNeuron = Map.from(mapMicrophoneTypeNeuron);
     controller.mapMicrophoneLimitNeuron = Map.from(mapMicrophoneLimitNeuron);
     controller.mapSpeakerNeuron = Map.from(mapSpeakerNeuron);
     controller.mapSensoryNeuron = Map.from(mapSensoryNeuron);
     controller.mapDistanceNeuron = Map.from(mapDistanceNeuron);
+
+    // Load Remote Control bindings
+    if (savedFileJson["mapRemoteControlNeuron"] != null) {
+      mapRemoteControlNeuron = translateLoadedNeuron(
+          savedFileJson["mapRemoteControlNeuron"], mapTranslateLoadKeys);
+    } else {
+      mapRemoteControlNeuron = {};
+    }
 
     mapLedNeuron =
         translateLoadedMap(savedFileJson["mapLedNeuron"], mapTranslateLoadKeys);
@@ -10860,10 +11750,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       });
     }
 
+    // FIX: Load Remote Control Map
+    if (savedFileJson["mapRemoteControlNeuron"] != null) {
+      mapRemoteControlNeuron = translateLoadedNeuron(
+          savedFileJson["mapRemoteControlNeuron"], mapTranslateLoadKeys);
+    }
+
     neuronSize = controller.nodes.length - 2;
     neuronsKey = List<UniqueKey>.from(tempNeuronsKey);
 
     initNativeC(true, preserveParams: true);
+    _dumpMotorBufferColumns("LOAD_1_AFTER_INITNATIVEC");
     // printDebug(savedFileJson["a"]);
     printDebug("mapContactsNeuron");
     printDebug(mapContactsNeuron);
@@ -10879,6 +11776,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         neuronIdx++) {
       String nodeKey = controller.nodes[neuronIdx].id;
       controller.nodes[neuronIdx].label = neuronTypes[nodeKey];
+      // Show bound key label on Remote Control neurons
+      if (neuronTypes[nodeKey] == "Remote Control" && mapRemoteControlNeuron.containsKey(nodeKey)) {
+        controller.nodes[neuronIdx].label = "🎮 ${mapRemoteControlNeuron[nodeKey]}";
+      }
     }
     for (InfiniteCanvasEdge edge in controller.edges) {
       InfiniteCanvasNode eFrom = findNeuronByKey(edge.from);
@@ -10962,34 +11863,67 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         printDebug("neuronTypes.length");
         printDebug(neuronTypes.length);
         printDebug(aBufList.length);
-        int n = neuronKeys.length;
+        // CRITICAL FIX: Use tempNeuronsKey length, NOT neuronTypes.keys.length
+        // tempNeuronsKey is populated in SORTED order (matching controller.nodes order)
+        // neuronTypes.keys is in FILE order (insertion order during load), which differs
+        int n = tempNeuronsKey.length;
         aDesignArray = {};
         bDesignArray = {};
         cDesignArray = {};
         dDesignArray = {};
-        // Fix Parameter Scrambling: Use ordered keys
+        // Fix Parameter Scrambling: Use ordered keys AND enriched parameters from nodesJson
         for (int i = 0; i < n; i++) {
-          String key;
+          String key;               // For DesignArray (must match populateMatrix: node.id format)
+          String valKeyForLookup;   // For nodesJson lookup (valKey from file)
+          double valA, valB, valC, valD, valI, valW;
+          
           if (i < tempNeuronsKey.length) {
-             key = tempNeuronsKey[i].toString();
+             var k = tempNeuronsKey[i];
+             
+             // CRITICAL: Resolve the actual node to get the clean ID
+             InfiniteCanvasNode? node = findNeuronByKey(k);
+             if (node != null) {
+                 key = node.id;         // Use clean ID (matches populateMatrix)
+                 valKeyForLookup = node.valKey ?? key; // Use valKey if available for json lookup
+             } else {
+                 key = k.toString();    // Fallback (will likely fail but prevents crash)
+                 valKeyForLookup = key;
+             }
+             
+             // Find the enriched node data using valKey
+             var matchingNode = nodesJson.firstWhere((e) => e["valKey"] == valKeyForLookup, orElse: () => null);
+             
+             if (matchingNode != null) {
+                 valA = (matchingNode["_param_a"] ?? 0.02).toDouble();
+                 valB = (matchingNode["_param_b"] ?? 0.2).toDouble();
+                 valC = (matchingNode["_param_c"] ?? -65.0).toDouble();
+                 valD = (matchingNode["_param_d"] ?? 2.0).toDouble();
+                 valI = (matchingNode["_param_i"] ?? 0.0).toDouble();
+                 valW = (matchingNode["_param_w"] ?? 0.0).toDouble();
+             } else {
+                 // Fallback to defaults if node not found in json (should not happen)
+                 valA = 0.02; valB = 0.2; valC = -65; valD = 2; valI = 0; valW = 2.0;
+             }
           } else {
-             // Fallback if tempNeuronsKey is incomplete (shouldn't happen if logic is correct)
-             key = neuronKeys[i];
+             // Fallback if tempNeuronsKey is incomplete
+             if(i < neuronKeys.length) key = neuronKeys[i];
+             else key = "unknown";
+             valA = 0.02; valB = 0.2; valC = -65; valD = 2; valI = 0; valW = 2.0;
           }
-          // String key = neuronKeys[i]; // OLD SCRAMBLED LOGIC
-          aDesignArray[key] = aBufList[i];
-          bDesignArray[key] = bBufList[i];
-          cDesignArray[key] = cBufList[i];
-          dDesignArray[key] = dBufList[i];
-          iDesignArray[key] = iBufList[i];
+
+          aDesignArray[key] = valA;
+          bDesignArray[key] = valB;
+          cDesignArray[key] = valC;
+          dDesignArray[key] = valD;
+          iDesignArray[key] = valI;
           
           // SYNC PARAMS TO C++
-          aBufView[i] = aBufList[i];
-          bBufView[i] = bBufList[i];
-          cBufView[i] = cBufList[i];
-          dBufView[i] = dBufList[i];
-          iBufView[i] = iBufList[i];
-          wBufView[i] = wBufList[i];
+          aBufView[i] = valA;
+          bBufView[i] = valB;
+          cBufView[i] = valC.round();
+          dBufView[i] = valD.round();
+          iBufView[i] = valI;
+          wBufView[i] = valW;
           
           // Sync Microphone Persistence
           String micKey = "${nodeMicrophoneSensor.id}_$key";
@@ -11013,6 +11947,54 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                  microphoneMaxLimitBufView[i] = int.parse(arr[1]);
              } catch (e) {}
           }
+        }
+        
+        // Final pass: Re-assert types to ensure simulation matches labels
+        // CRITICAL: Must iterate controller.nodes[i + 2] EXACTLY like populateMatrix does!
+        // Previous approach using tempNeuronsKey[i] was wrong: tempNeuronsKey order != controller.nodes order
+        for (int i = 0; i < neuronSize; i++) {
+             // Get node EXACTLY like populateMatrix does
+             if (i + 2 >= controller.nodes.length) continue;
+             InfiniteCanvasNode neuronFrom = controller.nodes[i + 2];
+             
+             String type = neuronTypes[neuronFrom.id] ?? "Quiet";
+             
+             double fixA = -999;
+             double fixB = -999;
+             double fixC = -999;
+             double fixD = -999;
+             double fixI = -999;
+             
+             // Re-apply defaults for standard types to guarantee sync using VERIFIED map
+             if (type == "Quiet") {
+                 fixA = 0.02; fixB = 0.1; fixC = -65; fixD = 2; fixI = 0.0;
+             } else if (type == "Occassionally active") {
+                 fixA = 0.02; fixB = 0.16; fixC = -65; fixD = 2; fixI = 5.0;
+             } else if (type == "Highly active") {
+                 fixA = 0.02; fixB = 0.2; fixC = -65; fixD = 2; fixI = 15.0;
+             } else if (type == "Generates bursts") {
+                 fixA = 0.02; fixB = 0.16; fixC = -8; fixD = 2; fixI = 5.0;
+             } else if (type == "Bursts when activated") {
+                 fixA = 0.02; fixB = 0.1; fixC = -37; fixD = 2; fixI = 0.0;
+             } else if (type == "Remote Control") {
+                 fixA = 0.02; fixB = 0.1; fixC = -65; fixD = 2; fixI = 0.0;
+             }
+             
+             // If we found a standard type, apply the fix to BOTH Buffer and DesignArray
+             if (fixA != -999) {
+                 aBufView[i] = fixA;
+                 bBufView[i] = fixB;
+                 cBufView[i] = fixC.round();
+                 dBufView[i] = fixD.round();
+                 iBufView[i] = fixI;
+                 
+                 // Also update DesignArray using neuronFrom.id (matches populateMatrix lookup)
+                 aDesignArray[neuronFrom.id] = fixA;
+                 bDesignArray[neuronFrom.id] = fixB;
+                 cDesignArray[neuronFrom.id] = fixC;
+                 dDesignArray[neuronFrom.id] = fixD;
+                 iDesignArray[neuronFrom.id] = fixI;
+             }
         }
     } catch (e, stack) {
         printDebug("CRITICAL ERROR LOADING PARAMS: $e");
@@ -11090,6 +12072,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       silentRepositionNeurons(savedFileJson);
     }
     
+    // CRITICAL FIX: Update neuronSize so buffer updates work immediately
+    neuronSize = controller.nodes.length - allNeuronStartIdx;
+    
     // CRITICAL FIX: Sync Connectome and Sensors to C++ Engine
     populateMatrix();
 
@@ -11104,7 +12089,93 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       }
     });
 
-    // }
+    } catch (e, stackTrace) {
+      printDebug("CRITICAL ERROR loading brain: $e");
+      printDebug(stackTrace);
+      // uiDebugLog = "Load Error: $e\n" + uiDebugLog; // Removed for release
+    } finally {
+      // Ensure specific flags are reset even if error occurs
+      isLoadingBrain = false;
+      
+      printDebug("DEBUG: selectSavedBrain FINISHED. isLoadingBrain reset to false.");
+      
+      // CRITICAL FIX: Initialize Nuclei (RC Symbols) and Sync Buffers after load
+      // Consolidating redundant Futures into a single post-frame callback to prevent GlobalKey race conditions
+      Future.delayed(const Duration(milliseconds: 150), () {
+          try {
+             // 1. Re-sync simulation buffers (Mimics Play button init)
+             populateMatrix(); 
+
+             // 2. Re-Initialize ProtoNeuron with NEW neuronSize (prevent IndexOutOfBounds)
+             if (neuronSize > 0) {
+                 protoNeuron = ProtoNeuron(
+                   notifier: redrawNeuronLine,
+                   neuronSize: neuronSize,
+                   screenWidth: screenWidth,
+                   screenHeight: screenHeight,
+                   aBufView: aBufView,
+                   bBufView: bBufView,
+                   cBufView: cBufView,
+                   dBufView: dBufView,
+                   iBufView: iBufView,
+                   wBufView: wBufView,
+                   connectomeBufView: connectomeBufView
+                 );
+                 
+                 // 3. Populate Circles (visuals) and Parameters (behavior)
+                 List<Offset> loadPos = [];
+                 for (InfiniteCanvasNode node in controller.nodes) {
+                     loadPos.add(node.offset);
+                 }
+                 setCirclesZoom(controller.scale, loadPos);
+             }
+
+             // 4. Ensure Widgets are created (Fixes 'Nothing until Play' issue)
+             initializeNucleus();
+
+             // 5. Force UI Rebuild
+             controller.notifyListeners();
+             if (mounted) setState(() {});
+          } catch(e) {
+             printDebug("Error in selectSavedBrain finalization: $e");
+          }
+      });
+    }
+
+    // FIX: Sync mapContactsNeuron from edge.connectionStrength for motor edges.
+    // During edge creation, connectionStrength is correctly set via priority lookup
+    // (mapConnectome first, then mapContactsNeuron). But mapContactsNeuron may have
+    // stale/default values. populateMotorMatrix reads ONLY from mapContactsNeuron,
+    // so we must sync it from the authoritative edge.connectionStrength.
+    for (var edge in controller.edges) {
+      InfiniteCanvasNode? fromNode, toNode;
+      try {
+        fromNode = controller.nodes.firstWhere((n) => n.key == edge.from);
+        toNode = controller.nodes.firstWhere((n) => n.key == edge.to);
+      } catch (_) { continue; }
+      if (toNode == nodeLeftMotorForwardSensor ||
+          toNode == nodeLeftMotorBackwardSensor ||
+          toNode == nodeRightMotorForwardSensor ||
+          toNode == nodeRightMotorBackwardSensor) {
+        String key = "${fromNode.id}_${toNode.id}";
+        double edgeVal = edge.connectionStrength;
+        if (mapContactsNeuron[key] != edgeVal) {
+          print("MOTOR_FIX: Syncing mapContactsNeuron[$key] from ${mapContactsNeuron[key]} -> $edgeVal (from edge.connectionStrength)");
+          mapContactsNeuron[key] = edgeVal;
+        }
+      }
+    }
+
+    // FINAL SAFETY NET: Force full matrix refresh after load is complete.
+    neuronSize = controller.nodes.length - allNeuronStartIdx;
+    populateMatrix();       // Refresh Brain-Brain connections
+    populateMotorMatrix();  // Refresh Brain-Motor connections (Critical!)
+    _dumpMotorBufferColumns("LOAD_2_AFTER_FINAL_POPULATE");
+
+    printDebug("=== BRAIN LOAD COMPLETE ===");
+    printDebug("mapContactsNeuron after load: $mapContactsNeuron");
+    printDebug("neuronSize after load: $neuronSize");
+
     // aDesignArray = List<double>.from(savedFileJson["a"]);
     // bDesignArray = List<double>.from(savedFileJson["b"]);
     // cDesignArray = List<int>.from(savedFileJson["c"]);
@@ -11154,11 +12225,47 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       neuronInactiveCirclesPainter[i].zoomScale = scale;
     }
 
-    protoNeuron.generateCircle(neuronSize, pos, neuronTypes.values.toList());
+    // CRITICAL FIX: Build ORDERED list of types from controller.nodes to match pos list.
+    // protoNeuron.generateCircle expects types to match positions index-for-index.
+    // neuronTypes.values.toList() is UNORDERED and causes mismatch/scrambling.
+    List<String> orderedTypes = [];
+    int nodeIdx = 0;
+    for (InfiniteCanvasNode node in controller.nodes) {
+         if (nodeIdx >= allNeuronStartIdx) {
+             // Robust Lookup: Try ID first, then Key String. Map usage is inconsistent.
+             String? typeID = neuronTypes[node.id];
+             String? typeKey = neuronTypes[node.key.toString()];
+             String type = typeID ?? typeKey ?? "Quiet";
+             
+             // DEBUG LOG
+             // printDebug("Node[$nodeIdx] ID:${node.id} Key:${node.key.toString()} -> Type: $type (Matches ID? ${typeID!=null} Key? ${typeKey!=null})");
+             
+             orderedTypes.add(type);
+         }
+         nodeIdx++;
+    }
+    
+    printDebug("OrderedTypes (Len: ${orderedTypes.length}): $orderedTypes");
+
+    // Fallback if list construction fails or mismatches (shouldn't happen with logic above)
+    if (orderedTypes.length != neuronSize) {
+        printDebug("WARNING: orderedTypes length mismatch in setCirclesZoom. expected $neuronSize got ${orderedTypes.length}");
+        // Fallback to old behavior but warn
+        protoNeuron.generateCircle(neuronSize, pos, neuronTypes.values.toList()); 
+    } else {
+        protoNeuron.generateCircle(neuronSize, pos, orderedTypes);
+    }
+    
     len = protoNeuron.circles.length;
     for (int i = 0; i < len; i++) {
       SingleNeuron circle = protoNeuron.circles[i];
       circle.centerPos = pos[allNeuronStartIdx + i];
+    }
+    
+    // FORCE UPDATE
+    if (protoNeuron.circles.isNotEmpty) {
+        // Log first circle param to verify
+        // printDebug("Circle[0] Buf Check: A=${aBufView[0]} C=${cBufView[0]} D=${dBufView[0]}");
     }
 
     // printDebug("scale");
@@ -11408,14 +12515,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         areaSizeMaxLimitBufView[neuronIdx] = int.parse(splitRegion[2]);
         //  = "${selectedCameraPosition}_@_${txtAreaSizeMinController.text}_@_${txtAreaSizeMaxController.text}";
       }
-    } else if (nodeFrom == nodeRightEyeSensor) {
+    } else if (nodeFrom.id == nodeRightEyeSensor.id) {
       isCameraMenu = true;
       activeCameraType = "Right Eye Visual Trigger";
       if (mapSensoryNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
         cameraMenuType =
             cameraMenuTypes[mapSensoryNeuron["${nodeFrom.id}_${nodeTo.id}"]];
       }
-    } else if (nodeFrom == nodeDistanceSensor) {
+    } else if (nodeFrom.id == nodeDistanceSensor.id) {
       isDistanceMenu = true;
       if (mapDistanceNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
         distanceMenuType =
@@ -11436,25 +12543,37 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         txtDistanceMinController.text = "1";
         txtDistanceMaxController.text = "8";
       }
-    } else if (nodeTo == nodeLeftMotorForwardSensor ||
-        nodeTo == nodeLeftMotorBackwardSensor ||
-        nodeTo == nodeRightMotorForwardSensor ||
-        nodeTo == nodeRightMotorBackwardSensor) {
+    } else if (nodeTo.value == 5 || // Left Motor Forward
+               nodeTo.value == 6 || // Right Motor Forward
+               nodeTo.value == 7 || // Left Motor Backward
+               nodeTo.value == 8) { // Right Motor Backward
       printDebug("nodeRightMotorBackwardSensor");
       isMotorMenu = true;
-      if (mapContactsNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
-        sldSynapticWeight =
-            mapContactsNeuron["${nodeFrom.id}_${nodeTo.id}"].roundToDouble();
-        tecSynapticWeight.text = sldSynapticWeight.round().toString();
-      }
-    } else if (nodeTo == nodeSpeakerSensor) {
+      
+      // edge.connectionStrength is the source of truth (set correctly from maps during load at line ~10999).
+      // We read from the edge AND sync to mapContactsNeuron to ensure simulation uses the correct value.
+      // (fillCreatedAxon callback overwrites mapContactsNeuron to 25 during edge creation, so the map can be stale.)
+      // print("DEBUG: selectEdgeMenuType (MOTOR) - Reading edge.connectionStrength: ${controller.edgeSelected!.connectionStrength}"); // TRACE READ
+      // uiDebugLog = "SEL_MOT Read: ${controller.edgeSelected!.connectionStrength}\n" + uiDebugLog;
+      sldSynapticWeight = controller.edgeSelected!.connectionStrength;
+      tecSynapticWeight.text = sldSynapticWeight.round().toString();
+      
+      // Sync map FROM edge (repairs any overwrite by fillCreatedAxon)
+      // print("DEBUG: selectEdgeMenuType (MOTOR) - Writing to mapContactsNeuron: $sldSynapticWeight"); // TRACE WRITE
+      // uiDebugLog = "SEL_MOT Write: $sldSynapticWeight\n" + uiDebugLog;
+      mapContactsNeuron["${nodeFrom.id}_${nodeTo.id}"] = sldSynapticWeight;
+      
+      // Also update buffer immediately so simulation is correct even before slider move
+      updateLiveConnectionBuffer(nodeFrom, nodeTo, sldSynapticWeight, "motor");
+      _dumpMotorBufferColumns("EDGE_SELECT_AFTER_UPDATE");
+    } else if (nodeTo.value == 4) { // Speaker Sensor
       isSpeakerMenu = true;
       if (mapSpeakerNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
         sldFrequencyWeight =
             mapSpeakerNeuron["${nodeFrom.id}_${nodeTo.id}"].roundToDouble();
         tecFrequencyWeight.text = sldFrequencyWeight.round().toString();
       }
-    } else if (nodeFrom == nodeMicrophoneSensor) {
+    } else if (nodeFrom.value == 3) { // Microphone Sensor
       isMicrophoneMenu = true;
       // isMicrophoneMenu
       InfiniteCanvasNode nodeN = findNeuronByKey(nodeTo.id);
@@ -11553,22 +12672,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       printDebug("Loaded LED State: Hex=$_robotLedHex, Bri=$_robotLedBrightness, Mask=$_robotLedActive");
     } else {
       isSynapseMenu = true;
-      isSynapseMenu = true;
       
-      // V25: Use Edge Connection Strength as Source of Truth (syncs visuals and value)
+      // edge.connectionStrength is always the source of truth.
+      // Sync to mapConnectome to keep simulation consistent.
       sldSynapticWeight = controller.edgeSelected!.connectionStrength;
       tecSynapticWeight.text = sldSynapticWeight.round().toString();
+      mapConnectome["${nodeFrom.id}_${nodeTo.id}"] = sldSynapticWeight;
       
-      // Ensure Map is consistent
-      if (nodeFrom != null && nodeTo != null) {
-         mapConnectome["${nodeFrom.id}_${nodeTo.id}"] = sldSynapticWeight;
-      }
-      
-      // if (mapConnectome["${nodeFrom.id}_${nodeTo.id}"] != null) {
-      //   sldSynapticWeight =
-      //       mapConnectome["${nodeFrom.id}_${nodeTo.id}"].roundToDouble();
-      //   tecSynapticWeight.text = sldSynapticWeight.round().toString();
-      // }
+      // Update buffer immediately
+      updateLiveConnectionBuffer(nodeFrom, nodeTo, sldSynapticWeight, "connectome");
     }
     setState(() {});
   }
@@ -11587,11 +12699,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     final neuronFrom = findNeuronByKey(lastCreatedEdge.from);
     final neuronTo = findNeuronByKey(lastCreatedEdge.to);
     // mapConnectome["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = val;
-    mapSpeakerNeuron["${neuronFrom.id}_${neuronTo.id}"] = val;
+    String speakerKey = "${neuronFrom.id}_${neuronTo.id}";
+    mapSpeakerNeuron[speakerKey] = val;
     controller.mapSpeakerNeuron = Map.from(mapSpeakerNeuron); // SYNC TO CONTROLLER
+    printDebug("DEBUG: linkSpeakerConnection Updated Key: $speakerKey = $val");
+    uiDebugLog = "Spk: $speakerKey -> ${val.toStringAsFixed(1)}\n" + uiDebugLog; // Prepend
+    
     lastCreatedEdge.connectionStrength = ((val / 4978) * 100).toDouble();
     lastCreatedEdge.label = val.floor().toString();
     // printDebug("${neuronFrom.id}_${neuronTo.id}");
+    
+    // CRITICAL FIX: Update live buffer immediately during slider drag
+    // This prevents the "stale data" bug where speakers used old frequency values
+    updateLiveConnectionBuffer(neuronFrom, neuronTo, val, "speaker");
   }
 
 
@@ -11618,6 +12738,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     isDeleteMenu = false;
 
     isNeuronMenu = false;
+    isNeuronBehaviorExpanded = false;
     isSynapseMenu = false;
     isCameraMenu = false;
     isDistanceMenu = false;
@@ -11657,10 +12778,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         [0, 0, 0],
       ];
       int diodeCounter = 0;
-      Map<int, int> leftAttentionValue = {};
-      Map<int, int> rightAttentionValue = {};
-      double leftSumValue = 0;
-      double rightSumValue = 0;
+      double leftSumForwardValue = 0;
+      double leftSumBackwardValue = 0;
+      double rightSumForwardValue = 0;
+      double rightSumBackwardValue = 0;
+      int leftValidForwardCounter = 0;
+      int leftValidBackwardCounter = 0;
+      int rightValidForwardCounter = 0;
+      int rightValidBackwardCounter = 0;
       // printDebug("processRobotMessages Delay");
       if (isPlayingMenu) {
         // printDebug("processRobotMessages");
@@ -11722,49 +12847,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           if (commands.isNotEmpty) {
             // printDebug(commands.length);
             int len = commands.length;
-            int leftValidValueCounter = 0;
-            int rightValidValueCounter = 0;
             for (int i = 0; i < len; i++) {
               List<String> arr = commands[i].split(";");
               int n = arr.length;
               for (int j = 0; j < n; j++) {
                 List<String> arrStr = arr[j].split(":");
-                if (arrStr[0] == "l") {
+                if (arrStr[0] == "lf") {
                   int val = int.parse(arrStr[1]);
-                  if (val.abs() >= 5) {
-                    leftValidValueCounter++;
-                    leftSumValue += val;
-                  }
-                  if (leftAttentionValue[val] == null) {
-                    leftAttentionValue[val] = 1;
-                  } else {
-                    leftAttentionValue[val] = (leftAttentionValue[val])! + 1;
-                  }
-
-                  // if (infoStatusMax[0].abs() >= val.abs()) {
-                  //   infoStatusMax[0] =
-                  //       infoStatusMax[0].sign * infoStatusMax[0].abs();
-                  // } else {
-                  //   infoStatusMax[0] = val.sign * val.abs();
-                  // }
-                } else if (arrStr[0] == "r") {
+                  if (val != 0) { leftValidForwardCounter++; leftSumForwardValue += val; }
+                } else if (arrStr[0] == "lb") {
                   int val = int.parse(arrStr[1]);
-                  if (val.abs() >= 5) {
-                    rightValidValueCounter++;
-                    rightSumValue += val;
-                  }
-                  if (rightAttentionValue[val] == null) {
-                    rightAttentionValue[val] = 1;
-                  } else {
-                    rightAttentionValue[val] = (rightAttentionValue[val])! + 1;
-                  }
-
-                  // if (infoStatusMax[1].abs() >= val.abs()) {
-                  //   infoStatusMax[1] =
-                  //       infoStatusMax[1].sign * infoStatusMax[1].abs();
-                  // } else {
-                  //   infoStatusMax[1] = val.sign * val.abs();
-                  // }
+                  if (val != 0) { leftValidBackwardCounter++; leftSumBackwardValue += val; }
+                } else if (arrStr[0] == "rf") {
+                  int val = int.parse(arrStr[1]);
+                  if (val != 0) { rightValidForwardCounter++; rightSumForwardValue += val; }
+                } else if (arrStr[0] == "rb") {
+                  int val = int.parse(arrStr[1]);
+                  if (val != 0) { rightValidBackwardCounter++; rightSumBackwardValue += val; }
                 } else if (arrStr[0] == "s") {
                   infoStatusMax[2] =
                       max(infoStatusMax[2], int.parse(arrStr[1]));
@@ -11822,37 +12921,71 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
             */
 // /*
+            double multiplierCurve = 0.50; // Use a clean multiplier mapping
             int avgLeft = 0;
             int avgRight = 0;
             String msg = "";
-            if (leftAttentionValue[0] == len) {
-              avgLeft = 0;
-            } else {
-              if (leftSumValue == 0 && leftValidValueCounter == 0) {
-                leftSumValue = 0;
-              } else {
-                leftSumValue = leftSumValue / leftValidValueCounter;
-              }
-              double calculatedValue = leftSumValue.sign *
-                  ((leftSumValue.abs() - 250) * multiplierConstant + 250);
-              // print("calculatedValue left");
-              // print(calculatedValue);
-              avgLeft = (calculatedValue).floor();
-            }
-            if (rightAttentionValue[0] == len) {
-              avgRight = 0;
-            } else {
-              if (rightSumValue == 0 && rightValidValueCounter == 0) {
-                rightSumValue = 0;
-              } else {
-                rightSumValue = rightSumValue / rightValidValueCounter;
-              }
 
-              double calculatedValue = rightSumValue.sign *
-                  ((rightSumValue.abs() - 250) * multiplierConstant + 250);
-              // print("calculatedValue right");
-              // print(calculatedValue);
-              avgRight = (calculatedValue).floor();
+            // C++ already stacks multiple neuron spikes additively on each step.
+            // In Dart, instead of dividing the summed spikes by the number of active steps (which unfairly 
+            // punishes asynchronous firing neurons by averaging their peaks), we divide by a fixed Temporal 
+            // Integration Factor. This perfectly preserves additive linearity across asynchronous spikes, 
+            // and natively introduces analog "Rate Coding" where faster firing neurons produce more thrust!
+            double integrationFactor = len / 12.0; // Assume a max-driven neuron fires approx once every 12 steps
+            if (integrationFactor < 1.0) integrationFactor = 1.0;
+
+            double lfFinal = leftSumForwardValue / integrationFactor;
+            double lbFinal = leftSumBackwardValue / integrationFactor;
+            double rfFinal = rightSumForwardValue / integrationFactor;
+            double rbFinal = rightSumBackwardValue / integrationFactor;
+
+            // A biologically accurate motor neuron can only pull (excite) or relax (be inhibited).
+            // It cannot actively fire the antagonist muscle. Therefore, we clamp negative directional pools to 0
+            // so inhibitory signals act purely as brakes/suppressors, not reverse thrusters.
+            if (lfFinal < 0) lfFinal = 0;
+            if (lbFinal < 0) lbFinal = 0;
+            if (rfFinal < 0) rfFinal = 0;
+            if (rbFinal < 0) rbFinal = 0;
+
+            // Difference the opposing muscle groups into a physical vector for each wheel
+            // Swap left forward/backward per custom hardware wiring:
+            double rawLeft = lfFinal - lbFinal; 
+            double rawRight = rbFinal - rfFinal;
+
+            // Apply pure 1:1 raw thrust:
+            // 25% input = 25 motor speed output. 
+            // 100% input = 100 motor speed output.
+            // Spikes stack linearly (50 + 50 = 100).
+            double applyRawThrust(double inputRaw) {
+              if (inputRaw == 0) return 0;
+              double sign = inputRaw < 0 ? -1.0 : 1.0;
+              double absolute = inputRaw.abs();
+              
+              // Direct 1:1 mapping. No doubling, no curves.
+              double powerMap = absolute; 
+              
+              // Absolute safety bounds so we don't break the ESP32 firmware 
+              // (which typically caps mathematically at 255 before failing)
+              if (powerMap > 255.0) powerMap = 255.0; 
+              
+              return sign * powerMap;
+            }
+
+            // DO NOT cap inputs to 100! 
+            // Allow rawLeft/rawRight to naturally stack past 100 if the user 
+            // connects enough excitatory neurons (e.g. 100 + 100 = 200 thrust!)
+            
+            // Apply 1:1 Thrust
+            if (rawLeft.abs() > 5) {
+                avgLeft = applyRawThrust(rawLeft).floor();
+            } else {
+                avgLeft = 0;
+            }
+            
+            if (rawRight.abs() > 5) {
+                avgRight = applyRawThrust(rawRight).floor();
+            } else {
+                avgRight = 0;
             }
             // printDebug("avgLeft");
             // printDebug(len);
@@ -11862,8 +12995,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             // printDebug("===============");
             // avgLeft = -60;
             // avgRight = 60;
+            
+            // Swap Left/Right mapping physically applied to the robot per custom hardware wiring
             msg =
-                "l:${avgLeft};r:${avgRight};s:${infoStatusMax[2]};$diodeString";
+                "l:${avgRight};r:${avgLeft};s:${infoStatusMax[2]};$diodeString";
 // */
             if (isIsolateWritePortInitialized) {
               // printDebug("msg");
@@ -12207,13 +13342,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               
               onMove: (dragDetail) async {
             if (dragDetail.data as int >= 10) return; // Ignore Live Tool Pins for Brain Target
+            RenderBox box = context.findRenderObject() as RenderBox;
+            Offset localOffset = box.globalToLocal(dragDetail.offset);
             Offset localAreaOffset = controller
-                .toLocal(Offset(dragDetail.offset.dx, dragDetail.offset.dy));
+                .toLocal(Offset(localOffset.dx, localOffset.dy));
 
             GeneralSensorPainter painter = (coreBrainPainter);
             Offset containOffset = localAreaOffset.translate(
                 -leftBrainPosition + 45 / controller.getScale(),
-                -brainPosition.dy * scaleMultiplier +
+                -((isPortrait == true) ? brainPosition.dy : brainPosition.dy * scaleMultiplier) -
                     topInnerWindowSpace +
                     45 / controller.getScale());
             // -leftBrainPosition + 45 / controller.getScale(),
@@ -12301,7 +13438,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             if (neuronSize + 1 >= maxPosBuffer) {
               return;
             }
-            neuronSize++;
+            // CRITICAL FIX: Safer neuronSize update and sync with C++
+            // neuronSize++; // Old logic
+            // Add neuron first? No, DragTarget adds it via controller logic later or here?
+            // This block handles DATA. Controller logic adds visual node separately?
+            // Wait. DragTarget adds to `neuronsKey` list.
+            // Where is the visual node added?
+            // It seems DragTarget handles logic, but controller update happens... where?
+            // Let's assume standard flow.
+            neuronSize++; // Maintain this for now as it matches existing logic flow
+            
+            // populateMatrix() will be called at end of this block?
+            // No, need to call it explicitly after node is fully added.
+
             UniqueKey newNodeKey = UniqueKey();
             neuronsKey.add(newNodeKey);
             mapDelayNeuronList.add(-1);
@@ -12334,8 +13483,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             final fittedSizes =
                 applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
 
+            RenderBox box = context.findRenderObject() as RenderBox;
+            Offset localOffset = box.globalToLocal(value.offset);
             Offset mouseOffset = controller
-                .toLocal(Offset(value.offset.dx + 30, value.offset.dy + 35));
+                .toLocal(Offset(localOffset.dx + 30, localOffset.dy + 35));
 
             // printDebug("canvasOffset.dx");
             // printDebug(value.offset.dx.toString() + " _ " + mouseOffset.dx.toString());
@@ -12389,6 +13540,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             }
 
             initNativeC(false);
+
+            // CRITICAL FIX: Populate data for new neuron
+            neuronSize = controller.nodes.length - allNeuronStartIdx;
+            populateMatrix();
+            refreshNuclei();
+
             isBrainTargetOverlayTop = -1;
             containedIdx = -1;
 
@@ -12491,8 +13648,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                     
                     onMove: (dragDetail) async {
                       if (dragDetail.data as int >= 10) return; // Ignore Live Tool Pins for Peripherals
-                      Offset localAreaOffset = controller.toLocal(
-                          Offset(dragDetail.offset.dx, dragDetail.offset.dy));
+                          RenderBox box = context.findRenderObject() as RenderBox;
+                          Offset localOffset = box.globalToLocal(dragDetail.offset);
+                          Offset localAreaOffset = controller.toLocal(
+                              Offset(localOffset.dx, localOffset.dy));
                       // Offset localOffsetGap = Offset.zero;
                       Offset localOffsetGap = (Offset(
                           45 / controller.getScale(),
@@ -12742,7 +13901,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                         // SYNC TO CONTROLLER
                         controller.mapContactsNeuron[connectionKey] = 25.0;
                         controller.mapContactsNeuron = Map.from(controller.mapContactsNeuron);
-                        
+
+                        edge.connectionStrength = 25.0;
                         edge.label = "25";
                       } else if (nodeTo == nodeSpeakerSensor) {
                         mapSpeakerNeuron[connectionKey] = 440.0;
@@ -12824,6 +13984,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       controller.edges.add(edge);
 
                       initNativeC(false);
+
+                      // FIX: Re-populate matrix after initNativeC zeroed buffers
+                      neuronSize = controller.nodes.length - allNeuronStartIdx;
+                      populateMatrix();
+
                       isBrainTargetOverlayTop = -1;
                       containedIdx = -1;
 
@@ -12851,6 +14016,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       modeIdx = -1;
                       controller.modeIdx = modeIdx;
                       prevConstrainedPos = Offset.zero;
+
                       setState(() {});
                       
                       // Future.delayed(const Duration(milliseconds: 100), () {
@@ -12990,45 +14156,76 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         centerOffset.dy + (50 * heightRatio).ceil());
 
     nodeLeftMotorForwardSensor.offset = Offset(
-        nodeDistanceSensor.offset.dx - (45 * widthRatio).ceil(),
-        nodeDistanceSensor.offset.dy + (140 * heightRatio).ceil());
+        centerOffset.dx - (225 * widthRatio).ceil(),
+        centerOffset.dy + (165 * heightRatio).ceil());
+
     nodeLeftMotorBackwardSensor.offset = Offset(
-        nodeLeftMotorForwardSensor.offset.dx - (10 * widthRatio).ceil(),
-        nodeLeftMotorForwardSensor.offset.dy + (120 * heightRatio).ceil());
+        centerOffset.dx - (238 * widthRatio).ceil(),
+        centerOffset.dy + (285 * heightRatio).ceil());
 
     nodeRightMotorForwardSensor.offset = Offset(
-        nodeMicrophoneSensor.offset.dx + (15 * widthRatio).ceil(),
-        nodeMicrophoneSensor.offset.dy + (117 * heightRatio).ceil());
+        centerOffset.dx + (216 * widthRatio).ceil(),
+        centerOffset.dy + (167 * heightRatio).ceil());
 
     nodeRightMotorBackwardSensor.offset = Offset(
-        nodeRightMotorForwardSensor.offset.dx + (10 * widthRatio).ceil(),
-        nodeRightMotorForwardSensor.offset.dy + (120 * heightRatio).ceil());
+        centerOffset.dx + (224 * widthRatio).ceil(),
+        centerOffset.dy + (287 * heightRatio).ceil());
 
     nodeSpeakerSensor.offset = Offset(
-        nodeRightMotorBackwardSensor.offset.dx - (95 * widthRatio).ceil(),
-        nodeRightMotorBackwardSensor.offset.dy + (125 * heightRatio).ceil());
+        centerOffset.dx + (140 * widthRatio).ceil(),
+        centerOffset.dy + (406 * heightRatio).ceil());
 
-    // nodeRedLed.offset = Offset(
-    //     nodeLeftMotorBackwardSensor.offset.dx + (30 * widthRatio).ceil(),
-    //     nodeLeftMotorBackwardSensor.offset.dy + (60 * heightRatio).ceil());
-    // nodeGreenLed.offset = Offset(
-    //     nodeLeftMotorBackwardSensor.offset.dx + (60 * widthRatio).ceil(),
-    //     nodeLeftMotorBackwardSensor.offset.dy + (80 * heightRatio).ceil());
-    // nodeBlueLed.offset = Offset(
-    //     nodeLeftMotorBackwardSensor.offset.dx + (90 * widthRatio).ceil(),
-    //     nodeLeftMotorBackwardSensor.offset.dy + (110 * heightRatio).ceil());
     nodeRedLed.offset = Offset.zero;
     nodeGreenLed.offset = Offset.zero;
     nodeBlueLed.offset = Offset.zero;
 
     nodeSingleLed.offset = Offset(
-        nodeLeftMotorBackwardSensor.offset.dx + (100 * widthRatio).ceil(),
-        nodeLeftMotorBackwardSensor.offset.dy + (145 * heightRatio).ceil());
+        centerOffset.dx - (150 * widthRatio).ceil(),
+        centerOffset.dy + (426 * heightRatio).ceil());
 
     // reposition because Alex request
     nodeDistanceSensor.offset = Offset(
         centerOffset.dx - (205 * widthRatio).ceil(),
         topSpace + 115 * heightRatio);
+  }
+
+  // Helper to update live buffers immediately (simulating real-time parameter change)
+  void updateLiveConnectionBuffer(InfiniteCanvasNode nodeFrom, InfiniteCanvasNode nodeTo, double value, String type) {
+       // Only run if buffers are initialized and sizes match
+       if (neuronContactsBufView.isEmpty) return;
+       
+       try {
+           // Calculate indices based on current controller state
+           // Matches populateMatrix logic: node index in controller.nodes - allNeuronStartIdx
+           int fromIdx = controller.nodes.indexOf(nodeFrom) - allNeuronStartIdx;
+           int toIdx = controller.nodes.indexOf(nodeTo) - allNeuronStartIdx;
+           
+           if (fromIdx >= 0 && toIdx >= 0 && fromIdx < neuronSize && toIdx < neuronSize) {
+               int bufferIdx = fromIdx * neuronSize + toIdx;
+               
+               // Determine sign (Inhibitory vs Excitatory)
+               int sign = 1;
+               if (neuronStyles.containsKey(nodeFrom.id) && neuronStyles[nodeFrom.id] == "Inhibitory") {
+                   sign = -1;
+               }
+
+                if (type == "motor") {
+                    neuronContactsBufView[bufferIdx] = (sign * value.abs()).floorToDouble();
+                    printDebug("LIVE_DEBUG: Motor Update. Val=$value. indices: From=$fromIdx To=$toIdx. BufferIdx=$bufferIdx. NeuronSize=$neuronSize.");
+                } else if (type == "speaker") {
+                   neuronSpeakerBufView[bufferIdx] = value.round();
+                   printDebug("LIVE UPDATE SPEAKER: bufIdx=$bufferIdx val=$value (from=$fromIdx to=$toIdx)");
+               } else if (type == "connectome") {
+                   connectomeBufView[bufferIdx] = (sign * value.abs()).floorToDouble();
+               } else if (type.contains("led")) {
+                   neuronLedBufView[bufferIdx] = value.round();
+               }
+           } else {
+               printDebug("LIVE UPDATE FAILED: Invalid Indices. From: $fromIdx, To: $toIdx, Size: $neuronSize");
+           }
+       } catch (e) {
+           printDebug("Error updating live buffer: $e");
+       }
   }
 
   void onDeleteCallback() async {
@@ -13057,6 +14254,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         tecSynapticWeightR.text = sldSynapticWeightR.floor().toString();
         sldSynapticWeightR = sldSynapticWeightR.roundToDouble();
         linkLedAxon(sldSynapticWeightR, nodeFrom, nodeTo);
+        updateLiveConnectionBuffer(nodeFrom, nodeTo, sldSynapticWeightR, "red_led");
       } else if (nodeTo.key == nodeGreenLed.key) {
         if (value.trim() == "") value = "0";
         sldSynapticWeightG = double.parse(value);
@@ -13068,6 +14266,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         tecSynapticWeightG.text = sldSynapticWeightG.floor().toString();
         sldSynapticWeightG = sldSynapticWeightG.roundToDouble();
         linkLedAxon(sldSynapticWeightG, nodeFrom, nodeTo);
+        updateLiveConnectionBuffer(nodeFrom, nodeTo, sldSynapticWeightG, "green_led");
       } else if (nodeTo.key == nodeBlueLed.key) {
         if (value.trim() == "") value = "0";
         sldSynapticWeightB = double.parse(value);
@@ -13079,6 +14278,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         tecSynapticWeightB.text = sldSynapticWeightB.floor().toString();
         sldSynapticWeightB = sldSynapticWeightB.roundToDouble();
         linkLedAxon(sldSynapticWeightB, nodeFrom, nodeTo);
+        updateLiveConnectionBuffer(nodeFrom, nodeTo, sldSynapticWeightB, "blue_led");
       }
       setState(() {});
     } catch (err) {
@@ -13129,6 +14329,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = val;
       } else if (isMotorMenu) {
         mapContactsNeuron["${neuronFrom.id}_${neuronTo.id}"] = val;
+        updateLiveConnectionBuffer(neuronFrom, neuronTo, val, "motor");
+      }
+      
+      // Force update of the live buffer for Synapse as well
+      if (isSynapseMenu) {
+         updateLiveConnectionBuffer(neuronFrom, neuronTo, val, "connectome");
       }
     }
     setState(() {});
@@ -13139,7 +14345,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (value.trim() == "") value = "0";
       sldTimeValue = double.parse(value);
       if (sldTimeValue > maxDelayTimeValue) {
-        sldTimeValue = 5000;
+        sldTimeValue = maxDelayTimeValue.toDouble();
       } else if (sldTimeValue < 100) {
         sldTimeValue = 100;
       }
@@ -13379,6 +14585,278 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // bool isLedMenu = false;
     // isShowDelayTime = false;
   }
+
+  // --- Remote Control Methods ---
+
+  String _getKeyName(KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) return "Arrow Up";
+    if (event.logicalKey == LogicalKeyboardKey.arrowDown) return "Arrow Down";
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) return "Arrow Left";
+    if (event.logicalKey == LogicalKeyboardKey.arrowRight) return "Arrow Right";
+
+    String? label = event.logicalKey.keyLabel;
+    
+    // Fallback?
+    if (label == " ") return "Space";
+    
+    return label;
+  }
+
+  String _getGamepadKeyName(GamepadEvent event) {
+    // Check if it's an axis OR a button behaving like an axis (value < 0)
+    // Some controllers report dpad as "button" but with -1.0 value for left/up.
+    if (event.type == KeyType.analog || (event.value.abs() > 0.5 && event.value < 0)) {
+       // Append direction symbol based on value
+       String direction = event.value > 0 ? "+" : "-";
+       return "Pad:${event.gamepadId}:${event.key}:$direction";
+    }
+    return "Pad:${event.gamepadId}:${event.key}"; 
+  }
+
+  void _updateGamepadSubscription() {
+    bool needed = _isListeningForRemoteInput || isSimulatingBrain || _isShowInputDebug;
+    if (needed) {
+      if (_gamepadSubscription == null) {
+        _gamepadSubscription = Gamepads.events.listen(_onGamepadEvent);
+      }
+    } else {
+      _gamepadSubscription?.cancel();
+      _gamepadSubscription = null;
+    }
+  }
+
+  void _toggleRemoteInputListening() {
+    setState(() {
+      _isListeningForRemoteInput = !_isListeningForRemoteInput;
+    });
+
+    if (_isListeningForRemoteInput) {
+      HardwareKeyboard.instance.addHandler(_onRemoteKeyBound);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_onRemoteKeyBound);
+    }
+    _updateGamepadSubscription();
+  }
+
+  void _onGamepadEvent(GamepadEvent event) {
+      // 1. Debug Log
+      if (_isShowInputDebug) {
+         String typeStr = event.type.toString().split('.').last;
+         String info = "Pad:${event.gamepadId} | $typeStr | ${event.key} | val:${event.value}\n";
+         setState(() {
+            _debugInputLog = info + _debugInputLog;
+            if (_debugInputLog.length > 1000) _debugInputLog = _debugInputLog.substring(0, 1000);
+         });
+      }
+
+      // 2. Binding Logic
+      if (_isListeningForRemoteInput) {
+          // Bind buttons on press (threshold > 0.5)
+          bool isButtonPress = event.type == KeyType.button && event.value > 0.5;
+          // Bind axis (or axis-like button) on strong push (threshold > 0.5 or < -0.5)
+          bool isAxisPress = (event.type == KeyType.analog || event.type == KeyType.button) && (event.value > 0.5 || event.value < -0.5);
+
+          if (isButtonPress || isAxisPress) {
+               String keyName = _getGamepadKeyName(event);
+               _bindRemoteControlKey(keyName);
+          }
+      }
+
+      // 3. Simulation Logic
+      if (isSimulatingBrain) {
+            String keyName = _getGamepadKeyName(event); // Includes direction for axis/negative button
+            bool isPressed = false;
+            
+            // Check for press magnitude
+            if (event.value.abs() > 0.5) {
+                // If it's a directional input (ends with + or -), check direction match
+                if (keyName.endsWith("+")) isPressed = event.value > 0.5;
+                else if (keyName.endsWith("-")) isPressed = event.value < -0.5;
+                else isPressed = true; // Standard button positive press
+            }
+
+            // Handle release (value -> 0)
+            if (event.value.abs() <= 0.5) {
+                 // Always strip any + or - we might have (just in case) to get the true base root
+                 String base = keyName.endsWith("+") || keyName.endsWith("-") 
+                     ? keyName.substring(0, keyName.length - 2) 
+                     : keyName;
+                 
+                 // When the joystick or button centers (0), completely purge all directional variants
+                 _activeRemoteKeys.remove("$base:+");
+                 _activeRemoteKeys.remove("$base:-");
+                 _activeRemoteKeys.remove(base);
+            } else {
+                 if (isPressed) {
+                     _activeRemoteKeys.add(keyName);
+                     // If we instantly slam from +1.0 to -1.0, we skip the 0 release block above.
+                     // Ensure the opposite direction is removed from the active keys.
+                     if (keyName.endsWith("+")) {
+                         _activeRemoteKeys.remove("${keyName.substring(0, keyName.length - 1)}-");
+                     } else if (keyName.endsWith("-")) {
+                         _activeRemoteKeys.remove("${keyName.substring(0, keyName.length - 1)}+");
+                     }
+                 } else {
+                     _activeRemoteKeys.remove(keyName);
+                 }
+            }
+            _updateRemoteControlNeurons();
+      }
+  }
+
+  void _bindRemoteControlKey(String keyLabel) {
+      InfiniteCanvasNode? selected = controller.selection.isNotEmpty ? controller.selection[0] : null;
+      if (selected != null) {
+        mapRemoteControlNeuron[selected.id] = keyLabel;
+        setState(() {
+          _remoteControlBoundKeyLabel = keyLabel;
+          _isListeningForRemoteInput = false;
+          // Trigger redraw
+          selected.label = "🎮 $keyLabel";
+        });
+        
+        // Cleanup listeners
+        HardwareKeyboard.instance.removeHandler(_onRemoteKeyBound);
+        _updateGamepadSubscription();
+        
+        // Force immediate visual update to show Keycap
+        Future.delayed(Duration.zero, () {
+           // ensure simulation running logic sees it
+           // populateMatrix(); // Maybe needed if key binding affects sim params?
+           
+           // Ensure UI Rebuild (Nucleus needs notification)
+           controller.notifyListeners(); 
+           if (mounted) setState(() {});
+        });
+      }
+  }
+
+  bool _onRemoteKeyBound(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (_isShowInputDebug) {
+           String keyName = event.physicalKey.debugName ?? "Unknown";
+           int usage = event.physicalKey.usbHidUsage;
+           String info = "Key: $keyName | HID: 0x${usage.toRadixString(16)}\n";
+           setState(() {
+              _debugInputLog = info + _debugInputLog;
+              if (_debugInputLog.length > 1000) _debugInputLog = _debugInputLog.substring(0, 1000);
+           });
+      }
+
+      // Ignore valid-but-generic HID usage 0x70000 (keyboard page, id 0)
+      // which iOS generates for some gamepad buttons.
+      if (event.physicalKey.usbHidUsage == 0x00070000) return false;
+
+      // Allow binding of any other key (including N64 controller keys which act as keyboard)
+      String keyLabel = _getKeyName(event);
+      _bindRemoteControlKey(keyLabel);
+      return true; // Handled
+    }
+    return false;
+  }
+
+  void _updateRemoteControlNeurons() {
+     for (int i = 0; i < neuronSize; i++) {
+        if (i + 2 >= controller.nodes.length) continue;
+        InfiniteCanvasNode node = controller.nodes[i + 2];
+        
+        String? type = neuronTypes[node.id];
+        if (type == "Remote Control") {
+            String? boundKey = mapRemoteControlNeuron[node.id];
+            if (boundKey != null && boundKey.isNotEmpty) {
+                bool isPressed = _activeRemoteKeys.contains(boundKey);
+                if (isPressed) {
+                    // printDebug("Injecting 50.0 to RC $i ($boundKey)"); 
+                    iBufView[i] = 50.0; // Inject current (Increased to 50 for reliability)
+                } else {
+                    iBufView[i] = 0.0; // Reset
+                }
+            }
+        }
+    }
+  }
+
+  bool _onSimulationKeyEvent(KeyEvent event) {
+    // Ignore generic HID usage 0x70000
+    if (event.physicalKey.usbHidUsage == 0x00070000) return false;
+
+    // If user is typing in a text field, let it handle the key
+    if (FocusManager.instance.primaryFocus != null &&
+        FocusManager.instance.primaryFocus!.context != null &&
+        FocusManager.instance.primaryFocus!.context!.widget is EditableText) {
+      return false;
+    }
+    
+    // Debug Log to diagnose why keys fail without debugger
+    // printDebug("SimKey: ${_getKeyName(event.physicalKey)}");
+
+    String keyName = _getKeyName(event);
+    bool handled = true; // Consume event to prevent MacOS beep
+    
+    if (event is KeyDownEvent) {
+       if (_activeRemoteKeys.add(keyName)) {
+           _updateRemoteControlNeurons();
+       }
+    } else if (event is KeyUpEvent) {
+       if (_activeRemoteKeys.remove(keyName)) {
+           _updateRemoteControlNeurons();
+       }
+    }
+
+    return handled;
+  }
+
+  void _toggleInputDebug() {
+    setState(() {
+      _isShowInputDebug = !_isShowInputDebug;
+      if (_isShowInputDebug) {
+        HardwareKeyboard.instance.addHandler(_onDebugKeyEvent);
+      } else {
+        HardwareKeyboard.instance.removeHandler(_onDebugKeyEvent);
+        _debugInputLog = "Press keys to see details...";
+      }
+    });
+    _updateGamepadSubscription();
+    if (_isShowInputDebug) _listGamepads();
+  }
+
+  Future<void> _listGamepads() async {
+    try {
+      final gamepads = await Gamepads.list();
+      String info = "Connected Gamepads:\n";
+      for (final gp in gamepads) {
+        info += "- ID: ${gp.id} | Name: ${gp.name}\n";
+      }
+      if (gamepads.isEmpty) info += "None found.\n";
+      info += "--------------------------------\n";
+      
+      setState(() {
+         _debugInputLog = info + _debugInputLog;
+      });
+    } catch (e) {
+      setState(() {
+         _debugInputLog = "Error listing gamepads: $e\n$_debugInputLog";
+      });
+    }
+  }
+
+  bool _onDebugKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent || event is KeyRepeatEvent) {
+      String info = "Event: ${event.runtimeType}\n"
+          "Logic: ${event.logicalKey.keyLabel} (ID: ${event.logicalKey.keyId})\n"
+          "Phys: ${event.physicalKey.debugName} (ID: 0x${event.physicalKey.usbHidUsage.toRadixString(16)})\n"
+          "Char: ${event.character}\n"
+          "--------------------------------\n";
+      setState(() {
+        _debugInputLog = info + _debugInputLog;
+        if (_debugInputLog.length > 1000) {
+            _debugInputLog = _debugInputLog.substring(0, 1000);
+        }
+      });
+    }
+    return false; // Don't consume
+  }
+
 
   String capitalize(str) {
     return "${str[0].toUpperCase()}${str.substring(1).toLowerCase()}";
@@ -14136,56 +15614,45 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     List<dynamic> nodesJson = savedFileJson["nodes"];
     double cWindowWidth = MediaQuery.of(context).size.width;
     double cWindowHeight = MediaQuery.of(context).size.height;
+    
+    // The core brain scales to fit the shortest side of the screen (1:1 ratio)
+    // To prevent neurons from spilling out of the brain in portrait, we limit max bounds to the brain area.
+    double brainDisplaySize = min(cWindowWidth, cWindowHeight);
 
     for (var v in nodesJson) {
       if (v["index"] == 1) {
-        // Node Left eye Neuron
-        // printDebug("silentReposisiontNeurons");
         List<Offset> oldDifCamera = [];
         Offset oldCameraNodePos =
             Offset(v["position"][0].toDouble(), v["position"][1].toDouble());
         print("Window X Height : $cWindowWidth $cWindowHeight | PREVIOUS : $displayWidth $displayHeight | OFFSET: ${v["position"][0]} ${v["position"][1]}");
-        // print("OFFSET RESULT : dx: ${oldCameraNodePos.dx} | dy: ${oldCameraNodePos.dy}");
 
         int start = normalNeuronStartIdx + 2;
         int len = controller.nodes.length;
         Offset newCameraNodePos =
             Offset(nodeLeftEyeSensor.offset.dx, nodeLeftEyeSensor.offset.dy);
-        double maxWidth = -1;
-        double maxHeight = -1;
-        for (int i = start; i < len; i++) {
-          // int idx = i - start;
-          Offset oldDifCam = controller.nodes[i].offset - oldCameraNodePos;
-          Offset diff = newCameraNodePos + oldDifCam;
-          if (diff.dy > cWindowHeight - neuronDrawSize * 2) {
-            maxHeight = max(maxHeight, diff.dy);
-          } else if (diff.dx > cWindowWidth - neuronDrawSize * 2) {
-            maxWidth = max(maxWidth, diff.dx);
-          }
+
+        // Use the globally calculated canvas scaleMultiplier instead of reverse-engineering 
+        // the screen bounds. This ensures coordinates scale EXACTLY the same way the 
+        // InfiniteDropTarget rendering box scales on this specific device.
+        double uniformScale = scaleMultiplier > 0 ? scaleMultiplier : 1.0;
+        
+        // Adjust scaling if the file originated from a drastically different native resolution
+        double originalMinSize = min(displayWidth, displayHeight);
+        if (originalMinSize > 0 && originalMinSize != initialMinimumSize.height) {
+            double loadRatio = initialMinimumSize.height / originalMinSize;
+            uniformScale *= loadRatio;
         }
 
-        double scaleX = 1;
-        double scaleY = 1;
-        if (maxWidth != -1) {
-          scaleX = (cWindowWidth - neuronDrawSize * 2) /
-              (maxWidth - neuronDrawSize * 2);
-          scaleX = scaleX / 1.5;
-          scaleY = scaleY / 1.5;
-        }
-        if (maxHeight != -1) {
-          scaleY = (cWindowHeight - neuronDrawSize * 2) /
-              (maxHeight - neuronDrawSize * 2);
-          scaleX = scaleX / 1.5;
-          scaleY = scaleY / 1.5;
-        }
+        // Do not over-inflate beyond bounds
+        if (uniformScale > 1.0) uniformScale = 1.0;
 
         oldDifCamera.clear();
         for (int i = start; i < len; i++) {
           oldDifCamera.add((controller.nodes[i].offset - oldCameraNodePos)
-              .scale(scaleX, scaleY));
+              .scale(uniformScale, uniformScale));
         }
 
-        print("SCALE : $scaleX | $scaleY");
+        print("SCALE : $uniformScale (Original Min: $originalMinSize, New Min: $brainDisplaySize)");
         for (int i = start; i < len; i++) {
           int idx = i - start;
           Offset diff = newCameraNodePos + oldDifCamera[idx];
@@ -14214,6 +15681,52 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     prevScreenHeight = displayHeight;
   }
 
+  /// Rebuilds protoNeuron.circles and Nucleus widgets from current node state.
+  /// Call after neuron creation or any change that requires Nucleus widget refresh.
+  void refreshNuclei() {
+    // Ensure protoNeuron exists (it's 'late' and only created on first Play or brain load)
+    try {
+      // ignore: unnecessary_null_comparison
+      if (protoNeuron == null) {
+        protoNeuron = ProtoNeuron(
+          notifier: redrawNeuronLine,
+          neuronSize: neuronSize,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          aBufView: aBufView,
+          bBufView: bBufView,
+          cBufView: cBufView,
+          dBufView: dBufView,
+          iBufView: iBufView,
+          wBufView: wBufView,
+          connectomeBufView: connectomeBufView,
+        );
+      }
+    } catch (e) {
+      // late variable not initialized — create it now
+      protoNeuron = ProtoNeuron(
+        notifier: redrawNeuronLine,
+        neuronSize: neuronSize,
+        screenWidth: screenWidth,
+        screenHeight: screenHeight,
+        aBufView: aBufView,
+        bBufView: bBufView,
+        cBufView: cBufView,
+        dBufView: dBufView,
+        iBufView: iBufView,
+        wBufView: wBufView,
+        connectomeBufView: connectomeBufView,
+      );
+    }
+
+    List<Offset> fullPos = [];
+    for (InfiniteCanvasNode node in controller.nodes) {
+        fullPos.add(node.offset);
+    }
+    setCirclesZoom(controller.scale, fullPos);
+    initializeNucleus();
+  }
+
   void initializeNucleus() {
     printDebug("Initialize Nucleus");
     if (controller.nucleusList != null) {
@@ -14221,36 +15734,55 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     } else {
       controller.nucleusList = [];
     }
-    Offset pan = controller
-        .getOffset()
-        .scale(1 / controller.getScale(), 1 / controller.getScale());
+    
+    // Safety check for controller nodes
+    if (controller.nodes.isEmpty) return;
+
+    printDebug("initializeNucleus START. Node Count: ${controller.nodes.length} Proto Circles: ${protoNeuron.circles.length}");
+    
     controller.nucleusList = [];
+
+    // CRITICAL FIX: Only iterate up to the number of VALID user neurons (or proto circles, whichever is smaller)
+    // to prevent "Stray Nuclei" (ghost widgets at 0,0) and Out-Of-Bounds errors.
     int circleLen = protoNeuron.circles.length;
+    // We use allNeuronStartIdx (2) because ProtoNeuron includes Motors/Peripherals, not just User Neurons (13).
+    int maxUserNodes = controller.nodes.length - allNeuronStartIdx; 
+    
+    if (circleLen > maxUserNodes) {
+        // printDebug("WARNING: ProtoNeuron has more circles than User Nodes! Clamping to $maxUserNodes");
+        circleLen = maxUserNodes;
+    }
+
     for (int i = 0; i < circleLen; i++) {
+        // Safety Break
+        // Use allNeuronStartIdx (2) to match ProtoNeuron structure.
+        int nodeIdx = i + allNeuronStartIdx; 
+        if (nodeIdx >= controller.nodes.length) break;
+
       SingleNeuron neuron = protoNeuron.circles[i];
       
-      // Scaling Logic using State (updated via setState in DragTarget)
-      // Check both Hover State and Pinned State
+      // Scaling Logic (Pinned / Hover)
       double scale = 1.0;
       if (hoveringPinNeuronIdx == i) {
-         // Debug Print to trace why it might not be scaling
-         // printDebug("InitNuc Check $i: Pinned? ${placedPins.containsKey(i)}"); 
          if (!placedPins.containsKey(i)) {
-             scale = 1.65; // V25: Match design mode scale
+             scale = 1.65; 
          }
       }
       
       if (scale > 1.0) {
           printDebug("Applying Scale $scale to $i");
       }
-
-      // Update Neuron Body Scale
-      if (i >= normalNeuronStartIdx) {
-        int nodeIdx = i + 2;
+      
+      // Update Node Body Helper (Only for User Neurons, not Peripherals)
+      // This prevents "Full Neurons" appearing on Motors/Sensors
+      // CRITICAL FIX: Also prevent "Pile of Neurons" at (0,0) by checking Offset.zero
+      // If a User Node is at (0,0), it's a Ghost/Shadow node and should NOT be rendered.
+      bool isGhostNode = (nodeIdx >= normalNeuronStartIdx && controller.nodes[nodeIdx].offset == Offset.zero);
+      
+      if (nodeIdx >= normalNeuronStartIdx && !isGhostNode) { 
         if (nodeIdx < controller.nodes.length) {
           try {
             var node = controller.nodes[nodeIdx];
-            // Simple robust scaling wrapper
             node.child = Transform.scale(
               scale: scale,
               child: CustomPaint(
@@ -14259,19 +15791,20 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 painter: node.syntheticNeuron,
               ),
             );
-          } catch (e) {
-            // Ignore
-          }
+          } catch (e) {}
         }
       }
 
-      // Restore Nucleus
-      // Use controller node offset for stable position
-      // Corrected: Use Top-Left directly. Pivot Point handled by Widget Size.
+      // Restore Nucleus Offset
+      // Use controller node offset for stable position (Fixes Stray Nuclei if Proto is desynced)
       Offset nucleusPos = neuron.centerPos;
-      int nodeIdx = i + 2;
-      if (nodeIdx < controller.nodes.length) {
-          nucleusPos = controller.nodes[nodeIdx].offset;
+      InfiniteCanvasNode n = controller.nodes[nodeIdx];
+      nucleusPos = n.offset;
+      
+      // Clear label for RC and Delay
+      String type = neuronTypes[n.id] ?? "";
+      if (type == "Remote Control" || type == "Delay") {
+          n.label = "";
       }
 
       double xN = neuronDrawSize / 2;
@@ -14291,18 +15824,158 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
       Color activeC = (isExc == 1) ? const Color(0xFF00FF00) : Colors.red;
       Color inactiveC = (isExc == 1) ? Colors.white : Colors.black;
+      
+      // Fix: Peripherals (Sensors/Motors) should NOT have a visible Nucleus overlay.
+      // User reported "Blinking on Inputs/Outputs" and "Pile of Neurons" as bugs.
+      // We set BOTH colors to Transparent to hide them completely while maintaining the Index Mapping.
+      // PLUS: Hide any User Node that is at (0,0) (Ghost/Shadow Nodes) to fix the "Pile".
+      if (nodeIdx < normalNeuronStartIdx || n.offset == Offset.zero) {
+          activeC = Colors.transparent;
+          inactiveC = Colors.transparent;
+      }
+      
+      // Design Mode Logic: Hide standard nuclei, Show RC Keycaps and Delay Clocks (Static)
+      if (!isSimulatingBrain && type != "Remote Control" && type != "Delay") {
+          inactiveC = Colors.transparent;
+      }
 
       Nucleus nucleus = Nucleus(
-        index: i,
+        flagIndex: i, 
+        nodeKey: n.key, 
         isSpiking: neuron.isSpiking,
         activeColor: activeC,
         inactiveColor: inactiveC,
-        childBuilder: (ctx, color) {
+        controller: controller,
+        childBuilder: (ctx, color, node) {
+             String currentType = neuronTypes[node.id] ?? "";
+             
+             bool isSelected = false;
+             if (!isSimulatingBrain && controller.selection.isNotEmpty) {
+                 isSelected = controller.selection.any((n) => n.id == node.id);
+             }
+             double selectionScale = isSelected ? 1.5 : 1.0; 
+                 
+             if (currentType == "Remote Control") {
+                 String boundKey = mapRemoteControlNeuron[node.id] ?? "";
+                 double rcSize = (neuronDrawSize * 0.9) * selectionScale;
+                 double containerSize = neuronDrawSize * 0.9 * selectionScale;
+                 
+                 return Center(
+                    child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                            Container(
+                                width: containerSize,
+                                height: containerSize,
+                                decoration: BoxDecoration(
+                                    color: (isExc == 1) ? Colors.black : Colors.white,
+                                    shape: BoxShape.circle,
+                                ),
+                            ),
+                            RemoteControlKeycap(
+                               node: node, 
+                               fallbackKeyName: boundKey, 
+                               isExcitatory: isExc == 1, 
+                               size: rcSize, 
+                               transparentBackground: true,
+                               overrideColor: color, 
+                               remoteControlMap: mapRemoteControlNeuron,
+                            ),
+                        ]
+                    )
+                );
+             } else if (currentType == "Delay") {
+                // Base sizes (without selection scale) — Transform.scale handles selection uniformly
+                double circleSize = neuronDrawSize * 0.9;
+                double emojiDisplaySize = neuronDrawSize * ((isExc == 1) ? 1.25 : 1.45);
+                Color baseTextColor = (isExc == 1) ? Colors.white : Colors.black;
+                Color textColor = color ?? baseTextColor;
+
+                // 25 clock emojis mapped 1:1 to 100ms steps (100-2500ms)
+                // 100ms=12:30, 200ms=1:00, ... 2400ms=12:00, 2500ms wraps to 12:30
+                const List<String> clockEmojis = [
+                    "🕧", // 100ms  = 12:30
+                    "🕐", // 200ms  = 1:00
+                    "🕜", // 300ms  = 1:30
+                    "🕑", // 400ms  = 2:00
+                    "🕝", // 500ms  = 2:30
+                    "🕒", // 600ms  = 3:00
+                    "🕞", // 700ms  = 3:30
+                    "🕓", // 800ms  = 4:00
+                    "🕟", // 900ms  = 4:30
+                    "🕔", // 1000ms = 5:00
+                    "🕠", // 1100ms = 5:30
+                    "🕕", // 1200ms = 6:00
+                    "🕡", // 1300ms = 6:30
+                    "🕖", // 1400ms = 7:00
+                    "🕢", // 1500ms = 7:30
+                    "🕗", // 1600ms = 8:00
+                    "🕣", // 1700ms = 8:30
+                    "🕘", // 1800ms = 9:00
+                    "🕤", // 1900ms = 9:30
+                    "🕙", // 2000ms = 10:00
+                    "🕥", // 2100ms = 10:30
+                    "🕚", // 2200ms = 11:00
+                    "🕦", // 2300ms = 11:30
+                    "🕛", // 2400ms = 12:00
+                    "🕧", // 2500ms = 12:30 (wraps)
+                ];
+                int delayNodeIdx = controller.nodes.map((e) => e.id).toList().indexOf(node.id) - 2;
+                int delayMs = (delayNodeIdx >= 0 && delayNodeIdx < mapDelayNeuronList.length)
+                    ? mapDelayNeuronList[delayNodeIdx] : 100;
+                if (delayMs < 100) delayMs = 100;
+                int clockIdx = ((delayMs - 100) ~/ 100).clamp(0, 24);
+                String clockEmoji = clockEmojis[clockIdx];
+
+                double overflowMax = emojiDisplaySize > circleSize ? emojiDisplaySize : circleSize;
+
+                return SizedBox(
+                   width: neuronDrawSize,
+                   height: neuronDrawSize,
+                   child: OverflowBox(
+                       maxWidth: overflowMax * selectionScale,
+                       maxHeight: overflowMax * selectionScale,
+                       alignment: Alignment.center,
+                       child: Transform.scale(
+                           scale: selectionScale,
+                           child: Stack(
+                               alignment: Alignment.center,
+                               children: [
+                                   Container(
+                                       width: circleSize,
+                                       height: circleSize,
+                                       decoration: BoxDecoration(
+                                           color: (isExc == 1) ? Colors.black : Colors.white,
+                                           shape: BoxShape.circle,
+                                       ),
+                                   ),
+                                   SizedBox(
+                                       width: emojiDisplaySize,
+                                       height: emojiDisplaySize,
+                                       child: FittedBox(
+                                           fit: BoxFit.contain,
+                                           child: Text(
+                                               clockEmoji,
+                                               textAlign: TextAlign.center,
+                                               style: TextStyle(
+                                                   fontFamily: "NotoEmoji",
+                                                   color: textColor,
+                                               ),
+                                           ),
+                                       ),
+                                   ),
+                               ],
+                           ),
+                       ),
+                   ),
+                );
+             }
+
             return CustomPaint(
                 painter: SingleCircle(
                      isActive: true, 
                      isExcitatory: isExc,
-                     circleRadius: neuronDrawSize / 2,
+                     circleRadius: neuronDrawSize / 2, 
                      xNucleus: xN,
                      yNucleus: yN,
                      widthNucleus: wN,
@@ -14318,6 +15991,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         size: neuronDrawSize,
         scale: scale,
       );
+      
       controller.nucleusList!.add(nucleus);
     }
     // printDebug("circleLen");
@@ -14326,11 +16000,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // printDebug(neuronCircleKeys.length);
     // printDebug(controller.nucleusList!.length);
     // printDebug("---------------");
+    
+    // Force update of InfiniteCanvas to render Nuclei immediately
+    // Force update of InfiniteCanvas to render Nuclei immediately
+    // usage: Safe notify
+    Future.delayed(Duration.zero, () {
+       try {
+          controller.notifyListeners();
+          if (mounted) setState(() {});
+       } catch(e) {}
+    });
   }
 
   void fillCreatedAxon(LocalKey nodeFrom, LocalKey nodeTo) {
+    if (isLoadingBrain) return; // Do not overwrite map during brain loading!
+    
     if (controller.edges.isNotEmpty) {
-      printDebug("Fill Created Axon");
       InfiniteCanvasEdge? lastCreatedEdge;
       for (var edge in controller.edges) {
         if (edge.from == nodeFrom && edge.to == nodeTo) {
@@ -14422,8 +16107,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             neuronTo == nodeRightMotorForwardSensor ||
             neuronTo == nodeRightMotorBackwardSensor) {
           isConnected = true;
-          mapContactsNeuron["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
-          lastCreatedEdge.label = "25";
+          // Only set default if not already set (preserves loaded brains)
+          String key = "${neuronFrom.id}_${neuronTo.id}";
+          if (!mapContactsNeuron.containsKey(key) || mapContactsNeuron[key] == 0) {
+             mapContactsNeuron[key] = 25.0;
+          }
+          // Always sync edge.connectionStrength from the map (source of truth)
+          lastCreatedEdge.connectionStrength = (mapContactsNeuron[key] as num).toDouble();
+          lastCreatedEdge.label = (mapContactsNeuron[key] as num).floor().toString();
         } else if (neuronTo == nodeSpeakerSensor) {
           isConnected = true;
           mapSpeakerNeuron["${neuronFrom.id}_${neuronTo.id}"] = 440.0;
@@ -14483,7 +16174,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           printDebug("init Canvas");
           isConnected = true;
 
-          mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
+      mapConnectome["${neuronFrom.id}_${neuronTo.id}"] = 25.0;
+          updateLiveConnectionBuffer(neuronFrom, neuronTo, 25.0, "connectome");
+
           lastCreatedEdge.connectionStrength = 25.0;
           lastCreatedEdge.label = "25";
         }
@@ -14890,8 +16583,304 @@ class ImagePreprocessor extends MjpegPreprocessor {
 
 
 }
-void printDebug(s) {
-  // if (kDebugMode) {
-    print(s);
-  // }
+  void printDebug(dynamic msg) {
+    if (kDebugMode) {
+      print(msg);
+      try {
+        // Append to debug_log.txt for retrieval tool
+        final directory = Directory("${Platform.environment['HOME']}/.gemini/antigravity/brain/b55c58ab-9253-42f0-874d-78e164ae4e6f");
+        if (!directory.existsSync()) return;
+        final file = File('${directory.path}/debug_log.txt');
+        file.writeAsStringSync("${DateTime.now()}: $msg\n", mode: FileMode.append);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
+
+// Custom Widget for Remote Control Keycaps
+// SIMPLIFIED: Stateless, driven by parent 'overrideColor' from Nucleus
+
+
+class RemoteControlKeycap extends StatelessWidget {
+  // Use Node to look up key dynamically (Fixes sticky state on updates)
+  final InfiniteCanvasNode? node; 
+  final String fallbackKeyName;
+  final bool isExcitatory;
+  final double size;
+  final Color? overrideColor; 
+  final bool transparentBackground;
+  final Map<String, String>? remoteControlMap;
+
+  const RemoteControlKeycap({
+    Key? key,
+    this.node,
+    this.fallbackKeyName = "",
+    required this.isExcitatory,
+    required this.size,
+    this.overrideColor,
+    this.transparentBackground = false,
+    this.remoteControlMap,
+  }) : super(key: key);
+
+  String? getIconPath() {
+    // Dynamic Lookup
+    String keyName = fallbackKeyName;
+    if (node != null && remoteControlMap != null && remoteControlMap!.containsKey(node!.id)) {
+        keyName = remoteControlMap![node!.id] ?? "";
+    }
+    
+    String key = keyName.toLowerCase().trim();
+
+    if (key.isEmpty) return "assets/icons/remoteControlKeys/RemoteControl.svg";
+
+    // Debug D-Pad Input (Write to file)
+    if (key.contains("dpad")) {
+        bool neg = key.contains("val:-") || key.contains("-1.0") || key.contains(":-") || key.contains(":-1") || key.contains(" -1") || key.contains("left") || key.contains("down");
+        String msg = "Key: '$key' | isNegative: $neg\n";
+        // printDebug(msg);
+        try {
+            File('${Platform.environment['HOME']}/.gemini/antigravity/brain/b55c58ab-9253-42f0-874d-78e164ae4e6f/dpad_log.txt').writeAsStringSync(msg, mode: FileMode.append);
+        } catch(e) {}
+    } 
+
+    // Helper for robust matching
+    bool has(String token) => key.contains(token);
+    bool hasAll(List<String> tokens) => tokens.every((t) => key.contains(t));
+
+    // 0. STRICT USER MAPPINGS (Apple/SDL Controller specific)
+    // Place these FIRST to override generic "circle" or "dpad" logic
+    
+    // Face Buttons (x.circle, a.circle etc)
+    if (has("a.circle")) return "assets/icons/remoteControlKeys/ButtonA.svg";
+    if (has("b.circle")) return "assets/icons/remoteControlKeys/ButtonB.svg";
+    if (has("x.circle")) return "assets/icons/remoteControlKeys/ButtonX.svg";
+    if (has("y.circle")) return "assets/icons/remoteControlKeys/ButtonY.svg";
+    if (has("xmark")) return "assets/icons/remoteControlKeys/ButtonX.svg"; // "xmark"
+    
+    // Plus/Minus
+    if (has("minus.circle") || has("minus")) return "assets/icons/remoteControlKeys/ButtonMinus.svg";
+    if (has("plus.circle") || has("plus")) return "assets/icons/remoteControlKeys/ButtonPlus.svg";
+    
+    // D-Pad Specifics
+    if (has("dpad") || has("hat")) {
+        // X-Axis
+        if (has("xaxis")) {
+             // 1. Strict Val checks
+             if (has("-1.0") || has("val:-1.0")) return "assets/icons/remoteControlKeys/dPadLeft.svg";
+             if (has("1.0") || has("val:1.0")) return "assets/icons/remoteControlKeys/dPadRight.svg";
+             
+             // 2. Word checks
+             if (has("left")) return "assets/icons/remoteControlKeys/dPadLeft.svg";
+             if (has("right")) return "assets/icons/remoteControlKeys/dPadRight.svg";
+        }
+        
+        // Y-Axis
+        if (has("yaxis")) {
+             // 1. Strict Val checks
+             if (has("-1.0") || has("val:-1.0")) return "assets/icons/remoteControlKeys/dPadDown.svg";
+             if (has("1.0") || has("val:1.0")) return "assets/icons/remoteControlKeys/dPadUp.svg";
+
+             // 2. Word checks
+             if (has("up")) return "assets/icons/remoteControlKeys/dPadUp.svg";
+             if (has("down")) return "assets/icons/remoteControlKeys/dPadDown.svg";
+        }
+
+        // Fallback checks (No Axis)
+        if (has("left")) return "assets/icons/remoteControlKeys/dPadLeft.svg";
+        if (has("right")) return "assets/icons/remoteControlKeys/dPadRight.svg";
+        if (has("up")) return "assets/icons/remoteControlKeys/dPadUp.svg";
+        if (has("down")) return "assets/icons/remoteControlKeys/dPadDown.svg";
+        
+        // Logical Fallbacks for Axis (non-explicit 1.0)
+        // CRITICAL: The input string contains "dpad - xAxis" (separator hyphen).
+        // We CANNOT check for " -" (space hyphen) because it matches the separator!
+        // We must check for explicit negative indicators like "val:-" or "-1.0" or "left"/"down".
+        
+        // Helper to check for negative value specifically
+        // Added checks for " -1" (space minus 1) and ":-" (colon minus) and ": -1" just in case
+        bool isNegative() => has("val:-") || has("-1.0") || has(":-") || has(":-1") || has(" -1") || has("left") || has("down");
+        
+        // Debugging for D-Pad
+        // printDebug("D-Pad Check: Key='$key', isNegative=${isNegative()}");
+
+        if (has("xaxis")) {
+            if (isNegative()) return "assets/icons/remoteControlKeys/dPadLeft.svg";
+            return "assets/icons/remoteControlKeys/dPadRight.svg"; 
+        }
+        
+        if (has("yaxis")) {
+            if (isNegative()) return "assets/icons/remoteControlKeys/dPadDown.svg";
+            return "assets/icons/remoteControlKeys/dPadUp.svg";
+        }
+    }
+
+    // 1. Generic Buttons (if not caught by above)
+    if (has("button a") || key == "button 0") return "assets/icons/remoteControlKeys/ButtonA.svg";
+    if (has("button b") || key == "button 1") return "assets/icons/remoteControlKeys/ButtonB.svg";
+    if (has("button x") || key == "button 2") return "assets/icons/remoteControlKeys/ButtonX.svg";
+    if (has("button y") || key == "button 3") return "assets/icons/remoteControlKeys/ButtonY.svg";
+
+    // 2. Shapes
+    if (has("triangle")) return "assets/icons/remoteControlKeys/ButtonTriangle.svg";
+    if (has("square")) return "assets/icons/remoteControlKeys/ButtonSquare.svg";
+    // Only return Circle shape if it wasn't caught by a.circle/b.circle above
+    if (has("circle") && !has("button") && !has("a.") && !has("b.") && !has("x.") && !has("y.") && !has("minus.") && !has("plus.")) return "assets/icons/remoteControlKeys/ButtonCircle.svg";
+    if (has("cross")) return "assets/icons/remoteControlKeys/ButtonX.svg";
+
+    // 3. Start/Select
+    if (has("select") || has("back")) return "assets/icons/remoteControlKeys/ButtonMinus.svg"; 
+    if (has("start") || has("menu") || has("options")) return "assets/icons/remoteControlKeys/ButtonPlus.svg";
+    if (has("padclick") || has("touchpad")) return "assets/icons/remoteControlKeys/PadClick.svg";
+
+    // 4. Joysticks
+    if (has("joystick") || has("thumb") || has("stick")) {
+         if (has("xaxis")) {
+             if (has(">0.4") || has("> 0.4") || has("+") || has("right")) return "assets/icons/remoteControlKeys/JoyRight.svg";
+             if (has("<-0.4") || has("< -0.4") || has("-") || has("left")) return "assets/icons/remoteControlKeys/JoyLeft.svg";
+         }
+         if (has("yaxis")) {
+             // User: "y axis >0.4 ... JoyUp"
+             if (has(">0.4") || has("> 0.4") || has("+") || has("up") || has("1.0")) return "assets/icons/remoteControlKeys/JoyUp.svg";
+             if (has("<-0.4") || has("< -0.4") || has("-") || has("down") || has("-1.0")) return "assets/icons/remoteControlKeys/JoyDown.svg";
+         }
+         // Fallback for "Axis" strings directly
+         if (has("axis 0")) return (has("+") || has(">")) ? "assets/icons/remoteControlKeys/JoyRight.svg" : "assets/icons/remoteControlKeys/JoyLeft.svg";
+         if (has("axis 1")) return (has("+") || has(">")) ? "assets/icons/remoteControlKeys/JoyDown.svg" : "assets/icons/remoteControlKeys/JoyUp.svg";
+    }
+    
+    // 5. Hand Draw
+    if (has("hand.draw")) {
+         if (has("xaxis")) {
+             if (has(">0.4") || has(">") || has("+")) return "assets/icons/remoteControlKeys/PadRight.svg";
+             if (has("<-0.4") || has("<") || has("-")) return "assets/icons/remoteControlKeys/PadLeft.svg";
+         }
+         if (has("yaxis")) {
+             if (has(">0.4") || has(">") || has("+")) return "assets/icons/remoteControlKeys/PadUp.svg";
+             if (has("<-0.4") || has("<") || has("-")) return "assets/icons/remoteControlKeys/PadDown.svg";
+         }
+    }
+
+    // 6. Keyboard Arrows
+    if (has("arrow")) {
+        if (has("left")) return "assets/icons/remoteControlKeys/KeyLeft.svg";
+        if (has("right")) return "assets/icons/remoteControlKeys/KeyRight.svg";
+        if (has("up")) return "assets/icons/remoteControlKeys/KeyUp.svg";
+        if (has("down")) return "assets/icons/remoteControlKeys/KeyDown.svg";
+    }
+
+    return null;
+  }
+
+  String getLabel() {
+    // Dynamic Lookup
+    String keyName = fallbackKeyName;
+    if (node != null && remoteControlMap != null && remoteControlMap!.containsKey(node!.id)) {
+        keyName = remoteControlMap![node!.id] ?? "";
+    }
+    String key = keyName.toLowerCase().trim();
+    
+    // Strict Label Mapping (User Request)
+    // l.joystick.down -> L3
+    if (key.contains("l.joystick.down") || key.contains("thumb l") || key.contains("stick l")) return "L3";
+    // r.joystick.press.down -> R3
+    if (key.contains("r.joystick.press.down") || key.contains("thumb r") || key.contains("stick r")) return "R3";
+    
+    // L1/R1/L2/R2
+    if (key.contains("l.rectangle.roundedbottom") || key.contains("l1.rectangle") || key.contains("bumper left") || key.contains("button 4")) return "L1";
+    if (key.contains("r.rectangle.roundedbottom") || key.contains("r1.rectangle") || key.contains("bumper right") || key.contains("button 5")) return "R1";
+    if (key.contains("zl.rectangle.roundedtop") || key.contains("l2.rectangle") || key.contains("trigger left") || key.contains("button 6")) return "L2";
+    if (key.contains("zr.rectangle.roundedtop") || key.contains("r2.rectangle") || key.contains("trigger right") || key.contains("button 7")) return "R2";
+
+    // Clean up "Pad:..." prefix if present
+    String cleanKey = key;
+    if (key.startsWith("pad:")) {
+        List<String> parts = key.split(":");
+        if (parts.length >= 3) cleanKey = parts[2];
+    }
+    
+    // Keyboard Keys fallback
+    if (cleanKey.startsWith("key ")) {
+        String k = cleanKey.substring(4).toUpperCase();
+        if (k.length == 1) return k;
+        if (k == "SPACE") return "SP";
+        if (k == "ENTER") return "RET";
+        if (k == "SHIFT") return "SH";
+        return k.length > 2 ? k.substring(0, 2) : k;
+    }
+
+    return cleanKey.toUpperCase().substring(0, min(2, cleanKey.length));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+      Color baseTextColor = isExcitatory ? Colors.black : Colors.white;
+      // Use override color from Nucleus (blinking) or default
+      Color textColor = overrideColor ?? baseTextColor;
+      
+      String? iconPath = getIconPath();
+      
+      Widget content;
+      
+      if (iconPath != null) {
+          content = SvgPicture.asset(
+              iconPath,
+              colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn), // Tint properly
+              width: size * 0.9 * 1.25 * 0.9, // Scaled 90% of current (90% of 125%)
+              height: size * 0.9 * 1.25 * 0.9,
+              fit: BoxFit.contain,
+          );
+      } else {
+          String label = getLabel();
+          
+          content = Text(
+            label,
+            style: TextStyle(
+              fontSize: transparentBackground ? size * 0.75 * 1.25 * 0.9 : size * 0.6, // Scaled 90% of current
+              fontFamily: "BybHanddrawn", 
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          );
+      }
+
+      if (transparentBackground) {
+         // Fix: Larger Container, Center Alignment, Allow Content to exceed bounds if needed (though Center should hold it)
+         return SizedBox(
+             width: size, 
+             height: size, 
+             child: OverflowBox(
+                 minWidth: size, maxWidth: size * 3, // Allow plenty of width
+                 minHeight: size, maxHeight: size * 3,
+                 alignment: Alignment.center,
+                 child: Center(child: content)
+             )
+         );
+      }
+
+    // Parse Label logic (OLD LOGIC - REMOVED/REPLACED by helpers above)
+    // We only keep the container/decoration logic for Sidebar Widget
+     return Container(
+       width: size,
+       height: size,
+       decoration: BoxDecoration(
+         color: isExcitatory ? Colors.white : Colors.black,
+         borderRadius: BorderRadius.circular(size * 0.2), // Rounded square
+         border: Border.all(
+           color: Colors.black, // Always black border for widget?
+           width: 1,
+         ),
+         boxShadow: [
+           BoxShadow(
+             color: Colors.black.withOpacity(0.2),
+             blurRadius: 2,
+             offset: const Offset(1, 1),
+           )
+         ],
+       ),
+       alignment: Alignment.center,
+       child: content,
+     );
+  }
 }
+

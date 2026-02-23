@@ -2599,27 +2599,40 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                           // If Inhibitory (Circle/Default): Use Synapse Center
                           Offset p3;
                           if (isExcitatory == 1) {
-                              // Re-calculate Triangle Geometry (Identical to drawing logic above)
+                              // Re-calculate Triangle Geometry with Stacking Offset
                               double triangleSize = 10.0;
+                              double stackOffset = -sinindex * 6.0; // V25: Excitatory stack offset inward
+                              
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xt = xc + triangleSize * cos(angleOut);
-                              double yt = yc + triangleSize * sin(angleOut);
+                              
+                              // Apply offset to base coordinate FIRST
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              
+                              double xt = xc_stack + triangleSize * cos(angleOut);
+                              double yt = yc_stack + triangleSize * sin(angleOut);
                               double halfBase = triangleSize / sqrt(3); 
-                              double xBaseLeft = xc + halfBase * cos(angleOut - pi/2); 
-                              double xBaseRight = xc + halfBase * cos(angleOut + pi/2);
-                              double yBaseLeft = yc + halfBase * sin(angleOut - pi/2);
-                              double yBaseRight = yc + halfBase * sin(angleOut + pi/2);
+                              double xBaseLeft = xc_stack + halfBase * cos(angleOut - pi/2); 
+                              double xBaseRight = xc_stack + halfBase * cos(angleOut + pi/2);
+                              double yBaseLeft = yc_stack + halfBase * sin(angleOut - pi/2);
+                              double yBaseRight = yc_stack + halfBase * sin(angleOut + pi/2);
                               
                               double triCenterX = (xt + xBaseLeft + xBaseRight) / 3;
                               double triCenterY = (yt + yBaseLeft + yBaseRight) / 3;
                               p3 = Offset(triCenterX, triCenterY);
                           } else {
                               // Inhibitory: Target is the Circle Center (xc_syn, yc_syn) calculated earlier
-                              // We need to re-calc it here since variables might be out of scope or we are in a shared block
+                              // Re-calc with stack offset
                               double radius = 5.0;
+                              double stackOffset = sinindex * 6.0; // V25: Inhibitory stack offset outward
+                              
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xc_syn = xc + radius * cos(angleOut);
-                              double yc_syn = yc + radius * sin(angleOut);
+                              
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              
+                              double xc_syn = xc_stack + radius * cos(angleOut);
+                              double yc_syn = yc_stack + radius * sin(angleOut);
                               p3 = Offset(xc_syn, yc_syn);
                           }
 
