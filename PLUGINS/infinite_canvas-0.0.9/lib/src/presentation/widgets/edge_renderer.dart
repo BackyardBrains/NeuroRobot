@@ -568,7 +568,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                      controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                      
                      drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
+                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
                         
                  } else {
                      // Final Tip (Split last two axons)
@@ -595,7 +595,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                          
                          drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
+                            isSelected: controller.isEdgeInSelection(edge), isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
                      }
                  }
               }
@@ -658,7 +658,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
                 from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo, 
-                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection, isDrawingSynapsesOnly: isDrawingSynapsesOnly);
+                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
             // }
             // drawEdge(
             //   context,
@@ -1101,7 +1101,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   // V24: Added isHighlightPass for two-pass rendering (highlights below main drawing)
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
       int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo, 
-      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection, bool isDrawingSynapsesOnly = false}) {
+      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection, bool isDrawingSynapsesOnly = false, Color? edgeColor}) {
 
     // V25: Determine Synapse Fill Color based on Spike State with Decay
     Paint synapseFill = whiteBrush;
@@ -1345,13 +1345,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 // STRUCTURE PASS: Draw main elements (no highlights)
                 // Main drawing (always drawn on top of highlights)
                 // V25: LED Gradient Support - only for edges with actual visible colors
-                Color? edgeColor;
-                try {
-                    final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
-                    if (matches.isNotEmpty) {
-                        edgeColor = matches.first.color;
-                    }
-                } catch (e) {}
+                // edgeColor is now passed as a parameter.
                 
                 // V25: Only apply gradient for visible, non-black colors (not transparent, not black)
                 bool hasVisibleColor = edgeColor != null && 
@@ -1360,11 +1354,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 
                 if (hasVisibleColor) {
                     // Determine gradient direction based on source type
-                    List<Color> gradientColors = [edgeColor, Colors.black];
+                    List<Color> gradientColors = [edgeColor!, Colors.black];
                     bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
                                        (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
                     if (isSourceLed) {
-                        gradientColors = [Colors.black, edgeColor];
+                        gradientColors = [Colors.black, edgeColor!];
                     }
                     
                     final Shader gradientShader = ui.Gradient.linear(
@@ -1647,13 +1641,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  
                  // STRUCTURE PASS: Draw main elements (no highlights)
                  // V25: LED Gradient Support - only for edges with actual visible colors
-                 Color? edgeColor;
-                 try {
-                     final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
-                     if (matches.isNotEmpty) {
-                         edgeColor = matches.first.color;
-                     }
-                 } catch (e) {}
+                 // edgeColor is now passed as a parameter.
                  
                  // V25: Only apply gradient for visible, non-black colors
                  bool hasVisibleColor = edgeColor != null && 
@@ -1761,13 +1749,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               }
               
               // STRUCTURE PASS: Draw main elements (no highlights)
-              Color? edgeColor;
-              try {
-                  final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
-                  if (matches.isNotEmpty) {
-                      edgeColor = matches.first.color;
-                  }
-              } catch (e) {}
+              // edgeColor is now passed as a parameter.
               
               if (edgeColor != null && edgeColor != Colors.black) {
                   List<Color> gradientColors = [edgeColor, Colors.black];
@@ -2242,13 +2224,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   
                   // STRUCTURE PASS: Draw main elements (no highlights)
                   // V25: LED Gradient Support - only for edges with actual visible colors
-                  Color? edgeColor;
-                  try {
-                      final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
-                      if (matches.isNotEmpty) {
-                          edgeColor = matches.first.color;
-                      }
-                  } catch (e) {}
+                  // We already have edgeColor passed in as an argument!
                   
                   // V25: Only apply gradient for visible, non-black colors
                   bool hasVisibleColor = edgeColor != null && 
@@ -2350,13 +2326,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   }
                   
                   // STRUCTURE PASS: Draw main elements (no highlights)
-                  Color? edgeColor;
-                  try {
-                      final matches = controller.edges.where((e) => e.from == from.key && e.to == to.key);
-                      if (matches.isNotEmpty) {
-                          edgeColor = matches.first.color;
-                      }
-                  } catch (e) {}
+                  // edgeColor is now passed as a parameter.
                   
                   if (edgeColor != null && edgeColor != Colors.black) {
                       List<Color> gradientColors = [edgeColor, Colors.black];
@@ -2531,11 +2501,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                           double tangentLength = 1.0;
                           
                           if (isExcitatory == 1) {
-                              // Re-calculate Triangle Tip (xt) for Excitatory
+                              // Re-calculate Triangle Tip (xt) for Excitatory with Stack Offset
                               double triangleSize = 10.0;
+                              double stackOffset = sinindex * 6.0; // V25: Excitatory stack offset
+                              
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xt = xc + triangleSize * cos(angleOut);
-                              double yt = yc + triangleSize * sin(angleOut);
+                              
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              
+                              double xt = xc_stack + triangleSize * cos(angleOut);
+                              double yt = yc_stack + triangleSize * sin(angleOut);
                               
                               double bFactor = (1.0 + sqrt((centerBeginAxon_x - xt)*(centerBeginAxon_x - xt) + (centerBeginAxon_y - yt)*(centerBeginAxon_y - yt)) / 200.0);
                               controlX = xt + bFactor * (xt - neuronTo.x) * 0.5;
@@ -2547,11 +2523,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               double distP2P3 = sqrt(dx*dx + dy*dy);
                               tangentLength = 3.0 * distP2P3;
                           } else {
-                              // Inhibitory: Use Circle Center for bFactor
+                              // Inhibitory: Use Circle Center for bFactor with Stack Offset
                               double radius = 5.0;
+                              double stackOffset = sinindex * 6.0; // V25: Inhibitory stack offset outward
+                              
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xc_syn = xc + radius * cos(angleOut);
-                              double yc_syn = yc + radius * sin(angleOut);
+                              
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              
+                              double xc_syn = xc_stack + radius * cos(angleOut);
+                              double yc_syn = yc_stack + radius * sin(angleOut);
                               
                               double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
                               controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;
@@ -2601,7 +2583,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                           if (isExcitatory == 1) {
                               // Re-calculate Triangle Geometry with Stacking Offset
                               double triangleSize = 10.0;
-                              double stackOffset = -sinindex * 6.0; // V25: Excitatory stack offset inward
+                              double stackOffset = sinindex * 6.0; // V25: Excitatory stack offset
                               
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
                               
