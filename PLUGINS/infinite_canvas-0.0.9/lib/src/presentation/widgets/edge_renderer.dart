@@ -2014,9 +2014,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                           } else {
                               // Inhibitory (Circle): Target is Circle Center
                               double radius = 5.0;
+                              double stackOffset = sinindex * 6.0; // V25: Inhibitory stack offset outward
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xc_syn = xc + radius * cos(angleOut);
-                              double yc_syn = yc + radius * sin(angleOut);
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              double xc_syn = xc_stack + radius * cos(angleOut);
+                              double yc_syn = yc_stack + radius * sin(angleOut);
                               p3 = Offset(xc_syn, yc_syn);
                           }
 
@@ -2038,9 +2041,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               // Inhibitory: Matches Lines ~1647 (bFactor)
                               // Recalculate xc_syn/yc_syn as target (already done for p3, but needed for bFactor)
                               double radius = 5.0;
+                              double stackOffset = sinindex * 6.0; // V25: Inhibitory stack offset outward
                               double angleOut = atan2(yc - neuronTo.y, xc - neuronTo.x);
-                              double xc_syn = xc + radius * cos(angleOut);
-                              double yc_syn = yc + radius * sin(angleOut);
+                              double xc_stack = xc + stackOffset * cos(angleOut);
+                              double yc_stack = yc + stackOffset * sin(angleOut);
+                              double xc_syn = xc_stack + radius * cos(angleOut);
+                              double yc_syn = yc_stack + radius * sin(angleOut);
                               
                               double bFactor = (1.0 + sqrt((centerBeginAxon_x - xc_syn)*(centerBeginAxon_x - xc_syn) + (centerBeginAxon_y - yc_syn)*(centerBeginAxon_y - yc_syn)) / 200.0);
                               controlX = xc_syn + bFactor * (xc_syn - neuronTo.x) * 0.5;

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -166,10 +166,37 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   }
 
   List<InfiniteCanvasEdge> getEdges(BoxConstraints constraints) {
-    // V25Fix: Never cull edges just because the source/dest nodes are off-screen.
-    // If an edge spans across the entire viewport between two off-screen nodes,
-    // culling it makes it completely disappear visually mid-canvas. 
-    // Flutter's native Canvas handles geometry clipping highly efficiently.
+    if (widget.drawVisibleOnly) {
+      final viewport = controller.getRect(constraints);
+      final edges = <InfiniteCanvasEdge>[];
+      
+      // Build a map for O(1) node lookup
+      final nodeMap = {for (var node in controller.nodes) node.key: node};
+
+      for (final edge in controller.edges) {
+        final fromNode = nodeMap[edge.from];
+        final toNode = nodeMap[edge.to];
+        
+        if (fromNode != null && toNode != null) {
+          // Calculate the expanded geometric bounding box of the axon
+          // 150px padding ensures Bezier control points and tangents don't clip prematurely
+          double minX = math.min(fromNode.rect.left, toNode.rect.left) - 150.0;
+          double maxX = math.max(fromNode.rect.right, toNode.rect.right) + 150.0;
+          double minY = math.min(fromNode.rect.top, toNode.rect.top) - 150.0;
+          double maxY = math.max(fromNode.rect.bottom, toNode.rect.bottom) + 150.0;
+          
+          Rect edgeBounds = Rect.fromLTRB(minX, minY, maxX, maxY);
+          
+          if (edgeBounds.overlaps(viewport)) {
+            edges.add(edge);
+          }
+        } else {
+           // Fallback if node not found
+           edges.add(edge);
+        }
+      }
+      return edges;
+    }
     return controller.edges;
   }
 
