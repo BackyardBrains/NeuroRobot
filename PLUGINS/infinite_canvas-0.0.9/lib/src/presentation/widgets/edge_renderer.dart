@@ -121,8 +121,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           
           // V24: Clear trunk mapping before rebuild
           controller.trunkToEdgesMap.clear();
-          // V25: CRITICAL FIX - Clear axonPathMap to prevent "Ghost" hit tests on stale segments
-          controller.axonPathMap.clear();
+          // V25: Axon bounds caching - removed controller.axonPathMap.clear() to support geometry caching
           
           // V25: Clean up stale edgeBranchPointMap entries for edges that no longer exist
           // This fixes the issue where highlights follow old paths after connection deletion
@@ -145,9 +144,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             if (previousCount != null && previousCount != currentCount) {
               // Edge count changed - clear all cache entries for this source
               controller.edgeBranchPointMap.removeWhere((key, value) => key.startsWith("$sourceKey->"));
+              controller.axonPathMap.removeWhere((key, value) => key.startsWith("${sourceKey}_"));
+              controller.axonPathHashes.removeWhere((key, value) => key.startsWith("${sourceKey}_"));
             }
           }
           controller.sourcePreviousEdgeCount = currentEdgeCounts;
+          
+          // V25: Clean up stale axonPathMap entries for completely deleted edges
+          controller.axonPathMap.removeWhere((key, value) => !key.contains("_trunk_") && !validEdgeKeys.contains(key.replaceFirst("_", "->")));
+          controller.axonPathHashes.removeWhere((key, value) => !key.contains("_trunk_") && !validEdgeKeys.contains(key.replaceFirst("_", "->")));
           
           // V25: Create outputGroups early so pre-compute pass can use it
           Map<LocalKey, List<InfiniteCanvasEdge>> outputGroups = {};
@@ -515,7 +520,12 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  }
                  
                  if (!isHighlightPass) {
-                    controller.axonPathMap["${sourceNode.key}_trunk_$i"] = getOutlinePath(segmentPath, widthClickMask);
+                    int pHash = Object.hash(p0.dx, p0.dy, p1.dx, p1.dy, p2.dx, p2.dy);
+                    String pKey = "${sourceNode.key}_trunk_$i";
+                    if (controller.axonPathHashes[pKey] != pHash || !controller.axonPathMap.containsKey(pKey)) {
+                        controller.axonPathMap[pKey] = getOutlinePath(segmentPath, widthClickMask);
+                        controller.axonPathHashes[pKey] = pHash;
+                    }
                  }
                  if (isHighlightPass && shouldHighlightSegment(i)) {
                     Paint trunkHighlightPaint = Paint()
@@ -1303,8 +1313,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                     controlY, triangleCenterX, triangleCenterY);
                 String pathKey = "${from.key.toString()}_${to.key.toString()}";
-                controller.axonPathMap[pathKey] =
-                    getOutlinePath(clickPath, widthClickMask);
+                int pHash = Object.hash(centerBeginAxon_x, centerBeginAxon_y, centerEndAxon_x, centerEndAxon_y, controlX, controlY, triangleCenterX, triangleCenterY);
+                if (controller.axonPathHashes[pathKey] != pHash || !controller.axonPathMap.containsKey(pathKey)) {
+                    controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                    controller.axonPathHashes[pathKey] = pHash;
+                }
 
                 Path path = Path();
                 path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -1604,7 +1617,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                     controlY, triangleCenterX, triangleCenterY);
                  String pathKey = "${from.key.toString()}_${to.key.toString()}";
-                 controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                 int pHash = Object.hash(centerBeginAxon_x, centerBeginAxon_y, centerEndAxon_x, centerEndAxon_y, controlX, controlY, triangleCenterX, triangleCenterY);
+                 if (controller.axonPathHashes[pathKey] != pHash || !controller.axonPathMap.containsKey(pathKey)) {
+                     controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                     controller.axonPathHashes[pathKey] = pHash;
+                 }
                  
                  Path path = Path();
                  path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -1721,8 +1738,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                   controlY, xc_syn, yc_syn);
               String pathKey = "${from.key.toString()}_${to.key.toString()}";
-              controller.axonPathMap[pathKey] =
-                  getOutlinePath(clickPath, widthClickMask);
+              int pHash = Object.hash(centerBeginAxon_x, centerBeginAxon_y, centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc_syn, yc_syn);
+              if (controller.axonPathHashes[pathKey] != pHash || !controller.axonPathMap.containsKey(pathKey)) {
+                  controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                  controller.axonPathHashes[pathKey] = pHash;
+              }
 
               Path path = Path();
               path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -2193,7 +2213,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX,
                       controlY, triangleCenterX, triangleCenterY);
                   String pathKey = "${from.key.toString()}_${to.key.toString()}";
-                  controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                  int pHash = Object.hash(centerBeginAxon_x, centerBeginAxon_y, centerEndAxon_x, centerEndAxon_y, controlX, controlY, triangleCenterX, triangleCenterY);
+                  if (controller.axonPathHashes[pathKey] != pHash || !controller.axonPathMap.containsKey(pathKey)) {
+                      controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                      controller.axonPathHashes[pathKey] = pHash;
+                  }
                   
                   Path path = Path();
                   path.moveTo(centerBeginAxon_x, centerBeginAxon_y);
@@ -2307,7 +2331,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   clickPath.moveTo(centerBeginAxon_x, centerBeginAxon_y);
                   clickPath.cubicTo(centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc_syn, yc_syn);
                   String pathKey = "${from.key.toString()}_${to.key.toString()}";
-                  controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                  int pHash = Object.hash(centerBeginAxon_x, centerBeginAxon_y, centerEndAxon_x, centerEndAxon_y, controlX, controlY, xc_syn, yc_syn);
+                  if (controller.axonPathHashes[pathKey] != pHash || !controller.axonPathMap.containsKey(pathKey)) {
+                      controller.axonPathMap[pathKey] = getOutlinePath(clickPath, widthClickMask);
+                      controller.axonPathHashes[pathKey] = pHash;
+                  }
                   
                   Path path = Path();
                   path.moveTo(centerBeginAxon_x, centerBeginAxon_y);

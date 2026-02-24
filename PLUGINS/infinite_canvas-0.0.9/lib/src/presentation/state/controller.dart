@@ -32,6 +32,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   final Function(LocalKey a, LocalKey b) onAxonCreatedCallback;
 
   Map<String, Path> axonPathMap = {};
+  Map<String, int> axonPathHashes = {}; // V25: Caches bezier coordinates to avoid O(N) path math per frame
   Map<String, List<InfiniteCanvasEdge>> trunkToEdgesMap = {}; // Maps Trunk Key to Downstream Edges
   Map<String, List<Offset>> edgeBranchPointMap = {}; // Maps Edge Key to [branchPoint, branchDirection]
   Map<LocalKey, int> sourcePreviousEdgeCount = {}; // V25: Tracks edge count per source for cache invalidation
@@ -40,6 +41,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   List<LocalKey>? restrictedToNeuronsKey;
   List<LocalKey>? restrictedFromNeuronsKey;
   // final VoidCallback transformNeuronPositionWrapper;
+
+  // V25: Proactive Boundary Constraint Callback to fix drag flickering
+  Offset Function(InfiniteCanvasNode node, Offset newOffset)? boundaryConstraint;
 
   // V25: Sensory Config Maps (Reference to DesignBrainPage state)
   Map<dynamic, dynamic> mapSensoryNeuron = {};
@@ -392,7 +396,18 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       }
       final rect = child.rect.inflate(inflation);
       if (rect.contains(offset)) {
-        selection.add(child.key);
+         // V25 FEATURE: Reject click events on output neurons' empty body space
+         bool isOutput = false;
+         for (var sn in syntheticNeuronList) {
+            if (sn.node.key == child.key && sn.isOutput) {
+                 isOutput = true; 
+                 break;
+            }
+         }
+         
+         if (!isOutput) {
+            selection.add(child.key);
+         }
       }
     }
     // print("DEBUG: checkSelection: offset $offset, nodes: ${nodes.length}, edges: ${edges.length}");
@@ -734,7 +749,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         } else {
           edges.add(edge);
         }
-        onAxonCreatedCallback(edge.from, edge.to);
         for (InfiniteCanvasNode n in nodes) {
           if (n.key == from) {
             print("edge.isExcitatory");
@@ -742,6 +756,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
             edge.isExcitatory = n.isExcitatory.toDouble();
           }
         }
+        onAxonCreatedCallback(edge.from, edge.to);
       }
     }
     deselectAll(true);
@@ -760,7 +775,14 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       if (index == -1) continue;
       final current = nodes[index];
       final origin = _selectedOrigins[key];
-      current.update(offset: origin! + delta);
+      Offset newOffset = origin! + delta;
+      
+      // Proactive boundary check before applying the offset
+      if (boundaryConstraint != null) {
+         newOffset = boundaryConstraint!(current, newOffset);
+      }
+      
+      current.update(offset: newOffset);
       if (_formatter != null) {
         _formatter!(current);
       }
@@ -1059,6 +1081,18 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     List<SyntheticNeuron> neurons = syntheticNeurons;
     Neuron neuronTo = neurons[toIdx].newNeuron;
     if (neuronTo.isIO) {
+      if (neurons[toIdx].isOutput && neuronTo.dendrites.isNotEmpty) {
+        Sinapse newSinapse = Sinapse(
+          presinapticNeuronIndex: fromIdx,
+          sinapticValue: connectionStrength,
+        );
+        if (neurons[fromIdx].node.isExcitatory == 1) {
+          neuronTo.dendrites[0].sinapseSecondLevel.add(newSinapse);
+        } else {
+          neuronTo.dendrites[0].sinapseFirstLevel.add(newSinapse);
+        }
+        return;
+      }
       int emptySpotIndex = 0;
       int smalestNumber = 9999999;
       for (int dendriteIndex = 0;
@@ -1181,7 +1215,19 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     var neuronIdx = 0;
     for (SyntheticNeuron syntheticNeuron in syntheticNeuronList) {
       SyntheticNeuron rawSyntheticNeuron = syntheticNeuron.rawSyntheticNeuron;
-      if (rawSyntheticNeuron.dendrites.isNotEmpty) {
+      
+      // V25 FEATURE: Output Dendrite Preservation
+      // Output neurons only have one rigidly computed dendrite tree. We do not want to 
+      // replace it with a stale raw copy (which might have wrong angles from setup). 
+      // Instead, we just wipe its synapse state so it can be cleanly rebuilt.
+      if (syntheticNeuron.isOutput) {
+          if (syntheticNeuron.dendrites.isNotEmpty) {
+              for (var d in syntheticNeuron.dendrites) {
+                  d.sinapseFirstLevel.clear();
+                  d.sinapseSecondLevel.clear();
+              }
+          }
+      } else if (rawSyntheticNeuron.dendrites.isNotEmpty) {
         // print("raw dendrite length: ${rawSyntheticNeuron.dendrites.length}");
         // print(
         //     "dendrite length: ${syntheticNeuronList[neuronIdx].dendrites.length}");
@@ -1247,7 +1293,19 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         if (toIdx == i) {
           //check if we are connection to IO connections
           //use different logic
-          if (neurons[toIdx].newNeuron.isIO) {
+          if (neurons[toIdx].isOutput) {
+            if (neurons[toIdx].isOutput && neurons[toIdx].dendrites.isNotEmpty) {
+              Sinapse newSinapse = Sinapse(
+                presinapticNeuronIndex: fromIdx,
+                sinapticValue: con.connectionStrength,
+              );
+              if (neurons[fromIdx].node.isExcitatory == 1) {
+                neurons[toIdx].dendrites[0].sinapseSecondLevel.add(newSinapse);
+              } else {
+                neurons[toIdx].dendrites[0].sinapseFirstLevel.add(newSinapse);
+              }
+              continue;
+            }
             int emptySpotIndex = 0;
             int smalestNumber = 9999999;
             for (int dendriteIndex = 0;
