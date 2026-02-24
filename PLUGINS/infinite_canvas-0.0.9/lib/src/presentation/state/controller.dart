@@ -33,6 +33,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   Map<String, Path> axonPathMap = {};
   Map<String, int> axonPathHashes = {}; // V25: Caches bezier coordinates to avoid O(N) path math per frame
+  Map<String, TextPainter> textPainterCache = {}; // V25: Caches heavy typography layouts
   Map<String, List<InfiniteCanvasEdge>> trunkToEdgesMap = {}; // Maps Trunk Key to Downstream Edges
   Map<String, List<Offset>> edgeBranchPointMap = {}; // Maps Edge Key to [branchPoint, branchDirection]
   Map<LocalKey, int> sourcePreviousEdgeCount = {}; // V25: Tracks edge count per source for cache invalidation

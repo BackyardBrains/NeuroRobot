@@ -146,6 +146,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               controller.edgeBranchPointMap.removeWhere((key, value) => key.startsWith("$sourceKey->"));
               controller.axonPathMap.removeWhere((key, value) => key.startsWith("${sourceKey}_"));
               controller.axonPathHashes.removeWhere((key, value) => key.startsWith("${sourceKey}_"));
+              
+              // We can't cleanly regex edge->target on arbitrary text labels, so we flush the painter cache entirely
+              // when structural counts change to guarantee no ghost labels. It will organically rebuild next frame.
+              controller.textPainterCache.clear();
             }
           }
           controller.sourcePreviousEdgeCount = currentEdgeCounts;
@@ -777,33 +781,46 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
     }
     
     if (label != null) {
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: colors.onSurface,
-            shadows: [
-              Shadow(
-                offset: const Offset(0.8, 0.8),
-                blurRadius: 3,
-                color: colors.surface,
+      // V25: TextPainter Cache Optimization
+      String cacheKey = "straight_label_${label}";
+      TextPainter? textPainter = controller.textPainterCache[cacheKey];
+      
+      if (textPainter == null) {
+          textPainter = TextPainter(
+            text: TextSpan(
+              text: label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colors.onSurface,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(0.8, 0.8),
+                    blurRadius: 3,
+                    color: colors.surface,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
+            ),
+            textDirection: TextDirection.ltr,
+          )..layout();
+          controller.textPainterCache[cacheKey] = textPainter;
+      }
+      
       // Render label on line
       Offset textOffset = Offset(
         (fromOffset.dx + toOffset.dx) / 2,
         (fromOffset.dy + toOffset.dy) / 2,
       );
       // Center on curve, if used
+      // V25 Optimization: computeMetrics is O(N) but required for curved generic paths
+      // This straight-line block is a fallback, but we keep it safe
       final pathMetrics = path.computeMetrics();
-      final pathMetric = pathMetrics.first;
-      final pathLength = pathMetric.length;
-      final middle = pathMetric.getTangentForOffset(pathLength / 2);
-      textOffset = middle?.position ?? textOffset;
+      if (pathMetrics.isNotEmpty) {
+          final pathMetric = pathMetrics.first;
+          final pathLength = pathMetric.length;
+          final middle = pathMetric.getTangentForOffset(pathLength / 2);
+          textOffset = middle?.position ?? textOffset;
+      }
+      
       // Offset to top left
       textOffset = textOffset.translate(
         -textPainter.width / 2,
@@ -1803,19 +1820,26 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
               }
             }
-            if (isShowingInfo) {
-              final textSpan = TextSpan(
-                text: label,
-                style: textStyle,
-              );
-              final textPainter = TextPainter(
-                text: textSpan,
-                textDirection: TextDirection.ltr,
-              );
-              textPainter.layout(
-                minWidth: 0,
-                maxWidth: 100,
-              );            
+            if (isShowingInfo && label != null) {
+              // V25: TextPainter Cache Optimization
+              String cacheKey = "info_${label}_${textStyle.hashCode}";
+              TextPainter? textPainter = controller.textPainterCache[cacheKey];
+              
+              if (textPainter == null) {
+                  final textSpan = TextSpan(
+                    text: label,
+                    style: textStyle,
+                  );
+                  textPainter = TextPainter(
+                    text: textSpan,
+                    textDirection: TextDirection.ltr,
+                  );
+                  textPainter.layout(
+                    minWidth: 0,
+                    maxWidth: 100,
+                  );
+                  controller.textPainterCache[cacheKey] = textPainter;
+              }
               textPainter.paint(canvas, Offset(centerEndAxon_x, centerEndAxon_y));
             }
 
@@ -2105,9 +2129,18 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                           } else {
                               // Standard Icon
                               canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
-                              TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
-                              TextPainter tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
-                              tp.layout();
+                              
+                              // V25: TextPainter Cache Optimization
+                              String cacheKey = "icon_${iconText}_${fontFamily}_$iconSize";
+                              TextPainter? tp = controller.textPainterCache[cacheKey];
+                              
+                              if (tp == null) {
+                                  TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
+                                  tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
+                                  tp.layout();
+                                  controller.textPainterCache[cacheKey] = tp;
+                              }
+                              
                               tp.paint(canvas, iconPos - Offset(tp.width / 2, tp.height / 2));
                           }
                       }
@@ -2665,9 +2698,18 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
                           } else {
                               canvas.drawCircle(iconPos, iconRadius, Paint()..color = Colors.grey.withOpacity(0.5)..style = PaintingStyle.stroke..strokeWidth=1);
-                              TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
-                              TextPainter tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
-                              tp.layout();
+                              
+                              // V25: TextPainter Cache Optimization
+                              String cacheKey = "icon_${iconText}_${fontFamily}_$iconSize";
+                              TextPainter? tp = controller.textPainterCache[cacheKey];
+                              
+                              if (tp == null) {
+                                  TextSpan span = TextSpan(style: TextStyle(color: iconTextColor, fontSize: iconSize, fontFamily: fontFamily), text: iconText);
+                                  tp = TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
+                                  tp.layout();
+                                  controller.textPainterCache[cacheKey] = tp;
+                              }
+                              
                               tp.paint(canvas, iconPos - Offset(tp.width / 2, tp.height / 2));
                           }
                       }
