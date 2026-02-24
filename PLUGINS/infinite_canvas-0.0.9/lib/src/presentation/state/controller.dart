@@ -385,18 +385,36 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     final selection = <Key>[];
     for (final child in nodes) {
       // V25: Ignore hidden/zero-sized nodes (Fixes invisible tail interference)
-      if (child.size.isEmpty || child.size.shortestSide <= 0) continue;
-
-      // V25: Inflate hit area. Sticky if already hovered (User Request).
-      // Refined: Only sticky during drag (linkStart/controlPressed), and size 30.
-      double inflation = 15.0;
+      // V25: Circular Precision Hitbox (User Request)
+      // Extract the exact center of the square node
+      double centerX = child.rect.left + (child.rect.width / 2.0);
+      double centerY = child.rect.top + (child.rect.height / 2.0);
+      
+      // Base radius is precisely half the visual width without any massive invisible padding
+      double baseRadius = child.rect.width / 2.0;
+      
+      // If the user is currently targeting this exact node, it visually expanded to 1.5x in the GUI.
+      // We must match that expanded visual radius so they don't accidentally click off it while tuning!
+      if (_selected.contains(child.key)) {
+          baseRadius *= 1.5;
+      }
+      
+      // To allow dragging links from tiny zoomed-out distances, we allow a small snap-radius 
+      // ONLY when actively dragging a line. Otherwise, we keep it pixel perfect for tapping.
       if (linkStart != null || controlPressed) {
           if (isHovered(child.key)) {
-             inflation = 30.0;
+             baseRadius += 30.0;
+          } else {
+             baseRadius += 15.0; 
           }
       }
-      final rect = child.rect.inflate(inflation);
-      if (rect.contains(offset)) {
+      
+      // Calculate Euclidean distance from tap to center
+      double dx = offset.dx - centerX;
+      double dy = offset.dy - centerY;
+      double distance = sqrt(dx*dx + dy*dy);
+      
+      if (distance <= baseRadius) {
          // V25 FEATURE: Reject click events on output neurons' empty body space
          bool isOutput = false;
          for (var sn in syntheticNeuronList) {
