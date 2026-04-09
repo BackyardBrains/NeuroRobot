@@ -3043,13 +3043,11 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       });
 
       // Rotation / resize: animate to the new orientation's home position.
-      // (On first init this is handled inside initCanvas via its own addPostFrameCallback;
-      //  for subsequent !isInitialized triggers, initCanvas is skipped so we add it here.)
       if (isControllerInitialized) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _animateCanvasToReset(
             MediaQuery.of(context).orientation == Orientation.landscape,
-            animate: false, // Snap instantly — brain revealed already in place
+            animate: isCameraExpanded, // Snap instantly — brain revealed already in place, unless Expanded where scaling demands continuous tweening offsets
           );
         });
       }
@@ -7125,18 +7123,21 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
     // ── EXPANDING LIVE CAMERA WIDGET (Must render BEFORE UI overlays) ── //
     if (isPlayingMenu) {
+      bool isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+      bool useLandscapeUI = isLandscape || isTablet;
+
       double pipCamWidth = (Platform.isIOS || Platform.isAndroid) ? 200 : 213;
       double pipCamHeight = (Platform.isIOS || Platform.isAndroid) ? 150 : 160;
       
       // Card width scaling logic decoupled between Landscape and Portrait
-      double maxCardWidth = MediaQuery.of(context).size.width * (isLandscape ? 0.70 : 0.95);
-      double maxCardHeight = MediaQuery.of(context).size.height * (isLandscape ? 0.85 : 0.88);
+      double maxCardWidth = MediaQuery.of(context).size.width * (useLandscapeUI ? 0.70 : 0.95);
+      double maxCardHeight = MediaQuery.of(context).size.height * (useLandscapeUI ? 0.85 : 0.88);
 
-      double cameraWidth = (isLandscape && isCameraExpanded) ? (maxCardWidth - 140) : (isCameraExpanded ? maxCardWidth : pipCamWidth); 
+      double cameraWidth = (useLandscapeUI && isCameraExpanded) ? (maxCardWidth - 140) : (isCameraExpanded ? maxCardWidth : pipCamWidth); 
       double cameraHeight = cameraWidth * 0.75; // Lock camera stream to 4:3
       
       // Vertical space buffer for titles, padding, and UI wrap
-      double uiOverheadHeight = isLandscape ? 30.0 : 80.0;
+      double uiOverheadHeight = useLandscapeUI ? 30.0 : 80.0;
       if (_hasUnboundRemoteNeurons) uiOverheadHeight += 60.0;
       
       // Prevent vertical overflow by shifting the bottleneck if necessary
@@ -7147,16 +7148,16 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       
       double waveHeightTarget = cameraHeight * 0.6; // Scale plot dynamically
       
-      // Define explicit bounding geometry depending on orientation flow
-      double expandedWidth = isLandscape ? (cameraWidth + 140) : cameraWidth;
-      double expandedHeight = cameraHeight + waveHeightTarget + uiOverheadHeight;
+      // Added + 16 to properly offset the interior Card paddings so Wrap fits cleanly natively 
+      double expandedWidth = useLandscapeUI ? (cameraWidth + 140 + 16) : (cameraWidth + 16);
+      double expandedHeight = cameraHeight + waveHeightTarget + uiOverheadHeight + 16;
       
       widgets.add(AnimatedPositioned(
         duration: const Duration(milliseconds: 600), 
         curve: Curves.easeInOutExpo,
-        left: isCameraExpanded ? (isLandscape ? 90.0 : (MediaQuery.of(context).size.width - expandedWidth) / 2) : null,
-        right: isCameraExpanded ? (isLandscape ? null : (MediaQuery.of(context).size.width - expandedWidth) / 2) : safePadding,
-        top: isCameraExpanded ? (isLandscape ? MediaQuery.of(context).padding.top : MediaQuery.of(context).size.height - expandedHeight - 160) : MediaQuery.of(context).padding.top,
+        left: isCameraExpanded ? (useLandscapeUI ? 90.0 : (MediaQuery.of(context).size.width - expandedWidth) / 2) : null,
+        right: isCameraExpanded ? (useLandscapeUI ? null : (MediaQuery.of(context).size.width - expandedWidth) / 2) : safePadding,
+        top: isCameraExpanded ? (useLandscapeUI ? MediaQuery.of(context).padding.top : MediaQuery.of(context).size.height - expandedHeight - 160) : MediaQuery.of(context).padding.top,
         width: isCameraExpanded ? expandedWidth : 326, 
         child: Card(
           elevation: isCameraExpanded ? 12 : 4,
@@ -7346,14 +7347,14 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                         AnimatedContainer(
                             duration: const Duration(milliseconds: 600),
                             curve: Curves.easeInOutExpo,
-                            width: isCameraExpanded ? (isLandscape ? 130 : expandedWidth) : 96,
+                            width: isCameraExpanded ? (useLandscapeUI ? 130 : expandedWidth) : 96,
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (!isLandscape && isCameraExpanded) const SizedBox(height: 5),
+                                  if (!useLandscapeUI && isCameraExpanded) const SizedBox(height: 5),
                                   const Text("Visual Targets:", style: TextStyle(fontWeight: FontWeight.bold)),
                                   ...leftAiListWidget,
                                 ]

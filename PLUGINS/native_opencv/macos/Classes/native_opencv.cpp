@@ -423,18 +423,20 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                         float val = dog_ptr[x];
                         
                         // Enforce a strong pure-black threshold for robust outlines and artifact-free deep shadows
-                        if (val < epsilon * 0.90f) {
+                        if (val < epsilon * 0.80f) {
                             out_ptr[x] = 0;
                         } 
                         // Compress the shading tier mathematically so it strictly acts as a fast transitional gradient
-                        else if (val < epsilon + 0.10f) {
-                            float shadowDepth = (val - (epsilon * 0.90f)) / (epsilon + 0.10f - epsilon * 0.90f); 
+                        else if (val < epsilon + 0.40f) {
+                            float shadowDepth = (val - (epsilon * 0.80f)) / (epsilon + 0.40f - epsilon * 0.80f); 
                             
                             int strokeWidth = 3 - (int)(shadowDepth * 4.0f); 
                             
-                            if (strokeWidth >= 0) {
-                                if ((x + y) % 6 <= strokeWidth) out_ptr[x] = 0;
-                            }
+                            // Calculate an organic Sine wave phase distortion (Plasma effect) locally across the coordinate map
+                            int phaseX = (int)(8.0f * std::sin(x * 0.04f));
+                            int phaseY = (int)(8.0f * std::sin(y * 0.04f));
+                            
+                            if ((x + y + phaseX + phaseY) % 6 <= strokeWidth) out_ptr[x] = 0;
                         }
                     }
                 }
