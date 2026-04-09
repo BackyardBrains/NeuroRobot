@@ -422,24 +422,20 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                     for (int x = 0; x < xdog.cols; x++) {
                         float val = dog_ptr[x];
                         
-                        // Widened darkness threshold to allow more white
-                        if (val < epsilon * 0.45f) {
-                            // Absolute Hardware Darkness -> Solid Ink
+                        // Enforce a strong pure-black threshold for robust outlines and artifact-free deep shadows
+                        if (val < epsilon * 0.90f) {
                             out_ptr[x] = 0;
-                        } else if (val < epsilon + 0.85f) {
-                            // Dynamic Tapered Engraving: Lines get physically thicker as shadows deepen!
-                            // shadowDepth -> 0.0 (darkest shadow limit) to 1.0 (lightest shadow limit)
-                            float shadowDepth = (val - (epsilon * 0.45f)) / 0.85f; 
+                        } 
+                        // Compress the shading tier mathematically so it strictly acts as a fast transitional gradient
+                        else if (val < epsilon + 0.10f) {
+                            float shadowDepth = (val - (epsilon * 0.90f)) / (epsilon + 0.10f - epsilon * 0.90f); 
                             
-                            // strokeWidth scales from 3 (thick) -> down to 0 (sparse) -> and -1 (pure white)
                             int strokeWidth = 3 - (int)(shadowDepth * 4.0f); 
                             
                             if (strokeWidth >= 0) {
-                                // Draw diagonal slashes of dynamic fractional width out of 6 pixels
                                 if ((x + y) % 6 <= strokeWidth) out_ptr[x] = 0;
                             }
                         }
-                        // Everything higher remains White (255)
                     }
                 }
                 
