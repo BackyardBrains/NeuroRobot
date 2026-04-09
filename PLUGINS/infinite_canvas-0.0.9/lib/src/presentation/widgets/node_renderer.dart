@@ -48,7 +48,6 @@ class NodeRenderer extends StatelessWidget {
                 // ),
               ),
             ),
-          // CHANGE ME
           // V25: Orange highlight behind neuron when dragging connection (User Request)
           // Refined: Signature Color, Larger, Exclude Source/Parent
           if (controller.isHovered(node.key) && (controller.linkStart != null || controller.controlPressed))
@@ -94,11 +93,11 @@ class NodeRenderer extends StatelessWidget {
                     clipBehavior: node.clipBehavior,
                     child: node.child,
                   )
-                : (!controller.isPlaying && (controller.isSelected(node.key) ||
-                        controller.isHovered(node.key)))
+                : (!controller.isPlaying && !controller.isInAnnotationMode &&
+                        (controller.isSelected(node.key) || controller.isHovered(node.key)))
                     ? Transform.scale(
-                        scale: 1.65, // V25: Adjusted growth size
-                        child: node.child!, // Highlight handled in EdgeRenderer (Bottom Layer)
+                        scale: node.isSensory == 1 ? 1.0 : 1.65,
+                        child: node.child!,
                       )
                     : node.child!,
           ),

@@ -25,6 +25,7 @@ class SyntheticNeuron extends CustomPainter {
   Random random = Random();
   late double randomVariation1;
   late double randomVariation2;
+  bool isOutput = false;
 
   late Neuron newNeuron;
   Paint blackBrush = Paint()
@@ -94,10 +95,53 @@ class SyntheticNeuron extends CustomPainter {
     randomVariation2 = rawNeuron.randomVariation2;
   }
 
-  void setupDrawingNeuron() {
+  void setupDrawingNeuron({bool isOutput = false}) {
+    this.isOutput = isOutput;
     List<Sinapse> sinapFirst = [];
     List<Sinapse> sinapSecond = [];
-    var totalAngle = random.nextDouble() * 70;
+        // V25 FEATURE: Output Neurons have a single rigidly mapped dendrite tree
+    if (isOutput) {
+        double targetAngle = 180.0;
+        
+        if (node.value == 5) { // Left Motor Forward
+            targetAngle = 25.0;
+        } else if (node.value == 7) { // Left Motor Reverse
+            targetAngle = 0.0;
+        } else if (node.value == 6) { // Right Motor Forward
+            targetAngle = 153.0;
+        } else if (node.value == 8) { // Right Motor Reverse
+            targetAngle = 190.0;
+        } else if (node.value == 4) { // Speaker
+            targetAngle = 100.0;
+        } else if (node.value >= 9 && node.value <= 12) { // LEDs
+            targetAngle = 270.0;
+        } else if (node.label != null && (node.label!.toLowerCase().contains("led") || node.label!.toLowerCase().contains("light"))) {
+            targetAngle = 270.0;
+        } else if (node.label != null && node.label!.toLowerCase().contains("speaker")) {
+            targetAngle = 100.0;
+        }
+
+        // Standard random tree logic but mathematically locked angle
+        var totalAngle = targetAngle;
+        
+        Dendrite newDendrite = Dendrite(
+            hasSecondLevel: true, // Output is guaranteed to have the V-split
+            angle: totalAngle,
+            sinapseFirstLevel: sinapFirst,
+            sinapseSecondLevel: sinapSecond,
+            xFirstLevel: 0.0,
+            xSecondLevel: 0.0,
+            yFirstLevel: 0.0,
+            ySecondLevel: 0.0,
+            xTriangleFirstLevel: 0.0,
+            yTriangleFirstLevel: 0.0,
+            xTriangleSecondLevel: 0.0,
+            yTriangleSecondLevel: 0.0);
+        dendrites.add(newDendrite);
+
+    } else {
+        // Standard random tree logic
+        var totalAngle = random.nextDouble() * 70;
 
     Dendrite newDendrite = Dendrite(
         hasSecondLevel: random.nextDouble() < 0.4,
@@ -137,7 +181,9 @@ class SyntheticNeuron extends CustomPainter {
       }
     }
 
-    double diameterOfNeuron = circleRadius;
+        }
+
+    double diameterOfNeuron = isOutput ? circleRadius * 1.25 : circleRadius;
     double drawX = centerPos.dx;
     double drawY = centerPos.dy;
     double x = circleRadius + node.offset.dx;
@@ -210,7 +256,7 @@ class SyntheticNeuron extends CustomPainter {
     double neurYNucleus = neur.yNucleus;
 
     // Draw circle at each point with predefined diameter
-    if (canvas != null) {
+    if (canvas != null && !isOutput) {
       if (node.isExcitatory == 0) {
         canvas.drawCircle(Offset(neurX, neurY), neur.diameter, whiteBrush);
         canvas.drawCircle(
@@ -225,7 +271,7 @@ class SyntheticNeuron extends CustomPainter {
         center: Offset(neurXNucleus, neurYNucleus),
         width: neur.widthNucleus,
         height: neur.heightNucleus);
-    if (canvas != null) {
+    if (canvas != null && !isOutput) {
       if (node.isExcitatory == 0) {
         canvas.drawOval(r, blackBrush);
       } else {
@@ -236,16 +282,31 @@ class SyntheticNeuron extends CustomPainter {
     // print("neur.dendrites.length");
     // print(neur.dendrites.length);
     for (int i = 0; i < neur.dendrites.length; i++) {
+      if (neur.isIO && !isOutput) {
+        continue;
+      }
+      bool isChiral = false;
+      if (isOutput && (node.value == 4 || node.value == 6 || node.value == 7)) {
+          isChiral = true;
+      }
+      
+      if (isChiral) {
       if (neur.isIO) {
         continue;
       }
       // V25: Add rotationDelta to dendrite angle - whole neuron rotates together
-      var angle = neur.dendrites[i].angle + neur.rotationDelta;
+      double chiralMultiplier = isChiral ? -1.0 : 1.0;
+      var angle = (neur.dendrites[i].angle * chiralMultiplier) + neur.rotationDelta;
 
       bool hasSecondLevelNeuron = neur.dendrites[i].hasSecondLevel;
 
-      var center_x = neurX + neur.diameter * cosDeg(angle);
-      var center_y = neurY + neur.diameter * sinDeg(angle);
+      double dDia = isOutput ? neur.diameter * 1.5 : neur.diameter;
+      double startRadius = dDia;
+      var center_x = neurX + startRadius * cosDeg(angle);
+      var center_y = neurY + startRadius * sinDeg(angle);
+
+      double rv1 = isOutput ? 1.0 : randomVariation1;
+      double rv2 = isOutput ? 1.0 : randomVariation2;
 
       var distanceToFirstLevelDendritesEnd = 1.8; //proportion do not scale
       var widthOfFirstLevelDendrites = 22.0; //angle do not scale
@@ -258,13 +319,548 @@ class SyntheticNeuron extends CustomPainter {
       // randomVariation1 = 0.95 + 0.1 * random.nextDouble();
       // randomVariation1 = 1.0;
       distanceToFirstLevelDendritesEnd =
-          distanceToFirstLevelDendritesEnd * randomVariation1;
+          distanceToFirstLevelDendritesEnd * rv1;
 
       //calculate for left dendrite
       var leftStartDendrites_x =
-          neurX + neur.diameter * cosDeg(angle - widthOfFirstLevelDendrites);
+          neurX + dDia * cosDeg(angle+ widthOfFirstLevelDendrites);
       var leftStartDendrites_y =
-          neurY + neur.diameter * sinDeg(angle - widthOfFirstLevelDendrites);
+          neurY + dDia * sinDeg(angle+ widthOfFirstLevelDendrites);
+
+      // randomVariation2 = 0.9 + 0.2 * random.nextDouble();
+      //randomVariation2 = 1.0;
+      var leftMiddleDendrites_x_plus = neurX +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              cosDeg(angle+
+                  widthOfMiddleLevelDendrites -
+                  ticknessOfMiddleOfDendrite);
+      var leftMiddleDendrites_y_plus = neurY +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              sinDeg(angle+
+                  widthOfMiddleLevelDendrites -
+                  ticknessOfMiddleOfDendrite);
+      var leftMiddleDendrites_x_minus = neurX +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              cosDeg(angle+
+                  widthOfMiddleLevelDendrites +
+                  ticknessOfMiddleOfDendrite);
+      var leftMiddleDendrites_y_minus = neurY +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              sinDeg(angle+
+                  widthOfMiddleLevelDendrites +
+                  ticknessOfMiddleOfDendrite);
+
+      var actualTicknessOfEndOfDendrite = hasSecondLevelNeuron
+          ? 2.3 * ticknessOfEndOfDendrite
+          : ticknessOfEndOfDendrite;
+
+      var leftEndDendrites_x_plus = neurX +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              cosDeg(angle+
+                  distanceBetweenEndsOfFirstLevelDendrites -
+                  actualTicknessOfEndOfDendrite);
+      var leftEndDendrites_y_plus = neurY +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              sinDeg(angle+
+                  distanceBetweenEndsOfFirstLevelDendrites -
+                  actualTicknessOfEndOfDendrite);
+
+      var leftEndDendrites_x_center = neurX +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              1.06 *
+              neur.diameter *
+              cosDeg(angle+ distanceBetweenEndsOfFirstLevelDendrites);
+      var leftEndDendrites_y_center = neurY +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              1.06 *
+              neur.diameter *
+              sinDeg(angle+ distanceBetweenEndsOfFirstLevelDendrites);
+
+      var leftEndDendrites_x_minus = neurX +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              cosDeg(angle+
+                  distanceBetweenEndsOfFirstLevelDendrites +
+                  actualTicknessOfEndOfDendrite);
+      var leftEndDendrites_y_minus = neurY +
+          rv2 *
+              distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              sinDeg(angle+
+                  distanceBetweenEndsOfFirstLevelDendrites +
+                  actualTicknessOfEndOfDendrite);
+
+      //calculate for right dendrite
+      var rightStartDendrites_x =
+          neurX + dDia * cosDeg(angle- widthOfFirstLevelDendrites);
+      var rightStartDendrites_y =
+          neurY + dDia * sinDeg(angle- widthOfFirstLevelDendrites);
+
+      var rightMiddleDendrites_x_plus = neurX +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              cosDeg(angle-
+                  widthOfMiddleLevelDendrites -
+                  ticknessOfMiddleOfDendrite);
+      var rightMiddleDendrites_y_plus = neurY +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              sinDeg(angle-
+                  widthOfMiddleLevelDendrites -
+                  ticknessOfMiddleOfDendrite);
+      var rightMiddleDendrites_x_minus = neurX +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              cosDeg(angle-
+                  widthOfMiddleLevelDendrites +
+                  ticknessOfMiddleOfDendrite);
+      var rightMiddleDendrites_y_minus = neurY +
+          distanceToMiddlePointOfCurve *
+              neur.diameter *
+              sinDeg(angle-
+                  widthOfMiddleLevelDendrites +
+                  ticknessOfMiddleOfDendrite);
+
+      var rightEndDendrites_x_plus = neurX +
+          distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              cosDeg(angle-
+                  distanceBetweenEndsOfFirstLevelDendrites -
+                  ticknessOfEndOfDendrite);
+      var rightEndDendrites_y_plus = neurY +
+          distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              sinDeg(angle-
+                  distanceBetweenEndsOfFirstLevelDendrites -
+                  ticknessOfEndOfDendrite);
+
+      double rightEndDendrites_x_center = neurX +
+          distanceToFirstLevelDendritesEnd *
+              1.06 *
+              neur.diameter *
+              cosDeg(angle- distanceBetweenEndsOfFirstLevelDendrites);
+      var rightEndDendrites_y_center = neurY +
+          distanceToFirstLevelDendritesEnd *
+              1.06 *
+              neur.diameter *
+              sinDeg(angle- distanceBetweenEndsOfFirstLevelDendrites);
+
+      var rightEndDendrites_x_minus = neurX +
+          distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              cosDeg(angle-
+                  distanceBetweenEndsOfFirstLevelDendrites +
+                  ticknessOfEndOfDendrite);
+      var rightEndDendrites_y_minus = neurY +
+          distanceToFirstLevelDendritesEnd *
+              neur.diameter *
+              sinDeg(angle-
+                  distanceBetweenEndsOfFirstLevelDendrites +
+                  ticknessOfEndOfDendrite);
+
+            //calculate Extended Trunk Base for Outputs
+      var drawCenter_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle) : center_x;
+      var drawCenter_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle) : center_y;
+      var drawLeftStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle- widthOfFirstLevelDendrites) : leftStartDendrites_x;
+      var drawLeftStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle- widthOfFirstLevelDendrites) : leftStartDendrites_y;
+      var drawRightStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle+ widthOfFirstLevelDendrites) : rightStartDendrites_x;
+      var drawRightStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle+ widthOfFirstLevelDendrites) : rightStartDendrites_y;
+
+      //draw left dendrite
+      var path = Path();
+      if (canvas != null && (!neur.isIO || isOutput)) {
+        path.moveTo(drawCenter_x, drawCenter_y);
+        path.quadraticBezierTo(
+            leftMiddleDendrites_x_plus,
+            leftMiddleDendrites_y_plus,
+            leftEndDendrites_x_plus,
+            leftEndDendrites_y_plus);
+        path.quadraticBezierTo(
+            leftEndDendrites_x_center,
+            leftEndDendrites_y_center,
+            leftEndDendrites_x_minus,
+            leftEndDendrites_y_minus);
+        path.quadraticBezierTo(
+            leftMiddleDendrites_x_minus,
+            leftMiddleDendrites_y_minus,
+            drawLeftStart_x,
+            drawLeftStart_y);
+        path.lineTo(drawCenter_x, drawCenter_y);
+        path.close();
+        canvas.drawPath(path, blackBrush);
+      }
+
+      //draw right dendrite
+      if (canvas != null && (!neur.isIO || isOutput)) {
+        path = Path();
+        path.moveTo(drawCenter_x, drawCenter_y);
+        path.quadraticBezierTo(
+            rightMiddleDendrites_x_minus,
+            rightMiddleDendrites_y_minus,
+            rightEndDendrites_x_minus,
+            rightEndDendrites_y_minus);
+        path.quadraticBezierTo(
+            rightEndDendrites_x_center,
+            rightEndDendrites_y_center,
+            rightEndDendrites_x_plus,
+            rightEndDendrites_y_plus);
+        path.quadraticBezierTo(
+            rightMiddleDendrites_x_plus,
+            rightMiddleDendrites_y_plus,
+            drawRightStart_x,
+            drawRightStart_y);
+        path.lineTo(drawCenter_x, drawCenter_y);
+        path.close();
+        canvas.drawPath(path, blackBrush);
+      }
+
+      //calculate sinapse
+      neur.dendrites[i].xFirstLevel =
+          (rightEndDendrites_x_center + leftEndDendrites_x_center) * 0.5;
+      neur.dendrites[i].yFirstLevel =
+          (leftEndDendrites_y_center + rightEndDendrites_y_center) * 0.5;
+
+      rawSyntheticNeuron.dendrites[i].xFirstLevel =
+          neur.dendrites[i].xFirstLevel;
+      rawSyntheticNeuron.dendrites[i].yFirstLevel =
+          neur.dendrites[i].yFirstLevel;
+      // print(
+      //     "leftEndDendrites_y_center + rightEndDendrites_y_center : $leftEndDendrites_y_center $rightEndDendrites_y_center");
+
+      //prepare central point for synapse
+      double testx =
+          0.5 * (leftMiddleDendrites_x_minus + rightMiddleDendrites_x_plus);
+      double testy =
+          0.5 * (leftMiddleDendrites_y_minus + rightMiddleDendrites_y_plus);
+
+      if (neur.dendrites[i].hasSecondLevel) {
+        neur.dendrites[i].xTriangleFirstLevel =
+            0.5 * (testx + neur.dendrites[i].xFirstLevel);
+        neur.dendrites[i].yTriangleFirstLevel =
+            0.5 * (testy + neur.dendrites[i].yFirstLevel);
+
+        rawSyntheticNeuron.dendrites[i].xTriangleFirstLevel =
+            neur.dendrites[i].xTriangleFirstLevel;
+        rawSyntheticNeuron.dendrites[i].yTriangleFirstLevel =
+            neur.dendrites[i].yTriangleFirstLevel;
+      } else {
+        neur.dendrites[i].xTriangleFirstLevel =
+            (0.75 * testx + 0.25 * neur.dendrites[i].xFirstLevel);
+        neur.dendrites[i].yTriangleFirstLevel =
+            (0.75 * testy + 0.25 * neur.dendrites[i].yFirstLevel);
+
+        rawSyntheticNeuron.dendrites[i].xTriangleFirstLevel =
+            neur.dendrites[i].xTriangleFirstLevel;
+        rawSyntheticNeuron.dendrites[i].yTriangleFirstLevel =
+            neur.dendrites[i].yTriangleFirstLevel;
+      }
+      // neur.dendrites[i].xTriangleFirstLevel = testx;
+      // neur.dendrites[i].yTriangleFirstLevel = testy;
+
+      //canvas.drawCircle(Offset(testx, testy), neur.diameter * 0.20, blackBrush);
+      // canvas.drawCircle(
+      //     Offset(
+      //         neur.dendrites[i].xSecondLevel, neur.dendrites[i].ySecondLevel),
+      //     neur.diameter * 0.20,
+      //     greenBrush);
+      //------------------------------ draw second level dendrites ------------------------------------
+      if (hasSecondLevelNeuron) {
+        var new_x = rightStartDendrites_x;
+        var new_y = rightStartDendrites_y;
+
+        var tip_first_level_x = leftEndDendrites_x_center;
+        var tip_first_level_y = leftEndDendrites_y_center;
+
+        //Calculate new radius and angle on new circle for 2nd level dendrites
+        double newDiameter = euclideanDistance(
+            new_x, new_y, tip_first_level_x, tip_first_level_y);
+        double newAngle = angleBetweenTwoPoints(
+            new_x, new_y, tip_first_level_x, tip_first_level_y);
+
+        // distanceToMiddlePointOfCurve = distanceToMiddlePointOfCurve * 1.2;
+        // ticknessOfMiddleOfDendrite = ticknessOfMiddleOfDendrite * -0.3;
+
+        //calculate for left dendrite 2nd level
+        var newLeftStartDendrites_x = leftEndDendrites_x_minus;
+        var newLeftStartDendrites_y = leftEndDendrites_y_minus;
+
+        distanceToMiddlePointOfCurve = 1.57; //1.17;
+        widthOfMiddleLevelDendrites = 0.0; ////angle do not scale
+        ticknessOfMiddleOfDendrite = 2.0; ////angle do not scale
+        ticknessOfEndOfDendrite = 2.0; ////angle do not scale
+
+        var newLeftMiddleDendrites_x_plus = new_x +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                cosDeg(newAngle+
+                    widthOfMiddleLevelDendrites -
+                    ticknessOfMiddleOfDendrite);
+        var newLeftMiddleDendrites_y_plus = new_y +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                sinDeg(newAngle+
+                    widthOfMiddleLevelDendrites -
+                    ticknessOfMiddleOfDendrite);
+        var newLeftMiddleDendrites_x_minus = new_x +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                cosDeg(newAngle+
+                    widthOfMiddleLevelDendrites +
+                    ticknessOfMiddleOfDendrite);
+        var newLeftMiddleDendrites_y_minus = new_y +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                sinDeg(newAngle+
+                    widthOfMiddleLevelDendrites +
+                    ticknessOfMiddleOfDendrite);
+
+        var newLeftEndDendrites_x_plus = new_x +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                cosDeg(newAngle+
+                    distanceBetweenEndsOfFirstLevelDendrites -
+                    ticknessOfEndOfDendrite);
+        var newLeftEndDendrites_y_plus = new_y +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                sinDeg(newAngle+
+                    distanceBetweenEndsOfFirstLevelDendrites -
+                    ticknessOfEndOfDendrite);
+
+        var newLeftEndDendrites_x_center = new_x +
+            distanceToFirstLevelDendritesEnd *
+                1.06 *
+                neur.diameter *
+                cosDeg(newAngle+ distanceBetweenEndsOfFirstLevelDendrites);
+        var newLeftEndDendrites_y_center = new_y +
+            distanceToFirstLevelDendritesEnd *
+                1.06 *
+                neur.diameter *
+                sinDeg(newAngle+ distanceBetweenEndsOfFirstLevelDendrites);
+
+        var newLeftEndDendrites_x_minus = new_x +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                cosDeg(newAngle+
+                    distanceBetweenEndsOfFirstLevelDendrites +
+                    ticknessOfEndOfDendrite);
+        var newLeftEndDendrites_y_minus = new_y +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                sinDeg(newAngle+
+                    distanceBetweenEndsOfFirstLevelDendrites +
+                    ticknessOfEndOfDendrite);
+
+        distanceToMiddlePointOfCurve = 1.57; //1.17;
+        widthOfMiddleLevelDendrites = 0; ////angle do not scale
+        ticknessOfMiddleOfDendrite = 2.0; //angle do not scale
+        ticknessOfEndOfDendrite = 2.0; //angle do not scale
+
+        //calculate for right dendrite 2nd level
+        var newRightStartDendrites_x = leftEndDendrites_x_plus;
+        var newRightStartDendrites_y = leftEndDendrites_y_plus;
+
+        var newRightMiddleDendrites_x_plus = new_x +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                cosDeg(newAngle-
+                    widthOfMiddleLevelDendrites -
+                    ticknessOfMiddleOfDendrite);
+        var newRightMiddleDendrites_y_plus = new_y +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                sinDeg(newAngle-
+                    widthOfMiddleLevelDendrites -
+                    ticknessOfMiddleOfDendrite);
+        var newRightMiddleDendrites_x_minus = new_x +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                cosDeg(newAngle-
+                    widthOfMiddleLevelDendrites +
+                    ticknessOfMiddleOfDendrite);
+        var newRightMiddleDendrites_y_minus = new_y +
+            distanceToMiddlePointOfCurve *
+                neur.diameter *
+                sinDeg(newAngle-
+                    widthOfMiddleLevelDendrites +
+                    ticknessOfMiddleOfDendrite);
+
+        var newRightEndDendrites_x_plus = new_x +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                cosDeg(newAngle-
+                    distanceBetweenEndsOfFirstLevelDendrites -
+                    ticknessOfEndOfDendrite);
+        var newRightEndDendrites_y_plus = new_y +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                sinDeg(newAngle-
+                    distanceBetweenEndsOfFirstLevelDendrites -
+                    ticknessOfEndOfDendrite);
+
+        var newRightEndDendrites_x_center = new_x +
+            distanceToFirstLevelDendritesEnd *
+                1.06 *
+                neur.diameter *
+                cosDeg(newAngle- distanceBetweenEndsOfFirstLevelDendrites);
+        var newRightEndDendrites_y_center = new_y +
+            distanceToFirstLevelDendritesEnd *
+                1.06 *
+                neur.diameter *
+                sinDeg(newAngle- distanceBetweenEndsOfFirstLevelDendrites);
+
+        var newRightEndDendrites_x_minus = new_x +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                cosDeg(newAngle-
+                    distanceBetweenEndsOfFirstLevelDendrites +
+                    ticknessOfEndOfDendrite);
+        var newRightEndDendrites_y_minus = new_y +
+            distanceToFirstLevelDendritesEnd *
+                neur.diameter *
+                sinDeg(newAngle-
+                    distanceBetweenEndsOfFirstLevelDendrites +
+                    ticknessOfEndOfDendrite);
+
+              //calculate Extended Trunk Base for Outputs
+      var drawCenter_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle) : center_x;
+      var drawCenter_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle) : center_y;
+      var drawLeftStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle- widthOfFirstLevelDendrites) : leftStartDendrites_x;
+      var drawLeftStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle- widthOfFirstLevelDendrites) : leftStartDendrites_y;
+      var drawRightStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle+ widthOfFirstLevelDendrites) : rightStartDendrites_x;
+      var drawRightStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle+ widthOfFirstLevelDendrites) : rightStartDendrites_y;
+
+      //draw left dendrite 2nd level
+        var path = Path();
+        if (canvas != null) {
+          path.moveTo(newRightStartDendrites_x, newRightStartDendrites_y);
+          path.quadraticBezierTo(
+              newLeftMiddleDendrites_x_plus,
+              newLeftMiddleDendrites_y_plus,
+              newLeftEndDendrites_x_plus,
+              newLeftEndDendrites_y_plus);
+          path.quadraticBezierTo(
+              newLeftEndDendrites_x_center,
+              newLeftEndDendrites_y_center,
+              newLeftEndDendrites_x_minus,
+              newLeftEndDendrites_y_minus);
+          path.quadraticBezierTo(
+              newLeftMiddleDendrites_x_minus,
+              newLeftMiddleDendrites_y_minus,
+              newLeftStartDendrites_x,
+              newLeftStartDendrites_y);
+          path.lineTo(newRightStartDendrites_x, newRightStartDendrites_y);
+          path.close();
+          canvas.drawPath(path, blackBrush);
+        }
+
+        // //draw right dendrite 2nd level
+        // blackBrush.color = Colors.black;
+        if (canvas != null) {
+          path = Path();
+          path.moveTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
+          path.quadraticBezierTo(
+              newRightMiddleDendrites_x_minus,
+              newRightMiddleDendrites_y_minus,
+              newRightEndDendrites_x_minus,
+              newRightEndDendrites_y_minus);
+          path.quadraticBezierTo(
+              newRightEndDendrites_x_center,
+              newRightEndDendrites_y_center,
+              newRightEndDendrites_x_plus,
+              newRightEndDendrites_y_plus);
+          path.quadraticBezierTo(
+              newRightMiddleDendrites_x_plus,
+              newRightMiddleDendrites_y_plus,
+              newRightStartDendrites_x,
+              newRightStartDendrites_y);
+          path.lineTo(newLeftStartDendrites_x, newLeftStartDendrites_y);
+          path.close();
+          canvas.drawPath(path, blackBrush);
+        }
+        // blackBrush.color = Colors.black;
+
+        //draw sinapse second level
+        //get coordinates of sinapse center
+
+        neur.dendrites[i].xSecondLevel =
+            (newRightEndDendrites_x_center + newLeftEndDendrites_x_center) *
+                0.5;
+        neur.dendrites[i].ySecondLevel =
+            (newLeftEndDendrites_y_center + newRightEndDendrites_y_center) *
+                0.5;
+        // print("rawDendrite $neuronIdx $i");
+        // // print(neur.dendrites[i].xFirstLevel);
+        // // print(neur.dendrites[i].yFirstLevel);
+        // print(neur.dendrites[i].xSecondLevel);
+        // print(neur.dendrites[i].ySecondLevel);
+        // print("=@@@@@@@@@@=");
+
+        rawSyntheticNeuron.dendrites[i].xSecondLevel =
+            neur.dendrites[i].xSecondLevel;
+        rawSyntheticNeuron.dendrites[i].ySecondLevel =
+            neur.dendrites[i].ySecondLevel;
+
+        neur.dendrites[i].xTriangleSecondLevel = 0.5 *
+            (newRightMiddleDendrites_x_minus + newRightMiddleDendrites_x_plus);
+        neur.dendrites[i].yTriangleSecondLevel = 0.5 *
+            (newRightMiddleDendrites_y_minus + newRightMiddleDendrites_y_plus);
+
+        // print(
+        //     "$i - ${neur.dendrites[i].xSecondLevel + neur.x}_${neur.dendrites[i].ySecondLevel + neur.y} ");
+
+        // neur.dendrites[i].xTriangleSecondLevel = 0.5 * (neur.dendrites[i].xTriangleSecondLevel + neur.dendrites[i].xSecondLevel);
+        // neur.dendrites[i].yTriangleSecondLevel = 0.5 * (neur.dendrites[i].yTriangleSecondLevel + neur.dendrites[i].ySecondLevel);
+        //canvas.drawCircle(Offset(neur.dendrites[i].xSecondLevel, neur.dendrites[i].ySecondLevel), neur.diameter * 0.20, blackBrush);
+        //canvas.drawCircle(Offset(neur.dendrites[i].xTriangleSecondLevel, neur.dendrites[i].yTriangleSecondLevel), neur.diameter * 0.20, blackBrush);
+      }
+          } else {
+      if (neur.isIO) {
+        continue;
+      }
+      // V25: Add rotationDelta to dendrite angle - whole neuron rotates together
+      double chiralMultiplier = isChiral ? -1.0 : 1.0;
+      var angle = (neur.dendrites[i].angle * chiralMultiplier) + neur.rotationDelta;
+
+      bool hasSecondLevelNeuron = neur.dendrites[i].hasSecondLevel;
+
+      double dDia = isOutput ? neur.diameter * 1.5 : neur.diameter;
+      double startRadius = dDia;
+      var center_x = neurX + startRadius * cosDeg(angle);
+      var center_y = neurY + startRadius * sinDeg(angle);
+
+      double rv1 = isOutput ? 1.0 : randomVariation1;
+      double rv2 = isOutput ? 1.0 : randomVariation2;
+
+      var distanceToFirstLevelDendritesEnd = 1.8; //proportion do not scale
+      var widthOfFirstLevelDendrites = 22.0; //angle do not scale
+      var widthOfMiddleLevelDendrites = -10.0; //angle do not scale
+      var distanceBetweenEndsOfFirstLevelDendrites = 13.0; //angle do not scale
+      var distanceToMiddlePointOfCurve = 1.17; //proportion do not scale
+      var ticknessOfEndOfDendrite = 1.2; //angle do not scale
+      var ticknessOfMiddleOfDendrite = 4.0; //angle do not scale
+
+      // randomVariation1 = 0.95 + 0.1 * random.nextDouble();
+      // randomVariation1 = 1.0;
+      distanceToFirstLevelDendritesEnd =
+          distanceToFirstLevelDendritesEnd * rv1;
+
+      //calculate for left dendrite
+      var leftStartDendrites_x =
+          neurX + dDia * cosDeg(angle - widthOfFirstLevelDendrites);
+      var leftStartDendrites_y =
+          neurY + dDia * sinDeg(angle - widthOfFirstLevelDendrites);
 
       // randomVariation2 = 0.9 + 0.2 * random.nextDouble();
       //randomVariation2 = 1.0;
@@ -298,14 +894,14 @@ class SyntheticNeuron extends CustomPainter {
           : ticknessOfEndOfDendrite;
 
       var leftEndDendrites_x_plus = neurX +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               neur.diameter *
               cosDeg(angle -
                   distanceBetweenEndsOfFirstLevelDendrites +
                   actualTicknessOfEndOfDendrite);
       var leftEndDendrites_y_plus = neurY +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               neur.diameter *
               sinDeg(angle -
@@ -313,27 +909,27 @@ class SyntheticNeuron extends CustomPainter {
                   actualTicknessOfEndOfDendrite);
 
       var leftEndDendrites_x_center = neurX +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               1.06 *
               neur.diameter *
               cosDeg(angle - distanceBetweenEndsOfFirstLevelDendrites);
       var leftEndDendrites_y_center = neurY +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               1.06 *
               neur.diameter *
               sinDeg(angle - distanceBetweenEndsOfFirstLevelDendrites);
 
       var leftEndDendrites_x_minus = neurX +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               neur.diameter *
               cosDeg(angle -
                   distanceBetweenEndsOfFirstLevelDendrites -
                   actualTicknessOfEndOfDendrite);
       var leftEndDendrites_y_minus = neurY +
-          randomVariation2 *
+          rv2 *
               distanceToFirstLevelDendritesEnd *
               neur.diameter *
               sinDeg(angle -
@@ -342,9 +938,9 @@ class SyntheticNeuron extends CustomPainter {
 
       //calculate for right dendrite
       var rightStartDendrites_x =
-          neurX + neur.diameter * cosDeg(angle + widthOfFirstLevelDendrites);
+          neurX + dDia * cosDeg(angle + widthOfFirstLevelDendrites);
       var rightStartDendrites_y =
-          neurY + neur.diameter * sinDeg(angle + widthOfFirstLevelDendrites);
+          neurY + dDia * sinDeg(angle + widthOfFirstLevelDendrites);
 
       var rightMiddleDendrites_x_plus = neurX +
           distanceToMiddlePointOfCurve *
@@ -408,10 +1004,18 @@ class SyntheticNeuron extends CustomPainter {
                   distanceBetweenEndsOfFirstLevelDendrites -
                   ticknessOfEndOfDendrite);
 
+            //calculate Extended Trunk Base for Outputs
+      var drawCenter_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle) : center_x;
+      var drawCenter_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle) : center_y;
+      var drawLeftStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle + widthOfFirstLevelDendrites) : leftStartDendrites_x;
+      var drawLeftStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle + widthOfFirstLevelDendrites) : leftStartDendrites_y;
+      var drawRightStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle - widthOfFirstLevelDendrites) : rightStartDendrites_x;
+      var drawRightStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle - widthOfFirstLevelDendrites) : rightStartDendrites_y;
+
       //draw left dendrite
       var path = Path();
-      if (canvas != null) {
-        path.moveTo(center_x, center_y);
+      if (canvas != null && (!neur.isIO || isOutput)) {
+        path.moveTo(drawCenter_x, drawCenter_y);
         path.quadraticBezierTo(
             leftMiddleDendrites_x_plus,
             leftMiddleDendrites_y_plus,
@@ -425,17 +1029,17 @@ class SyntheticNeuron extends CustomPainter {
         path.quadraticBezierTo(
             leftMiddleDendrites_x_minus,
             leftMiddleDendrites_y_minus,
-            leftStartDendrites_x,
-            leftStartDendrites_y);
-        path.lineTo(leftStartDendrites_x, leftStartDendrites_y);
+            drawLeftStart_x,
+            drawLeftStart_y);
+        path.lineTo(drawCenter_x, drawCenter_y);
         path.close();
         canvas.drawPath(path, blackBrush);
       }
 
       //draw right dendrite
-      if (canvas != null) {
+      if (canvas != null && (!neur.isIO || isOutput)) {
         path = Path();
-        path.moveTo(center_x, center_y);
+        path.moveTo(drawCenter_x, drawCenter_y);
         path.quadraticBezierTo(
             rightMiddleDendrites_x_minus,
             rightMiddleDendrites_y_minus,
@@ -449,9 +1053,9 @@ class SyntheticNeuron extends CustomPainter {
         path.quadraticBezierTo(
             rightMiddleDendrites_x_plus,
             rightMiddleDendrites_y_plus,
-            rightStartDendrites_x,
-            rightStartDendrites_y);
-        path.lineTo(rightStartDendrites_x, rightStartDendrites_y);
+            drawRightStart_x,
+            drawRightStart_y);
+        path.lineTo(drawCenter_x, drawCenter_y);
         path.close();
         canvas.drawPath(path, blackBrush);
       }
@@ -664,7 +1268,15 @@ class SyntheticNeuron extends CustomPainter {
                     distanceBetweenEndsOfFirstLevelDendrites -
                     ticknessOfEndOfDendrite);
 
-        //draw left dendrite 2nd level
+              //calculate Extended Trunk Base for Outputs
+      var drawCenter_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle) : center_x;
+      var drawCenter_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle) : center_y;
+      var drawLeftStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle + widthOfFirstLevelDendrites) : leftStartDendrites_x;
+      var drawLeftStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle + widthOfFirstLevelDendrites) : leftStartDendrites_y;
+      var drawRightStart_x = isOutput ? neurX + (-dDia * 0.5) * cosDeg(angle - widthOfFirstLevelDendrites) : rightStartDendrites_x;
+      var drawRightStart_y = isOutput ? neurY + (-dDia * 0.5) * sinDeg(angle - widthOfFirstLevelDendrites) : rightStartDendrites_y;
+
+      //draw left dendrite 2nd level
         var path = Path();
         if (canvas != null) {
           path.moveTo(newRightStartDendrites_x, newRightStartDendrites_y);
@@ -748,7 +1360,7 @@ class SyntheticNeuron extends CustomPainter {
         //canvas.drawCircle(Offset(neur.dendrites[i].xSecondLevel, neur.dendrites[i].ySecondLevel), neur.diameter * 0.20, blackBrush);
         //canvas.drawCircle(Offset(neur.dendrites[i].xTriangleSecondLevel, neur.dendrites[i].yTriangleSecondLevel), neur.diameter * 0.20, blackBrush);
       }
-    }
+          }}
   }
 }
 

@@ -164,6 +164,14 @@ class _RightToolbarState extends State<RightToolbar> {
   }
 
   @override
+  void didUpdateWidget(covariant RightToolbar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.menuIdx != widget.menuIdx) {
+      activeIdx = widget.menuIdx;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return createRightToolbar();
   }

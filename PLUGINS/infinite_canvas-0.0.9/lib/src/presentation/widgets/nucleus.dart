@@ -1,18 +1,38 @@
 import 'package:flutter/material.dart';
+import '../state/controller.dart';
+import '../../domain/model/node.dart';
 
-class Nucleus extends StatelessWidget {
-  int isSpiking = -1;
-  int lastSpikeTime = 0;
-  int normalNeuronStartIdx = 13;
+// NucleusCircleParams kept for API compat; no longer drives a separate paint path.
+class NucleusCircleParams {
+  final int isExcitatory;
+  final double circleRadius;
+  final double xNucleus, yNucleus, widthNucleus, heightNucleus;
+  const NucleusCircleParams({
+    required this.isExcitatory,
+    required this.circleRadius,
+    required this.xNucleus,
+    required this.yNucleus,
+    required this.widthNucleus,
+    required this.heightNucleus,
+  });
+}
+
+class Nucleus extends StatefulWidget {
+  int isSpiking;
+  int lastSpikeTime;
+  final int normalNeuronStartIdx = 13;
   final List<ValueNotifier<int>> neuronSpikeFlags;
   final Color activeColor;
   final Color inactiveColor;
-  final Widget Function(BuildContext, Color?) childBuilder;
-  final int index;
+  final Widget Function(BuildContext, Color?, InfiniteCanvasNode) childBuilder;
+  final NucleusCircleParams? circleParams; // reserved, not used for rendering
+  final int flagIndex;
+  final LocalKey nodeKey;
   final Offset centerPos;
   final GlobalKey circleKey;
   final double scale;
   final double size;
+  final InfiniteCanvasController controller;
 
   Nucleus({
     Key? key,
@@ -22,41 +42,100 @@ class Nucleus extends StatelessWidget {
     required this.activeColor,
     required this.inactiveColor,
     required this.childBuilder,
-    required this.index,
+    this.circleParams,
+    required this.flagIndex,
+    required this.nodeKey,
     required this.centerPos,
     required this.circleKey,
     required this.size,
     this.scale = 1.0,
+    required this.controller,
   }) : super(key: key);
 
   @override
+  State<Nucleus> createState() => _NucleusState();
+}
+
+class _NucleusState extends State<Nucleus> {
+  Offset? _cachedOffset;
+  bool _cachedIsSelected = false;
+  bool _cachedIsAnimating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChange);
+  }
+
+  void _onControllerChange() {
+    if (!mounted) return;
+    final node = widget.controller.getNode(widget.nodeKey);
+    final newOffset = node?.offset;
+    final nowSelected = widget.controller.selection.any((n) => n.key == widget.nodeKey);
+    final nowAnimating = widget.controller.isAnimatingCamera;
+
+    if (newOffset != _cachedOffset ||
+        nowSelected != _cachedIsSelected ||
+        nowAnimating != _cachedIsAnimating) {
+      _cachedOffset      = newOffset;
+      _cachedIsSelected  = nowSelected;
+      _cachedIsAnimating = nowAnimating;
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChange);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (index < normalNeuronStartIdx) {
+    Offset effectivePos = widget.centerPos;
+    var node = widget.controller.getNode(widget.nodeKey);
+    if (node != null) {
+      effectivePos = node.offset;
+      _cachedOffset = effectivePos;
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
       return const SizedBox();
     }
+
     return Positioned(
-        top: centerPos.dy,
-        left: centerPos.dx,
-        child: Transform.scale(
-          scale: scale,
+      top: effectivePos.dy,
+      left: effectivePos.dx,
+      child: Transform.scale(
+        scale: widget.scale,
+        child: RepaintBoundary(
           child: SizedBox(
-            width: size,
-            height: size,
-            key: circleKey,
-            child: ValueListenableBuilder(
-              valueListenable: neuronSpikeFlags[index],
-              builder: ((context, value, child) {
-                  return TweenAnimationBuilder<Color?>(
-                    key: ValueKey(lastSpikeTime),
-                    tween: ColorTween(begin: activeColor, end: inactiveColor),
-                    duration: const Duration(milliseconds: 750),
-                    curve: Curves.linear,
-                    builder: (context, color, child) {
-                       return childBuilder(context, color);
-                    },
-                    onEnd: () {},
-                  );
-              }),
-            ))));
+            width: widget.size,
+            height: widget.size,
+            key: widget.circleKey,
+            child: AnimatedBuilder(
+              animation: widget.neuronSpikeFlags[widget.flagIndex],
+              builder: (context, child) {
+                // Skip animation during camera pan to keep panning smooth.
+                if (_cachedIsAnimating) {
+                  return widget.childBuilder(context, widget.inactiveColor, node!);
+                }
+                return TweenAnimationBuilder<Color?>(
+                  key: ValueKey(widget.lastSpikeTime),
+                  tween: ColorTween(
+                      begin: widget.activeColor, end: widget.inactiveColor),
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOut,
+                  builder: (context, color, child) {
+                    return widget.childBuilder(context, color, node!);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -231,6 +231,11 @@ class ProtoNeuron extends CustomPainter {
       Int16List dBufList,
       Float64List iBufList,
       Float64List wBufList) {
+    // CRITICAL FIX: Do NOT overwrite simulation buffers here.
+    // ProtoNeuron logic uses hardcoded defaults (some outdated) and ignores Custom parameters.
+    // Parameters are correctly populated in runSimulation() and neuronTypeChangeCallback() using DesignArrays.
+    // REVERT: User feedback indicates ProtoNeuron MUST enforce type defaults because loaded files often have mismatch.
+    
     try {
       switch (neuron.neuronType) {
         case "Quiet":
@@ -238,18 +243,21 @@ class ProtoNeuron extends CustomPainter {
           bBufList[idx] = 0.1;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Occassionally active":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.17;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
+          iBufList[idx] = 5.0;
           break;
         case "Highly active":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.24;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
+          iBufList[idx] = 15.0;
           break;
         case "Generates bursts":
           aBufList[idx] = 0.02;
@@ -258,28 +266,33 @@ class ProtoNeuron extends CustomPainter {
           bBufList[idx] = 0.17; // 0.16;
           cBufList[idx] = -20; //-8;
           dBufList[idx] = 2;
+          iBufList[idx] = 5.0;
           break;
         case "Bursts when activated":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.1;
           cBufList[idx] = -37;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Dopaminergic":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.1;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Striatal":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.1;
           cBufList[idx] = -65;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Custom":
           aBufList[idx] = 0.02;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
 
         case "Delay":
@@ -287,27 +300,42 @@ class ProtoNeuron extends CustomPainter {
           bBufList[idx] = 0.1;
           cBufList[idx] = -37;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Rhytmic":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.1;
           cBufList[idx] = -37;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
         case "Counting":
           aBufList[idx] = 0.02;
           bBufList[idx] = 0.1;
           cBufList[idx] = -37;
           dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
+          break;
+        case "Remote Control":
+          aBufList[idx] = 0.02;
+          bBufList[idx] = 0.1;
+          cBufList[idx] = -65;
+          dBufList[idx] = 2;
+          iBufList[idx] = 0.0;
           break;
       }
     } catch (ex) {}
+    // CRITICAL FIX: Do NOT overwrite simulation buffers here.
+    // ProtoNeuron logic uses hardcoded defaults (some outdated) and ignores Custom parameters.
+    // Parameters are correctly populated in runSimulation() and neuronTypeChangeCallback() using DesignArrays.
+    
     neuron.a = aBufList[idx];
     neuron.b = bBufList[idx];
     neuron.c = cBufList[idx];
     neuron.d = dBufList[idx];
     neuron.i = iBufList[idx];
     neuron.w = wBufList[idx];
+    
   }
 
   void drawArrow(canvas) {

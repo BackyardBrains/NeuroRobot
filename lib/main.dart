@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:spikerbot/brands/brandguide.dart';
 import 'package:spikerbot/pages/createbrain_page.dart';
 import 'package:spikerbot/pages/designbrain_page.dart';
+import 'package:spikerbot/utils/brain_file_handler.dart';
 import 'package:spikerbot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // WEB CHANGE
@@ -23,6 +24,8 @@ const _kShouldTestAsyncErrorOnInit = false;
 const _kTestingCrashlytics = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize file open handler early to capture cold-start file opens
+  BrainFileHandler.instance;
   if (!Platform.isWindows) {
     // await Firebase.initializeApp(
     //   options: DefaultFirebaseOptions.currentPlatform,
@@ -94,7 +97,7 @@ void main() async {
       await windowManager.focus();
     });
   } else {
-    AutoOrientation.landscapeLeftMode();
+    AutoOrientation.fullAutoMode();
   }
   // */
 
@@ -131,6 +134,50 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      builder: (context, child) {
+        final mediaQueryData = MediaQuery.of(context);
+        final isPhone = mediaQueryData.size.shortestSide < 600;
+        
+        if (isPhone && child != null) {
+          // By forcefully inflating the logical resolution by 33% (1.33x),
+          // fixed-pixel widgets (like a 100px dial) will now take up 
+          // 25% LESS of the total screen width. 
+          // The FittedBox then perfectly scales this massive logical canvas 
+          // down into the true physical screen limits without any letterboxing!
+          final double inverseScale = 1.33; 
+          final Size logicalSize = mediaQueryData.size;
+          final Size spoofedSize = Size(
+            logicalSize.width * inverseScale, 
+            logicalSize.height * inverseScale,
+          );
+          
+          return FittedBox(
+            fit: BoxFit.contain,
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+               width: spoofedSize.width,
+               height: spoofedSize.height,
+               child: MediaQuery(
+                  data: mediaQueryData.copyWith(
+                    size: spoofedSize,
+                    textScaler: TextScaler.linear(mediaQueryData.textScaler.scale(1.15)),
+                  ),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => FocusScope.of(context).unfocus(),
+                    child: child,
+                  ),
+               ),
+            ),
+          );
+        }
+        // Non-phone: still wrap with tap-to-dismiss
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: child!,
+        );
+      },
       home: const MyHomePage(title: 'NeuroRobot'),
       // home: DesignBrainPage(),
     );

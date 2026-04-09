@@ -105,7 +105,7 @@ To compile this project, you will need to manually add the OpenCV frameworks, as
 
 1.  **OpenCV 4.5+**: Download the `opencv2.xcframework` (for iOS and macOS) and the Android jniLibs.
 2.  **Placement**:
-    *   **iOS**: Place `opencv2.xcframework` in `PLUGINS/native_opencv/ios/`
+    *   **iOS**: Place `opencv2.framework` (or `opencv2.xcframework`) in `PLUGINS/native_opencv/ios/`
     *   **macOS**: Place `opencv2.xcframework` in `PLUGINS/native_opencv/macos/`
     *   **Android**: Place `jniLibs` folder in `PLUGINS/native_opencv/android/src/main/`
 

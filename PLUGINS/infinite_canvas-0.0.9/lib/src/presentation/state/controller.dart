@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticEdge.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
@@ -13,6 +14,22 @@ import '../../domain/model/edge.dart';
 import '../../domain/model/graph.dart';
 import '../../domain/model/node.dart';
 
+class SynapseShape {
+  final int fromIdx;
+  final Path? triPath;
+  final Offset? circleCenter;
+  final double? radius;
+  final bool isExcitatory;
+
+  SynapseShape({
+    required this.fromIdx,
+    this.triPath,
+    this.circleCenter,
+    this.radius,
+    required this.isExcitatory,
+  });
+}
+
 typedef NodeFormatter = void Function(InfiniteCanvasNode);
 
 /// A controller for the [InfiniteCanvas].
@@ -21,6 +38,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   bool isInteractable = true;
   bool isFoundEdge = false;
   bool isSelectingEdge = false;
+  bool isDraggingPin = false; // V25: Track Live Mode Pin drags for +30px target inflation
+  ValueNotifier<int> waveRedraw = ValueNotifier(0); // V25: Synchronizes physics simulation updates to the display canvas
+  ValueNotifier<int> synapseFadeNotifier = ValueNotifier(0); // Targeted repaint for spike fade — avoids full canvas rebuild
   final List<SyntheticNeuron> rawSyntheticNeuronList;
   List<SyntheticNeuron> syntheticNeuronList;
   final List<Connection> syntheticConnections;
@@ -38,6 +58,17 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   Map<String, List<Offset>> edgeBranchPointMap = {}; // Maps Edge Key to [branchPoint, branchDirection]
   Map<LocalKey, int> sourcePreviousEdgeCount = {}; // V25: Tracks edge count per source for cache invalidation
   int modeIdx = 0;
+  List<SynapseShape> cachedSynapses = [];
+  /// True whenever edges or nodes change structure — tells edge_renderer to
+  /// rebuild syntheticConnections and cachedSynapses on the next paint.
+  /// Starts true so the very first paint populates both caches.
+  bool syntheticConnectionsDirty = true;
+  /// Set true during the one paint where cachedSynapses is being rebuilt.
+  /// Prevents unbounded list growth from add() calls on subsequent paints.
+  bool buildingSynapseCache = false;
+  /// Set true when nodes move — triggers a cheap cachedSynapses position rebuild
+  /// without the expensive addSyntheticConnection dendrite rebuild.
+  bool positionDirty = false;
 
   List<LocalKey>? restrictedToNeuronsKey;
   List<LocalKey>? restrictedFromNeuronsKey;
@@ -144,6 +175,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   late final transform = TransformationController();
   Matrix4 get matrix => transform.value;
   Offset mousePosition = Offset.zero;
+  bool isAnimatingCamera = false;
   Offset? mouseDragStart;
   Offset? marqueeStart, marqueeEnd;
   LocalKey? linkStart;
@@ -276,6 +308,25 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     notifyListeners();
   }
 
+  void quietlySetScale(double value) { 
+    _scale = value; 
+  }
+
+  // --- Frame-rate throttle for hot-path notifications (e.g. node drag) ---
+  // Pointer events can arrive at 250 Hz+. Calling notifyListeners() on every
+  // event triggers setState() in every listener at that rate, causing jitter.
+  // _scheduleNotify() coalesces all notifications within a single frame into
+  // one call — matching the display-sync behaviour of InteractiveViewer.
+  bool _frameNotifyPending = false;
+  void _scheduleNotify() {
+    if (_frameNotifyPending) return;
+    _frameNotifyPending = true;
+    SchedulerBinding.instance.scheduleFrameCallback((_) {
+      _frameNotifyPending = false;
+      notifyListeners();
+    });
+  }
+
   double _scale = 1;
   double get scale => _scale;
   set scale(double value) {
@@ -316,12 +367,28 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
   bool get hasSelection => _selected.isNotEmpty;
 
   bool _canvasMoveEnabled = true;
-  // bool get canvasMoveEnabled => !mouseDown;
-  // bool get canvasMoveEnabled => _canvasMoveEnabled && !mouseDown;
   bool get canvasMoveEnabled => _canvasMoveEnabled;
   void setCanvasMove(bool value) {
     _canvasMoveEnabled = value;
-    // notifyListeners();
+  }
+
+  /// When true, single-pointer drag does NOT move nodes (annotation select mode).
+  bool lockNodeDragging = false;
+
+  // ─── Annotation Selection State ────────────────────────────────────────────
+  /// True while the annotation-selection UI is active.
+  bool isInAnnotationMode = false;
+  /// True when the user has pressed Edit and can change the selection.
+  /// When false (view-only), tapping neurons/axons must NOT modify the highlight.
+  bool annotationEditEnabled = false;
+  /// Node key strings (GlobalKey.toString()) currently highlighted for annotation.
+  Set<String> annotationHighlightNodeKeys = {};
+  /// Edge objects currently highlighted for annotation.
+  Set<InfiniteCanvasEdge> annotationHighlightEdges = {};
+
+  void clearAnnotationHighlights() {
+    annotationHighlightNodeKeys.clear();
+    annotationHighlightEdges.clear();
   }
 
   void notifyMousePosition() {
@@ -348,6 +415,14 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     return 0;
   }
 
+  int renderVersion = 0;
+
+  @override
+  void notifyListeners() {
+    renderVersion++;
+    super.notifyListeners();
+  }
+
   set synapticWeight(double value) {
     if (multiEdgeSelection.isNotEmpty) {
       for (var edge in multiEdgeSelection) {
@@ -358,6 +433,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       edgeSelected!.connectionStrength = value;
       edgeSelected!.label = value.toInt().toString();
     }
+    // Rebuild dendrite sinapticValue so drawAxon reads updated thickness.
+    syntheticConnectionsDirty = true;
     notifyListeners();
   }
 
@@ -383,6 +460,9 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
     final offset = toLocal(localPosition);
     final selection = <Key>[];
+    double minHitDistance = double.infinity;
+    Key? closestNodeKey;
+
     for (final child in nodes) {
       // V25: Ignore hidden/zero-sized nodes (Fixes invisible tail interference)
       // V25: Circular Precision Hitbox (User Request)
@@ -393,6 +473,8 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       // Base radius is precisely half the visual width without any massive invisible padding
       double baseRadius = child.rect.width / 2.0;
       
+      double currentScale = getScale();
+
       // If the user is currently targeting this exact node, it visually expanded to 1.5x in the GUI.
       // We must match that expanded visual radius so they don't accidentally click off it while tuning!
       if (_selected.contains(child.key)) {
@@ -401,12 +483,18 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
       
       // To allow dragging links from tiny zoomed-out distances, we allow a small snap-radius 
       // ONLY when actively dragging a line. Otherwise, we keep it pixel perfect for tapping.
-      if (linkStart != null || controlPressed) {
+      // V25 FEATURE: We now also include `isDraggingPin` to provide $+30px$ target magnetism 
+      // when placing Live Mode plot Pins on neurons.
+      if (linkStart != null || controlPressed || isDraggingPin) {
           if (isHovered(child.key)) {
-             baseRadius += 30.0;
+             baseRadius += 30.0 / currentScale;
           } else {
-             baseRadius += 15.0; 
+             baseRadius += 15.0 / currentScale; 
           }
+      } else {
+          // V25 FEATURE: General node touch slop MUST scale dynamically! Otherwise, zooming out 10x 
+          // squishes a 30 logical-pixel threshold into a 3 screen-pixel dot, freezing the UI.
+          baseRadius += 10.0 / currentScale;
       }
       
       // Calculate Euclidean distance from tap to center
@@ -425,9 +513,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
          }
          
          if (!isOutput) {
-            selection.add(child.key);
+            if (distance < minHitDistance) {
+               minHitDistance = distance;
+               closestNodeKey = child.key;
+            }
          }
       }
+    }
+
+    if (closestNodeKey != null) {
+        selection.add(closestNodeKey);
     }
     // print("DEBUG: checkSelection: offset $offset, nodes: ${nodes.length}, edges: ${edges.length}");
     if (!hover) {
@@ -457,7 +552,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     }
     
     
-    // V25: PRIORITY 1 - NEURONS. 
+    // V25: PRIORITY 1 - NEURONS.
     // If we hit a neuron, skip edge selection entirely.
     if (selection.isNotEmpty) {
        // V25: User clicked a generic node/neuron.
@@ -617,6 +712,28 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
                  // V25: Explicitly clear NODE selection to prevent ghost highlights
                  _selected.clear();
                  singleSelection = null;
+                 
+                 // ANNOTATION MODE: toggle all downstream axons ONLY in edit mode.
+                 if (isInAnnotationMode && annotationEditEnabled && validNeuronEdges.isNotEmpty) {
+                   final allSelected = validNeuronEdges.every((e) => annotationHighlightEdges.contains(e));
+                   if (allSelected) {
+                     for (final e in validNeuronEdges) annotationHighlightEdges.remove(e);
+                   } else {
+                     for (final e in validNeuronEdges) annotationHighlightEdges.add(e);
+                   }
+                   isSelectingEdge = false;
+                   edgeSelected = null;
+                   multiEdgeSelection.clear();
+                   isFoundEdge = false;
+                   edgeFound = null;
+                 } else if (isInAnnotationMode) {
+                   // View-only: do nothing to highlights, but still clear edge state
+                   isSelectingEdge = false;
+                   edgeSelected = null;
+                   multiEdgeSelection.clear();
+                   isFoundEdge = false;
+                   edgeFound = null;
+                 }
                }
                break;
              }
@@ -643,6 +760,24 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
             // V25: Explicitly clear NODE selection to prevent "Ghost" highlights
             _selected.clear();
             singleSelection = null;
+            
+            // ANNOTATION MODE: toggle this single axon ONLY in edit mode.
+            if (isInAnnotationMode) {
+              if (annotationEditEnabled) {
+                if (annotationHighlightEdges.contains(edge)) {
+                  annotationHighlightEdges.remove(edge);
+                } else {
+                  annotationHighlightEdges.add(edge);
+                }
+              }
+              // Always clear edge selection state so the outer GestureDetector.onTapUp
+              // cannot read isFoundEdge=true and restore isSelectingEdge on finger-up.
+              isSelectingEdge = false;
+              edgeSelected = null;
+              multiEdgeSelection.clear();
+              isFoundEdge = false;
+              edgeFound = null;
+            }
           }
 
           break;
@@ -781,11 +916,16 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     deselectAll(true);
     deselectAll(false);
     multiEdgeSelection.clear();
+    syntheticConnectionsDirty = true; // force edge_renderer rebuild on next paint
     notifyListeners();
     // addSyntheticConnection(edge.from, edge.to);
   }
 
   void moveSelection(Offset position) {
+    if (lockNodeDragging) return; // annotation mode: nodes are not movable
+    if (_selected.isEmpty) {
+        return; // Early bailout to prevent massive unnecessary redraw loop!
+    }
     final delta = mouseDragStart != null
         ? toLocal(position) - toLocal(mouseDragStart!)
         : toLocal(position);
@@ -806,7 +946,11 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         _formatter!(current);
       }
     }
-    notifyListeners();
+    // Mark synapse position cache dirty so blink positions update after move.
+    positionDirty = true;
+    // Use frame-rate-throttled notify so that 250 Hz+ pointer events don't
+    // trigger 250+ setState() rebuilds per second. Coalesces to one per frame.
+    _scheduleNotify();
   }
 
   void select(Key key, [bool hover = false]) {
@@ -948,6 +1092,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     edges.removeWhere(
       (e) => selection.contains(e.from) || selection.contains(e.to),
     );
+    syntheticConnectionsDirty = true; // force edge_renderer rebuild on next paint
     notifyListeners();
   }
 

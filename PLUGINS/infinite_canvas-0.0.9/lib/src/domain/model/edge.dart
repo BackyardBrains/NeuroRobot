@@ -18,4 +18,8 @@ class InfiniteCanvasEdge {
   double connectionStrength = 0;
   Color? color;
   double isExcitatory = 1;
+  /// True only when this edge genuinely connects to an LED output node.
+  /// Guards the gradient rendering in edge_renderer so stale edge.color
+  /// on non-LED axons never triggers the black-to-color LED gradient.
+  bool isLedEdge = false;
 }

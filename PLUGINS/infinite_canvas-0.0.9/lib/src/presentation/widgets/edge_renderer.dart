@@ -94,21 +94,37 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
           // V25: Reset blackBrush color at start of frame to prevent pollution
           blackBrush.color = Colors.black;
 
-          if (refreshRetainer == 0) {
+          // Only rebuild syntheticConnections and cachedSynapses when the graph
+          // structure changes (edge added/removed). Previously used refreshRetainer
+          // which reset on EVERY notifyListeners() call, causing O(N×edges) rebuild
+          // on every simulation update — the primary stutter source.
+          if (controller.syntheticConnectionsDirty) {
             controller.syntheticConnections.clear();
-            // int start = DateTime.now().millisecondsSinceEpoch;
+            // Clear all dendrite synapse lists before rebuilding — otherwise each dirty
+            // rebuild accumulates duplicate Sinapse objects (stale sinapticValues + slower draw).
+            for (final sn in controller.syntheticNeuronList) {
+              for (final dendrite in sn.newNeuron.dendrites) {
+                dendrite.sinapseFirstLevel.clear();
+                dendrite.sinapseSecondLevel.clear();
+              }
+            }
             for (InfiniteCanvasEdge edge in controller.edges) {
               addSyntheticConnection(
                   edge.from, edge.to, edge.connectionStrength);
             }
-            // int end = DateTime.now().millisecondsSinceEpoch;
-            // print("end - start");
-            // print(end - start);
-            // print("refresh build");
+            controller.cachedSynapses.clear();
+            controller.syntheticConnectionsDirty = false;
+            controller.positionDirty = false; // full rebuild clears position dirty too
+            controller.buildingSynapseCache = true;
+          } else if (controller.positionDirty) {
+            // Nodes moved — rebuild synapse position cache without expensive dendrite rebuild.
+            controller.cachedSynapses.clear();
+            controller.positionDirty = false;
+            controller.buildingSynapseCache = true;
+          } else {
+            controller.buildingSynapseCache = false; // cache still valid
           }
-          refreshRetainer++;
-          refreshRetainer %= 120;
-
+          
           // V23: COMPLETE REWRITE - Proper tree-based trunk system
           // Phase 1: Build tree structure with bottom-up thickness calculation
           // Phase 2: Draw trunks with correct thickness and G1 continuity
@@ -189,6 +205,22 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               }
             }
           }
+          // Phase 0b: Annotation-selected neurons — same orange circle, no size change
+          if (controller.isInAnnotationMode && controller.annotationHighlightNodeKeys.isNotEmpty) {
+            final annotPaint = Paint()
+              ..color = const Color(0xFFFD8164)
+              ..style = PaintingStyle.fill;
+            for (final node in controller.nodes) {
+              if (controller.annotationHighlightNodeKeys.contains(node.key.toString())) {
+                if (node.value != -1 && node.isSensory == 0) {
+                  canvas.drawCircle(
+                    node.offset + Offset(node.size.width / 2, node.size.height / 2),
+                    node.size.width / 2 + 8.0, // 8px ring around unscaled neuron
+                    annotPaint);
+                }
+              }
+            }
+          }
           
           // Legacy highlight passes removed (lines 273-317)
           
@@ -260,6 +292,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               // Node not found
             }
           }
+
           // V25: Three-pass rendering (Highlights, then Structure, then Synapses)
           // Pass 0: Highlights
           // Pass 1: Structures (black lines, gradients - no synapses)
@@ -288,21 +321,18 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               // Get axon thicknesses for each edge (use connection strength)
               Map<InfiniteCanvasEdge, double> edgeThickness = {};
               for (var edge in group) {
-                // Axon thickness matched to drawAxon logic:
+                // Use CS/2 to match drawAxon's strength formula exactly:
+                // drawAxon reads sinapticValue (= connectionStrength set on rebuild) and
+                // computes: strength = (sinapticValue / (110 - connectionStrength.floor()/2)) * radius / 2
                 double strengthVal = edge.connectionStrength / 2.0;
-
-                // V23: MATCH drawAxon EXACTLY
                 int fromIdx = findSyntheticNeuronIdx(sourceNode.key.toString(), controller.syntheticNeuronList);
                 double visualRadius = 20.0; // Fallback
                 if (fromIdx >= 0 && fromIdx < controller.syntheticNeuronList.length) {
                    visualRadius = controller.syntheticNeuronList[fromIdx].circleRadius;
                 }
                 
-                double maxAbsoluteConnectionStrength = 110 - strengthVal.floor().abs().toDouble(); 
-                if (maxAbsoluteConnectionStrength <= 0) maxAbsoluteConnectionStrength = 1;
-
-                // V23: User demanded multiplication by 2.0 for trunk thickness
-                double thickness = ((strengthVal.abs() / maxAbsoluteConnectionStrength) * visualRadius / 2) * 2.0;
+                int maxAbsoluteCS = (110 - strengthVal.floor().abs()).clamp(1, 110);
+                double thickness = ((strengthVal.abs() / maxAbsoluteCS) * visualRadius / 2) * (4.0/3.0); // capped at 2/3 max
                 
                 if ((visualRadius * 0.1) > thickness) thickness = visualRadius * 0.1;
                 if (thickness < 1.0) thickness = 1.0;
@@ -421,19 +451,25 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               trunkLength = max(trunkLength, minTrunkLen);
               
               // V25: SNAKE TRUNK LOGIC (Iterative Segments)
-              // User Request: Segments curve independently towards their targets.
-
               // V25: Store SORTED edges in trunkToEdgesMap (Fixes Highlight Mismatch)
               List<InfiniteCanvasEdge> sortedEdges = targetsWithEdges.map((e) => e.value).toList();
               controller.trunkToEdgesMap["${sourceNode.key}_trunk"] = sortedEdges;
               
               // Helper to check highlight
               bool shouldHighlightSegment(int segmentIndex) {
-                 if (!controller.isSelectingEdge) return false;
-                 for (int k = segmentIndex; k < sortedEdges.length; k++) {
-                     InfiniteCanvasEdge edge = sortedEdges[k];
-                     if (controller.multiEdgeSelection.contains(edge)) return true;
-                     if (controller.edgeSelected == edge) return true;
+                 // Design-mode selection
+                 if (controller.isSelectingEdge) {
+                   for (int k = segmentIndex; k < sortedEdges.length; k++) {
+                     InfiniteCanvasEdge e = sortedEdges[k];
+                     if (controller.multiEdgeSelection.contains(e)) return true;
+                     if (controller.edgeSelected == e) return true;
+                   }
+                 }
+                 // Annotation mode selection
+                 if (controller.isInAnnotationMode) {
+                   for (int k = segmentIndex; k < sortedEdges.length; k++) {
+                     if (controller.annotationHighlightEdges.contains(sortedEdges[k])) return true;
+                   }
                  }
                  return false;
               }
@@ -574,7 +610,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                      final from = controller.nodes.firstWhere((node) => node.key == edge.from);
                      final to = controller.nodes.firstWhere((node) => node.key == edge.to);
                      String label = edge.label ?? "";
-                     bool isEdgeSelected = controller.isEdgeInSelection(edge);
+                     bool isEdgeSelected = controller.isEdgeInSelection(edge) ||
+                          (controller.isInAnnotationMode && controller.annotationHighlightEdges.contains(edge));
                      double connectionStrength = edge.connectionStrength / 2.0;
                      int fromIdx = findSyntheticNeuronIdx(edge.from.toString(), controller.syntheticNeuronList);
                      int toIdx = findSyntheticNeuronIdx(edge.to.toString(), controller.syntheticNeuronList);
@@ -601,7 +638,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          final from = controller.nodes.firstWhere((node) => node.key == edge.from);
                          final to = controller.nodes.firstWhere((node) => node.key == edge.to);
                          String label = edge.label ?? "";
-                         bool isEdgeSelected = controller.isEdgeInSelection(edge);
+                         bool isEdgeSelected = controller.isEdgeInSelection(edge) ||
+                          (controller.isInAnnotationMode && controller.annotationHighlightEdges.contains(edge));
                          double connectionStrength = edge.connectionStrength / 2.0;
                          int fromIdx = findSyntheticNeuronIdx(edge.from.toString(), controller.syntheticNeuronList);
                          int toIdx = findSyntheticNeuronIdx(edge.to.toString(), controller.syntheticNeuronList);
@@ -609,7 +647,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                          
                          drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                            isSelected: controller.isEdgeInSelection(edge), isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
+                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
                      }
                  }
               }
@@ -652,7 +690,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             // }
             
             // V23: Pass selection state for conditional orange highlight
-            bool isEdgeSelected = controller.isEdgeInSelection(edge); // V25: Helper
+            bool isEdgeSelected = controller.isEdgeInSelection(edge) ||
+                (controller.isInAnnotationMode && controller.annotationHighlightEdges.contains(edge)); // V25: Helper
 
             // V23: Check if already drawn by trunk builder
             // Use String Key for robust check
@@ -1266,12 +1305,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               centerEndAxon_x = centerBeginAxon_x + directionToTarget.dx * extensionLength;
               centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
             }
-            double strength = ((neuronTo.dendrites[posin]
-                            .sinapseFirstLevel[sinindex].sinapticValue)
-                        .abs() /
+            // Use connectionStrength directly — always live-correct.
+            double strength = (connectionStrength.abs() * 2.0 /
                     maxAbsoluteConnectionStrength) *
                 diameterOfNeuron /
-                2;
+                3.0; // 2/3 of original max; min preserved by clamp below
             if ((diameterOfNeuron * 0.1) > strength) {
               strength = diameterOfNeuron * 0.1;
             }
@@ -1419,6 +1457,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 if (isDrawingSynapsesOnly) {
                   canvas.drawPath(triPath, synapseFill);
                   canvas.drawPath(triPath, blackBrush);
+                  // Cache shape on dirty rebuild so synapse_renderer can flash it on spike.
+                  if (controller.buildingSynapseCache) controller.cachedSynapses.add(SynapseShape(
+                    fromIdx: fromIdx, triPath: triPath, isExcitatory: true));
                 }
 
                  // V25: Sensory Axon Icons (Second Level - Robust)
@@ -1529,29 +1570,28 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
                               else if (controller.mapMicrophoneTypeNeuron.containsKey(idKey)) mode = (controller.mapMicrophoneTypeNeuron[idKey] as num?)?.toInt();
                           }
-                          // Default to Freq (0)
-                          if (mode == null) mode = 0;
+                          // Default to Tone (2) when no mapping set yet
+                          if (mode == null) mode = 2;
                           
                           if (mode != null) {
                               // 0=Freq(〰️), 1=Vol(🔊), 2=Tone(🎹)
                               if (mode == 1) { iconText = "🔊"; iconSize = 20; fontFamily = "NotoEmoji"; }
-                              else if (mode == 2) { 
-                                  double val = 0;
-                                  if (fromIdx >= 0 && fromIdx < controller.syntheticNeuronList.length) {
-                                      val = controller.syntheticNeuronList[fromIdx].node.value;
+                              else if (mode == 2) {
+                                  // Real-time: read note from limit map
+                                  int noteIdxT = 0;
+                                  final String idKeyT = "${from.id}_${to.id}";
+                                  String? limStrT =
+                                    controller.mapMicrophoneLimitNeuron.containsKey(rawKey)   ? controller.mapMicrophoneLimitNeuron[rawKey]
+                                    : controller.mapMicrophoneLimitNeuron.containsKey(cleanKey) ? controller.mapMicrophoneLimitNeuron[cleanKey]
+                                    : controller.mapMicrophoneLimitNeuron.containsKey(idKeyT)   ? controller.mapMicrophoneLimitNeuron[idKeyT]
+                                    : null;
+                                  if (limStrT != null) {
+                                    try { noteIdxT = int.parse(limStrT.split("_@_")[0]).clamp(0, 11); } catch (_) {}
                                   }
-                                  int f = val.toInt();
-                                  List<String> notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-                                  int noteIdx = f % 12;
-                                  if (noteIdx < notes.length) {
-                                      iconText = notes[noteIdx];
-                                      fontFamily = "BybHanddrawn";
-                                      iconSize = 18;
-                                  } else {
-                                      iconText = "🎹";
-                                      fontFamily = "NotoEmoji";
-                                      iconSize = 20;
-                                  }
+                                  final List<String> notesT = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+                                  iconText = notesT[noteIdxT];
+                                  fontFamily = "BybHanddrawn";
+                                  iconSize = 18;
                               }
                               else { iconText = "〰️"; iconSize = 20; fontFamily = "NotoEmoji"; }
                           }
@@ -1718,6 +1758,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  if (isDrawingSynapsesOnly) {
                    canvas.drawPath(triPath, synapseFill);
                    canvas.drawPath(triPath, blackBrush);
+                   if (controller.buildingSynapseCache) controller.cachedSynapses.add(SynapseShape(
+                     fromIdx: fromIdx, triPath: triPath, isExcitatory: true));
                  }
               }
 
@@ -1818,6 +1860,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               if (isDrawingSynapsesOnly) {
                 canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
                 canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+                if (controller.buildingSynapseCache) controller.cachedSynapses.add(SynapseShape(
+                  fromIdx: fromIdx,
+                  circleCenter: Offset(xc_syn, yc_syn),
+                  radius: radius,
+                  isExcitatory: false));
               }
             }
             if (isShowingInfo && label != null) {
@@ -1943,8 +1990,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               if (controller.mapMicrophoneTypeNeuron.containsKey(rawKey)) mode = (controller.mapMicrophoneTypeNeuron[rawKey] as num?)?.toInt();
                               else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
                           }
-                          // Default to Freq (0)
-                          if (mode == null) mode = 0;
+                          // Default to Tone (2) when no mapping set yet
+                          if (mode == null) mode = 2;
                           
                           if (mode != null) {
                               // 0=Freq(〰️), 1=Vol(🔊), 2=Tone(🎹)
@@ -2191,11 +2238,9 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                  centerEndAxon_y = centerBeginAxon_y + directionToTarget.dy * extensionLength;
               }
               
-              double strength = ((neuronTo.dendrites[posin]
-                            .sinapseSecondLevel[sinindex].sinapticValue)
-                        .abs() /
+              double strength = (connectionStrength.abs() * 2.0 /
                     maxAbsoluteConnectionStrength) *
-                diameterOfNeuron / 2;
+                diameterOfNeuron / 3.0; // 2/3 max
                 
                if ((diameterOfNeuron * 0.1) > strength) strength = diameterOfNeuron * 0.1;
                if (strength < minimalTicknessOfAxon) strength = minimalTicknessOfAxon;
@@ -2330,6 +2375,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   if (isDrawingSynapsesOnly) {
                     canvas.drawPath(triPath, synapseFill);
                     canvas.drawPath(triPath, blackBrush);
+                    if (controller.buildingSynapseCache) controller.cachedSynapses.add(SynapseShape(
+                      fromIdx: fromIdx, triPath: triPath, isExcitatory: true));
                   }
 
                } else {
@@ -2425,6 +2472,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   if (isDrawingSynapsesOnly) {
                     canvas.drawCircle(Offset(xc_syn, yc_syn), radius, blackBrush);
                     canvas.drawCircle(Offset(xc_syn, yc_syn), radius - 1.5, synapseFill);
+                    if (controller.buildingSynapseCache) controller.cachedSynapses.add(SynapseShape(
+                      fromIdx: fromIdx,
+                      circleCenter: Offset(xc_syn, yc_syn),
+                      radius: radius,
+                      isExcitatory: false));
                   }
                }
                
@@ -2500,7 +2552,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               if (controller.mapMicrophoneTypeNeuron.containsKey(rawKey)) mode = (controller.mapMicrophoneTypeNeuron[rawKey] as num?)?.toInt();
                               else if (controller.mapMicrophoneTypeNeuron.containsKey(cleanKey)) mode = (controller.mapMicrophoneTypeNeuron[cleanKey] as num?)?.toInt();
                           }
-                          if (mode == null) mode = 0; // Default
+                          if (mode == null) mode = 2; // Default to Tone
                           if (mode != null) {
                               if (mode == 1) { iconText = "🔊"; iconSize = 20; fontFamily = "NotoEmoji"; }
                               else if (mode == 2) { 

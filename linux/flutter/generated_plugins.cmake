@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  gamepads_linux
   native_opencv
   screen_retriever
   url_launcher_linux

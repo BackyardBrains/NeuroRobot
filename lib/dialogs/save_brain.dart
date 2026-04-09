@@ -82,7 +82,7 @@ Future<void> saveBrainInfoDialog(BuildContext context, saveCallback) async {
                     const SizedBox(width: 16),
                     FilledButton.icon(
                         icon: const Icon(Icons.save),
-                        onPressed: () {
+                        onPressed: () async {
                           String title = txtSaveTitleController.text;
                           String description = txtSaveDescriptionController.text;
                           if (title.trim().isEmpty || description.trim().isEmpty) {
@@ -91,7 +91,9 @@ Future<void> saveBrainInfoDialog(BuildContext context, saveCallback) async {
                           } else {
                             isSaveBrainError = false;
                             Navigator.pop(context);
-                            saveCallback(txtSaveTitleController.text, txtSaveDescriptionController.text);
+                            // Fix Grey Screen: Allow dialog to close fully before starting Save (which opens ProgressDialog)
+                            await Future.delayed(const Duration(milliseconds: 200));
+                            await saveCallback(txtSaveTitleController.text, txtSaveDescriptionController.text);
                           }
                         },
                         label: const Text("Save Brain")),

@@ -6,6 +6,8 @@ echo "Searching for libs to re-sign in ${CODESIGNING_FOLDER_PATH}..."
 
 # Find and resign libtensorflowlite_c-mac.dylib
 find "${CODESIGNING_FOLDER_PATH}" -name "libtensorflowlite_c-mac.dylib" -print0 | while IFS= read -r -d '' file; do
+    echo "Stripping debugging symbols: ${file}"
+    strip -S "${file}"
     echo "Re-signing: ${file}"
     # --force: overwrite existing signature
     # --options runtime: enable Hardened Runtime (required for notarization)

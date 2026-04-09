@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'arc_slider_widget.dart';
 
 class LEDControlWidget extends StatefulWidget {
   final Function(String, String) onColorChanged; // hex, brightness
@@ -31,31 +32,24 @@ class LEDControlWidget extends StatefulWidget {
 
 class _LEDControlWidgetState extends State<LEDControlWidget> {
   late HSVColor _hsvColor;
-  late double _brightness; 
-  final double robotSize = 120; // V22
-  final TextEditingController _brightnessController = TextEditingController();
+  late double _brightness;
+  final double robotSize = 120;
+  late TextEditingController _brightnessController;
 
   @override
   void initState() {
     super.initState();
-    // Parse hex
     Color color = const Color(0xFFFF00FF);
-    try {
-      color = Color(int.parse("0xFF${widget.initialHex}"));
-    } catch (e) {
-      // fallback
-    }
+    try { color = Color(int.parse("0xFF${widget.initialHex}")); } catch (e) {}
     _hsvColor = HSVColor.fromColor(color);
-    
-    // Parse brightness
     try {
       _brightness = double.parse(widget.initialBrightness);
     } catch (e) {
       _brightness = 1.0;
     }
-    // V25: Map internal 0.4-1.0 to display 1-100
-    int displayVal = 1 + ((_brightness - 0.4) / 0.6 * 99).round();
-    _brightnessController.text = displayVal.toString();
+    _brightnessController = TextEditingController(
+      text: "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%",
+    );
   }
 
   @override
@@ -64,10 +58,27 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(LEDControlWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialHex != widget.initialHex) {
+      Color color = const Color(0xFFFF00FF);
+      try { color = Color(int.parse("0xFF${widget.initialHex}")); } catch (e) {}
+      setState(() { _hsvColor = HSVColor.fromColor(color); });
+    }
+    if (oldWidget.initialBrightness != widget.initialBrightness) {
+      try {
+        double b = double.parse(widget.initialBrightness);
+        setState(() {
+          _brightness = b;
+          _brightnessController.text = "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
+        });
+      } catch (e) {}
+    }
+  }
+
   void _updateColor(HSVColor newHsv) {
-    setState(() {
-      _hsvColor = newHsv;
-    });
+    setState(() { _hsvColor = newHsv; });
     widget.onColorChanged(
       _hsvColor.toColor().value.toRadixString(16).substring(2).toUpperCase(),
       _brightness.toStringAsFixed(2),
@@ -77,9 +88,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
   void _updateBrightness(double val) {
     setState(() {
       _brightness = val;
-      // V25: Map internal 0.4-1.0 to display 1-100
-      int displayVal = 1 + ((_brightness - 0.4) / 0.6 * 99).round();
-      _brightnessController.text = displayVal.toString();
+      _brightnessController.text = "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
     });
     widget.onColorChanged(
       _hsvColor.toColor().value.toRadixString(16).substring(2).toUpperCase(),
@@ -88,236 +97,278 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
   }
 
   Widget _buildCheckbox(int index) {
-      bool isChecked = widget.activeLights[index] == "1";
-      return Transform.scale(
-        scale: 1.3,
-        child: Checkbox(
-          value: isChecked,
-          activeColor: const Color(0XFFFD8164),
-          side: const BorderSide(color: Colors.grey, width: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          onChanged: (val) {
-            // Play sounds back-to-back for checkbox click illusion
-            widget.onInteractionStart?.call();
-            widget.onInteractionEnd?.call();
-            widget.onLightToggled(index);
-          },
-        ),
-      );
+    bool isChecked = widget.activeLights[index] == "1";
+    return Transform.scale(
+      scale: 1.3,
+      child: Checkbox(
+        value: isChecked,
+        activeColor: const Color(0XFFFD8164),
+        side: const BorderSide(color: Colors.grey, width: 2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        onChanged: (val) {
+          widget.onInteractionStart?.call();
+          widget.onInteractionEnd?.call();
+          widget.onLightToggled(index);
+        },
+      ),
+    );
   }
 
   void _handleWheelGesture(Offset localPos, double radius) {
-     final dx = localPos.dx - radius;
-     final dy = localPos.dy - radius;
-     final dist = sqrt(dx * dx + dy * dy);
-     double angle = atan2(dy, dx);
-     if (angle < 0) angle += 2 * pi;
-     
-     // Hue from angle
-     double hue = (angle * 180 / pi);
-     
-     // Saturation from distance (clamped)
-     double saturation = (dist / radius).clamp(0.0, 1.0);
-     
-     _updateColor(HSVColor.fromAHSV(1.0, hue, saturation, 1.0));
+    final dx = localPos.dx - radius;
+    final dy = localPos.dy - radius;
+    final dist = sqrt(dx * dx + dy * dy);
+    double angle = atan2(dy, dx);
+    if (angle < 0) angle += 2 * pi;
+    double hue = (angle * 180 / pi);
+    double saturation = (dist / radius).clamp(0.0, 1.0);
+    _updateColor(HSVColor.fromAHSV(1.0, hue, saturation, 1.0));
+  }
+
+  // Styled input box matching ArcSliderWidget's internal text field aesthetic
+  Widget _buildBrightnessInput() {
+    return Container(
+      width: 60,
+      height: 34,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black, width: 1.5),
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+      ),
+      alignment: Alignment.center,
+      child: TextField(
+        controller: _brightnessController,
+        textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
+        style: const TextStyle(fontSize: 16),
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          isCollapsed: true,
+          contentPadding: EdgeInsets.only(bottom: 5),
+        ),
+        keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
+        textInputAction: TextInputAction.done,
+        onSubmitted: (text) {
+          String cleaned = text.replaceAll(RegExp(r'[^0-9.]'), '');
+          double? parsed = double.tryParse(cleaned);
+          if (parsed != null) {
+            double internal = 0.4 + ((parsed.clamp(1, 100) - 1) / 99.0) * 0.6;
+            _updateBrightness(internal.clamp(0.4, 1.0));
+          } else {
+            // Restore display
+            _brightnessController.text =
+                "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
+          }
+        },
+        onTap: () {
+          _brightnessController.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _brightnessController.text.length,
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // V29: Glow Colors
-    final Color glowColor = _hsvColor.withValue(1.0).toColor().withOpacity(_brightness * 0.6);
-    final Color fadeColor = _hsvColor.withValue(1.0).toColor().withOpacity(0.0);
+    final Color glowColor =
+        _hsvColor.withValue(1.0).toColor().withOpacity(_brightness * 0.6);
+    final Color fadeColor =
+        _hsvColor.withValue(1.0).toColor().withOpacity(0.0);
+    // Display value for arc
+    final double displayBrightness = 1 + ((_brightness - 0.4) / 0.6 * 99);
 
-    return Column( // V23: Unified Column
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start, // Align top
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Color Wheel
-            // V29: Dimming logic - V32: Opacity passed to Painter (Puck Ring Opaque)
-            GestureDetector(
-               onPanUpdate: (details) {
-                  // Captured by inner gesture detector
-                },
-               child: SizedBox(
-                 width: 160, 
-                 height: 160,
-                 child: LayoutBuilder(
-                   builder: (context, constraints) {
-                     return GestureDetector(
-                       onPanStart: (details) {
-                         // widget.onInteractionStart?.call(); // Removed to prevent double trigger (handled by onTapDown)
-                         _handleWheelGesture(details.localPosition, 80);
-                       },
-                       onPanUpdate: (details) => _handleWheelGesture(details.localPosition, 80),
-                       onPanEnd: (details) => widget.onInteractionEnd?.call(),
-                       onPanCancel: () => widget.onInteractionEnd?.call(),
-                       onTapDown: (details) {
-                         widget.onInteractionStart?.call();
-                         _handleWheelGesture(details.localPosition, 80);
-                       },
-                       onTapUp: (details) => widget.onInteractionEnd?.call(),
-                       child: CustomPaint(
-                         painter: _ColorWheelPainter(
-                            hsvColor: _hsvColor, 
-                            opacity: _brightness.clamp(0.3, 1.0)
-                         ),
-                       ),
-                     );
-                   }
-                 ),
-               ),
-            ),
-
-            // 2. Robot Control
+            // ── LEFT COLUMN ────────────────────────────────────────────────
+            // Arc slider (widgetWidth 174) concentric above color wheel (160).
+            // With default 80° sweep all handle positions fall within SizedBox
+            // bounds (x: 0..174, y: 0..110) so gesture detection works fully.
             Column(
               children: [
-                const Text("Active Lights"), 
-                const SizedBox(height: 8),   // V29: Padding moved here (below title)  
+                const SizedBox(height: 8),
+                ArcSliderWidget(
+                  min: 1,
+                  max: 100,
+                  value: displayBrightness,
+                  isPercentageFormatter: true,
+                  showTextInput: false,
+                  activeColor: _hsvColor
+                      .withValue(1.0)
+                      .toColor()
+                      .withOpacity(_brightness.clamp(0.3, 1.0)),
+                  inactiveColor: const Color(0xFFD0D0D0),
+                  widgetWidth: 180,
+                  // widgetHeight:100 → pivotY=180, handle center at y=16,
+                  // handle top at y=1 — fully within SizedBox for hit detection.
+                  widgetHeight: 100,
+                  arcSweepAngle: pi * 65 / 180,
+                  onChanged: (val) {
+                    double internal = 0.4 + ((val - 1) / 99.0) * 0.6;
+                    _updateBrightness(internal.clamp(0.4, 1.0));
+                  },
+                ),
+                // Tight gap — just enough to clear the arc detection zone
+                const SizedBox(height: 6),
+                // Color Wheel — 160 px, visually concentric with arc above
+                GestureDetector(
+                  onPanUpdate: (_) {}, // absorbed by inner detector
+                  child: SizedBox(
+                    width: 160,
+                    height: 160,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return GestureDetector(
+                          onPanStart: (d) => _handleWheelGesture(d.localPosition, 80),
+                          onPanUpdate: (d) => _handleWheelGesture(d.localPosition, 80),
+                          onPanEnd: (_) => widget.onInteractionEnd?.call(),
+                          onPanCancel: () => widget.onInteractionEnd?.call(),
+                          onTapDown: (d) {
+                            widget.onInteractionStart?.call();
+                            _handleWheelGesture(d.localPosition, 80);
+                          },
+                          onTapUp: (_) => widget.onInteractionEnd?.call(),
+                          child: CustomPaint(
+                            painter: _ColorWheelPainter(
+                              hsvColor: _hsvColor,
+                              opacity: _brightness.clamp(0.3, 1.0),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // ── RIGHT COLUMN ───────────────────────────────────────────────
+            // Top spacer = arc widget height (74px) + gap (24px) = 98px,
+            // so the robot section starts at the same y as the color wheel →
+            // the two elements are vertically centered/aligned with each other.
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Brightness label + editable input aligned to arc top
+                const Text(
+                  "Brightness",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 6),
+                _buildBrightnessInput(),
+                // Spacer: left col above CW = 16+100+6=122px, right col
+                // brightness controls ≈90px → spacer=32 → robot center≈202
+                const SizedBox(height: 24),
+                // Active Lights — same style as Brightness label
+                const Text(
+                  "Active Lights",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 8),
                 SizedBox(
-                  width: 160, // V29: Increased Width to spread checkboxes (140->160)
+                  width: 160,
                   height: 160,
                   child: Stack(
                     alignment: Alignment.center,
                     clipBehavior: Clip.none,
                     children: [
-                      // V29: Localized Glows (60x60 circles)
-                      
-                      // NW Glow (Top Left)
+                      // Localized glows
                       if (widget.activeLights[0] == "1")
                         Positioned(
-                          top: 25, left: 25, 
+                          top: 25, left: 25,
                           child: Container(
                             width: 60, height: 60,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
-                                colors: [glowColor, fadeColor],
-                                radius: 0.5,
-                              ),
+                                colors: [glowColor, fadeColor], radius: 0.5),
                             ),
                           ),
                         ),
-                       
-                      // NE Glow (Top Right)
                       if (widget.activeLights[1] == "1")
                         Positioned(
-                          top: 25, right: 25, 
+                          top: 25, right: 25,
                           child: Container(
                             width: 60, height: 60,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
-                                colors: [glowColor, fadeColor],
-                                radius: 0.5,
-                              ),
+                                colors: [glowColor, fadeColor], radius: 0.5),
                             ),
                           ),
                         ),
-
-                      // SW Glow (Bottom Left)
                       if (widget.activeLights[2] == "1")
                         Positioned(
-                          bottom: 25, left: 25, 
-                           child: Container(
-                             width: 60, height: 60,
+                          bottom: 25, left: 25,
+                          child: Container(
+                            width: 60, height: 60,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
-                                colors: [glowColor, fadeColor],
-                                radius: 0.5,
-                              ),
+                                colors: [glowColor, fadeColor], radius: 0.5),
                             ),
                           ),
                         ),
-
-                      // SE Glow (Bottom Right)
                       if (widget.activeLights[3] == "1")
                         Positioned(
-                          bottom: 25, right: 25, 
-                           child: Container(
-                             width: 60, height: 60,
+                          bottom: 25, right: 25,
+                          child: Container(
+                            width: 60, height: 60,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
-                                colors: [glowColor, fadeColor],
-                                radius: 0.5,
-                              ),
+                                colors: [glowColor, fadeColor], radius: 0.5),
                             ),
                           ),
                         ),
-
-                      // Base SVG
+                      // Base robot SVG
                       SvgPicture.asset(
-                         "assets/icons/SpikerbotTopDownBlue.svg",
-                         width: robotSize,
-                         height: robotSize,
+                        "assets/icons/SpikerbotTopDownBlue.svg",
+                        width: robotSize, height: robotSize,
                       ),
-                      
-                      // Active Light Overlays
-                      
-                      // 0: NW
+                      // LED overlays
                       if (widget.activeLights[0] == "1")
-                       Center(
-                         child: SvgPicture.asset(
-                           "assets/icons/SpikerbotLEDHighlight-NW.svg",
-                           width: robotSize,
-                           height: robotSize,
-                           colorFilter: ColorFilter.mode(
-                             _hsvColor.withValue(1.0).toColor().withOpacity(_brightness), 
-                             BlendMode.srcIn
-                           ),
-                         ),
-                       ),
-                         
-                      // 1: NE
+                        Center(child: SvgPicture.asset(
+                          "assets/icons/SpikerbotLEDHighlight-NW.svg",
+                          width: robotSize, height: robotSize,
+                          colorFilter: ColorFilter.mode(
+                            _hsvColor.withValue(1.0).toColor().withOpacity(_brightness),
+                            BlendMode.srcIn),
+                        )),
                       if (widget.activeLights[1] == "1")
-                       Center(
-                         child: SvgPicture.asset(
-                           "assets/icons/SpikerbotLEDHighlight-NE.svg",
-                           width: robotSize,
-                           height: robotSize,
-                           colorFilter: ColorFilter.mode(
-                             _hsvColor.withValue(1.0).toColor().withOpacity(_brightness), 
-                             BlendMode.srcIn
-                           ),
-                         ),
-                       ),
-                         
-                      // 2: SW
+                        Center(child: SvgPicture.asset(
+                          "assets/icons/SpikerbotLEDHighlight-NE.svg",
+                          width: robotSize, height: robotSize,
+                          colorFilter: ColorFilter.mode(
+                            _hsvColor.withValue(1.0).toColor().withOpacity(_brightness),
+                            BlendMode.srcIn),
+                        )),
                       if (widget.activeLights[2] == "1")
-                       Center(
-                         child: SvgPicture.asset(
-                           "assets/icons/SpikerbotLEDHighlight-SW.svg",
-                           width: robotSize,
-                           height: robotSize,
-                           colorFilter: ColorFilter.mode(
-                             _hsvColor.withValue(1.0).toColor().withOpacity(_brightness), 
-                             BlendMode.srcIn
-                           ),
-                         ),
-                       ),
-                         
-                      // 3: SE
+                        Center(child: SvgPicture.asset(
+                          "assets/icons/SpikerbotLEDHighlight-SW.svg",
+                          width: robotSize, height: robotSize,
+                          colorFilter: ColorFilter.mode(
+                            _hsvColor.withValue(1.0).toColor().withOpacity(_brightness),
+                            BlendMode.srcIn),
+                        )),
                       if (widget.activeLights[3] == "1")
-                       Center(
-                         child: SvgPicture.asset(
-                           "assets/icons/SpikerbotLEDHighlight-SE.svg",
-                           width: robotSize,
-                           height: robotSize,
-                           colorFilter: ColorFilter.mode(
-                             _hsvColor.withValue(1.0).toColor().withOpacity(_brightness), 
-                             BlendMode.srcIn
-                           ),
-                         ),
-                       ),
-
-                      // Checkboxes (Corners)
-                      Positioned(top: 0, left: 0, child: _buildCheckbox(0)),
-                      Positioned(top: 0, right: 0, child: _buildCheckbox(1)),
-                      Positioned(bottom: 0, left: 0, child: _buildCheckbox(2)),
-                      Positioned(bottom: 0, right: 0, child: _buildCheckbox(3)),
+                        Center(child: SvgPicture.asset(
+                          "assets/icons/SpikerbotLEDHighlight-SE.svg",
+                          width: robotSize, height: robotSize,
+                          colorFilter: ColorFilter.mode(
+                            _hsvColor.withValue(1.0).toColor().withOpacity(_brightness),
+                            BlendMode.srcIn),
+                        )),
+                      // Corner checkboxes
+                      Positioned(top: 0,    left: 0,   child: _buildCheckbox(0)),
+                      Positioned(top: 0,    right: 0,  child: _buildCheckbox(1)),
+                      Positioned(bottom: 0, left: 0,   child: _buildCheckbox(2)),
+                      Positioned(bottom: 0, right: 0,  child: _buildCheckbox(3)),
                     ],
                   ),
                 ),
@@ -325,106 +376,52 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
             ),
           ],
         ),
-        
-        // 3. Brightness Control
-        const SizedBox(height: 5), // V29: Reduced spacing (10->5)
-        const Text("Brightness"),
-        // const SizedBox(height: 0), // Removed
-        Row(
-          children: [
-            // Percentage Input
-            SizedBox(
-              width: 50,
-              child: TextField(
-                controller: _brightnessController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 4),
-                  suffixText: "%",
-                  border: UnderlineInputBorder(), 
-                ),
-                onSubmitted: (val) {
-                  double? v = double.tryParse(val);
-                  if (v != null) {
-                    // V25: Map display 1-100 to internal 0.4-1.0
-                    double internal = 0.4 + ((v.clamp(1, 100) - 1) / 99.0) * 0.6;
-                    _updateBrightness(internal);
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            // Slider
-            Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0XFFFD8164), 
-                  thumbColor: Colors.white,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
-                  overlayColor: const Color(0XFFFD8164).withOpacity(0.2),
-                ),
-                child: Slider(
-                  value: _brightness,
-                  min: 0.4, // Min brightness 40%
-                  max: 1.0,
-                  onChanged: _updateBrightness,
-                  onChangeStart: (_) => widget.onInteractionStart?.call(),
-                  onChangeEnd: (_) => widget.onInteractionEnd?.call(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        
-        if (widget.infoState == 1) ...[ // V29: Footer (Distance Sensor Style)
+
+        // Info footer
+        if (widget.infoState == 1) ...[
           const SizedBox(height: 10),
-           SizedBox( 
+          SizedBox(
             width: 360,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                 // V29: Styled Container
-                 Container(
-                    width: 40, 
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 0.3,
-                          blurRadius: 0.3,
-                          offset: const Offset(1, 1), 
-                        ),
-                      ],
-                    ),
-                    child: SvgPicture.asset("assets/icons/Info.svg"),
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 0.3, blurRadius: 0.3,
+                        offset: const Offset(1, 1),
+                      ),
+                    ],
                   ),
-                 const SizedBox(width: 10), 
-                 const Expanded(
-                   child: Text(
-                     "When the NEURON sends a SPIKE, lights will glow with the set color!",
-                     style: TextStyle(
-                       fontFamily: "BybHanddrawn", 
-                       fontSize: 16, // V30: Reduced from 18
-                       color: Colors.black87
-                     ),
-                     maxLines: 3,
-                     textAlign: TextAlign.left,
-                   ),
-                 ),
+                  child: SvgPicture.asset("assets/icons/Info.svg"),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    "When the NEURON sends a SPIKE, lights will glow with the set color!",
+                    style: TextStyle(
+                      fontFamily: "BybHanddrawn",
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 3,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
               ],
             ),
-           ),
+          ),
         ],
       ],
     );
   }
 }
-
 class _ColorWheelPainter extends CustomPainter {
   final HSVColor hsvColor;
   final double opacity; 

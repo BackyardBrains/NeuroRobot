@@ -16,11 +16,15 @@ class LeftToolbar extends StatefulWidget {
     required this.callback,
     required this.isPlaying,
     required this.menuIdx,
+    this.leftPadding = 0.0,
+    this.isLandscape = true,
     //required this.startDragOffset
   });
   late Function callback;
   final int menuIdx;
   final bool isPlaying;
+  final double leftPadding;
+  final bool isLandscape;
   // final Offset startDragOffset;
 
   @override
@@ -188,13 +192,18 @@ class _RightToolbarState extends State<LeftToolbar> {
 
   Widget createLeftToolbar() {
     return Container(
-      // color: Colors.red,
+      padding: widget.isLandscape ? EdgeInsets.only(left: widget.leftPadding) : EdgeInsets.only(bottom: widget.leftPadding),
       decoration: BoxDecoration(
         color: Colors.white, // Container background color
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(20.0),
-          bottomRight: Radius.circular(20.0),
-        ),
+        borderRadius: widget.isLandscape 
+          ? const BorderRadius.only(
+              bottomRight: Radius.circular(20.0),
+              topRight: Radius.circular(20.0),
+            )
+          : const BorderRadius.only(
+              topLeft: Radius.circular(20.0),
+              topRight: Radius.circular(20.0),
+            ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.5), // Shadow color
@@ -204,12 +213,15 @@ class _RightToolbarState extends State<LeftToolbar> {
           ),
         ],
       ),
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-      // color: Colors.red,
-      width: 70,
-      child: Column(
-        children: menuIcons,
-      ),
+      margin: widget.isLandscape 
+          ? const EdgeInsets.fromLTRB(0, 0, 0, 10) 
+          : const EdgeInsets.all(0),
+      // Set width constrained in landscape, height constrained in portrait
+      width: widget.isLandscape ? (70 + widget.leftPadding) : null,
+      height: widget.isLandscape ? null : (70 + widget.leftPadding),
+      child: widget.isLandscape 
+        ? Column(mainAxisSize: MainAxisSize.min, children: menuIcons) 
+        : Row(mainAxisSize: MainAxisSize.min, children: menuIcons),
     );
   }
 }

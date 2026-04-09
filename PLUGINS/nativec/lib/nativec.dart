@@ -5,12 +5,10 @@ import 'dart:typed_data';
 
 // import 'package:nativec/allocation.dart';
 
-import 'package:ffi/ffi.dart';
-import 'package:nativec/allocator.dart';
-
+import 'allocator.dart';
 import 'nativec_platform_interface.dart';
 import 'dart:ffi' as ffi;
-// import 'package:ffi/ffi.dart';
+import 'package:ffi/ffi.dart';
 
 typedef stop_thread_func = ffi.Int16 Function(ffi.Int16);
 typedef StopThreadProcess = int Function(int);

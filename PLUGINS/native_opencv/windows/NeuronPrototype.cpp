@@ -1123,12 +1123,26 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
 
                 }
 
+                // Limit max speed to 100%, but DO NOT clamp at 0 to allow inhibitory spikes to cause symmetric motor reversals.
+                if (left_forward < -100) left_forward = -100;
+                if (left_forward > 100) left_forward = 100;
+
+                if (right_forward < -100) right_forward = -100;
+                if (right_forward > 100) right_forward = 100;
+
+                if (left_backward < -100) left_backward = -100;
+                if (left_backward > 100) left_backward = 100;
+
+                if (right_backward < -100) right_backward = -100;
+                if (right_backward > 100) right_backward = 100;
+
                 // scale
                 left_forward *= 2.5;
                 right_forward *= 2.5;
                 left_backward *= 2.5;
                 right_backward *= 2.5;
 
+                // Send precise breakdown to Dart instead of compressed scalar
                 left_torque = static_cast<int>(left_forward - left_backward);
                 left_torque_mem = left_torque;
                 left_dir = 0;
@@ -1219,7 +1233,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess(double *_a, doubl
                 }
                 // short speaker_tone = 0;
                 // SPIKING MESSAGE IS NEEDED TO BLINK NEURON
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
+                // Replaced legacy compressed "l:..." scalar string with distinct directional values to allow Dart to process inhibitor mixing natively
+                message = "lf:" + std::to_string((int)left_forward) + ";lb:" + std::to_string((int)left_backward) + ";rf:" + std::to_string((int)right_forward) + ";rb:" + std::to_string((int)right_backward) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
 
                 // if not spiking turn off
                 if (isRedLed == -1 && isGreenLed == -1 && isBlueLed == -1){

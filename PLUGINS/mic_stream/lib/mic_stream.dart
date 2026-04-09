@@ -110,10 +110,10 @@ class MicStream {
   /// audioFormat:     Switch between 8- and 16-bit PCM streams
   ///
   static Future<Stream<Uint8List>?> microphone(
-      {AudioSource audioSource: _DEFAULT_AUDIO_SOURCE,
-      int sampleRate: _DEFAULT_SAMPLE_RATE,
-      ChannelConfig channelConfig: _DEFAULT_CHANNELS_CONFIG,
-      AudioFormat audioFormat: _DEFAULT_AUDIO_FORMAT}) async {
+      {AudioSource audioSource = _DEFAULT_AUDIO_SOURCE,
+      int sampleRate = _DEFAULT_SAMPLE_RATE,
+      ChannelConfig channelConfig = _DEFAULT_CHANNELS_CONFIG,
+      AudioFormat audioFormat = _DEFAULT_AUDIO_FORMAT}) async {
     if (sampleRate < _MIN_SAMPLE_RATE || sampleRate > _MAX_SAMPLE_RATE)
       throw (RangeError.range(sampleRate, _MIN_SAMPLE_RATE, _MAX_SAMPLE_RATE));
     if (_requestPermission) if (!(await permissionStatus))

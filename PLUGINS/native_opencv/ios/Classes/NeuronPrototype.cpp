@@ -1149,8 +1149,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                         }else
                         if (guidedDelayList[idx].neuronType == configDelayNeuron){ //delay neuron
                             if (switchSkipDelay[idx] == -1) {
-                                // platform_log( ("List Size2xyz: "+ std::to_string(guidedDelayList[idx].listSize)+"\n" ).c_str());
-
+                                // Initialization pass: do NOT start the delay thread here.
+                                // Previously this pre-consumed the delay before any real spike arrived,
+                                // causing first activation to fire instantly.
                                 switchSkipDelay[idx] = 40;
                                 if (v[idx] >= 30){
                                     if (guidedDelayList[idx].mode > 0){
@@ -1162,37 +1163,36 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                     guidedDelayList[idx].push_front(0);
                                     guidedDelayList[idx].push_value_front(v[idx]);                                    
                                 }
-                                
-                                // START THREAD
-                                short neuronIndex = idx;
-                                if (guidedDelayList[neuronIndex].isWaiting == 0){
-                                    guidedDelayList[neuronIndex].isWaiting = 1; // prepare to start the thread, 2-If it has invoked
-                                    v[neuronIndex] = c[neuronIndex];
-                                    u[neuronIndex]= b[neuronIndex] * v[neuronIndex];
-                                }
-
-                                if (guidedDelayList[neuronIndex].mode == 0 && guidedDelayList[neuronIndex].isWaiting == 1){
-                                    guidedDelayList[neuronIndex].isWaiting = 2;
-                                    guidedDelayList[neuronIndex].mode = 1;
-                                    // platform_log( ("START THREAD\n" ));
-                                    guidedDelayList[neuronIndex].startDelayThread();
-                                }                                
+                                // Thread starts in switchSkipDelay==0 block on actual spike only.
                                 
                             }else
                             if (switchSkipDelay[idx] == 0) {
                                 if (v[idx] >= 30){
+                                    // Clear sentinels accumulated while mode==0 (before first spike)
+                                    if (guidedDelayList[idx].mode == 0) {
+                                        guidedDelayList[idx].clearAll();
+                                    }
                                     guidedDelayList[idx].isSpiking = 1;
                                     guidedDelayList[idx].push_front(1);
                                     guidedDelayList[idx].push_value_front(v[idx]);
                                     if (guidedDelayList[idx].mode == 2 || guidedDelayList[idx].mode == 3){
                                         v[idx] = c[idx];
-                                        //Adjust spiking u to d
                                         u[idx] = u[idx] + d[idx];
                                     } else
                                     if (guidedDelayList[idx].mode > 0){
                                         v[idx] = c[idx];
-                                        //Adjust spiking u to d
                                         u[idx] = u[idx] + d[idx];
+                                    }
+                                    // Start delay thread on actual spike (moved from -1 init block)
+                                    if (guidedDelayList[idx].isWaiting == 0){
+                                        guidedDelayList[idx].isWaiting = 1;
+                                        v[idx] = c[idx];
+                                        u[idx] = b[idx] * v[idx];
+                                    }
+                                    if (guidedDelayList[idx].mode == 0 && guidedDelayList[idx].isWaiting == 1){
+                                        guidedDelayList[idx].isWaiting = 2;
+                                        guidedDelayList[idx].mode = 1;
+                                        guidedDelayList[idx].startDelayThread();
                                     }
                                 }else{
                                     guidedDelayList[idx].push_front(0);
@@ -1365,11 +1365,15 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                         }
 
                         if (neuron_contacts != nullptr) {
-                            left_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
-                            left_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
-
-                            right_forward += ( getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons));
-                            right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
+                            // Aligned with Dart node mappings: controller.nodes[j + 2]
+                            // j=3 is nodeLeftMotorForwardSensor
+                            // j=4 is nodeRightMotorForwardSensor
+                            // j=5 is nodeLeftMotorBackwardSensor
+                            // j=6 is nodeRightMotorBackwardSensor
+                            left_forward   += ( getSimulationMatrixValue( neuron_contacts, iStep, 3, threadTotalNumOfNeurons));
+                            right_forward  += ( getSimulationMatrixValue( neuron_contacts, iStep, 4, threadTotalNumOfNeurons));
+                            left_backward  += ( getSimulationMatrixValue( neuron_contacts, iStep, 5, threadTotalNumOfNeurons));
+                            right_backward += ( getSimulationMatrixValue( neuron_contacts, iStep, 6, threadTotalNumOfNeurons));
                         }
 
                     }
@@ -1380,12 +1384,26 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 
                 }
 
+                // Limit max speed to 100%, but DO NOT clamp at 0 to allow inhibitory spikes to cause symmetric motor reversals.
+                if (left_forward < -100) left_forward = -100;
+                if (left_forward > 100) left_forward = 100;
+
+                if (right_forward < -100) right_forward = -100;
+                if (right_forward > 100) right_forward = 100;
+
+                if (left_backward < -100) left_backward = -100;
+                if (left_backward > 100) left_backward = 100;
+
+                if (right_backward < -100) right_backward = -100;
+                if (right_backward > 100) right_backward = 100;
+
                 // scale
                 left_forward *= 2.5;
                 right_forward *= 2.5;
                 left_backward *= 2.5;
                 right_backward *= 2.5;
 
+                // Send precise breakdown to Dart instead of compressed scalar
                 left_torque = static_cast<int>(left_forward - left_backward);
                 left_torque_mem = left_torque;
                 left_dir = 0;
@@ -1476,7 +1494,8 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                 }
                 // short speaker_tone = 0;
                 // SPIKING MESSAGE IS NEEDED TO BLINK NEURON
-                message = "l:" + std::to_string(l_torque * l_dir) + ";r:" + std::to_string(r_torque * r_dir) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
+                // Replaced legacy compressed "l:..." scalar string with distinct directional values to allow Dart to process inhibitor mixing natively
+                message = "lf:" + std::to_string((int)left_forward) + ";lb:" + std::to_string((int)left_backward) + ";rf:" + std::to_string((int)right_forward) + ";rb:" + std::to_string((int)right_backward) + ";s:" + std::to_string(speaker_tone) + ";" + spikingMessage;
 
                 // if not spiking turn off
                 if (isRedLed == -1 && isGreenLed == -1 && isBlueLed == -1){

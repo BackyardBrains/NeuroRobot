@@ -126,18 +126,36 @@ class _SpeakerMenuWidgetState extends State<SpeakerMenuWidget> {
     widget.onFrequencyChanged(id.toDouble());
   }
 
+  int _getCurrentNoteIndex() {
+     int freq = widget.currentFrequency.toInt();
+     for (int i = 0; i < instrumentEffects.length; i++) {
+        int base = instrumentEffects[i].baseStartFreq!;
+        if (freq >= base && freq < base + 12) return freq - base;
+        if (freq >= base + 12 && freq < base + 24) return freq - (base + 12);
+     }
+     return -1;
+  }
+
   void _selectInstrument(int index) {
+    int currentNoteIndex = _getCurrentNoteIndex();
     setState(() {
       _selectedInstrumentIndex = index;
       if (_octaveOffset > 1) _octaveOffset = 1; 
       _isChoosingInstrument = false; 
     });
+    if (currentNoteIndex != -1) {
+      _playNote(currentNoteIndex);
+    }
   }
 
   void _toggleOctave() {
+    int currentNoteIndex = _getCurrentNoteIndex();
     setState(() {
       _octaveOffset = _octaveOffset == 0 ? 1 : 0;
     });
+    if (currentNoteIndex != -1) {
+      _playNote(currentNoteIndex);
+    }
   }
 
   void _playNote(int noteIndex) {

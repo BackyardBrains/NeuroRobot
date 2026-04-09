@@ -6,10 +6,13 @@ class InlinePainter extends CustomPainter {
     required this.brush,
     required this.builder,
     this.isAntiAlias = true,
+    this.repaintTracker,
+    super.repaint,
   });
   final Paint brush;
   final bool isAntiAlias;
-  final void Function(Paint paint, Canvas canvas, Rect rect) builder;
+  final void Function(Paint brush, Canvas canvas, Rect rect) builder;
+  final int? repaintTracker;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -21,7 +24,11 @@ class InlinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant InlinePainter oldDelegate) {
+    if (repaintTracker != null && oldDelegate.repaintTracker != null) {
+      return repaintTracker != oldDelegate.repaintTracker;
+    }
+    // Trust the superclass Listenable (repaint property) if provided
+    return true; 
   }
 }

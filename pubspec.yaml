@@ -2,7 +2,7 @@ name: spikerbot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.3.2+01
+version: 1.4.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -59,6 +59,7 @@ dependencies:
   sn_progress_dialog: 1.1.3
   mutex: 3.1.0
   permission_handler: ^11.0.0
+  gamepads: ^0.1.7
 
   # WEB CHANGE
   ffi: ^2.1.0  
@@ -126,17 +127,22 @@ flutter:
   fonts:
     - family: BybHanddrawn
       fonts:
-      - asset: assets/fonts/BYBHandDrawn.otf
+      - asset: assets/fonts/BYBHandDrawn.ttf
     - family: NotoEmoji
       fonts:
       - asset: assets/fonts/NotoEmoji-VariableFont_wght.ttf
+    - family: BoldoaMat
+      fonts:
+      - asset: assets/fonts/Boldoa Mat.ttf
   assets:
     - assets/icons/
+    - assets/icons/remoteControlKeys/
     - assets/bg/
     - assets/bg/BrainDrawings/
     - assets/models/
     - assets/saved/
     - assets/audio/
+    - assets/example brains/
   uses-material-design: true
 # msix_config:
 #   display_name: SpikerBot

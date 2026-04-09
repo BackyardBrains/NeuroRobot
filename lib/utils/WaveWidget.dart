@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -32,7 +33,11 @@ class WaveWidget extends StatefulWidget {
   double levelMedian;
   double initialVisibleSeconds;
   final ValueChanged<double>? onVisibleSecondsChanged;
+  // True while the pointer is hovering over this widget. Used by _globalScrollRoute
+  // to yield trackpad scroll events to this widget instead of panning the canvas.
+  static bool isMouseOver = false;
   static Int16List positionsBufView = Int16List(0);
+
   // static Float64List canvasBufferBytes1 = Float64List(0); // Deprecated: Use Nativec.canvasBufferBytes1
   // ValueListenable<int> valueListenable;
   ValueNotifier<int> valueNotifier;
@@ -52,25 +57,27 @@ class _WaveWidgetState extends State<WaveWidget> {
   static const int sampleRate = 1000; // Corrected: C++ ms_per_step=1 means 1000Hz
   static const int visualOffset = 0; // Optional: Shift data left (positive) or right (negative)
 
+
   void _handleScroll(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
-      setState(() {
-        // Zoom step size (Multiplicative for better feel)
-        double dy = event.scrollDelta.dy;
-        double zoomFactor = 0.1; // 10% change
-        
-        if (dy > 0) {
-          // Scroll Down -> Zoom OUT (Show More Time)
-          visibleWindowSeconds *= (1 + zoomFactor);
-        } else {
-          // Scroll Up -> Zoom IN (Show Less Time)
-          visibleWindowSeconds /= (1 + zoomFactor);
+      // Register with the resolver so WaveWidget wins over the global trackpad
+      // scroll route (which also calls register). Being the deepest hit widget,
+      // our registration takes priority, preventing canvas pan while over the plot.
+      GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent resolved) {
+        if (resolved is PointerScrollEvent) {
+          setState(() {
+            double dy = resolved.scrollDelta.dy;
+            double zoomFactor = 0.1;
+            if (dy > 0) {
+              visibleWindowSeconds *= (1 + zoomFactor);
+            } else {
+              visibleWindowSeconds /= (1 + zoomFactor);
+            }
+            if (visibleWindowSeconds < 0.5) visibleWindowSeconds = 0.5;
+            if (visibleWindowSeconds > 10.0) visibleWindowSeconds = 10.0;
+            widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
+          });
         }
-        
-        if (visibleWindowSeconds < 0.5) visibleWindowSeconds = 0.5;
-        if (visibleWindowSeconds > 10.0) visibleWindowSeconds = 10.0; // Max 10s (Accumulator supports it)
-        
-        widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
       });
     }
   }
@@ -148,72 +155,71 @@ class _WaveWidgetState extends State<WaveWidget> {
              return Container(color: Colors.black);
           }
 
-          return Listener(
-            onPointerSignal: _handleScroll,
+          return MouseRegion(
+            onEnter: (_) { WaveWidget.isMouseOver = true; },
+            onExit: (_) { WaveWidget.isMouseOver = false; },
             child: GestureDetector(
-              onScaleStart: (details) {
-                // Cache the zoom level at the start of the gesture
-                _scaleStartSeconds = visibleWindowSeconds;
+              // Pinch-to-zoom (macOS trackpad / iOS two-finger pinch).
+              // PointerPanZoomEvent is used for pinch — not intercepted by global scroll route.
+              onScaleStart: (d) { _scaleStartSeconds = visibleWindowSeconds; },
+              onScaleUpdate: (d) {
+                if ((d.scale - 1.0).abs() > 0.01) {
+                  setState(() {
+                    visibleWindowSeconds = (_scaleStartSeconds / d.scale).clamp(0.5, 10.0);
+                    widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
+                  });
+                }
               },
-              onScaleUpdate: (details) {
-                setState(() {
-                  // Pinch Zoom Logic
-                  double newSeconds = _scaleStartSeconds / details.scale;
-                  
-                  // Clamp
-                  if (newSeconds < 0.5) newSeconds = 0.5;
-                  if (newSeconds > 10.0) newSeconds = 10.0;
-                  
-                  visibleWindowSeconds = newSeconds;
-                  widget.onVisibleSecondsChanged?.call(visibleWindowSeconds);
-                });
-              },
-              child: Container(
-                height: constraint.maxHeight,
-                width: constraint.maxWidth,
-                color: Colors.black,
-                child: Stack(children: [
-                if (widget.neuronIdx1 != -1)
-                  PolygonWaveform(
-                    key: waveKey,
-                    activeColor: const Color(0xFFFF785B),
-                    inactiveColor: const Color(0xFFFF785B),
-                    gain: gain1,
+              child: Listener(
+                onPointerSignal: _handleScroll, // Mouse-wheel + trackpad 2-finger scroll
+
+            child: Container(
+              height: constraint.maxHeight,
+              width: constraint.maxWidth,
+              color: Colors.black,
+              child: Stack(children: [
+              if (widget.neuronIdx1 != -1)
+                PolygonWaveform(
+                  key: waveKey,
+                  activeColor: const Color(0xFFFF785B),
+                  inactiveColor: const Color(0xFFFF785B),
+                  gain: gain1,
+                  channelIdx: 0,
+                  channelActive: 0,
+                  levelMedian: median1,
+                  strokeWidth: 1.0,
+                  samples: samples,
+                  height: constraint.maxHeight, 
+                  width: constraint.maxWidth, 
+                  maxDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                  elapsedDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
+                  eventMarkersPosition: [],
+                ),
+              if (widget.neuronIdx2 != -1)
+                IgnorePointer( // Allow gestures to pass to bottom layer
+                  child: PolygonWaveform(
+                    key: ValueKey("wave2_${widget.neuronIdx2}"),
+                    activeColor: const Color(0xFF00BFFF), // Blue Pin Color
+                    inactiveColor: const Color(0xFF00BFFF),
+                    gain: gain2,
                     channelIdx: 0,
                     channelActive: 0,
-                    levelMedian: median1,
+                    levelMedian: median2,
                     strokeWidth: 1.0,
-                    samples: samples,
-                    height: constraint.maxHeight, 
-                    width: constraint.maxWidth, 
+                    samples: _getOrderedSamples(_plotData2),
+                    height: constraint.maxHeight,
+                    width: constraint.maxWidth,
                     maxDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
                     elapsedDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
                     eventMarkersPosition: [],
                   ),
-                if (widget.neuronIdx2 != -1)
-                  IgnorePointer( // Allow gestures to pass to bottom layer
-                    child: PolygonWaveform(
-                      key: ValueKey("wave2_${widget.neuronIdx2}"),
-                      activeColor: const Color(0xFF00BFFF), // Blue Pin Color
-                      inactiveColor: const Color(0xFF00BFFF),
-                      gain: gain2,
-                      channelIdx: 0,
-                      channelActive: 0,
-                      levelMedian: median2,
-                      strokeWidth: 1.0,
-                      samples: _getOrderedSamples(_plotData2),
-                      height: constraint.maxHeight,
-                      width: constraint.maxWidth,
-                      maxDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
-                      elapsedDuration: Duration(milliseconds: (visibleWindowSeconds * 1000).toInt()),
-                      eventMarkersPosition: [],
-                    ),
-                  ),
-                ], // End Stack Children
-               ), // End Stack
-              ),
-            ),
-          );
+                ),
+              ], // End Stack Children
+             ), // End Stack
+            ), // End Container
+              ), // End Listener
+            ), // End GestureDetector
+          ); // End MouseRegion
         },
       );
   }
@@ -231,8 +237,8 @@ class _WaveWidgetState extends State<WaveWidget> {
 
   @override
   void dispose() {
-    // widget.valueListenable.removeListener(_listener);
-    widget.valueNotifier.removeListener(_listener);
+    widget.valueNotifier.removeListener(_markDirty);
+    _redrawTimer?.cancel();
     super.dispose();
   }
 
@@ -294,8 +300,16 @@ class _WaveWidgetState extends State<WaveWidget> {
     }
   }
 
+  // Flag set by valueNotifier; timer reads+clears it at 30fps.
+  bool _dirty = false;
+  Timer? _redrawTimer;
+
+  void _markDirty() {
+    _dirty = true; // no setState here — let the timer batch it
+  }
+
   void _listener() {
-    _updateData(); // Pull new data from Ring Buffer
+    _updateData();
     setState(() {});
   }
 
@@ -303,7 +317,14 @@ class _WaveWidgetState extends State<WaveWidget> {
   void initState() {
     super.initState();
     visibleWindowSeconds = widget.initialVisibleSeconds;
-    widget.valueNotifier.addListener(_listener);
+    // valueNotifier only sets a dirty flag; timer throttles actual redraws to 30fps.
+    widget.valueNotifier.addListener(_markDirty);
+    _redrawTimer = Timer.periodic(const Duration(milliseconds: 16), (_) { // 60fps
+      if (!mounted || !_dirty) return;
+      _dirty = false;
+      _updateData();
+      setState(() {});
+    });
     
     // Pre-Fill buffer from C++ history if available
     // RESTORED: To show full history of newly selected neuron

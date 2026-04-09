@@ -381,29 +381,73 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
 
             // *** CV PIPELINE START ***
             if (icam == 0 && debugImageBuffer != nullptr) {
-                Mat blurFrame, edgeFrame, dilatedFrame;
+                Mat grayFrame, gray32, blurLight, blurHeavy, diff, xdog, thickEdges;
                 
-                // 1. Gaussian Blur
-                GaussianBlur(uframe, blurFrame, Size(5, 5), 1.5, 1.5);
+                // 1. Grayscale conversion
+                cvtColor(uframe, grayFrame, COLOR_BGR2GRAY);
                 
-                // 2. Canny Edge Detection (Produces White Edges on Black Background)
-                Canny(blurFrame, edgeFrame, 50, 150);
+                // 2. Convert to float 0.0 - 1.0 for XDoG math
+                grayFrame.convertTo(gray32, CV_32FC1, 1.0 / 255.0);
                 
-                // 3. Dilate (Thicken Edges)
-                Mat thickEdges;
-                Mat kernel = getStructuringElement(MORPH_RECT, Size(4, 4));
-                dilate(edgeFrame, thickEdges, kernel);
+                // 2.5 Pre-Blur to eliminate JPEG compression macro-blocks (squares) native to ESP32 stream
+                GaussianBlur(gray32, gray32, Size(3, 3), 0.5);
                 
-                // 3.5 Invert (Black Lines on White Background)
-                // Explicitly invert to match iOS "Sketch" look.
-                bitwise_not(thickEdges, thickEdges);
+                // 3. XDoG Blurs
+                GaussianBlur(gray32, blurLight, Size(0, 0), 1.0);
+                GaussianBlur(gray32, blurHeavy, Size(0, 0), 2.5);
                 
-                // 4. Convert to BGRA for Dart display (BMP format)
+                // 4. XDoG Equation: S = g1 + p * (g1 - g2)
+                float p = 15.0f; // Sharpness / edge amplification multiplier
+                subtract(blurLight, blurHeavy, diff);
+                xdog = blurLight + p * diff;
+                
+                // 5. Adaptive Epsilon (Threshold)
+                // We detect room lighting to prevent the screen from going completely black 
+                // in the dark, preserving detail in low-light environments.
+                Scalar meanVal = mean(gray32);
+                float meanBrightness = (float)meanVal[0];
+                // Scale threshold dynamically, but enforce a hard minimum floor (0.18) 
+                // to prevent raw camera sensor noise (pixelation blockiness) from being 
+                // amplified as XDoG geometry when the room is nearly pitch black.
+                float epsilon = std::max(0.18f, meanBrightness * 0.85f);
+                
+                // 6. Dollar-Bill Engraving Shading (Halftoning)
+                // Instead of a flat binary threshold which groups camera noise into giant pixel squares,
+                // we iterate spatially and draw ink strokes based strictly on illumination depth,
+                // translating sensor noise naturally into printed shading gradients.
+                thickEdges = Mat(xdog.size(), CV_8UC1, Scalar(255));
+                for (int y = 0; y < xdog.rows; y++) {
+                    float* dog_ptr = xdog.ptr<float>(y);
+                    uint8_t* out_ptr = thickEdges.ptr<uint8_t>(y);
+                    for (int x = 0; x < xdog.cols; x++) {
+                        float val = dog_ptr[x];
+                        
+                        // Widened darkness threshold to allow more white
+                        if (val < epsilon * 0.45f) {
+                            // Absolute Hardware Darkness -> Solid Ink
+                            out_ptr[x] = 0;
+                        } else if (val < epsilon + 0.85f) {
+                            // Dynamic Tapered Engraving: Lines get physically thicker as shadows deepen!
+                            // shadowDepth -> 0.0 (darkest shadow limit) to 1.0 (lightest shadow limit)
+                            float shadowDepth = (val - (epsilon * 0.45f)) / 0.85f; 
+                            
+                            // strokeWidth scales from 3 (thick) -> down to 0 (sparse) -> and -1 (pure white)
+                            int strokeWidth = 3 - (int)(shadowDepth * 4.0f); 
+                            
+                            if (strokeWidth >= 0) {
+                                // Draw diagonal slashes of dynamic fractional width out of 6 pixels
+                                if ((x + y) % 6 <= strokeWidth) out_ptr[x] = 0;
+                            }
+                        }
+                        // Everything higher remains White (255)
+                    }
+                }
+                
+                // 8. Convert to BGRA for Dart GUI (BMP format compatibility)
                 Mat displayFrame;
-                // Use GRAY2BGRA to ensure R=G=B (Grayscale) and valid Alpha.
                 cvtColor(thickEdges, displayFrame, COLOR_GRAY2BGRA);
                 
-                // Copy to shared buffer
+                // Copy to shared memory buffer
                 if (displayFrame.isContinuous()) {
                     memcpy(debugImageBuffer, displayFrame.data, 320 * 240 * 4);
                 }

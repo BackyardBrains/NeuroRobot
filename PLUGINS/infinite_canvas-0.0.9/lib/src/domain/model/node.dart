@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_canvas/src/domain/model/SyntheticNeuron.dart';
 
+
 /// A node in the [InfiniteCanvas].
 class InfiniteCanvasNode<T> {
   static bool isShowingInfo = false;

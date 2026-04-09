@@ -34,6 +34,7 @@
 		FA3690432BD0C276003A784D /* libtensorflowlite_c-mac.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = FA3690412BD0C268003A784D /* libtensorflowlite_c-mac.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		FA3690442BD0C64B003A784D /* libtensorflowlite_c-mac.dylib in Resources */ = {isa = PBXBuildFile; fileRef = FA3690412BD0C268003A784D /* libtensorflowlite_c-mac.dylib */; };
 		FAD8C7022B2AB07900F94476 /* firebase_app_id_file.json in Resources */ = {isa = PBXBuildFile; fileRef = FAD8C7012B2AB07900F94476 /* firebase_app_id_file.json */; };
+		AA1234560001000000000001 /* BrainFileIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = AA1234560001000000000002 /* BrainFileIcon.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +98,7 @@
 		F86B334234C286ECF93A9D8E /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		FA3690412BD0C268003A784D /* libtensorflowlite_c-mac.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libtensorflowlite_c-mac.dylib"; path = "Runner/libtensorflowlite_c-mac.dylib"; sourceTree = "<group>"; };
 		FAD8C7012B2AB07900F94476 /* firebase_app_id_file.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = firebase_app_id_file.json; sourceTree = "<group>"; };
+		AA1234560001000000000002 /* BrainFileIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = BrainFileIcon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 		33FAB671232836740065AC1E /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				AA1234560001000000000002 /* BrainFileIcon.icns */,
 				33CC10F02044A3C60003C045 /* AppDelegate.swift */,
 				33CC11122044BFA00003C045 /* MainFlutterWindow.swift */,
 				33E51913231747F40026EE4D /* DebugProfile.entitlements */,
@@ -327,6 +330,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA1234560001000000000001 /* BrainFileIcon.icns in Resources */,
 				FA3690442BD0C64B003A784D /* libtensorflowlite_c-mac.dylib in Resources */,
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				FAD8C7022B2AB07900F94476 /* firebase_app_id_file.json in Resources */,

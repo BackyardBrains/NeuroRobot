@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_canvas/src/domain/model/drop_target.dart';
@@ -12,12 +13,14 @@ import '../widgets/delegate.dart';
 import '../../domain/model/node.dart';
 import '../../domain/model/edge.dart';
 import '../widgets/edge_renderer.dart';
+import '../widgets/synapse_renderer.dart';
 import '../state/controller.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/marquee.dart';
 import '../../domain/model/menu_entry.dart';
 import '../widgets/menus.dart';
 import '../widgets/node_renderer.dart';
+import '../widgets/annotation_edge_highlighter.dart';
 
 /// A Widget that renders a canvas that can be
 /// panned and zoomed.
@@ -63,6 +66,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
   late Positioned edgesWidget;
   Widget? dropTargetsWidget;
+  
+  // V25 FEATURE: Right Click Panning State
+  Offset? _rightClickDragStart;
+  Matrix4? _rightClickTransformStart;
 
   @override
   void initState() {
@@ -74,7 +81,9 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   @override
   void dispose() {
     controller.removeListener(onUpdate);
-    controller.focusNode.dispose();
+    // BUGFIX: Controller outlives this Widget State. 
+    // Disposing the focusNode here ruins the persistence of the controller!
+    // controller.focusNode.dispose();
     super.dispose();
   }
 
@@ -94,7 +103,12 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
   }
 
   void onUpdate() {
-    // print("onUpdate");
+    // During camera animation, skip the rebuild — simulation callbacks and
+    // edge-colour updates would otherwise force a full canvas repaint (all
+    // axon Bezier paths) on every frame, causing visible stutter.
+    // _animateCanvasToReset's .then() calls notifyListeners() once on
+    // completion, so everything syncs the moment the pan finishes.
+    if (controller.isAnimatingCamera) return;
     if (mounted) setState(() {});
   }
 
@@ -254,9 +268,45 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           }
         },
         child: Listener(
+          // Mouse scroll zoom: linear zoom anchored at cursor position.
+          // InteractiveViewer's built-in handler uses math.exp(-dy/scaleFactor)
+          // which feels unnatural (exponential rate, no cursor anchor correction).
+          // We intercept mouse-kind scroll here and apply the standard "zoom at point"
+          // matrix: translate-to-cursor → scale → translate-back.
+          // Trackpad (kind==trackpad) scroll is handled by _globalScrollRoute for pan.
+          onPointerSignal: (event) {
+                  // Desktop only: mouse scroll wheel zoom anchored at cursor.
+                  // iOS/Android don't have physical mouse scroll events.
+                  if (kIsWeb || Platform.isIOS || Platform.isAndroid) return;
+                  if (event is PointerScrollEvent &&
+                      event.kind == PointerDeviceKind.mouse) {
+                    const double zoomStep = 0.12;
+                    final double factor = event.scrollDelta.dy > 0
+                        ? 1.0 - zoomStep
+                        : 1.0 + zoomStep;
+                    final double currentScale = controller.getScale();
+                    final double newScale = (currentScale * factor)
+                        .clamp(controller.minScale, controller.maxScale);
+                    if (newScale == currentScale) return;
+                    final double effectiveFactor = newScale / currentScale;
+                    final Offset focal = event.localPosition;
+                    final Matrix4 matrix = controller.transform.value.clone();
+                    matrix.translate(focal.dx, focal.dy);
+                    matrix.scale(effectiveFactor, effectiveFactor);
+                    matrix.translate(-focal.dx, -focal.dy);
+                    controller.transform.value = matrix;
+                  }
+                },
           onPointerDown: (details) {
+            // Right-click / middle-click panning: record start position ONLY.
+            // Do NOT set mouseDown=true — that would let InteractiveViewer treat
+            // this pointer as a node-drag event and fight with our pan below.
+            if (details.buttons == 2 || details.buttons == 4) {
+                _rightClickDragStart = details.position;
+                return;
+            }
+
             // V25: ALWAYS check selection BEFORE setting mouseDown (which notifies listeners).
-            // This ensures logic in designbrain_page (which listens to mouseDown) sees the correct isSelectingEdge state.
             controller.checkSelection(details.localPosition);
 
             // print("mouse down");
@@ -324,7 +374,19 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // }
           },
           onPointerUp: (details) {
+            // Always reset mouseDown regardless of which button was released.
+            // Previously the right-click path returned early WITHOUT resetting mouseDown,
+            // which caused it to get stuck = true — all subsequent 2-finger trackpad
+            // events would hit moveSelection() instead of the pan branch.
             controller.mouseDown = false;
+
+            // Right-click / middle-click pan end — clear the flag.
+            if (_rightClickDragStart != null) {
+                _rightClickDragStart = null;
+                _rightClickTransformStart = null;
+                return;
+            }
+
             // CHANGE ME
             // if (controller.marqueeStart != null &&
             //     controller.marqueeEnd != null) {
@@ -383,6 +445,18 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // controller.checkSelection(controller.mousePosition, true);
           },
           onPointerMove: (details) {
+            // Right-click / middle-click pan: directly update the TransformationController
+            // value WITHOUT calling controller.notifyListeners(). This mirrors exactly how
+            // InteractiveViewer handles 2-finger trackpad pan internally — transform.value
+            // schedules a display-sync repaint while leaving the ChangeNotifier chain quiet.
+            if (_rightClickDragStart != null) {
+                final double scale = controller.getScale();
+                final Matrix4 matrix = controller.transform.value.clone();
+                matrix.translate(details.delta.dx / scale, details.delta.dy / scale);
+                controller.transform.value = matrix; // display-sync, no notifyListeners
+                return;
+            }
+
             lastPointerDownTime = 0;
             firstTapTime = 0;
             secondTapTime = 0;
@@ -401,9 +475,70 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               controller.viewport = constraints.biggest;
-              // print("constraints.maxWidth");
-              // print(constraints.maxWidth);
-              // print(constraints.maxHeight);
+              
+              // V25 FEATURE: ZERO-ALLOCATION PANNING CACHE
+              // By lifting this logic OUT of InteractiveViewer.builder, we stop building and dropping
+              // 10,000 `LayoutId` and `NodeRenderer` widgets 60 times a second. 
+              // The nodes list remains identical unless notifyListeners() is called, so we only parse it once.
+              final nodes = getNodes(constraints);
+              final edges = getEdges(constraints);
+
+              Widget edgesWidget = Positioned.fill(
+                child: InfiniteCanvasEdgeRenderer(
+                  controller: controller,
+                  edges: edges,
+                  linkStart: controller
+                      .getNode(controller.linkStart)
+                      ?.rect
+                      .center,
+                  linkEnd: controller.linkEnd,
+                  linkIsExcitatory: controller.getNode(controller.linkStart)?.isExcitatory == 1,
+                  straightLines: widget.edgesUseStraightLines,
+                ),
+              );
+
+              Widget? dropTargetsWidget;
+              if (!controller.isPlaying && controller.dropTargets.isNotEmpty) {
+                dropTargetsWidget = Positioned.fill(
+                  child: InfiniteDropTargetsRenderer(
+                    controller: controller,
+                    dropTargets: controller.dropTargets,
+                  ),
+                );
+              }
+
+              List<Widget> nucleusWidgets = [];
+              if (controller.nucleusList != null) {
+                  nucleusWidgets = controller.nucleusList!;
+              }
+
+              // This entire massive tree is generated ONE time per structural change.
+              Widget cachedNodesLayer = Positioned.fill(
+                 child: Stack(
+                   children: [
+                      edgesWidget,
+                      Positioned.fill(
+                        child: CustomMultiChildLayout(
+                          delegate: InfiniteCanvasNodesDelegate(nodes),
+                          children: nodes
+                              .map((e) => LayoutId(
+                                    key: e.key,
+                                    id: e,
+                                    child: NodeRenderer(
+                                      node: e,
+                                      controller: controller,
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                      Positioned.fill(child: InfiniteCanvasSynapseRenderer(controller: controller)),
+                      if (controller.dropTargets.isNotEmpty && dropTargetsWidget != null) dropTargetsWidget,
+                      ...nucleusWidgets,
+                   ]
+                 )
+              );
+
               return InteractiveViewer.builder(
                 transformationController: controller.transform,
                 panEnabled: controller.canvasMoveEnabled &&
@@ -425,16 +560,33 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   }
                 },
                 onInteractionUpdate: (details) {
+                  // Right-click/middle-click pan already handled in Listener.onPointerMove.
+                  if (_rightClickDragStart != null) return;
+
+                  if (details.pointerCount >= 2) {
+                    // Multi-finger gesture (pinch/spread on touchscreen, or 2-finger trackpad).
+                    // InteractiveViewer is ALREADY applying zoom+pan to the transform internally.
+                    // Calling controller.pan() here would create two simultaneous transform
+                    // mutations per frame, causing them to fight and block both zoom and pan.
+                    // Solution: do nothing here — let InteractiveViewer own the transform.
+                    controller.mousePosition = details.focalPoint;
+                    return;
+                  }
+
                   if (!controller.mouseDown) {
-                    controller.scale = details.scale;
+                    // No button pressed — trackpad/mouse scale gesture.
+                    // InteractiveViewer applies zoom+pan to the transform internally.
+                    // Global scroll route handles trackpad 2-finger pan via PointerSignalResolver.
+                    // We only cache the scale value here for other calculations.
+                    controller.quietlySetScale(details.scale);
                   } else if (controller.spacePressed) {
-                    // print("controller.canvasMoveEnabled");
-                    // print(controller.canvasMoveEnabled);
                     if (controller.canvasMoveEnabled) {
                       controller.pan(details.focalPointDelta);
                     }
                   } else if (controller.controlPressed) {
+                    // ctrl+drag = draw edge, no move
                   } else {
+                    // Single-pointer click+drag → move selected node(s)
                     controller.moveSelection(details.focalPoint);
                   }
                   controller.mousePosition = details.focalPoint;
@@ -448,97 +600,78 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
                 minScale: controller.minScale,
                 maxScale: controller.maxScale,
-                boundaryMargin: const EdgeInsets.all(double.infinity),
+                // scaleFactor=infinity disables InteractiveViewer's own mouse scroll zoom:
+                // math.exp(-dy/infinity) = exp(0) = 1.0 → scaleChange=1.0 → IV returns early.
+                // Our deep Listener (inside builder) handles mouse scroll with correct
+                // pre-multiply formula + hard direction+limit boundary checks.
+                scaleFactor: double.maxFinite,
+                boundaryMargin: const EdgeInsets.all(100000.0),
                 builder: (context, quad) {
-                  final nodes = getNodes(constraints);
-                  final edges = getEdges(constraints);
-                  if (!controller.isPlaying) {
-                    edgesWidget = Positioned.fill(
-                      child: InfiniteCanvasEdgeRenderer(
-                        controller: controller,
-                        edges: edges,
-                        linkStart: controller
-                            .getNode(controller.linkStart)
-                            ?.rect
-                            .center,
-                        linkEnd: controller.linkEnd,
-                        linkIsExcitatory: controller.getNode(controller.linkStart)?.isExcitatory == 1,
-                        straightLines: widget.edgesUseStraightLines,
-                      ),
-                    );
-                  } else {
-                    // print("edges widget cache");
-                  }
-                  if (!controller.isPlaying &&
-                      controller.dropTargets.isNotEmpty) {
-                    dropTargetsWidget = Positioned.fill(
-                      child: InfiniteDropTargetsRenderer(
-                        controller: controller,
-                        dropTargets: controller.dropTargets,
-                      ),
-                      // child: CustomMultiChildLayout(
-                      //     delegate: InfiniteCanvasDropTargetsDelegate(
-                      //         controller.dropTargets),
-                      //     children: controller.dropTargets
-                      //         .map((dropTarget) => LayoutId(
-                      //               key: dropTarget.key,
-                      //               id: dropTarget,
-                      //               child: InfiniteDropTargetsRenderer(
-                      //                 dropTarget: dropTarget,
-                      //                 controller: controller,
-                      //               ),
-                      //             ))
-                      //         .toList()),
-                    );
-                  }
-                   List<Nucleus> nucleusWidgets = [];
-                   if (controller.nucleusList != null) {
-                       nucleusWidgets = controller.nucleusList!;
-                   }
+                  // InteractiveViewer natively triggers this frame builder during every micro-movement to update the quad.
+                  // Since `cachedNodesLayer` is a final reference to a pre-defined tree, Flutter diffs it in 0.0ms.
+                  // Deep Listener inside InteractiveViewer's builder content.
+                  // Being INSIDE the builder makes it DEEPER in the hit tree than
+                  // InteractiveViewer's own internal Listener. Flutter hit testing resolves
+                  // deepest-first, so this Listener registers in PointerSignalResolver FIRST,
+                  // winning the ??= race and blocking InteractiveViewer's handler.
+                  // Mouse scroll: applies cursor-anchored zoom (pre-multiply viewport-space).
+                  // Hard clamp at min/max — overflow returns early, no pan drift at bounds.
+                  // Trackpad pan: handled via _globalScrollRoute (global route, separate path).
+                  return Listener(
+                    onPointerSignal: (kIsWeb || Platform.isIOS || Platform.isAndroid)
+                        ? null
+                        : (event) {
+                            if (event is PointerScrollEvent &&
+                                event.kind == PointerDeviceKind.mouse) {
+                              const double zoomStep = 0.12;
+                              final double factor = event.scrollDelta.dy > 0
+                                  ? 1.0 - zoomStep
+                                  : 1.0 + zoomStep;
+                              final double currentScale = controller.getScale();
+                              // Direction+limit check: avoids float-equality drift.
+                              // At minScale, any zoom-out intent → hard stop, no transform.
+                              // At maxScale, any zoom-in intent → hard stop, no transform.
+                              final bool zoomingOut = event.scrollDelta.dy > 0;
+                              if (zoomingOut && currentScale <= controller.minScale) return;
+                              if (!zoomingOut && currentScale >= controller.maxScale) return;
+                              final double newScale = (currentScale * factor)
+                                  .clamp(controller.minScale, controller.maxScale);
+                              final double f = newScale / currentScale;
+                              // event.localPosition inside InteractiveViewer's builder is in
+                              // SCENE coordinates. Convert to VIEWPORT coordinates by applying
+                              // the transform (which maps scene→viewport).
+                              // Using transform * scenePoint gives the correct screen-space pos
+                              // regardless of window position on the display.
+                              final Vector3 sceneVec = Vector3(
+                                event.localPosition.dx,
+                                event.localPosition.dy,
+                                0.0,
+                              );
+                              final Vector3 vpVec =
+                                  controller.transform.value.transform3(sceneVec);
+                              final Offset p = Offset(vpVec.x, vpVec.y);
 
-                  return SizedBox.fromSize(
-                    size: controller.getMaxSize().size,
-                    child: Stack(
-                      // clipBehavior: Clip.none,
-                      children: [
-                        Positioned.fill(
-                          child: buildBackground(context, quad),
-                        ),
-                        Positioned.fill(
-                          child: buildActiveComponent(context, quad),
-                        ),
-                        edgesWidget,
-                        Positioned.fill(
-                          child: CustomMultiChildLayout(
-                            delegate: InfiniteCanvasNodesDelegate(nodes),
-                            children: nodes
-                                .map((e) => LayoutId(
-                                      key: e.key,
-                                      id: e,
-                                      child: NodeRenderer(
-                                        node: e,
-                                        controller: controller,
-                                      ),
-                                    ))
-                                .toList(),
+                              final Matrix4 viewportZoom = Matrix4.identity()
+                                ..translate(p.dx * (1.0 - f), p.dy * (1.0 - f), 0.0)
+                                ..scale(f, f, 1.0);
+                              viewportZoom.multiply(controller.transform.value);
+                              controller.transform.value = viewportZoom;
+                            }
+                          },
+                    child: SizedBox.fromSize(
+                      size: controller.getMaxSize().size,
+                      child: Stack(
+                        // clipBehavior: Clip.none,
+                        children: [
+                          Positioned.fill(
+                            child: buildBackground(context, quad),
                           ),
-                        ),
-                        if (controller.dropTargets.isNotEmpty &&
-                            dropTargetsWidget != null) ...[dropTargetsWidget!],
-                        ...nucleusWidgets,
-
-                        // CHANGE ME
-                        // if (controller.marqueeStart != null &&
-                        //     controller.marqueeEnd != null) ...[
-                        //   Positioned.fill(
-                        //     child: Marquee(
-                        //       start:
-                        //           controller.toLocal(controller.marqueeStart!),
-                        //       end: controller.toLocal(controller.marqueeEnd!),
-                        //     ),
-                        //   ),
-                        // ],
-                      ],
+                          Positioned.fill(
+                            child: buildActiveComponent(context, quad),
+                          ),
+                          cachedNodesLayer,
+                        ],
+                      ),
                     ),
                   );
                 },

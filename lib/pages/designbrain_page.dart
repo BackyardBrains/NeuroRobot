@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:convert';
 import 'dart:ffi' as ffi;
@@ -22,6 +23,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
@@ -41,8 +43,10 @@ import 'package:spikerbot/dialogs/version_dialog.dart';
 import 'package:spikerbot/components/drop_targets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:infinite_canvas/src/presentation/widgets/nucleus.dart';
+import 'package:spikerbot/components/arc_slider_widget.dart';
+import '../components/embedded_neuron_plot_widget.dart';
 
-import 'package:native_opencv/native_opencv.dart';
+import 'package:native_opencv/native_opencv.dart' hide Rect;
 import 'package:gamepads/gamepads.dart';
 import 'package:native_opencv/nativec.dart';
 import 'package:spikerbot/ai/models/recognition.dart';
@@ -58,6 +62,7 @@ import 'package:spikerbot/dialogs/save_brain.dart';
 import 'package:spikerbot/utils/Allocator.dart';
 import 'package:spikerbot/utils/Debouncers.dart';
 import 'package:spikerbot/utils/brain_file_handler.dart';
+import 'package:spikerbot/utils/brain_annotation.dart';
 import 'package:spikerbot/components/radial_dial_widget.dart';
 import 'package:spikerbot/utils/General.dart';
 import 'package:spikerbot/utils/ProtoNeuron.dart';
@@ -70,6 +75,7 @@ import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:opencv_ffi/opencv_ffi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import '../components/context_menu_widget.dart';
 import 'package:spikerbot/components/right_toolbar.dart';
 import 'package:spikerbot/components/speaker_menu_widget.dart';
 import 'package:spikerbot/components/color_wheel_widget.dart';
@@ -112,8 +118,11 @@ bool isCheckingImage = false;
 bool isCheckingColor = false;
 bool isNeuronBehaviorExpanded = false;
 
+final GlobalKey<EmbeddedNeuronPlotWidgetState> embeddedPlotKey = GlobalKey<EmbeddedNeuronPlotWidgetState>();
+
 class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, TickerProviderStateMixin {
   late AnimationController _canvasAnimController;
+  AnimationController? synapseFadeController;
   late Animation<Matrix4> _canvasAnimation;
   // STEVE AI
   List<LocalKey> temporaryEdge = [];
@@ -437,10 +446,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   bool isEmergencyPause = false;
   bool isDrawTail = false;
   bool isLoadingBrain = false; // Flag to prevent fillCreatedAxon from corrupting map during load
+  bool isSettlingAfterLoad = false; // blocks unsaved tracking during post-load canvas settle
+  int loadGeneration = 0; // monotonic load counter — prevents stale timers from clearing newer loads
   int prevEdgesLength = 0;
   Offset? prevSelectedOffsetNode;
   InfiniteCanvasNode? prevSelectedNode;
-  late InfiniteCanvasNode prevSelectedNeuron;
+  InfiniteCanvasNode? prevSelectedNeuron;
   late InfiniteCanvasEdge prevSelectedEdge;
   bool isPrevSelectedEdge = false;
 
@@ -584,6 +595,40 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   int isSavingBrain = 0;
   String selectedFileName = "-";
+  /// Annotations attached to the currently loaded brain.
+  List<BrainAnnotation> brainAnnotations = [];
+  /// Maps current-session node.id → stable annotation key (read from "annKey" in JSON).
+  /// Used to make annotation recall stable across multiple save/reload cycles.
+  Map<String, String> _nodeAnnotationKeys = {};
+  /// True while the user is in annotation-selection mode.
+  bool isAnnotationMode = false;
+  /// Suppresses the unsaved-flag during the entire annotation session, including
+  /// while the exit animation is running (cleared only in its onComplete).
+  bool _suppressUnsavedDuringAnnotation = false;
+  /// Baseline node/edge counts captured every time the brain reaches a definitively
+  /// clean state (initial load, brain load, save).  The unsaved flag is only raised
+  /// when the CURRENT counts differ from these baselines, which ensures that pure
+  /// UI interactions (tap, pan, zoom, camera animation) never falsely mark the brain
+  /// as dirty.
+  int _baselineNodeCount = 0;
+  int _baselineEdgeCount = 0;
+  void _setCleanBaseline() {
+    _baselineNodeCount = controller.nodes.length;
+    _baselineEdgeCount = controller.edges.length;
+    brainHasUnsavedChanges.value = false;
+  }
+  /// True when re-opening an existing annotation (edit/view mode vs. new-create mode).
+  bool _isEditingAnnotation = false;
+  /// Index into [brainAnnotations] of the annotation being viewed/edited (-1 = new).
+  int _editingAnnotationIdx = -1;
+  /// True when the user has explicitly tapped "Edit" in view mode — enables text
+  /// editing and neuron re-selection.  False while just browsing annotations.
+  bool _annotationEditEnabled = false;
+  /// Text input while user is composing an annotation description.
+  final TextEditingController _annotationDescController = TextEditingController();
+  final ScrollController _annotationScrollController = ScrollController();
+  /// Focus node for the annotation card (kept for potential future use).
+  final FocusNode _annotationFocusNode = FocusNode();
   Map pMapStatus = {};
 
   Queue<String> commandList = Queue<String>();
@@ -671,8 +716,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   /// Whether the Remote Control widget is in "listening" mode
   bool _isListeningForRemoteInput = false;
 
+  /// On-screen Remote Trigger button pressed state (for unbound RC neurons)
+  bool _remoteTriggerPressed = false;
+  /// Test Input button pressed state (for visual feedback)
+  bool _testInputPressed = false;
+
   /// Current bound key label for the selected neuron (UI state)
   String _remoteControlBoundKeyLabel = "";
+  // Targeted notifier: only fires when an RC binding changes, avoiding
+  // the full-canvas 60fps rebuild triggered by controller.notifyListeners().
+  final ValueNotifier<int> _rcBindingVersion = ValueNotifier(0);
 
   /// Debug mode for input Inspection
   bool _isShowInputDebug = false;
@@ -696,6 +749,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   double leftInnerWindowSpace = 0;
   double topInnerWindowSpace = 0;
+
+  // --- Brain Home Position: single source of truth for all coordinate layers ---
+  // brainHomeX = screen-space left edge of scaled brain group
+  // brainHomeY = screen-space top  edge of scaled brain group
+  double brainHomeX = 0.0;
+  double brainHomeY = 0.0;
+  // Toolbar dimensions (used to carve out usable canvas area)
+  static const double kToolbarWidth  = 70.0; // landscape left sidebar width
+  static const double kToolbarHeight = 70.0; // portrait  bottom bar height
 
   double minDistanceSlider = 1;
   double maxDistanceSlider = 130;
@@ -733,6 +795,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       "NEURON will SPIKE when on object is in front of the robot at 1 to 8 cm.";
 
   double scaleMultiplier = 1.0;
+  // Tracks the scaleMultiplier at which neurons were LAST repositioned.
+  // Independent of scaleMultiplier (which getDragTargets() updates each frame),
+  // so we can detect actual brain-scale changes since the last neuron rescale.
+  double _prevNeuronRescaleScale = 0.0;
 
   List<String> cameraRegions = ["Left", "Any", "Right", "Custom"];
   String selectedCameraPosition = "Left";
@@ -1113,6 +1179,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     mapDelayNeuronBufView.fillRange(0, neuronSize, -1);
     mapRhytmicNeuronBufView.fillRange(0, neuronSize, -1);
     mapCountingNeuronBufView.fillRange(0, neuronSize, -1);
+
+    // Restore configured delay values from Dart list → native buffer.
+    // initNativeC resets the buffer to -1, but delay neurons must have their
+    // delay pre-loaded BEFORE the first spike arrives, otherwise the native
+    // simulation reads -1 (no delay) and fires immediately on first activation.
+    for (int i = 0; i < neuronSize && i < mapDelayNeuronList.length; i++) {
+      if (mapDelayNeuronList[i] > 0 && i < mapDelayNeuronBufView.length) {
+        mapDelayNeuronBufView[i] = mapDelayNeuronList[i];
+      }
+    }
 
     neuronContactsBufView.fillRange(0, neuronSize * neuronSize, 0);
     motorCommandBufView.fillRange(0, motorCommandsLength, 0.0);
@@ -1591,6 +1667,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   bool isTooltipOverlay = false;
 
   bool isPlayingMenu = false;
+  bool isCameraExpanded = false;
   Future<void> _getWifiName() async {
     String? wifiNameStr;
     try {
@@ -1752,7 +1829,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   @override
   void dispose() async {
     BrainFileHandler.instance.unregisterCallback();
+    synapseFadeController?.dispose();
+    _rcBindingVersion.dispose();
     windowManager.removeListener(this);
+    // Remove global scroll route to prevent leaks
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(_globalScrollRoute);
     detector?.stop();
     _imageDetectorSubscription?.cancel();
 
@@ -1771,6 +1852,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     tecSynapticWeightG.dispose();
     tecSynapticWeightB.dispose();
     tecTimeValue.dispose();
+    _annotationDescController.dispose();
+    _annotationScrollController.dispose();
+    _annotationFocusNode.dispose();
     tecBrainDescription.dispose();
     tecBrainName.dispose();
     await windowManager
@@ -2313,11 +2397,58 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   // Screenshot Controller (State Level)
   ScreenshotController screenshotController = ScreenshotController();
 
+  void handleEmbeddedSpike() {
+    if (controller.selection.isNotEmpty) {
+      int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == controller.selection[0].id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
+      if (neuronIdx >= 0 && neuronIdx < (controller.nucleusList?.length ?? 0)) {
+        controller.nucleusList![neuronIdx].lastSpikeTime = DateTime.now().millisecondsSinceEpoch;
+        neuronSpikeFlags[neuronIdx].value = DateTime.now().millisecondsSinceEpoch;
+        // Repopulate cachedSynapses so ALL downstream synapse terminals blink,
+        // then start the fade one frame later (after edge renderer has painted).
+        controller.notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          synapseFadeController?.forward(from: 0.0);
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
+    // Global route: fires before PointerSignalResolver, registers our scroll handler
+    // FIRST so _firstRegisteredCallback ??= wins unconditionally over any overlay widget.
+    // This guarantees 2-finger trackpad pan reaches the canvas regardless of what's shown.
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_globalScrollRoute);
+    searchCameraTargetTextField = SearchTextField(
+        hintText: "Search", // V16: Simplified Hint
+        fillColor: Colors.white, // V16: White Background
+        controller: tecSearchCameraTarget,
+        onChanged: (str) {
+          searchCameraTarget = str;
+          if (mounted) setState(() {});
+        });
     onDebugUpdate = () {
       if (mounted) setState(() {});
     };
+    
+    synapseFadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 750),
+    );
+    synapseFadeController?.addListener(() {
+       // Skip synapse repaint during camera animation — avoids CustomPainter
+       // repaints mid-pan which interfere with smooth frame delivery.
+       if (!controller.isAnimatingCamera) {
+         controller.synapseFadeNotifier.value++;
+       }
+    });
+
     // Animation Controller for Canvas Fluidity
     _canvasAnimController = AnimationController(
       vsync: this,
@@ -2326,7 +2457,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     _canvasAnimController.addListener(() {
       if (controller.nodes.isNotEmpty) { // Safety check
          controller.transform.value = _canvasAnimation.value;
-         controller.notifyListeners(); // Force redraw of canvas
+         // No notifyListeners() here — TransformationController already
+         // notifies InteractiveViewer and schedules a display-sync repaint.
+         // Calling notifyListeners() here caused 60fps full canvas rebuilds
+         // (all axon Bezier paths) for the entire 1-second pan animation.
+      }
+    });
+    // Safety net: if the .then() Future doesn't resolve (widget disposed
+    // mid-animation), isAnimatingCamera would stay true forever and block
+    // ALL canvas onUpdate setState calls. The statusListener is always called.
+    _canvasAnimController.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        if (controller.isAnimatingCamera && mounted) {
+          controller.isAnimatingCamera = false;
+          controller.notifyListeners();
+        }
       }
     });
     processor = ImagePreprocessor();
@@ -2543,63 +2688,118 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // printDebug(Nativec.canvasBufferBytes1);
         waveRedraw.value = Random().nextInt(10000);
       }
-      if (isPlayingMenu) {
-        // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
-        // printDebug("neuronCircleBridge");
-        // printDebug(neuronCircleBridge);
-        /* MOVED TO PROCESS ROBOT MESSAGE
-        try {
-          for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
-            int neuronIndex = i;
-            if (neuronCircleBridge[i] == 1) {
-              protoNeuron.circles[neuronIndex].isSpiking = 1;
-              neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-            } else {
-              try {
-                protoNeuron.circles[neuronIndex].isSpiking = -1;
-                neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-              } catch (err) {
-                printDebug(err);
-              }
-            }
-          }
-        } catch (err) {
-          printDebug(err);
-        }
-        */
-      }
+      // V25: Removed the blind 60fps waveRedraw force-trigger.
+      // The canvas will now strictly rely on processRobotMessages > periodicNeuronSpikingFlags
+      // to only notify waveRedraw when actual physics neuron states visually change.
     });
   }
 
-  void _animateCanvasToReset(bool centerHorizontal, {bool shiftDown = false}) {
+  void _animateCanvasToReset(bool centerHorizontal, {bool shiftDown = false, bool animate = true, VoidCallback? onComplete}) {
      Matrix4 currentMatrix = controller.transform.value;
      Matrix4 targetMatrix = Matrix4.identity(); // Scale 1.0, Origin 0,0
-     
+
      double deltaX = 0.0;
      double deltaY = 0.0;
-     
-     if (centerHorizontal) {
-        // Smart Centering: (ScreenW - RightCard - LeftTool) / 2 + LeftTool - (ScreenW/2)
-        // Simplified: (LeftTool - RightCard) / 2
-        double leftToolW = 85.0; // Approx toolbar width
-        double rightCardW = (Platform.isIOS || Platform.isAndroid) ? 330 : 350; // Tuned Card Width (was 220)
+
+     bool isLandscapeMode = MediaQuery.of(context).orientation == Orientation.landscape;
+     final double safeBottom = MediaQuery.of(context).padding.bottom;
+     const double kIconSize = 70.0; // Neuron icon size (LeftToolbar child width/height)
+     const double kGap      = 56.0; // Visual clearance from panel right/top edge
+
+     // Brain bounding box at identity-transform (centered) in screen/canvas coords:
+     //   left   = screenWidth/2  - 245 * scaleMultiplier   (brain polygon half-width = 245)
+     //   bottom = screenHeight/2 + currentImageHeight/2
+     final double brainLeft   = screenWidth  / 2.0 - 245.0 * scaleMultiplier;
+     final double brainBottom = screenHeight / 2.0 + currentImageHeight / 2.0;
+
+     if (isCameraExpanded) {
+        // Expand Camera Mode: Route the brain smoothly to the PIP quadrant
+        double targetScale = 0.45;
+        targetMatrix.scale(targetScale, targetScale, 1.0);
         
-        deltaX = (leftToolW - rightCardW) / 2;
-     }
-     
-     if (shiftDown) {
-         // Push the brain downward to clear the top live-view widgets but stay above play button
-         deltaY = 150.0;
+        double scaledNucleusX = (screenWidth / 2.0) * targetScale;
+        double scaledNucleusY = (screenHeight / 2.0) * targetScale;
+
+        if (isLandscapeMode) {
+            // Landscape: Push brain nucleus to the massive whitespace generated on the Right side 
+            double rightOffset = MediaQuery.of(context).padding.right; 
+            // The camera anchors on the left ~90px, leaving a huge cavern on the right side.
+            double cameraPanelRightEdge = 90.0 + (screenWidth * 0.70) + 10.0;
+            double remainingSpaceCenter = cameraPanelRightEdge + ((screenWidth - rightOffset) - cameraPanelRightEdge) / 2.0;
+
+            double pipCenterX = remainingSpaceCenter; 
+            double pipCenterY = screenHeight / 2.0; 
+            
+            deltaX = pipCenterX - scaledNucleusX;
+            deltaY = pipCenterY - scaledNucleusY;
+        } else {
+            // Portrait: Center brain horizontally and drop its Top physically below the iPhone Hardware Notch limits
+            double pipCenterX = screenWidth / 2.0; 
+            // The brain extends upward by ~245*targetScale from the nucleus, so we buffer heavily 
+            double pipCenterY = MediaQuery.of(context).padding.top + (245.0 * targetScale) + 20.0; 
+            
+            deltaX = pipCenterX - scaledNucleusX;
+            deltaY = pipCenterY - scaledNucleusY;
+        }
+        
+        // Apply matrix transformation smoothly mapping to the delta vector
+        targetMatrix = Matrix4.identity()
+          ..translate(deltaX, deltaY)
+          ..scale(targetScale, targetScale, 1.0);
+          
+     } else if (isLandscapeMode) {
+       // Landscape: LeftToolbar is a LEFT vertical strip.
+       //   Positioned(left: 0, top: 15 + safePaddingTop)
+       //   width = kIconSize + safePaddingLeft  (see left_toolbar.dart)
+       final double panelRight = kIconSize + safePaddingLeft;
+       deltaX = (panelRight + kGap) - brainLeft;
+
+       if (shiftDown) deltaY = 150.0;
+     } else {
+       // Portrait: LeftToolbar is a BOTTOM horizontal strip.
+       //   panel content top = screenHeight - kIconSize - safeBottom
+       // iOS: brain can sit much closer to the panel than other platforms.
+       final double kPortraitGap = (Platform.isIOS || Platform.isAndroid) ? 8.0 : kGap;
+       final double panelContentTop = screenHeight - kIconSize - safeBottom;
+       deltaY = (panelContentTop - kPortraitGap) - brainBottom;
+       if (deltaY < 0) deltaY = 0;
+       if (shiftDown) deltaY += 150.0;
      }
 
-     targetMatrix.translate(deltaX, deltaY);
-     
-     _canvasAnimation = Matrix4Tween(
-       begin: currentMatrix,
-       end: targetMatrix,
-     ).animate(CurvedAnimation(parent: _canvasAnimController, curve: Curves.easeInOut));
-     
-     _canvasAnimController.forward(from: 0);
+     printDebug("[HomeReset] isCameraExpanded=$isCameraExpanded landscape=$isLandscapeMode brainLeft=$brainLeft brainBottom=$brainBottom "
+                "scaleMultiplier=$scaleMultiplier currentImageHeight=$currentImageHeight "
+                "screenW=$screenWidth screenH=$screenHeight safeBottom=$safeBottom "
+                "deltaX=$deltaX deltaY=$deltaY");
+
+     if (animate) {
+       // Only apply the dynamic translate vector for regular modes (isCameraExpanded sets it explicitly earlier to avoid matrix skew!)
+       if (!isCameraExpanded) {
+           targetMatrix.translate(deltaX, deltaY, 0.0);
+       }
+       controller.isAnimatingCamera = true;
+       // Pause synapse fade so its 60fps ticker doesn't compete with the
+       // camera pan on iOS (where frame budget is tighter than macOS).
+       // The fade restarts automatically on the next neuron spike.
+       synapseFadeController?.stop();
+       _canvasAnimation = Matrix4Tween(
+         begin: currentMatrix,
+         end: targetMatrix,
+       ).animate(CurvedAnimation(parent: _canvasAnimController, curve: Curves.easeInOut));
+       _canvasAnimController.forward(from: 0).then((_) {
+         controller.isAnimatingCamera = false;
+         // One-time notification after animation completes:
+         // restores nucleus icons (which were hidden during animation)
+         // and lets _onControllerChange pick up the state change.
+         controller.notifyListeners();
+         // Fire optional completion callback (e.g. starting simulation after
+         // the camera has fully settled — avoids racing on slow hardware).
+         onComplete?.call();
+       });
+     } else {
+       controller.isAnimatingCamera = false;
+       targetMatrix.translate(deltaX, deltaY, 0.0);
+       controller.transform.value = targetMatrix;
+     }
   }
 
   Widget _buildBehaviorGroupHeader(String text) {
@@ -2631,12 +2831,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             neuronMenuType = type;
             isNeuronBehaviorExpanded = false; // Hide menu on select
           });
+          if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // neuron behavior type changed
           neuronTypeChangeCallback(neuronMenuType);
           tecTimeValue.text = sldTimeValue.floor().toString();
           
           try {
             InfiniteCanvasNode selected = controller.selection[0];
-            int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+            int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
             
             if (type == "Delay") {
               isShowDelayTime = true;
@@ -2701,7 +2908,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (isPortrait == true) {
         // current screen is not portrait
         if (MediaQuery.of(context).orientation != Orientation.portrait) {
-          controller.zoomReset();
+          // rotation: let _animateCanvasToReset animate directly from current position to home
+          // (no zoomReset() — that snaps to center causing visible center-flash on iOS)
           isPortrait = false;
           isInitialized = false;
           isReorientation = true;
@@ -2711,8 +2919,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       } else if (isPortrait == false) {
         // current screen is not landscape
         if (MediaQuery.of(context).orientation != Orientation.landscape) {
-          controller.zoomReset();
-
+          // rotation: let _animateCanvasToReset animate directly from current position to home
           isPortrait = true;
           isInitialized = false;
           isReorientation = true;
@@ -2751,6 +2958,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       printDebug("INIT CANVAS");
       if (!isControllerInitialized) {
         initCanvas();
+        // FIX: Populate rawSyntheticNeuronList with IO sensors at startup.
+        // Without this, the list starts empty on fresh launch (clearBridge is called
+        // by loadBrain/New-File but NOT by initCanvas). User-placed neurons then land
+        // at index 0 instead of index 13, causing the load fallback to go out-of-bounds
+        // → null syntheticConfig → no dendrites on first neuron after fresh-boot save.
+        clearBridge();
         isControllerInitialized = true;
       }
       isInitialized = true;
@@ -2805,30 +3018,41 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           controller.nodes[i].offset = Offset(diff.dx, diff.dy);
         }
       } else {
-        int start = normalNeuronStartIdx + 2;
-        for (int i = start; i < len; i++) {
-          int idx = i - start;
-          Offset diff =
-              newCameraNodePos + oldDifCamera[idx].scale(scaleX, scaleY);
-          controller.nodes[i].offset = Offset(diff.dx, diff.dy);
+        // Desktop (macOS/Windows): repositionContactNeurons() already rescaled
+        // neuron positions using the oldScaleMultiplier→scaleMultiplier ratio.
+        // Running the scaleX/scaleY loop here too would double-scale and squish
+        // neurons on fullscreen/maximize/resize transitions. Skip it.
 
-          // controller.nodes[i].offset =
-          //     controller.nodes[i].offset.scale(scaleX, scaleY);
-        }
         if (isResizingFlag) {
           brainPosition =
               newCameraNodePos + oldDifCoreBrain.scale(scaleX, scaleY);
         }
-        print("brainPosition");
-        print(brainPosition);
-        print(isResizingFlag);
-        print(screenWidth);
-        print(screenHeight);
-        print("$newCameraNodePos + ${oldDifCoreBrain.scale(scaleX, scaleY)}");
+        // Fix 3: keep brainPosition.dx in sync with the SVG brain's screen-space left edge.
+        // This prevents the core brain drop target from drifting relative to the SVG on resize.
+        brainPosition = Offset(brainHomeX, brainPosition.dy);
+        printDebug("brainPosition synced → $brainPosition (brainHomeX=$brainHomeX isResizing=$isResizingFlag)");
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) controller.notifyListeners();
+        if (mounted) {
+          // This notify is purely for repaint/layout — preserve the current
+          // unsaved state so it cannot spuriously mark the brain as dirty.
+          final _savedUnsaved = brainHasUnsavedChanges.value;
+          controller.notifyListeners();
+          brainHasUnsavedChanges.value = _savedUnsaved;
+        }
       });
+
+      // Rotation / resize: animate to the new orientation's home position.
+      // (On first init this is handled inside initCanvas via its own addPostFrameCallback;
+      //  for subsequent !isInitialized triggers, initCanvas is skipped so we add it here.)
+      if (isControllerInitialized) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _animateCanvasToReset(
+            MediaQuery.of(context).orientation == Orientation.landscape,
+            animate: false, // Snap instantly — brain revealed already in place
+          );
+        });
+      }
 
       centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
           currentImageHeight / 3 + neuronDrawSize);
@@ -2997,26 +3221,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     if (isPlayingMenu) {
       // for (int i = circleNeuronStartIndex - allNeuronStartIdx; i < neuronSize; i++) {
       // /* //CHANGED TO NUCLEUS
-      for (int i = 0; i < normalNeuronStartIdx; i++) {
-        SingleNeuron neuron = protoNeuron.circles[i];
-        widgets.add(Positioned(
-          top: neuron.centerPos.dy - 10,
-          left: neuron.centerPos.dx - 10,
-          child: SizedBox(
-            key: neuronCircleKeys[i],
-            // child: ValueListenableBuilder(
-            //   valueListenable: neuronSpikeFlags[i],
-            //   builder: ((context, value, child) {
-            //     if (protoNeuron.circles[i].isSpiking == -1) {
-            //       // return squareInactiveCircles[i];
-            //       return const SizedBox();
-            //     } else {
-            //       return squareActiveCircles[i];
-            //     }
-            //   }),
-            // ),
-          ),
-        ));
+      try {
+        for (int i = 0; i < normalNeuronStartIdx; i++) {
+          // Dead loop: migrated to Nucleus widget framework
+          // Kept empty to preserve structural parity if needed later
+        }
+      } catch (e) {
+        // Suppress LateInitializationError while waiting 500ms for runSimulation()
       }
       // OFFSET FIX: Use Matrix Translation directly for robust Screen positioning
       var tVec = controller.matrix.getTranslation();
@@ -3034,53 +3245,100 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             int pinType = placedPins[i]!;
             widgets.add(Positioned(
                key: ValueKey("pin_placed_$i"),
-               // ALIGNMENT FIX: Dynamic Centering for Constant Size Pin
-               // node.offset is TOP-LEFT.
-               // Pin Layout Size: 64 (Radius 32).
-               // Neuron Size: 20*s (Radius 10*s).
-               // We align PinCenter to NeuronCenter.
-               // PinCenter = PinTopLeft + 32.
-               // NeuronCenter = NeuronTopLeft + 10*s.
-               // PinTopLeft = (nodePos * s) + tVec + (10 * s) - 32.
-               top: (nodePos.dy * s) + tVec.y + (10 * s) - 32,
-               left: (nodePos.dx * s) + tVec.x + (10 * s) - 32,
-               child: IgnorePointer(
-                   child: Transform.scale(
-                     scale: 2.0, 
-                     child: SvgPicture.asset(
-                       (pinType == 10) ? "assets/icons/DragmenuPin1Placed.svg" : "assets/icons/DragmenuPin2Placed.svg",
-                       width: 64, // Constant size
-                     ),
-                   )
+               top: 0,
+               left: 0,
+               child: AnimatedBuilder(
+                 animation: controller.transform,
+                 builder: (context, child) {
+                   var tVec = controller.matrix.getTranslation();
+                   double s = controller.getScale();
+                   // ALIGNMENT FIX: Dynamic Centering for Constant Size Pin
+                   // node.offset is TOP-LEFT.
+                   // Pin Layout Size: 64 (Radius 32).
+                   // Neuron Size: 20*s (Radius 10*s).
+                   // We align PinCenter to NeuronCenter.
+                   // PinCenter = PinTopLeft + 32.
+                   // NeuronCenter = NeuronTopLeft + 10*s.
+                   // PinTopLeft = (nodePos * s) + tVec + (10 * s) - 32.
+                   double topOffset = (nodePos.dy * s) + tVec.y + (10 * s) - 32;
+                   double leftOffset = (nodePos.dx * s) + tVec.x + (10 * s) - 32;
+                   
+                   return Transform.translate(
+                     offset: Offset(leftOffset, topOffset),
+                     child: child,
+                   );
+                 },
+                 child: IgnorePointer(
+                     child: Transform.scale(
+                       scale: 2.0, 
+                       child: SvgPicture.asset(
+                         (pinType == 10) ? "assets/icons/DragmenuPin1Placed.svg" : "assets/icons/DragmenuPin2Placed.svg",
+                         width: 64, // Constant size
+                       ),
+                     )
+                 )
                )
             ));
         }
 
         // 2. DragTarget (Visible & Interactive if NOT Pinned)
         if (!isPinned) {
+           // V25 FEATURE: Dynamic DragTarget Hitbox Inflation for Live Pins
+           // If a pin is actively held over this specific neuron, we bloat the hitbox by 60px 
+           // to perfectly match the massive visual 1.5x expansion of the animated backend.
+           // If no pin is hovering, we still give it a generous +40px magnetism to make dropping easy.
+           bool isHovering = (hoveringPinNeuronIdx == i);
+           double expansionDelta = isHovering ? 60.0 : 40.0;
+           
            widgets.add(Positioned(
               key: ValueKey("live_dt_$i"),
-              // Apply Robust Math (Top-Left aligned)
-              top: (nodePos.dy * s) + tVec.y,
-              left: (nodePos.dx * s) + tVec.x,
-              child: GestureDetector(
+              top: 0,
+              left: 0,
+              child: AnimatedBuilder(
+                animation: controller.transform,
+                builder: (context, child) {
+                  var tVec = controller.matrix.getTranslation();
+                  double s = controller.getScale();
+                  // Apply Robust Math (Top-Left aligned) + Centered Expansion Offset
+                  double topOffset = (nodePos.dy * s) + tVec.y - (expansionDelta / 2.0);
+                  double leftOffset = (nodePos.dx * s) + tVec.x - (expansionDelta / 2.0);
+                  
+                  return Transform.translate(
+                    offset: Offset(leftOffset, topOffset),
+                    child: child,
+                  );
+                },
+                child: GestureDetector(
                  behavior: HitTestBehavior.translucent,
                  onTap: () {
-                     print("DEBUG: Neuron Tap! isPlayingMenu: $isPlayingMenu"); // DEBUG PRINT
-                     
                      // Disable Tap Selection in Live Mode (User Request)
-                     if (isPlayingMenu) {
-                        print("DEBUG: Tap Ignored because isPlayingMenu is true");
-                        return;
+                     if (isPlayingMenu) return;
+
+                     // ── Annotation Mode: tap-to-toggle neuron selection ──
+                     if (isAnnotationMode) {
+                       // Block selection changes in view-only mode
+                       if (!_annotationEditEnabled) return;
+                       if ((i + 2) < controller.nodes.length) {
+                         final nodeKey = controller.nodes[i + 2].key.toString();
+                         setState(() {
+                           if (controller.annotationHighlightNodeKeys.contains(nodeKey)) {
+                             controller.annotationHighlightNodeKeys.remove(nodeKey);
+                           } else {
+                             controller.annotationHighlightNodeKeys.add(nodeKey);
+                           }
+                         });
+                         controller.notifyListeners(); // repaint canvas
+                       }
+                       return; // don't run normal design-mode logic
                      }
 
+                     // Normal design-mode selection:
                      nativec.changeIdxSelected(i);
                      controller.deselectAll();
-                     // Assuming controller.nodes alignment:
                      if ((i + 2) < controller.nodes.length) {
                          controller.setSelection({controller.nodes[i + 2].key});
                          isChartSelected = true;
-                         setState(() {}); // Trigger plot update
+                         setState(() {});
                      }
                  },
                  child: DragTarget(
@@ -3170,10 +3428,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                          }
                      },
                      builder: (_,__,___) => SizedBox(
-                        width: neuronDrawSize * s,
-                        height: neuronDrawSize * s
+                        width: (neuronDrawSize * s) + expansionDelta,
+                        height: (neuronDrawSize * s) + expansionDelta
                      )
                  )
+                )
               )
            ));
         }
@@ -3185,7 +3444,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     //   String.fromCharCode(0x1F9E0),
     //   style: const TextStyle(fontFamily: "BybHanddrawn"),
     // );
-    mainBody = !isInitialized
+    mainBody = (!isInitialized || isLoadingBrain)
         ? const SizedBox()
         : prepareWidget(
             InfiniteCanvas(
@@ -3198,9 +3457,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       width: screenWidth,
                       height: screenHeight,
                       fit: BoxFit.contain,
-                      // @New Design
                       mapBg["activeComponent"]!),
-                  // "assets/bg/BrainDrawings/BrainFullGrey.svg"),
                 );
               },
               backgroundBuilder: (ctx, r) {
@@ -3211,12 +3468,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                   child: SvgPicture.asset(
                       width: screenWidth,
                       height: screenHeight,
-                      // scale: screenWidth/800,
                       fit: BoxFit.contain,
                       mapBg["activeBg"]!),
                 );
               },
-              drawVisibleOnly: true,
+              drawVisibleOnly: false,
               canAddEdges: true,
               menuVisible: false,
               controller: controller,
@@ -3238,7 +3494,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (!isChartSelected) {
         // inlineWidgets.add(Positioned(
         //   bottom: 100,
-        //   right: 17 + safePadding,
+        //   right: (Platform.isIOS && safePadding > 0 ? safePadding : 17 + safePadding),
         //   child: ElevatedButton(
         //     style: ElevatedButton.styleFrom(
         //       minimumSize: const Size(56, 56),
@@ -3266,7 +3522,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         inlineWidgets.add(Positioned(
           // bottom: MediaQuery.of(context).size.height / 2 - 130,
           bottom: 20,
-          right: 17 + safePadding,
+          right: (Platform.isIOS && safePadding > 0 ? safePadding : 17 + safePadding),
           child: SizedBox(
             width: 150,
             height: 40,
@@ -3284,7 +3540,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         ));*/
         // inlineWidgets.add(Positioned(
         //   bottom: MediaQuery.of(context).size.height / 2 - 130 + 50,
-        //   right: 17 + safePadding,
+        //   right: (Platform.isIOS && safePadding > 0 ? safePadding : 17 + safePadding),
         //   child: ElevatedButton(
         //     style: ElevatedButton.styleFrom(
         //       minimumSize: const Size(56, 56),
@@ -3310,11 +3566,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       }
     }
 
-    if (!isPlayingMenu && isNeuronMenu && controller.hasSelection) {
+    if (!isPlayingMenu && !isAnnotationMode && isNeuronMenu && controller.hasSelection) {
       inlineWidgets.add(
         Positioned(
-            top: 20 + safePaddingTop,
-            right: 20 + safePadding,
+            top: safePaddingTop,
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -3342,40 +3598,83 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           ),
                           const SizedBox(height: 8),
                           if (!isNeuronBehaviorExpanded)
-                            Material(
-                              elevation: 2,
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () async {
-                                  if (buttonOnPressedSource != null) {
-                                    buttonOnPressedHandle = await soloud?.play(
-                                        buttonOnPressedSource!,
-                                        looping: false);
-                                  }
-                                  setState(() {
-                                    isNeuronBehaviorExpanded = true;
-                                  });
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        neuronMenuType,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Material(
+                                  elevation: 2,
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: () async {
+                                      if (buttonOnPressedSource != null) {
+                                        buttonOnPressedHandle = await soloud?.play(
+                                            buttonOnPressedSource!,
+                                            looping: false);
+                                      }
+                                      setState(() {
+                                        isNeuronBehaviorExpanded = true;
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            neuronMenuType,
+                                            style: const TextStyle(fontWeight: FontWeight.bold),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Icon(
+                                            Icons.arrow_drop_down,
+                                            size: 20,
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_drop_down,
-                                        size: 20,
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
+                                const SizedBox(width: 8),
+                                 GestureDetector(
+                                   onTapDown: (_) async {
+                                     setState(() => _testInputPressed = true);
+                                     embeddedPlotKey.currentState?.triggerInput();
+                                     if (soloud != null && buttonOnPressedSource != null) {
+                                       soloud?.play(buttonOnPressedSource!, looping: false);
+                                     }
+                                   },
+                                   onTapUp: (_) async {
+                                     setState(() => _testInputPressed = false);
+                                     if (soloud != null && buttonPopSource != null) {
+                                       soloud?.play(buttonPopSource!, looping: false);
+                                     }
+                                   },
+                                   onTapCancel: () {
+                                     setState(() => _testInputPressed = false);
+                                   },
+                                   child: AnimatedContainer(
+                                     duration: const Duration(milliseconds: 80),
+                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                                     decoration: BoxDecoration(
+                                       color: _testInputPressed
+                                           ? const Color(0xFF0E7ACC)
+                                           : const Color(0xFF1996FC),
+                                       borderRadius: BorderRadius.circular(24),
+                                     ),
+                                     child: const Row(
+                                       mainAxisSize: MainAxisSize.min,
+                                       children: [
+                                         Icon(Icons.bolt, color: Colors.white, size: 16),
+                                         SizedBox(width: 5),
+                                         Text('Test Input', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                                       ],
+                                     ),
+                                   ),
+                                 )
+                              ],
                             ),
                           if (!isNeuronBehaviorExpanded) ...[
                             const SizedBox(height: 8),
@@ -3432,6 +3731,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 return const SizedBox.shrink();
                               }
                             }),
+                            const SizedBox(height: 12),
+                            EmbeddedNeuronPlotWidget(
+                              key: embeddedPlotKey,
+                              neuronTypeLabel: neuronMenuType,
+                              a: sldAWeight,
+                              b: sldBWeight,
+                              c: sldCWeight,
+                              d: sldDWeight,
+                              delayMs: sldTimeValue.round(),
+                              boundKey: controller.selection.isNotEmpty ? mapRemoteControlNeuron[controller.selection.first.id] : null,
+                              onSpike: handleEmbeddedSpike,
+                            ),
                           ],
                           if (isNeuronBehaviorExpanded) ...[
                             const SizedBox(height: 8),
@@ -3487,9 +3798,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                     tecAWeight.text = value.toString();
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
-                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
                                     aDesignArray[selected.id] = sldAWeight;
                                     aBufView[neuronIdx] = sldAWeight;
+                                    if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
                                     setState(() {});
                                   },
                                   onSubmitted: submitWeightA,
@@ -3508,9 +3826,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                     tecBWeight.text = value.toString();
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
-                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
                                     bDesignArray[selected.id] = sldBWeight;
                                     bBufView[neuronIdx] = sldBWeight;
+                                    if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
                                     setState(() {});
                                   },
                                   onSubmitted: submitWeightB,
@@ -3525,7 +3850,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                   title: "C value:",
                                   value: sldCWeight,
                                   min: -80,
-                                  max: -45,
+                                  max: -30,
                                   dialSize: 65,
                                   widgetWidth: 125,
                                   startAngleOffset: pi,
@@ -3535,9 +3860,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                     tecCWeight.text = value.round().toString();
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
-                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
                                     cDesignArray[selected.id] = sldCWeight.floor();
                                     cBufView[neuronIdx] = sldCWeight.floor();
+                                    if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
                                     setState(() {});
                                   },
                                   onSubmitted: submitWeightC,
@@ -3556,9 +3888,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                     tecDWeight.text = value.round().toString();
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
-                                    int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                    int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
                                     dDesignArray[selected.id] = sldDWeight.floor();
                                     dBufView[neuronIdx] = sldDWeight.floor();
+                                    if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
                                     setState(() {});
                                   },
                                   onSubmitted: submitWeightD,
@@ -3588,7 +3927,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 tecTimeValue.text = sldTimeValue.round().toString();
 
                                 InfiniteCanvasNode selected = controller.selection[0];
-                                int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+                                int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
 
                                 mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
                                 if (neuronIdx < mapDelayNeuronBufView.length) {
@@ -3598,6 +3943,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                   neuronSpikeFlags[neuronIdx].value = neuronSpikeFlags[neuronIdx].value == 0 ? 1 : 0;
                                 }
                               } catch (err) {}
+                              if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // delay time changed
                               setState(() {});
                             },
                           ),
@@ -3694,6 +4040,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                             }
                           } catch (err) {}
 
+                          if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // excitatory/inhibitory toggled
                           refreshNuclei();
                           setState(() {});
                         },
@@ -3702,84 +4049,98 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Builder(builder: (context) {
-                              Widget innerToggleChild;
                               bool isExcitatoryState = neuronStyle == "Excitatory";
-                              if (neuronMenuType == "Delay") {
-                                const List<String> clockEmojis = ["🕧", "🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡", "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"];
-                                int delayMs = 100;
-                                try {
-                                  if (controller.selection.isNotEmpty) {
-                                    int delayNodeIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
-                                    if (delayNodeIdx >= 0 && delayNodeIdx < mapDelayNeuronList.length) {
-                                      delayMs = mapDelayNeuronList[delayNodeIdx];
-                                    }
-                                  }
-                                } catch (_) {}
-                                if (delayMs < 100) delayMs = 100;
-                                int clockIdx = ((delayMs - 100) ~/ 100).clamp(0, 24);
-                                innerToggleChild = Transform.scale(
-                                  scale: isExcitatoryState ? 1.15 : 1.25,
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: Text(
-                                        clockEmojis[clockIdx],
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(fontFamily: "NotoEmoji", color: isExcitatoryState ? Colors.white : Colors.black),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else if (neuronMenuType == "Remote Control") {
-                                InfiniteCanvasNode? selectedNode;
-                                if (controller.selection.isNotEmpty) selectedNode = controller.selection[0];
-                                innerToggleChild = RemoteControlKeycap(
-                                  node: selectedNode,
-                                  fallbackKeyName: (selectedNode != null ? mapRemoteControlNeuron[selectedNode.id] : "") ?? "",
-                                  isExcitatory: isExcitatoryState,
-                                  size: 24,
-                                  transparentBackground: true,
-                                  remoteControlMap: mapRemoteControlNeuron,
-                                  overrideColor: isExcitatoryState ? Colors.white : Colors.black,
-                                );
-                              } else {
-                                double baseW = 10;
-                                double baseH = 10;
-                                double dx = 16;
-                                double dy = 16;
-                                try {
-                                  if (controller.selection.isNotEmpty) {
-                                      int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
-                                      if (neuronIdx >= 0 && neuronIdx < controller.syntheticNeuronList.length) {
-                                          var sn = controller.syntheticNeuronList[neuronIdx];
-                                          double scale = 32 / neuronDrawSize;
-                                          baseW = sn.newNeuron.widthNucleus * scale;
-                                          baseH = sn.newNeuron.heightNucleus * scale;
-                                          dx = sn.newNeuron.xNucleus * scale;
-                                          dy = sn.newNeuron.yNucleus * scale;
+                              
+                              Widget buildInner(Color symbolColor) {
+                                if (neuronMenuType == "Delay") {
+                                  const List<String> clockEmojis = ["🕧", "🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡", "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"];
+                                  int delayMs = 100;
+                                  try {
+                                    if (controller.selection.isNotEmpty) {
+                                      int delayNodeIdx = -1;
+                                      for (int i = 0; i < controller.syntheticNeuronList.length; i++) {
+                                        if (controller.syntheticNeuronList[i].node?.id == controller.selection[0].id) {
+                                          delayNodeIdx = i;
+                                          break;
+                                        }
                                       }
-                                  }
-                                } catch (_) {}
-                                
-                                innerToggleChild = Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Positioned(
-                                      left: dx - baseW/2,
-                                      top: dy - baseH/2,
-                                      width: baseW,
-                                      height: baseH,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.elliptical(baseW, baseH)),
-                                          color: isExcitatoryState ? Colors.white : Colors.black,
+                                      if (delayNodeIdx >= 0 && delayNodeIdx < mapDelayNeuronList.length) {
+                                        delayMs = mapDelayNeuronList[delayNodeIdx];
+                                      }
+                                    }
+                                  } catch (_) {}
+                                  if (delayMs < 100) delayMs = 100;
+                                  int clockIdx = ((delayMs - 100) ~/ 100).clamp(0, 24);
+                                  return Transform.scale(
+                                    scale: isExcitatoryState ? 1.15 : 1.25,
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: Text(
+                                          clockEmojis[clockIdx],
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontFamily: "NotoEmoji", color: symbolColor),
                                         ),
                                       ),
-                                    )
-                                  ]
-                                );
+                                    ),
+                                  );
+                                } else if (neuronMenuType == "Remote Control") {
+                                  InfiniteCanvasNode? selectedNode;
+                                  if (controller.selection.isNotEmpty) selectedNode = controller.selection[0];
+                                  return RemoteControlKeycap(
+                                    node: selectedNode,
+                                    fallbackKeyName: (selectedNode != null ? mapRemoteControlNeuron[selectedNode.id] : "") ?? "",
+                                    isExcitatory: isExcitatoryState,
+                                    size: 24,
+                                    transparentBackground: true,
+                                    remoteControlMap: mapRemoteControlNeuron,
+                                    overrideColor: symbolColor,
+                                  );
+                                } else {
+                                  double baseW = 10;
+                                  double baseH = 10;
+                                  double dx = 16;
+                                  double dy = 16;
+                                  try {
+                                    if (controller.selection.isNotEmpty) {
+                                        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == controller.selection[0].id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
+                                        if (neuronIdx >= 0 && neuronIdx < controller.syntheticNeuronList.length) {
+                                            var sn = controller.syntheticNeuronList[neuronIdx];
+                                            double scale = 32 / neuronDrawSize;
+                                            baseW = sn.newNeuron.widthNucleus * scale;
+                                            baseH = sn.newNeuron.heightNucleus * scale;
+                                            dx = sn.newNeuron.xNucleus * scale;
+                                            dy = sn.newNeuron.yNucleus * scale;
+                                        }
+                                    }
+                                  } catch (_) {}
+                                  
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Positioned(
+                                        left: dx - baseW/2,
+                                        top: dy - baseH/2,
+                                        width: baseW,
+                                        height: baseH,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(Radius.elliptical(baseW, baseH)),
+                                            color: symbolColor,
+                                          ),
+                                        ),
+                                      )
+                                    ]
+                                  );
+                                }
                               }
 
                               return Container(
@@ -3817,14 +4178,49 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                       height: 32,
                                       child: Stack(
                                         children: [
-                                          Container(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: isExcitatoryState ? Colors.black : Colors.white,
-                                            ),
-                                            child: innerToggleChild,
+                                          Builder(
+                                            builder: (context) {
+                                                int selectedIdx = -1;
+                                                if (controller.selection.isNotEmpty) {
+                                                    selectedIdx = controller.nodes.indexWhere((e) => e.id == controller.selection[0].id) - 2;
+                                                }
+                                                if (selectedIdx >= 0 && selectedIdx < neuronSpikeFlags.length) {
+                                                    return ValueListenableBuilder<int>(
+                                                        valueListenable: neuronSpikeFlags[selectedIdx],
+                                                        builder: (context, val, child) {
+                                                            Color spikeColor = isExcitatoryState ? const Color(0xFF00FF00) : Colors.red;
+                                                            Color baseSymbolColor = isExcitatoryState ? Colors.white : Colors.black;
+                                                            
+                                                            int lastSpike = 0;
+                                                            if (controller.nucleusList != null && selectedIdx < controller.nucleusList!.length) {
+                                                                lastSpike = controller.nucleusList![selectedIdx].lastSpikeTime;
+                                                            }
+                                                            
+                                                            return TweenAnimationBuilder<Color?>(
+                                                                key: ValueKey(lastSpike),
+                                                                tween: ColorTween(begin: spikeColor, end: baseSymbolColor),
+                                                                duration: const Duration(milliseconds: 750),
+                                                                builder: (context, animColor, child) {
+                                                                    return Container(
+                                                                        width: 32, height: 32,
+                                                                        decoration: BoxDecoration(shape: BoxShape.circle, color: isExcitatoryState ? Colors.black : Colors.white),
+                                                                        child: buildInner(animColor ?? baseSymbolColor),
+                                                                    );
+                                                                }
+                                                            );
+                                                        }
+                                                    );
+                                                }
+                                                return Container(
+                                                    width: 32,
+                                                    height: 32,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: isExcitatoryState ? Colors.black : Colors.white,
+                                                    ),
+                                                    child: buildInner(isExcitatoryState ? Colors.white : Colors.black),
+                                                );
+                                            }
                                           ),
                                           if (!isExcitatoryState)
                                             Container(
@@ -3842,6 +4238,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 ),
                               );
                             }),
+
                             if (isShowingInfo != 0) ...[
                               const SizedBox(width: 8),
                               Expanded(
@@ -3882,7 +4279,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           ), // Card
         ), // Positioned
       ); // inlineWidgets.add
-    } else if (!isPlayingMenu && isCameraMenu && controller.isSelectingEdge) {
+    } else if (!isPlayingMenu && !isAnnotationMode && isCameraMenu && controller.isSelectingEdge) {
       List<ButtonStyle> cameraButtonStyles = cameraRegions.map((region) {
         return ElevatedButton.styleFrom(
           foregroundColor: selectedCameraPosition == region
@@ -3909,8 +4306,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         inlineWidgets.add(
           Positioned(
-              right: 20 + safePadding,
-              top: 20 + safePaddingTop,
+              right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+              top: safePaddingTop,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -3930,452 +4327,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                         ),
                       ),
                       const Divider(height: 2),
-                      Row(
-                        children: [
-                          Material(
-                            elevation: 3,
-                            borderRadius: BorderRadius.circular(20),
-                            color: cameraButtonBgColors[0],
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTapDown: (details) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onTapUp: (details) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                                selectedCameraPosition = "Left";
-                                linkAreaSizeConnection(
-                                    selectedCameraPosition:
-                                        selectedCameraPosition);
-                                setState(() {});
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 6),
-                                child: Center(
-                                    child: Text(
-                                  "Left",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: cameraButtonFgColors[0]),
-                                )),
-                              ),
-                            ),
-                          ),
-                          // ElevatedButton(
-                          //     style: cameraButtonStyles[0],
-                          //     onPressed: () {
-                          //     },
-                          //     child: const Text("Left")),
-                          const SizedBox(width: 10),
-                          Material(
-                            elevation: 3,
-                            borderRadius: BorderRadius.circular(20),
-                            color: cameraButtonBgColors[1],
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTapDown: (details) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onTapUp: (details) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                                selectedCameraPosition = "Any";
-                                linkAreaSizeConnection(
-                                    selectedCameraPosition:
-                                        selectedCameraPosition);
-                                setState(() {});
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 6),
-                                child: Center(
-                                    child: Text(
-                                  "Any",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: cameraButtonFgColors[1]),
-                                )),
-                              ),
-                            ),
-                          ),
-                          // ElevatedButton(
-                          //     style: cameraButtonStyles[1],
-                          //     onPressed: () {
-
-                          //     },
-                          //     child: const Text("Any")),
-                          const SizedBox(width: 10),
-                          Material(
-                            elevation: 3,
-                            borderRadius: BorderRadius.circular(20),
-                            color: cameraButtonBgColors[2],
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTapDown: (details) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onTapUp: (details) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                                selectedCameraPosition = "Right";
-                                linkAreaSizeConnection(
-                                    selectedCameraPosition:
-                                        selectedCameraPosition);
-                                setState(() {});
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 6),
-                                child: Center(
-                                    child: Text(
-                                  "Right",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: cameraButtonFgColors[2]),
-                                )),
-                              ),
-                            ),
-                          ),
-                          // ElevatedButton(
-                          //     style: cameraButtonStyles[2],
-                          //     onPressed: () {
-                          //       selectedCameraPosition = "Right";
-                          //       linkAreaSizeConnection(
-                          //           selectedCameraPosition:
-                          //               selectedCameraPosition);
-                          //       setState(() {});
-                          //     },
-                          //     child: const Text("Right")),
-                          const SizedBox(width: 10),
-                          Material(
-                            elevation: 3,
-                            borderRadius: BorderRadius.circular(20),
-                            color: cameraButtonBgColors[3],
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTapDown: (details) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onTapUp: (details) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                                selectedCameraPosition = "Custom";
-                                linkAreaSizeConnection(
-                                    selectedCameraPosition:
-                                        selectedCameraPosition);
-                                setState(() {});
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 6),
-                                child: Center(
-                                    child: Text(
-                                  "Custom",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: cameraButtonFgColors[3]),
-                                )),
-                              ),
-                            ),
-                          ),
-                          // ElevatedButton(
-                          //     style: cameraButtonStyles[3],
-                          //     onPressed: () {
-                          //       selectedCameraPosition = "Custom";
-                          //       linkAreaSizeConnection(
-                          //           selectedCameraPosition:
-                          //               selectedCameraPosition);
-
-                          //       setState(() {});
-                          //     },
-                          //     child: const Text("Custom")),
-                        ],
-                      ),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            SizedBox(
-                              width: 170,
-                              height: 135,
-                              child: Column(
-                                children: [
-                                  const Text("Target",
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: Colors.black,
-                                      )),
-                                  const SizedBox(height: 10),
-                                  generateTargetWidgets({
-                                    "icon": selectedEyeInfo["icon"],
-                                    "label": selectedEyeInfo["label"],
-                                    "idx": selectedEyeInfo["idx"]
-                                  }, 0),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 180,
-                              height: 135,
-                              child: Column(
-                                children: [
-                                  const Text("Active Area",
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        color: Colors.black,
-                                      )),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  if (selectedCameraPosition == "Left") ...[
-                                    generateCameraArea(
-                                        true, false, false, false)
-                                  ],
-                                  if (selectedCameraPosition == "Right") ...[
-                                    generateCameraArea(
-                                        false, true, false, false)
-                                  ],
-                                  if (selectedCameraPosition == "Any") ...[
-                                    generateCameraArea(
-                                        false, false, true, false)
-                                  ],
-                                  if (selectedCameraPosition == "Custom") ...[
-                                    generateCameraArea(
-                                        false, false, false, true)
-                                  ],
-                                  // generateRightArea(),
-                                ],
-                              ),
-                            ),
-                          ]),
-                      if (selectedCameraPosition == "Custom") ...[
-                        // const Text("Active Area Size",
-                        //     style: TextStyle(fontSize: 17)),
-                        SizedBox(
-                          // width: MediaQuery.of(context).size.width / 3,
-                          width: 350,
-                          child: Row(mainAxisSize: MainAxisSize.max, children: [
-                            SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: TextField(
-                                textAlign: TextAlign.center,
-                                controller: txtAreaSizeMinController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: whiteListingTextInputFormatter,
-                                maxLines: 1,
-                                onSubmitted: (str) {
-                                  // printDebug("123");
-                                  if (str.trim() == "") {
-                                    str = minDistanceSlider.toString();
-                                  }
-
-                                  if (double.tryParse(str) != null) {
-                                    double val = double.parse(str);
-                                    areaSizeMinLimitBufView[idx] = val.toInt();
-                                    if (areaSizeMinLimitBufView[idx] >=
-                                        maxAreaSizeSlider) {
-                                      areaSizeMinLimitBufView[idx] =
-                                          ((areaSizeMaxLimitBufView[idx] - 1) >
-                                                      0
-                                                  ? (areaSizeMaxLimitBufView[
-                                                          idx] -
-                                                      1)
-                                                  : minAreaSizeSlider)
-                                              .toInt();
-                                    } else if (areaSizeMinLimitBufView[idx] <=
-                                        0) {
-                                      areaSizeMinLimitBufView[idx] =
-                                          minAreaSizeSlider.toInt();
-                                    } else if (areaSizeMinLimitBufView[idx] >=
-                                        areaSizeMaxLimitBufView[idx]) {
-                                      areaSizeMinLimitBufView[idx] =
-                                          areaSizeMinLimitBufView[idx].toInt();
-                                    }
-
-                                    txtAreaSizeMinController.text =
-                                        areaSizeMinLimitBufView[idx].toString();
-                                  } else {
-                                    str = minAreaSizeSlider.toString();
-                                  }
-
-                                  // linkDistanceConnection(distanceMenuType);
-                                  linkAreaSizeConnection(
-                                      selectedCameraPosition:
-                                          selectedCameraPosition);
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 3,
-                            ),
-                            SizedBox(
-                              width: 260,
-                              child: FlutterSlider(
-                                values: [
-                                  // 1,
-                                  // 100
-                                  areaSizeMinLimitBufView[idx].toDouble(),
-                                  areaSizeMaxLimitBufView[idx].toDouble()
-                                ],
-                                rangeSlider: true,
-                                min: minAreaSizeSlider,
-                                max: maxAreaSizeSlider,
-                                rightHandler: FlutterSliderHandler(
-                                  child: const Icon(
-                                    Icons.chevron_left,
-                                    color: Colors.grey,
-                                    size: 24,
-                                  ),
-                                ),
-                                trackBar: FlutterSliderTrackBar(
-                                  inactiveTrackBarHeight: 20,
-                                  activeTrackBarHeight: 20,
-                                  inactiveTrackBar: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Colors.black12,
-                                    border: Border.all(
-                                        width: 3,
-                                        color: const Color(0xFF1996FC)),
-                                  ),
-                                  activeTrackBar: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: colorOrange,
-                                  ),
-                                ),
-                                onDragStarted: (a, b, c) async {
-                                  if (buttonOnPressedSource != null) {
-                                    buttonOnPressedHandle = await soloud?.play(
-                                        buttonOnPressedSource!,
-                                        looping: false);
-                                  }
-                                },
-                                onDragCompleted: (a, b, c) async {
-                                  if (buttonPopSource != null) {
-                                    buttonOnPressedHandle = await soloud?.play(
-                                        buttonPopSource!,
-                                        looping: false);
-                                  }
-                                },
-                                onDragging:
-                                    (handlerIndex, lowerValue, upperValue) {
-                                  areaSizeMinLimitBufView[idx] =
-                                      lowerValue.toInt();
-                                  areaSizeMaxLimitBufView[idx] =
-                                      upperValue.toInt();
-                                  txtAreaSizeMinController.text =
-                                      areaSizeMinLimitBufView[idx].toString();
-                                  txtAreaSizeMaxController.text =
-                                      areaSizeMaxLimitBufView[idx].toString();
-
-                                  // linkDistanceConnection(distanceMenuType);
-                                  linkAreaSizeConnection(
-                                      selectedCameraPosition:
-                                          selectedCameraPosition);
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 3,
-                            ),
-                            SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: TextField(
-                                textAlign: TextAlign.center,
-                                controller: txtAreaSizeMaxController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: whiteListingTextInputFormatter,
-                                maxLines: 1,
-                                onSubmitted: (str) {
-                                  if (str.trim() == "") {
-                                    str = maxAreaSizeSlider.toString();
-                                  }
-
-                                  if (double.tryParse(str) != null) {
-                                    double val = double.parse(str);
-                                    areaSizeMaxLimitBufView[idx] = val.toInt();
-                                    if (areaSizeMaxLimitBufView[idx] >=
-                                        maxAreaSizeSlider) {
-                                      areaSizeMaxLimitBufView[idx] =
-                                          maxAreaSizeSlider.toInt();
-                                    } else if (areaSizeMaxLimitBufView[idx] ==
-                                        0) {
-                                      areaSizeMaxLimitBufView[idx] =
-                                          minAreaSizeSlider.toInt();
-                                    } else if (areaSizeMaxLimitBufView[idx] <=
-                                        areaSizeMinLimitBufView[idx]) {
-                                      areaSizeMaxLimitBufView[idx] =
-                                          maxAreaSizeSlider.toInt();
-                                    }
-
-                                    txtAreaSizeMaxController.text =
-                                        areaSizeMaxLimitBufView[idx].toString();
-                                  } else {
-                                    str = maxAreaSizeSlider.toString();
-                                  }
-                                  printDebug("asd");
-                                  // linkDistanceConnection(distanceMenuType);
-                                  linkAreaSizeConnection(
-                                      selectedCameraPosition:
-                                          selectedCameraPosition);
-                                  setState(() {});
-                                },
-                              ),
-                            ),
-                          ]),
-                        ),
-                      ],
-                      // DropdownButton(
-                      //   alignment: Alignment.centerRight,
-                      //   style: const TextStyle(
-                      //     fontSize: 17.0,
-                      //     color: Colors.black,
-                      //   ),
-                      //   underline: Container(
-                      //     height: 1,
-                      //   ),
-                      //   value: cameraMenuType,
-                      //   items: dropdownCameraItems,
-                      //   onChanged: (value) {
-                      //     cameraMenuType = value;
-                      //     linkSensoryConnection(cameraMenuType);
-                      //     setState(() {});
-                      //   },
-                      // ),
+                      const SizedBox(height: 8),
                       isShowingInfo == 1
                           ? Row(
                               children: [
@@ -4384,46 +4336,249 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                   height: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.white, width: 2),
+                                    border: Border.all(color: Colors.white, width: 2),
                                     color: Colors.white,
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.grey.withOpacity(0.5),
                                         spreadRadius: 0.3,
                                         blurRadius: 0.3,
-                                        offset: const Offset(
-                                            1, 1), // changes position of shadow
+                                        offset: const Offset(1, 1), 
                                       ),
                                     ],
                                   ),
-                                  child: SvgPicture.asset(
-                                    "assets/icons/Info.svg",
-                                  ),
+                                  child: SvgPicture.asset("assets/icons/Info.svg"),
                                 ),
-                                const SizedBox(
-                                  width: 10,
-                                  height: 10,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                  height: 10,
-                                ),
-                                const SizedBox(
+                                const SizedBox(width: 10),
+                                SizedBox(
                                   width: 300,
-                                  child: Text(
-                                    "NEURON SPIKES when target is in the orange active area of camera.",
-                                    style: TextStyle(
-                                      fontFamily: "BybHanddrawn",
-                                    ),
-                                    maxLines: 2,
-                                  ),
+                                  child: Builder(builder: (context) {
+                                    String targetRaw = selectedEyeInfo["label"] ?? "person";
+                                    String prefix = targetRaw.toLowerCase().startsWith("color") ? "" : "a ";
+                                    String tName = "$prefix$targetRaw";
+                                    
+                                    String t;
+                                    if (selectedCameraPosition == "Left") {
+                                       t = "NEURON will SPIKE when $tName is in the left half of the Spikerbot's vision.";
+                                    } else if (selectedCameraPosition == "Right") {
+                                       t = "NEURON will SPIKE when $tName is in the right half of the Spikerbot's vision.";
+                                    } else if (selectedCameraPosition == "Custom") {
+                                       t = "NEURON will SPIKE whenever Spikerbot sees $tName in the area of its field of view.";
+                                    } else {
+                                       t = "NEURON will SPIKE whenever Spikerbot sees $tName.";
+                                    }
+                                    return Text(
+                                      t,
+                                      style: const TextStyle(fontFamily: "BybHanddrawn", fontSize: 13), 
+                                      maxLines: 3, 
+                                      overflow: TextOverflow.ellipsis,
+                                    );
+                                  }),
                                 ),
                               ],
                             )
                           : const SizedBox(),
+                      const SizedBox(height: 8),
 
-                      // V18: Removed Top Padding
+                      Builder(builder: (context) {
+                          double minArea = areaSizeMinLimitBufView[idx].toDouble();
+                          double maxArea = areaSizeMaxLimitBufView[idx].toDouble();
+                          
+                          if (selectedCameraPosition == "Left") {
+                             minArea = 1; maxArea = 160; 
+                          } else if (selectedCameraPosition == "Any") {
+                             minArea = 1; maxArea = 320;
+                          } else if (selectedCameraPosition == "Right") {
+                             minArea = 161; maxArea = 320;
+                          }
+
+                          double fraction = (((minArea + maxArea) / 2) - 1) / 319.0;
+                          double xNormal = fraction * 2 - 1; // -1 to 1
+                          double yFraction = 0.35 + 0.25 * (xNormal * xNormal); // Shifted down 10px
+
+                          return SizedBox(
+                              width: 330,
+                              height: selectedCameraPosition == "Custom" ? 240 : 190, // Dynamically expands the hit bounds so the slider is natively embedded and interactable!
+                              child: Stack(
+                                  alignment: Alignment.topCenter,
+                                  clipBehavior: Clip.none, // Fix marker clipping on the bounds
+                                  children: [
+                                      Positioned(
+                                          top: 0,
+                                          child: SvgPicture.asset(
+                                              "assets/icons/CameraBG.svg",
+                                              width: 330,
+                                              fit: BoxFit.fitWidth,
+                                          )
+                                      ),
+                                      Positioned(
+                                          top: 0,
+                                          child: ClipRect(
+                                              clipper: _CameraAreaProportionalClipper(minArea, maxArea),
+                                              child: SvgPicture.asset(
+                                                  "assets/icons/CameraSelection.svg",
+                                                  width: 330,
+                                                  fit: BoxFit.fitWidth,
+                                              )
+                                          )
+                                      ),
+                                      Positioned(
+                                          left: 330 * fraction,
+                                          top: 190 * yFraction,
+                                          child: FractionalTranslation(
+                                              translation: const Offset(-0.5, -0.5),
+                                              child: Transform.scale(
+                                                 scale: 1.0, // Made target larger
+                                                 child: generateTargetWidgets({
+                                                    "icon": selectedEyeInfo["icon"],
+                                                    "label": selectedEyeInfo["label"],
+                                                    "idx": selectedEyeInfo["idx"]
+                                                 }, 0, isFloatingMarker: true)
+                                              )
+                                          )
+                                      ),
+                                      if (selectedCameraPosition == "Custom")
+                                          Positioned(
+                                              bottom: 0, // Reset to 0 (slides up exactly 15px seamlessly!)
+                                              left: -15, // Provide identical 360px physical bounds to inherently match ArcSlider's internal painter geometry so the rotational center remains mathematically balanced
+                                              right: -15,
+                                              child: Align(
+                                                  alignment: Alignment.bottomCenter,
+                                                  child: Transform.scale(
+                                                      scale: 0.92, // Scaled up slightly to fit perfectly
+                                                      alignment: Alignment.bottomCenter, // Keeps the bottom anchored natively
+                                                      child: ArcSliderWidget(
+                                                          min: minAreaSizeSlider,
+                                                          max: maxAreaSizeSlider,
+                                                          lowerValue: areaSizeMinLimitBufView[idx].toDouble(),
+                                                          upperValue: areaSizeMaxLimitBufView[idx].toDouble(),
+                                                          isRange: true,
+                                                          isDegreeFormatter: true, // Mathematically Maps 0-320 onto -80° to 80° for the user's perception!
+                                                          unitSuffix: "",
+                                                          onRangeChanged: (lower, upper) async {
+                                                              areaSizeMinLimitBufView[idx] = lower.toInt();
+                                                              areaSizeMaxLimitBufView[idx] = upper.toInt();
+                                                              if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera area size changed
+                                                              linkAreaSizeConnection(selectedCameraPosition: selectedCameraPosition);
+                                                              setState(() {});
+                                                          },
+                                                      )
+                                                     ) // Close Transform.scale
+                                              ) // Close Align
+                                          )
+                                  ]
+                              )
+                          );
+                      }),
+                      
+                      const SizedBox(height: 2), // Clean buffer spacing, minimized to reduce gap
+
+                      SizedBox(
+                          width: 340,
+                          height: 100, // Reduced from 115 by 15px to cleanly pull up the lower card bound
+                          child: Stack(
+                              alignment: Alignment.bottomCenter,
+                              clipBehavior: Clip.none,
+                              children: [
+                                  Positioned(
+                                      bottom: -3, // Raised up exactly to true 0 visual padding edge
+                                      child: SvgPicture.asset("assets/icons/RobotPOV.svg", width: 220)
+                                  ),
+                                  Positioned(
+                                      left: 0,
+                                      bottom: 10,
+                                      child: Material(
+                                          elevation: 3,
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: cameraButtonBgColors[0],
+                                          child: InkWell(
+                                              borderRadius: BorderRadius.circular(20),
+                                              onTapDown: (details) async { if (buttonOnPressedSource != null) soloud?.play(buttonOnPressedSource!, looping: false); },
+                                              onTapUp: (details) async {
+                                                if (buttonPopSource != null) soloud?.play(buttonPopSource!, looping: false);
+                                                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera area position changed
+                                                selectedCameraPosition = "Left";
+                                                linkAreaSizeConnection(selectedCameraPosition: selectedCameraPosition);
+                                                setState(() {});
+                                              },
+                                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), // Slimmer width bounds
+                                                  child: Center(child: Text("Left", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: cameraButtonFgColors[0]))),
+                                              ),
+                                          ),
+                                      )
+                                  ),
+                                  Positioned(
+                                      left: 20, 
+                                      top: 10, // Adjusted 15px up to perfectly match the shrunken height bound dynamics!
+                                      child: Material(
+                                          elevation: 3,
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: cameraButtonBgColors[1],
+                                          child: InkWell(
+                                              borderRadius: BorderRadius.circular(20),
+                                              onTapDown: (details) async { if (buttonOnPressedSource != null) soloud?.play(buttonOnPressedSource!, looping: false); },
+                                              onTapUp: (details) async {
+                                                if (buttonPopSource != null) soloud?.play(buttonPopSource!, looping: false);
+                                                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera area position changed
+                                                selectedCameraPosition = "Any";
+                                                linkAreaSizeConnection(selectedCameraPosition: selectedCameraPosition);
+                                                setState(() {});
+                                              },
+                                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                                  child: Center(child: Text("Anywhere", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: cameraButtonFgColors[1]))),
+                                              ),
+                                          ),
+                                      )
+                                  ),
+                                  Positioned(
+                                      right: 20,
+                                      top: 10, 
+                                      child: Material(
+                                          elevation: 3,
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: cameraButtonBgColors[3],
+                                          child: InkWell(
+                                              borderRadius: BorderRadius.circular(20),
+                                              onTapDown: (details) async { if (buttonOnPressedSource != null) soloud?.play(buttonOnPressedSource!, looping: false); },
+                                              onTapUp: (details) async {
+                                                if (buttonPopSource != null) soloud?.play(buttonPopSource!, looping: false);
+                                                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera area position changed
+                                                selectedCameraPosition = "Custom";
+                                                linkAreaSizeConnection(selectedCameraPosition: selectedCameraPosition);
+                                                setState(() {});
+                                              },
+                                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                                  child: Center(child: Text("Custom", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: cameraButtonFgColors[3]))),
+                                              ),
+                                          ),
+                                      )
+                                  ),
+                                  Positioned(
+                                      right: 0,
+                                      bottom: 10,
+                                      child: Material(
+                                          elevation: 3,
+                                          borderRadius: BorderRadius.circular(20),
+                                          color: cameraButtonBgColors[2],
+                                          child: InkWell(
+                                              borderRadius: BorderRadius.circular(20),
+                                              onTapDown: (details) async { if (buttonOnPressedSource != null) soloud?.play(buttonOnPressedSource!, looping: false); },
+                                              onTapUp: (details) async {
+                                                if (buttonPopSource != null) soloud?.play(buttonPopSource!, looping: false);
+                                                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera area position changed
+                                                selectedCameraPosition = "Right";
+                                                linkAreaSizeConnection(selectedCameraPosition: selectedCameraPosition);
+                                                setState(() {});
+                                              },
+                                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                                  child: Center(child: Text("Right", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: cameraButtonFgColors[2]))),
+                                              ),
+                                          ),
+                                      )
+                                  ),
+                              ]
+                          )
+                      ),
                     ],
                   ),
                 ),
@@ -4432,16 +4587,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       } else {
         List<Widget> targetWidgets = [];
         int idx = 0;
-        searchCameraTargetTextField = SearchTextField(
-            hintText: "Search", // V16: Simplified Hint
-            fillColor: Colors.white, // V16: White Background
-            controller: tecSearchCameraTarget,
-            onChanged: (str) {
-              searchCameraTarget = str;
-              print("searchCameraTarget");
-              print(searchCameraTarget);
-              setState(() {});
-            });
 
         for (String menuType in cameraMenuTypes) {
           if (!menuType.contains("(side)") &&
@@ -4476,8 +4621,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         }
         inlineWidgets.add(
           Positioned(
-              right: 20 + safePadding,
-              top: 20 + safePaddingTop,
+              right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+              top: safePaddingTop,
               child: Card(
                   child: Padding(
                       padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -4514,7 +4659,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           ])))),
         );
       }
-    } else if (!isPlayingMenu && isDistanceMenu && controller.isSelectingEdge) {
+    } else if (!isPlayingMenu && !isAnnotationMode && isDistanceMenu && controller.isSelectingEdge) {
       List<Map<String, String>> listDistanceInfo = [
         {"icon": "🛑", "label": "Near", "idx": "0"},
         {"icon": "⚠️", "label": "Medium", "idx": "1"},
@@ -4532,13 +4677,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // dropdownDistanceItems
       inlineWidgets.add(
         Positioned(
-            right: 20 + safePadding,
-            top: 20 + safePaddingTop,
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+            top: safePaddingTop,
             child: Card(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
                     child: SizedBox(
-                      width: 360, // V13: Locked Width
+                      width: 380, // V13: Locked Width
                       child: Column(
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -4548,172 +4693,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       child: Text(
                         "Select a Distance for Spiking",
                         textAlign: TextAlign.center,
+                        textScaleFactor: 1.0, // V20: Lock OS Accessibility Scale
                         style: TextStyle(
                           fontSize: 17,
                         ),
                       ),
                     ),
-                    // const Divider(height: 2), // V11: Removed
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // V13: Space Evenly
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: distanceToolboxWidgets,
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        if (selectedDistanceIdx == 3) ...[
-                          SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              controller: txtDistanceMinController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: whiteListingTextInputFormatter,
-                              maxLines: 1,
-                              onSubmitted: (str) {
-                                // printDebug("123");
-                                if (str.trim() == "") {
-                                  str = minDistanceSlider.toString();
-                                }
-
-                                if (double.tryParse(str) != null) {
-                                  double val = double.parse(str);
-                                  distanceMinLimitBufView[idx] = val.toInt();
-                                  if (distanceMinLimitBufView[idx] >=
-                                      maxDistanceSlider) {
-                                    distanceMinLimitBufView[idx] =
-                                        ((distanceMaxLimitBufView[idx] - 1) > 0
-                                                ? (distanceMaxLimitBufView[
-                                                        idx] -
-                                                    1)
-                                                : minDistanceSlider)
-                                            .toInt();
-                                  } else if (distanceMinLimitBufView[idx] <=
-                                      0) {
-                                    distanceMinLimitBufView[idx] =
-                                        minDistanceSlider.toInt();
-                                  } else if (distanceMinLimitBufView[idx] >=
-                                      distanceMaxLimitBufView[idx]) {
-                                    distanceMinLimitBufView[idx] =
-                                        distanceMinLimitBufView[idx].toInt();
-                                  }
-
-                                  txtDistanceMinController.text =
-                                      distanceMinLimitBufView[idx].toString();
-                                } else {
-                                  str = minDistanceSlider.toString();
-                                }
-
-                                linkDistanceConnection(distanceMenuType);
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 3,
-                          ),
-                          SizedBox(
-                            width: 270,
-                            child: FlutterSlider(
-                              values: [
-                                distanceMinLimitBufView[idx].toDouble(),
-                                distanceMaxLimitBufView[idx].toDouble()
-                              ],
-                              rangeSlider: true,
-                              min: minDistanceSlider,
-                              max: maxDistanceSlider,
-                              trackBar: FlutterSliderTrackBar(
-                                inactiveTrackBarHeight: 20,
-                                activeTrackBarHeight: 20,
-                                inactiveTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.black12,
-                                  border: Border.all(
-                                      width: 3, color: const Color(0xFF1996FC)),
-                                ),
-                                activeTrackBar: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: colorOrange),
-                              ),
-                              onDragStarted: (a, b, c) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onDragCompleted: (a, b, c) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                              },
-                              onDragging:
-                                  (handlerIndex, lowerValue, upperValue) {
-                                distanceMinLimitBufView[idx] =
-                                    lowerValue.toInt();
-                                distanceMaxLimitBufView[idx] =
-                                    upperValue.toInt();
-                                txtDistanceMinController.text =
-                                    distanceMinLimitBufView[idx].toString();
-                                txtDistanceMaxController.text =
-                                    distanceMaxLimitBufView[idx].toString();
-
-                                linkDistanceConnection(distanceMenuType);
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 3,
-                          ),
-                          SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              controller: txtDistanceMaxController,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: whiteListingTextInputFormatter,
-                              maxLines: 1,
-                              onSubmitted: (str) {
-                                if (str.trim() == "") {
-                                  str = maxDistanceSlider.toString();
-                                }
-
-                                if (double.tryParse(str) != null) {
-                                  double val = double.parse(str);
-                                  distanceMaxLimitBufView[idx] = val.toInt();
-                                  if (distanceMaxLimitBufView[idx] >=
-                                      maxDistanceSlider) {
-                                    distanceMaxLimitBufView[idx] =
-                                        maxDistanceSlider.toInt();
-                                  } else if (distanceMaxLimitBufView[idx] ==
-                                      0) {
-                                    distanceMaxLimitBufView[idx] =
-                                        minDistanceSlider.toInt();
-                                  } else if (distanceMaxLimitBufView[idx] <=
-                                      distanceMinLimitBufView[idx]) {
-                                    distanceMaxLimitBufView[idx] =
-                                        maxDistanceSlider.toInt();
-                                  }
-
-                                  txtDistanceMaxController.text =
-                                      distanceMaxLimitBufView[idx].toString();
-                                } else {
-                                  str = maxDistanceSlider.toString();
-                                }
-                                printDebug("asd");
-                                linkDistanceConnection(distanceMenuType);
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                        ]
-                      ],
-                    ),
+                    const SizedBox(height: 4),
                     isShowingInfo == 1
                         ? Row(
                             children: [
@@ -4731,7 +4722,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                       spreadRadius: 0.3,
                                       blurRadius: 0.3,
                                       offset: const Offset(
-                                          1, 1), // changes position of shadow
+                                          1, 1), 
                                     ),
                                   ],
                                 ),
@@ -4747,6 +4738,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 width: 300,
                                 child: Text(
                                   distanceSensorContent,
+                                  textScaleFactor: 1.0, // V20: Lock OS Accessibility Scale
                                   style: const TextStyle(
                                     fontFamily: "BybHanddrawn",
                                   ),
@@ -4756,46 +4748,65 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                             ],
                           )
                         : const SizedBox(),
+                    const SizedBox(height: 8),
 
-                    // DropdownButton(
-                    //   alignment: Alignment.centerRight,
-                    //   style: const TextStyle(
-                    //     fontSize: 17.0,
-                    //     color: Colors.black,
-                    //   ),
-                    //   underline: Container(
-                    //     height: 1,
-                    //   ),
-                    //   value: distanceMenuType,
-                    //   items: dropdownDistanceItems,
-                    //   onChanged: (value) {
-                    //     distanceMenuType = value;
-                    //     switch (distanceMenuType) {
-                    //       case "Short":
-                    //         selectedDistanceIdx = 0;
-                    //         break;
-                    //       case "Medium":
-                    //         selectedDistanceIdx = 1;
-                    //         break;
-                    //       case "Long":
-                    //         selectedDistanceIdx = 2;
-                    //         break;
-                    //       case "Custom":
-                    //         selectedDistanceIdx = 3;
-                    //         // need to get the upperbound and lowerbound value
-                    //         /*
-                    //         distanceLimitBufView[0] = arr[0];
-                    //         distanceLimitBufView[1] = arr[1];
-                    //         */
-                    //         break;
-                    //     }
-                    //     linkDistanceConnection(distanceMenuType);
-                    //     setState(() {});
-                    //   },
-                    // ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    // RULER GRAPHICS
+                    Builder(builder: (context) {
+                       double minD = distanceMinLimitBufView[idx].toDouble();
+                       double maxD = distanceMaxLimitBufView[idx].toDouble();
+                       
+                       // For non-custom modes, we need to manually map back the preset ranges visually.
+                       // Looking at linkDistanceConnection, Short is typically ~1->8, Medium ~10->25, Far ~40->130
+                       // We just pull straight from the buffer view which is kept updated by the UI/buttons.
+                       
+                       return SizedBox(
+                           width: 340, // Scale it to fit nicely in the 380 container
+                           child: Stack(
+                               alignment: Alignment.center,
+                               children: [
+                                  ClipRect(
+                                      clipper: _DistanceRulerProportionalClipper(minD, maxD),
+                                      child: SvgPicture.asset(
+                                          "assets/icons/RobotRulerFill.svg",
+                                          width: 340,
+                                          fit: BoxFit.fitWidth,
+                                      )
+                                  ),
+                                  SvgPicture.asset(
+                                      "assets/icons/RobotRuler.svg",
+                                      width: 340,
+                                      fit: BoxFit.fitWidth,
+                                  ),
+                               ]
+                           )
+                       );
+                    }),
+                    
+                    if (selectedDistanceIdx == 3) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                            ArcSliderWidget(
+                              min: minDistanceSlider,
+                              max: maxDistanceSlider,
+                              lowerValue: distanceMinLimitBufView[idx].toDouble(),
+                              upperValue: distanceMaxLimitBufView[idx].toDouble(),
+                              isRange: true,
+                              unitSuffix: "cm",
+                              activeColor: colorOrange,
+                              onRangeChanged: (lower, upper) async {
+                                distanceMinLimitBufView[idx] = lower.toInt();
+                                distanceMaxLimitBufView[idx] = upper.toInt();
+                                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // distance custom range changed
+                                linkDistanceConnection(distanceMenuType);
+                                setState(() {});
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 10),
                   ],
                 ),
               ), 
@@ -4803,7 +4814,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           ),
         ),
       );
-    } else if (!isPlayingMenu && isMicrophoneMenu && controller.isSelectingEdge) {
+    } else if (!isPlayingMenu && !isAnnotationMode && isMicrophoneMenu && controller.isSelectingEdge) {
       try {
       int idx = -1;
       try {
@@ -4813,15 +4824,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // Fallback or handle error
       }
       
-      double safeMin = 400;
-      double safeMax = 800;
-      int currentMicMode = 0; // 0=Freq, 1=Vol, 2=Tone
+      double safeMin = 0;       // C note default
+      double safeMax = 0;
+      int currentMicMode = 2; // 0=Freq, 1=Vol, 2=Tone — default Tone
 
       // Dynamic Slider variables
-      double currentMinSlider = 100;
-      double currentMaxSlider = 5000;
-      double currentDefMin = 400;
-      double currentDefMax = 800;
+      double currentMinSlider = 0;
+      double currentMaxSlider = 24;
+      double currentDefMin = 0;   // C note
+      double currentDefMax = 0;
       
       if (idx != -1) {
           InfiniteCanvasNode node = findNeuronByKey(controller.edgeSelected!.to);
@@ -4976,7 +4987,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 txtMicrophoneMinController.text = currentDefMin.toInt().toString();
                 txtMicrophoneMaxController.text = currentDefMax.toInt().toString();
                 
+                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // sensor property changed
                 linkMicrophoneConnection();
+                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // microphone mode changed
 
                 setState((){});
             }
@@ -5016,9 +5029,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                             fontSize: 40, // Increased size
                             fontFamily: "NotoEmoji",
                             height: 1.2, // Tweak line height for vertical centering
-                          )),
+                          ),
+                        ),
                       ),
-                    )),
+                    ),
+                  ),
                 Positioned(
                     left: 0,
                     right: 0,
@@ -5034,8 +5049,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                               ),
-                        ))))
-                    )
+                        ),
+                      ),
+                    ),
+                   ),
+                  ),
               ],
             ),
           ),
@@ -5044,11 +5062,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
       inlineWidgets.add(
         Positioned(
-                right: 20 + safePadding,
-                top: 20 + safePaddingTop,
+                right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+                top: safePaddingTop,
                 child: Card(
+                  clipBehavior: Clip.antiAlias,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
+                    padding: const EdgeInsets.fromLTRB(8, 7, 8, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -5063,9 +5082,67 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: micToolboxWidgets,
                     ),
-                    const Divider(),
+                    const SizedBox(
+                      width: 10,
+                      height: 10,
+                    ),
+                    
+                    // INFO SECTION
+                    if (isShowingInfo == 1)
+                      GestureDetector(
+                        onTap: () {
+                          // Allow user to dismiss this specific info
+                          isShowingInfo = 0;
+                          setState(() {});
+                        },
+                        child: SizedBox(
+                          width: 360, // Force Info section to match standardized card width
+                          child: Row(
+                            // mainAxisAlignment: MainAxisAlignment.center, // Removed to allow start alignment
+                            crossAxisAlignment: CrossAxisAlignment.center, // Vertically center icon and text
+                          children: [
+                             Container(
+                                  width: 40, 
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border:
+                                        Border.all(color: Colors.white, width: 2),
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 0.3,
+                                        blurRadius: 0.3,
+                                        offset: const Offset(
+                                            1, 1), 
+                                      ),
+                                    ],
+                                  ),
+                                  child: SvgPicture.asset("assets/icons/Info.svg"),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    micInfoText,
+                                    style: const TextStyle(
+                                      fontFamily: "BybHanddrawn",
+                                    ),
+                                    maxLines: 3,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5), // Added padding below Info
+                    const Divider(height: 8),
                     if (currentMicMode == 2) ...[
                         // TONE KEYBOARD
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          child:
                         Container(
                             height: 150, 
                             width: 360,  // Standardized 360 width for larger keys
@@ -5118,6 +5195,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                                 mapMicrophoneLimitNeuron[key] = "${noteIndex}_@_${noteIndex}";
                                                 controller.mapMicrophoneLimitNeuron[key] = mapMicrophoneLimitNeuron[key];
                                             }
+                                            if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // sensor property changed
                                             linkMicrophoneConnection();
                                             setState((){});
                                         }
@@ -5232,256 +5310,179 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 }
                             )
                         )
+                        ),
                     ] else ...[
-                    // SLIDERS (For Vol and Freq)
+                    // SLIDERS (For Vol and Freq) — replaced with ArcSliderWidget
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            controller: txtMicrophoneMinController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: whiteListingTextInputFormatter,
-                            maxLines: 1,
-                            onSubmitted: (str) {
-                              if (str.trim() == "") {
-                                str = currentMinSlider.toString();
+                        if (currentMicMode == 1)
+                          // ── VOLUME ─────────────────────────────────────────────
+                          // Display 0–100 %; internally maps to 0–2000 raw units.
+                          ArcSliderWidget(
+                            key: const ValueKey('mic_vol_arc'),
+                            min: 0,
+                            max: 100,
+                            lowerValue: (safeMin / 2000 * 100).clamp(0, 100).roundToDouble(),
+                            upperValue: (safeMax / 2000 * 100).clamp(0, 100).roundToDouble(),
+                            isRange: true,
+                            isPercentageFormatter: true,
+                            activeColor: colorOrange,
+                            title: "Volume",
+                            lowerTitle: "Min",
+                            upperTitle: "Max",
+                            onRangeChanged: (lower, upper) {
+                              if (idx == -1) return;
+                              int rawMin = (lower / 100 * 2000).round().clamp(0, 2000);
+                              int rawMax = (upper / 100 * 2000).round().clamp(0, 2000);
+                              if (rawMin >= rawMax) rawMin = (rawMax - 1).clamp(0, 2000);
+                              if (microphoneMinLimitBufView.isNotEmpty &&
+                                  idx < microphoneMinLimitBufView.length) {
+                                microphoneMinLimitBufView[idx] = rawMin;
+                                microphoneMaxLimitBufView[idx] = rawMax;
                               }
-
-                              if (double.tryParse(str) != null) {
-                                double val = double.parse(str);
-                                int idx = -1;
-                                try {
-                                  InfiniteCanvasNode node = findNeuronByKey(controller.edgeSelected!.to);
-                                  idx = neuronTypes.keys.toList().indexOf(node.id);
-                                } catch (e) {
-                                  return;
-                                }
-
-                                if (idx != -1) {
-                                  if (microphoneMinLimitBufView.isNotEmpty && idx < microphoneMinLimitBufView.length) {
-                                      microphoneMinLimitBufView[idx] = val.toInt();
-                                      
-                                      if (microphoneMinLimitBufView[idx] >= currentMaxSlider) {
-                                        microphoneMinLimitBufView[idx] =
-                                            ((microphoneMaxLimitBufView[idx] - 1) > 0
-                                                    ? (microphoneMaxLimitBufView[idx] - 1)
-                                                    : currentMinSlider)
-                                                .toInt();
-                                      } else if (microphoneMinLimitBufView[idx] <= 0) {
-                                        microphoneMinLimitBufView[idx] =
-                                            currentMinSlider.toInt();
-                                      } else if (microphoneMinLimitBufView[idx] >=
-                                          microphoneMaxLimitBufView[idx]) {
-                                        microphoneMinLimitBufView[idx] =
-                                            microphoneMinLimitBufView[idx].toInt();
-                                      }
-    
-                                      txtMicrophoneMinController.text =
-                                          microphoneMinLimitBufView[idx].toString();
-                                  }
-                                      
-                                  // Update Map
-                                  if (controller.edgeSelected != null) {
-                                      InfiniteCanvasNode node = findNeuronByKey(controller.edgeSelected!.to);
-                                      String key = "${nodeMicrophoneSensor.id}_${node.id}";
-                                      // Use safeMin if buffer access failed? No, rely on text
-                                      mapMicrophoneLimitNeuron[key] = "${txtMicrophoneMinController.text}_@_${txtMicrophoneMaxController.text}";
-                                      controller.mapMicrophoneLimitNeuron[key] = mapMicrophoneLimitNeuron[key];
-                                  }
-                                }
-                              } else {
-                                str = currentMinSlider.toString();
+                              if (controller.edgeSelected != null) {
+                                InfiniteCanvasNode node =
+                                    findNeuronByKey(controller.edgeSelected!.to);
+                                String k = "${nodeMicrophoneSensor.id}_${node.id}";
+                                mapMicrophoneLimitNeuron[k] = "${rawMin}_@_${rawMax}";
+                                controller.mapMicrophoneLimitNeuron[k] =
+                                    mapMicrophoneLimitNeuron[k];
                               }
-
+                              txtMicrophoneMinController.text = rawMin.toString();
+                              txtMicrophoneMaxController.text = rawMax.toString();
+                              if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // sensor property changed
+                              linkMicrophoneConnection();
+                              setState(() {});
+                            },
+                          )
+                        else
+                          // ── FREQUENCY ──────────────────────────────────────────
+                          // Display raw Hz (100–5000), snapped to nearest 10 Hz.
+                          ArcSliderWidget(
+                            key: const ValueKey('mic_freq_arc'),
+                            min: 100,
+                            max: 5000,
+                            lowerValue: (((safeMin / 10).round() * 10)
+                                    .clamp(100, 5000))
+                                .toDouble(),
+                            upperValue: (((safeMax / 10).round() * 10)
+                                    .clamp(100, 5000))
+                                .toDouble(),
+                            isRange: true,
+                            unitSuffix: "Hz",
+                            activeColor: colorOrange,
+                            title: "Frequency",
+                            lowerTitle: "Min",
+                            upperTitle: "Max",
+                            isLogarithmic: true,
+                            onRangeChanged: (lower, upper) {
+                              if (idx == -1) return;
+                              // Snap both handles to nearest 10 Hz
+                              int snappedMin = ((lower / 10).round() * 10)
+                                  .clamp(100, 5000);
+                              int snappedMax = ((upper / 10).round() * 10)
+                                  .clamp(100, 5000);
+                              if (snappedMin >= snappedMax)
+                                snappedMin = (snappedMax - 10).clamp(100, 5000);
+                              if (microphoneMinLimitBufView.isNotEmpty &&
+                                  idx < microphoneMinLimitBufView.length) {
+                                microphoneMinLimitBufView[idx] = snappedMin;
+                                microphoneMaxLimitBufView[idx] = snappedMax;
+                              }
+                              if (controller.edgeSelected != null) {
+                                InfiniteCanvasNode node =
+                                    findNeuronByKey(controller.edgeSelected!.to);
+                                String k = "${nodeMicrophoneSensor.id}_${node.id}";
+                                mapMicrophoneLimitNeuron[k] =
+                                    "${snappedMin}_@_${snappedMax}";
+                                controller.mapMicrophoneLimitNeuron[k] =
+                                    mapMicrophoneLimitNeuron[k];
+                              }
+                              txtMicrophoneMinController.text = snappedMin.toString();
+                              txtMicrophoneMaxController.text = snappedMax.toString();
+                              if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // sensor property changed
                               linkMicrophoneConnection();
                               setState(() {});
                             },
                           ),
-                        ),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        SizedBox(
-                          width: 234, // Standardized for 360 total (360 - 126)
-                          child: FlutterSlider(
-                              values: [
-                                safeMin,
-                                safeMax
-                              ],
-                              rangeSlider: true,
-                              min: currentMinSlider,
-                              max: currentMaxSlider,
-                              trackBar: FlutterSliderTrackBar(
-                                inactiveTrackBarHeight: 20,
-                                activeTrackBarHeight: 20,
-                                inactiveTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.black12,
-                                  border: Border.all(
-                                      width: 3, color: const Color(0xFF1996FC)),
-                                ),
-                                activeTrackBar: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: colorOrange),
-                              ),
-                              onDragStarted: (a, b, c) async {
-                                if (buttonOnPressedSource != null) {
-                                  buttonOnPressedHandle = await soloud?.play(
-                                      buttonOnPressedSource!,
-                                      looping: false);
-                                }
-                              },
-                              onDragCompleted: (a, b, c) async {
-                                if (buttonPopSource != null) {
-                                  buttonOnPressedHandle = await soloud
-                                      ?.play(buttonPopSource!, looping: false);
-                                }
-                              },
-                              onDragging: (handlerIndex, lowerValue, upperValue) {
-                                if (idx != -1) {
-                                  if (microphoneMinLimitBufView.isNotEmpty && idx < microphoneMinLimitBufView.length) {
-                                      microphoneMinLimitBufView[idx] = lowerValue.toInt();
-                                      microphoneMaxLimitBufView[idx] = upperValue.toInt();
-                                  }
-                                  txtMicrophoneMinController.text =
-                                      lowerValue.toInt().toString();
-                                  txtMicrophoneMaxController.text =
-                                      upperValue.toInt().toString();
-                                      
-                                  // Update Map
-                                  if (controller.edgeSelected != null) {
-                                      InfiniteCanvasNode node = findNeuronByKey(controller.edgeSelected!.to);
-                                      String key = "${nodeMicrophoneSensor.id}_${node.id}";
-                                      mapMicrophoneLimitNeuron[key] = "${lowerValue.toInt()}_@_${upperValue.toInt()}";
-                                      controller.mapMicrophoneLimitNeuron[key] = mapMicrophoneLimitNeuron[key];
-                                  }
-                                  
-                                  linkMicrophoneConnection();
-
-                                  linkMicrophoneConnection();
-                                  // setState(() {}); // Dragging triggers rebuilds, ok?
-                                  // Consider optimizng
-                                  setState(() {});
-                                }
-                              },
-                            ),
-                          ),
-                        const SizedBox(
-                          width: 3,
-                        ),
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            controller: txtMicrophoneMaxController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: whiteListingTextInputFormatter,
-                            maxLines: 1,
-                            onSubmitted: (str) {
-                              if (str.trim() == "") {
-                                str = currentMaxSlider.toString();
-                              }
-
-                              if (double.tryParse(str) != null) {
-                                double val = double.parse(str);
-                                int idx = -1;
-                                try {
-                                  InfiniteCanvasNode node = findNeuronByKey(controller.edgeSelected!.to);
-                                  idx = neuronTypes.keys.toList().indexOf(node.id);
-                                } catch (e) {
-                                  return;
-                                }
-                                
-                                if (microphoneMaxLimitBufView.isNotEmpty && idx < microphoneMaxLimitBufView.length) {
-                                    microphoneMaxLimitBufView[idx] = val.toInt();
-                                    if (microphoneMaxLimitBufView[idx] >=
-                                        currentMaxSlider) {
-                                      microphoneMaxLimitBufView[idx] =
-                                          currentMaxSlider.toInt();
-                                    } else if (microphoneMaxLimitBufView[idx] == 0) {
-                                      microphoneMaxLimitBufView[idx] =
-                                          currentMinSlider.toInt();
-                                    } else if (microphoneMaxLimitBufView[idx] <=
-                                        microphoneMinLimitBufView[idx]) {
-                                      microphoneMaxLimitBufView[idx] =
-                                          currentMaxSlider.toInt();
-                                    }
-    
-                                    txtMicrophoneMaxController.text =
-                                        microphoneMaxLimitBufView[idx].toString();
-                                }
-                              } else {
-                                str = currentMaxSlider.toString();
-                              }
-
-                              linkMicrophoneConnection();
-                              setState(() {});
-                            },
-                          ),
-                        ),
                       ],
                     ),
                     ], // Close else block
-                    const SizedBox(
-                      width: 10,
-                      height: 10,
-                    ),
-                    
-                    // INFO SECTION
-                    if (isShowingInfo == 1)
-                      GestureDetector(
-                        onTap: () {
-                          // Allow user to dismiss this specific info
-                          isShowingInfo = 0;
-                          setState(() {});
-                        },
+                    // VISUALIZATION PANEL (Vol/Freq only) ─────────────────────────────
+                    if (currentMicMode != 2) ...[
+                      const SizedBox(height: 4),
+                      Transform.translate(
+                        offset: const Offset(-8, 3), // align with card bottom-left corner
                         child: SizedBox(
-                          width: 360, // Force Info section to match standardized card width
-                          child: Row(
-                            // mainAxisAlignment: MainAxisAlignment.center, // Removed to allow start alignment
-                            crossAxisAlignment: CrossAxisAlignment.center, // Vertically center icon and text
-                          children: [
-                             Container(
-                                  width: 40, 
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border:
-                                        Border.all(color: Colors.white, width: 2),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 0.3,
-                                        blurRadius: 0.3,
-                                        offset: const Offset(
-                                            1, 1), 
+                          width: 376,  // full card width (360 content + 2*8 padding)
+                          height: 91,  // 88 + 3 for bottom alignment
+                          child: Stack(
+                            clipBehavior: Clip.hardEdge,
+                            children: [
+                              // RobotEars SVG: 175% larger, bleeds past left edge
+                              Positioned(
+                                left: -30,
+                                bottom: -8,
+                                child: SizedBox(
+                                  width: 193,
+                                  height: 154,
+                                  child: SvgPicture.asset(
+                                    'assets/icons/RobotEars.svg',
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.bottomLeft,
+                                  ),
+                                ),
+                              ),
+                              // Frequency waves or volume emojis on the right
+                              Positioned(
+                                left: 152,
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 6),
+                                  child: currentMicMode == 1
+                                    // VOLUME: only show active zone emojis
+                                    ? Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          if ((safeMin / 2000 * 100) < 25)
+                                            Text('🤫',
+                                              style: TextStyle(fontSize: 51,
+                                                fontFamily: 'NotoEmoji',
+                                                decoration: TextDecoration.none)),
+                                          if ((safeMin / 2000 * 100) < 75 &&
+                                              (safeMax / 2000 * 100) > 25)
+                                            Text('🗣',
+                                              style: TextStyle(fontSize: 51,
+                                                fontFamily: 'NotoEmoji',
+                                                decoration: TextDecoration.none)),
+                                          if ((safeMax / 2000 * 100) > 75)
+                                            Text('📣',
+                                              style: TextStyle(fontSize: 51,
+                                                fontFamily: 'NotoEmoji',
+                                                decoration: TextDecoration.none)),
+                                        ],
+                                      )
+                                    // FREQUENCY: sine wave painter
+                                    : CustomPaint(
+                                        size: const Size(double.infinity, 76),
+                                        painter: MicFrequencyWavePainter(
+                                          showLow:  safeMin < 250,
+                                          showMid:  safeMin < 4000 && safeMax > 250,
+                                          showHigh: safeMax > 4000,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                  child: SvgPicture.asset("assets/icons/Info.svg"),
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    micInfoText,
-                                    style: const TextStyle(
-                                      fontFamily: "BybHanddrawn",
-                                    ),
-                                    maxLines: 3,
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5), // Added padding below Info
+                    ],
                     ],
                   ),
                 ),
@@ -5490,13 +5491,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       } catch (e) {
           printDebug("Error building Mic Menu: $e");
       }
-    } else if (!isPlayingMenu &&
+    } else if (!isPlayingMenu && !isAnnotationMode &&
         (isSpeakerMenu) &&
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            right: 20 + safePadding,
-            top: 20 + safePaddingTop,
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+            top: safePaddingTop,
             child: SpeakerMenuWidget(
               currentFrequency: sldFrequencyWeight,
               soloud: soloud,
@@ -5506,18 +5507,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               onFrequencyChanged: (double val) {
                 sldFrequencyWeight = val;
                 tecFrequencyWeight.text = val.round().toString();
+                if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // speaker frequency changed
                 linkSpeakerConnection(val.toString());
                 setState(() {});
               },
             )),
       );
-    } else if (!isPlayingMenu &&
+    } else if (!isPlayingMenu && !isAnnotationMode &&
         (isMotorMenu || isSynapseMenu) &&
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            top: 20 + safePaddingTop,
-            right: 20 + safePadding,
+            top: safePaddingTop,
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -5593,6 +5595,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       String getDynamicSynapticText(double w, bool excitatory, bool isMotor, String wheel, String action) {
                           int wStr = w.round();
                           if (isMotor) {
+                              if (wStr == 0) {
+                                  if (!excitatory) {
+                                      String actionCap = action == "forward" ? "Forward" : "Reverse";
+                                      return "$wheel wheel will not stop moving $actionCap when it gets a SPIKE.";
+                                  }
+                                  return "$wheel wheel will not move when it gets a SPIKE.";
+                              }
+                              
                               if (excitatory) {
                                   String spd = "";
                                   if (wStr <= 24) spd = " slowly";
@@ -5646,100 +5656,113 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                             child: Text(mainTitleStr,
                                 style: const TextStyle(fontSize: 17)),
                           ),
-                          const SizedBox(height: 12),
-                          RadialDialWidget(
-                        title: dialTitleStr,
-                        value: weightValue,
-                        min: 0,
-                        max: 100,
-                        dialSize: 80,
-                        widgetWidth: 220,
-                        startAngleOffset: pi,
-                        isPercentageFormatter: true,
-                        isMixedState: isMixed,
-                        alignRight: true,
-                        onChanged: (value) async {
-                          if (isSpeakerMenu || isLedMenu) return;
-
-                          try {
-                              if (isMulti) {
-                                  controller.synapticWeight = value;
-                                  tecSynapticWeight.text = value.round().toString();
-                                  
-                                  for (var edge in controller.multiEdgeSelection) {
-                                      try {
-                                          var nFrom = findNeuronByKeySafe(edge.from);
-                                          var nTo = findNeuronByKeySafe(edge.to);
-                                          if (nFrom != null && nTo != null) {
-                                              String key = "${nFrom.id}_${nTo.id}";
-                                              String label = (nTo.label ?? "").toUpperCase();
-
-                                              edge.connectionStrength = value;
-                                              edge.label = value.round().toString();
-
-                                              if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
-                                                  mapContactsNeuron[key] = value;
-                                                  updateLiveConnectionBuffer(nFrom, nTo, value, "motor");
-                                              } else {
-                                                  mapConnectome[key] = value;
-                                                  updateLiveConnectionBuffer(nFrom, nTo, value, "connectome");
+                          if (isMotorTarget)
+                            Transform.translate(
+                              offset: const Offset(0, 5),
+                              child: MotorAnimatedWidget(
+                                  value: weightValue,
+                                  wheel: motorWheel,
+                                  action: motorAction,
+                                  isExcitatory: isExcitatory,
+                                  isMixed: isMixed,
+                                onChanged: (value) async {
+                                  if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // weight/property changed
+                                  try {
+                                      if (isMulti) {
+                                          controller.synapticWeight = value;
+                                          tecSynapticWeight.text = value.round().toString();
+                                          for (var edge in controller.multiEdgeSelection) {
+                                              try {
+                                                  var nFrom = findNeuronByKeySafe(edge.from);
+                                                  var nTo = findNeuronByKeySafe(edge.to);
+                                                  if (nFrom != null && nTo != null) {
+                                                      String key = "${nFrom.id}_${nTo.id}";
+                                                      String label = (nTo.label ?? "").toUpperCase();
+                                                      edge.connectionStrength = value;
+                                                      edge.label = value.round().toString();
+                                                      if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
+                                                          mapContactsNeuron[key] = value;
+                                                          updateLiveConnectionBuffer(nFrom, nTo, value, "motor");
+                                                      } else {
+                                                          mapConnectome[key] = value;
+                                                          updateLiveConnectionBuffer(nFrom, nTo, value, "connectome");
+                                                      }
+                                                  }
+                                              } catch (e) {
+                                                  printDebug("Error syncing multi-edge: $e");
                                               }
                                           }
-                                      } catch (e) {
-                                          printDebug("Error syncing multi-edge: $e");
+                                          setState((){});
+                                      } else {
+                                          sldSynapticWeight = value.roundToDouble();
+                                          tecSynapticWeight.text = value.round().toString();
+                                          if (isSynapseMenu) linkNeuronConnection(sldSynapticWeight.toString());
+                                          else if (isMotorMenu) linkMotorConnection(sldSynapticWeight.toString());
+                                          controller.notifyListeners(); // repaint canvas: update axon thickness
+                                          setState(() {});
                                       }
-                                  }
-                                  setState((){});
-                              } else {
-                                  sldSynapticWeight = value.roundToDouble();
-                                  tecSynapticWeight.text = value.round().toString();
+                                  } catch (err) {}
+                                },
+                            ),
+                          )
+                          else
+                             ArcSliderWidget(
+                                title: dialTitleStr,
+                                lowerTitle: null,
+                                value: weightValue,
+                                widgetWidth: 300.0,
+                                min: 0,
+                                max: 100,
+                                isPercentageFormatter: true,
+                                isMixedState: isMixed,
+                                onChanged: (value) async {
+                                  if (isSpeakerMenu || isLedMenu) return;
+                                  if (!isSpeakerMenu && !isLedMenu && !isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
 
-                                  if (isSynapseMenu) {
-                                      linkNeuronConnection(sldSynapticWeight.toString());
-                                  } else if (isMotorMenu) {
-                                      linkMotorConnection(sldSynapticWeight.toString());
-                                  }
-                                  setState(() {});
-                              }
-                          } catch (err) {}
-                        },
-                        onSubmitted: (value) {
-                            if (isMulti) {
-                                String cleanVal = value.replaceAll(RegExp(r'[^0-9.-]'), '');
-                                double? val = double.tryParse(cleanVal);
-                                if (val != null) {
-                                    controller.synapticWeight = val; 
-                                    for (var edge in controller.multiEdgeSelection) {
-                                        try {
-                                            var nFrom = findNeuronByKeySafe(edge.from);
-                                            var nTo = findNeuronByKeySafe(edge.to);
-                                            if (nFrom != null && nTo != null) {
-                                                String key = "${nFrom.id}_${nTo.id}";
-                                                String label = (nTo.label ?? "").toUpperCase();
+                                  try {
+                                      if (isMulti) {
+                                          controller.synapticWeight = value;
+                                          tecSynapticWeight.text = value.round().toString();
+                                          
+                                          for (var edge in controller.multiEdgeSelection) {
+                                              try {
+                                                  var nFrom = findNeuronByKeySafe(edge.from);
+                                                  var nTo = findNeuronByKeySafe(edge.to);
+                                                  if (nFrom != null && nTo != null) {
+                                                      String key = "${nFrom.id}_${nTo.id}";
+                                                      String label = (nTo.label ?? "").toUpperCase();
 
-                                                edge.connectionStrength = val;
-                                                edge.label = val.round().toString();
+                                                      edge.connectionStrength = value;
+                                                      edge.label = value.round().toString();
 
-                                                if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
-                                                    mapContactsNeuron[key] = val;
-                                                    updateLiveConnectionBuffer(nFrom, nTo, val, "motor");
-                                                } else {
-                                                    mapConnectome[key] = val;
-                                                    updateLiveConnectionBuffer(nFrom, nTo, val, "connectome");
-                                                }
-                                            }
-                                        } catch (e) {
-                                            printDebug("Error syncing multi-edge from text submit: $e");
-                                        }
-                                    }
-                                    setState((){});
-                                }
-                            } else {
-                                String cleanVal = value.replaceAll(RegExp(r'[^0-9.-]'), '');
-                                submitSynapticConnection(cleanVal);
-                            }
-                        }
-                      ),
+                                                      if (label.contains("MOTOR") || (nTo.value >= 5 && nTo.value <= 8)) {
+                                                          mapContactsNeuron[key] = value;
+                                                          updateLiveConnectionBuffer(nFrom, nTo, value, "motor");
+                                                      } else {
+                                                          mapConnectome[key] = value;
+                                                          updateLiveConnectionBuffer(nFrom, nTo, value, "connectome");
+                                                      }
+                                                  }
+                                              } catch (e) {
+                                                  printDebug("Error syncing multi-edge: $e");
+                                              }
+                                          }
+                                          setState((){});
+                                      } else {
+                                          sldSynapticWeight = value.roundToDouble();
+                                          tecSynapticWeight.text = value.round().toString();
+
+                                          if (isSynapseMenu) {
+                                              linkNeuronConnection(sldSynapticWeight.toString());
+                                          } else if (isMotorMenu) {
+                                              linkMotorConnection(sldSynapticWeight.toString());
+                                          }
+                                          setState(() {});
+                                          controller.notifyListeners(); // repaint canvas: update axon thickness
+                                      }
+                                  } catch (err) {}
+                                },
+                              ),
                       if (isShowingInfo == 0) const SizedBox(height: 16),
                       if (isShowingInfo != 0) ...[
                         const SizedBox(height: 12),
@@ -5789,13 +5812,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         ),
       )),
     );
-    } else if (!isPlayingMenu &&
+    } else if (!isPlayingMenu && !isAnnotationMode &&
         (isLedMenu) &&
         controller.isSelectingEdge) {
       inlineWidgets.add(
         Positioned(
-            top: 20 + safePaddingTop,
-            right: 20 + safePadding,
+            top: safePaddingTop,
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
@@ -5821,15 +5844,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           List<String> chars = _robotLedActive.split('');
                           chars[index] = chars[index] == "1" ? "0" : "1";
                           _robotLedActive = chars.join('');
+                          if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // LED light toggled
                           _updateLedAddress();
                         },
                         onColorChanged: (hex, brit) {
+                          if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // LED color/brightness changed
                           _updateLedColor(hex, brit);
-                          // V23: Update current LED edge real-time
+                          // Live update: repaint the selected LED axon immediately
                           if (controller.isSelectingEdge) {
-                            // V25: Fix visual mismatch - use 100.0 to match _updateLedColor
-                            double strength = (double.tryParse(brit) ?? 1.0) * 100.0;
-                            Color ledColor = Color(int.parse("0xFF$hex"));
+                            double brightness = double.tryParse(brit) ?? 1.0;
+                            double strength = brightness * 100.0;
+                            Color ledColor = Color(int.parse("0xFF$hex")).withOpacity(brightness);
                             var edge = controller.edgeSelected!;
                             if (edge.to == nodeSingleLed.key || 
                                 edge.to == nodeRedLed.key || 
@@ -5837,7 +5862,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                 edge.to == nodeBlueLed.key) {
                               edge.connectionStrength = strength;
                               edge.color = ledColor;
-                              setState((){});
+                              edge.isLedEdge = true;
+                              // Invalidate the edge renderer's cached picture so
+                              // the gradient repaints with the new color + thickness.
+                              controller.notifyListeners();
                             }
                           }
                         },
@@ -5861,44 +5889,594 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
 
     if (!isPlayingMenu && isDeleteMenu) {
-      bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-      double bottomSafePad = MediaQuery.of(context).padding.bottom;
+      Offset screenPos = Offset.zero;
+      Offset? clusterTopCenter;
+
+      if (controller.selection.isNotEmpty) {
+        // Node Selected: Hover explicitly above the top center using True matrix scale
+        var selectedNode = controller.selection.first;
+        Offset topCenter = selectedNode.offset + Offset(neuronDrawSize / 2, -20 / controller.getScale());
+        screenPos = MatrixUtils.transformPoint(controller.transform.value, topCenter);
+      } else if (controller.isSelectingEdge && (controller.multiEdgeSelection.isNotEmpty || controller.edgeSelected != null)) {
+        // Edge/Trunk Selected: Position menu precisely over the connection geometry
+        Set<InfiniteCanvasEdge> edgesToConsider = controller.multiEdgeSelection.isNotEmpty ? controller.multiEdgeSelection : {controller.edgeSelected!};
+
+        if (edgesToConsider.isNotEmpty) {
+            // V25 FEATURE: Axon Context Menu Position Tuning (User Request)
+            // Anchor both X and Y directly above the HIGHEST reaching endpoint in the 
+            // entire selected cluster, so the menu floats cleanly above everything.
+            
+            double highestY = double.infinity;
+            double targetXForHighestY = 0;
+            
+            double minX = double.infinity;
+            double maxX = -double.infinity;
+            
+            // Re-evaluate all edges and their endpoints (Sources and Targets)
+            for (var edge in edgesToConsider) {
+                // Check Source Node
+                InfiniteCanvasNode? nFrom = findNeuronByKeySafe(edge.from);
+                if (nFrom != null) {
+                    double sourceY = nFrom.offset.dy;
+                    if (sourceY < highestY) {
+                         highestY = sourceY;
+                         targetXForHighestY = nFrom.offset.dx + (neuronDrawSize / 2.0);
+                    }
+                    if (nFrom.offset.dx < minX) minX = nFrom.offset.dx;
+                    if (nFrom.offset.dx > maxX) maxX = nFrom.offset.dx;
+                }
+                
+                // Check Target Node
+                InfiniteCanvasNode? nTo = findNeuronByKeySafe(edge.to);
+                if (nTo != null) {
+                   double targetY = nTo.offset.dy;
+                   if (targetY < highestY) {
+                        highestY = targetY;
+                        targetXForHighestY = nTo.offset.dx + (neuronDrawSize / 2.0);
+                   }
+                   if (nTo.offset.dx < minX) minX = nTo.offset.dx;
+                   if (nTo.offset.dx > maxX) maxX = nTo.offset.dx;
+                }
+            }
+            
+            if (highestY != double.infinity && targetXForHighestY != 0) {
+                // 25% way to the center of the bounding box
+                double centerX = minX + (maxX - minX) / 2.0 + (neuronDrawSize / 2.0);
+                double finalX = targetXForHighestY + (centerX - targetXForHighestY) * 0.25;
+                
+                // Shift down an extra 5 pixels so the menu hovers cleanly over the highest point instead of floating 10px too high
+                clusterTopCenter = Offset(finalX, highestY + (5 / controller.getScale()));
+            }
+        }
+        
+        // clusterTopCenter calculation complete above
+      }
+
+      // V25 FEATURE: Wrap the Context Menu in an AnimatedBuilder tied to the Camera Transform.
+      // This forces the Menu to continuously recalculate its pixel rendering relative to the 
+      // underlying Node/Axon whenever the user scrubs the Background!
+      bool isHardwarePeripheral = controller.selection.isNotEmpty && controller.selection.first.isSensory == 1;
       
-      inlineWidgets.add(Positioned(
-        bottom: Platform.isIOS || Platform.isAndroid ? 90 + bottomSafePad : 15,
-        left: 10 + (isLandscape ? safePaddingLeft : 0),
-        child: FloatingActionButton(
-            focusColor: colorOrange,
-            hoverColor: colorOrange,
-            backgroundColor: colorOrange,
-            shape: const CircleBorder(),
-            hoverElevation: 1,
-            elevation: 0,
-            onPressed: () {},
-            child: GestureDetector(
-              onTapDown: (details) async {
-                if (buttonOnPressedSource != null) {
-                  buttonOnPressedHandle = await soloud
-                      ?.play(buttonOnPressedSource!, looping: false);
+      if (!isAnnotationMode && (clusterTopCenter != null || (controller.selection.isNotEmpty && !isHardwarePeripheral))) {
+        inlineWidgets.insert(0, Positioned(
+          top: 0,
+          left: 0,
+          child: AnimatedBuilder(
+            animation: controller.transform,
+            builder: (context, child) {
+              Offset currentScreenPos = Offset.zero;
+              
+              if (controller.selection.isNotEmpty) {
+                  var sNode = controller.selection.first;
+                  Offset topC = sNode.offset + Offset(neuronDrawSize / 2, -20 / controller.getScale());
+                  currentScreenPos = MatrixUtils.transformPoint(controller.transform.value, topC);
+              } else if (clusterTopCenter != null) {
+                  currentScreenPos = MatrixUtils.transformPoint(controller.transform.value, clusterTopCenter!);
+              }
+              
+              if (currentScreenPos == Offset.zero) return const SizedBox();
+
+              return Transform.translate(
+                offset: currentScreenPos,
+                child: FractionalTranslation(
+                  translation: const Offset(-0.5, -1.0), // Shift up by its full height and center horizontally
+                  child: AnimatedOpacity(
+                    duration: Duration(milliseconds: controller.mouseDown ? 80 : 150),
+                    opacity: (controller.mouseDown && controller.hasSelection) ? 0.0 : 1.0,
+                    child: IgnorePointer(
+                      ignoring: controller.mouseDown && controller.hasSelection,
+                      child: ContextMenuWidget(
+                        isShowingInfo: isShowingInfo != 0,
+              isCloneVisible: controller.selection.isNotEmpty, // Only allow neuron cloning
+              onClonePressed: () {
+                if (controller.selection.isNotEmpty) {
+                  var baseNode = controller.selection.first;
+                  
+                  // Calculate vector towards the central brain drop target
+                  Offset canvasCenter = Offset(brainPosition.dx + 245, brainPosition.dy + 240);
+                  double dx = canvasCenter.dx - baseNode.offset.dx;
+                  double dy = canvasCenter.dy - baseNode.offset.dy;
+                  double dist = sqrt(dx * dx + dy * dy);
+                  double targetRadius = neuronDrawSize + 25.0; // Distance to next clone
+                  
+                  Offset cloneOffset;
+                  if (dist > 1.0) {
+                      // Move clone along vector pointing towards the center + slight jitter
+                      cloneOffset = baseNode.offset + Offset(
+                          (dx / dist) * targetRadius + (Random().nextInt(30) - 15),
+                          (dy / dist) * targetRadius + (Random().nextInt(30) - 15)
+                      );
+                  } else {
+                      // Fallback if exactly at center
+                      cloneOffset = Offset(
+                        baseNode.offset.dx + targetRadius + (Random().nextInt(30) - 15), 
+                        baseNode.offset.dy + (Random().nextInt(30) - 15)
+                      );
+                  }
+                  
+                  neuronSize++; // Increment expected payload buffer size like a drag drop
+
+                  UniqueKey newNodeKey = UniqueKey();
+                  neuronsKey.add(newNodeKey);
+                  String newId = newNodeKey.toString();
+                  
+                  // Initialize maps with default exactly like onAcceptWithDetails
+                  mapDelayNeuronList.add(-1);
+                  mapRhytmicNeuronList.add(-1);
+                  mapCountingNeuronList.add(-1);
+
+                  // Extract base data indices to safely copy the specialized maps by traversing the synthetic array
+                  int baseIdx = -1;
+                  for (int i = 0; i < syntheticNeuronList.length; i++) {
+                    if (syntheticNeuronList[i].node?.id == baseNode.id) {
+                      baseIdx = i;
+                      break;
+                    }
+                  }
+                  if (baseIdx >= 0 && baseIdx < mapDelayNeuronList.length - 1) { // -1 because we just added a new element
+                      mapDelayNeuronList[mapDelayNeuronList.length - 1] = mapDelayNeuronList[baseIdx];
+                      mapRhytmicNeuronList[mapRhytmicNeuronList.length - 1] = mapRhytmicNeuronList[baseIdx];
+                      mapCountingNeuronList[mapCountingNeuronList.length - 1] = mapCountingNeuronList[baseIdx];
+                  }
+
+                  // Copy standard parameters
+                  neuronTypes[newId] = neuronTypes[baseNode.id] ?? "Quiet";
+                  
+                  // Ensure the actively cached UI variables perfectly reflect the cloned values.
+                  if (neuronTypes[newId] == "Delay") {
+                      isShowDelayTime = true;
+                      sldTimeValue = mapDelayNeuronList[mapDelayNeuronList.length - 1] > 0
+                          ? mapDelayNeuronList[mapDelayNeuronList.length - 1].toDouble()
+                          : 1000.0;
+                      tecTimeValue.text = sldTimeValue.round().toString();
+                  }
+                  
+                  neuronStyles[newId] = neuronStyles[baseNode.id] ?? "Excitatory";
+                  aDesignArray[newId] = aDesignArray[baseNode.id] ?? 0.02;
+                  bDesignArray[newId] = bDesignArray[baseNode.id] ?? 0.2;
+                  cDesignArray[newId] = cDesignArray[baseNode.id] ?? -65.0;
+                  dDesignArray[newId] = dDesignArray[baseNode.id] ?? 8.0;
+                  iDesignArray[newId] = iDesignArray[baseNode.id] ?? 5.0;
+
+                  if (mapRemoteControlNeuron.containsKey(baseNode.id)) {
+                      mapRemoteControlNeuron[newId] = mapRemoteControlNeuron[baseNode.id]!;
+                  }
+
+                  SyntheticNeuron syntheticNeuron = SyntheticNeuron(
+                      isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
+                  
+                  InfiniteCanvasNode cloneNode = InfiniteCanvasNode(
+                    key: newNodeKey,
+                    label: baseNode.label,
+                    value: neuronSize - 1,
+                    allowMove: false,
+                    allowResize: false,
+                    offset: cloneOffset,
+                    size: Size(neuronDrawSize, neuronDrawSize),
+                    child: CustomPaint(
+                      isComplex: true,
+                      willChange: true,
+                      painter: syntheticNeuron,
+                    ),
+                  );
+                  
+                  cloneNode.isExcitatory = baseNode.isExcitatory;
+                  cloneNode.syntheticNeuron = syntheticNeuron;
+                  syntheticNeuron.node = cloneNode;
+                  syntheticNeuron.setupDrawingNeuron();
+                  syntheticNeuronList.add(syntheticNeuron);
+                  
+                  SyntheticNeuron rawSyntheticNeuron = SyntheticNeuron(
+                      isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
+                  rawSyntheticNeuron.node = cloneNode;
+                  rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
+                  rawSyntheticNeuronList.add(rawSyntheticNeuron);
+                  syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
+
+                  controller.add(cloneNode);
+                  // Force canvas offset refresh
+                  controller.nodes.last.offset = cloneOffset; 
+                  
+                  // CRITICAL FIX: Base sizes must match immediately BEFORE Native C starts
+                  // so the engine preallocates accurate memory bounds for the new clone mappings
+                  neuronSize = controller.nodes.length - allNeuronStartIdx;
+                  
+                  // Initialize Native C engine immediately matching new DragDrop
+                  initNativeC(false);
+
+                  // Keep original selected for multi-cloning
+                  // Only re-sync the backend Engine with the new sizes
+                  populateMatrix();
+                  refreshNuclei();
+                  
+                  if (objectPlacedSource != null) {
+                    Future.delayed(const Duration(milliseconds: 50), () async {
+                      await soloud?.play(objectPlacedSource!);
+                    });
+                  }
+
+                  populateMatrix();
+                  refreshNuclei();
+                  
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() {});
+                    controller.notifyListeners();
+                  });
                 }
               },
-              onTapUp: (details) {
-                if (isDrawTail) {
+              onDeletePressed: () {
+                if (controller.selection.isNotEmpty) {
                   deleteNeuronCallback();
                   resetMouse();
-                } else {
+                } else if (controller.isSelectingEdge) {
                   deleteEdgeCallback();
                   resetMouse();
                 }
               },
-              child: const Icon(
-                size: 40,
-                Icons.delete,
-                color: Colors.black,
-              ),
+            ),       // closes ContextMenuWidget
+          ),         // closes IgnorePointer
+        ),           // closes AnimatedOpacity
+      ),             // closes FractionalTranslation
+    );               // closes Transform.translate
+      })));
+    }
+    }
+
+    // ── Annotation Mode Panel ─────────────────────────────────────────────────
+    if (isAnnotationMode) {
+      final bool   _annIsLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+      final double annCardWidth = _annIsLandscape
+          ? 300.0
+          : (screenWidth - 40 - safePadding).clamp(300.0, 420.0);
+      final int annTextMinLines = _annIsLandscape ? 3 : 2;
+      final int annTextMaxLines = _annIsLandscape ? 7 : 6;
+
+      // Helper — builds a tap button with icon row and label
+      Widget _annBtn({
+        required String label,
+        Widget? icon,
+        String? emoji,
+        String? emojiFont,   // optional font for monochrome emoji (e.g. 'NotoEmoji')
+        double emojiSize = 14,
+        required Color bg,
+        required Color fg,
+        double height = 38,
+        VoidCallback? onTap,
+      }) {
+        return GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: height,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (emoji != null) Text(emoji, style: TextStyle(
+                  fontSize: emojiSize, color: fg,
+                  fontFamily: emojiFont,
+                )),
+                if (emoji != null) const SizedBox(width: 5),
+                if (icon != null) icon,
+                if (icon != null) const SizedBox(width: 5),
+                Text(label, style: TextStyle(
+                  color: fg, fontWeight: FontWeight.w600, fontSize: 13,
+                  fontFamily: 'Roboto',
+                )),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // ── Nav button helpers ────────────────────────────────────────────────
+      bool _hasPrev = _editingAnnotationIdx > 0;
+      bool _hasNext = _editingAnnotationIdx < brainAnnotations.length - 1;
+
+      Widget _navBtn({required String label, required bool active, required VoidCallback? onTap, bool isCenter = false}) {
+        return GestureDetector(
+          onTap: active ? onTap : null,
+          child: Container(
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            constraints: isCenter ? null : const BoxConstraints(minWidth: 72),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: active ? const Color(0xFFFD8164) : const Color(0xFFE8E8E8),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(label, style: TextStyle(
+              color: active ? Colors.white : Colors.grey.shade700,
+              fontWeight: FontWeight.w600, fontSize: 12,
             )),
+          ),
+        );
+      }
+
+      inlineWidgets.add(Positioned(
+        top: safePaddingTop,
+        right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
+        child: SizedBox(
+          width: annCardWidth,
+          // Focus widget captures arrow keys for prev/next navigation.
+          // Returns KeyEventResult.handled for arrow keys so macOS does not
+          // play a system alert when no other widget would consume them.
+          child: Focus(
+            focusNode: _annotationFocusNode,
+            autofocus: _isEditingAnnotation,
+            onKeyEvent: (node, event) {
+              if (event is! KeyDownEvent) return KeyEventResult.ignored;
+              if (_annotationEditEnabled) return KeyEventResult.ignored; // let text field handle
+              final k = event.logicalKey;
+              if (k == LogicalKeyboardKey.arrowLeft || k == LogicalKeyboardKey.arrowUp) {
+                if (_hasPrev) _viewAnnotation(
+                    brainAnnotations[_editingAnnotationIdx - 1],
+                    _editingAnnotationIdx - 1);
+                return KeyEventResult.handled; // always consume to silence macOS alert
+              } else if (k == LogicalKeyboardKey.arrowRight || k == LogicalKeyboardKey.arrowDown) {
+                if (_hasNext) _viewAnnotation(
+                    brainAnnotations[_editingAnnotationIdx + 1],
+                    _editingAnnotationIdx + 1);
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // ── Title row: [X close] [title text] [spacer] ─────
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: _exitAnnotationMode,
+                              behavior: HitTestBehavior.opaque,
+                              child: Container(
+                                width: 34, height: 34,
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.close, size: 24, color: Colors.black),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                _isEditingAnnotation
+                                    ? 'Annotation ${_editingAnnotationIdx + 1} of ${brainAnnotations.length}'
+                                    : 'New Annotation',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w800,
+                                  fontFamily: 'Roboto', color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 34), // mirrors X button width for centering
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // ── VIEWING/EDITING an existing annotation ─────────
+                        if (_isEditingAnnotation) ...[
+                          // Nav row: [Prev] [Edit/Cancel] [Next] — all equal width
+                          Row(children: [
+                            Expanded(child: _navBtn(
+                              label: '◀ Prev',
+                              active: !_annotationEditEnabled && _hasPrev,
+                              onTap: _hasPrev ? () => _viewAnnotation(
+                                  brainAnnotations[_editingAnnotationIdx - 1],
+                                  _editingAnnotationIdx - 1) : null,
+                            )),
+                            const SizedBox(width: 6),
+                            Expanded(child: _annotationEditEnabled
+                              ? _annBtn(
+                                  label: 'Cancel',
+                                  height: 36,
+                                  onTap: () {
+                                    final orig = brainAnnotations[_editingAnnotationIdx];
+                                    _annotationDescController.text = orig.description;
+                                    setState(() => _annotationEditEnabled = false);
+                                    controller.annotationEditEnabled = false;
+                                    _annotationFocusNode.requestFocus();
+                                  },
+                                  bg: Colors.grey.shade200, fg: Colors.black87,
+                                )
+                              : _annBtn(
+                                  label: 'Edit',
+                                  emoji: '✎',
+                                  emojiFont: 'NotoEmoji',
+                                  emojiSize: 28,
+                                  height: 36,
+                                  onTap: () {
+                                    setState(() => _annotationEditEnabled = true);
+                                    controller.annotationEditEnabled = true;
+                                    // Jump to top so the user sees start of text in edit mode
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      if (_annotationScrollController.hasClients) {
+                                        _annotationScrollController.jumpTo(0);
+                                      }
+                                    });
+                                  },
+                                  bg: Colors.white,
+                                  fg: Colors.black87,
+                                ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(child: _navBtn(
+                              label: 'Next ▶',
+                              active: !_annotationEditEnabled && _hasNext,
+                              onTap: _hasNext ? () => _viewAnnotation(
+                                  brainAnnotations[_editingAnnotationIdx + 1],
+                                  _editingAnnotationIdx + 1) : null,
+                            )),
+                          ]),
+                          const SizedBox(height: 10),
+                        ] else ...[
+                          // ── NEW ANNOTATION sub-header ───────────────────
+                          const Text(
+                            'Select neurons & synapses to annotate',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w700,
+                              fontFamily: 'Roboto', color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+
+                        // ── Description field (full card width) ─────────────
+                        // VIEW mode: Scrollbar > SingleChildScrollView > SelectableText.
+                        //   • Exactly ONE scrollbar track (no TextField internal one).
+                        //   • Responds natively to scroll wheel and trackpad.
+                        //   • ConstrainedBox caps height to match the maxLines height so
+                        //     the card doesn't grow unbounded on long descriptions.
+                        // EDIT mode: Listener forwards PointerScrollEvent → scrollController
+                        //   so wheel/trackpad work while typing. TextField draws its own
+                        //   single scroll indicator only when the content overflows.
+                        if (!_annotationEditEnabled) ...[
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8F1FA),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.only(top: 10, bottom: 10, right: 4),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight: annTextMaxLines * 22.0,
+                              ),
+                              child: MediaQuery.removePadding(
+                                context: context,
+                                removeRight: true,
+                                removeLeft: true,
+                                child: RawScrollbar(
+                                  controller: _annotationScrollController,
+                                  thumbVisibility: true,
+                                  thumbColor: Colors.black38,
+                                  radius: const Radius.circular(4),
+                                  thickness: 4,
+                                  child: SingleChildScrollView(
+                                    controller: _annotationScrollController,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 12, right: 12),
+                                      child: SelectableText(
+                                        _annotationDescController.text,
+                                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          Listener(
+                            onPointerSignal: (event) {
+                              if (event is PointerScrollEvent &&
+                                  _annotationScrollController.hasClients) {
+                                final double delta = event.scrollDelta.dy;
+                                final double target = (_annotationScrollController.offset + delta)
+                                    .clamp(0.0, _annotationScrollController.position.maxScrollExtent);
+                                _annotationScrollController.jumpTo(target);
+                              }
+                            },
+                            child: TextField(
+                              controller: _annotationDescController,
+                              scrollController: _annotationScrollController,
+                              maxLines: annTextMaxLines,
+                              minLines: annTextMinLines,
+                              textInputAction: TextInputAction.done,
+                              keyboardType: TextInputType.text,
+                              textCapitalization: TextCapitalization.sentences,
+                              decoration: InputDecoration(
+                                hintText: 'Describe what the selected items do...',
+                                hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide.none),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
+                              ),
+                              style: const TextStyle(fontSize: 14, color: Colors.black87),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+
+                        // ════════════════════════════════════════════════════
+                        // NEW ANNOTATION — Cancel + Save Annotation
+                        // ════════════════════════════════════════════════════
+                        if (!_isEditingAnnotation) Row(children: [
+                          Expanded(child: _annBtn(
+                            label: 'Cancel', onTap: _exitAnnotationMode,
+                            bg: Colors.grey.shade200, fg: Colors.black87,
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(child: _annBtn(
+                            label: 'Save Annotation', onTap: _saveAnnotation,
+                            bg: const Color(0xFFFD8164), fg: Colors.white,
+                          )),
+                        ]),
+
+                        // ════════════════════════════════════════════════════
+                        // EDIT-ENABLED — Save Changes + Delete
+                        // ════════════════════════════════════════════════════
+                        if (_isEditingAnnotation && _annotationEditEnabled) Row(children: [
+                          Expanded(child: _annBtn(
+                            label: 'Save Changes',
+                            onTap: _saveAnnotation,
+                            bg: const Color(0xFFFD8164), fg: Colors.white,
+                          )),
+                          const SizedBox(width: 10),
+                          Expanded(child: _annBtn(
+                            label: 'Delete',
+                            icon: SvgPicture.asset('assets/icons/Delete.svg',
+                                width: 32, height: 32,
+                                colorFilter: const ColorFilter.mode(
+                                    Color(0xFFE96565), BlendMode.srcIn)),
+                            onTap: _deleteEditingAnnotation,
+                            bg: const Color(0xFFE96565).withOpacity(0.10),
+                            fg: const Color(0xFFE96565),
+                          )),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),
+          ),
+        ),
       ));
     }
+
 
     if (packageInfo == null) {
       Future.delayed(const Duration(milliseconds: 10), () async {
@@ -5923,50 +6501,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         menuIdx: modeIdx, // Assuming modeIdx tracks selection
         isPlaying: isPlayingMenu,
         callback: leftToolbarCallback, // Reuse callback
-        leftPadding: isLandscape ? safePaddingLeft : 0,
+        leftPadding: isLandscape ? safePaddingLeft : MediaQuery.of(context).padding.bottom,
+        isLandscape: isLandscape,
       );
       leftToolBar = null; // Ensure only one is active
     } else {
       leftToolBar = LeftToolbar(
-        key: rightToolbarKey,
+        key: rightToolbarGlobalKey,
         menuIdx: menuIdx,
         isPlaying: isPlayingMenu,
         callback: leftToolbarCallback,
-        leftPadding: isLandscape ? safePaddingLeft : 0,
+        leftPadding: isLandscape ? safePaddingLeft : MediaQuery.of(context).padding.bottom,
+        isLandscape: isLandscape,
       );
       liveToolBar = null;
     }
 
-    if (!isPlayingMenu) {
-      if (leftToolBar != null) {
-        toolbarMenu = Positioned(
-          left: 0,
-          top: 10 + safePaddingTop,
-          child: leftToolBar!,
-        );
-      } else {
-        toolbarMenu = Positioned(
-          left: 0,
-          top: 10 + safePaddingTop,
-          child: Container(),
-        );
-      }
-    } else {
-      // Live Mode Toolbar Logic
-      if (liveToolBar != null) {
-        toolbarMenu = Positioned(
-          left: 0,
-          top: 10 + safePaddingTop,
-          child: liveToolBar!,
-        );
-      } else {
-         toolbarMenu = Positioned(
-          left: 0,
-          top: 10 + safePaddingTop,
-          child: Container(),
-        );
-      }
-    }
+    // The unified layout handles Toolbar injection now
 
     List<Widget> leftColorListWidget = [];
     // List<Widget> rightColorListWidget = [];
@@ -6360,7 +6911,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               buttonOnPressedHandle =
                   await soloud?.play(buttonPopSource!, looping: false);
             }
-            isShowingInfo = (isShowingInfo + 1) % 3;
+            isShowingInfo = (isShowingInfo == 1) ? 0 : 1;
             if (isShowingInfo == 2) {
               InfiniteCanvasEdge.isShowingInfo = true;
               InfiniteCanvasNode.isShowingInfo = true;
@@ -6386,7 +6937,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         ),
       ),
       if (!isSimulatingBrain) ...[
-        const SizedBox(width: 10),
         FloatingActionButton(
           shape: const CircleBorder(),
           hoverElevation: 1,
@@ -6449,6 +6999,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 // isSavingBrain == 2 - There is a change in the design
               }
 
+              if (isAnnotationMode) _exitAnnotationMode();
+              currentBrainAnnotations = brainAnnotations;
+              onAddAnnotationRequested = _enterAnnotationMode;
+              onAnnotationsModified = () { setState(() { brainHasUnsavedChanges.value = true; }); };
+              onAnnotationViewRequested = (ann, idx) { _viewAnnotation(ann, idx); };
               await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
                   saveCurrentBrain, pMapStatus);
               Future.delayed(const Duration(milliseconds: 1200), () async {
@@ -6470,14 +7025,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               // });
             },
             child: SvgPicture.asset(
-              "assets/icons/Save.svg",
+              "assets/icons/LabNotebook.svg",
               // width: iconWidth,
               // height: iconHeight,
             ),
           ),
         ),
       ],
-      const SizedBox(width: 10),
       FloatingActionButton(
           shape: const CircleBorder(),
           hoverElevation: 1,
@@ -6554,44 +7108,430 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                   ),
           )),
     ];
-    MainAxisAlignment floatingButtonsAlignment = MainAxisAlignment.end;
-    if (Platform.isIOS || Platform.isAndroid) {
-      // } else {
-      floatingButtonsAlignment = MainAxisAlignment.start;
-      floatingButtons = floatingButtons.reversed.toList();
-      // floatingButtons.insert(
-      //     0,
-      //     const SizedBox(
-      //       width: 25,
-      //     ));
-    }
-    return Scaffold(
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(
-            left: MediaQuery.of(context).size.height > 600 ? 25 : 75.0),
-        child: Row(
-          mainAxisAlignment: floatingButtonsAlignment,
-          children: floatingButtons,
+    List<Widget> baseWidgets = [
+      Positioned(
+        left: 0,
+        top: 0,
+        bottom: 0, 
+        right: 0,
+        child: Screenshot(
+          controller: screenshotController,
+          child: mainBody,
         ),
       ),
-      body: Stack(
-          children: [
-        Positioned(
-          left: 0,
-          top: 0,
-          child: Screenshot(
-             controller: screenshotController,
-             child: mainBody,
-          ), 
+    ];
+    widgets.insertAll(0, baseWidgets);
+    widgets.insertAll(1, inlineWidgets);
+
+    // ── EXPANDING LIVE CAMERA WIDGET (Must render BEFORE UI overlays) ── //
+    if (isPlayingMenu) {
+      double pipCamWidth = (Platform.isIOS || Platform.isAndroid) ? 200 : 213;
+      double pipCamHeight = (Platform.isIOS || Platform.isAndroid) ? 150 : 160;
+      
+      // Card width scaling logic decoupled between Landscape and Portrait
+      double maxCardWidth = MediaQuery.of(context).size.width * (isLandscape ? 0.70 : 0.95);
+      double maxCardHeight = MediaQuery.of(context).size.height * (isLandscape ? 0.85 : 0.88);
+
+      double cameraWidth = (isLandscape && isCameraExpanded) ? (maxCardWidth - 140) : (isCameraExpanded ? maxCardWidth : pipCamWidth); 
+      double cameraHeight = cameraWidth * 0.75; // Lock camera stream to 4:3
+      
+      // Vertical space buffer for titles, padding, and UI wrap
+      double uiOverheadHeight = isLandscape ? 30.0 : 80.0;
+      if (_hasUnboundRemoteNeurons) uiOverheadHeight += 60.0;
+      
+      // Prevent vertical overflow by shifting the bottleneck if necessary
+      if (isCameraExpanded && (cameraHeight * 1.6 + uiOverheadHeight) > maxCardHeight) {
+          cameraHeight = (maxCardHeight - uiOverheadHeight) / 1.6;
+          cameraWidth = cameraHeight * (4.0 / 3.0);
+      }
+      
+      double waveHeightTarget = cameraHeight * 0.6; // Scale plot dynamically
+      
+      // Define explicit bounding geometry depending on orientation flow
+      double expandedWidth = isLandscape ? (cameraWidth + 140) : cameraWidth;
+      double expandedHeight = cameraHeight + waveHeightTarget + uiOverheadHeight;
+      
+      widgets.add(AnimatedPositioned(
+        duration: const Duration(milliseconds: 600), 
+        curve: Curves.easeInOutExpo,
+        left: isCameraExpanded ? (isLandscape ? 90.0 : (MediaQuery.of(context).size.width - expandedWidth) / 2) : null,
+        right: isCameraExpanded ? (isLandscape ? null : (MediaQuery.of(context).size.width - expandedWidth) / 2) : safePadding,
+        top: isCameraExpanded ? (isLandscape ? MediaQuery.of(context).padding.top : MediaQuery.of(context).size.height - expandedHeight - 160) : MediaQuery.of(context).padding.top,
+        width: isCameraExpanded ? expandedWidth : 326, 
+        child: Card(
+          elevation: isCameraExpanded ? 12 : 4,
+          margin: const EdgeInsets.all(4.0),
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+              child: Stack(
+              alignment: Alignment.topRight, 
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeInOutExpo,
+                  width: isCameraExpanded ? expandedWidth : 320, 
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // --- UNIVERSAL TITLE BAR AND BATTERY ---
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutExpo,
+                      width: isCameraExpanded ? expandedWidth : pipCamWidth + 120,
+                      height: 24, 
+                      padding: const EdgeInsets.only(left: 2),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                              Row(
+                                children: [
+                                  if (!wifiName.contains("No Spikerbot Detected"))
+                                    GestureDetector(
+                                        onTap: _showRenameDialog,
+                                        child: SizedBox(
+                                          width: 40, height: 24, 
+                                          child: OverflowBox(
+                                            maxHeight: 40, maxWidth: 40,
+                                            child: Container(
+                                                width: 40, height: 40, alignment: Alignment.center, padding: const EdgeInsets.only(right: 5),
+                                                child: const Text("✎", style: TextStyle(fontFamily: "NotoEmoji", fontSize: 28))
+                                            ),
+                                          ),
+                                        )
+                                    ),
+                                  Text(wifiName, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                ]
+                              ),
+                              Row(
+                                children: [
+                                   if (isRobotConnected) ...[
+                                       Text("$batteryPercent%", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                       const SizedBox(width: 4),
+                                       Container(
+                                          width: 32, height: 18,
+                                          decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 2), borderRadius: BorderRadius.circular(3)),
+                                          padding: const EdgeInsets.all(2),
+                                          child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Container(width: 24 * (batteryPercent/100.0), color: batteryPercent <= 25 ? Colors.red : Colors.black)
+                                          )
+                                       ),
+                                       Container(width: 2, height: 6, color: Colors.black),
+                                       const SizedBox(width: 8),
+                                   ],
+                                   GestureDetector(
+                                      onTap: () {
+                                         setState(() { isCameraExpanded = !isCameraExpanded; });
+                                         _animateCanvasToReset(true, animate: true);
+                                      },
+                                      child: Icon(isCameraExpanded ? Icons.close_fullscreen : Icons.open_in_full, size: 20, color: Colors.black87)
+                                   ),
+                                   const SizedBox(width: 4),
+                                ],
+                              ),
+                          ]
+                      ),
+                    ),
+                    const SizedBox(height: 2), 
+                    
+                    // --- DYNAMIC CONTENT GRID (Wraps automatically in Portrait Expanded Mode) ---
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.start, 
+                      direction: Axis.horizontal,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedContainer(
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.easeInOutExpo,
+                            // Scale the actual camera stream up exponentially (Strict 4:3 preservation)
+                            width: isCameraExpanded ? cameraWidth : pipCamWidth,
+                            height: isCameraExpanded ? cameraHeight : pipCamHeight,
+                            margin: const EdgeInsets.fromLTRB(2, 0, 2, 1), 
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  mjpegComponent,
+                                  if (debugCvImage != null && isShowingInfo == 1)
+                                    Positioned.fill(
+                                      child: Opacity(
+                                        opacity: 1.0,
+                                        child: Container(
+                                          child: Image.memory(
+                                            debugCvImage!,
+                                            gaplessPlayback: true,
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  if (isShowingInfo == 1)
+                                    Positioned.fill(
+                                        child: IgnorePointer(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: Colors.black, width: 3)),
+                                        ),
+                                      ),
+                                    ),
+
+                                  ...colorPositionOverlays,
+                                  ...aiPositionOverlays,
+                                ],
+                              ),
+                              ),
+                             ),
+                             if (isShowingInfo == 1)
+                             ..._DesignBrainPageState.mapSensoryNeuron.entries.map((entry) {
+                                 String key = entry.key;
+                                 int val = entry.value; 
+                                 String? areaMode = _DesignBrainPageState.mapAreaSize[key];
+                                 if (areaMode == null) return const SizedBox();
+                                 
+                                 List<String> modes = areaMode.split("_@_");
+                                 if (modes.isEmpty) return const SizedBox();
+                                 
+                                 double start = 0;
+                                 double end = 0;
+                                 
+                                 double currentCamWidth = isCameraExpanded ? cameraWidth : pipCamWidth;
+                                 double scaleX = currentCamWidth / 320.0;
+                                 
+                                 if (modes[0] == "Left" || modes[0] == "Right" || modes[0] == "Custom") {
+                                     int p1 = int.parse(modes[1]);
+                                     int p2 = int.parse(modes[2]);
+                                     start = (p1 < p2 ? p1 : p2).toDouble();
+                                     end = (p1 < p2 ? p2 : p1).toDouble();
+                                 } else if (modes[0] == "Any") {
+                                     start = 0;
+                                     end = 320;
+                                 } else {
+                                     return const SizedBox();
+                                 }
+                                 
+                                 Color barColor = const Color(0xFFFD8164);
+                                 if (val == 0) barColor = Colors.blue; 
+                                 if (val == 2) barColor = Colors.green; 
+                                 if (val == 4) barColor = Colors.red;
+
+                                 return AnimatedContainer(
+                                     duration: const Duration(milliseconds: 600),
+                                     curve: Curves.easeInOutExpo,
+                                     width: currentCamWidth,
+                                     height: 4,
+                                     margin: const EdgeInsets.fromLTRB(2, 1, 2, 0), 
+                                     alignment: Alignment.centerLeft,
+                                     child: AnimatedContainer(
+                                         duration: const Duration(milliseconds: 600),
+                                         curve: Curves.easeInOutExpo,
+                                         margin: EdgeInsets.only(left: start * scaleX),
+                                         width: (end - start) * scaleX,
+                                         height: 4,
+                                         color: barColor.withOpacity(0.8),
+                                     ),
+                                 );
+                             }).toList(),
+                           ],
+                        ),
+                        // Right/Bottom Menu Panel Area (Wraps dynamically beneath the camera feed based on available Expanded Width bounds)
+                        AnimatedContainer(
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.easeInOutExpo,
+                            width: isCameraExpanded ? (isLandscape ? 130 : expandedWidth) : 96,
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (!isLandscape && isCameraExpanded) const SizedBox(height: 5),
+                                  const Text("Visual Targets:", style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ...leftAiListWidget,
+                                ]
+                            )
+                        )
+                      ],
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutExpo,
+                      clipBehavior: Clip.hardEdge,
+                      margin: const EdgeInsets.all(3.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      height: isCameraExpanded 
+                           ? waveHeightTarget 
+                           : ((Platform.isIOS || Platform.isAndroid) ? 150 : 160),
+                      width: isCameraExpanded ? expandedWidth : 300,
+                      child: waveWidget,
+                    ),
+                    // Remote Trigger: shown in live mode only when unbound RC neurons exist
+                    if (controller.isPlaying && _hasUnboundRemoteNeurons) ...[
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTapDown: (_) {
+                          setState(() => _remoteTriggerPressed = true);
+                          _updateRemoteControlNeurons(); // inject immediately
+                          if (soloud != null && buttonOnPressedSource != null) soloud?.play(buttonOnPressedSource!, looping: false);
+                        },
+                        onTapUp: (_) {
+                          setState(() => _remoteTriggerPressed = false);
+                          // Delay cutoff 60ms so a fast tap still lands in at least one sim tick
+                          Future.delayed(const Duration(milliseconds: 16), _updateRemoteControlNeurons);
+                          if (soloud != null && buttonPopSource != null) soloud?.play(buttonPopSource!, looping: false);
+                        },
+                        onTapCancel: () {
+                          setState(() => _remoteTriggerPressed = false);
+                          Future.delayed(const Duration(milliseconds: 16), _updateRemoteControlNeurons);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 80),
+                          width: 300,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: _remoteTriggerPressed
+                                ? const Color(0xFF0E7ACC)
+                                : const Color(0xFF1996FC),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.bolt, color: Colors.white, size: 20),
+                              SizedBox(width: 6),
+                              Text(
+                                'Remote Control Trigger',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  fontFamily: 'Roboto',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (isShowingInfo == 1) ...[
+                      Row(
+                        children: [
+                          Container(
+                            width: 25,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border:
+                                  Border.all(color: Colors.white, width: 2),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 0.3,
+                                  blurRadius: 0.3,
+                                  offset: const Offset(
+                                      1, 1), // changes position of shadow
+                                ),
+                              ],
+                            ),
+                            child: SvgPicture.asset(
+                              "assets/icons/Info.svg",
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                            height: 10,
+                          ),
+                          const SizedBox(
+                            width: 230,
+                            child: Text(
+                              "Drag a second pin onto a neuron to compare their activity",
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: "BybHanddrawn",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                )),
+              ],
+            ),
+          ),
         ),
-        ...widgets,
-        ...inlineWidgets,
-        toolbarMenu,
-        
-        
-        if (_isShowInputDebug)
-          Positioned(
-            right: 20 + safePadding,
+      ));
+    }
+    // ── Orientation-Responsive Disjoint Controls (Drag Menu + Buttons) ── //
+    if (isLandscape) {
+      widgets.add(Positioned(
+        left: 0,
+        top: 15 + safePaddingTop,
+        child: IntrinsicWidth(
+          child: (isPlayingMenu && liveToolBar != null) ? liveToolBar! : (leftToolBar ?? const SizedBox()),
+        )
+      ));
+      widgets.add(Positioned(
+        // In landscape, only add horizontal safe padding (Not notch + home bar)
+        left: 15 + safePaddingLeft, 
+        bottom: 15 + MediaQuery.of(context).padding.bottom,
+        child: IntrinsicWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var b in floatingButtons) 
+                Padding(
+                  padding: EdgeInsets.only(top: b == floatingButtons.first ? 0 : 15), 
+                  child: b
+                ),
+            ]
+          )
+        )
+      ));
+    } else {
+      widgets.add(Positioned(
+        left: 15 + safePaddingLeft + MediaQuery.of(context).padding.bottom,
+        bottom: 0, // Anchored literally to the bottom pixel
+        child: IntrinsicHeight(
+          child: (isPlayingMenu && liveToolBar != null) ? liveToolBar! : (leftToolBar ?? const SizedBox()),
+        )
+      ));
+      widgets.add(Positioned(
+        // Inject bottom padding value into right margin so the X and Y spacing looks identical onscreen
+        right: 15 + MediaQuery.of(context).padding.right + MediaQuery.of(context).padding.bottom,
+        bottom: 15 + MediaQuery.of(context).padding.bottom,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var b in floatingButtons) 
+                Padding(
+                  padding: EdgeInsets.only(left: b == floatingButtons.first ? 0 : 15), 
+                  child: b
+                ),
+            ]
+          )
+        )
+      ));
+    }
+    
+    // Fallback trailing elements
+    if (_isShowInputDebug) {
+        widgets.add(Positioned(
+            right: (Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding),
             bottom: 100,
             width: 400,
             height: 300,
@@ -6620,7 +7560,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      reverse: true,
                       child: Text(_debugInputLog,
                           style: const TextStyle(
                               color: Colors.greenAccent,
@@ -6634,399 +7573,43 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 ],
               ),
             ),
-          ),
-        if (isPlayingMenu) ...[
-          Positioned(
-            right: safePadding,
-            top: MediaQuery.of(context).padding.top, // Dynamic Top for iPad Status Bar
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(3.0),
-                  child: Stack(
-                  alignment: Alignment.topRight, 
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        // Reduced top margin (was 5)
-                        const SizedBox(height: 2), 
-                        
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start, 
-                          children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // WiFi Name Header
-                                SizedBox(
-                                  width: (Platform.isIOS || Platform.isAndroid) ? 200 : 213,
-                                  height: 24, // Matches Battery Row height
-                                  child: Container( // Wrapped in Container for padding
-                                    padding: const EdgeInsets.only(left: 2), // Match camera margin
-                                    child: Row(
-                                      children: [
-                                          if (!wifiName.contains("No Spikerbot Detected"))
-                                            GestureDetector(
-                                                onTap: _showRenameDialog,
-                                                child: SizedBox(
-                                                  width: 40, 
-                                                  height: 24, // Matches parent constraint
-                                                  child: OverflowBox(
-                                                    maxHeight: 40,
-                                                    maxWidth: 40,
-                                                    child: Container(
-                                                        width: 40,
-                                                        height: 40,
-                                                        alignment: Alignment.center,
-                                                        padding: const EdgeInsets.only(right: 5),
-                                                        child: const Text("✎", style: TextStyle(fontFamily: "NotoEmoji", fontSize: 28)) // Larger font in overflow
-                                                    ),
-                                                  ),
-                                                )
-                                            ),
-                                          Flexible(child: Text(wifiName, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      ]
-                                  ),
-                                ),
-                                ),
-                                Container(
-                                width: (Platform.isIOS || Platform.isAndroid)
-                                    ? 200
-                                    : 213,
-                                height: (Platform.isIOS || Platform.isAndroid)
-                                    ? 150
-                                    : 160,
-                                margin: const EdgeInsets.fromLTRB(2, 0, 2, 1), 
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      mjpegComponent,
-                                      if (debugCvImage != null &&
-                                          isShowingInfo == 0)
-                                        Positioned.fill(
-                                          child: Opacity(
-                                            opacity: 1.0,
-                                            child: Container(
-                                              child: Image.memory(
-                                                debugCvImage!,
-                                                gaplessPlayback: true,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      if (isShowingInfo == 0)
-                                        Positioned.fill(
-                                            child: IgnorePointer(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                    color: Colors.black, width: 3)),
-                                          ),
-                                        )),
+        ));
+    }
+    
+    widgets.add(ValueListenableBuilder(
+        valueListenable: tooltipValueChange,
+        builder: ((context, value, child) {
+          return !isTooltipOverlay
+              ? Container()
+              : Positioned(
+                  left: tooltipOverlayX - 20,
+                  top: tooltipOverlayY - 50,
+                  child: Container(
+                      color: Colors.black,
+                      padding: const EdgeInsets.all(5),
+                      child: Text(tooltipOverlayMessage,
+                          style: const TextStyle(color: Colors.white))),
+                );
+        })));
+        
+    // Insert near the back of the Z-order so menus can draw over it
+    widgets.insert(1, Positioned(
+      right: 5,
+      top: MediaQuery.of(context).padding.top + 5, // Safe Top for Version Text
+      child: Text(
+        style: const TextStyle(fontSize: 7, color: Colors.grey),
+        "v${packageInfo?.version ?? ""} \r\n$strFirmwareVersion",
+      ),
+    ));
+    
+    widgets.add(Center(
+        child: Text(restartText,
+            style: const TextStyle(fontSize: 20, color: Colors.red))));
 
-                                      ...colorPositionOverlays,
-                                      ...aiPositionOverlays,
-                                    ],
-                                  ),
-                                  ),
-                                 ),
-                                 // Zone Bars below camera
-                                if (isShowingInfo == 0)
-                                ..._DesignBrainPageState.mapSensoryNeuron.entries.map((entry) {
-                                    String key = entry.key;
-                                    int val = entry.value; 
-                                    String? areaMode = _DesignBrainPageState.mapAreaSize[key];
-                                    if (areaMode == null) return const SizedBox();
-                                    
-                                    List<String> modes = areaMode.split("_@_");
-                                    if (modes.isEmpty) return const SizedBox();
-                                     
-                                    double start = 0;
-                                    double end = 0;
-                                    double fullWidth = ((Platform.isIOS || Platform.isAndroid) ? 200.0 : 213.0);
-                                    double scaleX = fullWidth / 320.0;
-                                    
-                                    // Parse Range
-                                    if (modes[0] == "Left" || modes[0] == "Right" || modes[0] == "Custom") {
-                                        int p1 = int.parse(modes[1]);
-                                        int p2 = int.parse(modes[2]);
-                                        start = (p1 < p2 ? p1 : p2).toDouble();
-                                        end = (p1 < p2 ? p2 : p1).toDouble();
-                                    } else if (modes[0] == "Any") {
-                                        start = 0;
-                                        end = 320;
-                                    } else {
-                                        return const SizedBox();
-                                    }
-                                    
-                                    // Color Mapping (BYB Orange)
-                                    Color barColor = const Color(0xFFFD8164);
-                                    if (val == 0) barColor = Colors.blue; 
-                                    if (val == 2) barColor = Colors.green; 
-                                    if (val == 4) barColor = Colors.red;
-
-                                    return Container(
-                                        width: fullWidth,
-                                        height: 4,
-                                        margin: const EdgeInsets.fromLTRB(2, 1, 2, 0), 
-                                        alignment: Alignment.centerLeft,
-                                        child: Container(
-                                            margin: EdgeInsets.only(left: start * scaleX),
-                                            width: (end - start) * scaleX,
-                                            height: 4,
-                                            color: barColor.withOpacity(0.8),
-                                        ),
-                                    );
-                                }).toList(),
-                              ],
-                            ),
-                            const SizedBox(width: 8), // Gap between Camera and Sidebar
-                            Expanded(child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  // Battery Row (Inline)
-                                  // Battery Row (Inline)
-                                  if (isRobotConnected) // Hide if not connected
-                                  Row(
-                                    children: [
-                                       Text("$batteryPercent%", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                       const SizedBox(width: 4),
-                                       // Simple Custom Battery (No grid lines)
-                                       Container(
-                                          width: 32,
-                                          height: 18,
-                                          decoration: BoxDecoration(
-                                              border: Border.all(color: Colors.black, width: 2),
-                                              borderRadius: BorderRadius.circular(3)
-                                          ),
-                                          padding: const EdgeInsets.all(2),
-                                          child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Container(
-                                                  width: 24 * (batteryPercent/100.0),
-                                                  color: batteryPercent <= 25 ? Colors.red : Colors.black
-                                              )
-                                          )
-                                       ),
-                                       // Battery Tip
-                                       Container(
-                                           width: 2,
-                                           height: 6,
-                                           color: Colors.black,
-                                       )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text("Visual Targets:", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  ...leftAiListWidget,
-                                ])
-                            )
-                          ],
-                        ),
-                        // Expanded(
-                        //   child: LayoutBuilder(
-                        //     builder:
-                        //         (BuildContext context, BoxConstraints constraints) {
-
-                        Container(
-                          clipBehavior: Clip.hardEdge,
-                          margin: const EdgeInsets.all(3.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          // color: const Color(0xFFFF4444),
-                          // color: const Color(0xFFFF4444),
-                          height: (Platform.isIOS || Platform.isAndroid)
-                              ? 150
-                              : 160,
-                          width: 300,
-                          // child: isSelected?waveWidget : const SizedBox(),
-                          child: waveWidget,
-                        ),
-                        if (isShowingInfo == 1) ...[
-                          Row(
-                            children: [
-                              Container(
-                                width: 25,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.white, width: 2),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 0.3,
-                                      blurRadius: 0.3,
-                                      offset: const Offset(
-                                          1, 1), // changes position of shadow
-                                    ),
-                                  ],
-                                ),
-                                child: SvgPicture.asset(
-                                  "assets/icons/Info.svg",
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                                height: 10,
-                              ),
-                              const SizedBox(
-                                width: 230,
-                                child: Text(
-                                  "Drag a second pin onto a neuron to compare their activity",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontFamily: "BybHanddrawn",
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-          // Positioned(
-          //   right: 50,
-          //   top: 0,
-          //   child: Column(
-          //     children: [
-          //       StreamBuilder<Uint8List>(
-          //           stream: mainBloc.imageStream,
-          //           builder: (context, snapshot) {
-          //             // printDebug(snapshot.data);
-          //             if (snapshot.data == null) return Container();
-          //             return ClipRect(
-          //               clipper: EyeClipper(
-          //                   isLeft: false,
-          //                   width: screenWidth,
-          //                   height: screenHeight),
-          //               child: Image.memory(
-          //                 snapshot.data!,
-          //                 gaplessPlayback: true,
-          //                 // width: 320 / 2,
-          //                 height: 240 / 2,
-          //                 fit: BoxFit.fitHeight,
-          //               ),
-          //             );
-          //           }),
-          //       if (isShowingRightColorMenu || isShowingRightAiMenu) ...[
-          //         Container(
-          //             width: 105,
-          //             margin: const EdgeInsets.only(left: 55),
-          //             // color: Colors.yellow,
-          //             child: Row(
-          //               crossAxisAlignment: CrossAxisAlignment.end,
-          //               mainAxisAlignment: MainAxisAlignment.end,
-          //               children: rightColorListWidget,
-          //               // children: [Text("asd")],
-          //             )),
-          //       ]
-          //     ],
-          //   ),
-          // ),
-
-        if (isPlayingMenu && isChartSelected) ...[
-          // Positioned(
-          //   bottom: 0,
-          //   left: 0,
-          //   child: Container(
-          //     margin: const EdgeInsets.all(10.0),
-          //     decoration:
-          //         BoxDecoration(border: Border.all(color: Colors.black)),
-
-          //     // color:Colors.red,
-          //     height: (Platform.isIOS || Platform.isAndroid)
-          //         ? screenHeight / 2 - 90
-          //         : screenHeight / 2 - 150,
-          //     width: screenWidth - 20,
-          //     // child: isSelected?waveWidget : const SizedBox(),
-          //     child: waveWidget,
-          //   ),
-          // ),
-        ],
-        ValueListenableBuilder(
-            valueListenable: tooltipValueChange,
-            builder: ((context, value, child) {
-              return !isTooltipOverlay
-                  ? Container()
-                  : Positioned(
-                      left: tooltipOverlayX - 20,
-                      top: tooltipOverlayY - 50,
-                      child: Container(
-                          color: Colors.black,
-                          padding: const EdgeInsets.all(5),
-                          child: Text(tooltipOverlayMessage,
-                              style: const TextStyle(color: Colors.white))),
-                    );
-            })),
-        if (aiStats != null && isInfoMenu) ...{
-          // Positioned(
-          //   left: 0,
-          //   bottom: 0,
-          //   child: SafeArea(
-          //     child: SizedBox(
-          //       width: screenWidth - 200,
-          //       height: 200,
-          //       child: Column(
-          //         children: aiStats!.entries.map((e) {
-          //           return StatsWidget(e.key, e.value);
-          //         }).toList(),
-          //       ),
-          //     ),
-          //   ),
-          // )
-        },
-        // Positioned(
-        //   left: 825 / 2,
-        //   top: 0,
-        //   child: Container(
-        //     width: 30,
-        //     height: 30,
-        //     color: Colors.green,
-        //   ),
-        // ),
-        // Positioned(
-        //   left:10,
-        //   top:10,
-        //   child: Image.memory(dataMaskedImage)
-        // )
-        Positioned(
-          right: 5,
-          top: MediaQuery.of(context).padding.top + 5, // Safe Top for Version Text
-          child: Text(
-            style: const TextStyle(fontSize: 7),
-            "${packageInfo?.version ?? ""} : ${packageInfo?.buildNumber ?? ""} \r\n$strFirmwareVersion",
-          ),
-        ),
-        Center(
-            child: Text(restartText,
-                style: const TextStyle(fontSize: 20, color: Colors.red))),
-          
-          // ..addAll(arrCirclePositions)
-          // ..addAll(bottomRightMenuWidgets),
-          // @New Design
-          // ..addAll(dragTargetWidgets),
-          // ),
-          ],
-        ),
+    return Scaffold(
+      body: Stack(
+        children: widgets
+      ),
     );
   }
 
@@ -7138,9 +7721,36 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
   }
 
+  void _ensureDartListsSized() {
+    while (neuronSpikeFlags.length < neuronSize) {
+      neuronSpikeFlags.add(ValueNotifier(0));
+      neuronCircleKeys.add(GlobalKey(debugLabel: "neuronWidget${neuronSpikeFlags.length - 1}"));
+
+      var activePainter = SingleCircle(
+        isActive: true, isExcitatory: 1, circleRadius: neuronDrawSize / 2,
+        xNucleus: neuronDrawSize / 2, yNucleus: neuronDrawSize / 2, widthNucleus: neuronDrawSize / 3, heightNucleus: neuronDrawSize / 3,
+      );
+      var inactivePainter = SingleCircle(
+        isActive: false, isExcitatory: 1, circleRadius: neuronDrawSize / 2,
+        xNucleus: neuronDrawSize / 2, yNucleus: neuronDrawSize / 2, widthNucleus: neuronDrawSize / 3, heightNucleus: neuronDrawSize / 3,
+      );
+
+      neuronActiveCirclesPainter.add(activePainter);
+      neuronInactiveCirclesPainter.add(inactivePainter);
+      neuronActiveCircles.add(CustomPaint(painter: activePainter, willChange: false, isComplex: false));
+      neuronInactiveCircles.add(CustomPaint(painter: inactivePainter, willChange: false, isComplex: false));
+
+      squareActiveCirclesPainter.add(activePainter);
+      squareInactiveCirclesPainter.add(inactivePainter);
+      squareActiveCircles.add(CustomPaint(painter: activePainter, willChange: false, isComplex: false));
+      squareInactiveCircles.add(CustomPaint(painter: inactivePainter, willChange: false, isComplex: false));
+    }
+  }
+
   void populateMatrix() {
     // Ensure views are valid for current data size
     recreateBufferViews();
+    _ensureDartListsSized();
 
     // populate connectome, neuroncontacts, and visual preferences
     int ctr = 0;
@@ -7149,6 +7759,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     
     // Clear buffer to prevent garbage values (e.g. 1 = Occassionally Active)
     mapNeuronTypeBufView.fillRange(0, mapNeuronTypeBufView.length, 0);
+    // iOS fix: native allocator may not zero memory between runs.
+    // Stale non-zero values in LED bufs cause C++ to misclassify non-LED axons
+    // as LED-connected (led_pos_buf > 0 → treats as LED). Zero them first.
+    if (neuronLedBufView.isNotEmpty) {
+      neuronLedBufView.fillRange(0, neuronLedBufView.length, 0);
+    }
+    if (neuronLedPositionBufView.isNotEmpty) {
+      neuronLedPositionBufView.fillRange(0, neuronLedPositionBufView.length, 0);
+    }
 
     for (int i = 0; i < neuronSize; i++) {
       // LocalKey neuronFromKey = findNeuronByValue(i).key;
@@ -7195,15 +7814,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
               break;
             case "Occassionally active":
-              aBufView[i] = 0.02; bBufView[i] = 0.16; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 5.0;
+              aBufView[i] = 0.02; bBufView[i] = 0.17; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 5.0;
               break;
             case "Highly active":
-              aBufView[i] = 0.02; bBufView[i] = 0.2; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 15.0;
+              aBufView[i] = 0.02; bBufView[i] = 0.24; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 15.0;
               break;
             case "Generates bursts":
-              aBufView[i] = 0.02; bBufView[i] = 0.16; cBufView[i] = -8; dBufView[i] = 2; iBufView[i] = 5.0;
+              aBufView[i] = 0.02; bBufView[i] = 0.17; cBufView[i] = -20; dBufView[i] = 2; iBufView[i] = 5.0;
               break;
             case "Bursts when activated":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -37; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
+            case "Delay": 
               aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -37; dBufView[i] = 2; iBufView[i] = 0.0;
               break;
             case "Remote Control":
@@ -7372,11 +7994,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // printDebug(str);
     // printDebug(strController);
     printDebug(nodeSingleLed.id);
-    printDebug("mapDistanceLimitNeuron");
-    printDebug(neuronDistanceBufView);
-    printDebug(mapDistanceLimitNeuron);
-    printDebug(distanceMinLimitBufView);
-    printDebug(distanceMaxLimitBufView);
+    // printDebug("mapDistanceLimitNeuron");
+    // printDebug(neuronDistanceBufView);
+    // printDebug(mapDistanceLimitNeuron);
+    // printDebug(distanceMinLimitBufView);
+    // printDebug(distanceMaxLimitBufView);
   }
 
   void runSimulation() {
@@ -7409,6 +8031,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           colorPositionFlags[0] = true;
         } else if (val > 2) {
           aiPositionFlags[val] = true;
+        }
+      }
+    }
+    // Definitive LED gradient fix: clear edge.color on every edge that does NOT
+    // connect to a known LED output. Regardless of how a stale color got onto a
+    // non-LED axon (save-file entry, setDataOnLeave fallback, async timing, etc.),
+    // this reset on every Play press ensures only actual LED edges show the gradient.
+    {
+      final ledKeys = {
+        nodeSingleLed.key, nodeRedLed.key, nodeGreenLed.key, nodeBlueLed.key
+      };
+      for (final edge in controller.edges) {
+        if (!ledKeys.contains(edge.to)) {
+          if (edge.color != null) edge.color = null;
+          edge.isLedEdge = false;
         }
       }
     }
@@ -7673,15 +8310,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 0.0;
           break;
         case "Occassionally active":
-          valA = 0.02; valB = 0.16; valC = -65; valD = 2; valI = 5.0;
+          valA = 0.02; valB = 0.17; valC = -65; valD = 2; valI = 5.0;
           break;
         case "Highly active":
           valA = 0.02; valB = 0.2; valC = -65; valD = 2; valI = 15.0;
           break;
         case "Generates bursts":
-          valA = 0.02; valB = 0.16; valC = -8; valD = 2; valI = 5.0; // Restored to legacy 5.0 as requested
+          valA = 0.02; valB = 0.17; valC = -20; valD = 2; valI = 5.0; // Fixed Burst math to match Native C++ initialization
           break;
         case "Bursts when activated":
+        case "Delay": 
           valA = 0.02; valB = 0.1; valC = -37; valD = 2; valI = 0.0;
           break;
         case "Dopaminergic":
@@ -7690,17 +8328,39 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         case "Striatal":
            valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 5.0;
           break;
-          // REMOVED "Delay" case to match reference (falls to default)
         case "Remote Control":
           valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 0.0;
           break;
         default: // Custom or others
+          if (aDesignArray.containsKey(selected.id)) valA = aDesignArray[selected.id]!;
+          if (bDesignArray.containsKey(selected.id)) valB = bDesignArray[selected.id]!;
+          if (cDesignArray.containsKey(selected.id)) valC = cDesignArray[selected.id]!.toDouble();
+          if (dDesignArray.containsKey(selected.id)) valD = dDesignArray[selected.id]!.toDouble();
+          if (iDesignArray.containsKey(selected.id)) valI = iDesignArray[selected.id]!;
           break;
       }
 
+      // V25 FEATURE: Dynamically update the slider state UI variables so the Embedded Plot 
+      // instantly visualizes the mathematically accurate curve instead of stale Default traits!
+      sldAWeight = valA;
+      sldBWeight = valB;
+      sldCWeight = valC;
+      sldDWeight = valD;
+      
+      tecAWeight.text = sldAWeight.toString();
+      tecBWeight.text = sldBWeight.toString();
+      tecCWeight.text = sldCWeight.toString();
+      tecDWeight.text = sldDWeight.toString();
+
       // CRITICAL FIX: Use controller.nodes order to match populateMatrix indexing
       // OLD: int idx = neuronTypes.keys.toList().indexOf(selected.id);  // WRONG ORDER!
-      int idx = controller.nodes.indexOf(selected) - 2; // -2 to skip shadow nodes
+      int idx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected) {
+    idx = _syntIdx;
+    break;
+  }
+} // -2 to skip shadow nodes
       if (idx >= 0 && idx < neuronSize) {
          aBufView[idx] = valA;
          bBufView[idx] = valB;
@@ -7721,20 +8381,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
          sldBWeight = valB; tecBWeight.text = valB.toString();
          sldCWeight = valC; tecCWeight.text = valC.toString();
           sldDWeight = valD; tecDWeight.text = valD.toString();
-          
-          // Force UI Update for ALL types (fixes Menu lag and RC overlay issues)
-          // controller.notifyListeners() wakes up the reactive Nucleus widgets
-          // setState() wakes up the Menu UI
-          Future.delayed(Duration.zero, () {
-               // populateMatrix(); // Heavy, maybe not needed for every type change? 
-               // initializeNucleus(); // Rebuilds list - probably overkill if Nucleus is reactive.
-               
-               // Just notify!
-               try {
-                  controller.notifyListeners();
-                  if (mounted) setState(() {});
-               } catch(e) {}
-          });
        }
     }
   }
@@ -7892,6 +8538,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         neuronTypes.remove(selected.id);
         neuronStyles.remove(selected.id);
+        if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // RC binding removed
         mapRemoteControlNeuron.remove(selected.id);
         aDesignArray.remove(selected.id);
         bDesignArray.remove(selected.id);
@@ -7942,56 +8589,40 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     printDebug("deleteEdgeCallback");
     printDebug(controller.isSelectingEdge);
     if (controller.isSelectingEdge) {
-      // var selectedEdge = controller.edges.where((element) => element.from == controller.edgeSelected.from && element.to == controller.edgeSelected.to).toList();
-      int idx = controller.edges.indexOf(controller.edgeSelected!);
-      InfiniteCanvasEdge lastCreatedEdge = controller.edges[idx];
-      String edgeKey =
-          "${lastCreatedEdge.from.toString()}_${lastCreatedEdge.to.toString()}";
-      if (mapSensoryNeuron.containsKey(edgeKey)) {
-        mapSensoryNeuron.remove(edgeKey);
-      }
-      if (mapContactsNeuron.containsKey(edgeKey)) {
-        mapContactsNeuron.remove(edgeKey);
-      }
-      printDebug("mapConnectome");
-      printDebug(mapConnectome);
-      if (mapConnectome.containsKey(edgeKey)) {
-        mapConnectome.remove(edgeKey);
-      }
-      printDebug("mapConnectome result");
-      printDebug(mapConnectome);
-      printDebug(edgeKey);
+      
+      List<InfiniteCanvasEdge> edgesToDelete = controller.multiEdgeSelection.isNotEmpty 
+          ? controller.multiEdgeSelection.toList() 
+          : (controller.edgeSelected != null ? [controller.edgeSelected!] : []);
 
-      if (mapDistanceNeuron.containsKey(edgeKey)) {
-        mapDistanceNeuron.remove(edgeKey);
-      }
-      if (mapDistanceLimitNeuron.containsKey(edgeKey)) {
-        mapDistanceLimitNeuron.remove(edgeKey);
-      }
-      if (mapSpeakerNeuron.containsKey(edgeKey)) {
-        mapSpeakerNeuron.remove(edgeKey);
-      }
-      if (mapMicrophoneNeuron.containsKey(edgeKey)) {
-        mapMicrophoneNeuron.remove(edgeKey);
-      }
-      if (mapLedNeuron.containsKey(edgeKey)) {
-        mapLedNeuron.remove(edgeKey);
-      }
+      for (var edgeToDelete in edgesToDelete) {
+          int idx = controller.edges.indexOf(edgeToDelete);
+          if (idx == -1) continue;
+          
+          InfiniteCanvasEdge lastCreatedEdge = controller.edges[idx];
+          String edgeKey = "${lastCreatedEdge.from.toString()}_${lastCreatedEdge.to.toString()}";
+          
+          if (mapSensoryNeuron.containsKey(edgeKey)) mapSensoryNeuron.remove(edgeKey);
+          if (mapContactsNeuron.containsKey(edgeKey)) mapContactsNeuron.remove(edgeKey);
+          if (mapConnectome.containsKey(edgeKey)) mapConnectome.remove(edgeKey);
+          if (mapDistanceNeuron.containsKey(edgeKey)) mapDistanceNeuron.remove(edgeKey);
+          if (mapDistanceLimitNeuron.containsKey(edgeKey)) mapDistanceLimitNeuron.remove(edgeKey);
+          if (mapSpeakerNeuron.containsKey(edgeKey)) mapSpeakerNeuron.remove(edgeKey);
+          if (mapMicrophoneNeuron.containsKey(edgeKey)) mapMicrophoneNeuron.remove(edgeKey);
+          if (mapLedNeuron.containsKey(edgeKey)) mapLedNeuron.remove(edgeKey);
 
-      String ledKey = "${lastCreatedEdge.from.toString()}_${nodeRedLed.id}";
+          String ledKey = "${lastCreatedEdge.from.toString()}_${nodeRedLed.id}";
+          if (lastCreatedEdge.to == nodeSingleLed.key) {
+            if (mapLedNeuronPosition.containsKey(ledKey)) {
+              mapLedNeuronPosition.remove(ledKey);
+            }
+          }
 
-      if (lastCreatedEdge.to == nodeSingleLed.key) {
-        if (mapLedNeuronPosition.containsKey(ledKey)) {
-          mapLedNeuronPosition.remove(ledKey);
-        }
+          controller.edges.removeAt(idx);
       }
-
-      controller.edges.removeAt(idx);
 
       controller.isFoundEdge = false;
       controller.isSelectingEdge = false;
-      // controller.edgeFound = null;
-      // controller.edgeSelected = null;
+      controller.multiEdgeSelection.clear(); // V25: Clear the Multi-selection cache to prevent garbage
 
       controller.deselectAll();
       controller.controlPressed = false;
@@ -8015,8 +8646,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         width: screenWidth,
         height: screenHeight,
         child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
+            behavior: HitTestBehavior.translucent, // was opaque — opaque won the gesture arena blocking InteractiveViewer from receiving trackpad pan/zoom events
             onTapUp: (details) async {
+              // Annotation mode handles all selection inside checkSelection (pre-notify).
+              // Do NOT let this design-mode handler restore isSelectingEdge/edgeSelected on finger-up.
+              if (isAnnotationMode) return;
               // printDebug("controller.isFoundEdge");
               // printDebug(controller.isFoundEdge);
               if (controller.isFoundEdge) {
@@ -8046,39 +8680,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               }
               // controller.notifyMousePosition();
             },
-            onScaleEnd: (ScaleEndDetails details) {
-              // printDebug( details.scaleVelocity );
-            },
-            onScaleUpdate: (details) {
-              printDebug("details on scale update");
-              printDebug(details);
-              // details.scale
-            },
-            onDoubleTap: () {
-              // printDebug("doubletap");
-              // printDebug(controller.scale);
-              if (isSimulatingBrain) return;
-
-              if (controller.scale >= 1.5) {
-                controller.mouseDown = false;
-                controller.spacePressed = false;
-                controller.zoomReset();
-                // controller.pan(const Offset(-60, 0));
-                controller.scale = 1;
-
-                if (isPlayingMenu) {
-                  transformNeuronPosition(1.0);
-                  // protoNeuron.generateCircle(neuronSize, pos, neuronTypes);
-                }
-              } else {
-                controller.zoomReset();
-                controller.zoom(1.5);
-                controller.scale = 1.5;
-                if (isPlayingMenu) {
-                  transformNeuronPosition(1.5);
-                }
-              }
-            },
+            // onDoubleTap pruned per user request to disable snap zooming
             child: canvas),
       );
     }
@@ -8131,10 +8733,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     printDebug("modeIdx0");
     modeIdx = map["modeIdx"];
     controller.modeIdx = modeIdx;
+    
+    // V25 FEATURE: Link Live Pin Selection to +30px Node Inflation Radius
+    controller.isDraggingPin = (modeIdx != null && modeIdx >= 10);
+    
     isBrainTargetOverlayTop = -1;
     containedIdx = -1;
     if (modeIdx != -1) {
       mapBg["activeBg"] = "assets/bg/BrainDrawings/BrainFullGrey.svg";
+      // Selecting a neuron type to place dismisses the annotation viewer,
+      // since the user is switching to placement mode.
+      if (isAnnotationMode) _exitAnnotationMode();
     } else {
       mapBg["activeBg"] = defaultBg;
     }
@@ -8194,6 +8803,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // isSavingBrain == 2 - There is a change in the design
       }
 
+      if (isAnnotationMode) _exitAnnotationMode();
+      currentBrainAnnotations = brainAnnotations;
+      onAddAnnotationRequested = _enterAnnotationMode;
+      onAnnotationsModified = () { setState(() { brainHasUnsavedChanges.value = true; }); };
+      onAnnotationViewRequested = (ann, idx) { _viewAnnotation(ann, idx); };
       await showLoadBrainDialog(context, "Load Brain", selectSavedBrain,
           saveCurrentBrain, pMapStatus);
 
@@ -8218,6 +8832,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     } else if (menuIdx == 7) {
       controller.isSelectingEdge = controller.spacePressed = false;
 
+      if (isAnnotationMode) _exitAnnotationMode();
       isPlayingMenu = !isPlayingMenu;
       countEyeSensorConnection();
       // isSelected = false;
@@ -8226,12 +8841,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       printDebug(isPlayingMenu);
       // printDebug(mapConnectome);
 
-      controller.mouseDown = false;
       controller.setCanvasMove(false);
 
-      // controller.zoomReset();
-      _animateCanvasToReset(false); // Animate back to True Center
-
+      if (!isPlayingMenu && isCameraExpanded) {
+          isCameraExpanded = false;
+          _animateCanvasToReset(true, shiftDown: _hasUnboundRemoteNeurons, animate: true);
+      } else if (isPlayingMenu) {
+          _animateCanvasToReset(false, animate: true);
+      }
+      
       rawPos = [];
       for (InfiniteCanvasNode node in controller.nodes) {
         Offset position = controller.toLocal(node.offset);
@@ -8311,16 +8929,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (isPlayingMenu) {
         controller.deselectAll();
         isDrawTail = false;
-        Future.delayed(const Duration(milliseconds: 500), () { // Reduced to 500ms to beat Start Timer
-          // NEW UI
-          if (isPortrait == false) {
-            _animateCanvasToReset(true); // Animate to Offset Center
-          } else {
-            _animateCanvasToReset(false, shiftDown: true); // Animate Downwards to clear top UI
-          }
-          
-          runSimulation();
-          controller.isPlaying = true;
+        
+        // Start simulation AFTER the camera animation fully completes.
+        // Previously a fixed 1050ms Future.delayed raced the 1000ms animation
+        // on slow hardware (iOS), causing stutter. The onComplete callback fires
+        // only when _canvasAnimController.forward() resolves — platform-agnostic.
+        _animateCanvasToReset(
+          isPortrait == false,
+          animate: true,
+          onComplete: () {
+            runSimulation();
+            controller.positionDirty = true; // refresh cachedSynapses positions without re-routing dendrites (no snap)
+            controller.isPlaying = true;
           currentWaveZoom = 2.0; // Reset Zoom on Start
           printDebug("initial Index");
           printDebug("initial Index");
@@ -8382,6 +9002,16 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           nativec.stopThreadProcess(0);
         }
         controller.deselectAll();
+        
+        // V25: Slide smoothly back to Home Position when Paused
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (isPortrait == false) {
+             _animateCanvasToReset(true, animate: true); 
+          } else {
+             _animateCanvasToReset(false, animate: true);
+          }
+        });
+        
         controller.setCanvasMove(true);
         controller.isPlaying = false;
         // isInfoMenu = false;
@@ -8507,6 +9137,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     syntheticNeuronList.clear();
     rawSyntheticNeuronList.clear();
 
+    // V25 FIX: Clear stale selection references during Brain wipe to prevent UI menu collapses 
+    // when tapping the very first new neuron on a blank canvas.
+    prevSelectedNode = null;
+    prevSelectedOffsetNode = null;
+    prevSelectedNeuron = null;
+
     for (InfiniteCanvasNode node in sensoryNeurons) {
       bool isOutputNode = [
         nodeLeftMotorForwardSensor,
@@ -8611,81 +9247,109 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       size: Size(tailTouchSize, tailTouchSize),
       child: Builder(
         builder: (context) {
-          return CustomPaint(
-            painter: InlineCustomPainter(
-              brush: tailColor,
-              builder: (brush, canvas, rect) {
-                // Draw triangle (Excitatory) or circle (Inhibitory)
-                if (isDrawTail) {
-                  // Orange highlight (drawn first, behind)
-                  Paint orangeHighlight = Paint()
-                    ..color = const Color(0xFFFD8164) // Signature Orange
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 10 // Thicker for highlight effect
-                    ..strokeCap = StrokeCap.round // Rounded line ends
-                    ..strokeJoin = StrokeJoin.round; // Rounded corners on path
-                  // White fill for the shape
-                  Paint whiteFill = Paint()
-                    ..color = Colors.white
-                    ..style = PaintingStyle.fill;
-                  
-                  Paint blackStroke = Paint()
-                    ..color = Colors.black
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 2; // Re-declare locally to ensure scope
+          int activeIdx = -1;
+          if (controller.selection.isNotEmpty && isDrawTail) {
+              activeIdx = controller.nodes.indexWhere((e) => e.id == controller.selection.first.id) - 2;
+          }
 
-                  if (neuronStyle == "Excitatory") {
-                    Offset parentOffset =
-                        Offset(rect.center.dx, rect.center.dy - gapTailY);
-                    if (!isTailCreated) {
-                      pathTail = Path();
-                      int offset = 0;
-                      Offset topTriangle = Offset(offset + rect.center.dx,
-                          offset + rect.center.dy - tailSize);
-                      Offset rightTriangle = Offset(
-                          offset + rect.center.dx + tailSize * 1.5,
-                          offset + rect.center.dy + tailSize);
-                      Offset leftTriangle = Offset(
-                          offset + rect.center.dx - tailSize * 1.5,
-                          offset + rect.center.dy + tailSize);
+          Widget buildTail(Color fillColor) {
+              return CustomPaint(
+                painter: InlineCustomPainter(
+                  brush: tailColor,
+                  builder: (brush, canvas, rect) {
+                    // Draw triangle (Excitatory) or circle (Inhibitory)
+                    if (isDrawTail) {
+                      // Orange highlight (drawn first, behind)
+                      Paint orangeHighlight = Paint()
+                        ..color = const Color(0xFFFD8164) // Signature Orange
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = 10 // Thicker for highlight effect
+                        ..strokeCap = StrokeCap.round // Rounded line ends
+                        ..strokeJoin = StrokeJoin.round; // Rounded corners on path
+                      // White fill for the shape
+                      Paint whiteFill = Paint()
+                        ..color = fillColor
+                        ..style = PaintingStyle.fill;
+                      
+                      Paint blackStroke = Paint()
+                        ..color = Colors.black
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = 2; // Re-declare locally to ensure scope
 
-                      pathTail.moveTo(topTriangle.dx, topTriangle.dy);
-                      pathTail.lineTo(leftTriangle.dx, leftTriangle.dy);
-                      pathTail.lineTo(rightTriangle.dx, rightTriangle.dy);
+                      if (neuronStyle == "Excitatory") {
+                        Offset parentOffset =
+                            Offset(rect.center.dx, rect.center.dy - gapTailY);
+                        if (!isTailCreated) {
+                          pathTail = Path();
+                          int offset = 0;
+                          Offset topTriangle = Offset(offset + rect.center.dx,
+                              offset + rect.center.dy - tailSize);
+                          Offset rightTriangle = Offset(
+                              offset + rect.center.dx + tailSize * 1.5,
+                              offset + rect.center.dy + tailSize);
+                          Offset leftTriangle = Offset(
+                              offset + rect.center.dx - tailSize * 1.5,
+                              offset + rect.center.dy + tailSize);
 
-                      pathTail.close();
-                      isTailCreated = true;
+                          pathTail.moveTo(topTriangle.dx, topTriangle.dy);
+                          pathTail.lineTo(leftTriangle.dx, leftTriangle.dy);
+                          pathTail.lineTo(rightTriangle.dx, rightTriangle.dy);
+
+                          pathTail.close();
+                          isTailCreated = true;
+                        }
+
+                        // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
+                        canvas.drawLine(rect.center, parentOffset, orangeHighlight);
+                        canvas.drawPath(pathTail, orangeHighlight);
+                        
+                        canvas.drawLine(rect.center, parentOffset, blackStroke);
+                        canvas.drawPath(pathTail, whiteFill);
+                        canvas.drawPath(pathTail, blackStroke);
+
+                        brush.color = tailColor.color;
+                      } else if (neuronStyle == 'Inhibitory') {
+                        Offset parentOffset =
+                            Offset(rect.center.dx, rect.center.dy - gapTailY);
+                        if (!isTailCreated) {
+                          isTailCreated = true;
+                        }
+                        int inhibitorySize = 6;
+                        // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
+                        canvas.drawLine(rect.center.translate(0, -inhibitorySize.toDouble()),
+                            parentOffset.translate(0, 7), orangeHighlight);
+                        canvas.drawCircle(rect.center, inhibitorySize + 2, orangeHighlight);
+                        
+                        canvas.drawLine(rect.center.translate(0, -inhibitorySize.toDouble()),
+                            parentOffset.translate(0, 7), blackStroke);
+                        canvas.drawCircle(rect.center, inhibitorySize.toDouble(), whiteFill);
+                        canvas.drawCircle(rect.center, inhibitorySize.toDouble(), blackStroke);
+                      }
                     }
+                  },
+                ),
+              );
+          }
 
-                    // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
-                    canvas.drawLine(rect.center, parentOffset, orangeHighlight);
-                    canvas.drawPath(pathTail, orangeHighlight);
-                    
-                    canvas.drawLine(rect.center, parentOffset, blackStroke);
-                    canvas.drawPath(pathTail, whiteFill);
-                    canvas.drawPath(pathTail, blackStroke);
+          if (activeIdx < 0 || activeIdx >= neuronSpikeFlags.length) {
+              return buildTail(Colors.white);
+          }
 
-                    brush.color = tailColor.color;
-                  } else if (neuronStyle == 'Inhibitory') {
-                    Offset parentOffset =
-                        Offset(rect.center.dx, rect.center.dy - gapTailY);
-                    if (!isTailCreated) {
-                      isTailCreated = true;
-                    }
-                    int inhibitorySize = 6;
-                    // Draw order: orange highlight (behind) -> white fill -> black stroke (on top)
-                    canvas.drawLine(rect.center.translate(0, -inhibitorySize.toDouble()),
-                        parentOffset.translate(0, 7), orangeHighlight);
-                    canvas.drawCircle(rect.center, inhibitorySize + 2, orangeHighlight);
-                    
-                    canvas.drawLine(rect.center.translate(0, -inhibitorySize.toDouble()),
-                        parentOffset.translate(0, 7), blackStroke);
-                    canvas.drawCircle(rect.center, inhibitorySize.toDouble(), whiteFill);
-                    canvas.drawCircle(rect.center, inhibitorySize.toDouble(), blackStroke);
-                  }
-                }
-              },
-            ),
+          return ValueListenableBuilder<int>(
+              valueListenable: neuronSpikeFlags[activeIdx],
+              builder: (context, val, child) {
+                  return TweenAnimationBuilder<Color?>(
+                      key: ValueKey(val),
+                      tween: ColorTween(
+                           begin: (neuronStyle == "Excitatory") ? const Color(0xFF00FF00) : Colors.red,
+                           end: Colors.white,
+                      ),
+                      duration: const Duration(milliseconds: 750),
+                      builder: (context, animColor, child) {
+                          return buildTail(animColor ?? Colors.white);
+                      }
+                  );
+              }
           );
         },
       ),
@@ -8695,7 +9359,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       key: UniqueKey(),
       // label: 'Rectangle',
 
-      offset: const Offset(300, 300),
+      offset: const Offset(500, 300),
       size: const Size(20, 20),
       child: Builder(
         builder: (context) {
@@ -8735,7 +9399,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       value: 11,
       key: UniqueKey(),
       // label: 'Circle',
-      offset: const Offset(320, 430),
+      offset: const Offset(520, 430),
       size: const Size(20, 20),
       child: Builder(
         builder: (context) {
@@ -8876,32 +9540,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       nodeMicrophoneSensor,
     ];
 
-    printDebug("Create Canvas Controller");
-    printDebug(nodes);
-    // neuronTypes["abc"] = "1";
-    // Animation Controller for Canvas Fluidity
-    _canvasAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000), // Fluid 1s transition
-    );
-    _canvasAnimController.addListener(() {
-      if (controller.nodes.isNotEmpty) { // Safety check
-         controller.transform.value = _canvasAnimation.value;
-         controller.notifyListeners(); // Force redraw of canvas
-      }
-    });
-
-    // Animation Controller for Canvas Fluidity
-    _canvasAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000), // Fluid 1s transition
-    );
-    _canvasAnimController.addListener(() {
-      if (controller.nodes.isNotEmpty) { // Safety check
-         controller.transform.value = _canvasAnimation.value;
-         controller.notifyListeners(); // Force redraw of canvas
-      }
-    });
 
     controller = InfiniteCanvasController(
       rawSyntheticNeuronList: rawSyntheticNeuronList,
@@ -8909,7 +9547,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       syntheticConnections: syntheticConnections,
       neuronTypes: neuronTypes,
       onLongPress: onLongPress,
-      onDoubleTap: onDoubleTap,
+      onDoubleTap: () {}, // Pruned logic but required parameter
       onDeleteCallback: onDeleteCallback,
       onAxonCreatedCallback: fillCreatedAxon,
       // transformNeuronPositionWrapper: transformNeuronPositionWrapper,
@@ -8936,8 +9574,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     controller.mapDistanceNeuron = mapDistanceNeuron;
     controller.mapMicrophoneTypeNeuron = mapMicrophoneTypeNeuron;
     controller.mapSpeakerNeuron = mapSpeakerNeuron;
+    controller.waveRedraw = waveRedraw; // V25: Bind 60fps simulation pulse to renderer
 
     controller.zoomReset();
+    // V25: Synchronous reset avoids "center snap" visual glitch on initial render
+    // By placing it in a Post Frame Callback, we guarantee InteractiveViewer is mounted first!
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+        _animateCanvasToReset(
+          MediaQuery.of(context).orientation == Orientation.landscape,
+          animate: false,
+          onComplete: () {
+            _setCleanBaseline(); // captures blank-brain node/edge counts as baseline
+            isSettlingAfterLoad = false;
+          },
+        );
+        _setCleanBaseline(); // immediate baseline capture for safety
+    });
+    
     controller.maxScale = 2.7;
     controller.scale = 1;
     controller.minScale = 0.85;
@@ -8989,15 +9642,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         int diagonalGap = 18;
         
         List<Offset> arrPosConstraints = [
-          posLocal.translate(0, -ordinateGap * controller.scale),
-          posLocal.translate(-ordinateGap * controller.scale, 0),
-          posLocal.translate(0, ordinateGap * controller.scale),
-          posLocal.translate(ordinateGap * controller.scale, 0),
+          posLocal.translate(0, -ordinateGap.toDouble()),
+          posLocal.translate(-ordinateGap.toDouble(), 0),
+          posLocal.translate(0, ordinateGap.toDouble()),
+          posLocal.translate(ordinateGap.toDouble(), 0),
 
-          posLocal.translate(-diagonalGap * controller.scale, -diagonalGap * controller.scale),
-          posLocal.translate(diagonalGap * controller.scale, -diagonalGap * controller.scale),
-          posLocal.translate(-diagonalGap * controller.scale, diagonalGap * controller.scale),
-          posLocal.translate(diagonalGap * controller.scale, diagonalGap * controller.scale),
+          posLocal.translate(-diagonalGap.toDouble(), -diagonalGap.toDouble()),
+          posLocal.translate(diagonalGap.toDouble(), -diagonalGap.toDouble()),
+          posLocal.translate(-diagonalGap.toDouble(), diagonalGap.toDouble()),
+          posLocal.translate(diagonalGap.toDouble(), diagonalGap.toDouble()),
         ];
 
         if (Platform.isIOS || Platform.isAndroid) {
@@ -9075,6 +9728,58 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     controller.transform.removeListener(transformNeuronListener);
     controller.transform.addListener(transformNeuronListener);
     
+    controller.addListener(() async {
+
+         // ── Annotation Mode: node intercept ──────────────────────────────────────
+         // Edge toggling is handled inside controller.checkSelection (pre-notify),
+         // so the listener only needs to intercept node (neuron) selections.
+         if (isAnnotationMode && controller.selection.isNotEmpty) {
+           // Capture selection BEFORE deselectAll clears it
+           final List<InfiniteCanvasNode> selected = controller.selection.toList();
+           controller.deselectAll(); // clear immediately so no design-mode widget reacts
+           if (!_annotationEditEnabled) return; // view-only: block selection changes
+           for (final node in selected) {
+             // Only toggle actual neurons (not tail at value==-1, not sensors)
+             if (node.isSensory == 0 && node.value != -1) {
+               final nodeKey = node.key.toString();
+               if (controller.annotationHighlightNodeKeys.contains(nodeKey)) {
+                 controller.annotationHighlightNodeKeys.remove(nodeKey);
+               } else {
+                 controller.annotationHighlightNodeKeys.add(nodeKey);
+               }
+             }
+           }
+           controller.notifyListeners(); // repaint orange circles
+           return;
+         }
+
+         // Mark brain as unsaved whenever canvas changes in design mode (skip during loading)
+         if (isLoadingBrain || isSettlingAfterLoad || dialogIsSaving) {
+           brainHasUnsavedChanges.value = false; // actively clear during load/settle/save
+         } else if (!isPlayingMenu && !controller.isInAnnotationMode && !isAnnotationMode && !_suppressUnsavedDuringAnnotation) {
+           // Only mark unsaved when graph structure or a node position actually
+           // changed from the last clean baseline (set at init, load and save).
+           //   _graphChanged  → neuron/edge added or removed
+           //   positionDirty  → moveSelection() ran this frame (node was dragged)
+           // Tap / pan / zoom / camera animations never set positionDirty and
+           // never change counts, so they can never falsely dirty the brain.
+           final bool _graphChanged =
+               controller.nodes.length != _baselineNodeCount ||
+               controller.edges.length != _baselineEdgeCount;
+           if (_graphChanged || controller.positionDirty) {
+             brainHasUnsavedChanges.value = true;
+           }
+         }
+         // Auto-sync neuronSize to prevent stale simulation state
+         if (controller.nodes.isNotEmpty) {
+             int currentSize = controller.nodes.length - allNeuronStartIdx;
+             if (currentSize < 0) currentSize = 0;
+             if (neuronSize != currentSize) {
+                 neuronSize = currentSize; // Keep static var in sync
+             }
+         }
+    });
+
     // RESTORED: Play Mode Selection Listener (Matches neurorobot_fresh behavior)
     // This ensures that tapping a neuron in Live/Play mode updates the oscilloscope.
     controller.addListener(() async {
@@ -9090,7 +9795,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
          if (controller.selection.isNotEmpty) {
             var selected = controller.selection[0];
             // Calculate ID logic mirrored from Line 7770
-            int neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+            int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
             
             // Only update if valid neuron and NOT the same as already selected (to avoid spam)
             // But we actually need to allow re-selection if we want to reset? 
@@ -9353,8 +10064,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               // We need to differentiate between "Tap to Tail" (Sensors -> Neuron) and "Drop to Target" (Neuron -> Actuators)
               // But this loop handles the "Tap to Tail" initiation.
               
+              // Use brainCenterX (orientation-aware) for consistent hit-test with drop targets
+              double brainCenterX = brainHomeX + 245 * scaleMultiplier;
               Offset containOffset = localPosition.translate(
-                  -((windowWidth / 2) +
+                  -(brainCenterX +
                           neuronInfo["posXDiff"] * scaleMultiplier) +
                       localOffsetGap.dx,
                   -(neuronInfo["top"] * scaleMultiplier + topInnerWindowSpace) +
@@ -9426,7 +10139,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             // }
           }
         } else if (menuIdx == 0 && controller.controlPressed) {
-          Offset localPosition = controller.toLocal(controller.mousePosition);
+          RenderBox box = context.findRenderObject() as RenderBox;
+          Offset viewportPoint = box.globalToLocal(controller.mousePosition);
+          Offset localPosition = controller.toLocal(viewportPoint);
           double mouseX = localPosition.dx;
           double mouseY = localPosition.dy;
           // printDebug("mouse:");
@@ -9443,16 +10158,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             idx = i;
             // if (i >= 2) {
             //   neuronInfo = dropTargetInformations[i];
-            // }
-            // if (i >= 7) {
-            //   neuronInfo = dropTargetInformations[i + 1];
-            //   idx = i + 1;
-            // }
+            // Use brainCenterX (orientation-aware) for consistent hit-test with drop targets
+            double brainCenterX = brainHomeX + 245 * scaleMultiplier;
             Offset containOffset = localPosition.translate(
-                -((windowWidth / 2) +
+                -(brainCenterX +
                         neuronInfo["posXDiff"] * scaleMultiplier) +
                     localOffsetGap.dx,
-                -(neuronInfo["top"] * scaleMultiplier + topInnerWindowSpace) +
+                -(neuronInfo["top"] * scaleMultiplier +
+                    topInnerWindowSpace) +
                     localOffsetGap.dy);
 
             GeneralSensorPainter painter = (listPainters[i]);
@@ -9589,9 +10302,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             });
           }
 
-          if (selected == tailNode) {
+          if (selected == tailNode && prevSelectedNeuron != null) {
             controller.deselectAll();
-            controller.setSelection({prevSelectedNeuron.key});
+            controller.setSelection({prevSelectedNeuron!.key});
             controller.controlPressed = true;
             controller.setCanvasMove(false); // V25: Disable panning during tail drag
             if (axonStretchSource != null) {
@@ -9706,8 +10419,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                         .indexOf(selected.id) -
                     2;
 
-                nativec.changeIdxSelected(neuronIdx);
-                
                 // Fix RangeError: Ensure list is large enough (Hotfix for size mismatch)
                 if (neuronIdx >= mapDelayNeuronList.length) {
                     printDebug("Fixing Delay List Size Mismatch: ${mapDelayNeuronList.length} -> ${neuronSize}");
@@ -9750,32 +10461,62 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                   _isListeningForRemoteInput = false;
                 }
 
-                sldAWeight = aDesignArray[selected.id] ?? 0.0;
-                sldBWeight = bDesignArray[selected.id] ?? 0.0;
-                sldCWeight = (cDesignArray[selected.id] ?? 0).floorToDouble();
-                sldDWeight = (dDesignArray[selected.id] ?? 0).floorToDouble();
+                if (neuronMenuType != "Custom") {
+                    double valA = 0.02; double valB = 0.1; double valC = -65; double valD = 2;
+                    switch (neuronMenuType) {
+                        case "Quiet":
+                          valA = 0.02; valB = 0.1; valC = -65; valD = 2;
+                          break;
+                        case "Occassionally active":
+                          valA = 0.02; valB = 0.17; valC = -65; valD = 2;
+                          break;
+                        case "Highly active":
+                          valA = 0.02; valB = 0.24; valC = -65; valD = 2;
+                          break;
+                        case "Generates bursts":
+                          valA = 0.02; valB = 0.17; valC = -20; valD = 2;
+                          break;
+                        case "Bursts when activated":
+                        case "Delay": 
+                          valA = 0.02; valB = 0.1; valC = -37; valD = 2;
+                          break;
+                        case "Remote Control":
+                          valA = 0.02; valB = 0.1; valC = -65; valD = 2;
+                          break;
+                    }
+                    aDesignArray[selected.id] = valA;
+                    bDesignArray[selected.id] = valB;
+                    cDesignArray[selected.id] = valC;
+                    dDesignArray[selected.id] = valD;
+                }
+
+                sldAWeight = aDesignArray[selected.id] ?? 0.02;
+                sldBWeight = bDesignArray[selected.id] ?? 0.1;
+                sldCWeight = (cDesignArray[selected.id] ?? -65).floorToDouble();
+                sldDWeight = (dDesignArray[selected.id] ?? 2).floorToDouble();
 
                 tecAWeight.text = sldAWeight.toString();
                 tecBWeight.text = sldBWeight.toString();
                 tecCWeight.text = sldCWeight.round().toString();
                 tecDWeight.text = sldDWeight.round().toString();
                 
-                // Wait for C++ Thread to update canvasBuffer with new neuron history
-                await Future.delayed(const Duration(milliseconds: 32));
-          
-                // Force Clean Slate for WaveWidget
-                waveWidget = WaveWidget(
-                  key: ValueKey(neuronIdx), 
-                  valueNotifier: waveRedraw, 
-                  chartGain: chartGain,
-                  levelMedian: levelMedian,
-                  screenWidth: screenWidth, 
-                  screenHeight: screenHeight,
-                  neuronIdx1: currentWaveNeuronIdx,
-                  neuronIdx2: currentWaveNeuronIdx2,
-                  initialVisibleSeconds: currentWaveZoom,
-                  onVisibleSecondsChanged: (s) => currentWaveZoom = s,
-                );
+                  // Wait for C++ Thread to update canvasBuffer with new neuron history
+                  await Future.delayed(const Duration(milliseconds: 32));
+                  nativec.changeIdxSelected(neuronIdx);
+            
+                  // Force Clean Slate for WaveWidget
+                  waveWidget = WaveWidget(
+                    key: ValueKey(neuronIdx), 
+                    valueNotifier: waveRedraw, 
+                    chartGain: chartGain,
+                    levelMedian: levelMedian,
+                    screenWidth: screenWidth, 
+                    screenHeight: screenHeight,
+                    neuronIdx1: currentWaveNeuronIdx,
+                    neuronIdx2: currentWaveNeuronIdx2,
+                    initialVisibleSeconds: currentWaveZoom,
+                    onVisibleSecondsChanged: (s) => currentWaveZoom = s,
+                  );
 
               } catch (err) {
                 printDebug("err init canvas");
@@ -10093,9 +10834,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           printDebug(selected.value);
           isChartSelected = false;
 
-          int neuronIdx =
-              controller.nodes.map((e) => e.id).toList().indexOf(selected.id) -
-                  2;
+          int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
 
           nativec.changeIdxSelected(neuronIdx);
           redrawNeuronLine.value = Random().nextInt(100);
@@ -10345,9 +11090,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       if (isLedEdge) {
         mapLedHex[key] = hex;
         mapLedBrightness[key] = brightness;
-
         // Visual Appearance of Axon
         edge.color = c.withOpacity(b);
+        edge.isLedEdge = true;
         edge.connectionStrength = b * 100.0;
         if (edge.connectionStrength < 1.0) edge.connectionStrength = 1.0;
       }
@@ -10450,6 +11195,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     String neuronFromToLabel = "${neuronFrom.id}_${neuronTo.id}";
     selectedEdge.label = value;
     // mapSensoryNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
+    if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // camera detection type changed
     mapSensoryNeuron[neuronFromToLabel] = cameraMenuTypes.indexOf(value);
     controller.mapSensoryNeuron = Map.from(mapSensoryNeuron); // SYNC TO CONTROLLER
   }
@@ -10459,18 +11205,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       InfiniteCanvasNode? nodeFrom,
       InfiniteCanvasNode? nodeTo}) {
     String neuronFromToLabel = "";
+    int neuronIdx = -1;
     if (nodeFrom != null && nodeTo != null) {
       neuronFromToLabel = "${nodeFrom.id}_${nodeTo.id}";
+      neuronIdx = neuronTypes.keys.toList().indexOf(nodeTo.id);
     } else {
       final selectedEdge = controller.edgeSelected!;
       final neuronFrom = findNeuronByKey(selectedEdge.from);
       final neuronTo = findNeuronByKey(selectedEdge.to);
       neuronFromToLabel = "${neuronFrom.id}_${neuronTo.id}";
+      neuronIdx = neuronTypes.keys.toList().indexOf(neuronTo.id);
     }
+
+    if (neuronIdx == -1) return;
 
     if (selectedCameraPosition == "Custom") {
       mapAreaSize[neuronFromToLabel] =
-          "${selectedCameraPosition}_@_${txtAreaSizeMinController.text}_@_${txtAreaSizeMaxController.text}";
+          "${selectedCameraPosition}_@_${areaSizeMinLimitBufView[neuronIdx]}_@_${areaSizeMaxLimitBufView[neuronIdx]}";
     } else if (selectedCameraPosition == "Left") {
       mapAreaSize[neuronFromToLabel] = "${selectedCameraPosition}_@_1_@_160";
     } else if (selectedCameraPosition == "Right") {
@@ -10478,9 +11229,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     } else if (selectedCameraPosition == "Any") {
       mapAreaSize[neuronFromToLabel] = "${selectedCameraPosition}_@_1_@_320";
     }
-    // printDebug("linkAreaSizeConnection set: $neuronFromToLabel = ${mapAreaSize[neuronFromToLabel]}");
-    // printDebug("mapAreaSize LINK");
-    // printDebug(mapAreaSize);
   }
 
   void linkDistanceConnection(value) {
@@ -10527,7 +11275,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             printDebug("MicLink: Node $idx (${node.id}) Key: $key");
             
             // Check TYPE
-            int currentMicMode = 0; // Default Freq
+            int currentMicMode = 2; // Default Tone
             if (mapMicrophoneTypeNeuron.containsKey(key)) {
                 currentMicMode = mapMicrophoneTypeNeuron[key];
                 printDebug("  Found Type: $currentMicMode");
@@ -10549,7 +11297,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                  printDebug("  Limits NOT found in map.");
             }
 
-            if (microphoneMinLimitBufView[idx] == 0 && microphoneMaxLimitBufView[idx] == 0) {
+            if (!mapMicrophoneLimitNeuron.containsKey(key)) { // New connection: always init defaults
                  // Defaults
                  if (currentMicMode == 2) { // Tone
                     microphoneMinLimitBufView[idx] = 0;
@@ -10640,7 +11388,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // if (controller.hasSelection) {
     //   var selected = controller.selection[0];
     //   int neuronIdx =
-    //       controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+    //       controller.nodes.indexWhere((e) => e.id == selected.id) - 2;
     //   // printDebug(neuronIdx);
     //   if (neuronIdx < normalNeuronStartIdx) {
     //     return;
@@ -10711,21 +11459,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // }
   }
 
-  void onDoubleTap() {
-    if (isSimulatingBrain) return;
-    if (controller.scale == 2.0) {
-      controller.zoomReset();
-      // controller.pan(const Offset(-60, 0));
-      controller.scale = 1;
-    } else {
-      controller.zoomReset();
-      controller.zoom(2.0);
-      controller.scale = 2.0;
-    }
-    MyApp.logAnalytic("DoubleTap", {
-      "scale": controller.scale,
-    });
-  }
+  // onDoubleTap pruned from Controller
 
   void updateFromSimulation(String message) async {
     if (isReceivingCalculation) {
@@ -10778,7 +11512,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         builder: (context) {
           return CustomPaint(
             isComplex: true,
-            willChange: true,
+            willChange: false, // V25: Tells the GPU this loaded neuron's basic SVG shape will not mutate often 
             painter: syntheticNeuronJson.containsKey("dendrites")
                 ? syntheticNeuron
                 : InlineCustomPainter(
@@ -10794,6 +11528,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     );
 
     tempNode.valKey = v["valKey"];
+    _nodeAnnotationKeys[tempNode.id] = (v["annKey"] as String?) ?? tempNode.valKey;
     if (syntheticNeuronJson.containsKey("dendrites")) {
       syntheticNeuron.node = tempNode;
       syntheticNeuron.setupDrawingNeuron();
@@ -10863,6 +11598,493 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     return tempNode.id;
   }
 
+  /// Crops the screenshot to a square centered on the brain artwork.
+  /// [tx] and [ty] are the translation applied by _animateCanvasToReset — the brain center in
+  /// the screenshot is at (imgW/2 + tx, imgH/2 + ty), not necessarily at the image center.
+  Future<Uint8List> _cropScreenshotToBrainSquare(Uint8List src, {double tx = 0, double ty = 0}) async {
+    try {
+      final codec = await ui.instantiateImageCodec(src);
+      final srcImg = (await codec.getNextFrame()).image;
+      final double imgW = srcImg.width.toDouble();
+      final double imgH = srcImg.height.toDouble();
+
+      // The brain background fills the full scene space; its center in the screenshot is:
+      final double cx = imgW / 2 + tx;
+      final double cy = imgH / 2 + ty;
+
+      // Use the shorter image dimension as the square side
+      final double side = min(imgW, imgH);
+      final double cropX = (cx - side / 2).clamp(0.0, imgW - side);
+      final double cropY = (cy - side / 2).clamp(0.0, imgH - side);
+
+      final rec = ui.PictureRecorder();
+      ui.Canvas(rec).drawImageRect(
+        srcImg,
+        Rect.fromLTWH(cropX, cropY, side, side),
+        Rect.fromLTWH(0, 0, side, side),
+        ui.Paint(),
+      );
+      final cropped = await rec.endRecording().toImage(side.toInt(), side.toInt());
+      final bd = await cropped.toByteData(format: ui.ImageByteFormat.png);
+      srcImg.dispose();
+      cropped.dispose();
+      return bd?.buffer.asUint8List() ?? src;
+    } catch (e) {
+      printDebug('Screenshot crop error: $e');
+      return src;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  ANNOTATION MODE HELPERS
+  // ═══════════════════════════════════════════════════════════════
+
+  void _enterAnnotationMode() {
+    controller.lockNodeDragging = true;
+    controller.isInAnnotationMode = true;
+    controller.clearAnnotationHighlights();
+    controller.annotationEditEnabled = true;
+    _annotationDescController.clear();
+    _isEditingAnnotation = false;
+    _editingAnnotationIdx = -1;
+    _annotationEditEnabled = true; // new annotations are immediately editable
+    setState(() { isAnnotationMode = true; });
+  }
+
+  void _exitAnnotationMode() {
+    // Capture unsaved state before exiting — the home animation's final
+    // notifyListeners() fires after isInAnnotationMode is cleared, which
+    // would falsely mark the brain as unsaved. Restore the correct state
+    // in onComplete, which runs immediately after that notify.
+    final bool _hadUnsaved = brainHasUnsavedChanges.value;
+    controller.lockNodeDragging = false;
+    controller.isInAnnotationMode = false;
+    controller.clearAnnotationHighlights();
+    controller.annotationEditEnabled = false;
+    _annotationDescController.clear();
+    _isEditingAnnotation = false;
+    _editingAnnotationIdx = -1;
+    _annotationEditEnabled = false;
+    setState(() { isAnnotationMode = false; });
+    // Animate the brain back to the home position, same as play/pause/load.
+    _animateCanvasToReset(true, onComplete: () {
+      // Restore exact unsaved state (home-animation notify fired above).
+      brainHasUnsavedChanges.value = _hadUnsaved;
+      // Only NOW lift the suppression — the exit animation's notifyListeners()
+      // has already fired and been neutralised by the line above.
+      _suppressUnsavedDuringAnnotation = false;
+    });
+  }
+
+  // ── Phase 3: Thumbnail — real viewport screenshot cropped to selection ────
+  //
+  // Uses screenshotController to capture the live-rendered canvas (showing
+  // real SyntheticNeuron graphics), then crops to the screen-space bounding
+  // box of the selected nodes / axon path extents.
+
+  Future<Uint8List> _captureAnnotationThumbnail() async {
+    try {
+      const int thumbSize = 256;
+
+      // ── 1. Snapshot the current viewport ─────────────────────────────────
+      final Uint8List? raw = await screenshotController.capture(pixelRatio: 2.0);
+      if (raw == null) return Uint8List(0);
+
+      // ── 2. Compute screen-space bounding box of selected elements ─────────
+      // The transform matrix maps local canvas coords → screen pixels:
+      //   screenX = m[0]*lx + m[4]*ly + m[12]
+      //   screenY = m[1]*lx + m[5]*ly + m[13]
+      final Matrix4 m = controller.transform.value;
+      final double sx = m.storage[0];  // scale x
+      final double sy = m.storage[5];  // scale y
+      final double tx = m.storage[12]; // translate x
+      final double ty = m.storage[13]; // translate y
+
+      double minX = double.infinity,  minY = double.infinity;
+      double maxX = double.negativeInfinity, maxY = double.negativeInfinity;
+
+      void _expandScreen(Offset local, double rLocal) {
+        // local radius → screen radius
+        final double rSc = rLocal * sx.abs();
+        final double scX = sx * local.dx + tx;
+        final double scY = sy * local.dy + ty;
+        if (scX - rSc < minX) minX = scX - rSc;
+        if (scX + rSc > maxX) maxX = scX + rSc;
+        if (scY - rSc < minY) minY = scY - rSc;
+        if (scY + rSc > maxY) maxY = scY + rSc;
+      }
+
+      // Selected nodes (use node.size for an accurate radius)
+      for (final key in controller.annotationHighlightNodeKeys) {
+        try {
+          final node = controller.nodes.firstWhere((n) => n.key.toString() == key);
+          final r = max(node.size.width, node.size.height) / 2;
+          _expandScreen(node.offset, r);
+        } catch (_) {}
+      }
+      // Axon path screen extents (transform the path bounds into screen space)
+      for (final edge in controller.annotationHighlightEdges) {
+        final fromStr = edge.from.toString();
+        final toStr   = edge.to.toString();
+        void _checkPath(Path? p) {
+          if (p == null) return;
+          final b = p.getBounds();
+          // Transform all four corners
+          for (final lx in [b.left, b.right]) {
+            for (final ly in [b.top, b.bottom]) {
+              final scX = sx * lx + tx;
+              final scY = sy * ly + ty;
+              if (scX < minX) minX = scX;
+              if (scX > maxX) maxX = scX;
+              if (scY < minY) minY = scY;
+              if (scY > maxY) maxY = scY;
+            }
+          }
+        }
+        _checkPath(controller.axonPathMap['${fromStr}_$toStr']);
+        final trunkPrefix = '${fromStr}_trunk_';
+        for (final e in controller.axonPathMap.entries) {
+          if (e.key.startsWith(trunkPrefix)) _checkPath(e.value);
+        }
+      }
+
+      if (!minX.isFinite) return Uint8List(0);
+
+      // ── 3. Centered square crop with minimum size ──────────────────────────
+      // Dendrites/synapses extend well beyond node.size, so use a large fixed
+      // margin plus a minimum crop size to prevent single-neuron over-zoom.
+      final double cX = (minX + maxX) / 2;
+      final double cY = (minY + maxY) / 2;
+      const double kExtraMarginPx = 80.0;   // extra screen-px margin around selection
+      const double kMinCropPx     = 160.0;  // min crop width/height on screen
+      final double halfSq = max(
+        max((maxX - minX), (maxY - minY)) / 2.0 + kExtraMarginPx,
+        kMinCropPx / 2.0,
+      );
+
+      // Decode screenshot (pixelRatio 2 → multiply screen coords by 2)
+      const double pr = 2.0;
+      final codec  = await ui.instantiateImageCodec(raw);
+      final srcImg = (await codec.getNextFrame()).image;
+      final double imgW = srcImg.width.toDouble();
+      final double imgH = srcImg.height.toDouble();
+
+      final double halfSqPx = halfSq * pr;
+      final double cXpx     = cX * pr;
+      final double cYpx     = cY * pr;
+      // Clamp crop to image bounds while keeping it centered
+      final double cropSz = (halfSqPx * 2).clamp(1.0, min(imgW, imgH));
+      final double cropX  = (cXpx - halfSqPx).clamp(0.0, imgW - cropSz);
+      final double cropY  = (cYpx - halfSqPx).clamp(0.0, imgH - cropSz);
+      final double cropW  = cropSz;
+      final double cropH  = cropSz;
+
+      final rec      = ui.PictureRecorder();
+      final bgCanvas = ui.Canvas(rec);
+      // Off-white background (visible if crop is partially out of bounds)
+      bgCanvas.drawRect(
+          Rect.fromLTWH(0, 0, thumbSize.toDouble(), thumbSize.toDouble()),
+          Paint()..color = const Color(0xFFF8F8F8));
+      bgCanvas.drawImageRect(
+        srcImg,
+        Rect.fromLTWH(cropX, cropY, cropW, cropH),
+        Rect.fromLTWH(0, 0, thumbSize.toDouble(), thumbSize.toDouble()),
+        ui.Paint()..filterQuality = FilterQuality.high,
+      );
+      final thumb = await rec.endRecording().toImage(thumbSize, thumbSize);
+      final bd    = await thumb.toByteData(format: ui.ImageByteFormat.png);
+      srcImg.dispose();
+      thumb.dispose();
+      return bd?.buffer.asUint8List() ?? Uint8List(0);
+    } catch (e) {
+      printDebug('Annotation thumbnail error: $e');
+      return Uint8List(0);
+    }
+  }
+  // ── Save / Edit / Delete ──────────────────────────────────────────────────
+
+  /// Serialise the current annotation selection into a [BrainAnnotation].
+  /// In edit mode, overwrites the existing annotation in-place.
+  /// In new mode, appends to [brainAnnotations].
+  Future<void> _saveAnnotation() async {
+    // ── Build stable neuron keys (valKey survives save/reload; fall back to
+    //    current key.toString() for nodes that haven't been saved yet) ────────
+    final neuronKeys = <String>[];
+    for (final currentKeyStr in controller.annotationHighlightNodeKeys) {
+      try {
+        final node = controller.nodes
+            .firstWhere((n) => n.key.toString() == currentKeyStr);
+        neuronKeys.add(_nodeAnnotationKeys[node.id] ?? (node.valKey.isNotEmpty ? node.valKey : currentKeyStr));
+      } catch (_) {
+        neuronKeys.add(currentKeyStr);
+      }
+    }
+
+    // ── Build stable edge strings "fromValKey_#_toValKey" ──────────────────
+    final edgeStrs = <String>[];
+    for (final edge in controller.annotationHighlightEdges) {
+      try {
+        final nFrom = findNeuronByKey(edge.from);
+        final nTo   = findNeuronByKey(edge.to);
+        
+        final fk = _nodeAnnotationKeys[nFrom.id] ?? (nFrom.valKey.isNotEmpty ? nFrom.valKey : edge.from.toString());
+        final tk = _nodeAnnotationKeys[nTo.id]   ?? (nTo.valKey.isNotEmpty   ? nTo.valKey   : edge.to.toString());
+        
+        edgeStrs.add('${fk}_#_${tk}');
+      } catch (_) {
+        edgeStrs.add('${edge.from}_#_${edge.to}');
+      }
+    }
+
+    final desc = _annotationDescController.text.trim();
+    if (neuronKeys.isEmpty && edgeStrs.isEmpty) {
+      _exitAnnotationMode();
+      return;
+    }
+
+    final Uint8List thumb = await _captureAnnotationThumbnail();
+    final bool wasEditing = _isEditingAnnotation;
+
+    final annotation = BrainAnnotation(
+      id: wasEditing && _editingAnnotationIdx >= 0
+          ? brainAnnotations[_editingAnnotationIdx].id
+          : DateTime.now().millisecondsSinceEpoch.toString(),
+      neuronKeys: neuronKeys,
+      edgeStrings: edgeStrs,
+      description: desc.isEmpty ? 'No description' : desc,
+      thumbnail: thumb,
+    );
+    setState(() {
+      if (wasEditing && _editingAnnotationIdx >= 0 && _editingAnnotationIdx < brainAnnotations.length) {
+        brainAnnotations[_editingAnnotationIdx] = annotation;
+      } else {
+        brainAnnotations.add(annotation);
+      }
+    });
+    brainHasUnsavedChanges.value = true;
+    _exitAnnotationMode();
+
+    // After saving, reopen the brain dialog at the Current Brain tab so the
+    // user can see the new annotation card and quickly add another.
+    await _openAnnotationListDialog();
+  }
+
+  /// Re-opens the Load Brain dialog (Current Brain tab) after saving an annotation.
+  Future<void> _openAnnotationListDialog() async {
+    if (!mounted) return;
+    currentBrainAnnotations = brainAnnotations;
+    onAddAnnotationRequested = _enterAnnotationMode;
+    onAnnotationsModified = () { setState(() { brainHasUnsavedChanges.value = true; }); };
+    onAnnotationViewRequested = (ann, idx) { _viewAnnotation(ann, idx); };
+    // pMapStatus['isSavingBrain'] kept as-is (preserves dialog's '10=saved' state for overwrite)
+    // pMapStatus['currentFileName'] kept as-is (preserves full path set during selectSavedBrain)
+    await showLoadBrainDialog(context, 'Load Brain', selectSavedBrain,
+        saveCurrentBrain, pMapStatus);
+  }
+
+  /// Deletes the annotation currently being viewed and exits.
+  void _deleteEditingAnnotation() {
+    if (_editingAnnotationIdx >= 0 && _editingAnnotationIdx < brainAnnotations.length) {
+      setState(() { brainAnnotations.removeAt(_editingAnnotationIdx); });
+      brainHasUnsavedChanges.value = true;
+    }
+    _exitAnnotationMode();
+  }
+
+  // ── Phase 5: View / Navigate ──────────────────────────────────────────────
+
+  /// Opens the annotation overlay in view/edit mode for the given annotation.
+  /// Reconstructs highlights from stored keys and smoothly animates the canvas.
+  void _viewAnnotation(BrainAnnotation ann, int idx) {
+    // Suppress the unsaved-changes listener for the entire annotation session.
+    // Set synchronously here — before any animation or setState — so every
+    // subsequent notifyListeners() (camera fly-in, deselectAll re-entrancy,
+    // etc.) is already guarded.
+    _suppressUnsavedDuringAnnotation = true;
+    // ── Reconstruct node highlights via valKey translation ───────────────────
+    // Stored keys are valKey strings (old-session hash). Translate each to
+    // the current-session key string (which the renderer uses for lookup).
+    controller.annotationHighlightNodeKeys.clear();
+    for (final storedKey in ann.neuronKeys) {
+      try {
+        final node = controller.nodes.firstWhere((n) =>
+            (_nodeAnnotationKeys[n.id] ?? n.valKey) == storedKey || n.valKey == storedKey || n.key.toString() == storedKey);
+        controller.annotationHighlightNodeKeys.add(node.key.toString());
+      } catch (_) {}
+    }
+
+    // ── Reconstruct edge highlights via valKey → live edge lookup ───────────
+    controller.annotationHighlightEdges.clear();
+    for (final edgeStr in ann.edgeStrings) {
+      final parts = edgeStr.split('_#_');
+      if (parts.length == 2) {
+        try {
+          final nodeFrom = controller.nodes.firstWhere((n) =>
+              (_nodeAnnotationKeys[n.id] ?? n.valKey) == parts[0] || n.valKey == parts[0] || n.key.toString() == parts[0]);
+          final nodeTo = controller.nodes.firstWhere((n) =>
+              (_nodeAnnotationKeys[n.id] ?? n.valKey) == parts[1] || n.valKey == parts[1] || n.key.toString() == parts[1]);
+          final edge = controller.edges.firstWhere((e) =>
+              e.from == nodeFrom.key && e.to == nodeTo.key);
+          controller.annotationHighlightEdges.add(edge);
+        } catch (_) {}
+      }
+    }
+
+    // ── Animate to bounding box ──────────────────────────────────────────────
+    _animateCanvasToAnnotation(ann);
+
+    // ── Enter view overlay (read-only by default) ───────────────────────────
+    _annotationDescController.text = ann.description;
+    // Reset scroll to top whenever a new annotation is loaded (navigate prev/next
+    // always starts reading from the beginning, not mid-text from a prior annotation).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_annotationScrollController.hasClients) {
+        _annotationScrollController.jumpTo(0);
+      }
+    });
+    controller.lockNodeDragging = true;
+    controller.isInAnnotationMode = true;
+    controller.notifyListeners(); // repaint highlights immediately
+    setState(() {
+      isAnnotationMode = true;
+      _isEditingAnnotation = true;
+      _editingAnnotationIdx = idx;
+      _annotationEditEnabled = false; // start in view-only mode
+      controller.annotationEditEnabled = false;
+    });
+    // Register key handler after the frame is fully built to avoid
+    // interfering with the paint/highlight repaint triggered by notifyListeners().
+    // Re-request focus so arrow-key navigation works immediately.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _annotationFocusNode.requestFocus();
+    });
+  }
+
+  /// Animated lerp to neatly frame the annotation's selection bounding box.
+  /// Viewport safe-zone is computed per-orientation so the selection fills the
+  /// usable space between the left toolbar and the annotation card (landscape)
+  /// or between the annotation card and the drag menu (portrait).
+  void _animateCanvasToAnnotation(BrainAnnotation ann) {
+    // ── Gather canvas-local positions via valKey translation ────────────────
+    final List<Offset> positions = [];
+
+    // Finds a node by stored key (which is valKey if saved to brain, or current
+    // key.toString() if in the same unsaved session).
+    InfiniteCanvasNode? _findByStoredKey(String storedKey) {
+      try {
+        return controller.nodes.firstWhere((n) =>
+            (_nodeAnnotationKeys[n.id] ?? n.valKey) == storedKey ||
+            n.valKey == storedKey || n.key.toString() == storedKey);
+      } catch (_) { return null; }
+    }
+
+    for (final key in ann.neuronKeys) {
+      final node = _findByStoredKey(key);
+      if (node != null) positions.add(node.offset);
+    }
+    for (final edgeStr in ann.edgeStrings) {
+      final parts = edgeStr.split('_#_');
+      if (parts.length == 2) {
+        for (final k in parts) {
+          final node = _findByStoredKey(k);
+          if (node != null) positions.add(node.offset);
+        }
+      }
+    }
+    if (positions.isEmpty) return;
+
+    double minX = positions.map((p) => p.dx).reduce(min);
+    double maxX = positions.map((p) => p.dx).reduce(max);
+    double minY = positions.map((p) => p.dy).reduce(min);
+    double maxY = positions.map((p) => p.dy).reduce(max);
+
+    // Buffer so neuron rings / axon tips don't clip at the boundary
+    const double nodePad = 90.0;
+    minX -= nodePad; minY -= nodePad; maxX += nodePad; maxY += nodePad;
+
+    final double bboxW = maxX - minX;
+    final double bboxH = maxY - minY;
+    if (bboxW <= 0 || bboxH <= 0) return;
+
+    // ── Compute orientation-aware viewport safe zone ──────────────────────────
+    // Constants that mirror those in _animateCanvasToReset
+    const double kIconSize   = 70.0;
+    const double kGapInner   = 16.0;   // breathing room from each panel edge
+    final bool   isLscp      = MediaQuery.of(context).orientation == Orientation.landscape;
+    final double safeBot     = MediaQuery.of(context).padding.bottom;
+    final double vpW         = screenWidth;
+    final double vpH         = screenHeight;
+
+    // Annotation card dimensions (must match the overlay widget above)
+    final double annCardW    = isLscp ? 300.0 : (vpW - 40 - safePadding).clamp(300.0, 420.0);
+    // Estimated card height: ~210px new mode / ~265px edit mode; use 270 as safe upper bound
+    const double annCardH    = 270.0;
+
+    double safeLeft, safeRight, safeTop, safeBottom;
+
+    if (isLscp) {
+      // Landscape: selection lives in the centre strip between the left toolbar
+      // and the annotation card (which is top-right).
+      final double leftPanelRightEdge  = kIconSize + safePaddingLeft;
+      final double annCardLeftEdge     = vpW - ((Platform.isIOS && safePadding > 0 ? safePadding : 20 + safePadding)) - annCardW;
+      safeLeft   = leftPanelRightEdge + kGapInner;
+      safeRight  = annCardLeftEdge    - kGapInner;
+      safeTop    = safePaddingTop     + kGapInner;
+      safeBottom = vpH                - kGapInner;
+    } else {
+      // Portrait: selection lives in the vertical strip between the bottom of
+      // the annotation card and the top of the bottom drag menu.
+      final double annCardBottom = (20 + safePaddingTop) + annCardH;
+      final double dragMenuTop   = vpH - kIconSize - safeBot;
+      safeLeft   = kGapInner;
+      safeRight  = vpW - kGapInner;
+      safeTop    = annCardBottom + kGapInner;
+      safeBottom = dragMenuTop   - kGapInner;
+    }
+
+    final double safeW = (safeRight  - safeLeft).clamp(80.0, vpW);
+    final double safeH = (safeBottom - safeTop ).clamp(80.0, vpH);
+
+    // ── Compute transform so bbox fills the safe zone precisely ──────────────
+    // Remove the previous arbitrary 2x multiplier so components don't bleed out.
+    // Clamp to a reasonable max scale (1.25) so single neurons don't blow up massive.
+    final double newScale = min(safeW / bboxW, safeH / bboxH)
+        .clamp(controller.minScale, 2.5);
+
+    // Centre of the safe zone in viewport (screen) coordinates
+    final double vpCX = (safeLeft + safeRight)  / 2;
+    final double vpCY = (safeTop  + safeBottom)  / 2;
+
+    // Centre of the selection bbox in local canvas coordinates
+    final double bboxCX = (minX + maxX) / 2;
+    final double bboxCY = (minY + maxY) / 2;
+
+    // Matrix: screen = scale*local + translate
+    // → tx = vpCX - scale*bboxCX,  ty = vpCY - scale*bboxCY
+    final double tx = vpCX - newScale * bboxCX;
+    final double ty = vpCY - newScale * bboxCY;
+
+    final Matrix4 target = Matrix4.identity()
+      ..scale(newScale, newScale)
+      ..setEntry(0, 3, tx)
+      ..setEntry(1, 3, ty);
+
+    // ── Animated lerp using shared _canvasAnimController ────────────────────
+    final Matrix4 current = controller.transform.value.clone();
+    controller.isAnimatingCamera = true;
+    synapseFadeController?.stop();
+    _canvasAnimation = Matrix4Tween(begin: current, end: target)
+        .animate(CurvedAnimation(
+            parent: _canvasAnimController,
+            curve: Curves.easeInOut));
+    _canvasAnimController.duration = const Duration(milliseconds: 700);
+    _canvasAnimController.forward(from: 0).then((_) {
+      controller.isAnimatingCamera = false;
+      controller.scale = newScale;
+      controller.notifyListeners();
+    });
+  }
+
   Future<String> saveCurrentBrain(String title, String description) async {
     // mainBloc.setLoading(1);
     ProgressDialog pd = ProgressDialog(context: context);
@@ -10884,6 +12106,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           if (e.value == -2) {
             nodesJson.add({
               "valKey": e.key.toString(),
+              "annKey": _nodeAnnotationKeys[e.id] ?? (e.valKey.isNotEmpty ? e.valKey : e.key.toString()),
               "index": e.value,
               "position": [e.offset.dx, e.offset.dy],
               "color": [e.offset.dx, e.offset.dy],
@@ -10892,6 +12115,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           } else if (e.value == -1) {
             nodesJson.add({
               "valKey": e.key.toString(),
+              "annKey": _nodeAnnotationKeys[e.id] ?? (e.valKey.isNotEmpty ? e.valKey : e.key.toString()),
               "index": e.value,
               "position": [e.offset.dx, e.offset.dy],
               "color": [e.offset.dx, e.offset.dy],
@@ -10900,6 +12124,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           } else if (e.value < normalNeuronStartIdx) {
             nodesJson.add({
               "valKey": e.key.toString(),
+              "annKey": _nodeAnnotationKeys[e.id] ?? (e.valKey.isNotEmpty ? e.valKey : e.key.toString()),
               "index": e.value,
               "position": [e.offset.dx, e.offset.dy],
               "color": [e.offset.dx, e.offset.dy],
@@ -10908,6 +12133,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           } else {
             nodesJson.add({
               "valKey": e.key.toString(),
+              "annKey": _nodeAnnotationKeys[e.id] ?? (e.valKey.isNotEmpty ? e.valKey : e.key.toString()),
               "index": e.value,
               "position": [e.offset.dx, e.offset.dy],
               "color": [e.offset.dx, e.offset.dy],
@@ -10995,13 +12221,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
         // String textPath = "";
     
-        title = title.replaceAll(".", "|");
-        description = description.replaceAll(".", "|");
-        title = title.replaceAll("@", "#");
-        description = description.replaceAll("@", "#");
-    
+        // Strip OS-illegal characters from the filename title
+        title = title.replaceAll(RegExp(r'[\\/:*?"<>|@]'), "_");
+
+        // We decouple the description from the internal filename to prevent length/character crashes.
+        // It's still stored natively inside `info` within the actual JSON file payload.
+        // We use an underscore `_` as a placeholder to keep legacy substring parsing logic intact.
         final File file = File(
-            '${directory.path}$textPath${Platform.pathSeparator}$title@@@$description@@@$fileName.brain');
+            '${directory.path}$textPath${Platform.pathSeparator}$title@@@_@@@$fileName.brain');
     
         controller.zoomReset();
         if (isPortrait == false) {
@@ -11017,9 +12244,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         Uint8List? imageBytes;
         try {
-            // Fix: Use capture() on existing widget tree instead of captureFromWidget (which rebuilds tree)
-            // This prevents "Grey Screen" freeze on MacOS/iOS
+            // Snap to home so the brain is centered in the screenshot.
+            final Matrix4 savedTransform = controller.transform.value.clone();
+            _animateCanvasToReset(false, animate: false);
+            // Read the applied translation so we know exactly where the brain center is in the screenshot.
+            // In landscape mode deltaX ≠ 0 (brain shifted right of left toolbar).
+            // Matrix4.storage[12] = tx, [13] = ty (column-major 4×4).
+            final double resetTx = controller.transform.value.storage[12];
+            final double resetTy = controller.transform.value.storage[13];
+            // Wait for the canvas to finish rendering at the reset position (≈2 frames at 60fps).
+            await Future.delayed(const Duration(milliseconds: 50));
             imageBytes = await screenshotController.capture(pixelRatio: 1.0);
+            // Restore the user's original transform
+            controller.transform.value = savedTransform;
+            // Crop centered on the actual brain position, not the screenshot center.
+            if (imageBytes != null) {
+              imageBytes = await _cropScreenshotToBrainSquare(imageBytes!, tx: resetTx, ty: resetTy);
+            }
         } catch (e) {
             printDebug("SCREENSHOT ERROR: $e");
             imageBytes = null; // Proceed with save even if screenshot fails
@@ -11061,6 +12302,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             "windowHeight": MediaQuery.of(context).size.height,
             "screenDensity": MediaQuery.of(context).devicePixelRatio,
             "screenshot": imageBytes ?? [], // Handle null bytes
+            "annotations": BrainAnnotation.listToJson(brainAnnotations),
             "info": {
               "title": title,
               "description": description,
@@ -11093,6 +12335,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         try {
             pd.close();
         } catch (e) { printDebug("Close Dialog Error: $e"); }
+
+        // Brain successfully persisted — reset baseline so tapping after save
+        // does not immediately re-raise the unsaved flag.
+        try { _setCleanBaseline(); } catch (_) {}
         
         // 3. Restore Menu (Fix Missing UI)
         try {
@@ -11112,13 +12358,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   }
 
   void selectSavedBrain(String filename, {String? filePath}) async {
+    // MUST be set BEFORE any await — prevents the controller listener from
+    // re-setting brainHasUnsavedChanges.value = true during load operations
+    loadGeneration++;
+    final myLoadGen = loadGeneration;
+    isLoadingBrain = true;
+    isSettlingAfterLoad = true;
+    _nodeAnnotationKeys = {}; // clear stale annotation key map for new brain
+    brainHasUnsavedChanges.value = false;
+
     MyApp.logAnalytic("LoadFile", {
       "filename": filename,
       "timestamp": DateTime.now().millisecondsSinceEpoch
     });
-    
-    // Prevent fillCreatedAxon from corrupting map with default 25s during load
-    // isLoadingBrain = true; // MOVED inside try block for safety
     
     // V23: Play page flip sound when loading brain
     if (pageFlipSource != null) {
@@ -11127,17 +12379,15 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     
     String textPath =
         "${Platform.pathSeparator}spikerbot${Platform.pathSeparator}text";
-    // String textPath = "";
     controller.deselectAll();
     clearUIMenu();
     uiDebugLog = "Debug Overlay Active\nLoad: $filename\n";
-    // setState(() {});
 
     if (filename == "") return;
 
-    // V25 FIX: Set loading flag ONLY after validation, and ensure reset!
-    isLoadingBrain = true; 
+    // isLoadingBrain already set at top; guarded against race with page-flip sound await 
     try {
+    controller.zoomReset();
     controller.edges.clear();
     int len = controller.nodes.length;
     neuronTypes.clear();
@@ -11153,6 +12403,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     clearBridge();
 
     if (filename == "-1") {
+      brainAnnotations = []; // fresh brain has no annotations
+      // V25: ZERO-FRAME SNAP FOR NEW BRAINS (Forced synchronous layout calculate)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+          _animateCanvasToReset(MediaQuery.of(context).orientation == Orientation.landscape, animate: false);
+      });
+      
+      // Force repaint
+      controller.notifyListeners();
       return;
     }
 
@@ -11183,6 +12441,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
 
     Map savedFileJson = json.decode(savedFileText);
+    // Load annotations (absent in old files → returns []):
+    brainAnnotations = BrainAnnotation.listFromJson(savedFileJson);
     if (savedFileJson["version"] == null) {
       savedFileJson["nodes"].forEach((node) {
         // printDebug("node");
@@ -11226,28 +12486,18 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     print("Sizing!!");
     print(savedFileJson["windowWidth"] != null);
     print(savedFileJson["windowHeight"] != null);
+    // macOS: Do NOT resize to saved size — we now use silentRepositionNeurons() to
+    // mathematically remap neurons to the current window (no jarring resize jump).
+    // Only resize on Windows where window management behaves differently.
     try {
       if (savedFileJson["windowWidth"] != null) {
         double displayWidth = savedFileJson["windowWidth"].toDouble();
         double displayHeight = savedFileJson["windowHeight"].toDouble();
-        // double displayWidth = savedFileJson["windowWidth"] *
-        //     savedFileJson["screenDensity"] /
-        //     MediaQuery.of(context).devicePixelRatio;
-        // double displayHeight = savedFileJson["windowHeight"] *
-        //     savedFileJson["screenDensity"] /
-        //     MediaQuery.of(context).devicePixelRatio;
-        // printDebug("change window size");
-        // print(displayWidth);
-        // print(displayHeight);
-
-        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-          if (savedFileJson["screenDensity"] > 2 &&
-              MediaQuery.of(context).devicePixelRatio == 1.0) {
-            displayWidth = displayWidth;
-            displayHeight = displayHeight * 1.75;
-          }
+        if (Platform.isWindows || Platform.isLinux) {
+          // On Windows/Linux: resize to saved size (legacy behaviour)
           await windowManager.setSize(Size(displayWidth, displayHeight));
         }
+        // macOS: stay at current window size, silentRepositionNeurons handles layout
       }
     } catch (err) {
       printDebug("err2");
@@ -11398,6 +12648,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // Shadow nodes typically shouldn't be in tempNeuronsKey as they don't have simulation parameters
         // tempNeuronsKey.add(neuron.key); 
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
+        _nodeAnnotationKeys[neuron.id] = (v["annKey"] as String?) ?? loadedNeuronKey;
 
         // SyntheticNeuron synNeuron = SyntheticNeuron(
         //     isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
@@ -11439,6 +12690,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         neuron.valKey = loadedNeuronKey;
         tempNeuronsKey.add(neuron.key);
         mapTranslateLoadKeys[neuron.valKey] = neuron.id;
+        _nodeAnnotationKeys[neuron.id] = (v["annKey"] as String?) ?? loadedNeuronKey;
         /*
         SyntheticNeuron synNeuron = SyntheticNeuron(
             isActive: false, isIO: true, circleRadius: neuronDrawSize / 2);
@@ -11490,6 +12742,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         String newNodeId = populateNode(
             v, nodeKey, nIdx, syntheticConfig, savedFileJson);
         mapTranslateLoadKeys[loadedNeuronKey] = newNodeId;
+        _nodeAnnotationKeys[newNodeId] = (v["annKey"] as String?) ?? loadedNeuronKey;
         
         // CRITICAL FIX: Map inferred ID to support mapConnectome/mapSensoryNeuron keys
         // Saved brains often use "node_{index}" as ID in maps, but "valKey" in nodesJson.
@@ -11781,6 +13034,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         controller.nodes[neuronIdx].label = "🎮 ${mapRemoteControlNeuron[nodeKey]}";
       }
     }
+    // Purge stale mapLedHex / mapLedBrightness entries before re-applying edge colors.
+    // If the user deleted an LED connection and saved, the old entry may still be in
+    // the save file (cleanup was missed). On re-load, that stale entry causes the wrong
+    // axon to get LED gradient coloring. Only keep entries that match an actual LED edge.
+    {
+      final Set<String> validLedKeys = {};
+      for (final edge in controller.edges) {
+        if (edge.to == nodeSingleLed.key || edge.to == nodeRedLed.key ||
+            edge.to == nodeGreenLed.key || edge.to == nodeBlueLed.key) {
+          final fromNode = controller.nodes.cast<InfiniteCanvasNode?>().firstWhere(
+              (n) => n?.key == edge.from, orElse: () => null);
+          if (fromNode != null) {
+            validLedKeys.add("${fromNode.id}_${nodeSingleLed.id}");
+            validLedKeys.add("${fromNode.id}_${nodeRedLed.id}");
+            validLedKeys.add("${fromNode.id}_${nodeGreenLed.id}");
+            validLedKeys.add("${fromNode.id}_${nodeBlueLed.id}");
+          }
+        }
+      }
+      mapLedHex.removeWhere((k, _) => !validLedKeys.contains(k));
+      mapLedBrightness.removeWhere((k, _) => !validLedKeys.contains(k));
+    }
     for (InfiniteCanvasEdge edge in controller.edges) {
       InfiniteCanvasNode eFrom = findNeuronByKey(edge.from);
       if ( nodeMicrophoneSensor.id == eFrom.id) {
@@ -11816,6 +13091,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           double brightness = double.tryParse(mapLedBrightness[connectionKey] ?? "1.00") ?? 1.0;
           Color c = Color(int.parse("0xFF$hex"));
           edge.color = c.withOpacity(brightness);
+          edge.isLedEdge = true;
           edge.connectionStrength = brightness * 100.0;
           if (edge.connectionStrength < 1.0) edge.connectionStrength = 1.0;
         } else {
@@ -11830,7 +13106,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           int redColor = (redValue / 100 * 255).floor();
           int greenColor = (greenValue / 100 * 255).floor();
           int blueColor = (blueValue / 100 * 255).floor();
-          edge.color = Color.fromARGB(255, redColor, greenColor, blueColor);
+          // Only apply LED color when at least one channel is non-zero.
+          // All-zero means no actual LED connection: clear any stale color
+          // that might have been left from a previous run (iOS intermittent gradient bug).
+          if (redColor > 0 || greenColor > 0 || blueColor > 0) {
+            edge.color = Color.fromARGB(255, redColor, greenColor, blueColor);
+          } else {
+            edge.color = null;
+          }
         }
       } else
       {
@@ -11969,12 +13252,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
              if (type == "Quiet") {
                  fixA = 0.02; fixB = 0.1; fixC = -65; fixD = 2; fixI = 0.0;
              } else if (type == "Occassionally active") {
-                 fixA = 0.02; fixB = 0.16; fixC = -65; fixD = 2; fixI = 5.0;
+                 fixA = 0.02; fixB = 0.17; fixC = -65; fixD = 2; fixI = 5.0;
              } else if (type == "Highly active") {
-                 fixA = 0.02; fixB = 0.2; fixC = -65; fixD = 2; fixI = 15.0;
+                 fixA = 0.02; fixB = 0.24; fixC = -65; fixD = 2; fixI = 15.0;
              } else if (type == "Generates bursts") {
-                 fixA = 0.02; fixB = 0.16; fixC = -8; fixD = 2; fixI = 5.0;
-             } else if (type == "Bursts when activated") {
+                 fixA = 0.02; fixB = 0.17; fixC = -20; fixD = 2; fixI = 5.0;
+             } else if (type == "Bursts when activated" || type == "Delay") {
                  fixA = 0.02; fixB = 0.1; fixC = -37; fixD = 2; fixI = 0.0;
              } else if (type == "Remote Control") {
                  fixA = 0.02; fixB = 0.1; fixC = -65; fixD = 2; fixI = 0.0;
@@ -12068,9 +13351,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       printDebug("err3");
       printDebug(err);
     }
-    if (Platform.isIOS || Platform.isAndroid || kIsWeb) {
-      silentRepositionNeurons(savedFileJson);
-    }
+    // On ALL platforms: use silentRepositionNeurons to mathematically remap loaded neuron
+    // positions to the current screen size. This avoids the macOS double-window-resize dance
+    // (resize to saved size → rebuild → resize back → rebuild) which caused two jarring
+    // visual jumps and intermediate incorrect positioning.
+    silentRepositionNeurons(savedFileJson);
     
     // CRITICAL FIX: Update neuronSize so buffer updates work immediately
     neuronSize = controller.nodes.length - allNeuronStartIdx;
@@ -12078,16 +13363,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // CRITICAL FIX: Sync Connectome and Sensors to C++ Engine
     populateMatrix();
 
-    await Future.delayed(const Duration(milliseconds: 370), () async {
-      try {
-        if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+    // Reset rendering clock precisely so the UI Thread computes all initialized loaded edges instantaneously!
+    // V25: refreshRetainer was deleted as geometric caching is now natively intercepted
+    // InfiniteCanvasEdgeRenderer.refreshRetainer = 0;
+
+    // macOS: the second resize (back to original size) is no longer needed because
+    // we no longer resize to the saved size at load time.
+    if (Platform.isWindows || Platform.isLinux) {
+      await Future.delayed(const Duration(milliseconds: 370), () async {
+        try {
           await windowManager.setSize(Size(tempWidth, tempHeight));
+        } catch (err) {
+          printDebug("windowmanager error: $err");
         }
-      } catch (err) {
-        printDebug("windowmanager error");
-        printDebug(err);
-      }
-    });
+      });
+    }
 
     } catch (e, stackTrace) {
       printDebug("CRITICAL ERROR loading brain: $e");
@@ -12095,10 +13385,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // uiDebugLog = "Load Error: $e\n" + uiDebugLog; // Removed for release
     } finally {
       // Ensure specific flags are reset even if error occurs
+      // isSettlingAfterLoad already set at top; isLoadingBrain releases now
       isLoadingBrain = false;
+      brainHasUnsavedChanges.value = false; // brain just loaded — nothing unsaved yet (baseline set after animation)
       
       printDebug("DEBUG: selectSavedBrain FINISHED. isLoadingBrain reset to false.");
       
+      // V25 FEATURE: ZERO-FRAME SNAP
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+          _animateCanvasToReset(
+            MediaQuery.of(context).orientation == Orientation.landscape,
+            animate: true,
+            onComplete: () {
+              // Animation finished — brain is in final position, now safe to set baseline.
+              // _setCleanBaseline() captures the exact loaded node/edge counts so that
+              // any subsequent tap/pan that fires notifyListeners() (without changing
+              // the structure) will NOT mark the brain as unsaved.
+              if (loadGeneration == myLoadGen) {
+                _setCleanBaseline(); // captures loaded brain structure as the new baseline
+                isSettlingAfterLoad = false;
+              }
+            },
+          );
+      });
+
+      // Translate loaded neurons from their saved (center-based) positions to
+      // the current orientation-aware brainHome position. Saved files encode
+      // neuron offsets relative to the old centered brain (windowWidth/2), but
+      // in landscape brainHomeX = 101 (left-aligned to drag menu). Without this
+      // call the neurons appear at screen center while brain SVG is at brainHomeX.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          repositionContactNeurons();
+          setState(() {}); // Rebuild so neurons render at new positions
+        }
+      });
+
       // CRITICAL FIX: Initialize Nuclei (RC Symbols) and Sync Buffers after load
       // Consolidating redundant Futures into a single post-frame callback to prevent GlobalKey race conditions
       Future.delayed(const Duration(milliseconds: 150), () {
@@ -12134,7 +13456,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
              initializeNucleus();
 
              // 5. Force UI Rebuild
+             controller.syntheticConnectionsDirty = true; // edges loaded from file
              controller.notifyListeners();
+             
              if (mounted) setState(() {});
           } catch(e) {
              printDebug("Error in selectSavedBrain finalization: $e");
@@ -12287,12 +13611,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         prevTransformScale != matrixValues.scale) {
       prevTransformScale = matrixValues.scale;
       transformNeuronPosition(matrixValues.scale);
-    } else {
-      if (matrixValues.scale < 0.86 || matrixValues.scale > 2.7) {
-        debouncerSnapNeuron.run(() {
-          transformNeuronPosition(matrixValues.scale);
-        });
-      }
     }
   }
 
@@ -12361,6 +13679,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   void transformNeuronListener() {
     if (!isPlayingMenu) return;
+    // Skip during camera animation — setting controller.scale + running debounced
+    // setCirclesZoom every 16ms competes with the smooth 1-second pan animation.
+    if (controller.isAnimatingCamera) return;
     MatrixDecomposedValues matrixValues =
         MatrixGestureDetector.decomposeToValues(controller.transform.value);
 
@@ -12378,12 +13699,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // });
 
       transformNeuronPosition(matrixValues.scale);
-    } else {
-      if (matrixValues.scale < 0.86 || matrixValues.scale > 2.7) {
-        debouncerSnapNeuron.run(() {
-          transformNeuronPosition(matrixValues.scale);
-        });
-      }
     }
   }
 
@@ -12447,6 +13762,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     return transformedMap;
   }
 
+  // _globalScrollRoute: TRACKPAD PAN ONLY.
+  // Mouse scroll zoom is handled exclusively by the deep Listener inside the
+  // InteractiveViewer builder in canvas.dart — putting it here too caused
+  // double-transform per scroll tick (zoom + translation applied twice).
+  void _globalScrollRoute(PointerEvent event) {
+    if (event is! PointerScrollEvent) return;
+    if (!isInitialized) return;
+    if (event.kind != PointerDeviceKind.trackpad) return; // Mouse zoom handled by deep Listener in canvas.dart
+    if (WaveWidget.isMouseOver) return; // Let WaveWidget handle scroll when hovering the plot
+    GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent e) {
+      if (e is! PointerScrollEvent) return;
+      if (e.kind != PointerDeviceKind.trackpad) return;
+      // Trackpad 2-finger swipe → pan the canvas (translate in scene/canvas coordinates).
+      final double scale = controller.getScale();
+      final Matrix4 matrix = controller.transform.value.clone();
+      matrix.translate(-e.scrollDelta.dx / scale, -e.scrollDelta.dy / scale);
+      controller.transform.value = matrix;
+    });
+  }
+
+
+
   void selectEdgeMenuType() {
     // isNeuronMenu = false;
     isSynapseMenu = false;
@@ -12475,9 +13812,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         return;
     }
 
-    if (nodeFrom == nodeLeftEyeSensor) {
+    if (nodeFrom == nodeLeftEyeSensor || nodeFrom.id == nodeRightEyeSensor.id) {
       isCameraMenu = true;
-      activeCameraType = "Left Eye Visual Trigger";
+      activeCameraType = nodeFrom == nodeLeftEyeSensor ? "Left Eye Visual Trigger" : "Right Eye Visual Trigger";
       InfiniteCanvasNode selected = findNeuronByKey(controller.edgeSelected!.to);
       int neuronIdx = neuronTypes.keys.toList().indexOf(selected.id);
       if (neuronIdx == -1) {
@@ -12485,10 +13822,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           return;
       }
 
-      // mapSensoryNeuron["${lastCreatedEdge.from}_${lastCreatedEdge.to}"] = value;
-      // printDebug("nodeFrom.id_nodeTo.id");
-      // printDebug("${nodeFrom.id}_${nodeTo.id}");
-      // printDebug(mapSensoryNeuron["${nodeFrom.id}_${nodeTo.id}"]);
       String sensoryKey = "${nodeFrom.id}_${nodeTo.id}";
       if (mapSensoryNeuron[sensoryKey] != null) {
         cameraMenuType = cameraMenuTypes[mapSensoryNeuron[sensoryKey]];
@@ -12506,21 +13839,28 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             "idx": idx
           };
         }
-        selectedCameraRegion = mapAreaSize[sensoryKey];
+      } else {
+        selectedEyeInfo = {
+            "icon": cameraMenuTypes[0],
+            "label": "Color ${cameraMenuTypes[0]}",
+            "idx": 0
+        };
+      }
+
+      var selectedCameraRegion = mapAreaSize[sensoryKey];
+      if (selectedCameraRegion != null) {
         List<String> splitRegion = selectedCameraRegion.split("_@_");
         selectedCameraPosition = splitRegion[0];
         txtAreaSizeMinController.text = splitRegion[1];
         txtAreaSizeMaxController.text = splitRegion[2];
         areaSizeMinLimitBufView[neuronIdx] = int.parse(splitRegion[1]);
         areaSizeMaxLimitBufView[neuronIdx] = int.parse(splitRegion[2]);
-        //  = "${selectedCameraPosition}_@_${txtAreaSizeMinController.text}_@_${txtAreaSizeMaxController.text}";
-      }
-    } else if (nodeFrom.id == nodeRightEyeSensor.id) {
-      isCameraMenu = true;
-      activeCameraType = "Right Eye Visual Trigger";
-      if (mapSensoryNeuron["${nodeFrom.id}_${nodeTo.id}"] != null) {
-        cameraMenuType =
-            cameraMenuTypes[mapSensoryNeuron["${nodeFrom.id}_${nodeTo.id}"]];
+      } else {
+        selectedCameraPosition = "Any";
+        txtAreaSizeMinController.text = "1";
+        txtAreaSizeMaxController.text = "320";
+        areaSizeMinLimitBufView[neuronIdx] = 1;
+        areaSizeMaxLimitBufView[neuronIdx] = 320;
       }
     } else if (nodeFrom.id == nodeDistanceSensor.id) {
       isDistanceMenu = true;
@@ -12759,24 +14099,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   List<String> empty = [];
   double multiplierConstant = 0.78;
   double multiplierAdjusterConstant = 0.5;
-  int robotMessageDelay = 75;
-  List<int> infoStatusMax = [];
-  List<List<int>> diodeStatusMax = [];
+  int robotMessageDelay = 50; // Reduced from 75ms: faster motor loop = snappier robot response
+  // Pre-allocated with fixed capacity — cleared in-place each cycle to avoid GC pressure.
+  List<int> infoStatusMax = List<int>.filled(7, 0, growable: false);
+  List<List<int>> diodeStatusMax = List.generate(4, (_) => List<int>.filled(3, 0));
   List<int> periodicNeuronSpikingFlags = [];
   void processRobotMessages() {
     Future.delayed(Duration(milliseconds: robotMessageDelay), () {
-      infoStatusMax = [0, 0, 0, 0, 0, 0, 0];
-      // nodeBlueLed.offset = Offset.zero;
-      periodicNeuronSpikingFlags =
-          List<int>.generate(neuronSize - normalNeuronStartIdx, (_) {
-        return 0;
-      });
-      diodeStatusMax = [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-      ];
+      // Clear in-place — no new list allocation, no GC pressure.
+      infoStatusMax.fillRange(0, infoStatusMax.length, 0);
+      for (final row in diodeStatusMax) row.fillRange(0, 3, 0);
+      // Resize periodicNeuronSpikingFlags only if neuronSize changed; otherwise fill.
+      final int flagCount = neuronSize - normalNeuronStartIdx;
+      if (periodicNeuronSpikingFlags.length != flagCount) {
+        periodicNeuronSpikingFlags = List<int>.filled(flagCount, 0, growable: true);
+      } else {
+        periodicNeuronSpikingFlags.fillRange(0, flagCount, 0);
+      }
       int diodeCounter = 0;
       double leftSumForwardValue = 0;
       double leftSumBackwardValue = 0;
@@ -12921,23 +14260,17 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 "l:${infoStatusMax[0]};r:${infoStatusMax[1]};s:${infoStatusMax[2]};$diodeString";
             */
 // /*
-            double multiplierCurve = 0.50; // Use a clean multiplier mapping
             int avgLeft = 0;
             int avgRight = 0;
             String msg = "";
 
-            // C++ already stacks multiple neuron spikes additively on each step.
-            // In Dart, instead of dividing the summed spikes by the number of active steps (which unfairly 
-            // punishes asynchronous firing neurons by averaging their peaks), we divide by a fixed Temporal 
-            // Integration Factor. This perfectly preserves additive linearity across asynchronous spikes, 
-            // and natively introduces analog "Rate Coding" where faster firing neurons produce more thrust!
-            double integrationFactor = len / 12.0; // Assume a max-driven neuron fires approx once every 12 steps
-            if (integrationFactor < 1.0) integrationFactor = 1.0;
-
-            double lfFinal = leftSumForwardValue / integrationFactor;
-            double lbFinal = leftSumBackwardValue / integrationFactor;
-            double rfFinal = rightSumForwardValue / integrationFactor;
-            double rbFinal = rightSumBackwardValue / integrationFactor;
+            // Average only over commands that actually carried a non-zero directional value.
+            // This matches the legacy build's leftSumValue/leftValidValueCounter approach and
+            // prevents sparse motor spikes from being diluted by the total command count.
+            double lfFinal = leftValidForwardCounter  > 0 ? leftSumForwardValue  / leftValidForwardCounter  : 0;
+            double lbFinal = leftValidBackwardCounter > 0 ? leftSumBackwardValue / leftValidBackwardCounter : 0;
+            double rfFinal = rightValidForwardCounter > 0 ? rightSumForwardValue / rightValidForwardCounter : 0;
+            double rbFinal = rightValidBackwardCounter> 0 ? rightSumBackwardValue/ rightValidBackwardCounter : 0;
 
             // A biologically accurate motor neuron can only pull (excite) or relax (be inhibited).
             // It cannot actively fire the antagonist muscle. Therefore, we clamp negative directional pools to 0
@@ -12984,7 +14317,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             
             if (rawRight.abs() > 5) {
                 avgRight = applyRawThrust(rawRight).floor();
-            } else {
                 avgRight = 0;
             }
             // printDebug("avgLeft");
@@ -13011,34 +14343,43 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             try {
               for (int i = normalNeuronStartIdx; i < neuronSize; i++) {
                 int neuronIndex = i;
-                if (periodicNeuronSpikingFlags[i - normalNeuronStartIdx] == 1) {
-                  if (controller.nucleusList != null &&
-                      controller.nucleusList!.length > normalNeuronStartIdx) {
-                    controller.nucleusList![neuronIndex].isSpiking = 1;
-                    controller.nucleusList![neuronIndex].lastSpikeTime = DateTime.now().millisecondsSinceEpoch;
-                  }
-                  // protoNeuron.circles[neuronIndex].isSpiking = 1;
-                  neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
-                  printDebug("Spike! Index: $neuronIndex");
-                  printDebug("Head: ${positionsBufView[0]}");
-                  // printDebug("neuronSpikeFlags1");
-                  // printDebug(controller.nucleusList!.length);
-                  // printDebug(neuronSpikeFlags);
-                } else {
-                  try {
-                    // protoNeuron.circles[neuronIndex].isSpiking = -1;
-                    if (controller.nucleusList != null &&
-                        controller.nucleusList!.length > normalNeuronStartIdx) {
-                      controller.nucleusList![neuronIndex].isSpiking = -1;
-                    }
+                bool hasNucleus = controller.nucleusList != null && controller.nucleusList!.length > normalNeuronStartIdx;
+                int currentSpikeState = hasNucleus ? controller.nucleusList![neuronIndex].isSpiking : -1;
 
-                    neuronSpikeFlags[neuronIndex].value =
-                        Random().nextInt(10000);
-                    // printDebug("neuronSpikeFlags2");
-                    // printDebug(neuronSpikeFlags);
-                  } catch (err) {
-                    printDebug("err neuronSpikeFlags2");
-                    printDebug(err);
+                if (periodicNeuronSpikingFlags[i - normalNeuronStartIdx] == 1) {
+                  if (currentSpikeState != 1) {
+                      if (hasNucleus) {
+                        controller.nucleusList![neuronIndex].isSpiking = 1;
+                        controller.nucleusList![neuronIndex].lastSpikeTime = DateTime.now().millisecondsSinceEpoch;
+                      }
+                      // Skip visual blink trigger during camera animation — keeps pan smooth.
+                      if (!controller.isAnimatingCamera) {
+                        neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+                      }
+                      // waveRedraw.value = Random().nextInt(10000);
+                  } else {
+                      // Continuous firing fix: rhythmic blink for high-frequency neurons.
+                      // Skip during camera animation to keep the pan framerate-perfect.
+                      if (hasNucleus && !controller.isAnimatingCamera) {
+                         int diff = DateTime.now().millisecondsSinceEpoch - controller.nucleusList![neuronIndex].lastSpikeTime;
+                         if (diff > 33) { // 30 FPS rhythmic pump
+                             controller.nucleusList![neuronIndex].lastSpikeTime = DateTime.now().millisecondsSinceEpoch;
+                             // Also fire neuronSpikeFlags so AnimatedBuilder in Nucleus triggers
+                             // the TweenAnimationBuilder restart (nucleus color blink).
+                             // Previously the 16ms _clockTick handled this implicitly.
+                             if (!controller.isAnimatingCamera) {
+                                 neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+                             }
+                         }
+                      }
+                  }
+                } else {
+                  if (currentSpikeState != -1) { 
+                      if (hasNucleus) {
+                        controller.nucleusList![neuronIndex].isSpiking = -1;
+                      }
+                      neuronSpikeFlags[neuronIndex].value = Random().nextInt(10000);
+                      // waveRedraw.value = Random().nextInt(10000);
                   }
                 }
               }
@@ -13066,6 +14407,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               }
             }
             */
+          } else if (isIsolateWritePortInitialized) {
+            // Zero-command keepalive: continuous rotation servo needs periodic commands
+            // to hold its position. Without this, a brief simulation lull stops the servo.
+            _DesignBrainPageState.isolateWritePort.send("l:0;r:0;s:0;d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;");
           }
         } catch (err) {
           printDebug("error Robot message");
@@ -13079,11 +14424,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       strSerialDataBuff = "";
       strTorqueDataBuff = "";
 
-      // mutex.protectWrite(() async {
-      //   commandList.clear();
-      //   return empty;
-      // });
-      processRobotMessages();
+      processRobotMessages(); // keep the loop alive across all play/stop cycles
     });
   }
 
@@ -13309,10 +14650,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     // printDebug(scaleMultiplier);
     // printDebug((leftInnerWindowSpace - 135) * scaleMultiplier);
 
-    // 870/2 = 435 - 245 = 190 + brainDiff = ±245
-    // 600/2 = 300
-    // double leftBrainPosition = windowWidth / 2 - 245 * scaleMultiplier;
-    double leftBrainPosition = windowWidth / 2 - 245 * scaleMultiplier;
+    // Brain position uses brainHomeX (orientation-aware, excludes toolbar).
+    // brainCenterX = left-edge + half the scaled brain natural width (245 = 490/2).
+    double leftBrainPosition = brainHomeX;
+    double brainCenterX      = brainHomeX + 245 * scaleMultiplier;
     Size brainSizeMultiplier = brainSize * scaleMultiplier;
 
     coreBrainPainter = GeneralSensorPainter(
@@ -13338,7 +14679,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           height: brainSizeMultiplier.height,
           // color: Colors.green,
           child: DragTarget(
-              // hitTestBehavior: HitTestBehavior.opaque,
+              hitTestBehavior: HitTestBehavior.translucent, // pass scroll events through to InteractiveViewer
               
               onMove: (dragDetail) async {
             if (dragDetail.data as int >= 10) return; // Ignore Live Tool Pins for Brain Target
@@ -13350,13 +14691,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             GeneralSensorPainter painter = (coreBrainPainter);
             Offset containOffset = localAreaOffset.translate(
                 -leftBrainPosition + 45 / controller.getScale(),
-                -((isPortrait == true) ? brainPosition.dy : brainPosition.dy * scaleMultiplier) -
+                -brainPosition.dy * scaleMultiplier -
                     topInnerWindowSpace +
                     45 / controller.getScale());
-            // -leftBrainPosition + 45 / controller.getScale(),
-            // -brainPosition.dy * scaleMultiplier +
-            //     topInnerWindowSpace +
-            //     45 / controller.getScale());
             // localAreaOffset.translate(-painter.xDiff, -painter.yDiff);
             bool isContaining = painter.path.contains(containOffset);
             printDebug("------localAreaOffset core brain");
@@ -13469,52 +14806,38 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             cDesignArray[newNodeKey.toString()] = sldCWeight;
             dDesignArray[newNodeKey.toString()] = sldDWeight;
 
-            // Offset canvasOffset = controller.toLocal(controller.getOffset());
-            final Size containerSize = Size(
-                windowWidth, windowHeight); // Replace with your container size
-
-            // Size initialImageSize = const Size(600, 600);
-            Size initialImageSize = initialMinimumSize;
-            if (Platform.isIOS || Platform.isAndroid) {
-              double minimumSize = min(windowHeight, windowWidth);
-              initialImageSize = Size(minimumSize, minimumSize);
-            }
-
-            final fittedSizes =
-                applyBoxFit(BoxFit.contain, initialImageSize, containerSize);
-
+            // value.offset = feedback widget TL (dragAnchorStrategy returns Offset(45,45),
+            // meaning feedback center is under finger). onMove uses (45*scaleMultiplier)/getScale()
+            // to convert 45px → scene units. Same correction here centers the placed node.
             RenderBox box = context.findRenderObject() as RenderBox;
             Offset localOffset = box.globalToLocal(value.offset);
-            Offset mouseOffset = controller
-                .toLocal(Offset(localOffset.dx + 30, localOffset.dy + 35));
+            final double half = neuronDrawSize / 2;
+            final double canvasScale = controller.getScale();
+            final double dragCorrection = (45.0 * scaleMultiplier) / canvasScale;
+            Offset feedbackTLScene = controller.toLocal(localOffset);
+            Offset fingerScene = feedbackTLScene + Offset(dragCorrection, dragCorrection);
 
-            // printDebug("canvasOffset.dx");
-            // printDebug(value.offset.dx.toString() + " _ " + mouseOffset.dx.toString());
             SyntheticNeuron syntheticNeuron = SyntheticNeuron(
                 isActive: false, isIO: false, circleRadius: neuronDrawSize / 2);
             InfiniteCanvasNode newNode = InfiniteCanvasNode(
-              // CHANGE LABEL
               label: "Quiet",
               key: neuronsKey[neuronsKey.length - 1],
               value: neuronSize - 1,
               allowMove: false,
               allowResize: false,
-              offset: Offset(mouseOffset.dx + 0, mouseOffset.dy + 0),
+              // Center node on finger: feedbackTL + correction = finger, minus half
+              offset: Offset(fingerScene.dx - half, fingerScene.dy - half),
               size: Size(neuronDrawSize, neuronDrawSize),
               child: CustomPaint(
                 isComplex: true,
-                willChange: true,
+                willChange: false,
                 painter: syntheticNeuron,
               ),
-              // child: Container(width: 0,height:0, color:Colors.green),
             );
             newNode.syntheticNeuron = syntheticNeuron;
             syntheticNeuron.node = newNode;
             syntheticNeuron.setupDrawingNeuron();
             syntheticNeuronList.add(syntheticNeuron);
-            mapDelayNeuronList.add(-1);
-            mapRhytmicNeuronList.add(-1);
-            mapCountingNeuronList.add(-1);
 
             if (value.data == 0) {
               newNode.isExcitatory = 1;
@@ -13597,6 +14920,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // for (idx = 0; idx < len - 4; idx++) {
       InfiniteCanvasNode neuron = sensoryNeurons[idx];
       Map<String, dynamic> neuronInfo = dropTargetInformations[idx];
+
+      double iosWidthScale = 1.0;
+      if (Platform.isIOS || Platform.isAndroid) {
+          if (MediaQuery.of(context).size.shortestSide < 600) {
+              iosWidthScale = 1 / 1.25; // Reverses the `FittedBox` inflation found in main.dart
+          }
+      }
+
       if (listPainters.length < len) {
         listPainters.add(GeneralSensorPainter(
             multiplier: scaleMultiplier,
@@ -13625,21 +14956,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       list.add(
         InfiniteDropTarget(
             key: UniqueKey(),
-            size: neuronInfo["size"],
-            // size: Size(
-            //   neuronInfo["size"].width * scaleMultiplier,
-            //   neuronInfo["size"].height * scaleMultiplier,
-            // ),
+            size: Size(
+              neuronInfo["size"].width * scaleMultiplier,
+              neuronInfo["size"].height * scaleMultiplier,
+            ),
             // offset: const Offset(0, 0),
             offset: Offset(neuronInfo["left"], neuronInfo["top"]),
             child: Positioned(
               top: neuronInfo["top"] * scaleMultiplier + topInnerWindowSpace,
               left:
-                  (windowWidth / 2) + neuronInfo["posXDiff"] * scaleMultiplier,
+                  brainCenterX + neuronInfo["posXDiff"] * scaleMultiplier,
               // top: neuronInfo["top"],
               // left: neuronInfo["left"],
               child: SizedBox(
-                // color: Colors.green.withOpacity(0.5),
                 width: neuronInfo["size"].width * scaleMultiplier,
                 height: neuronInfo["size"].height * scaleMultiplier,
                 child: DragTarget(
@@ -13652,19 +14981,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           Offset localOffset = box.globalToLocal(dragDetail.offset);
                           Offset localAreaOffset = controller.toLocal(
                               Offset(localOffset.dx, localOffset.dy));
-                      // Offset localOffsetGap = Offset.zero;
-                      Offset localOffsetGap = (Offset(
-                          45 / controller.getScale(),
-                          45 / controller.getScale()));
+                          
+                          Offset localOffsetGap = Offset(
+                              (45 * scaleMultiplier) / controller.getScale(),
+                              (45 * scaleMultiplier) / controller.getScale());
 
-                      GeneralSensorPainter painter = (listPainters[tempIdx]);
-                      Offset containOffset = localAreaOffset.translate(
-                          -((windowWidth / 2) +
-                                  neuronInfo["posXDiff"] * scaleMultiplier) +
-                              localOffsetGap.dx,
-                          -(neuronInfo["top"] * scaleMultiplier +
-                                  topInnerWindowSpace) +
-                              localOffsetGap.dy);
+                          GeneralSensorPainter painter = (listPainters[tempIdx]);
+                          Offset containOffset = localAreaOffset.translate(
+                              -(brainCenterX +
+                                      neuronInfo["posXDiff"] * scaleMultiplier) +
+                                  localOffsetGap.dx,
+                              -(neuronInfo["top"] * scaleMultiplier +
+                                      topInnerWindowSpace) +
+                                  localOffsetGap.dy);
 
                       bool isContaining = painter.path.contains(containOffset);
                       isContainingLabel = isContaining;
@@ -13965,6 +15294,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                         edge.connectionStrength = 50;
                         edge.color = Color.fromARGB(
                             255, redColor, greenColor, blueColor);
+                        edge.isLedEdge = true;
 
                         // mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"] = 50;
                         // mapLedNeuron["${nodeFrom.id}_${nodeTo.id}"] = 50;
@@ -13982,6 +15312,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       // mapConnectome[connectionKey] = 50;
                       // edge.connectionStrength = 50;
                       controller.edges.add(edge);
+                      // FIX: direct edges.add() bypasses addLink() which normally sets
+                      // syntheticConnectionsDirty=true and calls notifyListeners().
+                      // Without these the edge renderer never knows to rebuild, so the
+                      // axon is invisible until the next unrelated interaction.
+                      controller.syntheticConnectionsDirty = true;
+                      controller.notifyListeners();
 
                       initNativeC(false);
 
@@ -14051,12 +15387,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                       //     size: neuronInfo["size"], // Adjust size as needed
                       //     painter: listPainters[7],
                       //   );
-                      // } else {
                       return CustomPaint(
-                        size: neuronInfo["size"], // Adjust size as needed
+                        size: Size(
+                          neuronInfo["size"].width * scaleMultiplier,
+                          neuronInfo["size"].height * scaleMultiplier,
+                        ),
                         painter: listPainters[tempIdx],
                       );
-                      // }
                     }),
               ),
             )),
@@ -14075,6 +15412,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   void repositionContactNeurons() {
     windowWidth = MediaQuery.of(context).size.width;
     windowHeight = MediaQuery.of(context).size.height;
+
+    // Capture old eye-sensor position BEFORE updating any sensor positions.
+    // Used as anchor for proportional neuron rescaling below: 
+    //   newPos = newAnchor + (oldPos - oldAnchor) * scaleRatio
+    final Offset oldEyeSensorAnchor = nodeLeftEyeSensor.offset;
 
     // calculate imageSize
     final Size containerSize =
@@ -14103,53 +15445,46 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     currentImageHeight = fittedSizes.destination.height;
     final Size imageSize = Size(
         currentImageWidth, currentImageHeight); // Replace with your image size
+
+    double minimumSize = initialMinimumSize.height; // = 600 (brain authored in 600×600 space)
+
+    double widthRatio  = currentImageWidth  / minimumSize;
+    double heightRatio = currentImageHeight / minimumSize;
+    // Capture old scale BEFORE updating so we can compute the neuron rescale ratio
+    final double oldScaleMultiplier = scaleMultiplier;
+    // Update the global scaleMultiplier NOW so everything below uses the fresh value.
+    // Previously, scaleMultiplier was only updated in getDragTargets(), causing:
+    //   - brainCanvasCenterX to use the stale value (misaligned sensor positions)
+    //   - neuron rescaling condition to be always false (oldScaleMultiplier == scaleMultiplier)
+    scaleMultiplier = min(widthRatio, heightRatio);
+
+    // --- Brain Home Position ---
+    // All canvas elements (SVG, nodes, drag targets) use centered coordinates.
+    // Orientation-aware home position is applied via canvas VIEW TRANSFORM in
+    // _animateCanvasToReset (deltaX/deltaY pan), keeping everything aligned.
+    brainHomeX = windowWidth  / 2 - 245 * scaleMultiplier;
+    brainHomeY = (windowHeight - currentImageHeight) / 2;
+
+    // Keep legacy names in sync for drop-target / hit-test callers
+    leftInnerWindowSpace = brainHomeX;
+    topInnerWindowSpace  = brainHomeY;
+
+
     centerZoneOffset = Offset(currentImageWidth / 2 + neuronDrawSize,
         currentImageHeight / 3 + neuronDrawSize);
 
-    double leftSpace = (windowWidth - currentImageWidth) / 2;
-    double topSpace = (windowHeight - currentImageHeight) / 2;
-    // printDebug("windowWidthzzz");
-    // printDebug(windowWidth);
-    // printDebug(currentImageWidth);
-    leftInnerWindowSpace = leftSpace;
-    topInnerWindowSpace = topSpace;
+    printDebug("widthRatio, heightRatio: $widthRatio, $heightRatio  scale=$scaleMultiplier  brainHomeX=$brainHomeX");
+    // 245 is half the brain's natural width (490px authoring space).
+    // brainHomeX is the screen-space (= canvas-space at scale=1) left edge of the scaled brain.
+    // So brainCanvasCenterX is where the brain center sits in canvas coordinates.
+    double brainCanvasCenterX = brainHomeX + 245 * scaleMultiplier - 5;
+    Offset centerOffset = Offset(brainCanvasCenterX, brainHomeY + (90 * heightRatio).ceil());
 
-    double minimumSize = initialMinimumSize.height;
-    // double minimumSize = 600;
-    // if (Platform.isIOS || Platform.isAndroid) {
-    //   minimumSize = min(windowWidth, windowHeight);
-    //   initialImageSize = Size(minimumSize, minimumSize);
-    // }
-
-    double widthRatio = currentImageWidth / minimumSize;
-    double heightRatio = currentImageHeight / minimumSize;
-    printDebug("widthRatio, heightRatio");
-    printDebug(imageSize);
-    printDebug(minimumSize);
-    // if (widthRatio > 1) {
-    //   widthRatio = minimumSize / currentImageWidth;
-    //   heightRatio = minimumSize / currentImageHeight;
-    // }
-    // 395, 150
-    // printDebug("topSpace");
-    // printDebug(topSpace);
-    // printDebug(topInnerWindowSpace);
-    // printDebug(currentImageHeight);
-    // printDebug(minimumSize);
-    Offset centerOffset =
-        Offset(windowWidth / 2 - 5, topSpace + (90 * heightRatio).ceil());
     nodeLeftEyeSensor.offset = centerOffset;
 
-    // nodeDistanceSensor.offset = Offset(
-    //     centerOffset.dx - (195 * widthRatio).ceil(),
-    //     topSpace + 115 * heightRatio);
     nodeDistanceSensor.offset = Offset(
         centerOffset.dx - (195 * widthRatio).ceil(),
-        topSpace + 115 * heightRatio);
-    // @New design
-    // nodeRightEyeSensor.offset = Offset(
-    //     nodeDistanceSensor.offset.dx + (75 * widthRatio).ceil(),
-    //     topSpace + 120 * heightRatio);
+        brainHomeY + 115 * heightRatio);
 
     nodeMicrophoneSensor.offset = Offset(
         centerOffset.dx + (210 * widthRatio).ceil(),
@@ -14183,10 +15518,34 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         centerOffset.dx - (150 * widthRatio).ceil(),
         centerOffset.dy + (426 * heightRatio).ceil());
 
-    // reposition because Alex request
+    // Final reposition of distance sensor
     nodeDistanceSensor.offset = Offset(
         centerOffset.dx - (205 * widthRatio).ceil(),
-        topSpace + 115 * heightRatio);
+        brainHomeY + 115 * heightRatio);
+
+    // --- Rescale/translate user neurons to track brain center ---
+    // Must run when: (a) brain SIZE changed (scaleMultiplier ratio), OR
+    //               (b) brain POSITION changed (e.g. X-only resize moves brainHomeX
+    //                   without changing scaleMultiplier when height is the limiting dim).
+    // Formula: newPos = newAnchor + (oldPos - oldAnchor) * scaleRatio
+    //   scaleRatio=1 → pure translation (handles X-only resize case)
+    final double scaleRatio = _prevNeuronRescaleScale > 0
+        ? scaleMultiplier / _prevNeuronRescaleScale
+        : 1.0;
+    final Offset translation = centerOffset - oldEyeSensorAnchor;
+    if (isInitialized && (translation != Offset.zero || scaleRatio != 1.0)) {
+      final int nodeCount = controller.nodes.length;
+      for (int i = normalNeuronStartIdx + 2; i < nodeCount; i++) {
+        final Offset oldPos = controller.nodes[i].offset;
+        // Direct assignment bypasses allowMove=false guard in .update(offset:)
+        controller.nodes[i].offset =
+            centerOffset + (oldPos - oldEyeSensorAnchor) * scaleRatio;
+      }
+      _prevNeuronRescaleScale = scaleMultiplier;
+      controller.notifyListeners();
+    } else if (_prevNeuronRescaleScale == 0.0) {
+      _prevNeuronRescaleScale = scaleMultiplier;
+    }
   }
 
   // Helper to update live buffers immediately (simulating real-time parameter change)
@@ -14298,6 +15657,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       }
       tecSynapticWeight.text = sldSynapticWeight.floor().toString();
       sldSynapticWeight = sldSynapticWeight.roundToDouble();
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // LED property submitted
       linkLedConnection(sldSynapticWeight);
 
       setState(() {});
@@ -14357,8 +15717,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       // printDebug(controller.singleSelection);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
-        int neuronIdx =
-            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
         mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
         
         // SYNC TO C++ BUFFER (LIVE UPDATE)
@@ -14367,6 +15732,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         }
       }
       controller.singleSelection = null;
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // delay time text submitted
       setState(() {});
     } catch (err) {
       printDebug("Error: Submit Delay Connection");
@@ -14394,8 +15760,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       tecFrequencyWeight.text = sldFrequencyWeight.round().toString();
 
       if (isSpeakerMenu) {
+        if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // speaker frequency text submitted
         linkSpeakerConnection(sldFrequencyWeight.toString());
       } else if (isMicrophoneMenu) {
+        if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // sensor property changed
         linkMicrophoneConnection();
       }
 
@@ -14420,14 +15788,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       resizeIzhikevichParameters(neuronSize);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
-        int neuronIdx =
-            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
         aDesignArray[selected.id] = sldAWeight;
         aBufView[neuronIdx] = sldAWeight;
       }
 
       // controller.singleSelection = null;
 
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // Izhikevich A text submitted
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // Izhikevich B text submitted
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // Izhikevich C text submitted
+      if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // Izhikevich D text submitted
       setState(() {});
     } catch (err) {}
   }
@@ -14449,8 +15826,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       printDebug(controller.singleSelection);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
-        int neuronIdx =
-            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
         bDesignArray[selected.id] = sldBWeight;
         bBufView[neuronIdx] = sldBWeight;
       }
@@ -14465,11 +15847,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     try {
       if (value.trim() == "") value = "0";
       sldCWeight = double.parse(value);
-      if (sldCWeight > 0) {
-        sldCWeight = 0;
+      if (sldCWeight > -30) {
+        sldCWeight = -30;
       }
-      if (sldCWeight < -100) {
-        sldCWeight = -100;
+      if (sldCWeight < -80) {
+        sldCWeight = -80;
       }
 
       sldCWeight = sldCWeight.roundToDouble();
@@ -14477,8 +15859,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       resizeIzhikevichParameters(neuronSize);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
-        int neuronIdx =
-            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
         cDesignArray[selected.id] = sldCWeight.floor();
         cBufView[neuronIdx] = sldCWeight.floor();
       }
@@ -14505,8 +15892,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       resizeIzhikevichParameters(neuronSize);
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
-        int neuronIdx =
-            controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
+        int neuronIdx = -1;
+for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
+  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
+    neuronIdx = _syntIdx;
+    break;
+  }
+}
         dDesignArray[selected.id] = sldDWeight.floor();
         dBufView[neuronIdx] = sldDWeight.floor();
       }
@@ -14603,14 +15995,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   }
 
   String _getGamepadKeyName(GamepadEvent event) {
-    // Check if it's an axis OR a button behaving like an axis (value < 0)
-    // Some controllers report dpad as "button" but with -1.0 value for left/up.
-    if (event.type == KeyType.analog || (event.value.abs() > 0.5 && event.value < 0)) {
-       // Append direction symbol based on value
-       String direction = event.value > 0 ? "+" : "-";
-       return "Pad:${event.gamepadId}:${event.key}:$direction";
+    // Axis events always get a direction suffix.
+    // Some controllers (especially on iOS) report D-pad as KeyType.button but
+    // with key names containing "axis" (e.g. "dpad - xAxis") and values +1/0/-1.
+    // Detect these and also give them direction suffixes so left vs right bind distinctly.
+    bool isAxisLike = event.type == KeyType.analog ||
+        event.key.toLowerCase().contains("axis");
+
+    if (isAxisLike && event.value.abs() > 0.3) {
+      String direction = event.value > 0 ? "+" : "-";
+      return "Pad:${event.gamepadId}:${event.key}:$direction";
     }
-    return "Pad:${event.gamepadId}:${event.key}"; 
+    // Fallback: plain button negative-value directional (e.g. some older MFi controllers)
+    if (event.type == KeyType.button && event.value < -0.3) {
+      return "Pad:${event.gamepadId}:${event.key}:-";
+    }
+    return "Pad:${event.gamepadId}:${event.key}";
   }
 
   void _updateGamepadSubscription() {
@@ -14651,14 +16051,43 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
       // 2. Binding Logic
       if (_isListeningForRemoteInput) {
-          // Bind buttons on press (threshold > 0.5)
-          bool isButtonPress = event.type == KeyType.button && event.value > 0.5;
-          // Bind axis (or axis-like button) on strong push (threshold > 0.5 or < -0.5)
-          bool isAxisPress = (event.type == KeyType.analog || event.type == KeyType.button) && (event.value > 0.5 || event.value < -0.5);
+          bool isButtonPress = event.type == KeyType.button && event.value.abs() > 0.5;
+          // Axis press: analog exceeds threshold
+          bool isAxisPress  = event.type == KeyType.analog && (event.value > 0.5 || event.value < -0.5);
 
-          if (isButtonPress || isAxisPress) {
+          if (isButtonPress) {
+               // BUTTON: highest priority — key name already carries direction
+               // (e.g. "l.joystick.left" vs "l.joystick.right"). Lock immediately.
+               _isListeningForRemoteInput = false;
                String keyName = _getGamepadKeyName(event);
+               if (_isShowInputDebug) {
+                 setState(() {
+                   _debugInputLog = "✅ BOUND(btn): '$keyName'\n" + _debugInputLog;
+                 });
+               }
                _bindRemoteControlKey(keyName);
+          } else if (isAxisPress) {
+               // ANALOG: on iOS the xAxis fires with an unsigned positive value for
+               // BOTH left and right (absolute magnitude). Defer binding by one
+               // event-loop cycle so any directional button events in the same batch
+               // can preempt and bind the correct direction-named key instead.
+               String keyName = _getGamepadKeyName(event);
+               if (_isShowInputDebug) {
+                 setState(() {
+                   _debugInputLog = "⏳ AXIS-defer: '$keyName' val=${event.value}\n" + _debugInputLog;
+                 });
+               }
+               Future.delayed(Duration.zero, () {
+                   if (_isListeningForRemoteInput) {
+                       _isListeningForRemoteInput = false;
+                       if (_isShowInputDebug) {
+                         setState(() {
+                           _debugInputLog = "✅ BOUND(axis): '$keyName'\n" + _debugInputLog;
+                         });
+                       }
+                       _bindRemoteControlKey(keyName);
+                   }
+               });
           }
       }
 
@@ -14707,13 +16136,22 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   void _bindRemoteControlKey(String keyLabel) {
       InfiniteCanvasNode? selected = controller.selection.isNotEmpty ? controller.selection[0] : null;
       if (selected != null) {
+        // IMPORTANT: set synchronously BEFORE setState to prevent rapid overshoot
+        // events from calling _bindRemoteControlKey again with the wrong direction
+        // (setState only schedules the flag update for the next frame).
+        _isListeningForRemoteInput = false;
+        if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // RC key binding changed
         mapRemoteControlNeuron[selected.id] = keyLabel;
         setState(() {
           _remoteControlBoundKeyLabel = keyLabel;
-          _isListeningForRemoteInput = false;
           // Trigger redraw
           selected.label = "🎮 $keyLabel";
+          // Immediately notify canvas to repaint RC icon
+          controller.notifyListeners();
         });
+        // Bump the targeted notifier so the RC icon ListenableBuilder rebuilds
+        // without firing on every synapseFade tick.
+        _rcBindingVersion.value++;
         
         // Cleanup listeners
         HardwareKeyboard.instance.removeHandler(_onRemoteKeyBound);
@@ -14725,7 +16163,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
            // populateMatrix(); // Maybe needed if key binding affects sim params?
            
            // Ensure UI Rebuild (Nucleus needs notification)
-           controller.notifyListeners(); 
            if (mounted) setState(() {});
         });
       }
@@ -14755,6 +16192,19 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     return false;
   }
 
+  /// True when at least one Remote Control neuron in the brain has no key binding.
+  bool get _hasUnboundRemoteNeurons {
+    for (int i = 0; i < neuronSize; i++) {
+      if (i + 2 >= controller.nodes.length) continue;
+      InfiniteCanvasNode node = controller.nodes[i + 2];
+      if (neuronTypes[node.id] == "Remote Control") {
+        String? key = mapRemoteControlNeuron[node.id];
+        if (key == null || key.isEmpty) return true;
+      }
+    }
+    return false;
+  }
+
   void _updateRemoteControlNeurons() {
      for (int i = 0; i < neuronSize; i++) {
         if (i + 2 >= controller.nodes.length) continue;
@@ -14771,6 +16221,9 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 } else {
                     iBufView[i] = 0.0; // Reset
                 }
+            } else {
+                // Unbound RC neuron: driven by on-screen Remote Trigger button
+                iBufView[i] = _remoteTriggerPressed ? 50.0 : 0.0;
             }
         }
     }
@@ -14786,6 +16239,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         FocusManager.instance.primaryFocus!.context!.widget is EditableText) {
       return false;
     }
+
+    // If we are NOT running the full simulation, do not aggressively steal keys.
+    // This allows local Focus nodes (like the Embedded Plotter) to consume them.
+    if (!isSimulatingBrain) return false;
     
     // Debug Log to diagnose why keys fail without debugger
     // printDebug("SimKey: ${_getKeyName(event.physicalKey)}");
@@ -15090,20 +16547,23 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                     random.nextInt(20) +
                     0);
           }
-          if (emptyArea.dx < brainPosition.dx * scaleMultiplier) {
-            emptyArea = Offset(brainPosition.dx, emptyArea.dy);
+          // X bounds: use brainHomeX (left edge) and brainHomeX + scaled brain width (right edge).
+          // Previously used brainPosition.dx (static 190px authoring value) which is wrong
+          // in portrait/different-size windows where brainHomeX is the true screen-space left edge.
+          final double brainLeft  = brainHomeX;
+          final double brainRight = brainHomeX + brainSize.width * scaleMultiplier;
+          if (emptyArea.dx < brainLeft) {
+            emptyArea = Offset(brainLeft + neuronDrawSize, emptyArea.dy);
           }
           if (emptyArea.dy <
               brainPosition.dy * scaleMultiplier + topInnerWindowSpace) {
-            emptyArea = Offset(emptyArea.dx, brainPosition.dy);
+            emptyArea = Offset(emptyArea.dx, brainPosition.dy + neuronDrawSize);
           }
 
-          if (emptyArea.dx >
-              (brainPosition.dx + brainSize.width) * scaleMultiplier +
-                  leftInnerWindowSpace) {
-            emptyArea =
-                Offset(brainPosition.dx + brainSize.width, emptyArea.dy);
+          if (emptyArea.dx > brainRight) {
+            emptyArea = Offset(brainRight - neuronDrawSize, emptyArea.dy);
           }
+
           if (emptyArea.dy >
               (brainPosition.dy + brainSize.height) * scaleMultiplier +
                   topInnerWindowSpace) {
@@ -15138,7 +16598,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     return flag;
   }
 
-  Widget generateTargetWidgets(Map<String, dynamic> mapDistanceInfo, int idx) {
+  Widget generateTargetWidgets(Map<String, dynamic> mapDistanceInfo, int idx, {bool isFloatingMarker = false}) {
     String distanceLabel = mapDistanceInfo["label"] ?? "";
     String distanceIcon = mapDistanceInfo["icon"] ?? "";
     Widget targetIcon;
@@ -15216,7 +16676,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                     color:
-                        selectedEyeInfo["label"] == mapDistanceInfo["label"] // V16: Corret selection logic
+                        (!isFloatingMarker && selectedEyeInfo["label"] == mapDistanceInfo["label"]) // V16: Corret selection logic
                             ? colorOrange
                             : Colors.white,
                     boxShadow: [
@@ -15265,6 +16725,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
       String distanceLabel = mapDistanceInfo["label"] ?? "";
       String distanceIcon = mapDistanceInfo["icon"] ?? "";
       return GestureDetector(
+        behavior: HitTestBehavior.opaque, // Force touches to register on the entire 80x100 transparent layout box naturally!
         onTapDown: (details) async {
           if (buttonOnPressedSource != null) {
             try {
@@ -15324,6 +16785,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               // distanceLimitBufView[1] = 65;
               break;
           }
+          if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // distance zone changed
           linkDistanceConnection(distanceMenuType);
           setState(() {});
         },
@@ -15358,11 +16820,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                     ),
                     child: Text(distanceIcon,
                         textAlign: TextAlign.center,
+                        textScaleFactor: 1.0, // V20: Lock OS Accessibility Scale
                         style: const TextStyle(
                           fontSize: 38, // V12: Scaled Font
                           fontFamily: "NotoEmoji",
-                        )),
-                  )),
+                        ),
+                      ),
+                    ),
+                ),
               Positioned(
                   left: 0,
                   right: 0,
@@ -15377,11 +16842,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                           child: Text(
                             distanceLabel,
                             textAlign: TextAlign.center,
+                            textScaleFactor: 1.0, // V20: Lock OS Accessibility Scale
                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                           ),
                         ),
-                    )))
-                  )
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -15580,26 +17048,27 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         // currentFrameGapHeight = initialFrameGapHeight;
       }
     } else {
-      initialWindowWidth = MediaQuery.of(context).size.width;
-      // initialWindowHeight = MediaQuery.of(context).size.height;
-      initialWindowWidth = 870;
-      initialWindowHeight = 600;
+      // macOS / web / other desktop: use real screen dimensions, not a hardcoded 870×600.
+      // initialMinimumSize stays Size(600,600) — the natural brain authoring space.
+      // initialWindowWidth/Height are only used for gap math.
+      initialWindowWidth  = MediaQuery.of(context).size.width;
+      initialWindowHeight = MediaQuery.of(context).size.height;
 
-      double minimumSize = min(600, 600);
+      double minimumSize = min(600.0, 600.0); // brain authored at 600×600
       initialMinimumSize = Size(minimumSize, minimumSize);
       viewPortNode.update(offset: Offset(screenWidth, screenHeight));
       if (prevInitialFrameGapWidth != null) {
-        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapWidth  = initialFrameGapWidth;
         prevInitialFrameGapHeight = initialFrameGapHeight;
       }
-      initialFrameGapWidth = initialWindowWidth - initialMinimumSize.width;
+      initialFrameGapWidth  = initialWindowWidth  - initialMinimumSize.width;
       initialFrameGapHeight = initialWindowHeight - initialMinimumSize.height;
       if (prevInitialFrameGapWidth == null) {
-        prevInitialFrameGapWidth = initialFrameGapWidth;
+        prevInitialFrameGapWidth  = initialFrameGapWidth;
         prevInitialFrameGapHeight = initialFrameGapHeight;
       }
 
-      currentFrameGapWidth = initialFrameGapWidth;
+      currentFrameGapWidth  = initialFrameGapWidth;
       currentFrameGapHeight = initialFrameGapHeight;
     }
   }
@@ -15628,47 +17097,39 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
         int start = normalNeuronStartIdx + 2;
         int len = controller.nodes.length;
-        Offset newCameraNodePos =
-            Offset(nodeLeftEyeSensor.offset.dx, nodeLeftEyeSensor.offset.dy);
+        // Anchor: use the BRAIN CENTER for X (windowWidth/2), eye-sensor Y for vertical.
+        // The eye sensor X = windowWidth/2 - 5, which moves with window width, NOT brain scale.
+        // Using it as X anchor would contaminate the scale calculation.
+        Offset oldBrainCenter = Offset(displayWidth / 2.0, oldCameraNodePos.dy);
+        Offset newBrainCenter = Offset(cWindowWidth / 2.0, nodeLeftEyeSensor.offset.dy);
 
-        // Use the globally calculated canvas scaleMultiplier instead of reverse-engineering 
-        // the screen bounds. This ensures coordinates scale EXACTLY the same way the 
-        // InfiniteDropTarget rendering box scales on this specific device.
-        double uniformScale = scaleMultiplier > 0 ? scaleMultiplier : 1.0;
-        
-        // Adjust scaling if the file originated from a drastically different native resolution
-        double originalMinSize = min(displayWidth, displayHeight);
-        if (originalMinSize > 0 && originalMinSize != initialMinimumSize.height) {
-            double loadRatio = initialMinimumSize.height / originalMinSize;
-            uniformScale *= loadRatio;
-        }
+        // --- Correct uniform scale formula ---
+        // Brain scale at save time: S_old = min(savedW, savedH) / 600
+        // Brain scale right now:    S_new = currentImageHeight / 600
+        //   (currentImageHeight comes from applyBoxFit(BoxFit.contain, 600×600, screenSize))
+        // uniformScale = S_new / S_old = currentImageHeight / min(savedW, savedH)
+        //
+        // NOTE: The camera node's X position tracks windowWidth/2 (not brain scale),
+        // so deriving scale from camera-node ratios is incorrect — Y ratio alone would
+        // work but the dimension-ratio formula is more robust and simpler.
+        double savedMinDimension = max(1.0, min(displayWidth, displayHeight));
+        double uniformScale = currentImageHeight / savedMinDimension;
 
-        // Do not over-inflate beyond bounds
-        if (uniformScale > 1.0) uniformScale = 1.0;
+        print("LOAD SCALE: $uniformScale  old=$oldBrainCenter  new=$newBrainCenter");
 
         oldDifCamera.clear();
         for (int i = start; i < len; i++) {
-          oldDifCamera.add((controller.nodes[i].offset - oldCameraNodePos)
+          // Scale relative to brain center (not eye sensor, which drifts with window width)
+          oldDifCamera.add((controller.nodes[i].offset - oldBrainCenter)
               .scale(uniformScale, uniformScale));
         }
 
-        print("SCALE : $uniformScale (Original Min: $originalMinSize, New Min: $brainDisplaySize)");
         for (int i = start; i < len; i++) {
           int idx = i - start;
-          Offset diff = newCameraNodePos + oldDifCamera[idx];
-          // diff = diff.scale(scaleX, scaleY) + Offset(30, 30);
-          // if (diff.dy > cWindowHeight - neuronDrawSize * 2) {
-          //   diff = Offset(diff.dx, cWindowHeight - neuronDrawSize * 2);
-          // } else
-          // if (diff.dx > cWindowWidth - neuronDrawSize * 2) {
-          //   diff = Offset(cWindowWidth - neuronDrawSize * 2, diff.dy);
-          // }
+          Offset diff = newBrainCenter + oldDifCamera[idx];
           controller.nodes[i].offset = Offset(diff.dx, diff.dy);
-          // printDebug("controller.nodes[i].offset");
-          // printDebug(controller.nodes[i].offset);
-          // printDebug(len);
         }
-        print('v["position000"]');
+        print('silentReposition: ${len - start} nodes, scale=$uniformScale, oldCenter=$oldBrainCenter, newCenter=$newBrainCenter error=${newBrainCenter - oldBrainCenter}');
 
         break;
       }
@@ -15787,7 +17248,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
               scale: scale,
               child: CustomPaint(
                 isComplex: true,
-                willChange: true,
+                willChange: false,   // resting body shape never mutates — no compositor layer needed
                 painter: node.syntheticNeuron,
               ),
             );
@@ -15834,10 +17295,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
           inactiveC = Colors.transparent;
       }
       
-      // Design Mode Logic: Hide standard nuclei, Show RC Keycaps and Delay Clocks (Static)
-      if (!isSimulatingBrain && type != "Remote Control" && type != "Delay") {
-          inactiveC = Colors.transparent;
-      }
+      // Both design and live mode use white as the resting color → consistent green→white blink
+      // (previously design mode overrode to transparent, making the fade look different)
+
+      // Regular neurons use the repaint-only fast path (circleParams).
+      // RC/Delay types need widget trees and use childBuilder fallback.
+      bool useRepaintPath = (type != "Remote Control" && type != "Delay"
+          && nodeIdx >= normalNeuronStartIdx && n.offset != Offset.zero);
 
       Nucleus nucleus = Nucleus(
         flagIndex: i, 
@@ -15846,6 +17310,12 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
         activeColor: activeC,
         inactiveColor: inactiveC,
         controller: controller,
+        circleParams: useRepaintPath ? NucleusCircleParams(
+          isExcitatory: isExc,
+          circleRadius: neuronDrawSize / 2,
+          xNucleus: xN, yNucleus: yN,
+          widthNucleus: wN, heightNucleus: hN,
+        ) : null,
         childBuilder: (ctx, color, node) {
              String currentType = neuronTypes[node.id] ?? "";
              
@@ -15856,34 +17326,42 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
              double selectionScale = isSelected ? 1.5 : 1.0; 
                  
              if (currentType == "Remote Control") {
-                 String boundKey = mapRemoteControlNeuron[node.id] ?? "";
                  double rcSize = (neuronDrawSize * 0.9) * selectionScale;
                  double containerSize = neuronDrawSize * 0.9 * selectionScale;
                  
-                 return Center(
-                    child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                            Container(
-                                width: containerSize,
-                                height: containerSize,
-                                decoration: BoxDecoration(
-                                    color: (isExc == 1) ? Colors.black : Colors.white,
-                                    shape: BoxShape.circle,
-                                ),
-                            ),
-                            RemoteControlKeycap(
-                               node: node, 
-                               fallbackKeyName: boundKey, 
-                               isExcitatory: isExc == 1, 
-                               size: rcSize, 
-                               transparentBackground: true,
-                               overrideColor: color, 
-                               remoteControlMap: mapRemoteControlNeuron,
-                            ),
-                        ]
-                    )
-                );
+                 // ValueListenableBuilder fires only when _rcBindingVersion changes
+                 // (i.e. when a binding is accepted), NOT on every controller.notifyListeners()
+                 // call — avoiding 60fps rebuilds during the synapseFade animation.
+                 return ValueListenableBuilder<int>(
+                     valueListenable: _rcBindingVersion,
+                     builder: (ctx, _, __) {
+                         String boundKey = mapRemoteControlNeuron[node.id] ?? "";
+                         return Center(
+                             child: Stack(
+                                 alignment: Alignment.center,
+                                 children: [
+                                     Container(
+                                         width: containerSize,
+                                         height: containerSize,
+                                         decoration: BoxDecoration(
+                                             color: (isExc == 1) ? Colors.black : Colors.white,
+                                             shape: BoxShape.circle,
+                                         ),
+                                     ),
+                                     RemoteControlKeycap(
+                                        node: node, 
+                                        fallbackKeyName: boundKey, 
+                                        isExcitatory: isExc == 1, 
+                                        size: rcSize, 
+                                        transparentBackground: true,
+                                        overrideColor: color ?? ((isExc == 1) ? Colors.white : Colors.black), 
+                                        remoteControlMap: mapRemoteControlNeuron,
+                                     ),
+                                 ]
+                             )
+                         );
+                     },
+                 );
              } else if (currentType == "Delay") {
                 // Base sizes (without selection scale) — Transform.scale handles selection uniformly
                 double circleSize = neuronDrawSize * 0.9;
@@ -15920,7 +17398,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                     "🕛", // 2400ms = 12:00
                     "🕧", // 2500ms = 12:30 (wraps)
                 ];
-                int delayNodeIdx = controller.nodes.map((e) => e.id).toList().indexOf(node.id) - 2;
+                int delayNodeIdx = -1;
+                for (int i = 0; i < syntheticNeuronList.length; i++) {
+                  if (syntheticNeuronList[i].node?.id == node.id) {
+                    delayNodeIdx = i;
+                    break;
+                  }
+                }
                 int delayMs = (delayNodeIdx >= 0 && delayNodeIdx < mapDelayNeuronList.length)
                     ? mapDelayNeuronList[delayNodeIdx] : 100;
                 if (delayMs < 100) delayMs = 100;
@@ -15959,7 +17443,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                                                textAlign: TextAlign.center,
                                                style: TextStyle(
                                                    fontFamily: "NotoEmoji",
-                                                   color: textColor,
+                                                   color: color ?? ((isExc == 1) ? Colors.white : Colors.black),
                                                ),
                                            ),
                                        ),
@@ -15971,18 +17455,21 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                 );
              }
 
-            return CustomPaint(
-                painter: SingleCircle(
-                     isActive: true, 
-                     isExcitatory: isExc,
-                     circleRadius: neuronDrawSize / 2, 
-                     xNucleus: xN,
-                     yNucleus: yN,
-                     widthNucleus: wN,
-                     heightNucleus: hN,
-                     overrideColor: color
+            return Transform.scale(
+                scale: selectionScale,
+                child: CustomPaint(
+                    painter: SingleCircle(
+                         isActive: true, 
+                         isExcitatory: isExc,
+                         circleRadius: neuronDrawSize / 2, 
+                         xNucleus: xN,
+                         yNucleus: yN,
+                         widthNucleus: wN,
+                         heightNucleus: hN,
+                         overrideColor: color
+                    ),
+                    willChange: true,
                 ),
-                willChange: true,
             );
         },
         neuronSpikeFlags: neuronSpikeFlags,
@@ -16884,3 +18371,306 @@ class RemoteControlKeycap extends StatelessWidget {
   }
 }
 
+
+
+class MotorAnimatedWidget extends StatefulWidget {
+  final double value;
+  final String wheel;
+  final String action;
+  final bool isExcitatory;
+  final bool isMixed;
+  final ValueChanged<double> onChanged;
+
+  const MotorAnimatedWidget({
+    Key? key,
+    required this.value,
+    required this.wheel,
+    required this.action,
+    required this.isExcitatory,
+    required this.isMixed,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  _MotorAnimatedWidgetState createState() => _MotorAnimatedWidgetState();
+}
+
+class _MotorAnimatedWidgetState extends State<MotorAnimatedWidget> with SingleTickerProviderStateMixin {
+  late Ticker _ticker;
+  double _accumulatedTime = 0.5; // Starts resting in the middle of the arc
+  Duration _lastElapsed = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker(_onTick);
+    _ticker.start();
+  }
+  
+  void _onTick(Duration elapsed) {
+    if (_lastElapsed == Duration.zero) {
+        _lastElapsed = elapsed;
+        return;
+    }
+    double dtSeconds = (elapsed.inMicroseconds - _lastElapsed.inMicroseconds) / 1000000.0;
+    _lastElapsed = elapsed;
+
+    if (widget.value == 0 && widget.isExcitatory) return;
+    
+    // For excitatory, use actual slider value. For inhibitory, simulate a default speed (e.g. 25%)
+    double simulatedSpeed = widget.isExcitatory ? widget.value : 25.0;
+    
+    // Analog speed: 100% = 1.5 cycles per second.
+    double cyclesPerSecond = (simulatedSpeed / 100.0) * 1.5; 
+    
+    // For inhibitory, we periodically interrupt the motion.
+    // At 0%, no interruption (moves entirely at 25% speed). 
+    // At 100%, always interrupted (moves 0% of the time).
+    // Let's use time mod a period.
+    bool paused = false;
+    if (!widget.isExcitatory && widget.value > 0) {
+        // We evaluate an interruption sequence.
+        // A full cycle of motion + potential pause could be ~1.0 second.
+        double totalTime = DateTime.now().millisecondsSinceEpoch / 1000.0;
+        
+        // Let's make the interruption check period 1.0 seconds.
+        double period = 1.0; 
+        double phase = totalTime % period;
+        
+        // widget.value / 100 represents the fraction of the period spent paused.
+        double pauseFraction = widget.value / 100.0;
+        
+        if (phase < pauseFraction) {
+            paused = true;
+        }
+    }
+    
+    setState(() {
+      if (!paused) {
+         _accumulatedTime += dtSeconds * cyclesPerSecond;
+         if (_accumulatedTime > 1.0) _accumulatedTime -= 1.0;
+         if (_accumulatedTime < 0.0) _accumulatedTime += 1.0;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLeftWheel = widget.wheel == "Left"; 
+    
+    // Right wheel forward = Clockwise, Left wheel forward = Clockwise. Let's start with 1.0 for both per feedback.
+    double directionMult = 1.0;
+    if (widget.action == "reverse") directionMult *= -1.0;
+
+    double robotCenterX = isLeftWheel ? 180.0 : 120.0;
+    double robotCenterY = 120.0;
+    double rRobot = 90.0; // Tighter loop radius
+
+    return SizedBox(
+      width: 300, 
+      height: 250, // Add 10px height to deeply extend past the 0% handle
+      child: Stack(
+        children: [
+          // ArcSlider Widget Layer
+          Positioned(
+             left: isLeftWheel ? null : 0,
+             right: isLeftWheel ? 0 : null,
+             top: 0,
+             child: SizedBox(
+               width: 140,
+               child: ArcSliderWidget(
+                 value: widget.value,
+                 min: 0,
+                 max: 100,
+                 widgetWidth: 140,
+                 widgetHeight: 250,
+                 orientation: isLeftWheel ? ArcSliderOrientation.verticalRight : ArcSliderOrientation.verticalLeft,
+                 flipVertical: !isLeftWheel, 
+                 isPercentageFormatter: true,
+                 isMixedState: widget.isMixed,
+                 title: "", // Remove "Speed:" text
+                 onChanged: widget.onChanged,
+               ),
+             ),
+          ),     
+          // Animated Orbiting Robot Layer
+          Builder(
+            builder: (context) {
+              double v = _accumulatedTime; // Freezes exactly in place if widget.value == 0
+
+              // Travel in an exact 45-degree arc layout
+              double sweep = pi / 4; 
+              
+              // Bottom to Top Sweep Native Layouts
+              double startRel = sweep / 2; // +22.5 (Bottom Y)
+              double endRel = -sweep / 2;  // -22.5 (Top Y)
+
+              if (directionMult < 0) {
+                  startRel = -sweep / 2;
+                  endRel = sweep / 2;
+              }
+
+              double relAngle = startRel + (endRel - startRel) * v;
+
+              double theta = !isLeftWheel ? relAngle : (pi - relAngle);
+
+              double rx = robotCenterX + rRobot * cos(theta);
+              double ry = robotCenterY + rRobot * sin(theta);
+
+              double robotRotation = theta;
+              
+              // Handle reversing upright
+              if (directionMult < 0) {
+                  // Reversing should keep robot upright, offset by 180 degrees
+                  robotRotation += pi;
+              }
+              
+              if (!isLeftWheel) {
+                 if (directionMult < 0) robotRotation += pi;
+              } else {
+                 if (directionMult > 0) robotRotation += pi;
+              }
+
+              // Opaque everywhere except near the very end of loop
+              // If inhibitory, keep it fully opaque to show the pausing clearly
+              double opacity = 1.0;
+              if (widget.value > 0) {
+                 if (!widget.isExcitatory) {
+                     opacity = 1.0;
+                 } else {
+                     if (v < 0.1) opacity = v / 0.1;
+                     else if (v > 0.9) opacity = (1.0 - v) / 0.1;
+                 }
+              }
+
+              return Positioned(
+                left: rx - 74.5, // Center mathematical point based on SVG + padding
+                top: ry - 74.5,  
+                child: Opacity(
+                  opacity: opacity,
+                  child: Transform.rotate(
+                    angle: robotRotation,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SvgPicture.asset(
+                        "assets/icons/SpikerbotTopDownBlue.svg",
+                        width: 125,
+                        height: 125,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistanceRulerProportionalClipper extends CustomClipper<Rect> {
+  final double minVal;
+  final double maxVal;
+
+  _DistanceRulerProportionalClipper(this.minVal, this.maxVal);
+
+  @override
+  Rect getClip(Size size) {
+    double xMinFraction = 0.0;
+    if (minVal > 1.0) {
+      xMinFraction = (114.0 + (minVal / 130.0) * 286.0) / 400.0;
+    }
+    double xMaxFraction = (114.0 + (maxVal / 130.0) * 286.0) / 400.0;
+    if (xMaxFraction > 1.0) xMaxFraction = 1.0;
+
+    double left = size.width * xMinFraction;
+    double width = (size.width * xMaxFraction) - left;
+    return Rect.fromLTWH(left, 0, width, size.height);
+  }
+
+  @override
+  bool shouldReclip(_DistanceRulerProportionalClipper oldClipper) {
+    return minVal != oldClipper.minVal || maxVal != oldClipper.maxVal;
+  }
+}
+
+class _CameraAreaProportionalClipper extends CustomClipper<Rect> {
+  final double minVal;
+  final double maxVal;
+
+  _CameraAreaProportionalClipper(this.minVal, this.maxVal);
+
+  @override
+  Rect getClip(Size size) {
+    double xMinFraction = (minVal - 1) / 319.0;
+    double xMaxFraction = (maxVal - 1) / 319.0;
+    if (xMinFraction < 0) xMinFraction = 0;
+    if (xMaxFraction > 1.0) xMaxFraction = 1.0;
+
+    double left = size.width * xMinFraction;
+    double width = (size.width * xMaxFraction) - left;
+    return Rect.fromLTWH(left, 0, width, size.height);
+  }
+
+  @override
+  bool shouldReclip(_CameraAreaProportionalClipper oldClipper) {
+    return minVal != oldClipper.minVal || maxVal != oldClipper.maxVal;
+  }
+}
+
+/// Draws up to 3 sine waves stacked vertically (top=high, mid=mid, bottom=low).
+/// Only waves whose band overlaps the selected Hz range are painted.
+class MicFrequencyWavePainter extends CustomPainter {
+  final bool showLow;   // range covers < 250 Hz
+  final bool showMid;   // range covers 251–4000 Hz
+  final bool showHigh;  // range covers > 4000 Hz
+
+  const MicFrequencyWavePainter({
+    required this.showLow,
+    required this.showMid,
+    required this.showHigh,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final rowH = size.height / 3;
+
+    void drawWave(int row, double cycles, double amplitude, double stroke) {
+      final midY = (row + 0.5) * rowH;
+      final amp  = rowH * amplitude;
+      paint.strokeWidth = stroke;
+      final path = Path();
+      const steps = 300;
+      for (int i = 0; i <= steps; i++) {
+        final x = i / steps * size.width;
+        final y = midY - amp * sin(2 * pi * cycles * x / size.width);
+        if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+      }
+      canvas.drawPath(path, paint);
+    }
+
+    // Row 0 = top    → high freq  (many tight cycles, thin stroke)
+    // Row 1 = middle → medium freq
+    // Row 2 = bottom → low freq   (few wide cycles, thick stroke)
+    if (showHigh) drawWave(0, 11, 0.28, 1.5);
+    if (showMid)  drawWave(1,  5, 0.34, 2.2);
+    if (showLow)  drawWave(2,  2, 0.38, 3.0);
+  }
+
+  @override
+  bool shouldRepaint(MicFrequencyWavePainter o) =>
+      o.showLow != showLow || o.showMid != showMid || o.showHigh != showHigh;
+}

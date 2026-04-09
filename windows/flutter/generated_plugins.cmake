@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  gamepads_windows
   native_opencv
   permission_handler_windows
   screen_retriever
