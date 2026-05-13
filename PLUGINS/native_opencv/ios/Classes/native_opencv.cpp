@@ -427,16 +427,21 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                             out_ptr[x] = 0;
                         } 
                         // Compress the shading tier mathematically so it strictly acts as a fast transitional gradient
-                        else if (val < epsilon + 0.40f) {
-                            float shadowDepth = (val - (epsilon * 0.80f)) / (epsilon + 0.40f - epsilon * 0.80f); 
+                        // Favor pure white more by reducing the gradient width down to 0.18f
+                        else if (val < epsilon + 0.18f) {
+                            float shadowDepth = (val - (epsilon * 0.80f)) / (epsilon + 0.18f - epsilon * 0.80f); 
                             
-                            int strokeWidth = 3 - (int)(shadowDepth * 4.0f); 
+                            // Taper lines naturally. strokeWidth drops from 2 down to 0 locally. 
+                            int strokeWidth = 2 - (int)(shadowDepth * 3.0f); 
+                            if (strokeWidth < 0) strokeWidth = 0;
                             
-                            // Calculate an organic Sine wave phase distortion (Plasma effect) locally across the coordinate map
-                            int phaseX = (int)(8.0f * std::sin(x * 0.04f));
-                            int phaseY = (int)(8.0f * std::sin(y * 0.04f));
+                            // Giant stretching sweeping organic sinusoid
+                            float phaseX = 34.0f * std::sin(y * 0.017f);
+                            float phaseY = 34.0f * std::sin(x * 0.017f);
                             
-                            if ((x + y + phaseX + phaseY) % 6 <= strokeWidth) out_ptr[x] = 0;
+                            // Apply the sinusoid perpendicular to the gradient slope to create curving contours 
+                            int field_val = (int)( (x + y)*1.0f + phaseX + phaseY + 10000.0f );
+                            if (field_val % 8 <= strokeWidth) out_ptr[x] = 0;
                         }
                     }
                 }
@@ -486,18 +491,20 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         
             Mat mask, mask1, mask2;
 
-            if (ncol == 2) { // Red (Hue 0-8 and 160-180)
-                inRange(hsvFrame, Scalar(0, 89, 89), Scalar(8, 255, 255), mask1);
-                inRange(hsvFrame, Scalar(160, 89, 89), Scalar(180, 255, 255), mask2);
+            if (ncol == 2) { // Red (Hue 0-6 and 165-180) - Tightened hue and bumped saturation to reject human skin tones (orange/pink bleed)
+                inRange(hsvFrame, Scalar(0, 75, 40), Scalar(6, 255, 255), mask1);
+                inRange(hsvFrame, Scalar(165, 75, 40), Scalar(180, 255, 255), mask2);
                 bitwise_or(mask1, mask2, mask);
-            } else if (ncol == 1) { // Green (Hue 40-78)
-                inRange(hsvFrame, Scalar(40, 89, 89), Scalar(78, 255, 255), mask);
-            } else { // Blue (Hue 93-127)
-                inRange(hsvFrame, Scalar(93, 89, 89), Scalar(127, 255, 255), mask);
+            } else if (ncol == 1) { // Green (Hue 34-77) - Gently lowered saturation floor to make it easier to see in medium light
+                inRange(hsvFrame, Scalar(34, 85, 45), Scalar(77, 255, 255), mask);
+            } else { // Blue (Hue 90-130) - Kept perfect
+                inRange(hsvFrame, Scalar(90, 70, 35), Scalar(130, 255, 255), mask);
             }
 
-                // Morphological opening to remove noise
-                // morphologyEx(mask, mask, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(3,3)));
+            // Spatial Hysteresis (Morphological Operations) to reduce flickering and stabilize silhouettes
+            Mat kernel = getStructuringElement(MORPH_RECT, Size(5,5));
+            morphologyEx(mask, mask, MORPH_OPEN, kernel);  // Removes tiny noisy flicker pixels
+            morphologyEx(mask, mask, MORPH_CLOSE, kernel); // Fills in gaps and solidifies the blob tracking
                 fprintf(stderr, "findColorInImage_opencv: inRange done. cca starting...\n");
                 cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(mask);
                 fprintf(stderr, "findColorInImage_opencv: cca done. count=%lu\n", cca_wrapper.get_connected_component_count());
@@ -556,15 +563,13 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
 
                             blobsFound++;
 
-                            // Debug Overlay Drawing (Draw for all detected blobs within top 5)
+                            // Debug Overlay Drawing (Draw exact silhouette masks)
                             if (debugImageBuffer != nullptr) {
                                 Mat debugMat(240, 320, CV_8UC4, debugImageBuffer);
                                 int x = cca_wrapper.get_most_left_of_centroid(idx);
                                 int y = cca_wrapper.get_most_top_of_centroid(idx);
                                 int w = w_blob;
                                 int h = h_blob;
-                                int radius = 10;
-                                radius = std::min(radius, std::min(w/2, h/2));
                                 int right = x + w;
                                 int bottom = y + h;
                                 Vec3b overlayColor(252, 150, 25);
@@ -574,17 +579,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
                                 for (int i = y; i < bottom; i++) {
                                     for (int j = x; j < right; j++) {
                                         if (i < 0 || i >= 240 || j < 0 || j >= 320) continue;
-                                        bool inside = true;
-                                        if (j < x + radius && i < y + radius) {
-                                            if (pow(j - (x + radius), 2) + pow(i - (y + radius), 2) > pow(radius, 2)) inside = false;
-                                        } else if (j > right - radius && i < y + radius) {
-                                            if (pow(j - (right - radius), 2) + pow(i - (y + radius), 2) > pow(radius, 2)) inside = false;
-                                        } else if (j < x + radius && i > bottom - radius) {
-                                            if (pow(j - (x + radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
-                                        } else if (j > right - radius && i > bottom - radius) {
-                                            if (pow(j - (right - radius), 2) + pow(i - (bottom - radius), 2) > pow(radius, 2)) inside = false;
-                                        }
-                                        if (inside) {
+                                        
+                                        // DRAW RAW EXACT SILHOUETTE PIXELS INSTEAD OF BOXES
+                                        if (cca_wrapper.getLabels().at<uint16_t>(i, j) == idx) {
                                             Vec4b &pixel = debugMat.at<Vec4b>(i, j);
                                             pixel[0] = (pixel[0] * overlayColor[0]) / 255;
                                             pixel[1] = (pixel[1] * overlayColor[1]) / 255;

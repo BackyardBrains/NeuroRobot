@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -277,7 +277,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
           onPointerSignal: (event) {
                   // Desktop only: mouse scroll wheel zoom anchored at cursor.
                   // iOS/Android don't have physical mouse scroll events.
-                  if (kIsWeb || Platform.isIOS || Platform.isAndroid) return;
+                  if (Platform.isIOS || Platform.isAndroid) return;
                   if (event is PointerScrollEvent &&
                       event.kind == PointerDeviceKind.mouse) {
                     const double zoomStep = 0.12;
@@ -316,6 +316,13 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // and the UI listeners rely on the new mousePosition!
             controller.mousePosition = details.localPosition;
             controller.mouseDown = true;
+
+            // WEB: Set mouseDragStart here because InteractiveViewer's gesture
+            // handling is disabled on web (both panEnabled and scaleEnabled are
+            // false), so onInteractionStart won't set it.
+            if (kIsWeb) {
+              controller.mouseDragStart = details.localPosition;
+            }
             
             // WEB CHANGE
             if (kIsWeb) {
@@ -379,6 +386,12 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             // which caused it to get stuck = true — all subsequent 2-finger trackpad
             // events would hit moveSelection() instead of the pan branch.
             controller.mouseDown = false;
+
+            // WEB: onInteractionEnd won't reliably fire (pan/scale disabled), so
+            // clear mouseDragStart here to prevent stale drag origins.
+            if (kIsWeb) {
+              controller.mouseDragStart = null;
+            }
 
             // Right-click / middle-click pan end — clear the flag.
             if (_rightClickDragStart != null) {
@@ -461,6 +474,33 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
             firstTapTime = 0;
             secondTapTime = 0;
 
+            // WEB: Handle ALL pointer-move gestures here instead of through
+            // InteractiveViewer. IV's gesture arena on Chrome causes pan+zoom
+            // conflicts, neuron lag, and stuck drag states. By handling pan and
+            // neuron drag directly in the Listener, we get clean 1:1 behavior.
+            // Native (iOS/macOS) is unaffected — it uses IV's onInteractionUpdate.
+            if (kIsWeb && controller.mouseDown) {
+              if (controller.linkStart != null) {
+                // Drawing a connection line
+                controller.linkEnd = details.localPosition;
+                controller.checkSelection(controller.linkEnd!, true);
+              } else if (controller.controlPressed) {
+                // Ctrl+drag = draw edge, no move
+              } else if (controller.hasSelection && !controller.lockNodeDragging) {
+                // Drag selected neuron(s) — use localPosition to match
+                // the coordinate space of mouseDragStart.
+                controller.moveSelection(details.localPosition);
+              } else if (controller.canvasMoveEnabled) {
+                // Pan canvas — translate by pointer delta in canvas coords
+                final double scale = controller.getScale();
+                final Matrix4 matrix = controller.transform.value.clone();
+                matrix.translate(details.delta.dx / scale, details.delta.dy / scale);
+                controller.transform.value = matrix;
+              }
+              controller.mousePosition = details.localPosition;
+              return;
+            }
+
             // CHANGE ME
             // controller.marqueeEnd = details.localPosition;
             // if (controller.marqueeStart != null &&
@@ -541,18 +581,36 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
 
               return InteractiveViewer.builder(
                 transformationController: controller.transform,
-                panEnabled: controller.canvasMoveEnabled &&
+                // WEB: Disable BOTH pan and scale — all gesture handling is done
+                // in the Listener above (onPointerMove for pan/drag, onPointerSignal
+                // for zoom). This eliminates Chrome's gesture arena conflicts.
+                // Native: InteractiveViewer owns pan (single-pointer) and scale (pinch).
+                panEnabled: !kIsWeb &&
+                    controller.canvasMoveEnabled &&
                     !controller.controlPressed &&
                     controller.linkStart == null,
-                // scaleEnabled: controller.canvasMoveEnabled,
-                scaleEnabled: true,
+                scaleEnabled: !kIsWeb,
                 onInteractionStart: (details) {
                   // print("controller.mousePosition");
                   // print(details.focalPoint);
 
-                  controller.mousePosition = details.focalPoint;
-                  controller.mouseDragStart = controller.mousePosition;
-                  // WEB CHANGE
+                  // WEB: Use localFocalPoint (local to InteractiveViewer) so
+                  // that toLocal(mousePosition) in designbrain_page works
+                  // correctly under FittedBox. On native, use global focalPoint
+                  // for compatibility with globalToLocal() callers.
+                  controller.mousePosition = kIsWeb
+                      ? details.localFocalPoint
+                      : details.focalPoint;
+
+                  // WEB: Do NOT overwrite mouseDragStart here.
+                  // On web, onPointerDown already set it correctly using
+                  // Listener.localPosition (which respects FittedBox's
+                  // coordinate inflation). details.focalPoint is in GLOBAL
+                  // screen coordinates — overwriting would cause a snap offset
+                  // when FittedBox is active (shortestSide < 600).
+                  if (!kIsWeb) {
+                    controller.mouseDragStart = controller.mousePosition;
+                  }
                   if (kIsWeb) {
                   } else if (Platform.isIOS) {
                     // print(controller.mousePosition);
@@ -560,6 +618,10 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   }
                 },
                 onInteractionUpdate: (details) {
+                  // WEB: All gesture handling is done in the Listener (onPointerMove).
+                  // Skip InteractiveViewer callback processing entirely on web.
+                  if (kIsWeb) return;
+
                   // Right-click/middle-click pan already handled in Listener.onPointerMove.
                   if (_rightClickDragStart != null) return;
 
@@ -600,6 +662,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                 onInteractionEnd: (_) => controller.mouseDragStart = null,
                 minScale: controller.minScale,
                 maxScale: controller.maxScale,
+                alignment: Alignment.topLeft,
                 // scaleFactor=infinity disables InteractiveViewer's own mouse scroll zoom:
                 // math.exp(-dy/infinity) = exp(0) = 1.0 → scaleChange=1.0 → IV returns early.
                 // Our deep Listener (inside builder) handles mouse scroll with correct
@@ -618,7 +681,7 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                   // Hard clamp at min/max — overflow returns early, no pan drift at bounds.
                   // Trackpad pan: handled via _globalScrollRoute (global route, separate path).
                   return Listener(
-                    onPointerSignal: (kIsWeb || Platform.isIOS || Platform.isAndroid)
+                    onPointerSignal: (Platform.isIOS || Platform.isAndroid)
                         ? null
                         : (event) {
                             if (event is PointerScrollEvent &&
@@ -663,12 +726,20 @@ class InfiniteCanvasState extends State<InfiniteCanvas> {
                       child: Stack(
                         // clipBehavior: Clip.none,
                         children: [
-                          Positioned.fill(
-                            child: buildBackground(context, quad),
-                          ),
-                          Positioned.fill(
-                            child: buildActiveComponent(context, quad),
-                          ),
+                          if (widget.backgroundBuilder != null) ...[
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              child: buildBackground(context, quad),
+                            ),
+                          ],
+                          if (widget.activeComponent != null) ...[
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              child: buildActiveComponent(context, quad),
+                            ),
+                          ],
                           cachedNodesLayer,
                         ],
                       ),

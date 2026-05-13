@@ -7,6 +7,47 @@ The Spikerbot App is an all in one design tool & neural simulator. Build spiking
 
 ---
 
+## v1.5.0
+**Date:** 2026-05-13
+
+### Chrome, macOS & iOS Release!
+*   Spikerbot now runs on **Chrome** as a fully offline Progressive Web App (PWA), in addition to macOS and iOS.
+
+### Sensory I/O Animations
+*   Added animations and perspective illustrations to show users how SpikerBot will react to stimuli and when driving outputs.
+
+### Remote Control Neurons
+*   **New Neuron Type**: Remote Control neurons allow you to give SpikerBot external sensors using keyboard and gamepad commands via a binding button.
+*   **Remote Trigger**: Unbound Remote Control neurons can be collectively triggered with a Remote Trigger button that appears in Live Mode.
+*   **Full Spike Support**: Remote Control neurons can receive and send spikes just like a Quiet-type neuron.
+
+### SpikerVision Upgrade
+*   **Enabled by Default**: SpikerVision is now active out of the box.
+*   **YOLOv8 Nano**: Camera detection model updated from SSD MobileNet to YOLOv8 Nano for faster, more accurate object recognition.
+*   **Silhouette Detection**: Both machine-learned targets and OpenCV color detection now highlight silhouettes rather than bounding boxes.
+*   **Custom Shading**: A new dithering algorithm applies across the entire displayed image as a visual filter.
+
+### Microphone Support
+*   Added **volume**, **frequency**, and **key/pitch detection** as sensory inputs for your neural networks.
+
+### Motor & LED Refractory Period
+*   During simulation, motor and LED outputs now include a refractory period — signals decay to replicate muscles and chromatophores for more biologically realistic behavior.
+
+### 30 Example Brain Files
+*   Included in-app using all neuron types to help users learn and experiment.
+*   **Sortable** by complexity, name, or date.
+*   **Filterable** by what I/O or special neurons your brains use.
+
+### Annotations
+*   Each `.brain` file can now include **annotations** — make notes to describe sub-functions of neurons and axons within your brain design.
+*   **Reorder** and **recall** annotations to learn others' designs or remember where you left off.
+
+### Lab Notebook
+*   The Save menu has been redesigned into the **Lab Notebook**, showcasing your annotations and notes as you research, study, and experiment.
+*   Brain files have been updated visually to show you more about your files and examples at a glance.
+
+---
+
 ## v1.3.2
 **Date:** 2026-01-23
 

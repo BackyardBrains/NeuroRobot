@@ -1,10 +1,10 @@
-import 'dart:ffi' as ffi;
+import 'package:spikerbot/utils/ffi_imports.dart' as ffi;
 import 'dart:typed_data';
 
-import 'package:ffi/ffi.dart';
+import 'package:spikerbot/utils/ffi_package_imports.dart';
 import 'package:flutter/foundation.dart';
-import 'package:native_opencv/native_opencv.dart';
-import 'package:spikerbot/utils/Allocator.dart';
+import 'package:spikerbot/stubs/native_opencv_imports.dart';
+import 'package:spikerbot/stubs/allocator_imports.dart';
 
 ffi.Pointer<ffi.Uint8> ptrFrame =
     allocate<ffi.Uint8>(count: 320 * 240, sizeOfType: ffi.sizeOf<ffi.Uint8>());

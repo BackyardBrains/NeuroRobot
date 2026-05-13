@@ -156,7 +156,37 @@ legacy/NeuroRobotToolbox/rcnn*
 legacy/NeuroRobotToolbox/Google_Credentials_Speech2text.json
 legacy/NeuroRobotToolbox/*.asv
 
+# Dev scratch & test files
+/scratch*.dart
+/temp_*.dart
+/debug_*.patch
+/diff_output.txt
+/grep.txt
+/build_log.txt
+/fix_methods.sh
+/apply_web_port.sh
+/test_c_random
+/test_c_random.cpp
+/test_sim
+/test_sim.cpp
+/test_sim5
+/test_sim5.cpp
+/test_nodelay.cpp
+/test_delay.dart
+/test_inference.dart
+/test_iz.dart
+/test_izhikevich_delay.dart
+/test_labels.dart
+/test_tflite_details.py
+/test_tflite_run.dart
+/test_time.dart
+/test_time_2.dart
+/test_ws.dart
+/yolov8n-seg.pt
 
+# WASM build toolchain
+wasm_build/
 
-
+# Local brain data
+brain/
 

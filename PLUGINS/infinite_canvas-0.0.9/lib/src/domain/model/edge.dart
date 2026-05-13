@@ -22,4 +22,8 @@ class InfiniteCanvasEdge {
   /// Guards the gradient rendering in edge_renderer so stale edge.color
   /// on non-LED axons never triggers the black-to-color LED gradient.
   bool isLedEdge = false;
+
+  /// Holds the timestamp of the last detected sensor hit specifically for THIS edge, 
+  /// allowing decoupled per-connection visual glowing instead of bleeding across the entire global sensor.
+  int lastSpikeTime = 0;
 }

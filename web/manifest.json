@@ -1,12 +1,14 @@
 {
-    "name": "neurorobot",
-    "short_name": "neurorobot",
+    "id": "/",
+    "name": "SpikerBot",
+    "short_name": "SpikerBot",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hex_code",
-    "theme_color": "#hex_code",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "scope": "/",
+    "background_color": "#4A90D9",
+    "theme_color": "#4A90D9",
+    "description": "Design neural networks for your SpikerBot robot.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

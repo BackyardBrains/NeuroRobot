@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 TextEditingController txtSaveTitleController = TextEditingController();
 TextEditingController txtSaveDescriptionController = TextEditingController();
@@ -28,7 +29,7 @@ Future<void> saveBrainInfoDialog(BuildContext context, saveCallback) async {
                 // Header
                 Row(
                   children: [
-                    const Icon(Icons.save_as_rounded, size: 40, color: Colors.blueGrey),
+                    SvgPicture.asset('assets/icons/SaveAs.svg', width: 40, height: 40),
                     const SizedBox(width: 16),
                     Text(
                       "Save Brain",
@@ -81,7 +82,7 @@ Future<void> saveBrainInfoDialog(BuildContext context, saveCallback) async {
                         child: const Text("Cancel")),
                     const SizedBox(width: 16),
                     FilledButton.icon(
-                        icon: const Icon(Icons.save),
+                        icon: SvgPicture.asset('assets/icons/Save.svg', width: 20, height: 20),
                         onPressed: () async {
                           String title = txtSaveTitleController.text;
                           String description = txtSaveDescriptionController.text;

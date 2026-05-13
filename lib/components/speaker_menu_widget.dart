@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:spikerbot/utils/app_audio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'byb_highlighted_text.dart';
 
 // Hardcoded Sound Effects Data
 class SoundEffect {
@@ -49,9 +50,9 @@ class SpeakerMenuWidget extends StatefulWidget {
   final Function(double) onFrequencyChanged;
   final double currentFrequency;
   
-  final SoLoud? soloud;
-  final AudioSource? buttonOnPressedSource;
-  final AudioSource? buttonPopSource;
+  final AppAudio? soloud;
+  final dynamic buttonOnPressedSource;
+  final dynamic buttonPopSource;
   
   final int infoState; // V12: 0=Off, 1=Info, 2=Labels
 
@@ -101,16 +102,31 @@ class _SpeakerMenuWidgetState extends State<SpeakerMenuWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.currentFrequency >= 31 && widget.currentFrequency <= 40) {
+    _syncStateFromFrequency(widget.currentFrequency);
+  }
+
+  @override
+  void didUpdateWidget(covariant SpeakerMenuWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-derive full state when switching between different speaker connections
+    if (oldWidget.currentFrequency != widget.currentFrequency) {
+      _syncStateFromFrequency(widget.currentFrequency);
+    }
+  }
+
+  void _syncStateFromFrequency(double freq) {
+    if (freq >= 31 && freq <= 40) {
       _mode = 0;
-      _selectedVoiceId = widget.currentFrequency.toInt();
-    } else if (widget.currentFrequency >= 70) {
+      _selectedVoiceId = freq.toInt();
+      _isChoosingInstrument = false;
+    } else if (freq >= 70) {
       _mode = 1;
+      _isChoosingInstrument = false;
       for (int i = 0; i < instrumentEffects.length; i++) {
          int start = instrumentEffects[i].baseStartFreq!;
-         if (widget.currentFrequency >= start && widget.currentFrequency < start + 24) {
+         if (freq >= start && freq < start + 24) {
            _selectedInstrumentIndex = i;
-           int diff = widget.currentFrequency.toInt() - start;
+           int diff = freq.toInt() - start;
            _octaveOffset = (diff / 12).floor();
            if (_octaveOffset > 1) _octaveOffset = 1; 
            break;
@@ -234,14 +250,11 @@ class _SpeakerMenuWidgetState extends State<SpeakerMenuWidget> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
+                        child: BybHighlightedText(
                           _mode == 0 
                              ? "When the NEURON sends a SPIKE, Spikerbot will speak this sound!"
                              : "When the NEURON sends a SPIKE, Spikerbot will play a musical note!",
-                          style: const TextStyle(
-                            fontFamily: "BybHanddrawn",
-                            fontSize: 16, // Ensure readable
-                          ),
+                          fontSize: 16,
                           maxLines: 4,
                           textAlign: TextAlign.left,
                         ),

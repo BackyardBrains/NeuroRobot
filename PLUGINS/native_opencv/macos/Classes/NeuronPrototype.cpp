@@ -153,6 +153,51 @@ double randoms(){
 double matrixMultiply(){
     return (double)rand() / RAND_MAX; // for generating random points between 0 to 1
 }
+void initializeConstant(int neuronLength){
+    totalNeuron = neuronLength;
+    intended_timer_period = ms_per_step/1000;
+    epochs = ms_per_step;
+    vis_I = new double[neuronLength];
+    dist_I = new double[neuronLength];
+    mic_I = new double[neuronLength];
+
+}
+
+double brainSigmoid(double xx, double cc, double aa) {
+    return 1.0 / (1.0 + exp(-aa * (xx - cc)));
+}
+
+
+int main()
+{
+    srand((unsigned) time(NULL));
+    return 0;
+}
+EXTERNC void platform_log(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+#ifdef __ANDROID__
+    // __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
+#elif defined(IS_WIN32)
+    char *buf = new char[4096];
+    std::fill_n(buf, 4096, '\0');
+    _vsprintf_p(buf, 4096, fmt, args);
+    OutputDebugStringA(buf);
+    delete[] buf;
+#else
+    vprintf(fmt, args);
+#endif
+    va_end(args);
+}
+
+std::string decimalToBinaryString(int decimal) {
+    // std::string str = std::bitset<4>(decimal).to_string();
+    // platform_log("str\n");
+    // platform_log(str.c_str());
+    // platform_log("\n");
+    // return str; // Adjust bit width as needed
+    return std::bitset<4>(decimal).to_string();
+}
 
 static const double toneRanges[12][5][2] = {
     { // C
@@ -240,55 +285,6 @@ static const double toneRanges[12][5][2] = {
         {3838.590, 4066.840},
     },
 };
-
-void initializeConstant(int neuronLength){
-    totalNeuron = neuronLength;
-    intended_timer_period = ms_per_step/1000;
-    epochs = ms_per_step;
-    vis_I = new double[neuronLength];
-    dist_I = new double[neuronLength];
-    mic_I = new double[neuronLength];
-
-}
-
-double brainSigmoid(double xx, double cc, double aa) {
-    return 1.0 / (1.0 + exp(-aa * (xx - cc)));
-}
-
-
-int main()
-{
-    srand((unsigned) time(NULL));
-    return 0;
-}
-EXTERNC void platform_log(const char *fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-#ifdef __ANDROID__
-    // __android_log_vprint(ANDROID_LOG_VERBOSE, "ndk", fmt, args);
-#elif defined(IS_WIN32)
-    char *buf = new char[4096];
-    std::fill_n(buf, 4096, '\0');
-    _vsprintf_p(buf, 4096, fmt, args);
-    OutputDebugStringA(buf);
-    delete[] buf;
-#else
-    vprintf(fmt, args);
-#endif
-    va_end(args);
-}
-
-std::string decimalToBinaryString(int decimal) {
-    // std::string str = std::bitset<4>(decimal).to_string();
-    // platform_log("str\n");
-    // platform_log(str.c_str());
-    // platform_log("\n");
-    // return str; // Adjust bit width as needed
-    return std::bitset<4>(decimal).to_string();
-}
-
-
-
 
 
 #ifdef __EMSCRIPTEN__
@@ -404,7 +400,7 @@ EXTERNC FUNCTION_ATTRIBUTE double passPointers_opencv(double *_canvasBuffer, dou
 #ifdef __EMSCRIPTEN__
   EMSCRIPTEN_KEEPALIVE
 #endif
-
+short *sensor_mic_type;
 
 EXTERNC FUNCTION_ATTRIBUTE double passInput_opencv(double *p_sensor_distance, short *p_sensor_min_limit, short *p_sensor_max_limit, double *p_sensor_microphone, short *p_sensor_mic_min_limit, short *p_sensor_mic_max_limit, short *p_sensor_mic_type){
     sensor_distance = p_sensor_distance;
@@ -699,6 +695,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     }
                     vis_I[iStep] = 0;
                     dist_I[iStep] = 0;
+                    mic_I[iStep] = 0;
                     // if (dist_prefs[iStep] >= 3){
                     //     platform_log( (std::to_string(iStep)+" START DISTANCE Index \n" ).c_str());
                     // //     platform_log( (std::to_string(dist_prefs[iStep])+" START DISTANCE PREF \n" ).c_str());
@@ -745,7 +742,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     }
 */
                 }
-
+                
                 // MICROPHONE INPUT
                 for (short iStep = 0; iStep < threadInitialTotalNumOfNeurons; iStep++){
                     mic_I[iStep] = 0;
@@ -801,16 +798,16 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                 // platform_log( (std::to_string(valuePreference)+" __ " + std::to_string(ii * vis_prefs_count + k) + " START valuePreference\n" ).c_str());
                             } 
                             
-                            // if (!handled && vis_pref_vals != nullptr) {
-                            //     if (jj == 1){
-                            //         // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
-                            //         double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
-                            //         sumVisPrefVals += val1;
-                            //     }else{
-                            //         double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
-                            //         sumVisPrefVals += val2;
-                            //     }
-                            // }
+                            if (!handled && vis_pref_vals != nullptr) {
+                                if (jj == 1){
+                                    // double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, 7);
+                                    double val1 = getSimulationMatrixValue(vis_pref_vals, 0, k, vis_prefs_count);
+                                    sumVisPrefVals += val1;
+                                }else{
+                                    double val2 = getSimulationMatrixValue(vis_pref_vals, 1, k, vis_prefs_count);
+                                    sumVisPrefVals += val2;
+                                }
+                            }
                         }
 
                     }
@@ -1083,7 +1080,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     delete[] sumDelayedSignals;
 
 
-                    // VISUAL INPUT & MICROPHONE
+                    // VISUAL INPUT
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++){
                         tI[idx] += (vis_I[idx] + dist_I[idx] + mic_I[idx]);
                     }
@@ -1152,9 +1149,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                         }else
                         if (guidedDelayList[idx].neuronType == configDelayNeuron){ //delay neuron
                             if (switchSkipDelay[idx] == -1) {
-                                // Initialization pass: set countdown, push sentinel, but do NOT start
-                                // the delay thread here. Previously this pre-consumed the delay period
-                                // before any real spike arrived, causing first activation to fire instantly.
+                                // Initialization pass: do NOT start the delay thread here.
+                                // Previously this pre-consumed the delay before any real spike arrived,
+                                // causing first activation to fire instantly.
                                 switchSkipDelay[idx] = 40;
                                 if (v[idx] >= 30){
                                     if (guidedDelayList[idx].mode > 0){
@@ -1171,9 +1168,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             }else
                             if (switchSkipDelay[idx] == 0) {
                                 if (v[idx] >= 30){
-                                    // Clear any sentinels accumulated while mode==0 (before first spike).
-                                    // Without this, pop_back() gets an old sentinel (v<30) instead of
-                                    // the real spike (v>=30), breaking sumDelayedSignals propagation.
+                                    // Clear sentinels accumulated while mode==0 (before first spike)
                                     if (guidedDelayList[idx].mode == 0) {
                                         guidedDelayList[idx].clearAll();
                                     }
@@ -1262,7 +1257,6 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                 short isGreenLed = -1;
                 short isBlueLed = -1;
                 short colorSum[4][3]= {{0}};
-                short colorCount[4][3]= {{0}};
                 std::string binaryString = "";
                 short tempWeight = 0;
                 std::string spikingMessage = "";
@@ -1295,22 +1289,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][0]++;
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][0]++;
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][0]++;
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][0]++;
                                 }
                             }
 
@@ -1320,22 +1310,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][1]++;
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][1]++;
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][1]++;
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][1]++;
                                 }
 
                             }
@@ -1349,22 +1335,18 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][2]++;
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][2]++;
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][2]++;
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
                                     colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][2]++;
                                 }
                             }
                         }
@@ -1510,25 +1492,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     int red = 0;
                     int green = 0;
                     int blue = 0;
-                    int redCount = 0;
-                    int greenCount = 0;
-                    int blueCount = 0;
                     for (int ledIdx = 0; ledIdx < 4; ledIdx++){
-                        redCount = colorCount[ledIdx][0];
-                        greenCount = colorCount[ledIdx][1];
-                        blueCount = colorCount[ledIdx][2];
-                        if (redCount == 0) {
-                            redCount = 1;
-                        }
-                        if (greenCount == 0) {
-                            greenCount = 1;
-                        }
-                        if (blueCount == 0) {
-                            blueCount = 1;
-                        }
-                        red = static_cast<short>(floor(colorSum[ledIdx][0] / redCount));
-                        green = static_cast<short>(floor(colorSum[ledIdx][1] / greenCount));
-                        blue = static_cast<short>(floor(colorSum[ledIdx][2] / blueCount));
+                        red = colorSum[ledIdx][0];
+                        green = colorSum[ledIdx][1];
+                        blue = colorSum[ledIdx][2];
                         if (red> 255) red = 255;
                         if (green> 255) green = 255;
                         if (blue> 255) blue = 255;
@@ -1612,6 +1579,7 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                 delete[] v_traces;
                 delete[] vis_I;
                 delete[] dist_I;
+                delete[] mic_I;
 
                 // delete[] delayLinkedList;
                 // delete[] delayValueLinkedList;

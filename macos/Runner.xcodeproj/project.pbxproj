@@ -514,9 +514,9 @@
 			baseConfigurationReference = F791BF347E4A6F62F5C77BA6 /* Pods-RunnerTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.3.2;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.spikerbot.RunnerTests;
 				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;
@@ -529,9 +529,9 @@
 			baseConfigurationReference = 3D2A2B202995954B17733F84 /* Pods-RunnerTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.3.2;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.spikerbot.RunnerTests;
 				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;
@@ -544,9 +544,9 @@
 			baseConfigurationReference = 3296119BD929EBA72205A554 /* Pods-RunnerTests.profile.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.3.2;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.backyardbrains.spikerbot.RunnerTests;
 				PRODUCT_NAME = Spikerbot;
 				SWIFT_VERSION = 5.0;

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
 // WEB CHANGE
-import 'package:native_opencv/nativec.dart';
+import 'package:spikerbot/stubs/nativec_imports.dart';
 
 // import 'package:spikerbox_architecture/models/microphone_stream/microphone_stream.dart'
 // if (dart.library.io) 'package:spikerbox_architecture/models/microphone_stream/microphone_stream_native.dart'

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../state/controller.dart';
 import '../../domain/model/node.dart';
@@ -104,37 +105,42 @@ class _NucleusState extends State<Nucleus> {
       return const SizedBox();
     }
 
+    final child = SizedBox(
+          width: widget.size,
+          height: widget.size,
+          key: widget.circleKey,
+          child: AnimatedBuilder(
+            animation: widget.neuronSpikeFlags[widget.flagIndex],
+            builder: (context, child) {
+              // Skip animation during camera pan to keep panning smooth.
+              if (_cachedIsAnimating) {
+                return widget.childBuilder(context, widget.inactiveColor, node!);
+              }
+              return TweenAnimationBuilder<Color?>(
+                key: ValueKey(widget.lastSpikeTime),
+                tween: ColorTween(
+                    begin: widget.activeColor, end: widget.inactiveColor),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+                builder: (context, color, child) {
+                  return widget.childBuilder(context, color, node!);
+                },
+              );
+            },
+          ),
+        );
+
     return Positioned(
       top: effectivePos.dy,
       left: effectivePos.dx,
       child: Transform.scale(
         scale: widget.scale,
-        child: RepaintBoundary(
-          child: SizedBox(
-            width: widget.size,
-            height: widget.size,
-            key: widget.circleKey,
-            child: AnimatedBuilder(
-              animation: widget.neuronSpikeFlags[widget.flagIndex],
-              builder: (context, child) {
-                // Skip animation during camera pan to keep panning smooth.
-                if (_cachedIsAnimating) {
-                  return widget.childBuilder(context, widget.inactiveColor, node!);
-                }
-                return TweenAnimationBuilder<Color?>(
-                  key: ValueKey(widget.lastSpikeTime),
-                  tween: ColorTween(
-                      begin: widget.activeColor, end: widget.inactiveColor),
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOut,
-                  builder: (context, color, child) {
-                    return widget.childBuilder(context, color, node!);
-                  },
-                );
-              },
-            ),
-          ),
-        ),
+        // On web/CanvasKit, RepaintBoundary creates grey compositing layers.
+        // On native (macOS/iOS), it's needed for raster cache performance.
+        // ColoredBox(transparent) forces CanvasKit to clear the backing store.
+        child: kIsWeb
+            ? ColoredBox(color: const Color(0x00000000), child: child)
+            : RepaintBoundary(child: child),
       ),
     );
   }

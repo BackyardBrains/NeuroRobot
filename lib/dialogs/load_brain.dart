@@ -1,11 +1,13 @@
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:fialogs/fialogs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:spikerbot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:spikerbot/utils/path_provider_imports.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 
 bool isLoadBrainDialog = false;
@@ -83,7 +85,7 @@ void noSavedBrainAlert(context) {
     context,
     const Text("Load Brain"),
     const Text("There is no saved brain."),
-    titleIcon: const Icon(Icons.save),
+    titleIcon: SvgPicture.asset('assets/icons/Save.svg', width: 24, height: 24),
     positiveButtonText: "OK",
     positiveButtonAction: () {},
     negativeButtonText: "",
@@ -166,11 +168,13 @@ showBrainDisplay(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Image.file(
-                            fileNames[i],
-                            fit: BoxFit.contain,
-                            height: 150,
-                          ),
+                          kIsWeb
+                              ? SvgPicture.asset('assets/icons/LabNotebook.svg', width: 150, height: 150)
+                              : Image.file(
+                                  fileNames[i] as dynamic,
+                                  fit: BoxFit.contain,
+                                  height: 150,
+                                ),
                           Text(imageTitles[i], style: headerStyle),
                           Text(imageDescriptions[i], style: subHeaderStyle),
                         ],
@@ -219,7 +223,7 @@ showBrainDisplay(
                           )
                         ],
                       ),
-                      child: const Icon(Icons.remove),
+                      child: SvgPicture.asset('assets/icons/Remove.svg', width: 20, height: 20),
                     ),
                   ),
                 ),

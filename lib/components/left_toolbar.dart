@@ -2,10 +2,10 @@
   Belgrade 11 July 2024
   We are using Draggable and DragTarget, https://www.youtube.com/watch?v=q4x2G_9-Mu0
 */
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:spikerbot/utils/app_audio.dart';
 import 'package:flutter_svg/svg.dart';
 // import 'package:metooltip/metooltip.dart';
 import 'package:spikerbot/components/menu_icon_animation.dart';
@@ -45,20 +45,18 @@ class _RightToolbarState extends State<LeftToolbar> {
     // "assets/icons/DragMenuIconsNote"
   ];
   
-  List<SoundHandle> arrHandleDragNeuronSound = [];
+  List<dynamic> arrHandleDragNeuronSound = [];
   
-  SoLoud? soloud;
-  AudioSource? neuronSpikeSource;
-  AudioSource? neuronOnTouchSource;
+  AppAudio? soloud;
+  dynamic neuronSpikeSource;
+  dynamic neuronOnTouchSource;
   
   
 
   getSound() {
+    try {
     if (soloud!= null && soloud!.isInitialized) {
       Future.delayed(const Duration(milliseconds: 1500), () async {
-        // print("GET SOUNDZZ");
-        // print(soloud);
-        // print(soloud!.isInitialized);
         try{
           await soloud!.loadAsset('assets/audio/NeuronSpikes.mp3').then((src){
             neuronSpikeSource = src;
@@ -82,13 +80,17 @@ class _RightToolbarState extends State<LeftToolbar> {
     } else {
       Future.delayed(const Duration(milliseconds: 1000), getSound);
     }
+    } catch (e) {
+      // Audio init error — skip sound
+      soloud = null;
+    }
 
   }
 
   @override
   void initState() {
     super.initState();
-    soloud = SoLoud.instance;
+    soloud = AppAudio.instance;
     getSound();
     // soloud.init().then((_){
     //   soloud.loadAsset('assets/audio/test.mp3').then((src){
@@ -109,7 +111,7 @@ class _RightToolbarState extends State<LeftToolbar> {
         child: Draggable(
           onDragCompleted: (){
             if (arrHandleDragNeuronSound.isNotEmpty) {
-              SoundHandle handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
+              var handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
               if ( handleDragNeuronSound != null){
                 soloud?.fadeVolume(handleDragNeuronSound!, 0, const Duration(milliseconds: 300));
                 soloud?.scheduleStop(handleDragNeuronSound!, const Duration(milliseconds: 300));
@@ -128,7 +130,7 @@ class _RightToolbarState extends State<LeftToolbar> {
               "modeIdx": idx,
             });
             if (soloud != null && neuronSpikeSource!= null) {
-              SoundHandle handleDragNeuronSound = await soloud!.play(neuronSpikeSource!);
+              var handleDragNeuronSound = await soloud!.play(neuronSpikeSource!, looping: false);
               soloud?.fadeVolume(handleDragNeuronSound!, 0.5, const Duration(milliseconds: 500));
 
               soloud?.setLooping(handleDragNeuronSound, true);
@@ -146,7 +148,7 @@ class _RightToolbarState extends State<LeftToolbar> {
               "modeIdx": -1,
             });
             if (arrHandleDragNeuronSound.isNotEmpty) {
-              SoundHandle handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
+              var handleDragNeuronSound = arrHandleDragNeuronSound[arrHandleDragNeuronSound.length - 1];
               if (handleDragNeuronSound != null){
                 soloud?.fadeVolume(handleDragNeuronSound!, 0, const Duration(milliseconds: 300));
                 soloud?.scheduleStop(handleDragNeuronSound!, const Duration(milliseconds: 300));

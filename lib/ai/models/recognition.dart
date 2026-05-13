@@ -12,12 +12,23 @@ class Recognition {
   final double _score;
 
   /// Location of bounding box rect
-  ///
-  /// The rectangle corresponds to the raw input image
-  /// passed for inference
+  /// YOLOv8 Segmentation Mask Coefficients
   final Rect _location;
+  final List<double>? _maskCoeffs;
+  
+  /// A boolean grid representing the 80x80 prototype footprint scaled to this object's width/height
+  final List<bool>? maskGrid;
+  final int? maskWidth;
+  final int? maskHeight;
+  int missingFrames = 0;
 
-  Recognition(this._id, this._label, this._score, this._location);
+  Recognition(this._id, this._label, this._score, this._location, {
+    List<double>? maskCoeffs,
+    this.maskGrid,
+    this.maskWidth,
+    this.maskHeight,
+    this.missingFrames = 0,
+  }) : _maskCoeffs = maskCoeffs;
 
   int get id => _id;
 
@@ -26,6 +37,8 @@ class Recognition {
   double get score => _score;
 
   Rect get location => _location;
+  
+  List<double>? get maskCoeffs => _maskCoeffs;
 
   /// Returns bounding box rectangle corresponding to the
   /// displayed image on screen

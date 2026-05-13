@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:isolate';
+import 'package:spikerbot/utils/platform_imports.dart';
+import 'package:spikerbot/utils/isolate_imports.dart';
 
 // import 'package:stream_channel/stream_channel.dart';
 // import 'package:web_socket_channel/io.dart';
@@ -10,8 +10,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 // import 'package:websocket_universal/websocket_universal.dart';
 
 void createWebSocket(List<dynamic> args) async {
-  // String offLEDCmd = "d:120;d:220;d:320;d:420;";
-  String offLEDCmd = "d:0,0,0,0;d:1,0,0,0;d:2,0,0,0;d:3,0,0,0;";
+  // Send green immediately upon connection so the robot feels alive and ready for design mode
+  String greenLEDCmd = "d:0,0,255,0;d:1,0,255,0;d:2,0,255,0;d:3,0,255,0;";
   bool isReady = false;
   bool gracefulDisconnect = false;
   String stopMotorCmd = "l:0;r:0;s:0;";
@@ -107,8 +107,8 @@ void createWebSocket(List<dynamic> args) async {
           // channel.sink.add(stopMotorCmd);
 
           print("WEBSOCKET CONNECT READY");
-          print("stopMotorCmd+offLEDCmd : $stopMotorCmd$offLEDCmd");
-          channel.sink.add(stopMotorCmd + offLEDCmd);
+          String initialCmd = (stopMotorCmd + greenLEDCmd).padRight(1450, ' ');
+          channel.sink.add(initialCmd);
 
           isReady = true;
 

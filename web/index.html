@@ -24,35 +24,140 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="neurorobot">
-  <link rel="apple-touch-icon" href="build/web/icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="build/web/favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png"/>
 
   <title>neurorobot</title>
-  <link rel="manifest" href="build/web/manifest.json">
+  <link rel="manifest" href="manifest.json">
 
   <script>
     // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = "2536787133";
   </script>
+  <!-- WASM Module config: MUST be defined BEFORE loading neuronprototype.js -->
+  <script>
+    // Global simulation state accessible from Dart via JS interop
+    window.SpikerSim = {
+      module: null,
+      ready: false,
+      lastMotorMessage: "",
+      motorCallbackFn: null,
+    };
+
+    // Pre-configure Module with onRuntimeInitialized callback
+    // This MUST be set before neuronprototype.js loads (MODULARIZE=0)
+    var Module = {
+      onRuntimeInitialized: function() {
+        window.SpikerSim.module = Module;
+        window.SpikerSim.ready = true;
+        console.log("SpikerSim WASM runtime initialized!");
+        console.log("ccall:", typeof Module.ccall, "HEAPU8:", typeof Module.HEAPU8);
+      }
+    };
+
+    // Called from C++ EM_ASM when motor commands are updated
+    function updateMotorCommand(stateBufPtr, messageStr, messageLen, motorCmdPtr, neuronCount, periodicFlags) {
+      if (window.SpikerSim.motorCallbackFn) {
+        window.SpikerSim.motorCallbackFn(messageStr);
+      }
+      window.SpikerSim.lastMotorMessage = messageStr;
+    }
+  </script>
+  <!-- Neuron Simulation Engine (WASM) - loads AFTER Module config above -->
+  <script src="neuronprototype.js"></script>
+  <script>
+    // === WASM HEAP WRITE HELPERS (called from Dart) ===
+    // emscripten exports memory as global `wasmMemory`, NOT Module.memory
+    // Always create fresh typed array views to handle ALLOW_MEMORY_GROWTH buffer invalidation
+
+    // Write Float64 array to WASM heap at byte offset ptr
+    window.writeWasmF64 = function(ptr, jsArray) {
+      if (typeof wasmMemory === 'undefined') { console.warn('writeWasmF64: wasmMemory not ready'); return; }
+      var view = new Float64Array(wasmMemory.buffer, ptr, jsArray.length);
+      view.set(jsArray);
+    };
+
+    // Write Int16 array to WASM heap at byte offset ptr
+    window.writeWasmI16 = function(ptr, jsArray) {
+      if (typeof wasmMemory === 'undefined') { console.warn('writeWasmI16: wasmMemory not ready'); return; }
+      var view = new Int16Array(wasmMemory.buffer, ptr, jsArray.length);
+      view.set(jsArray);
+    };
+
+    // === WASM HEAP READ HELPERS (called from Dart) ===
+    // PERFORMANCE: Return Float64Array.slice() / Int16Array.slice() directly.
+    // In dart2js, JS typed arrays ARE Dart typed lists (Float64List / Int16List).
+    // The caller can cast and use setAll() for a single bulk copy instead of
+    // 10,000+ individual js_util.getProperty() calls per frame.
+    // .slice() creates a detached copy that survives ALLOW_MEMORY_GROWTH buffer invalidation.
+
+    // Bulk-read Float64 from WASM heap → Float64Array (detached copy)
+    window.readWasmF64 = function(ptr, count) {
+      if (typeof wasmMemory === 'undefined') return null;
+      return new Float64Array(wasmMemory.buffer, ptr, count).slice();
+    };
+
+    // Bulk-read Int16 from WASM heap → Int16Array (detached copy)
+    window.readWasmI16 = function(ptr, count) {
+      if (typeof wasmMemory === 'undefined') return null;
+      return new Int16Array(wasmMemory.buffer, ptr, count).slice();
+    };
+  </script>
+
+  <!-- Vision Bridge: OpenCV color detection + YOLO object detection -->
+  <script src="dart_vision_bridge.js"></script>
+
+  <!-- Web Audio Bridge: Lightweight SFX via Web Audio API (replaces SoLoud on web) -->
+  <script src="audio_bridge.js"></script>
+
   <!-- This script adds the flutter initialization JS code -->
-  <script src="build/web/flutter.js" defer></script>
-  <script src="build/web/index.js"></script>
+  <script src="flutter.js" defer></script>
 </head>
+<style>
+  /* Prevent grey flash: Match CanvasKit surface clear color to app canvas blue.
+     During heavy setState rebuilds, CanvasKit recreates compositing layers whose
+     default clear color is grey. Forcing blue at every HTML level makes any
+     transient recomposite invisible to the user. */
+  html, body {
+    background-color: #1996FC !important;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  /* Force CanvasKit glass pane and all canvas elements to blue background */
+  flt-glass-pane, flt-scene-host, flt-semantics-host,
+  canvas, flt-glass-pane canvas {
+    background-color: #1996FC !important;
+  }
+</style>
 <body>
   <!-- <script>
     initializeModels("[0,0,0,0,0,0,0,0,0,2]");
   </script> -->
   <script>
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
+    // Request persistent storage so IndexedDB brains survive browser cleanup
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist();
+    }
+     window.addEventListener('load', function(ev) {
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
+          engineInitializer.initializeEngine({
+            // Force local CanvasKit loading — no CDN dependency at runtime.
+            // The build bundles canvaskit.js + canvaskit.wasm in build/web/canvaskit/.
+            canvasKitBaseUrl: 'canvaskit/',
+            // Prevent CanvasKit from downloading fonts from fonts.gstatic.com
+            // All glyphs must come from our bundled fonts (NotoEmoji, MaterialIcons, etc.)
+            useColorEmoji: false,
+            // Route font fallback requests to local path instead of fonts.gstatic.com.
+            // 404s are silent — CanvasKit falls back to bundled fonts.
+            fontFallbackBaseUrl: 'fonts/',
+          }).then(function(appRunner) {
             appRunner.runApp();
           });
         }
@@ -60,9 +165,10 @@
     });
   </script>
   <!-- <div id="imageLeft" style="position:absolute;top:20;left:30;width:320px;height:240px; z-index:30;visibility: visible;background-color:red;" /> -->
-  <img id="image" style="position:absolute;top:20;left:30;width:320px;height:240px; z-index:30;visibility: hidden;"/>
-  <canvas id="canvasLeft" width="320" height="240" style="position:fixed;top:20px;left:30px;z-index:30;visibility: visible; clip-path: inset(0 70px 0 0);"></canvas>
-  <canvas id="canvasRight" width="320" height="240" style="position:fixed;top:20px;right:130px;z-index:30;visibility: visible; clip-path: inset(0 0 0 70px);"></canvas>
+  <!-- Legacy OpenCV camera overlays — hidden on web (no native camera) -->
+  <img id="image" style="position:absolute;top:20;left:30;width:320px;height:240px; z-index:30;visibility: hidden; pointer-events: none;"/>
+  <canvas id="canvasLeft" width="320" height="240" style="position:fixed;top:20px;left:30px;z-index:30;visibility: hidden; pointer-events: none;"></canvas>
+  <canvas id="canvasRight" width="320" height="240" style="position:fixed;top:20px;right:130px;z-index:30;visibility: hidden; pointer-events: none;"></canvas>
 
 </body>
 </html>

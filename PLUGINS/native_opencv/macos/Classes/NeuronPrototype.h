@@ -78,7 +78,7 @@ uint8_t *motor_command_message;
 
 // OPENCV
 // short vis_prefs_count = 7;
-short vis_prefs_count = 31;
+short vis_prefs_count = 80;
 const short ncam = 2;
 // std::vector<std::vector<int>> vis_pref_vals(vis_pref_count, std::vector<int>(ncam));
 short *visPrefs;
@@ -147,7 +147,6 @@ double *mic_I;
 double *sensor_microphone;
 short *sensor_mic_min_limit;
 short *sensor_mic_max_limit;
-short *sensor_mic_type;
 
 // LED
 short *led_buf;

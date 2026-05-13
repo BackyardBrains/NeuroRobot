@@ -1,7 +1,7 @@
-// WEB CHANGE
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../main.dart';
 import '../utils/General.dart';
@@ -91,7 +91,7 @@ Future<void> neuronDialogBuilder(
                             deleteCallback();
                             Navigator.pop(context);
                           },
-                          child: const Icon(Icons.delete))
+                          child: SvgPicture.asset('assets/icons/Delete.svg', width: 24, height: 24))
                     ],
                   ),
                 ],
@@ -224,7 +224,7 @@ Future<void> axonDialogBuilder(
                           deleteCallback();
                           Navigator.pop(context);
                         },
-                        child: const Icon(Icons.delete)),
+                        child: SvgPicture.asset('assets/icons/Delete.svg', width: 24, height: 24)),
                   ],
                 ),
                 if (isSensoryType == 0) ...{

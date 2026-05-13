@@ -1019,10 +1019,51 @@ void setup() {
           while (1);
       }
       Serial.println("PDM microphone initialized.");
+      xTaskCreatePinnedToCore(audioProcessingTask, "AudioTask", 10000, NULL, 1, &audioTask, 0); 
     #endif
     
     //setToneOnSpeaker(100);
 }//end of setup
+
+#if defined(USE_MIC)
+void audioProcessingTask(void *pvParameters) {
+  for(;;) {
+    size_t bytesRead;
+    i2s_read(I2S_NUM, micBuffer, sizeof(micBuffer), &bytesRead, portMAX_DELAY);
+
+    int samples = bytesRead / sizeof(int16_t);
+    int64_t sumSquares = 0;
+    for (int i = 0; i < FFT_SAMPLES; i++) {
+        if (i < samples) {
+            vReal[i] = micBuffer[i];
+        } else {
+            vReal[i] = 0;
+        }
+        vImag[i] = 0;
+    }
+    
+    int volRMS = 0;
+    for(int i=0; i<samples; i++) {
+       sumSquares += ((int64_t)micBuffer[i] * micBuffer[i]);
+    }
+    if(samples > 0) {
+       volRMS = sqrt(sumSquares / samples);
+    }
+
+    FFT.windowing(vReal, FFT_SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT.compute(vReal, vImag, FFT_SAMPLES, FFT_FORWARD);
+    FFT.complexToMagnitude(vReal, vImag, FFT_SAMPLES);
+
+    int peakFreq = (int) FFT.majorPeak(vReal, FFT_SAMPLES, I2S_SAMPLE_RATE);
+    if (peakFreq < 0) peakFreq = 0;
+
+    String audioMsg = "M:" + String(peakFreq) + "," + String(volRMS) + ";";
+    char aBuf[64];
+    audioMsg.toCharArray(aBuf, 64);
+    sendDataViaSocket(aBuf, audioMsg.length());
+  }
+}
+#endif
 
 
 void loop() 
@@ -1073,6 +1114,11 @@ void loop()
     #if defined(SEND_MM_FOR_DISTANCE)
       distance = reportedDistance;
     #endif
+    // Prefix Protocol: Send Distance asynchronously.
+    String distMsg = "D:" + String(distance) + ";";
+    char dBuf[64];
+    distMsg.toCharArray(dBuf, 64);
+    sendDataViaSocket(dBuf, distMsg.length());
   #endif
 
   #if defined(USE_SPEAKER)
@@ -1099,80 +1145,23 @@ void loop()
     float gyro_y = gyroscope[1] / 1000.0f;
     float gyro_z = gyroscope[2] / 1000.0f;
     
-    // Print formatted output
-    Serial.printf("Accel(g):  X=%+7.3f  Y=%+7.3f  Z=%+7.3f  |  ", 
-                  accel_x, accel_y, accel_z);
-    Serial.printf("Gyro(dps): X=%+7.1f  Y=%+7.1f  Z=%+7.1f\n", 
-                  gyro_x, gyro_y, gyro_z);
-    
-
-
   #endif
 
-  int peakFreq = 0;
-  int volRMS = 0;
-  #if defined(USE_MIC)
-    // Read data from the microphone
-    size_t bytesRead;
-    i2s_read(I2S_NUM, micBuffer, sizeof(micBuffer), &bytesRead, portMAX_DELAY);
-
-    // Prepare the data for FFT
-    int samples = bytesRead / sizeof(int16_t);
-    int64_t sumSquares = 0;
-    for (int i = 0; i < FFT_SAMPLES; i++) {
-        if (i < samples) {
-            vReal[i] = micBuffer[i]; // Copy microphone data to the real part
-        } else {
-            vReal[i] = 0; // Zero-pad the remaining samples
-        }
-        vImag[i] = 0; // Imaginary part is zero
-    }
-    
-    // Calculate RMS over the whole buffer (or as much as we have)
-    for(int i=0; i<samples; i++) {
-       sumSquares += ((int64_t)micBuffer[i] * micBuffer[i]);
-    }
-    if(samples > 0) {
-       volRMS = sqrt(sumSquares / samples);
-    }
-
-    // Perform FFT
-    FFT.windowing(vReal, FFT_SAMPLES, FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Apply a Hamming window
-    FFT.compute(vReal, vImag, FFT_SAMPLES, FFT_FORWARD); // Compute the FFT
-    FFT.complexToMagnitude(vReal, vImag, FFT_SAMPLES); // Compute magnitudes
-
-    //Frequency resolution = sample rate / size of window => 16000Hz/256 = 62.5Hz
-
-    // Find the peak frequency
-    double peakFrequency = FFT.majorPeak(vReal, FFT_SAMPLES, I2S_SAMPLE_RATE);
-    peakFreq =  (int) peakFrequency;
-    if (peakFreq < 0) {
-        peakFreq = 0;
-    }
-  #endif
-
-  //send distance to host computer via Socket
-  String distanceStr = String(distance); // micOutputStr; // Use microphone output instead of distance
-  String batteryStr =  String(battery); 
-  String peakFreqStr = String(peakFreq);
-  String volRMSStr = String(volRMS);
-  //Serial.println(String(distance));
-  String messageToSendInString;
+  // Prefix Protocol: Send Battery asynchronously.
+  String battMsg = "B:" + String(battery) + ";";
+  char bBuf[64];
+  battMsg.toCharArray(bBuf, 64);
+  sendDataViaSocket(bBuf, battMsg.length());
+  
   if(sendVersionString)
   {
     sendVersionString = false;
-    messageToSendInString = String("V1.0.0");
+    String vMsg = "V1.0.0;";
+    char vBuf[64];
+    vMsg.toCharArray(vBuf, 64);
+    sendDataViaSocket(vBuf, vMsg.length());
   }
-  else
-  {
-    // Format: [PeakFreq], [Volume], [Distance], [Battery]
-    messageToSendInString =  peakFreqStr + "," + volRMSStr + "," + distanceStr + "," + batteryStr + ", ";
-  }
-  messageToSendInString.toCharArray(commandBuffer, SIZE_OF_COMMAND_BUFFER);
-  int lengthOfIncommingMessage = messageToSendInString.length();
-  commandBuffer[lengthOfIncommingMessage] = 0;
-  sendDataViaSocket(commandBuffer, lengthOfIncommingMessage);
-  
+
   #if defined(USE_LEDS)
     #if defined(MAKE_AP)
       if(WiFi.softAPgetStationNum()==0)

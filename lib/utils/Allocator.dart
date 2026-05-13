@@ -1,5 +1,5 @@
-import 'dart:ffi';
-import 'package:ffi/ffi.dart';
+import 'package:spikerbot/utils/ffi_imports.dart';
+import 'package:spikerbot/utils/ffi_package_imports.dart';
 
 class MemoryAllocator implements Allocator {
   final Allocator _wrappedAllocator;

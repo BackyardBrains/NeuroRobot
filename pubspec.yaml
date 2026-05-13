@@ -2,7 +2,7 @@ name: spikerbot
 description: A cool neurorobot 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.0
+version: 1.5.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -133,7 +133,10 @@ flutter:
       - asset: assets/fonts/NotoEmoji-VariableFont_wght.ttf
     - family: BoldoaMat
       fonts:
-      - asset: assets/fonts/Boldoa Mat.ttf
+      - asset: assets/fonts/BoldoaMat.ttf
+    - family: Roboto
+      fonts:
+      - asset: assets/fonts/Roboto-Regular.ttf
   assets:
     - assets/icons/
     - assets/icons/remoteControlKeys/

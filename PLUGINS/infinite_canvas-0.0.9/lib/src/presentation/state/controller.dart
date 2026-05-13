@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -112,7 +112,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     }
   }
 
-  double minScale = 0.4;
+  double minScale = 0.15;
   double maxScale = 4;
   final focusNode = FocusNode();
   Size? viewport;
@@ -337,7 +337,7 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
 
   double getScale() {
     final matrix = transform.value;
-    final scaleX = matrix.getMaxScaleOnAxis();
+    final scaleX = matrix.storage[0];
     return scaleX;
   }
 
@@ -526,18 +526,11 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
     }
     // print("DEBUG: checkSelection: offset $offset, nodes: ${nodes.length}, edges: ${edges.length}");
     if (!hover) {
-      if (kIsWeb) {
-      } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
         isSelectingEdge = false;
-        // edgeSelected = null; // Don't null here, let loop overwrite or final check clear?
-        // Actually, if we reset isSelectingEdge to false, then even if edgeSelected persists, it won't show.
-        // UNLESS we re-enable isSelectingEdge later without updating edgeSelected.
-        // Let's be safe.
         edgeSelected = null;  // V25: Ensure cleared to prevent ghosts
         // V25: Also clear edgeFound to prevent stale overwrites in onTapUp
         edgeFound = null;
         isFoundEdge = false;
-      }
       // V25: Unconditional clear for safety even if platform logic differs? 
       // No, sticking to platform block is safer for now, but adding explicit multi-clear if needed?
       // Actually, let's just be sure.
@@ -749,8 +742,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
         if (p.contains(offset)) {
           edgeFound = edge;
           isFoundEdge = true;
-          if (kIsWeb) {
-          } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
             // print("DEBUG: Direct Edge Hit. Selecting edge.");
             isSelectingEdge = true;
             edgeSelected = edge;
@@ -778,7 +769,6 @@ class InfiniteCanvasController extends ChangeNotifier implements Graph {
               isFoundEdge = false;
               edgeFound = null;
             }
-          }
 
           break;
         } else {

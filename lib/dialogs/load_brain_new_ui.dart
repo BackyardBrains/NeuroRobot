@@ -1,22 +1,24 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:convert';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:io';
+import 'package:spikerbot/utils/platform_imports.dart';
 import 'dart:typed_data';
 import 'package:spikerbot/utils/example_brain_loader.dart';
 import 'package:spikerbot/utils/brain_annotation.dart';
+import 'package:spikerbot/utils/web_brain_storage.dart';
 
 import 'package:fialogs/fialogs.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:spikerbot/stubs/filesystem_picker_imports.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:spikerbot/utils/app_audio.dart';
 import 'package:spikerbot/brands/brandguide.dart';
 import 'package:path/path.dart';
 // import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:spikerbot/utils/path_provider_imports.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -69,6 +71,8 @@ const double _annItemEst = 80.0; // estimated item height in logical pixels
 bool isLoadBrainDialog = false;
 int myBrainsSortMode = 0; // 0=Recent, 1=Name, 2=Size
 bool myBrainsSortAscending = false;
+int exampleBrainsSortMode = 2; // 0=Recent, 1=Name, 2=Size (Defaults to Complexity)
+bool exampleBrainsSortAscending = false; // Defaults ascending (smallest first)
 List<String> activeFilters = [];
 
 Future<List<File>> loadBrainFiles(fileInfos, context) async {
@@ -76,6 +80,21 @@ Future<List<File>> loadBrainFiles(fileInfos, context) async {
 
   List<File> fileNames = [];
   // fileInfos = [];
+
+  if (kIsWeb) {
+    isLoadBrainDialog = true;
+    // Query IndexedDB for user-saved brains
+    try {
+      final brainList = await WebBrainStorage.instance.listBrains();
+      for (var info in brainList) {
+        fileNames.insert(0, File(info['filename']!));
+        fileInfos.insert(0, info);
+      }
+    } catch (e) {
+      print('WebBrainStorage.listBrains error: $e');
+    }
+    return fileNames;
+  }
 
   isLoadBrainDialog = true;
   documentPath = Directory((await getApplicationDocumentsDirectory()).path);
@@ -229,37 +248,61 @@ String brainNameFromFileName(String filename) {
 
 Future<Uint8List> getImageFromText(path) async {
   Uint8List imageBytes = Uint8List(0);
-  final File savedFile = File(path);
-  if (savedFile.existsSync()) {
-    String strSavedFile = await savedFile.readAsString();
-    // printDebug("strSavedFile");
-    // printDebug(strSavedFile);
-    Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
-    imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
+  
+  if (kIsWeb) {
+    // Web: load from asset bundle if it's an asset path, or from IndexedDB for user brains
+    try {
+      String strSavedFile;
+      if (path.toString().startsWith('assets/')) {
+        strSavedFile = await rootBundle.loadString(path);
+      } else {
+        // User-saved brain — load from IndexedDB
+        String? json = await WebBrainStorage.instance.loadBrain(path.toString());
+        if (json == null || json.isEmpty) return imageBytes;
+        strSavedFile = json;
+      }
+      Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
+      if (mapSavedFile.containsKey("screenshot") && mapSavedFile["screenshot"] != null) {
+        imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
+      }
+    } catch (e) {
+      // Thumbnail extraction failed — return empty (shows blue placeholder)
+    }
+  } else {
+    final File savedFile = File(path);
+    if (savedFile.existsSync()) {
+      String strSavedFile = await savedFile.readAsString();
+      Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
+      imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
+    }
   }
 
   return imageBytes;
 }
 
-SoLoud? soloud;
-AudioSource? pageFlipSource;
-AudioSource? buttonOnPressedSource;
-AudioSource? buttonPopSource;
-AudioSource? eraseOnPressedSource;
-SoundHandle? pageFlipHandle;
-SoundHandle? buttonOnPressedHandle;
-SoundHandle? buttonPopHandle;
-SoundHandle? eraseOnPressedHandle;
+AppAudio? soloud;
+dynamic pageFlipSource;
+dynamic buttonOnPressedSource;
+dynamic buttonPopSource;
+dynamic eraseOnPressedSource;
+dynamic pageFlipHandle;
+dynamic buttonOnPressedHandle;
+dynamic buttonPopHandle;
+dynamic eraseOnPressedHandle;
 
 Future<void> showLoadBrainDialog(BuildContext context, String title,
     selectCallback, saveCallback, pMapStatus) async {
-  soloud = SoLoud.instance;
+  soloud = AppAudio.instance;
   try{
+    await soloud?.init();
     pageFlipSource = await soloud?.loadAsset('assets/audio/PageFlip.mp3');
     buttonOnPressedSource = await soloud?.loadAsset('assets/audio/ButtonOnPress.mp3');
     buttonPopSource = await soloud?.loadAsset('assets/audio/ButtonPop.mp3');
     eraseOnPressedSource = await soloud?.loadAsset('assets/audio/Erase.mp3');
-  }catch(err){}
+  }catch(err){
+    print('AppAudio init error in load_brain: $err');
+    soloud = null; // Asset loading failed — null out to prevent force-unwrap crashes
+  }
 
   mapStatus = pMapStatus;
   printDebug("mapStatus");
@@ -319,16 +362,15 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
       }
       void stopScroll() { scrollTimer?.cancel(); scrollTimer = null; }
 
+      bool allowClose = false;
+      void closeDialog() {
+         printDebug("CLOSING DIALOG (Valid Action)");
+         allowClose = true;
+         Navigator.of(context).pop();
+      }
+
       return StatefulBuilder(builder: (ctx, setState) {
         printDebug("REDRAW - LoadBrainDialog");
-        
-        bool allowClose = false;
-
-        void closeDialog() {
-           printDebug("CLOSING DIALOG (Valid Action)");
-           allowClose = true;
-           Navigator.of(context).pop();
-        }
 
         double topPadding = MediaQuery.of(context).padding.top;
         double bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -381,13 +423,7 @@ Future<void> showLoadBrainDialog(BuildContext context, String title,
                     onTap: () {
                       printDebug("SHIELD TAPPED");
                     }, // Shield: Absorb taps inside the card
-                    onTapUp: (_) {
-                       printDebug("SHIELD TAP UP CAUGHT");
-                    },
-                    onPanDown: (_) {
-                      printDebug("SHIELD DRAG CAUGHT");
-                    },
-                    behavior: HitTestBehavior.opaque,
+                    behavior: HitTestBehavior.translucent,
                     child: Material(
                     type: MaterialType.card,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -433,7 +469,7 @@ void noSavedBrainAlert(context) {
     context,
     const Text("Load Brain"),
     const Text("There is no saved brain."),
-    titleIcon: const Icon(Icons.save),
+    titleIcon: SvgPicture.asset('assets/icons/Save.svg', width: 24, height: 24),
     positiveButtonText: "OK",
     positiveButtonAction: () {},
     negativeButtonText: "",
@@ -494,27 +530,30 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
     }
 
     // ── Determine sort order based on active mode ──
+    int currentSortMode = selectedTab == 1 ? exampleBrainsSortMode : myBrainsSortMode;
+    bool currentSortAscending = selectedTab == 1 ? exampleBrainsSortAscending : myBrainsSortAscending;
+
     List<int> sortedIndices = List.from(filteredIndices);
     if (selectedTab != 2) {
-      if (myBrainsSortMode == 0) { // Recent (timestamp)
+      if (currentSortMode == 0) { // Recent (timestamp)
         sortedIndices.sort((a, b) {
           DateTime timeA;
           try { timeA = DateTime.parse(fileInfos[a]["timestamp"] ?? ""); } catch(_) { timeA = fileNames[a].statSync().changed; }
           DateTime timeB;
           try { timeB = DateTime.parse(fileInfos[b]["timestamp"] ?? ""); } catch(_) { timeB = fileNames[b].statSync().changed; }
-          return myBrainsSortAscending ? timeA.compareTo(timeB) : timeB.compareTo(timeA);
+          return currentSortAscending ? timeA.compareTo(timeB) : timeB.compareTo(timeA);
         });
-      } else if (myBrainsSortMode == 1) { // Alphabetical
+      } else if (currentSortMode == 1) { // Alphabetical
         sortedIndices.sort((a, b) {
           int cmp = imageTitles[a].toLowerCase().compareTo(imageTitles[b].toLowerCase());
-          return myBrainsSortAscending ? -cmp : cmp; // Default descending represents strictly A-Z (cmp)
+          return currentSortAscending ? -cmp : cmp; // Default descending represents strictly A-Z (cmp)
         });
-      } else if (myBrainsSortMode == 2) { // File Size
+      } else if (currentSortMode == 2) { // File Size / Complexity
         sortedIndices.sort((a, b) {
           int sizeA = int.tryParse(fileInfos[a]["complexity"] ?? "0") ?? fileNames[a].lengthSync();
           int sizeB = int.tryParse(fileInfos[b]["complexity"] ?? "0") ?? fileNames[b].lengthSync();
           // Since descending usually implies highest complexity first, invert default sort
-          return myBrainsSortAscending ? sizeB.compareTo(sizeA) : sizeA.compareTo(sizeB);
+          return currentSortAscending ? sizeB.compareTo(sizeA) : sizeA.compareTo(sizeB);
         });
       }
     }
@@ -583,7 +622,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                         child: Container(
                           width: 40, height: 40,
                           alignment: Alignment.center,
-                          child: const Icon(Icons.close, size: 26),
+                          child: const Icon(Icons.close, size: 22, color: Colors.black54),
                         ),
                       ),
                       // ── Tabs (centered, flex) ──
@@ -709,7 +748,13 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                           icon: SvgPicture.asset('assets/icons/Save.svg', width: 60, height: 60),
                           label: 'Save',
                           onTap: () async {
-                            if (isSavingMode == 10) { File d = File(currentFileName); if (d.existsSync()) d.deleteSync(); }
+                            if (isSavingMode == 10) {
+                              if (kIsWeb) {
+                                await WebBrainStorage.instance.deleteBrain(currentFileName);
+                              } else {
+                                File d = File(currentFileName); if (d.existsSync()) d.deleteSync();
+                              }
+                            }
                             currentFileName = await saveCallback(tecBrainName.text, tecBrainDescription.text);
                             mapStatus["isSavingBrain"] = 10;
                             mapStatus["currentFileName"] = currentFileName;
@@ -733,6 +778,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                               onEditingComplete: (v) { printDebug(v); }),
                             positiveButtonText: "Save",
                             positiveButtonAction: (title) async {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              await Future.delayed(const Duration(milliseconds: 350));
                               dialogIsSaving = true;
                               ProgressDialog pd = ProgressDialog(context: context);
                               pd.show(msg: 'Saving Brain...');
@@ -772,22 +819,50 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                         onTap: () async {
                           isUploading = false;
                           if (buttonPopSource != null) buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
-                          if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
-                          String? importPath;
-                          if (Platform.isMacOS || Platform.isIOS) {
-                            FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
-                            if (result != null) importPath = result.files.single.path;
+                          if (kIsWeb) {
+                            // Web: use FilePicker to read .brain file bytes, then store in IndexedDB
+                            try {
+                              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['brain'],
+                                withData: true, // Required on web to get file bytes
+                              );
+                              if (result != null && result.files.single.bytes != null) {
+                                String jsonContent = utf8.decode(result.files.single.bytes!);
+                                String importedName = result.files.single.name;
+                                // Extract title from filename
+                                String title = importedName.replaceAll('.brain', '');
+                                if (title.contains('@@@')) title = title.split('@@@').first;
+                                // Try to extract internal title from JSON
+                                try {
+                                  Map<String, dynamic> parsed = jsonDecode(jsonContent);
+                                  if (parsed['info'] != null && parsed['info']['title'] != null) {
+                                    title = parsed['info']['title'];
+                                  }
+                                } catch (_) {}
+                                await WebBrainStorage.instance.saveBrain(importedName, jsonContent, title, 'Imported');
+                              }
+                            } catch (e) {
+                              print('Web import error: $e');
+                            }
                           } else {
-                            Directory? rootPath;
-                            try { rootPath = await getDownloadsDirectory(); } catch (e) {}
-                            if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
-                            importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
-                          }
-                          if (importPath != null) {
-                            File srcFile = File(importPath);
-                            Directory? doc = await getApplicationDocumentsDirectory();
-                            Directory dir = Directory("${doc.path}$textPath");
-                            if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                            if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
+                            String? importPath;
+                            if (Platform.isMacOS || Platform.isIOS) {
+                              FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
+                              if (result != null) importPath = result.files.single.path;
+                            } else {
+                              Directory? rootPath;
+                              try { rootPath = await getDownloadsDirectory(); } catch (e) {}
+                              if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
+                              importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
+                            }
+                            if (importPath != null) {
+                              File srcFile = File(importPath);
+                              Directory? doc = await getApplicationDocumentsDirectory();
+                              Directory dir = Directory("${doc.path}$textPath");
+                              if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                            }
                           }
                           fileInfos = []; fileNames = await loadBrainFiles(fileInfos, context);
                           setState(() {});
@@ -878,7 +953,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: const [
-                                    Icon(Icons.add, color: Colors.white, size: 16),
+                                    Text('+', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900, height: 1)),
                                     SizedBox(width: 4),
                                     Text('Add Annotation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0.1)),
                                   ],
@@ -959,11 +1034,14 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   );
                                   if (result != null) {
                                     if (buttonPopSource != null) await soloud?.play(buttonPopSource!, looping: false);
-                                    myBrainsSortMode = result;
+                                    if (selectedTab == 1) exampleBrainsSortMode = result;
+                                    else myBrainsSortMode = result;
                                     setState(() {});
                                   }
                                 },
-                                builder: (pressed) => Container(
+                                builder: (pressed) {
+                                  int activeSort = selectedTab == 1 ? exampleBrainsSortMode : myBrainsSortMode;
+                                  return Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: pressed ? Colors.grey.shade400 : Colors.grey[300],
@@ -972,12 +1050,13 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.sort, size: 18, color: Colors.black87),
+                                      const Icon(Icons.swap_vert, size: 18, color: Colors.black87),
                                       const SizedBox(width: 6),
-                                      Text(myBrainsSortMode == 1 ? 'Name (A-Z)' : (myBrainsSortMode == 2 ? 'Complexity' : 'Recent'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                                      Text(activeSort == 1 ? 'Name (A-Z)' : (activeSort == 2 ? 'Complexity' : 'Recent'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
                                     ],
                                   ),
-                                ),
+                                );
+                                },
                               );
                             }),
                             const SizedBox(width: 6),
@@ -987,10 +1066,13 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                               },
                               onTap: () async {
                                 if (buttonPopSource != null) buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
-                                myBrainsSortAscending = !myBrainsSortAscending;
+                                if (selectedTab == 1) exampleBrainsSortAscending = !exampleBrainsSortAscending;
+                                else myBrainsSortAscending = !myBrainsSortAscending;
                                 setState(() {});
                               },
-                              builder: (pressed) => Container(
+                              builder: (pressed) {
+                                bool activeAscending = selectedTab == 1 ? exampleBrainsSortAscending : myBrainsSortAscending;
+                                return Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: pressed ? Colors.grey.shade400 : Colors.grey[300],
@@ -998,11 +1080,11 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                   boxShadow: pressed ? [] : [BoxShadow(color: Colors.black.withOpacity(0.18), blurRadius: 5, offset: const Offset(0, 2))],
                                 ),
                                 child: Icon(
-                                  myBrainsSortAscending ? Icons.arrow_upward : Icons.arrow_downward, 
-                                  size: 18, 
-                                  color: Colors.black87
+                                  activeAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                                  size: 18, color: Colors.black87,
                                 ),
-                              ),
+                              );
+                              },
                             ),
                             const SizedBox(width: 40),
                             _TapDarken(
@@ -1302,7 +1384,25 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                     
                                     String baseFileName = cleanTitle;
                                     
-                                    if (Platform.isMacOS) {
+                                    if (kIsWeb) {
+                                      // Web: trigger browser download
+                                      try {
+                                        String brainJson;
+                                        String brainKey = fileNames[i].path;
+                                        String? storedJson = await WebBrainStorage.instance.loadBrain(brainKey);
+                                        if (storedJson != null && storedJson.isNotEmpty) {
+                                          brainJson = storedJson;
+                                        } else {
+                                          // Shouldn't happen for user brains, but fallback
+                                          print('Share: Could not load brain from IndexedDB');
+                                          return;
+                                        }
+                                        // Trigger browser download via dart:html
+                                        triggerWebDownload(brainJson, '$baseFileName.brain');
+                                      } catch (e) {
+                                        print('Web share error: $e');
+                                      }
+                                    } else if (Platform.isMacOS) {
                                       path = await FilePicker.platform.saveFile(
                                         dialogTitle: 'Save Brain File',
                                         fileName: baseFileName, // Clean name
@@ -1419,28 +1519,27 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                           mapStatus["currentFileName"] = "-1";
                                         }
 
-                                        Directory txtDirectory = Directory(
-                                            "${(await getApplicationDocumentsDirectory()).path}$textPath");
-                                        // String textPath = "/text";
-                                        // final File file = File(
-                                        //     '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
-                                        final File file = File(
-                                            '${txtDirectory.path}${Platform.pathSeparator}$filename.brain');
-                                        if (file.existsSync()) {
-                                          file.deleteSync();
-                                        }
+                                        if (kIsWeb) {
+                                          // Delete from IndexedDB
+                                          await WebBrainStorage.instance.deleteBrain(fileNames[i].path);
+                                        } else {
+                                          Directory txtDirectory = Directory(
+                                              "${(await getApplicationDocumentsDirectory()).path}$textPath");
+                                          final File file = File(
+                                              '${txtDirectory.path}${Platform.pathSeparator}$filename.brain');
+                                          if (file.existsSync()) {
+                                            file.deleteSync();
+                                          }
 
-                                        try{
-                                          final File fileTxt = File(
-                                              '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
-                                          fileTxt.deleteSync();
-                                        }catch(err){
-                                          print("err");
-                                          print(err);
+                                          try{
+                                            final File fileTxt = File(
+                                                '${txtDirectory.path}${Platform.pathSeparator}$filename.txt');
+                                            fileTxt.deleteSync();
+                                          }catch(err){
+                                            print("err");
+                                            print(err);
+                                          }
                                         }
-                                        // final File fileImage =
-                                        //     File(fileNames[i].path);
-                                        // fileImage.deleteSync();
                                         fileNames.removeAt(i);
                                         imageTitles.removeAt(i);
                                         imageDescriptions.removeAt(i);
@@ -1502,7 +1601,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                  child: Row(
                                    mainAxisAlignment: MainAxisAlignment.center,
                                    children: const [
-                                     Icon(Icons.add, color: Colors.white, size: 18),
+                                     Text('+', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, height: 1)),
                                      SizedBox(width: 6),
                                      Text('Add Annotation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: 0.2)),
                                    ],
@@ -1519,7 +1618,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                child: Column(
                                  mainAxisSize: MainAxisSize.min,
                                  children: [
-                                   Icon(Icons.layers_outlined, size: 36, color: Colors.grey.shade300),
+                                   Icon(Icons.speaker_notes_off, size: 30, color: Colors.grey.shade300),
                                    const SizedBox(height: 8),
                                    Text('No annotations yet', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
                                    const SizedBox(height: 4),
@@ -1687,7 +1786,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                                      },
                                                      child: const Padding(
                                                        padding: EdgeInsets.all(4),
-                                                       child: Icon(Icons.drag_handle, color: Colors.grey, size: 22),
+                                                       child: Icon(Icons.drag_handle, color: Colors.grey, size: 20),
                                                      ),
                                                    ),
                                                  ],
@@ -1767,7 +1866,7 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                                                      colorFilter: const ColorFilter.mode(Color(0xFFE96565), BlendMode.srcIn)),
                                                    const Padding(
                                                      padding: EdgeInsets.all(4),
-                                                     child: Icon(Icons.drag_handle, color: Colors.grey, size: 22),
+                                                     child: Icon(Icons.drag_handle, color: Colors.grey, size: 20),
                                                    ),
                                                  ],
                                                ),
@@ -1810,7 +1909,10 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                   labelOnRight: true,
                   icon: SvgPicture.asset('assets/icons/Save.svg', width: 60, height: 60),
                   label: 'Save', onTap: () async {
-                    if (isSavingMode == 10) { File d = File(currentFileName); if (d.existsSync()) d.deleteSync(); }
+                    if (isSavingMode == 10) {
+                      if (kIsWeb) { await WebBrainStorage.instance.deleteBrain(currentFileName); }
+                      else { File d = File(currentFileName); if (d.existsSync()) d.deleteSync(); }
+                    }
                     currentFileName = await saveCallback(tecBrainName.text, tecBrainDescription.text);
                     mapStatus["isSavingBrain"] = 10; mapStatus["currentFileName"] = currentFileName;
                     fileInfos = []; fileNames = await loadBrainFiles(fileInfos, context);
@@ -1829,6 +1931,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                         onEditingComplete: (v) { printDebug(v); }),
                       positiveButtonText: "Save",
                       positiveButtonAction: (title) async {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        await Future.delayed(const Duration(milliseconds: 350));
                         dialogIsSaving = true;
                         ProgressDialog pd = ProgressDialog(context: context);
                         pd.show(msg: 'Saving Brain...');
@@ -1858,22 +1962,41 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                 _buildActionBtn(labelOnRight: true, icon: SvgPicture.asset('assets/icons/Import.svg', width: 60, height: 60), label: 'Import', onTap: () async {
                   isUploading = false;
                   if (buttonPopSource != null) buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
-                  if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
-                  String? importPath;
-                  if (Platform.isMacOS || Platform.isIOS) {
-                    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
-                    if (result != null) importPath = result.files.single.path;
+                  if (kIsWeb) {
+                    try {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(
+                        type: FileType.custom, allowedExtensions: ['brain'], withData: true,
+                      );
+                      if (result != null && result.files.single.bytes != null) {
+                        String jsonContent = utf8.decode(result.files.single.bytes!);
+                        String importedName = result.files.single.name;
+                        String title = importedName.replaceAll('.brain', '');
+                        if (title.contains('@@@')) title = title.split('@@@').first;
+                        try {
+                          Map<String, dynamic> parsed = jsonDecode(jsonContent);
+                          if (parsed['info'] != null && parsed['info']['title'] != null) title = parsed['info']['title'];
+                        } catch (_) {}
+                        await WebBrainStorage.instance.saveBrain(importedName, jsonContent, title, 'Imported');
+                      }
+                    } catch (e) { print('Web import error: $e'); }
                   } else {
-                    Directory? rootPath;
-                    try { rootPath = await getDownloadsDirectory(); } catch (e) {}
-                    if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
-                    importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
-                  }
-                  if (importPath != null) {
-                    File srcFile = File(importPath);
-                    Directory? doc = await getApplicationDocumentsDirectory();
-                    Directory dir = Directory("${doc.path}$textPath");
-                    if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                    if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
+                    String? importPath;
+                    if (Platform.isMacOS || Platform.isIOS) {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
+                      if (result != null) importPath = result.files.single.path;
+                    } else {
+                      Directory? rootPath;
+                      try { rootPath = await getDownloadsDirectory(); } catch (e) {}
+                      if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
+                      importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
+                    }
+                    if (importPath != null) {
+                      File srcFile = File(importPath);
+                      Directory? doc = await getApplicationDocumentsDirectory();
+                      Directory dir = Directory("${doc.path}$textPath");
+                      if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                    }
                   }
                   fileInfos = []; fileNames = await loadBrainFiles(fileInfos, context); thumbnailCache.clear(); setState(() {});
                 }),
@@ -1906,7 +2029,10 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
               if (!isCurrentBrainExample) _buildActionBtn(
                 icon: SvgPicture.asset('assets/icons/Save.svg', width: 60, height: 60),
                 label: 'Save', onTap: () async {
-                  if (isSavingMode == 10) { File d = File(currentFileName); if (d.existsSync()) d.deleteSync(); }
+                  if (isSavingMode == 10) {
+                    if (kIsWeb) { await WebBrainStorage.instance.deleteBrain(currentFileName); }
+                    else { File d = File(currentFileName); if (d.existsSync()) d.deleteSync(); }
+                  }
                   currentFileName = await saveCallback(tecBrainName.text, tecBrainDescription.text);
                   mapStatus["isSavingBrain"] = 10; mapStatus["currentFileName"] = currentFileName;
                   fileInfos = []; fileNames = await loadBrainFiles(fileInfos, context);
@@ -1925,6 +2051,8 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
                       onEditingComplete: (v) { printDebug(v); }),
                     positiveButtonText: "Save",
                     positiveButtonAction: (title) async {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      await Future.delayed(const Duration(milliseconds: 350));
                       dialogIsSaving = true;
                       ProgressDialog pd = ProgressDialog(context: context);
                       pd.show(msg: 'Saving Brain...');
@@ -1953,22 +2081,41 @@ showBrainDisplay(BuildContext context, List<File> fileNamez, selectCallback,
               _buildActionBtn(icon: SvgPicture.asset('assets/icons/Import.svg', width: 60, height: 60), label: 'Import', onTap: () async {
                 isUploading = false;
                 if (buttonPopSource != null) buttonPopHandle = await soloud?.play(buttonPopSource!, looping: false);
-                if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
-                String? importPath;
-                if (Platform.isMacOS || Platform.isIOS) {
-                  FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
-                  if (result != null) importPath = result.files.single.path;
+                if (kIsWeb) {
+                  try {
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom, allowedExtensions: ['brain'], withData: true,
+                    );
+                    if (result != null && result.files.single.bytes != null) {
+                      String jsonContent = utf8.decode(result.files.single.bytes!);
+                      String importedName = result.files.single.name;
+                      String title = importedName.replaceAll('.brain', '');
+                      if (title.contains('@@@')) title = title.split('@@@').first;
+                      try {
+                        Map<String, dynamic> parsed = jsonDecode(jsonContent);
+                        if (parsed['info'] != null && parsed['info']['title'] != null) title = parsed['info']['title'];
+                      } catch (_) {}
+                      await WebBrainStorage.instance.saveBrain(importedName, jsonContent, title, 'Imported');
+                    }
+                  } catch (e) { print('Web import error: $e'); }
                 } else {
-                  Directory? rootPath;
-                  try { rootPath = await getDownloadsDirectory(); } catch (e) {}
-                  if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
-                  importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
-                }
-                if (importPath != null) {
-                  File srcFile = File(importPath);
-                  Directory? doc = await getApplicationDocumentsDirectory();
-                  Directory dir = Directory("${doc.path}$textPath");
-                  if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                  if (Platform.isAndroid) await [Permission.manageExternalStorage].request();
+                  String? importPath;
+                  if (Platform.isMacOS || Platform.isIOS) {
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['brain']);
+                    if (result != null) importPath = result.files.single.path;
+                  } else {
+                    Directory? rootPath;
+                    try { rootPath = await getDownloadsDirectory(); } catch (e) {}
+                    if (rootPath == null || !rootPath.existsSync()) rootPath = await getApplicationDocumentsDirectory();
+                    importPath = await FilesystemPicker.open(title: 'Open file', context: context, rootDirectory: rootPath, fsType: FilesystemType.file, allowedExtensions: ['.brain'], fileTileSelectMode: FileTileSelectMode.wholeTile);
+                  }
+                  if (importPath != null) {
+                    File srcFile = File(importPath);
+                    Directory? doc = await getApplicationDocumentsDirectory();
+                    Directory dir = Directory("${doc.path}$textPath");
+                    if (dir.existsSync()) srcFile.copySync("${dir.path}${Platform.pathSeparator}${basename(srcFile.path)}");
+                  }
                 }
                 fileInfos = []; fileNames = await loadBrainFiles(fileInfos, context); thumbnailCache.clear(); setState(() {});
               }),
@@ -2117,7 +2264,7 @@ class _UnsavedChangesDialog extends StatelessWidget {
                   child: Container(
                     width: 34, height: 34,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.close, size: 22, color: Colors.black54),
+                    child: const Text('✕', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black54)),
                   ),
                 ),
                 const Expanded(

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'arc_slider_widget.dart';
+import 'byb_highlighted_text.dart';
 
 class LEDControlWidget extends StatefulWidget {
   final Function(String, String) onColorChanged; // hex, brightness
@@ -35,6 +36,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
   late double _brightness;
   final double robotSize = 120;
   late TextEditingController _brightnessController;
+  late FocusNode _brightnessFocusNode;
 
   @override
   void initState() {
@@ -48,12 +50,19 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
       _brightness = 1.0;
     }
     _brightnessController = TextEditingController(
-      text: "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%",
+      text: "${(_brightness * 100).round()}%",
     );
+    _brightnessFocusNode = FocusNode();
+    _brightnessFocusNode.addListener(() {
+      if (!_brightnessFocusNode.hasFocus) {
+        _submitBrightnessText(_brightnessController.text);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _brightnessFocusNode.dispose();
     _brightnessController.dispose();
     super.dispose();
   }
@@ -71,7 +80,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
         double b = double.parse(widget.initialBrightness);
         setState(() {
           _brightness = b;
-          _brightnessController.text = "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
+          _brightnessController.text = "${(_brightness * 100).round()}%";
         });
       } catch (e) {}
     }
@@ -81,19 +90,32 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
     setState(() { _hsvColor = newHsv; });
     widget.onColorChanged(
       _hsvColor.toColor().value.toRadixString(16).substring(2).toUpperCase(),
-      _brightness.toStringAsFixed(2),
+      _brightness.toString(),
     );
   }
 
   void _updateBrightness(double val) {
     setState(() {
       _brightness = val;
-      _brightnessController.text = "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
+      _brightnessController.text = "${(_brightness * 100).round()}%";
     });
     widget.onColorChanged(
       _hsvColor.toColor().value.toRadixString(16).substring(2).toUpperCase(),
-      _brightness.toStringAsFixed(2),
+      _brightness.toString(),
     );
+  }
+
+  void _submitBrightnessText(String text) {
+    String cleaned = text.replaceAll(RegExp(r'[^0-9.]'), '');
+    double? parsed = double.tryParse(cleaned);
+    if (parsed != null) {
+      double internal = parsed.clamp(1, 100) / 100.0;
+      _updateBrightness(internal.clamp(0.01, 1.0));
+    } else {
+      // Restore display
+      _brightnessController.text =
+          "${(_brightness * 100).round()}%";
+    }
   }
 
   Widget _buildCheckbox(int index) {
@@ -138,6 +160,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
       alignment: Alignment.center,
       child: TextField(
         controller: _brightnessController,
+        focusNode: _brightnessFocusNode,
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(fontSize: 16),
@@ -148,18 +171,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
         ),
         keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
         textInputAction: TextInputAction.done,
-        onSubmitted: (text) {
-          String cleaned = text.replaceAll(RegExp(r'[^0-9.]'), '');
-          double? parsed = double.tryParse(cleaned);
-          if (parsed != null) {
-            double internal = 0.4 + ((parsed.clamp(1, 100) - 1) / 99.0) * 0.6;
-            _updateBrightness(internal.clamp(0.4, 1.0));
-          } else {
-            // Restore display
-            _brightnessController.text =
-                "${(1 + ((_brightness - 0.4) / 0.6 * 99)).round()}%";
-          }
-        },
+        onSubmitted: _submitBrightnessText,
         onTap: () {
           _brightnessController.selection = TextSelection(
             baseOffset: 0,
@@ -177,7 +189,7 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
     final Color fadeColor =
         _hsvColor.withValue(1.0).toColor().withOpacity(0.0);
     // Display value for arc
-    final double displayBrightness = 1 + ((_brightness - 0.4) / 0.6 * 99);
+    final double displayBrightness = _brightness * 100;
 
     return Column(
       children: [
@@ -209,8 +221,8 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
                   widgetHeight: 100,
                   arcSweepAngle: pi * 65 / 180,
                   onChanged: (val) {
-                    double internal = 0.4 + ((val - 1) / 99.0) * 0.6;
-                    _updateBrightness(internal.clamp(0.4, 1.0));
+                    double internal = val / 100.0;
+                    _updateBrightness(internal.clamp(0.01, 1.0));
                   },
                 ),
                 // Tight gap — just enough to clear the arc detection zone
@@ -403,13 +415,9 @@ class _LEDControlWidgetState extends State<LEDControlWidget> {
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
-                  child: Text(
+                  child: BybHighlightedText(
                     "When the NEURON sends a SPIKE, lights will glow with the set color!",
-                    style: TextStyle(
-                      fontFamily: "BybHanddrawn",
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
+                    fontSize: 16,
                     maxLines: 3,
                     textAlign: TextAlign.left,
                   ),

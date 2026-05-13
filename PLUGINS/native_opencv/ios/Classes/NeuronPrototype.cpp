@@ -1257,10 +1257,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                 short isGreenLed = -1;
                 short isBlueLed = -1;
                 short colorSum[4][3]= {{0}};
-                short colorCount[4][3]= {{0}};
                 std::string binaryString = "";
                 short tempWeight = 0;
                 std::string spikingMessage = "";
+                static float neuron_brightness_capacitor[1024] = {0.0f};
+
                 for (short iStep = normalNeuronFirstIndex; iStep < threadTotalNumOfNeurons;iStep++){
                     short isNeuronSpiking = isStepSpiking[iStep];
                     short isDelayedSpiking = isNeuronSpiking;
@@ -1270,11 +1271,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             isNeuronSpiking = 1;
                         }
                     }
-                    // neuronCircles[iStep] = isSpiking % 100;
-                    // neuronCircles[iStep] = isNeuronSpiking;
 
                     spikingMessage = spikingMessage + std::to_string(isDelayedSpiking) + "|" ;
-                    // platform_log( ("isSmartNeuronReady : " + std::to_string(isNeuronSpiking)+"\n" ).c_str());
+                    
                     if ( isNeuronSpiking == 1 ){
                         // short speaker_val = getSimulationMatrixValue(speaker_buf, ii, jj, (threadInitialTotalNumOfNeurons));
                         short speaker_val = getSimulationMatrixValue(speaker_buf, iStep, neuronSpeakerIdx, (threadInitialTotalNumOfNeurons));
@@ -1282,84 +1281,88 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                             speaker_connection_sum += speaker_val;
                             speaker_connection_count++;
                         }
+                    }
 
+                    // V41 FIX: True Independent Capacitor Summation
+                    if (isNeuronSpiking == 1) {
+                        neuron_brightness_capacitor[iStep] = 1.0f;
+                    } else {
+                        neuron_brightness_capacitor[iStep] *= 0.85f; // Smooth 15% decay per epoch (~50ms visual tail)
+                        if (neuron_brightness_capacitor[iStep] < 0.01f) {
+                            neuron_brightness_capacitor[iStep] = 0.0f;
+                        }
+                    }
+
+                    float cap = neuron_brightness_capacitor[iStep];
+                    if (cap > 0.0f) {
                         if (led_pos_buf != nullptr && led_buf != nullptr) {
-                            isRedLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                            if (isRedLed > -1){ // red
+                            short tempRed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
+                            if (tempRed > -1){ // red
+                                isRedLed = tempRed;
                                 binaryString = decimalToBinaryString(isRedLed);
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][0]++;
+                                    colorSum[0][0] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][0]++;
+                                    colorSum[1][0] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][0]++;
+                                    colorSum[2][0] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedRedIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][0]++;
+                                    colorSum[3][0] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                             }
 
-                            isGreenLed= getSimulationMatrixValue(led_pos_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                            if (isGreenLed > -1 ) { // green
+                            short tempGreen = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
+                            if (tempGreen > -1 ) { // green
+                                isGreenLed = tempGreen;
                                 binaryString = decimalToBinaryString(isGreenLed);
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][1]++;
+                                    colorSum[0][1] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][1]++;
+                                    colorSum[1][1] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][1]++;
+                                    colorSum[2][1] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedGreenIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][1]++;
+                                    colorSum[3][1] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
 
                             }
 
-                            isBlueLed = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                            if (isBlueLed > -1 ) {
+                            short tempBlue = getSimulationMatrixValue(led_pos_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
+                            if (tempBlue > -1 ) {
+                                isBlueLed = tempBlue;
                                 binaryString = decimalToBinaryString(isBlueLed);
                                 // platform_log("there is blue \n");
                                 // platform_log(binaryString.c_str());
                                 // platform_log("\n");
                                 if (binaryString[0] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[0][2]++;
+                                    colorSum[0][2] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[1] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[1][2]++;
+                                    colorSum[1][2] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[2] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[2][2]++;
+                                    colorSum[2][2] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                                 if (binaryString[3] == '1'){
                                     tempWeight = getSimulationMatrixValue(led_buf, iStep, neuronLedBlueIdx, (threadInitialTotalNumOfNeurons));
-                                    colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100));
-                                    colorCount[3][2]++;
+                                    colorSum[3][2] += static_cast<short>(floor(tempWeight * 255 / 100 * cap));
                                 }
                             }
                         }
@@ -1505,25 +1508,10 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     int red = 0;
                     int green = 0;
                     int blue = 0;
-                    int redCount = 0;
-                    int greenCount = 0;
-                    int blueCount = 0;
                     for (int ledIdx = 0; ledIdx < 4; ledIdx++){
-                        redCount = colorCount[ledIdx][0];
-                        greenCount = colorCount[ledIdx][1];
-                        blueCount = colorCount[ledIdx][2];
-                        if (redCount == 0) {
-                            redCount = 1;
-                        }
-                        if (greenCount == 0) {
-                            greenCount = 1;
-                        }
-                        if (blueCount == 0) {
-                            blueCount = 1;
-                        }
-                        red = static_cast<short>(floor(colorSum[ledIdx][0] / redCount));
-                        green = static_cast<short>(floor(colorSum[ledIdx][1] / greenCount));
-                        blue = static_cast<short>(floor(colorSum[ledIdx][2] / blueCount));
+                        red = colorSum[ledIdx][0];
+                        green = colorSum[ledIdx][1];
+                        blue = colorSum[ledIdx][2];
                         if (red> 255) red = 255;
                         if (green> 255) green = 255;
                         if (blue> 255) blue = 255;

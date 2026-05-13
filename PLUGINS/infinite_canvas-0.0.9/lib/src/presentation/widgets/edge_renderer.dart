@@ -334,6 +334,13 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 int maxAbsoluteCS = (110 - strengthVal.floor().abs()).clamp(1, 110);
                 double thickness = ((strengthVal.abs() / maxAbsoluteCS) * visualRadius / 2) * (4.0/3.0); // capped at 2/3 max
                 
+                // LED edges: fixed thickness at 80% strength regardless of brightness
+                if (edge.isLedEdge) {
+                  double ledStrength = 80.0 / 2.0; // Fixed 80%
+                  int ledMaxCS = (110 - ledStrength.floor().abs()).clamp(1, 110);
+                  thickness = ((ledStrength / ledMaxCS) * visualRadius / 2) * (4.0/3.0);
+                }
+                
                 if ((visualRadius * 0.1) > thickness) thickness = visualRadius * 0.1;
                 if (thickness < 1.0) thickness = 1.0;
                 
@@ -619,7 +626,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                      controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                      
                      drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
+                        isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color, edgeReference: edge);
                         
                  } else {
                      // Final Tip (Split last two axons)
@@ -647,7 +654,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          controller.edgeBranchPointMap["${edge.from}->${edge.to}"] = [branchPoint, currentTangent];
                          
                          drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas, from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo,
-                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
+                            isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: currentTangent, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color, edgeReference: edge);
                      }
                  }
               }
@@ -711,7 +718,7 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
 
             drawAxon(from, to, fromIdx, toIdx, connectionStrength, canvas,
                 from.isExcitatory, label, InfiniteCanvasEdge.isShowingInfo, 
-                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color);
+                isSelected: isEdgeSelected, isHighlightPass: isHighlightPass, branchPoint: branchPoint, branchDirection: branchDirection, isDrawingSynapsesOnly: isDrawingSynapsesOnly, edgeColor: edge.color, edgeReference: edge);
             // }
             // drawEdge(
             //   context,
@@ -1167,16 +1174,22 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
   // V24: Added isHighlightPass for two-pass rendering (highlights below main drawing)
   void drawAxon(InfiniteCanvasNode from, InfiniteCanvasNode to, int fromIdx,
       int toIdx, double connectionStrength, Canvas canvas, int isExcitatory, String label, bool isShowingInfo, 
-      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection, bool isDrawingSynapsesOnly = false, Color? edgeColor}) {
+      {bool isSelected = false, bool isHighlightPass = false, Offset? branchPoint, Offset? branchDirection, bool isDrawingSynapsesOnly = false, Color? edgeColor, InfiniteCanvasEdge? edgeReference}) {
 
     // V25: Determine Synapse Fill Color based on Spike State with Decay
     Paint synapseFill = whiteBrush;
     if (controller.isPlaying && controller.nucleusList != null && fromIdx >= 0 && fromIdx < controller.nucleusList!.length) {
        var nucleus = controller.nucleusList![fromIdx];
-       int diff = DateTime.now().millisecondsSinceEpoch - nucleus.lastSpikeTime;
+       
+       int bestSpikeTime = nucleus.lastSpikeTime;
+       if (edgeReference != null && edgeReference.lastSpikeTime > bestSpikeTime) {
+           bestSpikeTime = edgeReference.lastSpikeTime;
+       }
+       
+       int diff = DateTime.now().millisecondsSinceEpoch - bestSpikeTime;
        int decayDuration = 750;
        
-       if (nucleus.lastSpikeTime > 0 && diff < decayDuration) {
+       if (bestSpikeTime > 0 && diff < decayDuration) {
           double t = diff / decayDuration.toDouble();
           t = t.clamp(0.0, 1.0);
           // Curve for nicer fade? Linear is fine. 
@@ -1316,6 +1329,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
             if (strength < minimalTicknessOfAxon) {
               strength = minimalTicknessOfAxon;
             }
+            
+            // LED edges: always render at fixed 80% thickness regardless of brightness
+            if (edgeReference != null && edgeReference.isLedEdge) {
+              double fixedCS = 80.0 / 2.0; // Fixed 80% strength
+              int fixedMaxCS = (110 - fixedCS.floor().abs()).clamp(1, 110);
+              strength = (fixedCS * 2.0 / fixedMaxCS) * diameterOfNeuron / 3.0;
+              if ((diameterOfNeuron * 0.1) > strength) strength = diameterOfNeuron * 0.1;
+              if (strength < minimalTicknessOfAxon) strength = minimalTicknessOfAxon;
+            }
 
             blackBrush.strokeWidth = strength;
             blackBrush.style = PaintingStyle.fill;
@@ -1420,6 +1442,11 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                     edgeColor.alpha > 50 && 
                     (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
                 
+                // LED edges: always show gradient with actual color (preserve brightness transparency)
+                if (!hasVisibleColor && edgeReference != null && edgeReference.isLedEdge && edgeColor != null) {
+                  hasVisibleColor = true;
+                }
+                
                 if (hasVisibleColor) {
                     // Determine gradient direction based on source type
                     List<Color> gradientColors = [edgeColor!, Colors.black];
@@ -1505,21 +1532,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          else if (controller.mapSensoryNeuron.containsKey(idKey)) idx = (controller.mapSensoryNeuron[idKey] as num?)?.toInt();
                          
                          if (idx != null) {
-                              List<String> cameraMenuTypes = [
-                                 "Blue", "Blue (side)", "Green", "Green (side)", "Red", "Red (side)",
-                                 "Movement", "person", "backpack", "bottle", "cup", "bowl", "banana", 
-                                 "apple", "orange", "chair", "couch", "potted plant", "laptop", "cell phone", 
-                                 "book", "vase", "dog", "cat", "tv", "mouse", "keyboard", "scissors", "donut", 
-                                 "pizza", "hot dog"
-                              ];
-                              Map<String, String> lookup = {
-                                 "person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣",
-                                 "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️",
-                                 "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒",
-                                 "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺",
-                                 "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩",
-                                 "pizza": "🍕", "hot dog": "🌭"
-                              };
+                              List<String> cameraMenuTypes = ["Blue","Blue (side)","Green","Green (side)","Red","Red (side)","Movement","person","backpack","bottle","cup","bowl","banana","apple","orange","chair","couch","potted plant","laptop","cell phone","book","vase","dog","cat","tv","mouse","keyboard","scissors","donut","pizza","hot dog","car","motorcycle","airplane","bus","train","truck","boat","traffic light","stop sign","bird","horse","sheep","cow","elephant","bear","zebra","giraffe","umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","wine glass","fork","knife","spoon","sandwich","broccoli","carrot","cake","bed","dining table","toilet","remote","microwave","oven","toaster","sink","refrigerator","clock"];
+                              Map<String, String> lookup = {"person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣", "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️", "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒", "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺", "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩", "pizza": "🍕", "hot dog": "🌭", "car": "🚗", "motorcycle": "🏍️", "airplane": "✈️", "bus": "🚌", "train": "🚆", "truck": "🚚", "boat": "⛵", "traffic light": "🚥", "stop sign": "🛑", "bird": "🐦", "horse": "🐎", "sheep": "🐑", "cow": "🐄", "elephant": "🐘", "bear": "🐻", "zebra": "🦓", "giraffe": "🦒", "umbrella": "☔", "handbag": "👜", "tie": "👔", "suitcase": "🧳", "frisbee": "🥏", "skis": "🎿", "snowboard": "🏂", "sports ball": "⚽", "kite": "🪁", "baseball bat": "🏏", "baseball glove": "🧤", "skateboard": "🛹", "surfboard": "🏄", "tennis racket": "🎾", "wine glass": "🍷", "fork": "🍴", "knife": "🔪", "spoon": "🥄", "sandwich": "🥪", "broccoli": "🥦", "carrot": "🥕", "cake": "🎂", "bed": "🛏️", "dining table": "🍽️", "toilet": "🚽", "remote": "🎛️", "microwave": "🎛️", "oven": "🎛️", "toaster": "🍞", "sink": "🚰", "refrigerator": "🥶", "clock": "🕰️"};
                               if (idx >= 0 && idx < cameraMenuTypes.length) {
                                   // DEBUG: Verify lookup success
                                   // print("Camera Lookup Success: index=$idx type=${cameraMenuTypes[idx]}");
@@ -1722,12 +1736,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                      edgeColor.alpha > 50 && 
                      (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
                  
+                 // LED edges: always show gradient with actual color (preserve brightness transparency)
+                 if (!hasVisibleColor && edgeReference != null && edgeReference.isLedEdge && edgeColor != null) {
+                   hasVisibleColor = true;
+                 }
+                 
                  if (hasVisibleColor) {
-                     List<Color> gradientColors = [edgeColor, Colors.black];
+                     List<Color> gradientColors = [edgeColor!, Colors.black];
                      bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
                                         (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
                      if (isSourceLed) {
-                         gradientColors = [Colors.black, edgeColor];
+                         gradientColors = [Colors.black, edgeColor!];
                      }
                      
                      final Shader gradientShader = ui.Gradient.linear(
@@ -1831,6 +1850,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
               // edgeColor is now passed as a parameter.
               
               if (edgeColor != null && edgeColor != Colors.black) {
+                  // LED edges: always show gradient with actual color
+                  if (edgeReference != null && edgeReference.isLedEdge) {
+                    // no color modification — preserve brightness transparency
+                  }
                   List<Color> gradientColors = [edgeColor, Colors.black];
                   bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
                                      (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
@@ -1931,21 +1954,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                          else if (controller.mapSensoryNeuron.containsKey(cleanKey)) idx = (controller.mapSensoryNeuron[cleanKey] as num?)?.toInt();
                          
                          if (idx != null) {
-                              List<String> cameraMenuTypes = [
-                                 "Blue", "Blue (side)", "Green", "Green (side)", "Red", "Red (side)",
-                                 "Movement", "person", "backpack", "bottle", "cup", "bowl", "banana", 
-                                 "apple", "orange", "chair", "couch", "potted plant", "laptop", "cell phone", 
-                                 "book", "vase", "dog", "cat", "tv", "mouse", "keyboard", "scissors", "donut", 
-                                 "pizza", "hot dog"
-                              ];
-                              Map<String, String> lookup = {
-                                 "person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣",
-                                 "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️",
-                                 "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒",
-                                 "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺",
-                                 "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩",
-                                 "pizza": "🍕", "hot dog": "🌭"
-                              };
+                              List<String> cameraMenuTypes = ["Blue","Blue (side)","Green","Green (side)","Red","Red (side)","Movement","person","backpack","bottle","cup","bowl","banana","apple","orange","chair","couch","potted plant","laptop","cell phone","book","vase","dog","cat","tv","mouse","keyboard","scissors","donut","pizza","hot dog","car","motorcycle","airplane","bus","train","truck","boat","traffic light","stop sign","bird","horse","sheep","cow","elephant","bear","zebra","giraffe","umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","wine glass","fork","knife","spoon","sandwich","broccoli","carrot","cake","bed","dining table","toilet","remote","microwave","oven","toaster","sink","refrigerator","clock"];
+                              Map<String, String> lookup = {"person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣", "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️", "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒", "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺", "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩", "pizza": "🍕", "hot dog": "🌭", "car": "🚗", "motorcycle": "🏍️", "airplane": "✈️", "bus": "🚌", "train": "🚆", "truck": "🚚", "boat": "⛵", "traffic light": "🚥", "stop sign": "🛑", "bird": "🐦", "horse": "🐎", "sheep": "🐑", "cow": "🐄", "elephant": "🐘", "bear": "🐻", "zebra": "🦓", "giraffe": "🦒", "umbrella": "☔", "handbag": "👜", "tie": "👔", "suitcase": "🧳", "frisbee": "🥏", "skis": "🎿", "snowboard": "🏂", "sports ball": "⚽", "kite": "🪁", "baseball bat": "🏏", "baseball glove": "🧤", "skateboard": "🛹", "surfboard": "🏄", "tennis racket": "🎾", "wine glass": "🍷", "fork": "🍴", "knife": "🔪", "spoon": "🥄", "sandwich": "🥪", "broccoli": "🥦", "carrot": "🥕", "cake": "🎂", "bed": "🛏️", "dining table": "🍽️", "toilet": "🚽", "remote": "🎛️", "microwave": "🎛️", "oven": "🎛️", "toaster": "🍞", "sink": "🚰", "refrigerator": "🥶", "clock": "🕰️"};
                               if (idx < cameraMenuTypes.length) {
                                   String type = cameraMenuTypes[idx];
                                   if (lookup.containsKey(type)) {
@@ -2244,6 +2254,15 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                 
                if ((diameterOfNeuron * 0.1) > strength) strength = diameterOfNeuron * 0.1;
                if (strength < minimalTicknessOfAxon) strength = minimalTicknessOfAxon;
+               
+               // LED edges: always render at fixed 80% thickness regardless of brightness
+               if (edgeReference != null && edgeReference.isLedEdge) {
+                 double fixedCS = 80.0 / 2.0;
+                 int fixedMaxCS = (110 - fixedCS.floor().abs()).clamp(1, 110);
+                 strength = (fixedCS * 2.0 / fixedMaxCS) * diameterOfNeuron / 3.0;
+                 if ((diameterOfNeuron * 0.1) > strength) strength = diameterOfNeuron * 0.1;
+                 if (strength < minimalTicknessOfAxon) strength = minimalTicknessOfAxon;
+               }
 
                blackBrush.strokeWidth = strength;
                blackBrush.style = PaintingStyle.fill;
@@ -2339,12 +2358,17 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                       edgeColor.alpha > 50 && 
                       (edgeColor.red > 20 || edgeColor.green > 20 || edgeColor.blue > 20);
                   
+                  // LED edges: always show gradient with actual color (preserve brightness transparency)
+                  if (!hasVisibleColor && edgeReference != null && edgeReference.isLedEdge && edgeColor != null) {
+                    hasVisibleColor = true;
+                  }
+                  
                   if (hasVisibleColor) {
-                      List<Color> gradientColors = [edgeColor, Colors.black];
+                      List<Color> gradientColors = [edgeColor!, Colors.black];
                       bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
                                          (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
                       if (isSourceLed) {
-                          gradientColors = [Colors.black, edgeColor];
+                          gradientColors = [Colors.black, edgeColor!];
                       }
                       
                       final Shader gradientShader = ui.Gradient.linear(
@@ -2443,6 +2467,10 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                   // edgeColor is now passed as a parameter.
                   
                   if (edgeColor != null && edgeColor != Colors.black) {
+                      // LED edges: always show gradient with actual color
+                      if (edgeReference != null && edgeReference.isLedEdge) {
+                        // no color modification — preserve brightness transparency
+                      }
                       List<Color> gradientColors = [edgeColor, Colors.black];
                       bool isSourceLed = controller.syntheticNeuronList[fromIdx].node.value >= 4 ||
                                          (controller.syntheticNeuronList[fromIdx].node.label ?? "").toLowerCase().contains("led");
@@ -2521,8 +2549,8 @@ class InfiniteCanvasEdgeRenderer extends StatelessWidget {
                               else if (controller.mapSensoryNeuron.containsKey(cleanKey)) idx = (controller.mapSensoryNeuron[cleanKey] as num?)?.toInt();
                               
                               if (idx != null) {
-                                  List<String> cameraMenuTypes = ["Blue","Blue (side)","Green","Green (side)","Red","Red (side)","Movement","person","backpack","bottle","cup","bowl","banana","apple","orange","chair","couch","potted plant","laptop","cell phone","book","vase","dog","cat","tv","mouse","keyboard","scissors","donut","pizza","hot dog"];
-                                  Map<String, String> lookup = {"person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣", "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️", "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒", "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺", "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩", "pizza": "🍕", "hot dog": "🌭"};
+                                  List<String> cameraMenuTypes = ["Blue","Blue (side)","Green","Green (side)","Red","Red (side)","Movement","person","backpack","bottle","cup","bowl","banana","apple","orange","chair","couch","potted plant","laptop","cell phone","book","vase","dog","cat","tv","mouse","keyboard","scissors","donut","pizza","hot dog","car","motorcycle","airplane","bus","train","truck","boat","traffic light","stop sign","bird","horse","sheep","cow","elephant","bear","zebra","giraffe","umbrella","handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","wine glass","fork","knife","spoon","sandwich","broccoli","carrot","cake","bed","dining table","toilet","remote","microwave","oven","toaster","sink","refrigerator","clock"];
+                                  Map<String, String> lookup = {"person": "🧍", "backpack": "🎒", "bottle": "🧴", "cup": "☕", "bowl": "🥣", "banana": "🍌", "apple": "🍎", "orange": "🍊", "chair": "🪑", "couch": "🛋️", "potted plant": "🪴", "laptop": "💻", "cell phone": "📱", "book": "📒", "vase": "🏺", "Movement": "🏃", "dog": "🐕", "cat": "🐈", "tv": "📺", "mouse": "🐁", "keyboard": "⌨️", "scissors": "✂️", "donut": "🍩", "pizza": "🍕", "hot dog": "🌭", "car": "🚗", "motorcycle": "🏍️", "airplane": "✈️", "bus": "🚌", "train": "🚆", "truck": "🚚", "boat": "⛵", "traffic light": "🚥", "stop sign": "🛑", "bird": "🐦", "horse": "🐎", "sheep": "🐑", "cow": "🐄", "elephant": "🐘", "bear": "🐻", "zebra": "🦓", "giraffe": "🦒", "umbrella": "☔", "handbag": "👜", "tie": "👔", "suitcase": "🧳", "frisbee": "🥏", "skis": "🎿", "snowboard": "🏂", "sports ball": "⚽", "kite": "🪁", "baseball bat": "🏏", "baseball glove": "🧤", "skateboard": "🛹", "surfboard": "🏄", "tennis racket": "🎾", "wine glass": "🍷", "fork": "🍴", "knife": "🔪", "spoon": "🥄", "sandwich": "🥪", "broccoli": "🥦", "carrot": "🥕", "cake": "🎂", "bed": "🛏️", "dining table": "🍽️", "toilet": "🚽", "remote": "🎛️", "microwave": "🎛️", "oven": "🎛️", "toaster": "🍞", "sink": "🚰", "refrigerator": "🥶", "clock": "🕰️"};
                                   if (idx >= 0 && idx < cameraMenuTypes.length) {
                                       String type = cameraMenuTypes[idx];
                                       if (lookup.containsKey(type)) { iconText = lookup[type]; fontFamily = "NotoEmoji"; }

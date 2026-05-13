@@ -180,6 +180,41 @@ class Nativec {
   static ffi.Pointer<ffi.Double>? canvasBuffer1;
   static ffi.Pointer<ffi.Double>? canvasBuffer2;
 
+  /// Shared with web stub — unused on native but needed for cross-platform compile.
+  static Float64List? iBufViewRef;
+  static Float64List? aBufViewRef;
+  static Float64List? bBufViewRef;
+  static Int16List? cBufViewRef;
+  static Int16List? dBufViewRef;
+  static Float64List? wBufViewRef;
+  static Float64List? connectomeBufViewRef;
+  static Int16List? mapNeuronTypeBufViewRef;
+  static Int16List? mapDelayNeuronBufViewRef;
+  static Int16List? mapRhytmicNeuronBufViewRef;
+  static Int16List? mapCountingNeuronBufViewRef;
+  static Int16List? visPrefsBufViewRef;
+  static Float64List? neuronContactsBufViewRef;
+
+  /// Sensor buffer refs (web-only sync, no-op on native)
+  static Float64List? distanceBufViewRef;
+  static Float64List? microphoneBufViewRef;
+  static Float64List? visualInputBufViewRef;
+
+  /// Neuron pref maps (web-only sync, no-op on native)
+  static Int16List? neuronDistanceBufViewRef;
+  static Int16List? neuronSpeakerBufViewRef;
+  static Int16List? neuronMicrophoneBufViewRef;
+  static Int16List? neuronLedBufViewRef;
+  static Int16List? neuronLedPositionBufViewRef;
+  static Int16List? distanceMinLimitBufViewRef;
+  static Int16List? distanceMaxLimitBufViewRef;
+  static Int16List? microphoneMinLimitBufViewRef;
+  static Int16List? microphoneMaxLimitBufViewRef;
+  static Int16List? microphoneTypeBufViewRef;
+
+  /// No-op on native — web stub uses this to sync Dart buffers to WASM heap.
+  static void syncBuffersToWasm() {}
+
   static Float64List canvasBufferBytes1 = Float64List(0);
   static Float64List canvasBufferBytes2 = Float64List(0);
 

@@ -10,9 +10,9 @@ import 'package:spikerbot/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // WEB CHANGE
 // /*
-import 'dart:io';
-import 'package:auto_orientation/auto_orientation.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:spikerbot/utils/platform_imports.dart';
+import 'package:spikerbot/utils/auto_orientation_imports.dart';
+import 'package:spikerbot/utils/window_manager_imports.dart';
 // WINDOWS CHANGE
 // import 'package:firebase_analytics/firebase_analytics.dart';
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -67,13 +67,16 @@ void main() async {
   // /*
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     await windowManager.ensureInitialized();
-    double screenWidth = 870;
-    double screenHeight = 600;
+    double minScreenWidth = 870;
+    double minScreenHeight = 600;
+    
+    // Launch at an even wider default size!
+    double defaultScreenWidth = 1200;
+    double defaultScreenHeight = 800;
 
     WindowOptions windowOptions = WindowOptions(
-      // title: "Spikerbot",
-      minimumSize: Size(screenWidth, screenHeight),
-      size: Size(screenWidth, screenHeight),
+      minimumSize: Size(minScreenWidth, minScreenHeight),
+      size: Size(defaultScreenWidth, defaultScreenHeight),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -82,8 +85,8 @@ void main() async {
     if (Platform.isWindows) {
       windowOptions = WindowOptions(
         title: "SpikerBot",
-        minimumSize: Size(screenWidth, screenHeight),
-        size: Size(screenWidth, screenHeight),
+        minimumSize: Size(minScreenWidth, minScreenHeight),
+        size: Size(defaultScreenWidth, defaultScreenHeight),
         center: true,
         backgroundColor: Colors.transparent,
         skipTaskbar: false,
@@ -92,7 +95,7 @@ void main() async {
     }
 
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.setSize(Size(screenWidth, screenHeight));
+      await windowManager.setSize(Size(defaultScreenWidth, defaultScreenHeight));
       await windowManager.show();
       await windowManager.focus();
     });
