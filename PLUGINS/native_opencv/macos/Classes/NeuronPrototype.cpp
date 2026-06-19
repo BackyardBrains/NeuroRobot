@@ -834,13 +834,17 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
 
                     std::vector<int> spikingNow = std::vector<int>();
                     for (short neuronIndex = 0; neuronIndex < threadTotalNumOfNeurons; neuronIndex++) {
+                        short neuronBaseType = mapNeuronType[neuronIndex] % 1000;
+                        if (neuronBaseType == 5) {
+                            tI[neuronIndex] = i[neuronIndex];
+                        } else {
                         #ifdef __EMSCRIPTEN__
                             tI[neuronIndex] = i[neuronIndex] * (1.3 *randoms());
                         #else
                             tI[neuronIndex] = i[neuronIndex] * (1.5 *randoms());
-
                         #endif                        
-                        //find spiking neurons
+                        }
+                        if (neuronBaseType == 5 && t % 100 == 0) { platform_log(("CUSTOM NEURON " + std::to_string(neuronIndex) + ": v=" + std::to_string(v[neuronIndex]) + " I=" + std::to_string(tI[neuronIndex]) + " b=" + std::to_string(b[neuronIndex]) + " u=" + std::to_string(u[neuronIndex]) + "\n").c_str()); } //find spiking neurons
                         // V9 FIX: Do NOT reset guidedDelayList.isSpiking here!
                         // It's set at END of epoch (line ~1183 when v>=30) and checked
                         // at START of next epoch (line ~893 in mode 2). Resetting here
@@ -976,6 +980,11 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                     // insert old data in timeline
                     double *copyV = new double[threadTotalNumOfNeurons];
                     std::copy(v, v+threadTotalNumOfNeurons, copyV);
+                    for (short idx = 0; idx < threadTotalNumOfNeurons; idx++) {
+                        if (copyV[idx] >= 30) {
+                            copyV[idx] = 30; // Match Design Mode visual clamping
+                        }
+                    }
                     // Hijack displaying the default value while delaying it.
                     for (short idx = 0; idx < threadTotalNumOfNeurons; idx++) {
 

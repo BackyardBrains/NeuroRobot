@@ -273,6 +273,11 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   bool isSpeakerMenu = false;
   bool isLedMenu = false;
 
+  double auxServoRestPosition = 0.0;  // Global resting position (-255 to +255)
+  Map<String, double> mapAuxMotorPower = {};  // Per-neuron triggered value (-255 to +255)
+  double auxMotorDecayPower = 0.0;
+  int _auxDiagCounter = 0;
+
   Color colorOrange = const Color(0XFFFD8164);
   Color colorGreen = const Color(0xFF55EE55); // Standardized Green
   Color colorBlue = const Color(0xFF1996FC); // Standardized Blue
@@ -289,6 +294,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     "Custom",
     "Delay", //8
     "Remote Control", //9
+    "Motion",
+    "Aux Motor",
     // "Rhytmic", //10
     // "Counting", //11
   ];
@@ -304,6 +311,8 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     "Custom",
     "Delay",
     "Remote Control",
+    "Motion",
+    "Aux Motor",
     // "Rhytmic",
     // "Counting", //11
   ];
@@ -695,7 +704,6 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   Map<String, dynamic> bDesignArray = {};
   Map<String, dynamic> cDesignArray = {};
   Map<String, dynamic> dDesignArray = {};
-  Map<String, dynamic> iDesignArray = {};
 
   TextEditingController tecFrequencyWeight = TextEditingController();
   double sldFrequencyWeight = 40.0;
@@ -828,6 +836,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
 
   /// Maps neuron ID → bound key label string (e.g. "A", "Space", "Pad:1:ButtonA")
   Map<String, String> mapRemoteControlNeuron = {};
+
+  /// Motion neuron: nodeId → selected input type ("Tap", "Tilt", or "Motion")
+  Map<String, String> mapMotionNeuron = {};
+
+  /// IMU sensor state — parsed from firmware "i:TMT" telemetry field
+  bool imuTapActive = false;
+  bool imuMotionActive = false;
+  bool imuTiltActive = false;
 
   /// Tracks which keys (IDs) are currently pressed during simulation
   Set<String> _activeRemoteKeys = {};
@@ -2186,6 +2202,13 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
                   strSerialDataBuff += (message + ";");
                   return "";
                 });
+                // Parse IMU field: " i:110" → tap=1, motion=1, tilt=0
+                int imuIdx = message.indexOf(' i:');
+                if (imuIdx != -1 && imuIdx + 5 < message.length) {
+                  imuTapActive    = message[imuIdx + 3] == '1';
+                  imuMotionActive = message[imuIdx + 4] == '1';
+                  imuTiltActive   = message[imuIdx + 5] == '1';
+                }
                 if (message.startsWith("M:")) {
                   List<String> mArr = message.substring(2).replaceAll(";", "").split(",");
                   if (mArr.isNotEmpty) {
@@ -2389,6 +2412,14 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
             strSerialDataBuff += (message + ";");
             return "";
           });
+
+          // Parse IMU field: " i:110" → tap=1, motion=1, tilt=0
+          int imuIdx = message.indexOf(' i:');
+          if (imuIdx != -1 && imuIdx + 5 < message.length) {
+            imuTapActive    = message[imuIdx + 3] == '1';
+            imuMotionActive = message[imuIdx + 4] == '1';
+            imuTiltActive   = message[imuIdx + 5] == '1';
+          }
 
           try {
             // --- NEW PREFIX PROTOCOL ---
@@ -2738,12 +2769,7 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   void handleEmbeddedSpike() {
     if (controller.selection.isNotEmpty) {
       int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == controller.selection[0].id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
       if (neuronIdx >= 0 && neuronIdx < (controller.nucleusList?.length ?? 0)) {
         controller.nucleusList![neuronIdx].lastSpikeTime = DateTime.now().millisecondsSinceEpoch;
         neuronSpikeFlags[neuronIdx].value = DateTime.now().millisecondsSinceEpoch;
@@ -3189,11 +3215,11 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
   Widget _buildBehaviorGroupHeader(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4, top: 4, right: 8),
+      padding: const EdgeInsets.only(bottom: 0, top: 1),
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
           color: Colors.grey.shade600,
           fontFamily: 'Roboto',
@@ -3202,7 +3228,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
     );
   }
 
-  Widget _buildBehaviorOption(String type) {
+  Widget _buildBehaviorOption(String type, String iconPath, {bool isEmoji = false}) {
     bool isSelected = neuronMenuType == type;
     return Material(
       color: Colors.transparent,
@@ -3223,12 +3249,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           try {
             InfiniteCanvasNode selected = controller.selection[0];
             int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
             
             if (type == "Delay") {
               isShowDelayTime = true;
@@ -3250,20 +3271,37 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           setState(() {});
         },
         child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             color: isSelected ? colorOrange : Colors.transparent,
           ),
-          child: Text(
-            type,
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? Colors.white : Colors.grey[800],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 38,
+                width: 38,
+                child: isEmoji 
+                    ? FittedBox(fit: BoxFit.contain, child: Text(iconPath, style: TextStyle(fontFamily: "NotoEmoji", color: isSelected ? Colors.white : Colors.black)))
+                    : SvgPicture.asset(iconPath, colorFilter: ColorFilter.mode(isSelected ? Colors.white : Colors.black, BlendMode.srcIn)),
+              ),
+              const SizedBox(height: 0),
+              Text(
+                type,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 1.1,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? Colors.white : Colors.grey[800],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -3963,7 +4001,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                 child: SizedBox(
                   width: 340,
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
 
@@ -4075,6 +4113,8 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                 case "Delay": desc = "When it gets a strong enough input, this NEURON waits before sending SPIKES!"; break;
                                 case "Remote Control": desc = "Waits for an input to SPIKE. Trigger it with neurons, or keypresses/buttons!"; break;
                                 case "Custom": desc = "Adjust the parameters of the Izhikevich integrate and fire model directly!"; break;
+                                case "Motion": desc = "Responds to TAP, TILT, or MOVEMENT detected by the robot's motion sensor!"; break;
+                                case "Aux Motor": desc = "Advanced: Used for controlling auxiliary servos and expansion motors."; break;
                               }
                               if (isShowingInfo != 0) {
                                 return Row(
@@ -4127,30 +4167,65 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                             ),
                           ],
                           if (isNeuronBehaviorExpanded) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 2),
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.grey.shade300),
                               ),
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   _buildBehaviorGroupHeader("Needs an input to send spikes:"),
-                                  _buildBehaviorOption("Quiet"),
-                                  _buildBehaviorOption("Bursts when activated"),
-                                  const Divider(height: 16),
+                                  GridView.count(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 2,
+                                    crossAxisSpacing: 2,
+                                    childAspectRatio: 1.15,
+                                    children: [
+                                      _buildBehaviorOption("Quiet", "💤", isEmoji: true),
+                                      _buildBehaviorOption("Bursts when activated", "⚡", isEmoji: true),
+                                      _buildBehaviorOption("Delay", "🕧", isEmoji: true),
+                                      _buildBehaviorOption("Remote Control", "assets/icons/remoteControlKeys/RemoteControl.svg"),
+                                    ],
+                                  ),
+                                  const Divider(height: 1),
                                   _buildBehaviorGroupHeader("Sends spikes on its own without input:"),
-                                  _buildBehaviorOption("Occassionally active"),
-                                  _buildBehaviorOption("Generates bursts"),
-                                  _buildBehaviorOption("Highly active"),
-                                  const Divider(height: 16),
-                                  _buildBehaviorGroupHeader("Special spiking behaviors:"),
-                                  _buildBehaviorOption("Delay"),
-                                  _buildBehaviorOption("Remote Control"),
-                                  _buildBehaviorOption("Custom"),
+                                  GridView.count(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 2,
+                                    crossAxisSpacing: 2,
+                                    childAspectRatio: 1.15,
+                                    children: [
+                                      _buildBehaviorOption("Occassionally active", "✨", isEmoji: true),
+                                      _buildBehaviorOption("Generates bursts", "⛈️", isEmoji: true),
+                                      _buildBehaviorOption("Highly active", "🔥", isEmoji: true),
+                                    ],
+                                  ),
+                                  const Divider(height: 1),
+                                  _buildBehaviorGroupHeader("Advanced neurons:"),
+                                  GridView.count(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    crossAxisCount: 4,
+                                    mainAxisSpacing: 2,
+                                    crossAxisSpacing: 2,
+                                    childAspectRatio: 1.15,
+                                    children: [
+                                      _buildBehaviorOption("Custom", "assets/icons/tune.svg"),
+                                      _buildBehaviorOption("Motion", "🤖", isEmoji: true),
+                                      _buildBehaviorOption("Aux Motor", "⚙️", isEmoji: true),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -4181,12 +4256,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
                                     int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
                                     aDesignArray[selected.id] = sldAWeight;
                                     aBufView[neuronIdx] = sldAWeight;
                                     if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
@@ -4209,12 +4279,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
                                     int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
                                     bDesignArray[selected.id] = sldBWeight;
                                     bBufView[neuronIdx] = sldBWeight;
                                     if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
@@ -4243,12 +4308,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
                                     int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
                                     cDesignArray[selected.id] = sldCWeight.floor();
                                     cBufView[neuronIdx] = sldCWeight.floor();
                                     if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
@@ -4271,12 +4331,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                     resizeIzhikevichParameters(neuronSize);
                                     InfiniteCanvasNode selected = controller.selection[0];
                                     int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
                                     dDesignArray[selected.id] = sldDWeight.floor();
                                     dBufView[neuronIdx] = sldDWeight.floor();
                                     if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
@@ -4310,12 +4365,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
                                 InfiniteCanvasNode selected = controller.selection[0];
                                 int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
 
                                 mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
                                 if (neuronIdx < mapDelayNeuronBufView.length) {
@@ -4376,6 +4426,108 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ],
+                    if (neuronMenuType == "Motion") ...[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 8),
+                        child: Center(
+                          child: Text(
+                            "Select a motion input:",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0, bottom: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildMotionRadio("Tap", "👆"),
+                            const SizedBox(width: 12),
+                            _buildMotionRadio("Tilt", "📐"),
+                            const SizedBox(width: 12),
+                            _buildMotionRadio("Motion", "🏃"),
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (neuronMenuType == "Aux Motor") ...[
+                      // ── Slider 1: Triggered Speed / Angle ──
+                      ClipRect(
+                        clipBehavior: Clip.none,
+                        child: Transform.translate(
+                          offset: const Offset(0, -10),
+                          child: Center(
+                            child: SizedBox(
+                              width: 240,
+                              height: 105,
+                              child: ArcSliderWidget(
+                                title: "",
+                                lowerTitle: null,
+                                value: mapAuxMotorPower[controller.selection[0].id] ?? 255.0,
+                                widgetWidth: 240.0,
+                                min: -255,
+                                max: 255,
+                                isPercentageFormatter: false,
+                                isDegreeFormatter: false,
+                                onChanged: (value) async {
+                                  if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
+                                  mapAuxMotorPower[controller.selection[0].id] = value;
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -6),
+                        child: const Center(
+                          child: Text("Triggered Speed / Angle",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ),
+                      ),
+                      // ── Slider 2: Resting Position (Global) ──
+                      ClipRect(
+                        clipBehavior: Clip.none,
+                        child: Transform.translate(
+                          offset: const Offset(0, -20),
+                          child: Center(
+                            child: SizedBox(
+                              width: 240,
+                              height: 105,
+                              child: ArcSliderWidget(
+                                title: "",
+                                lowerTitle: null,
+                                value: auxServoRestPosition,
+                                widgetWidth: 240.0,
+                                min: -255,
+                                max: 255,
+                                isPercentageFormatter: false,
+                                isDegreeFormatter: false,
+                                onChanged: (value) async {
+                                  if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true;
+                                  auxServoRestPosition = value;
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -16),
+                        child: const Center(
+                          child: Text("Resting Position (Global)",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
                         ),
                       ),
                     ],
@@ -4488,12 +4640,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                                   try {
                                     if (controller.selection.isNotEmpty) {
                                         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == controller.selection[0].id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.selection[0].id) - 2;
                                         if (neuronIdx >= 0 && neuronIdx < controller.syntheticNeuronList.length) {
                                             var sn = controller.syntheticNeuronList[neuronIdx];
                                             double scale = 32 / neuronDrawSize;
@@ -6435,12 +6582,15 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                   neuronStyles[newId] = neuronStyles[baseNode.id] ?? "Excitatory";
                   aDesignArray[newId] = aDesignArray[baseNode.id] ?? 0.02;
                   bDesignArray[newId] = bDesignArray[baseNode.id] ?? 0.2;
+                  bDesignArray[newId] = bDesignArray[baseNode.id] ?? 0.2;
                   cDesignArray[newId] = cDesignArray[baseNode.id] ?? -65.0;
                   dDesignArray[newId] = dDesignArray[baseNode.id] ?? 8.0;
-                  iDesignArray[newId] = iDesignArray[baseNode.id] ?? 5.0;
 
                   if (mapRemoteControlNeuron.containsKey(baseNode.id)) {
                       mapRemoteControlNeuron[newId] = mapRemoteControlNeuron[baseNode.id]!;
+                  }
+                  if (mapMotionNeuron.containsKey(baseNode.id)) {
+                      mapMotionNeuron[newId] = mapMotionNeuron[baseNode.id]!;
                   }
 
                   SyntheticNeuron syntheticNeuron = SyntheticNeuron(
@@ -8301,6 +8451,10 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
         if (mapContactsNeuron.containsKey(connectionKey)) {
           int bufferIdx = i * neuronSize + j;
           double val = (sign * mapContactsNeuron[connectionKey].abs()).floorToDouble();
+          String fromType = neuronTypes[neuronFrom.id] ?? "";
+          if (fromType == "Aux Motor" && j >= 3 && j <= 6) { // LeftFwd=3, RightFwd=4, LeftBwd=5, RightBwd=6
+              val = 0;
+          }
           neuronContactsBufView[bufferIdx] = val;
           printDebug("DEBUG_LOAD_MOTOR: $connectionKey -> Buffer[$bufferIdx] (Col $j). Val: $val (Map: ${mapContactsNeuron[connectionKey]})");
         }
@@ -8417,7 +8571,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           // Fix: Map Remote Control to Quiet (0) for C++ simulation physics
           // This ensures standard spike propagation while Dart handles input current.
           int simTypeIdx = neuronTypeIdx;
-          if (neuronType == "Remote Control") {
+          if (neuronType == "Remote Control" || neuronType == "Motion" || neuronType == "Aux Motor") {
               simTypeIdx = 0; // Quiet
           }
           
@@ -8455,14 +8609,20 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             case "Remote Control":
               aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
               break;
+            case "Motion":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
+            case "Aux Motor":
+              aBufView[i] = 0.02; bBufView[i] = 0.1; cBufView[i] = -65; dBufView[i] = 2; iBufView[i] = 0.0;
+              break;
             // Custom and special types (Delay, etc.) keep their loaded values from iDesignArray
             default:
-              // For Custom/Delay/etc: try to use DesignArray values if available
-              if (aDesignArray.containsKey(neuronFrom.id)) aBufView[i] = aDesignArray[neuronFrom.id];
-              if (bDesignArray.containsKey(neuronFrom.id)) bBufView[i] = bDesignArray[neuronFrom.id];
-              if (cDesignArray.containsKey(neuronFrom.id)) cBufView[i] = cDesignArray[neuronFrom.id].round();
-              if (dDesignArray.containsKey(neuronFrom.id)) dBufView[i] = dDesignArray[neuronFrom.id].round();
-              if (iDesignArray.containsKey(neuronFrom.id)) iBufView[i] = iDesignArray[neuronFrom.id];
+              // For Custom/Delay/etc: try to use DesignArray values if available, else fallback to standard defaults
+              aBufView[i] = aDesignArray.containsKey(neuronFrom.id) ? aDesignArray[neuronFrom.id] : 0.02;
+              bBufView[i] = bDesignArray.containsKey(neuronFrom.id) ? bDesignArray[neuronFrom.id] : 0.2;
+              cBufView[i] = cDesignArray.containsKey(neuronFrom.id) ? cDesignArray[neuronFrom.id].round() : -65;
+              dBufView[i] = dDesignArray.containsKey(neuronFrom.id) ? dDesignArray[neuronFrom.id].round() : 8;
+              iBufView[i] = 5.0;
               break;
           }
         }
@@ -8487,8 +8647,12 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
         // motor neuron
         if (mapContactsNeuron.containsKey(connectionKey)) {
-          neuronContactsBufView[ctr] =
-              (sign * mapContactsNeuron[connectionKey].abs()).floorToDouble();
+          double val = (sign * mapContactsNeuron[connectionKey].abs()).floorToDouble();
+          String fromType = neuronTypes[neuronFrom.id] ?? "";
+          if (fromType == "Aux Motor" && j >= 3 && j <= 6) { // LeftFwd=3, RightFwd=4, LeftBwd=5, RightBwd=6
+              val = 0;
+          }
+          neuronContactsBufView[ctr] = val;
           printDebug("DEBUG: populateMatrix FOUND Motor Key: $connectionKey = ${mapContactsNeuron[connectionKey]}");
         } else {
           // printDebug("DEBUG: populateMatrix MISSING Motor Key: $connectionKey"); 
@@ -8771,7 +8935,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           bBufView[scrmIndex] = bDesignArray[safeKey] ?? 0.2;
           cBufView[scrmIndex] = (cDesignArray[safeKey] ?? -65.0).round();
           dBufView[scrmIndex] = (dDesignArray[safeKey] ?? 8.0).round();
-          iBufView[scrmIndex] = iDesignArray[safeKey] ?? 5.0; 
+          iBufView[scrmIndex] = 5.0; 
           
           scrmIndex++;
        }
@@ -8973,6 +9137,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
            valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 5.0;
           break;
         case "Remote Control":
+        case "Motion":
           valA = 0.02; valB = 0.1; valC = -65; valD = 2; valI = 0.0;
           break;
         default: // Custom or others
@@ -8980,7 +9145,6 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           if (bDesignArray.containsKey(selected.id)) valB = bDesignArray[selected.id]!;
           if (cDesignArray.containsKey(selected.id)) valC = cDesignArray[selected.id]!.toDouble();
           if (dDesignArray.containsKey(selected.id)) valD = dDesignArray[selected.id]!.toDouble();
-          if (iDesignArray.containsKey(selected.id)) valI = iDesignArray[selected.id]!;
           break;
       }
 
@@ -8999,12 +9163,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       // CRITICAL FIX: Use controller.nodes order to match populateMatrix indexing
       // OLD: int idx = neuronTypes.keys.toList().indexOf(selected.id);  // WRONG ORDER!
       int idx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected) {
-    idx = _syntIdx;
-    break;
-  }
-} // -2 to skip shadow nodes
+idx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
       if (idx >= 0 && idx < neuronSize) {
          aBufView[idx] = valA;
          bBufView[idx] = valB;
@@ -9018,7 +9177,6 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
          bDesignArray[selected.id] = valB;
          cDesignArray[selected.id] = valC;
          dDesignArray[selected.id] = valD;
-         iDesignArray[selected.id] = valI;
          
          // Update UI Sliders
          sldAWeight = valA; tecAWeight.text = valA.toString();
@@ -9222,6 +9380,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
         neuronStyles.remove(selected.id);
         if (!isLoadingBrain && !isSettlingAfterLoad) brainHasUnsavedChanges.value = true; // RC binding removed
         mapRemoteControlNeuron.remove(selected.id);
+        mapMotionNeuron.remove(selected.id);
         aDesignArray.remove(selected.id);
         bDesignArray.remove(selected.id);
         cDesignArray.remove(selected.id);
@@ -10599,12 +10758,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             var selected = controller.selection[0];
             // Calculate ID logic mirrored from Line 7770
             int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
             
             if (neuronIdx >= 0) {
                  int currentKeyIdx = -999;
@@ -11280,6 +11434,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                           valA = 0.02; valB = 0.1; valC = -37; valD = 2;
                           break;
                         case "Remote Control":
+                        case "Motion":
                           valA = 0.02; valB = 0.1; valC = -65; valD = 2;
                           break;
                     }
@@ -11645,12 +11800,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           isChartSelected = false;
 
           int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
 
           nativec.changeIdxSelected(neuronIdx);
           redrawNeuronLine.value = Random().nextInt(100);
@@ -11716,7 +11866,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
               controller.controlPressed = false;
               controller.deselectAll();
               clearUIMenu();
-              setState(() => {});
+              setState(() {});
             }
           }
         }
@@ -12401,6 +12551,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           circleRadius: neuronDrawSize / 2);
       rawSyntheticNeuron.node = tempNode;
       rawSyntheticNeuron.copyDrawingNeuron(syntheticNeuron);
+      rawSyntheticNeuronList.add(rawSyntheticNeuron);
       syntheticNeuron.rawSyntheticNeuron = rawSyntheticNeuron;
 
       rawSyntheticNeuronList.add(rawSyntheticNeuron);
@@ -12994,12 +13145,18 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           rawSyntheticNeuronListJson.add({
             // "activeColor": syntheticNeuron.activeColor.toString(),
             "arrowSize": syntheticNeuron.arrowSize,
-            "xNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.xNucleus,
-            "yNucleus": syntheticNeuronList[idxSyntheticNeuron].newNeuron.yNucleus,
-            "widthNucleus":
-                syntheticNeuronList[idxSyntheticNeuron].newNeuron.widthNucleus,
-            "heightNucleus":
-                syntheticNeuronList[idxSyntheticNeuron].newNeuron.heightNucleus,
+            "xNucleus": idxSyntheticNeuron < syntheticNeuronList.length
+                ? syntheticNeuronList[idxSyntheticNeuron].newNeuron.xNucleus
+                : syntheticNeuron.centerPos.dx,
+            "yNucleus": idxSyntheticNeuron < syntheticNeuronList.length
+                ? syntheticNeuronList[idxSyntheticNeuron].newNeuron.yNucleus
+                : syntheticNeuron.centerPos.dy,
+            "widthNucleus": idxSyntheticNeuron < syntheticNeuronList.length
+                ? syntheticNeuronList[idxSyntheticNeuron].newNeuron.widthNucleus
+                : 30.0,
+            "heightNucleus": idxSyntheticNeuron < syntheticNeuronList.length
+                ? syntheticNeuronList[idxSyntheticNeuron].newNeuron.heightNucleus
+                : 30.0,
             "dendrites": dendrites,
             "centerPos": [
               syntheticNeuron.centerPos.dx,
@@ -13080,6 +13237,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
         }
         
         // Block to process save (captureFromWidget removed)
+          print("💾 SAVE: encoding JSON...");
           String strNodesJson = json.encode({
             "version": strFileVersion,
             "nodes": nodesJson,
@@ -13100,21 +13258,23 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             "mapLedHex": mapLedHex,
             "mapLedBrightness": mapLedBrightness,
             "mapRemoteControlNeuron": mapRemoteControlNeuron,
+            "mapMotionNeuron": mapMotionNeuron,
             "rawSyntheticNeuron": rawSyntheticNeuronListJson,
             "mapDelayNeuron": mapDelayNeuronList,
             "mapRhytmicNeuron": mapRhytmicNeuronList,
             "mapCountingNeuron": mapCountingNeuronList,
+            "auxServoRestPosition": auxServoRestPosition,
+            "mapAuxMotorPower": mapAuxMotorPower..forEach((k, v) { print("💾 SAVE mapAuxMotorPower[$k] = $v"); }),
             "mapAreaSize": mapAreaSize,
             "a": controller.nodes.map((e) => aDesignArray[e.id] ?? 0.02).toList(),
             "b": controller.nodes.map((e) => bDesignArray[e.id] ?? 0.2).toList(),
             "c": controller.nodes.map((e) => cDesignArray[e.id] ?? -65.0).toList(),
             "d": controller.nodes.map((e) => dDesignArray[e.id] ?? 2.0).toList(),
-            "i": controller.nodes.map((e) => iDesignArray[e.id] ?? 0.0).toList(),
             "w": controller.nodes.map((e) => (e.value!=-1 && e.value!=-2 && e.value < maxPosBuffer && e.value < wBufView.length ? wBufView[e.value] : 2.0)).toList(),
             "windowWidth": MediaQuery.of(context).size.width,
             "windowHeight": MediaQuery.of(context).size.height,
             "screenDensity": MediaQuery.of(context).devicePixelRatio,
-            "screenshot": imageBytes ?? [], // Handle null bytes
+            "screenshot": imageBytes != null ? base64Encode(imageBytes!) : "", // base64 JPEG for compact storage
             "annotations": BrainAnnotation.listToJson(brainAnnotations),
             "info": {
               "title": title,
@@ -13125,6 +13285,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             }
           });
     
+          print("💾 SAVE: JSON encoded OK (${strNodesJson.length} chars)");
           if (kIsWeb) {
             // Web: Save to IndexedDB instead of filesystem
             String webFilename = '$title@@@_@@@$fileName.brain';
@@ -13134,12 +13295,13 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             await file.writeAsString(strNodesJson);
             imagePath = file.path;
           }
+          print("💾 SAVE: file written to $imagePath");
         
         return imagePath;
         
     } catch (e, stack) {
-        printDebug("SAVE ERROR: $e");
-        printDebug(stack);
+        print("⚠️ SAVE ERROR: $e");
+        print(stack);
         return "";
     } finally {
         // ALWAYS Restore state and close dialog
@@ -13610,7 +13772,6 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
             bDesignArray[newNodeId] = (v["_param_b"] as num).toDouble();
             cDesignArray[newNodeId] = (v["_param_c"] as num).toDouble();
             dDesignArray[newNodeId] = (v["_param_d"] as num).toDouble();
-            iDesignArray[newNodeId] = (v["_param_i"] as num).toDouble();
         }
 
         nIdx++;
@@ -13785,6 +13946,30 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       mapRemoteControlNeuron = {};
     }
 
+    // Load Motion neuron bindings (Tap/Tilt/Motion)
+    if (savedFileJson["mapMotionNeuron"] != null) {
+      mapMotionNeuron = translateLoadedNeuron(
+          savedFileJson["mapMotionNeuron"], mapTranslateLoadKeys);
+    } else {
+      mapMotionNeuron = {};
+    }
+
+    // Load and translate mapAuxMotorPower keys from old save-file IDs to new node IDs
+    if (savedFileJson["mapAuxMotorPower"] != null) {
+      Map<String, double> rawAuxPower = Map<String, double>.from(
+        savedFileJson["mapAuxMotorPower"].map((key, value) => MapEntry(key, value.toDouble()))
+      );
+      mapAuxMotorPower = {};
+      rawAuxPower.forEach((oldKey, value) {
+        if (mapTranslateLoadKeys.containsKey(oldKey)) {
+          mapAuxMotorPower[mapTranslateLoadKeys[oldKey]!] = value;
+        } else {
+          print("⚠️ mapAuxMotorPower: no translation for key '$oldKey', dropping");
+        }
+      });
+      print("💾 mapAuxMotorPower loaded: $mapAuxMotorPower");
+    }
+
     mapLedNeuron =
         translateLoadedMap(savedFileJson["mapLedNeuron"], mapTranslateLoadKeys);
     // printDebug(mapLedNeuron);
@@ -13874,6 +14059,12 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           savedFileJson["mapRemoteControlNeuron"], mapTranslateLoadKeys);
     }
 
+    // FIX: Load Motion Neuron Map
+    if (savedFileJson["mapMotionNeuron"] != null) {
+      mapMotionNeuron = translateLoadedNeuron(
+          savedFileJson["mapMotionNeuron"], mapTranslateLoadKeys);
+    }
+
     neuronSize = controller.nodes.length - 2;
     neuronsKey = List<UniqueKey>.from(tempNeuronsKey);
 
@@ -13899,6 +14090,10 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       // Show bound key label on Remote Control neurons
       if (neuronTypes[nodeKey] == "Remote Control" && mapRemoteControlNeuron.containsKey(nodeKey)) {
         controller.nodes[neuronIdx].label = "🎮 ${mapRemoteControlNeuron[nodeKey]}";
+      }
+      // Motion neurons get their labels cleared (emoji rendered in nucleus)
+      if (neuronTypes[nodeKey] == "Motion") {
+        controller.nodes[neuronIdx].label = "";
       }
     }
     // Purge stale mapLedHex / mapLedBrightness entries before re-applying edge colors.
@@ -14067,7 +14262,6 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
           bDesignArray[key] = valB;
           cDesignArray[key] = valC;
           dDesignArray[key] = valD;
-          iDesignArray[key] = valI;
           
           // SYNC PARAMS TO C++
           aBufView[i] = valA;
@@ -14128,8 +14322,12 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                  fixA = 0.02; fixB = 0.17; fixC = -20; fixD = 2; fixI = 5.0;
              } else if (type == "Bursts when activated" || type == "Delay") {
                  fixA = 0.02; fixB = 0.1; fixC = -37; fixD = 2; fixI = 0.0;
-             } else if (type == "Remote Control") {
+             } else if (type == "Remote Control" || type == "Motion") {
                  fixA = 0.02; fixB = 0.1; fixC = -65; fixD = 2; fixI = 0.0;
+             }
+             
+             if (type == "Custom") {
+                 iBufView[i] = 5.0; // Explicitly ensure Custom gets 5.0 base current
              }
              
              // If we found a standard type, apply the fix to BOTH Buffer and DesignArray
@@ -14145,7 +14343,6 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                  bDesignArray[neuronFrom.id] = fixB;
                  cDesignArray[neuronFrom.id] = fixC;
                  dDesignArray[neuronFrom.id] = fixD;
-                 iDesignArray[neuronFrom.id] = fixI;
              }
         }
     } catch (e, stack) {
@@ -14174,6 +14371,16 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
       mapDelayNeuronList = List.generate(neuronSize, (index) => -1);
       mapRhytmicNeuronList = List.generate(neuronSize, (index) => -1);
+      // Load unified aux servo settings (new format)
+      if (savedFileJson["auxServoRestPosition"] != null) {
+        auxServoRestPosition = savedFileJson["auxServoRestPosition"].toDouble();
+      } else if (savedFileJson["auxServoRestAngle"] != null) {
+        // Legacy: convert old rest angle (0-180) to new range (-255 to +255)
+        double oldAngle = savedFileJson["auxServoRestAngle"].toDouble();
+        auxServoRestPosition = ((oldAngle / 180.0) * 510.0 - 255.0);
+      }
+      // mapAuxMotorPower already loaded and key-translated earlier (line ~13896)
+
       mapCountingNeuronList = List.generate(neuronSize, (index) => -1);
 
       for (int i = 0; i < neuronSize; i++) {
@@ -15056,6 +15263,8 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       int rightValidBackwardCounter = 0;
       // printDebug("processRobotMessages Delay");
       if (isPlayingMenu) {
+        // Inject current into Motion neurons based on live IMU sensor state
+        _updateMotionNeurons();
         // printDebug("processRobotMessages");
         int nowTime = DateTime.now().millisecondsSinceEpoch;
         // printDebug("nowTime");
@@ -15185,7 +15394,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                 for (int i = 0; i < flagSize; i++) {
                     double cap = dartLedCapacitor[i];
                     if (cap > 0.0) {
-                        int nodeIndex = i + normalNeuronStartIdx + allNeuronStartIdx;
+                        int nodeIndex = i + normalNeuronStartIdx + 2; // +2 to account for tailNode and viewPortNode
                         if (nodeIndex >= controller.nodes.length) continue; // Safety bounds
                         var n = controller.nodes[nodeIndex];
                         
@@ -15314,15 +15523,51 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
               _speakerHoldFrames--;
             }
 
+            // --- AUX MOTOR (SERVO) ---
+            // Works exactly like L/R motor system nodes: when a source neuron
+            // spikes and has a connection TO an Aux Motor neuron, that neuron's
+            // configured power activates the aux servo. The Aux Motor neuron
+            // itself does NOT need to spike — it's a passive motor target.
+            double auxSum = 0.0;
+            int auxCount = 0;
+
+            // Step 1: Check if any Aux Motor neuron itself is spiking
+            // The aux motor neuron integrates its inputs via Izhikevich model
+            // (excitatory inputs push toward spiking, inhibitory suppress it).
+            // Only when the aux motor neuron ITSELF spikes does it command the servo.
+            for (int i = 0; i < flagSize; i++) {
+                if (periodicNeuronSpikingFlags[i] == 1) {
+                    int nodeIndex = i + normalNeuronStartIdx + 2;
+                    if (nodeIndex < controller.nodes.length) {
+                        String nodeId = controller.nodes[nodeIndex].id;
+                        String nType = neuronTypes[nodeId] ?? "";
+                        if (nType == "Aux Motor") {
+                            double power = mapAuxMotorPower[nodeId] ?? 255.0;
+                            auxSum += power;
+                            auxCount++;
+                        }
+                    }
+                }
+            }
+
+            // UNIFIED AUX SERVO: Decay toward triggered value or resting position
+            if (auxCount > 0) {
+                // Triggered: move toward the commanded value
+                auxMotorDecayPower = auxMotorDecayPower + (auxSum / auxCount - auxMotorDecayPower) * 0.15;
+            } else {
+                // Not triggered: decay toward resting position
+                auxMotorDecayPower = auxMotorDecayPower + (auxServoRestPosition - auxMotorDecayPower) * 0.10;
+                if ((auxMotorDecayPower - auxServoRestPosition).abs() < 2.0) auxMotorDecayPower = auxServoRestPosition;
+            }
+
+            int finalAuxCommand = auxMotorDecayPower.clamp(-255.0, 255.0).round();
+
             // Swap Left/Right mapping physically applied to the robot per custom hardware wiring
             msg =
-                "l:${avgRight};r:${avgLeft};s:${speakerFreq};$diodeString";
+                "l:${avgRight};r:${avgLeft};s:${speakerFreq};a:${finalAuxCommand};$diodeString";
 // */
             if (isIsolateWritePortInitialized && isPlayingMenu) {
-              // printDebug("msg");
-              // printDebug(msg);
-              // printDebug(infoStatusMax);
-              // printDebug(periodicNeuronSpikingFlags);
+              _auxDiagCounter++;
               _lastSentMotorRight = avgLeft;
               _lastSentMotorLeft = avgRight;
               _lastSentDiodeString = diodeString;
@@ -15511,7 +15756,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
               // Zero-command keepalive ONLY FOR MOTORS: continuous rotation servo needs 
               // periodic commands to hold its position. Without this, a brief simulation lull stops the servo.
               // Fix: DO NOT wipe out LEDs (d:0,0,0,0) here; let Native simulation dictate when LEDs turn off to fix visual flicker.
-              String keepalive = "l:0;r:0;s:0;$_lastSentDiodeString";
+              String keepalive = "l:0;r:0;s:0;a:0;$_lastSentDiodeString";
               String paddedKeepalive = keepalive.padRight(1450, ' ');
               sendToRobot(paddedKeepalive);
             }
@@ -16910,12 +17155,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
         mapDelayNeuronList[neuronIdx] = sldTimeValue.floor();
         
         // SYNC TO C++ BUFFER (LIVE UPDATE)
@@ -16981,12 +17221,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
         aDesignArray[selected.id] = sldAWeight;
         aBufView[neuronIdx] = sldAWeight;
       }
@@ -17019,12 +17254,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
         bDesignArray[selected.id] = sldBWeight;
         bBufView[neuronIdx] = sldBWeight;
       }
@@ -17052,12 +17282,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
         cDesignArray[selected.id] = sldCWeight.floor();
         cBufView[neuronIdx] = sldCWeight.floor();
       }
@@ -17085,12 +17310,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       if (controller.singleSelection != null) {
         InfiniteCanvasNode selected = controller.singleSelection!;
         int neuronIdx = -1;
-for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntIdx++) {
-  if (controller.syntheticNeuronList[_syntIdx].node?.id == selected.id) {
-    neuronIdx = _syntIdx;
-    break;
-  }
-}
+neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(selected.id) - 2;
         dDesignArray[selected.id] = sldDWeight.floor();
         dBufView[neuronIdx] = sldDWeight.floor();
       }
@@ -17215,6 +17435,56 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       _gamepadSubscription?.cancel();
       _gamepadSubscription = null;
     }
+  }
+
+  /// Builds a single Motion neuron radio option (Tap / Tilt / Motion)
+  Widget _buildMotionRadio(String label, String emoji) {
+    if (controller.selection.isEmpty) return const SizedBox.shrink();
+    String nodeId = controller.selection[0].id;
+    String current = mapMotionNeuron[nodeId] ?? "Tap";
+    bool isSelected = current == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          mapMotionNeuron[nodeId] = label;
+          brainHasUnsavedChanges.value = true;
+          // Update canvas label
+          controller.selection[0].label = "";
+          controller.notifyListeners();
+        });
+        _rcBindingVersion.value++; // reuse to trigger nucleus repaint
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? colorOrange : Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? colorOrange : Colors.grey[400]!,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emoji, style: TextStyle(
+              fontSize: 20,
+              fontFamily: "NotoEmoji",
+              color: isSelected ? Colors.white : Colors.black,
+            )),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _toggleRemoteInputListening() {
@@ -17418,6 +17688,28 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                 iBufView[i] = _remoteTriggerPressed ? 50.0 : 0.0;
             }
         }
+    }
+  }
+
+  /// Injects current into Motion neurons based on live IMU sensor state.
+  /// Called every simulation tick from processRobotMessages.
+  void _updateMotionNeurons() {
+    for (int i = 0; i < neuronSize; i++) {
+      if (i + 2 >= controller.nodes.length) continue;
+      InfiniteCanvasNode node = controller.nodes[i + 2];
+      String? type = neuronTypes[node.id];
+      if (type == "Motion") {
+        String motionType = mapMotionNeuron[node.id] ?? "Tap";
+        bool isTriggered = false;
+        if (motionType == "Tap") {
+          isTriggered = imuTapActive;
+        } else if (motionType == "Tilt") {
+          isTriggered = imuTiltActive;
+        } else if (motionType == "Motion") {
+          isTriggered = imuMotionActive;
+        }
+        iBufView[i] = isTriggered ? 50.0 : 0.0;
+      }
     }
   }
 
@@ -18480,7 +18772,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
       
       // Clear label for RC and Delay
       String type = neuronTypes[n.id] ?? "";
-      if (type == "Remote Control" || type == "Delay") {
+      if (type == "Remote Control" || type == "Delay" || type == "Motion" || type == "Aux Motor") {
           n.label = "";
       }
 
@@ -18520,7 +18812,7 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
 
       // Regular neurons use the repaint-only fast path (circleParams).
       // RC/Delay types need widget trees and use childBuilder fallback.
-      bool useRepaintPath = (type != "Remote Control" && type != "Delay"
+      bool useRepaintPath = (type != "Remote Control" && type != "Delay" && type != "Motion" && type != "Aux Motor"
           && nodeIdx >= normalNeuronStartIdx && n.offset != Offset.zero);
 
       Nucleus nucleus = Nucleus(
@@ -18673,6 +18965,112 @@ for (int _syntIdx = 0; _syntIdx < controller.syntheticNeuronList.length; _syntId
                        ),
                    ),
                 );
+             } else if (currentType == "Motion") {
+                 double circleSize = neuronDrawSize * 0.9;
+                 double emojiDisplaySize = neuronDrawSize * ((isExc == 1) ? 1.25 : 1.45);
+                 Color baseTextColor = (isExc == 1) ? Colors.white : Colors.black;
+                 double overflowMax = emojiDisplaySize > circleSize ? emojiDisplaySize : circleSize;
+                 
+                 // Use ValueListenableBuilder so nucleus repaints when radio selection changes
+                 return ValueListenableBuilder<int>(
+                     valueListenable: _rcBindingVersion,
+                     builder: (ctx, _, __) {
+                         String motionType = mapMotionNeuron[node.id] ?? "Tap";
+                         String emoji;
+                         switch (motionType) {
+                           case "Tilt": emoji = "📐"; break;
+                           case "Motion": emoji = "🏃"; break;
+                           default: emoji = "👆"; break; // Tap
+                         }
+                         return SizedBox(
+                            width: neuronDrawSize,
+                            height: neuronDrawSize,
+                            child: OverflowBox(
+                                maxWidth: overflowMax * selectionScale,
+                                maxHeight: overflowMax * selectionScale,
+                                alignment: Alignment.center,
+                                child: Transform.scale(
+                                    scale: selectionScale,
+                                    child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                            Container(
+                                                width: circleSize,
+                                                height: circleSize,
+                                                decoration: BoxDecoration(
+                                                    color: (isExc == 1) ? Colors.black : Colors.white,
+                                                    shape: BoxShape.circle,
+                                                ),
+                                            ),
+                                            SizedBox(
+                                                width: emojiDisplaySize,
+                                                height: emojiDisplaySize,
+                                                child: FittedBox(
+                                                    fit: BoxFit.contain,
+                                                    child: Text(
+                                                        emoji,
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(
+                                                            fontFamily: "NotoEmoji",
+                                                            color: color ?? baseTextColor,
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            ),
+                         );
+                     },
+                 );
+              } else if (currentType == "Aux Motor") {
+                 double circleSize = neuronDrawSize * 0.9;
+                 double emojiDisplaySize = neuronDrawSize * ((isExc == 1) ? 1.25 : 1.45);
+                 Color baseTextColor = (isExc == 1) ? Colors.white : Colors.black;
+                 String emoji = "⚙️";
+                 double overflowMax = emojiDisplaySize > circleSize ? emojiDisplaySize : circleSize;
+                 
+                 return SizedBox(
+                    width: neuronDrawSize,
+                    height: neuronDrawSize,
+                    child: OverflowBox(
+                        maxWidth: overflowMax * selectionScale,
+                        maxHeight: overflowMax * selectionScale,
+                        alignment: Alignment.center,
+                        child: Transform.scale(
+                            scale: selectionScale,
+                            child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                    Container(
+                                        width: circleSize,
+                                        height: circleSize,
+                                        decoration: BoxDecoration(
+                                            color: (isExc == 1) ? Colors.black : Colors.white,
+                                            shape: BoxShape.circle,
+                                        ),
+                                    ),
+                                    SizedBox(
+                                        width: emojiDisplaySize,
+                                        height: emojiDisplaySize,
+                                        child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: Text(
+                                                emoji,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontFamily: "NotoEmoji",
+                                                    color: color ?? baseTextColor,
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ),
+                 );
              }
 
             return Transform.scale(
@@ -19278,7 +19676,15 @@ class ImagePreprocessor extends MjpegPreprocessor {
                 totalRightScore += (rightWeight * bScore);
             }
             
-            // 3. Write accumulated scores to visPrefsValsBufView — identical to native passPreprocessPointers
+            // 3. Clamp accumulated scores to match distance/mic sensor range (0-50)
+            // Raw pixel areas from OpenCV can be hundreds-to-thousands; without clamping,
+            // color blobs inject 10-100x more current than distance (binary 0 or 50),
+            // causing the oscilloscope trace to clip unrealistically.
+            totalScore = totalScore.clamp(0, 50);
+            totalLeftScore = totalLeftScore.clamp(0, 50);
+            totalRightScore = totalRightScore.clamp(0, 50);
+
+            // 4. Write clamped scores to visPrefsValsBufView — identical to native passPreprocessPointers
             _DesignBrainPageState.visPrefsValsBufView[idx * 2] = totalScore;
             _DesignBrainPageState.visPrefsValsBufView[idx * 2 + 1] = totalLeftScore; // or totalRightScore based on icam
 

@@ -1,0 +1,272 @@
+[
+  {
+    "filename": "Blue is My Favorite Color.brain",
+    "assetPath": "assets/example brains/Blue is My Favorite Color.brain",
+    "title": "Blue is My Favorite Color",
+    "description": "SpikerBot loves the color blue, and will try to get as close as it can when it sees anything blue!",
+    "complexity": "23",
+    "tags": "Camera Target,LED Lights,Motor Movement",
+    "timestamp": "2026-04-08T17:46:28.006634"
+  },
+  {
+    "filename": "Count from 0 to 3 like a Computer.brain",
+    "assetPath": "assets/example brains/Count from 0 to 3 like a Computer.brain",
+    "title": "Count from 0 to 3 like a Computer",
+    "description": "SpikerBot counts pulses to it\u2019s distance sensor in binary and shows one color per count using spiking neurons!",
+    "complexity": "72",
+    "tags": "Distance,LED Lights",
+    "timestamp": "2026-04-08T17:28:03.469205"
+  },
+  {
+    "filename": "Cowboy Stops to Chat.brain",
+    "assetPath": "assets/example brains/Cowboy Stops to Chat.brain",
+    "title": "Cowboy Stops to Chat",
+    "description": "Cowboy explores the west, then stops to have a chat!",
+    "complexity": "67",
+    "tags": "Camera Target,Distance,LED Lights,Microphone Input,Motor Movement,Speaker",
+    "timestamp": "2026-04-07T19:50:21.807154"
+  },
+  {
+    "filename": "Cranial Chameleon.brain",
+    "assetPath": "assets/example brains/Cranial Chameleon.brain",
+    "title": "Cranial Chameleon",
+    "description": "Spikerbot changes color to blend in with red, green or blue objects!",
+    "complexity": "51",
+    "tags": "Camera Target,LED Lights",
+    "timestamp": "2026-04-08T15:50:01.221200"
+  },
+  {
+    "filename": "Curious Cat.brain",
+    "assetPath": "assets/example brains/Curious Cat.brain",
+    "title": "Curious Cat",
+    "description": "Turn SpikerBot into a cat! It chases around a red object like a yarn ball, and meows at random.",
+    "complexity": "32",
+    "tags": "Camera Target,Distance,LED Lights,Motor Movement,Speaker",
+    "timestamp": "2026-04-08T15:35:07.282148"
+  },
+  {
+    "filename": "Dance Partner.brain",
+    "assetPath": "assets/example brains/Dance Partner.brain",
+    "title": "Dance Partner",
+    "description": "SpikerBot will dance to loud music, and relaxes between songs.",
+    "complexity": "37",
+    "tags": "LED Lights,Microphone Input,Motor Movement",
+    "timestamp": "2026-04-08T15:50:43.952956"
+  },
+  {
+    "filename": "Elementary Motion Detection.brain",
+    "assetPath": "assets/example brains/Elementary Motion Detection.brain",
+    "title": "Elementary Motion Detection",
+    "description": "Replicate a fruitfly\u2019s ability to detect the direction of an object moving at a set speed! This functions similarly to networks that are downstream compound eye cells just at or before the Lobula Plate in the fly brain\u2019s optical lobe.",
+    "complexity": "71",
+    "tags": "Camera Target,LED Lights",
+    "timestamp": "2026-04-08T15:43:35.035224"
+  },
+  {
+    "filename": "Explorer.brain",
+    "assetPath": "assets/example brains/Explorer.brain",
+    "title": "Explorer",
+    "description": "SpikerBot explores the world at random and tries to not get stuck!",
+    "complexity": "35",
+    "tags": "Distance,LED Lights,Motor Movement,Speaker",
+    "timestamp": "2026-04-08T15:48:27.801933"
+  },
+  {
+    "filename": "Fixed Action Pattern.brain",
+    "assetPath": "assets/example brains/Fixed Action Pattern.brain",
+    "title": "Fixed Action Pattern",
+    "description": "Preforms a discrete motion pattern requiring inhibition.",
+    "complexity": "36",
+    "tags": "Distance,LED Lights,Motor Movement",
+    "timestamp": "2026-04-08T15:31:01.926665"
+  },
+  {
+    "filename": "Greet Nearby People.brain",
+    "assetPath": "assets/example brains/Greet Nearby People.brain",
+    "title": "Greet Nearby People",
+    "description": "Blink and beep when a person is close by!",
+    "complexity": "44",
+    "tags": "Camera Target,Distance,LED Lights,Speaker",
+    "timestamp": "2026-04-08T16:03:36.453465"
+  },
+  {
+    "filename": "High Pitch Low Pitch.brain",
+    "assetPath": "assets/example brains/High Pitch Low Pitch.brain",
+    "title": "High Pitch Low Pitch",
+    "description": "Spikerbot sings along with two different music notes!",
+    "complexity": "27",
+    "tags": "LED Lights,Microphone Input,Speaker",
+    "timestamp": "2026-04-08T15:32:27.838508"
+  },
+  {
+    "filename": "I Spy a Banana, I Spy a Human.brain",
+    "assetPath": "assets/example brains/I Spy a Banana, I Spy a Human.brain",
+    "title": "I Spy a Banana, I Spy a Human",
+    "description": "This is a demo of Feed Forward Inhibition, using bananna and person detectors.",
+    "complexity": "33",
+    "tags": "Camera Target,LED Lights,Speaker",
+    "timestamp": "2026-04-08T15:38:27.262761"
+  },
+  {
+    "filename": "Keyboard Controlled Car.brain",
+    "assetPath": "assets/example brains/Keyboard Controlled Car.brain",
+    "title": "Keyboard Controlled Car",
+    "description": "Drive SpikerBot like a remote control car, using a keyboard!",
+    "complexity": "30",
+    "tags": "LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T15:44:53.273530"
+  },
+  {
+    "filename": "Left Right and Center.brain",
+    "assetPath": "assets/example brains/Left Right and Center.brain",
+    "title": "Left Right and Center",
+    "description": "Use colors to control SpikerBot\u2019s movement. Turn left with green objects, right with blue, and stop with red!",
+    "complexity": "43",
+    "tags": "Camera Target,Motor Movement",
+    "timestamp": "2026-04-08T15:51:50.217986"
+  },
+  {
+    "filename": "Marco Polo.brain",
+    "assetPath": "assets/example brains/Marco Polo.brain",
+    "title": "Marco Polo",
+    "description": "Call to SpikerBot and have it respond like a game of \u2018Marco, Polo\u2019 using the microphone!",
+    "complexity": "41",
+    "tags": "LED Lights,Microphone Input,Speaker",
+    "timestamp": "2026-04-08T16:02:41.310669"
+  },
+  {
+    "filename": "Music Note Visualizer.brain",
+    "assetPath": "assets/example brains/Music Note Visualizer.brain",
+    "title": "Music Note Visualizer",
+    "description": "SpikerBot listens to all the notes on a keyboard to make a lightshow.",
+    "complexity": "51",
+    "tags": "LED Lights,Microphone Input",
+    "timestamp": "2026-04-08T16:05:01.641132"
+  },
+  {
+    "filename": "On and Off Switch.brain",
+    "assetPath": "assets/example brains/On and Off Switch.brain",
+    "title": "On and Off Switch",
+    "description": "Use a single remote control input button to toggle SpikerBot\u2019s light output on and off.",
+    "complexity": "36",
+    "tags": "LED Lights",
+    "timestamp": "2026-04-08T16:06:07.421740"
+  },
+  {
+    "filename": "Predator or Prey.brain",
+    "assetPath": "assets/example brains/Predator or Prey.brain",
+    "title": "Predator or Prey",
+    "description": "Change the bottom neuron from excitatory to inhibitory to change personalities!",
+    "complexity": "32",
+    "tags": "Camera Target,Distance,LED Lights,Motor Movement",
+    "timestamp": "2026-04-08T15:33:08.216174"
+  },
+  {
+    "filename": "Red Light Green Light.brain",
+    "assetPath": "assets/example brains/Red Light Green Light.brain",
+    "title": "Red Light Green Light",
+    "description": "SpikerBot rushes forward when it sees green, and stops when it sees red. Try racing multiple SpikerBots!",
+    "complexity": "31",
+    "tags": "Camera Target,LED Lights,Motor Movement,Speaker",
+    "timestamp": "2026-04-08T15:36:01.141205"
+  },
+  {
+    "filename": "Remote Control Dancer.brain",
+    "assetPath": "assets/example brains/Remote Control Dancer.brain",
+    "title": "Remote Control Dancer",
+    "description": "Slide to the left, slide to the right, spin and more all with remote control!",
+    "complexity": "62",
+    "tags": "LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T16:03:04.174922"
+  },
+  {
+    "filename": "Remote Control Duck Waddle.brain",
+    "assetPath": "assets/example brains/Remote Control Duck Waddle.brain",
+    "title": "Remote Control Duck Waddle",
+    "description": "Walk and quack like a duck using your keyboard as input!",
+    "complexity": "53",
+    "tags": "Distance,LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T17:40:14.426638"
+  },
+  {
+    "filename": "Sharp Note Theremin.brain",
+    "assetPath": "assets/example brains/Sharp Note Theremin.brain",
+    "title": "Sharp Note Theremin",
+    "description": "Play music just like a theremin using the distance sensor and the black piano keys!",
+    "complexity": "35",
+    "tags": "Distance,LED Lights,Speaker",
+    "timestamp": "2026-04-08T16:00:09.899008"
+  },
+  {
+    "filename": "Simple Gamepad Controlled Car.brain",
+    "assetPath": "assets/example brains/Simple Gamepad Controlled Car.brain",
+    "title": "Simple Gamepad Controlled Car",
+    "description": "Use a bluetooth gamepad to drive SpikerBot like a car and beep its horn! Works with a joystick or a D-pad.",
+    "complexity": "42",
+    "tags": "LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T15:56:58.988389"
+  },
+  {
+    "filename": "Simple Tank.brain",
+    "assetPath": "assets/example brains/Simple Tank.brain",
+    "title": "Simple Tank",
+    "description": "Drive each motor directly with two joysticks using remote control neurons!",
+    "complexity": "30",
+    "tags": "LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-07T13:07:48.278634"
+  },
+  {
+    "filename": "Spike the Dog.brain",
+    "assetPath": "assets/example brains/Spike the Dog.brain",
+    "title": "Spike the Dog",
+    "description": "Spike builds off the Watchdog brain, and learns some new tricks! When Spike sees you, whistle to get it to come to you. When Spike is bored, it will spin around looking for someone to play with!",
+    "complexity": "80",
+    "tags": "Camera Target,Distance,LED Lights,Microphone Input,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T15:19:31.236222"
+  },
+  {
+    "filename": "This Car is Scared of People.brain",
+    "assetPath": "assets/example brains/This Car is Scared of People.brain",
+    "title": "This Car is Scared of People",
+    "description": "Drive SpikerBot like a remote control car and avoid pedestrians on command.",
+    "complexity": "63",
+    "tags": "Camera Target,Distance,LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-08T16:04:13.812097"
+  },
+  {
+    "filename": "Two Speed Tank.brain",
+    "assetPath": "assets/example brains/Two Speed Tank.brain",
+    "title": "Two Speed Tank ",
+    "description": "Drives each wheel seperate like a tank at two different speeds with your gamepad!",
+    "complexity": "67",
+    "tags": "Camera Target,LED Lights,Motor Movement,Remote Control,Speaker",
+    "timestamp": "2026-04-07T13:21:15.580494"
+  },
+  {
+    "filename": "Vanishing Act.brain",
+    "assetPath": "assets/example brains/Vanishing Act.brain",
+    "title": "Vanishing Act",
+    "description": "Use Feed Forward Inhibiton to detect the arrival and departure of a person. Say hello when it sees you, then vanish and spin when no one is looking!",
+    "complexity": "34",
+    "tags": "Camera Target,LED Lights,Motor Movement,Speaker",
+    "timestamp": "2026-04-08T15:55:16.210319"
+  },
+  {
+    "filename": "Volume Meter.brain",
+    "assetPath": "assets/example brains/Volume Meter.brain",
+    "title": "Volume Meter",
+    "description": "Spikerbot will glow brighter and brighter the louder you get!",
+    "complexity": "27",
+    "tags": "LED Lights,Microphone Input",
+    "timestamp": "2026-04-08T16:05:16.935063"
+  },
+  {
+    "filename": "Watchdog.brain",
+    "assetPath": "assets/example brains/Watchdog.brain",
+    "title": "Watchdog",
+    "description": "Simple Behavior that barks at people, but stops to eat when given a treat!",
+    "complexity": "41",
+    "tags": "Camera Target,Distance,LED Lights,Motor Movement,Speaker",
+    "timestamp": "2026-04-08T15:30:41.491853"
+  }
+]

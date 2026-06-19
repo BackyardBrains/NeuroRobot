@@ -1,0 +1,139 @@
+// MINIMAL CAMERA TEST v2 — tries multiple configs
+#include "esp_camera.h"
+
+#define PWDN_GPIO_NUM     -1
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM     9
+#define SIOD_GPIO_NUM     45
+#define SIOC_GPIO_NUM     21
+#define Y9_GPIO_NUM       10
+#define Y8_GPIO_NUM       46
+#define Y7_GPIO_NUM       3
+#define Y6_GPIO_NUM       18
+#define Y5_GPIO_NUM       16
+#define Y4_GPIO_NUM       7
+#define Y3_GPIO_NUM       15
+#define Y2_GPIO_NUM       17
+#define VSYNC_GPIO_NUM    12
+#define HREF_GPIO_NUM     11
+#define PCLK_GPIO_NUM     8
+
+bool tryCamera(const char* label, pixformat_t fmt, framesize_t size, 
+               int quality, int fbcount, camera_grab_mode_t grab) {
+  Serial.printf("\n--- Config: %s ---\n", label);
+
+  // Deinit previous if any
+  esp_camera_deinit();
+  delay(200);
+
+  // Enable camera power
+  pinMode(39, OUTPUT);
+  digitalWrite(39, HIGH);
+  delay(300);
+
+  camera_config_t config;
+  memset(&config, 0, sizeof(config));  // clean zero
+  config.ledc_channel = LEDC_CHANNEL_0;
+  config.ledc_timer = LEDC_TIMER_0;
+  config.pin_d0 = Y2_GPIO_NUM;
+  config.pin_d1 = Y3_GPIO_NUM;
+  config.pin_d2 = Y4_GPIO_NUM;
+  config.pin_d3 = Y5_GPIO_NUM;
+  config.pin_d4 = Y6_GPIO_NUM;
+  config.pin_d5 = Y7_GPIO_NUM;
+  config.pin_d6 = Y8_GPIO_NUM;
+  config.pin_d7 = Y9_GPIO_NUM;
+  config.pin_xclk = XCLK_GPIO_NUM;
+  config.pin_pclk = PCLK_GPIO_NUM;
+  config.pin_vsync = VSYNC_GPIO_NUM;
+  config.pin_href = HREF_GPIO_NUM;
+  config.pin_sccb_sda = SIOD_GPIO_NUM;
+  config.pin_sccb_scl = SIOC_GPIO_NUM;
+  config.pin_pwdn = PWDN_GPIO_NUM;
+  config.pin_reset = RESET_GPIO_NUM;
+  config.sccb_i2c_port = -1;
+  config.xclk_freq_hz = 20000000;
+  config.pixel_format = fmt;
+  config.frame_size = size;
+  config.jpeg_quality = quality;
+  config.fb_count = fbcount;
+  config.fb_location = CAMERA_FB_IN_PSRAM;
+  config.grab_mode = grab;
+
+  esp_err_t err = esp_camera_init(&config);
+  if (err != ESP_OK) {
+    Serial.printf("  Init FAILED: 0x%x\n", err);
+    return false;
+  }
+  Serial.println("  Init OK");
+
+  delay(500);
+  for (int i = 0; i < 3; i++) {
+    Serial.printf("  Capture %d... ", i+1);
+    camera_fb_t* fb = esp_camera_fb_get();
+    if (fb) {
+      Serial.printf("OK! %dx%d, %u bytes, fmt=%d\n",
+                    fb->width, fb->height, fb->len, fb->format);
+      esp_camera_fb_return(fb);
+      return true;
+    } else {
+      Serial.println("FAILED");
+    }
+    delay(300);
+  }
+  return false;
+}
+
+void setup() {
+  Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  delay(1000);
+  Serial.println("\n\n=== CAMERA CONFIG SWEEP TEST ===");
+
+  Serial.printf("PSRAM: %s, size: %u, free: %u\n",
+    psramFound() ? "YES" : "NO",
+    (unsigned)ESP.getPsramSize(),
+    (unsigned)ESP.getFreePsram());
+
+  // Test 1: JPEG QVGA fb=2 GRAB_LATEST (what we've been trying)
+  if (tryCamera("JPEG QVGA fb=2 LATEST", PIXFORMAT_JPEG, FRAMESIZE_QVGA, 
+                 10, 2, CAMERA_GRAB_LATEST)) {
+    Serial.println("\n*** CONFIG 1 WORKS! ***"); return;
+  }
+
+  // Test 2: JPEG QVGA fb=1 GRAB_WHEN_EMPTY
+  if (tryCamera("JPEG QVGA fb=1 EMPTY", PIXFORMAT_JPEG, FRAMESIZE_QVGA, 
+                 12, 1, CAMERA_GRAB_WHEN_EMPTY)) {
+    Serial.println("\n*** CONFIG 2 WORKS! ***"); return;
+  }
+
+  // Test 3: JPEG smallest size
+  if (tryCamera("JPEG 96x96 fb=1", PIXFORMAT_JPEG, FRAMESIZE_96X96, 
+                 20, 1, CAMERA_GRAB_WHEN_EMPTY)) {
+    Serial.println("\n*** CONFIG 3 WORKS! ***"); return;
+  }
+
+  // Test 4: RGB565 (bypass JPEG encoder entirely)
+  if (tryCamera("RGB565 QVGA fb=1", PIXFORMAT_RGB565, FRAMESIZE_QVGA, 
+                 12, 1, CAMERA_GRAB_WHEN_EMPTY)) {
+    Serial.println("\n*** CONFIG 4 WORKS! ***"); return;
+  }
+
+  // Test 5: GRAYSCALE (simplest possible)
+  if (tryCamera("GRAYSCALE QVGA fb=1", PIXFORMAT_GRAYSCALE, FRAMESIZE_QVGA, 
+                 12, 1, CAMERA_GRAB_WHEN_EMPTY)) {
+    Serial.println("\n*** CONFIG 5 WORKS! ***"); return;
+  }
+
+  // Test 6: GRAYSCALE tiny
+  if (tryCamera("GRAYSCALE 96x96 fb=1", PIXFORMAT_GRAYSCALE, FRAMESIZE_96X96, 
+                 12, 1, CAMERA_GRAB_WHEN_EMPTY)) {
+    Serial.println("\n*** CONFIG 6 WORKS! ***"); return;
+  }
+
+  Serial.println("\n*** ALL CONFIGS FAILED — driver is broken ***");
+}
+
+void loop() {
+  delay(10000);
+}

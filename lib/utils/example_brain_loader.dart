@@ -98,11 +98,35 @@ Future<List<File>> loadExampleBrains(List<Map<String, String>> fileInfos) async 
   return fileNames;
 }
 
-/// Web-specific loader: tries each known brain file directly from rootBundle.
-/// Bypasses AssetManifest.json which is often incomplete on web debug builds.
+/// Web-specific loader: loads pre-built manifest for instant metadata.
+/// Falls back to loading individual brain files if manifest is unavailable.
 Future<List<File>> _loadExampleBrainsWeb(List<Map<String, String>> fileInfos) async {
   List<File> fileNames = [];
   
+  // Try loading the pre-built manifest first (instant, ~5KB)
+  try {
+    final manifestContent = await rootBundle.loadString('assets/example_brains_manifest.json');
+    final List<dynamic> manifest = json.decode(manifestContent);
+    print("Web: Loaded manifest with ${manifest.length} example brains");
+    
+    for (var entry in manifest) {
+      final Map<String, dynamic> info = entry as Map<String, dynamic>;
+      final String assetPath = info['assetPath'] as String? ?? 'assets/example brains/${info['filename']}';
+      fileNames.add(File(assetPath));
+      fileInfos.add({
+        'title': info['title'] as String? ?? '',
+        'description': info['description'] as String? ?? 'Example Brain',
+        'complexity': info['complexity']?.toString() ?? '0',
+        'tags': info['tags'] as String? ?? '',
+        'timestamp': info['timestamp'] as String? ?? '',
+      });
+    }
+    return fileNames;
+  } catch (e) {
+    print("Web: Manifest not found ($e), falling back to individual file loading...");
+  }
+  
+  // Fallback: load each brain file individually (slow, ~42MB)
   print("Web: Loading ${_knownExampleBrains.length} known example brain files...");
   
   for (String brainName in _knownExampleBrains) {
@@ -111,12 +135,9 @@ Future<List<File>> _loadExampleBrainsWeb(List<Map<String, String>> fileInfos) as
       final content = await rootBundle.loadString(assetPath);
       print("Web: Loaded '$brainName' (${content.length} chars)");
       
-      // Create a stub File object with the asset path as identifier
-      // (not used for actual I/O on web, just to track which file it is)
       final stubFile = File(assetPath);
       fileNames.add(stubFile);
 
-      // Extract metadata from JSON content directly
       Map<String, String> brainInfo = _extractBrainInfo(content, brainName);
       fileInfos.add(brainInfo);
     } catch (e) {

@@ -262,9 +262,7 @@ Future<Uint8List> getImageFromText(path) async {
         strSavedFile = json;
       }
       Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
-      if (mapSavedFile.containsKey("screenshot") && mapSavedFile["screenshot"] != null) {
-        imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
-      }
+      imageBytes = _decodeScreenshot(mapSavedFile);
     } catch (e) {
       // Thumbnail extraction failed — return empty (shows blue placeholder)
     }
@@ -273,11 +271,27 @@ Future<Uint8List> getImageFromText(path) async {
     if (savedFile.existsSync()) {
       String strSavedFile = await savedFile.readAsString();
       Map<String, dynamic> mapSavedFile = jsonDecode(strSavedFile);
-      imageBytes = Uint8List.fromList(mapSavedFile["screenshot"].cast<int>());
+      imageBytes = _decodeScreenshot(mapSavedFile);
     }
   }
 
   return imageBytes;
+}
+
+/// Decodes the screenshot field from a brain JSON map.
+/// Handles both legacy format (List<int> of PNG bytes) and
+/// new optimized format (base64-encoded JPEG string).
+Uint8List _decodeScreenshot(Map<String, dynamic> map) {
+  final ss = map["screenshot"];
+  if (ss == null) return Uint8List(0);
+  if (ss is String && ss.isNotEmpty) {
+    // New format: base64-encoded JPEG
+    return base64Decode(ss);
+  } else if (ss is List) {
+    // Legacy format: List<int> of raw PNG bytes
+    return Uint8List.fromList(ss.cast<int>());
+  }
+  return Uint8List(0);
 }
 
 AppAudio? soloud;

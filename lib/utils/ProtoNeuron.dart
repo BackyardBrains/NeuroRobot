@@ -290,9 +290,9 @@ class ProtoNeuron extends CustomPainter {
           iBufList[idx] = 0.0;
           break;
         case "Custom":
-          aBufList[idx] = 0.02;
-          dBufList[idx] = 2;
-          iBufList[idx] = 0.0;
+          // CRITICAL FIX: DO NOT overwrite Custom parameters here. 
+          // They are set in populateMatrix() via DesignArrays.
+          // Overwriting them here causes them to revert to 0.0 on zoom/play.
           break;
 
         case "Delay":

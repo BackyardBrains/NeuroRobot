@@ -7,6 +7,38 @@ The Spikerbot App is an all in one design tool & neural simulator. Build spiking
 
 ---
 
+## v1.6.0
+**Date:** 2026-06-19
+
+### New Neuron Types
+
+*   **Motion Detection Neurons**: Detect object movement in the camera feed — spike when tracked objects are moving, enabling reactive behaviors like chasing, fleeing, or alerting.
+*   **Auxiliary Servo Neurons**: Drive an external servo motor via the auxiliary port. Configure a global resting position and per-neuron motor power to build physical behaviors like head-turning, waving, or grasping.
+
+### Tune Neuron Behavior Redesign
+
+*   Completely reorganized the **Tune Neuron Behavior** dialog into categorized sections: *Spike Pattern*, *Connection Dynamics*, *Timing*, and *Advanced*.
+*   Larger glyphs and full original labels (no truncation) for clearer identification of neuron properties.
+*   Tighter grid layout with minimal whitespace — responsive across all screen sizes and orientations.
+
+### Chrome & Web Performance
+
+*   **Screenshot Optimization**: Example brain screenshots converted from raw PNG byte arrays to compressed base64 JPEG — total asset bundle reduced from **42 MB to 30 MB** (29% smaller).
+*   **Manifest-Based Loading**: Example Brains tab now loads a pre-built metadata manifest (~12 KB) instead of parsing all 30 multi-MB brain files — list populates **instantly** on deployed Chrome.
+*   **Compact Save Format**: Newly saved brains store screenshots as base64 strings (3.5× smaller per file). Fully backward-compatible with legacy brain files.
+
+### Bug Fixes
+
+*   **Camera Color Blob Clamp**: Camera target injection current clamped to 0–50 range (matching distance sensor scale), preventing signal clipping on the oscilloscope plot when camera targets are active.
+*   **Two-Line Text Clipping**: Fixed text clipping in Tune Neuron Behavior cells where two-row labels overflowed the orange highlight region.
+
+### Firmware
+
+*   Updated to **SpikerBot_June_17_2026** firmware with IMU support and expanded audio sample packs.
+*   Removed deprecated Dec 2025 firmware.
+
+---
+
 ## v1.5.0
 **Date:** 2026-05-13
 

@@ -811,6 +811,9 @@ EXTERNC FUNCTION_ATTRIBUTE double changeNeuronSimulatorProcess_opencv(double *_a
                         }
 
                     }
+                    // Clamp accumulated visual input to 50 (matches dist_I binary 0/50 range)
+                    // to prevent camera signals from producing biologically implausible clipping.
+                    if (sumVisPrefVals > 50) sumVisPrefVals = 50;
                     vis_I[ii] = vis_I[ii] + sumVisPrefVals;
                 }
 

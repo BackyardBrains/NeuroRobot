@@ -265,7 +265,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
         if (centroid != nullptr) {
             memset(centroid, 0, 100 * sizeof(uint16_t));
         }
-        fprintf(stderr, "findColorInImage_opencv: START. img=%p, len=%d, activeColors=%d\n", img, imgLength, activeColors);
+        // fprintf(stderr, "findColorInImage_opencv: START. img=%p, len=%d, activeColors=%d\n", img, imgLength, activeColors);
 
         // Mat rawImageRgb = Mat(240 * 320 * 4, 1, CV_8UC4, img);
         // Mat matImageRgb = rawImageRgb.reshape(4, 240);
@@ -307,9 +307,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             // platform_log("Start decode buffer");
             vector<uint8_t> buffer(img, img + imgLength);
             try {
-                fprintf(stderr, "findColorInImage_opencv: About to imdecode. Buffer size: %lu\n", buffer.size());
+                // fprintf(stderr, "findColorInImage_opencv: About to imdecode. Buffer size: %lu\n", buffer.size());
                 imageRgb = imdecode(buffer, IMREAD_COLOR);
-                fprintf(stderr, "findColorInImage_opencv: imdecode success. Empty? %d\n", imageRgb.empty());
+                // fprintf(stderr, "findColorInImage_opencv: imdecode success. Empty? %d\n", imageRgb.empty());
             } catch (cv::Exception& e) {
                 platform_log("OpenCV Exception during imdecode: %s\n", e.what());
                 return 0;
@@ -462,9 +462,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             
                 // Convert to HSV for robust color detection
                 Mat hsvFrame;
-                fprintf(stderr, "findColorInImage_opencv: About to cvtColor (BGR2HSV)\n");
+                // fprintf(stderr, "findColorInImage_opencv: About to cvtColor (BGR2HSV)\n");
                 cvtColor(uframe, hsvFrame, COLOR_BGR2HSV);
-                fprintf(stderr, "findColorInImage_opencv: cvtColor success\n");
+                // fprintf(stderr, "findColorInImage_opencv: cvtColor success\n");
                 
                 for (int ncol = 0; ncol < 3; ncol++) {
             // Check if this color is active in the bitmask
@@ -487,7 +487,7 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             double this_right_score = 0;
             double meanx = 0;
 
-            fprintf(stderr, "findColorInImage_opencv: Loop start ncol=%d\n", ncol);
+            // fprintf(stderr, "findColorInImage_opencv: Loop start ncol=%d\n", ncol);
         
             Mat mask, mask1, mask2;
 
@@ -505,9 +505,9 @@ void setPreprocessMatrixValue(double *arr, short pi, short pj, short per_row, do
             Mat kernel = getStructuringElement(MORPH_RECT, Size(5,5));
             morphologyEx(mask, mask, MORPH_OPEN, kernel);  // Removes tiny noisy flicker pixels
             morphologyEx(mask, mask, MORPH_CLOSE, kernel); // Fills in gaps and solidifies the blob tracking
-                fprintf(stderr, "findColorInImage_opencv: inRange done. cca starting...\n");
+                // fprintf(stderr, "findColorInImage_opencv: inRange done. cca starting...\n");
                 cca_opencv_wrapper cca_wrapper = cca_opencv_wrapper(mask);
-                fprintf(stderr, "findColorInImage_opencv: cca done. count=%lu\n", cca_wrapper.get_connected_component_count());
+                // fprintf(stderr, "findColorInImage_opencv: cca done. count=%lu\n", cca_wrapper.get_connected_component_count());
                 if (cca_wrapper.get_connected_component_count() > 1) {
                     // Multi-Blob Support (Top 5) by sorting areas
                     std::vector<int> blobIndices;

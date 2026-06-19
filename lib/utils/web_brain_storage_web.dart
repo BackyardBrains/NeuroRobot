@@ -168,11 +168,14 @@ class WebBrainStorage {
       if (jsonStr == null || jsonStr.isEmpty) return Uint8List(0);
       
       final Map<String, dynamic> parsed = jsonDecode(jsonStr);
-      if (parsed.containsKey('screenshot') && parsed['screenshot'] != null) {
-        final List<dynamic> screenshotData = parsed['screenshot'];
-        if (screenshotData.isNotEmpty) {
-          return Uint8List.fromList(screenshotData.cast<int>());
-        }
+      final ss = parsed['screenshot'];
+      if (ss == null) return Uint8List(0);
+      if (ss is String && ss.isNotEmpty) {
+        // New format: base64-encoded JPEG
+        return base64Decode(ss);
+      } else if (ss is List && ss.isNotEmpty) {
+        // Legacy format: List<int> of raw PNG bytes
+        return Uint8List.fromList(ss.cast<int>());
       }
     } catch (_) {}
     return Uint8List(0);

@@ -21,17 +21,17 @@ void newDataArrivedFromSocket(char * data, int lengthOfData);
  * and internal socket fd in order
  * to use out of request send
  */
-#define SIZE_OF_SOCKET_BUFFER 256
 struct async_resp_arg {
     httpd_handle_t hd;
     int fd;
-    char payload[SIZE_OF_SOCKET_BUFFER];
 };
 
 static struct async_resp_arg holderForHandles;
 /*
  * async send function, which we put into the httpd work queue
  */
+#define SIZE_OF_SOCKET_BUFFER 256
+static char sendingBuffer[SIZE_OF_SOCKET_BUFFER];
 static void ws_async_send(void *arg)
 {
     struct async_resp_arg *resp_arg = (struct async_resp_arg *)arg;
@@ -39,8 +39,8 @@ static void ws_async_send(void *arg)
     int fd = resp_arg->fd;
     httpd_ws_frame_t ws_pkt;
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-    ws_pkt.payload = (uint8_t*)resp_arg->payload;
-    ws_pkt.len = strlen(resp_arg->payload);
+    ws_pkt.payload = (uint8_t*)sendingBuffer;
+    ws_pkt.len = strlen(sendingBuffer);
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
 
     httpd_ws_send_frame_async(hd, fd, &ws_pkt);
@@ -67,12 +67,11 @@ static esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
     struct async_resp_arg *resp_arg = (struct async_resp_arg *)malloc(sizeof(struct async_resp_arg));
     resp_arg->hd = req->handle;
     resp_arg->fd = httpd_req_to_sockfd(req);
-    resp_arg->payload[0] = 0;
     return httpd_queue_work(handle, ws_async_send, resp_arg);
 }
 
 
-void sendDataViaSocket(const char * dataToSend, int lengthOfData)
+void sendDataViaSocket(char * dataToSend, int lengthOfData)
 {
   if(holderForHandles.hd)
   {
@@ -82,13 +81,12 @@ void sendDataViaSocket(const char * dataToSend, int lengthOfData)
       lengthOfData = SIZE_OF_SOCKET_BUFFER-1;
     }
     
+    memcpy (sendingBuffer, dataToSend, lengthOfData+1);//copy to sending buffer
+    sendingBuffer[lengthOfData] = 0;//make a string
+    
     struct async_resp_arg *resp_arg = (struct async_resp_arg *)malloc(sizeof(struct async_resp_arg));
     resp_arg->hd = holderForHandles.hd;
     resp_arg->fd = holderForHandles.fd;
-    
-    memcpy(resp_arg->payload, dataToSend, lengthOfData+1);//copy to localized thread-safe sending buffer
-    resp_arg->payload[lengthOfData] = 0;//make a string
-    
     httpd_queue_work(holderForHandles.hd, ws_async_send, resp_arg);
   }
   
@@ -181,6 +179,7 @@ httpd_handle_t socket_httpd = NULL;
 
 static esp_err_t stream_handler(httpd_req_t *req)
 {
+    ESP_LOGE(TAG, "stream_handler() called — client connected!");
     camera_fb_t *fb = NULL;
     struct timeval _timestamp;
     esp_err_t res = ESP_OK;
@@ -264,13 +263,6 @@ static esp_err_t stream_handler(httpd_req_t *req)
         {
             break;
         }
-        
-        // V36: TCP Yield Padding 
-        // Explicitly forces the greedy MJPEG camera task to sleep for 40ms (~25 FPS cap).
-        // This voluntarily relinquishes the single Wi-Fi radio antenna, opening 
-        // massive bandwidth intervals so the tiny Sensor/Motor WebSockets 
-        // (wsDbg) can transmit absolutely instantly instead of waiting in line.
-        vTaskDelay(pdMS_TO_TICKS(40));
     }
 
     last_frame = 0;
@@ -301,10 +293,14 @@ void startCameraServer()
 
     config.server_port += 1;
     config.ctrl_port += 1;
-    ESP_LOGI(TAG, "Starting stream server on port: '%d'", config.server_port);
-    if (httpd_start(&stream_httpd, &config) == ESP_OK)
+    ESP_LOGE(TAG, "Starting stream server on port %d...", config.server_port);
+    esp_err_t stream_err = httpd_start(&stream_httpd, &config);
+    if (stream_err == ESP_OK)
     {
         httpd_register_uri_handler(stream_httpd, &stream_uri);
+        ESP_LOGE(TAG, "Stream server started OK!");
+    } else {
+        ESP_LOGE(TAG, "Stream server FAILED: 0x%x", stream_err);
     }
     
     
