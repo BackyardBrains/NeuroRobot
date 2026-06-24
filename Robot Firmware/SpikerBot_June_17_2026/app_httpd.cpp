@@ -159,6 +159,43 @@ static const httpd_uri_t ws = {
         .is_websocket = true
 };
 
+/*
+ * Private Network Access (PNA) / CORS preflight handler.
+ * Chrome (v94+) sends an OPTIONS preflight before allowing WebSocket or
+ * fetch requests from an HTTPS public origin to a private-network IP
+ * (e.g. 192.168.4.1). Responding with the correct headers lets Chrome
+ * show a one-time "Allow local network access?" prompt to the user.
+ * This is fully backward-compatible — native apps ignore these headers.
+ */
+static esp_err_t pna_options_handler(httpd_req_t *req)
+{
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Private-Network", "true");
+    httpd_resp_set_status(req, "204 No Content");
+    httpd_resp_send(req, NULL, 0);
+    return ESP_OK;
+}
+
+// PNA preflight for /ws (WebSocket endpoint)
+static const httpd_uri_t ws_options = {
+    .uri        = "/ws",
+    .method     = HTTP_OPTIONS,
+    .handler    = pna_options_handler,
+    .user_ctx   = NULL,
+    .is_websocket = false
+};
+
+// PNA preflight for /stream (MJPEG camera stream)
+static const httpd_uri_t stream_options = {
+    .uri        = "/stream",
+    .method     = HTTP_OPTIONS,
+    .handler    = pna_options_handler,
+    .user_ctx   = NULL,
+    .is_websocket = false
+};
+
 
 
 
@@ -288,6 +325,7 @@ void startCameraServer()
     if (httpd_start(&socket_httpd, &config) == ESP_OK)
     {
         httpd_register_uri_handler(socket_httpd, &ws);
+        httpd_register_uri_handler(socket_httpd, &ws_options);  // PNA preflight for WebSocket
          ESP_LOGE(TAG, "socket_httpd: '%d'", socket_httpd);//stan
     }
 
@@ -298,6 +336,7 @@ void startCameraServer()
     if (stream_err == ESP_OK)
     {
         httpd_register_uri_handler(stream_httpd, &stream_uri);
+        httpd_register_uri_handler(stream_httpd, &stream_options);  // PNA preflight for MJPEG
         ESP_LOGE(TAG, "Stream server started OK!");
     } else {
         ESP_LOGE(TAG, "Stream server FAILED: 0x%x", stream_err);

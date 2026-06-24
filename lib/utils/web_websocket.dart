@@ -65,9 +65,10 @@ class WebSocketBridge {
     // Match native 1400ms delay
     await Future.delayed(const Duration(milliseconds: 1400));
     
-    print('WEB_WS: Connecting to $_url');
+    print('WEB_WS: Connecting to $_url (from origin: ${html.window.location.origin})');
     try {
       _ws = html.WebSocket(_url);
+      print('WEB_WS: WebSocket created, readyState=${_ws!.readyState}');
       
       _ws!.onOpen.listen((_) {
         print('WEB_WS: WEBSOCKET CONNECT READY');
@@ -80,14 +81,15 @@ class WebSocketBridge {
         _onMessage?.call(event.data);
       });
       
-      _ws!.onError.listen((_) {
-        print('WEB_WS: WebSocket error');
+      _ws!.onError.listen((event) {
+        print('WEB_WS: WebSocket error — type=${event.type}, readyState=${_ws?.readyState}');
+        print('WEB_WS: This may be a Private Network Access (PNA) block if connecting from a public origin to 192.168.x.x');
         _isReady = false;
         _onMessage?.call('DISCONNECTED');
       });
       
       _ws!.onClose.listen((event) {
-        print('WEB_WS: closed code=${event.code}');
+        print('WEB_WS: closed code=${event.code} reason="${event.reason}" wasClean=${event.wasClean}');
         _isReady = false;
         if (event.code == 1000) {
           // Normal close

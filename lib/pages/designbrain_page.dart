@@ -840,6 +840,10 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
   /// Motion neuron: nodeId → selected input type ("Tap", "Tilt", or "Motion")
   Map<String, String> mapMotionNeuron = {};
 
+  // Web asset preloading state
+  ValueNotifier<double> webLoadProgress = ValueNotifier<double>(0.0);
+  bool _webAssetsLoaded = false;
+
   /// IMU sensor state — parsed from firmware "i:TMT" telemetry field
   bool imuTapActive = false;
   bool imuMotionActive = false;
@@ -1936,7 +1940,105 @@ class _DesignBrainPageState extends State<DesignBrainPage> with WindowListener, 
     }
   }
 
+  /// WEB: Preload all SVG assets, fonts, and brain data in the background.
+  /// Reports progress via [webLoadProgress] for the loading bar overlay.
+  Future<void> _precacheWebAssets() async {
+    if (!kIsWeb || _webAssetsLoaded) return;
+    
+    final List<String> svgAssets = [
+      'assets/icons/Add.svg', 'assets/icons/Bolt.svg', 'assets/icons/CameraBG.svg',
+      'assets/icons/CameraSelection.svg', 'assets/icons/Clone.svg', 'assets/icons/Delete.svg',
+      'assets/icons/Disabled.svg', 'assets/icons/DragMenuIconsExcitatory0.svg',
+      'assets/icons/DragMenuIconsExcitatory1.svg', 'assets/icons/DragMenuIconsInhibitory0.svg',
+      'assets/icons/DragMenuIconsInhibitory1.svg', 'assets/icons/DragMenuIconsNote0.svg',
+      'assets/icons/DragMenuIconsNote1.svg', 'assets/icons/DragMenuIconsNucleus0.svg',
+      'assets/icons/DragMenuIconsNucleus1.svg', 'assets/icons/DragmenuPin1Lifted.svg',
+      'assets/icons/DragmenuPin1Placed.svg', 'assets/icons/DragmenuPin2Lifted.svg',
+      'assets/icons/DragmenuPin2Placed.svg', 'assets/icons/Import.svg',
+      'assets/icons/Info.svg', 'assets/icons/InfoDisabled.svg',
+      'assets/icons/InfoLabels.svg', 'assets/icons/InfoNotes.svg',
+      'assets/icons/LabNotebook.svg', 'assets/icons/Merge.svg',
+      'assets/icons/NewFile.svg', 'assets/icons/Notebook.svg',
+      'assets/icons/Pause.svg', 'assets/icons/Play.svg',
+      'assets/icons/Redo.svg', 'assets/icons/Remove.svg',
+      'assets/icons/RobotEars.svg', 'assets/icons/RobotEarsListen.svg',
+      'assets/icons/RobotPOV.svg', 'assets/icons/RobotRuler.svg',
+      'assets/icons/RobotRulerFill.svg', 'assets/icons/Save.svg',
+      'assets/icons/SaveAs.svg', 'assets/icons/Share.svg',
+      'assets/icons/SpikerbotLEDHighlight-NE.svg', 'assets/icons/SpikerbotLEDHighlight-NW.svg',
+      'assets/icons/SpikerbotLEDHighlight-SE.svg', 'assets/icons/SpikerbotLEDHighlight-SW.svg',
+      'assets/icons/SpikerbotTopDownBlue.svg', 'assets/icons/Undo.svg',
+      'assets/icons/WifiFull.svg', 'assets/icons/WifiLow.svg',
+      'assets/icons/WifiMid.svg', 'assets/icons/WifiOff.svg',
+      'assets/icons/tune.svg',
+      'assets/icons/remoteControlKeys/ButtonA.svg', 'assets/icons/remoteControlKeys/ButtonB.svg',
+      'assets/icons/remoteControlKeys/ButtonCircle.svg', 'assets/icons/remoteControlKeys/ButtonMinus.svg',
+      'assets/icons/remoteControlKeys/ButtonPlus.svg', 'assets/icons/remoteControlKeys/ButtonSquare.svg',
+      'assets/icons/remoteControlKeys/ButtonTriangle.svg', 'assets/icons/remoteControlKeys/ButtonX.svg',
+      'assets/icons/remoteControlKeys/ButtonY.svg', 'assets/icons/remoteControlKeys/JoyDown.svg',
+      'assets/icons/remoteControlKeys/JoyLeft.svg', 'assets/icons/remoteControlKeys/JoyRight.svg',
+      'assets/icons/remoteControlKeys/JoyUp.svg', 'assets/icons/remoteControlKeys/KeyDown.svg',
+      'assets/icons/remoteControlKeys/KeyLeft.svg', 'assets/icons/remoteControlKeys/KeyRight.svg',
+      'assets/icons/remoteControlKeys/KeyUp.svg', 'assets/icons/remoteControlKeys/PadClick.svg',
+      'assets/icons/remoteControlKeys/PadDown.svg', 'assets/icons/remoteControlKeys/PadLeft.svg',
+      'assets/icons/remoteControlKeys/PadRight.svg', 'assets/icons/remoteControlKeys/PadUp.svg',
+      'assets/icons/remoteControlKeys/RemoteControl.svg',
+      'assets/icons/remoteControlKeys/dPadDown.svg', 'assets/icons/remoteControlKeys/dPadLeft.svg',
+      'assets/icons/remoteControlKeys/dPadRight.svg', 'assets/icons/remoteControlKeys/dPadUp.svg',
+      'assets/bg/BrainDrawings/BrainFullBlack.svg', 'assets/bg/BrainDrawings/BrainFullGrey.svg',
+      'assets/bg/BrainDrawings/BrainSoloBlack.svg', 'assets/bg/BrainDrawings/BrainSoloGrey.svg',
+      'assets/bg/BrainDrawings/CameraBlack.svg', 'assets/bg/BrainDrawings/CameraGrey.svg',
+      'assets/bg/BrainDrawings/CompassBlack.svg', 'assets/bg/BrainDrawings/CompassGrey.svg',
+      'assets/bg/BrainDrawings/DistanceBlack.svg', 'assets/bg/BrainDrawings/DistanceGrey.svg',
+      'assets/bg/BrainDrawings/LEDBlack.svg', 'assets/bg/BrainDrawings/LEDGrey.svg',
+      'assets/bg/BrainDrawings/LeftMotorBlack.svg', 'assets/bg/BrainDrawings/LeftMotorGrey.svg',
+      'assets/bg/BrainDrawings/MicBlack.svg', 'assets/bg/BrainDrawings/MicGrey.svg',
+      'assets/bg/BrainDrawings/No_image.svg',
+      'assets/bg/BrainDrawings/RightMotorBlack.svg', 'assets/bg/BrainDrawings/RightMotorGrey.svg',
+      'assets/bg/BrainDrawings/SpeakerBlack.svg', 'assets/bg/BrainDrawings/SpeakerGrey.svg',
+    ];
 
+    // Also preload fonts (trigger rootBundle fetch)
+    final List<String> fontAssets = [
+      'assets/fonts/NotoEmoji-VariableFont_wght.ttf',
+      'assets/fonts/Roboto-Regular.ttf',
+      'assets/fonts/BoldoaMat.ttf',
+      'assets/fonts/BYBHandDrawn.ttf',
+    ];
+
+    final int totalAssets = svgAssets.length + fontAssets.length;
+    int loaded = 0;
+
+    // Precache SVGs
+    for (final path in svgAssets) {
+      try {
+        await rootBundle.loadString(path);
+      } catch (e) {
+        printDebug('Precache skip: $path ($e)');
+      }
+      loaded++;
+      webLoadProgress.value = loaded / totalAssets;
+    }
+
+    // Precache fonts
+    for (final path in fontAssets) {
+      try {
+        await rootBundle.load(path);
+      } catch (e) {
+        printDebug('Precache font skip: $path ($e)');
+      }
+      loaded++;
+      webLoadProgress.value = loaded / totalAssets;
+    }
+
+    // Final: mark complete and trigger a rebuild so NotoEmoji glyphs repaint
+    _webAssetsLoaded = true;
+    webLoadProgress.value = 1.0;
+    
+    // Allow the bar to show 100% briefly before hiding
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (mounted) setState(() {});
+  }
 
   void _showRenameDialog() {
       TextEditingController renameController = TextEditingController();
@@ -2842,16 +2944,26 @@ neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.select
     processor = ImagePreprocessor();
     
     // WiFi Check Init
-    _getWifiName();
-    startWebSocket(); // Auto-connect to Spikerbot for heartbeat detection
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-        _getWifiName();
-    });
+    // WEB: Skip auto-connect — browsers can't detect WiFi SSID, and the
+    // ws://192.168.4.1 attempt from an HTTPS origin triggers mixed-content
+    // warnings that cause Chrome to show "Not Secure" and block PWA install.
+    // On web, WebSocket connects only when the user presses Play.
+    if (!kIsWeb) {
+      _getWifiName();
+      startWebSocket(); // Auto-connect to Spikerbot for heartbeat detection
+      Timer.periodic(const Duration(seconds: 5), (timer) {
+          _getWifiName();
+      });
+    }
     
     // V25: Initialize Controller logic moved to build/init block to avoid LateInitializationError
 
 
     super.initState();
+    // WEB: Start background asset preloading with progress bar
+    if (kIsWeb) {
+      _precacheWebAssets();
+    }
     BrainFileHandler.instance.registerCallback(selectSavedBrain);
     soloud = AppAudio.instance;
     Future.delayed(const Duration(milliseconds: 1000), () async {
@@ -8371,6 +8483,59 @@ neuronIdx = controller.nodes.map((e) => e.id).toList().indexOf(controller.select
     widgets.add(Center(
         child: Text(restartText,
             style: const TextStyle(fontSize: 20, color: Colors.red))));
+
+    // WEB: Asset loading progress bar (non-blocking, bottom of screen)
+    if (kIsWeb && !_webAssetsLoaded) {
+      widgets.add(
+        Positioned(
+          left: 0, right: 0, bottom: 0,
+          child: ValueListenableBuilder<double>(
+            valueListenable: webLoadProgress,
+            builder: (context, progress, _) {
+              return Container(
+                color: const Color(0xFFFD8164), // BYB Signature Orange
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Loading assets... ${(progress * 100).toInt()}%',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 4,
+                        backgroundColor: const Color(0x40000000), // Semi-transparent black
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    // WEB: NotoEmoji font warmer — invisible off-screen widget forces CanvasKit to load the font
+    if (kIsWeb && !_webAssetsLoaded) {
+      widgets.add(
+        const Positioned(
+          left: -9999, top: -9999,
+          child: Text('🕧⚙️🤖💤⚡✨⛈️🔥', style: TextStyle(fontFamily: 'NotoEmoji', fontSize: 1)),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF1996FC), // Match canvas blue to prevent grey Material3 surface bleed-through during CanvasKit recomposites
